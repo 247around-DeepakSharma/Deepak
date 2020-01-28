@@ -458,7 +458,7 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp){ if($sp['purchase_price'] > 0) { ?>
                                     <tr>
                                         <td><?php echo $sp['purchase_price']; ?></td>
-                                        <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
+                                        <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-M-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                     </tr>

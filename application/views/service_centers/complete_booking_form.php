@@ -193,7 +193,7 @@
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
-                                                if(isset($unit_details['sf_purchase_date'])){ echo date("d-m-Y", strtotime($unit_details['sf_purchase_date'])); } 
+                                                if(isset($unit_details['sf_purchase_date'])){ echo date("d-M-Y", strtotime($unit_details['sf_purchase_date'])); } 
                                                 ?>" style="background: #eee">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>

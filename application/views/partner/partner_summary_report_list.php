@@ -21,7 +21,7 @@
                             ?> 
                             <tr >
                                 <td><?php echo $sn; ?></td>
-                                <td><?php echo date("d-m-Y", strtotime($value['date'])); ?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value['date'])); ?></td>
                                 <td> <a class="btn btn-success" style="background: #2c9d9c;" href="<?php echo base_url(); ?>employee/partner/download_custom_summary_report/<?php echo $value['file_name'] ?>">Download</a></td>
                             </tr>
                             <?php

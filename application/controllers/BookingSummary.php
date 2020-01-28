@@ -1703,8 +1703,8 @@ EOD;
      */
     function send_call_center_report_to_partner($partner_id = "", $date_report_start = "", $date_report_end = "") {
         $partner_id = !empty($partner_id) ? $partner_id : VIDEOCON_ID;
-        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-m-Y', strtotime(' -1 day'));
-        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-m-Y', strtotime(' -1 day'));
+        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-M-Y', strtotime(' -1 day'));
+        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-M-Y', strtotime(' -1 day'));
         $this->reporting_lib->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
     }
 }

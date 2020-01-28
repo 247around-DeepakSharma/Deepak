@@ -5848,7 +5848,7 @@ class Service_centers extends CI_Controller {
 
         $row[] = $c;
 
-        $row[] = date("d-m-Y", strtotime($spare_list['defective_part_shipped_date']));
+        $row[] = date("d-M-Y", strtotime($spare_list['defective_part_shipped_date']));
         $row[] = $spare_list['remarks_defective_part_by_sf'];
         if ($spare_list['is_consumed'] == 1) {
             $row[] = "Yes";

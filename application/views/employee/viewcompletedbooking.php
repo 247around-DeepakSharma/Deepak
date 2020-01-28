@@ -185,7 +185,7 @@
                     <td><?= $row->services; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
-                     <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
+                     <td><?php echo date("d-M-Y", strtotime($row->closed_date)); ?></td>
 
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                      </td> 

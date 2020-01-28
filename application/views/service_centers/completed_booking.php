@@ -55,7 +55,7 @@
                                                 <?php echo  $row['request_type']; ?>
                                             </td>
 
-                                            <td><?php echo date('d-m-Y', strtotime($row['closed_date'])); ?></td>
+                                            <td><?php echo date('d-M-Y', strtotime($row['closed_date'])); ?></td>
                                              <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 110px;" data-html=true data-content=" <?php if ($status == "Completed")
                                                             echo $row['closing_remarks'];
                                                           else 

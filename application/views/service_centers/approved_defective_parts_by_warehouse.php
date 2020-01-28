@@ -88,7 +88,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                    <td>
                                         <?php echo $row['awb_by_sf']; ?>

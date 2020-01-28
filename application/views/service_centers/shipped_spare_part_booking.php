@@ -52,7 +52,7 @@ if ($this->uri->segment(3)) {
                                         <?php echo $row['awb_by_partner']; ?>
                                     </td>
                                     <td>
-                                        <?php echo date("d-m-Y", strtotime($row['shipped_date'])); ?>
+                                        <?php echo date("d-M-Y", strtotime($row['shipped_date'])); ?>
                                     </td>
 
                                     <td>

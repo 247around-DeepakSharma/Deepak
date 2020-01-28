@@ -82,7 +82,7 @@
                                             </tr>
                                             <tr>
                                                 <td><strong>Upload Date</strong></td>
-                                                <td><?php //if(!empty($pincode_mapping_file_list)){echo date('d-m-Y',  strtotime($pincode_mapping_file_list[0]['upload_date']));} ?></td>
+                                                <td><?php //if(!empty($pincode_mapping_file_list)){echo date('d-M-Y',  strtotime($pincode_mapping_file_list[0]['upload_date']));} ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
