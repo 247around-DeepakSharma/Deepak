@@ -584,12 +584,6 @@ class Dealers extends CI_Controller {
             $data['where']['dealer_details.dealer_id'] =  $dealer_id;
         }
         
-//        if ($this->session->userdata('user_group') == 'regionalmanager') {
-//            $states = $this->reusable_model->get_state_for_rm($this->session->userdata('id'));
-//            $finalStateArray = array_column($states, 'state');
-//            $data['where_in'] = array("dealer_details.state" => $finalStateArray);
-//        }
-        
         $data['column_order'] = array(NULL,'dealer_details.dealer_name','dealer_details.dealer_phone_number_1',NULL,NULL,NULL,NULL);
         $data['column_search'] = array('dealer_details.dealer_name','dealer_details.dealer_phone_number_1','dealer_details.city', 'public_name', 'brand');
         

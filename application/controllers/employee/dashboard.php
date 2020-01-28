@@ -633,7 +633,7 @@ class Dashboard extends CI_Controller {
     
     function get_buyback_balanced_amount(){
         
-        if($this->session->userdata('user_group') === 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_id = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             if(!empty($sf_id)){
                 $sf_id = $sf_id[0]['service_centres_id'];
@@ -1399,7 +1399,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function pending_booking_count_by_rm($actor=NULL){
         $finalArray = array();
         // Get all RM
-        $allRMArray = $this->reusable_model->get_search_result_data("employee","id,full_name",array('groups'=>'regionalmanager'),NULL,NULL,NULL,NULL,NULL,array());
+        $allRMArray = $this->reusable_model->get_search_result_data("employee","id,full_name",array('groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL),NULL,NULL,NULL,NULL,NULL,array());
         //Loop Through RM ID
         foreach($allRMArray as $rmIdArray){
             $tempRMArray['last_2_day_installation_booking_count'] = $tempRMArray['last_2_day_repair_booking_count'] = $tempRMArray['last_3_to_5_days_repair_count'] = 
@@ -2028,7 +2028,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
             if($is_pending){
                     $select = "employee.full_name as entity,agent_filters.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                 }
                 else{
                      $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,"
@@ -2042,17 +2042,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              if($this->session->userdata('partner_id') ){
                 if($is_pending){
                     $select = "employee_relation.region as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                 }
                 else{
                     $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                     }
                 }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                 }
                 else{
                      $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
@@ -2110,8 +2110,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      */
     private function get_top_level_rm_ids(){
         $where = array(
-                'e1.groups '=>'regionalmanager',
-                'e2.groups !='=>'regionalmanager'
+                'e1.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL,
+                'e2.groups NOT IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL
             );
         $join = array(
             "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",
@@ -2125,7 +2125,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      */
     private function get_arm_ids_under_rm($rm_id){
         $where = array(
-                "(`e2`.`groups` = 'regionalmanager' AND `e2`.`id` = $rm_id) or `e1`.`id` = $rm_id"=>null
+                "(`e2`.`groups` IN ('"._247AROUND_RM."','"._247AROUND_ASM."') AND `e2`.`id` = $rm_id) or `e1`.`id` = $rm_id"=>null
             );
         $join = array(
             "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",

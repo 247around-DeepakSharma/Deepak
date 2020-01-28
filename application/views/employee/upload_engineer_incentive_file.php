@@ -38,13 +38,14 @@
                         } ?>">
                         <label for="excel" class="col-md-1">Upload File</label>
                         <div class="col-md-4">
-                            <input type="file" class="form-control"  name="file" accept=".xls,.xlsx">
+                            <input type="file" class="form-control"  required id="fileInput" name="file" accept=".xls,.xlsx">
                             <?php if (form_error('excel')) {
                                 echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                 } ?>
                         </div>
                         <div class="col-md-4">
-                            <input type= "submit" onclick="return submitForm();" class="btn btn-success btn-md" id="submit_btn" value ="Upload">
+                            <input type= "submit" onclick="return submitForm();" disabled class="btn btn-success btn-md" id="submit_btn" value ="Upload">
+                            <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/Incentive_Sample.xlsx'>Download Sample File</a>
                         </div>
                     </div>
                 </form>
@@ -129,6 +130,39 @@
             ]
         });
     }
+
+
+
+
+    $("#fileInput").change(function(){
+
+        var f = this.files[0];
+        var flag=false;
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch (ext) {
+        case 'xlsx':
+        case 'xls':
+        case 'XLS':
+        case 'XLSX':
+             flag=true;
+        }
+        //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
+        if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
+        {
+           //show an alert to the user
+           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be Excel", "error");
+           //reset file upload control
+           this.value = null;
+        }else{
+          $("#submit_btn").removeAttr("disabled");
+        }
+
+});
+
+
+
+
+
 </script>
 <?php  
 if ($this->session->flashdata('file_error')) {$this->session->unset_userdata('file_error');} 

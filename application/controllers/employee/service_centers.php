@@ -796,8 +796,8 @@ class Service_centers extends CI_Controller {
                     if (!empty($data)) {
                         $result = $data[0];
 
-                        if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
-                            if (!empty($v) && $v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                        if (!empty($data[0]['price_tags']) && ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
+                            if (!empty($v['price_tags']) && ($v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
                                 $result['customer_total'] = $unit[0]['customer_total'];
                                 $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
                             }
@@ -7523,7 +7523,7 @@ class Service_centers extends CI_Controller {
     function msl_security_details() {
         $this->checkUserSession();
         $data = array();
-        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%b-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
         $data['msl_security'] = $this->reusable_model->get_search_result_data(
                 'vendor_partner_invoices', $select, array(
             "vendor_partner" => "vendor",

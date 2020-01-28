@@ -678,7 +678,7 @@ class Miscelleneous {
             $data = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
             if (!empty($data)) {
                 log_message('info', __FUNCTION__ . " Booking Id DATA Found " . print_r($booking_id, true));
-                if (!is_null($data[0]['assigned_vendor_id'])) {
+                if (!empty($data[0]['assigned_vendor_id'])) {
                     log_message('info', __FUNCTION__ . " Booking Assigned");
                     $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
                     if (!empty($unit_details)) {
@@ -757,7 +757,7 @@ class Miscelleneous {
                     //service center booking action table as well.
                     log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $booking_id);
                     $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-                    if ($data[0]['isEngineerApp'] == 1) {
+                    if (!empty($data[0]['isEngineerApp']) && ($data[0]['isEngineerApp'] == 1)) {
                         $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
                     }
                     log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
@@ -1609,7 +1609,7 @@ class Miscelleneous {
         $booking['service'] = NULL;
         
         if(!empty($rm_id)) {
-            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
             
             if(!empty($managerData)) {
                 $cc .= $managerData[0]['official_email'];
@@ -3242,7 +3242,7 @@ function generate_image($base64, $image_name,$directory){
             
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
             if(!empty($bookingData[0]['emp_id'])) {
-                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups' => 'regionalmanager'));
+                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
             }
             
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
@@ -3870,7 +3870,7 @@ function generate_image($base64, $image_name,$directory){
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
         $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
         $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
@@ -4130,7 +4130,7 @@ function generate_image($base64, $image_name,$directory){
                         
                         if(!empty($sp['requested_inventory_id'])){
                             $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$spare['model_number']);
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$sp['model_number']);
                             if(!empty($stock)){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
@@ -4751,7 +4751,7 @@ function generate_image($base64, $image_name,$directory){
                  //Check if new completion date is equal to or greater then booking_date
                  date_default_timezone_set('Asia/Kolkata');
                  // get booking_date
-                 $booking_date = $this->My_CI->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
+                 $booking_date = $this->My_CI->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%b-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
                  // If time is before 12 PM then completion date will be yesturday's date
                  //if (date('H') < 13) {
                  $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
@@ -5038,4 +5038,24 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     
+    /**
+     * @desc : This funtion is used to get all junior employees associated with given employee
+     * @param : employee id
+     * @return : array
+     * @author : Prity Sharma
+     * @date  : 22-01-2020
+    */
+    function get_child_managers($emp_id){
+        $arr_emp = [$emp_id];
+        $count = 0;
+        $emp_data = $this->My_CI->employee_model->getemployeeManagerfromid(array("manager_id IN ($emp_id)" => NULL));
+        // count condition is used to avoid infinite loop in some corrupted case
+        while(!empty($emp_data) && $count < 50){
+            $count++;
+            $emp_ids = array_column($emp_data, 'employee_id');
+            $arr_emp = array_merge($arr_emp, $emp_ids);
+            $emp_data = $this->My_CI->employee_model->getemployeeManagerfromid(array("manager_id IN (".implode(',', $emp_ids).")" => NULL));
+        }
+        return $arr_emp;
+    }
 }

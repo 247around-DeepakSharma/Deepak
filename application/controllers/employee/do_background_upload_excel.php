@@ -2366,11 +2366,11 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                 } else {
                     log_message('info', 'duplicate header found.');
-                    $this->session->set_flashdata('file_error', 'File Contains Duplicate Header Column. Please Check and Try again');
+                    $this->session->set_flashdata('file_error', 'File Contains Wrong Header Column. Please Check and Try again');
                     //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
                 }
             } else {
-                $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                $this->session->set_flashdata('file_error', 'File is Empty Or Contains Wrong Header Column. Please Check and Try again');
                 //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
             }
         } else {

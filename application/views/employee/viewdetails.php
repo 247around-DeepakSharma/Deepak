@@ -44,6 +44,13 @@
     z-index: 999999;
     background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.80);
   }
+  body {
+    background-color: #fff;
+  }
+
+  table {
+      background-color: #f8f8f8;
+  }
 </style>
  <div class="loader hide"></div>
 <div class="page-wrapper" style="margin-top:35px;">
@@ -166,12 +173,14 @@
                             <th>Partner Status </th>
                             <td><?php echo $booking_history[0]['partner_internal_status']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Initial Booking Date </th>
+                            <td style="max-width: 330px;"><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['initial_booking_date']); ?></td>                        
                         <?php if($booking_history[0]['internal_status'] != 'Completed') {?>
-                         <tr>
                             <th> Actor / Action </th>
                             <td><?php echo $booking_history[0]['actor']." / ".$booking_history[0]['next_action']; ?></td>
-                        </tr>
                         <?php } ?>
+                        </tr>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
                             <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
@@ -725,8 +734,8 @@
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
-                                        <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
-                                        <td><?php echo $sp['consumed_status']; ?></td>
+                                        <td><?php if(!empty($sp['is_consumed']) && $sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                        <td><?php if(!empty($sp['consumed_status'])) { echo $sp['consumed_status']; } ?></td>
                                      <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>

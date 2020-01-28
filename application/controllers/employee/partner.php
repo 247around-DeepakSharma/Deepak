@@ -4382,7 +4382,7 @@ class Partner extends CI_Controller {
         if(count($state_arr) === count($arr_state)) {
             $data['account_manager_details'][0]['state'] = "Pan India";
         }
-        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL, 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
@@ -6627,7 +6627,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -8639,7 +8639,7 @@ class Partner extends CI_Controller {
 
     }
 
-
+/*   Abhishek this function used to get NRN Approved Bookings */
 
       function get_nrn_approval_table(){
       $agent_id = $this->session->userdata('agent_id');
@@ -8664,6 +8664,14 @@ class Partner extends CI_Controller {
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
        }
+
+       /*  Default case if somehow index does not come */
+       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
+        $postData['length'] = 25;
+        $postData['start'] = 0;
+       }
+
+       
        if(!empty($postData['search'])){
             $booking_id = $postData['search']['value'];
            $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";
