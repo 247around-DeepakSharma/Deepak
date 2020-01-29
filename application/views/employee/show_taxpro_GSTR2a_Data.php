@@ -96,8 +96,15 @@
                         <div class="form-inline">
                             <div class="form-group col-md-3">
                                 <select class="form-control" id="state" name="state">
-                                    <option value="1">Delhi</option>
-                                    <option value="2">Uttar Pradesh</option>
+                                    <option value="0" selected>All</option>
+                                    <?php 
+                                        foreach($state as $state_data)
+                                        {
+                                    ?>    
+                                        <option value="<?php echo $state_data["gst_number"]; ?>"><?php echo $state_data['city']; ?></option>
+                                    <?php
+                                        }
+                                    ?>
                                 </select>
                             </div>
                             <button class="btn btn-success col-md-2" id="get_gst_data">Submit</button>
@@ -112,6 +119,7 @@
                                 <th>Invoice No.</th>
                                 <th>Vendor Name</th>
                                 <th>GST No.</th>
+                                <th>City</th>
                                 <th>Invoice Date</th>
                                 <th>IGST Amt</th>
                                 <th>CGST Amt</th>
@@ -391,12 +399,7 @@
     
     //function to get gst data on basis of filter
      $('#get_gst_data').on('click',function(){
-        var state_id = $('#state').val();
-        if(state_id && state_id > 0){
-        GSTR2a_datatable.ajax.reload(null, false);
-        }else{
-            alert("Please Select State");
-        }
+        GSTR2a_datatable.ajax.reload(null, false); 
     });
  
 </script>
