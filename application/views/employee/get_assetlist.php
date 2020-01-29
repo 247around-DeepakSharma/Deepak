@@ -26,7 +26,7 @@
                             <td><?php echo $row['assets_name']; ?></td>
                             <td><?php echo $row['serial_number']; ?></td>
                             <td><?php echo $row['full_name']; ?></td>
-                            <td><?php echo date('d-m-y', strtotime($row['create_date'])); ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($row['create_date'])); ?></td>
                             <td><a class="btn btn-primary btn-sm" href ="<?php echo base_url();?>employee/assets/update_asset/<?php echo $row['id'];?>">Update</a></td>
                             <td> <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" onclick="gethistory('<?php echo $row['id'];?>')" >View</button</td>
                         </tr>

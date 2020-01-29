@@ -45,7 +45,7 @@
                                 <td><?= $row->customername; ?></td>
                                 <td><?= $row->booking_primary_contact_no; ?></td>
                                 <td><?= $row->city; ?></td>
-                                <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                                <td><?= date("d-M-Y", strtotime($row->booking_date)); ?> / <?= $row->booking_timeslot; ?></td>
                                 <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                                 <td>
                                     <?php
@@ -98,7 +98,7 @@
                                     <td><?= $row->customername; ?></td>
                                     <td><?= $row->booking_primary_contact_no; ?></td>
                                     <td><?= $row->city; ?></td>
-                                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                                    <td><?= date("d-M-Y", strtotime($row->booking_date)); ?> / <?= $row->booking_timeslot; ?></td>
                                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                                     <td>
                                         <?php

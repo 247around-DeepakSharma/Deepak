@@ -17,7 +17,7 @@
                 <tr> 
                     <td><?php echo $sn; ?></td>
                     <td> <?php echo $value['invoice_id']; ?> </td>
-                    <td><?php echo $value['challan_tender_date'] ?></td>
+                    <td><?php echo date("d-M-Y", strtotime($value['challan_tender_date'])); ?></td>
                 </tr>
                 <?php
                 $sn++;

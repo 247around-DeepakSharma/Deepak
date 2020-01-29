@@ -33,7 +33,7 @@ th, tr {
                    <?php if(!empty($transction_date))?>
                     <tr>
                         <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;">Date of filling up form</th>
-                        <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;"><?php echo date('d-F-y', strtotime($transction_date));?></th>
+                        <th style = "text-align:center; border-bottom: 1px solid #000; border-right:1px solid #000;"><?php echo date('d-M-Y', strtotime($transction_date));?></th>
                          <th style = "text-align:center; border-bottom: 1px solid #000;">Order Delivery Date </th>
                     </tr>
                     <?php if(!empty($transction_amount))?>

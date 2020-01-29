@@ -1394,8 +1394,8 @@
                             <td><?php echo $value['collateral_type'] ?></td>
                             <td><a target="_blank" href="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".urlencode($value['file']);?>"><?php echo $value['file'] ?></a></td>
                             <td><?php echo $value['document_description'] ?></td>
-                            <td><?php echo $value['start_date'] ?></td>
-                            <td><?php echo $value['end_date'] ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($value['start_date'])) ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($value['end_date'])) ?></td>
                         </tr>
                         <tr>
                             <?php

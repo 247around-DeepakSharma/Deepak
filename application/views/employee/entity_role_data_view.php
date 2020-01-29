@@ -68,7 +68,7 @@
                             <td><?php if($row->is_filter_applicable==0)
                                 echo "No";  
                                 else echo "Yes";?></td>
-                            <td><?php echo date('jS M, Y', strtotime($row->create_date));?></td>
+                            <td><?php echo date("d-M-Y", strtotime($row->create_date));?></td>
                             <td>
                                 <button id='<?php echo "updatebtn".$key;?>' class="btn btn-primary" onclick="loadupdatemodel('<?php echo $key;?>')" 
 

@@ -107,7 +107,7 @@ foreach($booking_unit_details as $data){
   ?>
   <tr>
       <td><p style="font-size:12px;"><b>Service Date</b></p></td>
-    <td ><p><?php echo date("d/M/Y", strtotime($booking_details[0]['booking_date']));?></p></td>
+    <td ><p><?php echo date("d-M-Y", strtotime($booking_details[0]['booking_date']));?></p></td>
     <td><p><b>Time slot</b></p></td>
     <td><p><?php echo $booking_details[0]['booking_timeslot']?></p></td>
     <td><p><b>Upcountry</b></p></td>
@@ -115,7 +115,7 @@ foreach($booking_unit_details as $data){
   </tr>
   <tr>
     <td><p style="font-size:12px;"><b>Purchase Date</b></p></td>
-    <td><p><?php if(!empty($data['purchase_date'])) { echo date("d/M/Y", strtotime($data['purchase_date'])); } else { echo '-';};?></p></td>
+    <td><p><?php if(!empty($data['purchase_date'])) { echo date("d-M-Y", strtotime($data['purchase_date'])); } else { echo '-';};?></p></td>
     <td colspan="3"><p><b>Total</b></p></td>
     <td><p><?php echo "Rs. ". round($booking_details[0]['amount_due'])?></p></td>
   </tr>

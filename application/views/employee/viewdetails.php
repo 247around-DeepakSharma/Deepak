@@ -187,7 +187,7 @@
                                 " / ".$this->miscelleneous->get_formatted_date($booking_history[0]['service_center_closed_date']); } 
                                 else  { echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']); } ?></td>
                             <th>EDD / Delivery Date</th>
-                            <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($booking_history[0]['estimated_delivery_date']))." / ".date("d-M-Y", strtotime($booking_history[0]['delivery_date'])); ?></td>
                         </tr>
                         <tr>
                             <th>Rating Stars </th>
@@ -226,7 +226,7 @@
                             <th>Closing Remarks</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th>Service Promise Date</th>
-                            <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
+                            <td ><?php echo date("d-M-Y", strtotime($booking_history[0]['service_promise_date']));?></td>
                         </tr>
                         <tr>
                             <th >Jeeves CD/BD</th>
@@ -489,7 +489,7 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
                                     </td>
-                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo $unit_detail['sf_purchase_date'];}?></td>
+                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date("d-M-Y", strtotime($unit_detail['purchase_date']));}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo date("d-M-Y", strtotime($unit_detail['sf_purchase_date']));}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
@@ -601,8 +601,8 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
                                              <?php } else { echo $detail['scba_serial_number'];} ?>
                                     </td>
-                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo $detail['scba_sf_purchase_date'];}?></td>
-                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo $detail['scba_sf_closed_date'];}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_purchase_date']));}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_closed_date']));}?></td>
                                     <td><?php echo $detail['appliance_description']?></td>
                                     <td><?php  print_r($detail['price_tags']); ?></td>
                                     <td><?php echo $detail['scba_basic_charges']?></td>
@@ -1228,7 +1228,7 @@
                                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf'];  ?>">
                                              <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a>
                                         </td> 
-                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                        <td><?php echo date("d-M-Y", strtotime($sp['oow_invoice_date'])); ?></td>  
                                     </tr>
                                     <?php } }?>
                                 </tbody>
@@ -1367,7 +1367,7 @@
                         <tr>
                             <td><?php if(isset($unit_details[0]['en_amount_paid'])){ echo $unit_details[0]['en_amount_paid']; } ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
                             <td><?php echo $signature_details[0]['remarks']; ?></td>
                             
@@ -1458,7 +1458,7 @@
                  <td ><?php echo $index?></td>
                 <td ><?php echo $paytm['paid_amount']?></td>
                 <td ><?php echo $paytm['txn_id']?></td>
-                <td ><?php echo $paytm['create_date']?></td>
+                <td ><?php echo date("d-M-Y", strtotime($paytm['create_date']))?></td>
                 <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
                 <td>
                     <?php if($paytm['vendor_invoice_id']){?>
