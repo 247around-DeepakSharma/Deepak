@@ -697,7 +697,7 @@ class Service_centers extends CI_Controller {
 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
-                        $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
+                        $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }
@@ -3381,10 +3381,6 @@ class Service_centers extends CI_Controller {
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
                         $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['update_date'] = date('Y-m-d H:i:s');
-                        $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
                     }
 
@@ -5848,7 +5844,7 @@ class Service_centers extends CI_Controller {
 
         $row[] = $c;
 
-        $row[] = date("d-m-Y", strtotime($spare_list['defective_part_shipped_date']));
+        $row[] = date("d-M-Y", strtotime($spare_list['defective_part_shipped_date']));
         $row[] = $spare_list['remarks_defective_part_by_sf'];
         if ($spare_list['is_consumed'] == 1) {
             $row[] = "Yes";
@@ -7027,8 +7023,9 @@ class Service_centers extends CI_Controller {
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__ . " SF Id " . $sf_id);
         $this->check_WH_UserSession();
+        ob_start();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
-
+        ob_end_clean(); 
         if ($pdf_details['status']) {
             if (!empty($pdf_details['file_name'])) {
                 header('Content-Description: File Transfer');

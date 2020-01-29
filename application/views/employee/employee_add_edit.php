@@ -1,6 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <style type="text/css">
     .error{margin-top:3px;color:red}
+    .select2-container{width : 100% !important}
 </style>
 <div id="page-wrapper">
     <div class="row">
@@ -213,7 +214,27 @@
                                                  </div>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row">                                            
+                                            <div class="col-md-6 region_div" style="display:none;">
+                                                <div class="form-group <?php
+                                                if (form_error('region')) {
+                                                    echo 'has-error';
+                                                }
+                                                ?>">
+                                                    <label  for="region" class="col-md-4">Region</label>
+                                                    <div class="col-md-7">
+                                                        <select id='region' name='region' class="form-control"  >
+                                                            <option value="" selected="" disabled="">Select Region</option>
+                                                            <?php foreach ($regions as $key => $value) { ?>
+                                                                <option value ="<?= $value['region']; ?>" <?php if (isset($query[0]['id']) && $query[0]['id'] == $value['rm_id']) {
+                                                                echo 'selected';
+                                                            } ?> ><?php echo $value['region']; ?></option>
+                                                        <?php } ?>
+                                                        </select>
+                                                        <?php echo form_error('region'); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
                     <div class="col-md-6">
                         <div  class="form-group <?php
                         if (form_error('subordinate')) {
@@ -258,6 +279,7 @@
     $('#groups').select2();
     $('#dept').select2();
     $('#manager').select2();
+    $('#region').select2();
     
     (function ($, W, D)
     {
@@ -311,6 +333,15 @@
             if(error != '')
                 alert(error);
             JQUERY4U.UTIL.setupFormValidation();
+            
+            $("#groups").change(function(){
+                $(".region_div").hide();
+                if($("#groups").val() == '<?php echo _247AROUND_RM ?>')
+                {
+                    $(".region_div").show();
+                }
+            });
+            $("#groups").trigger('change');
         });
 
     })(jQuery, window, document);

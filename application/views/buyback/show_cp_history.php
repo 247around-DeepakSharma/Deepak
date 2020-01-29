@@ -14,7 +14,7 @@
             <td><?php echo $sn_no?></td>
             <td><?php echo $value['action']?></td>
             <td><?php echo $value['agent_name']?></td>
-            <td><?php echo date('d-m-Y' , strtotime($value['create_date']))?></td>
+            <td><?php echo date('d-M-Y' , strtotime($value['create_date']))?></td>
         </tr>
         <?php $sn_no++;} ?>
     </tbody>

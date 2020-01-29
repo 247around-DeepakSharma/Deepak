@@ -5862,7 +5862,7 @@ class Inventory extends CI_Controller {
 //                                    }
                 //generate courier details table
                 $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-m-Y', strtotime($defective_parts_shippped_date_by_wh))));
+                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-M-Y', strtotime($defective_parts_shippped_date_by_wh))));
                 $courier_details_table = $this->table->generate();
                 $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $booking_partner_id));
                 $partner_name = '';
