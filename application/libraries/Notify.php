@@ -939,7 +939,7 @@ class Notify {
                 $query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
                 log_message('info', __METHOD__ . "Assigned Engineer");
 
-                $date1 = date('d-m-Y', strtotime('now'));
+                $date1 = date('d-M-Y', strtotime('now'));
                 $date2 = $query1[0]['booking_date'];
                 $datediff = ($date1 - $date2) / (60 * 60 * 24);
 

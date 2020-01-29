@@ -4804,7 +4804,7 @@ function generate_image($base64, $image_name,$directory){
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
-                return date_format(date_create($date), "d-m-Y");
+                return date_format(date_create($date), "d-M-Y");
             }
         } else {
             return '';
@@ -4951,14 +4951,6 @@ function generate_image($base64, $image_name,$directory){
                 if (!empty($spare_id)) {
                     $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 'partner_id' => $post_data['partner_id'], 'service_center_id' => $this->My_CI->session->userdata('service_center_id'));
                     $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
-            }
-
-            if (!empty($status) && $defective_part_required == 1) {
-                // update in service center booking action.
-                $this->My_CI->vendor_model->update_service_center_action($booking_id, array('internal_status' => $status));
-                if(empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->My_CI->booking_model->update_booking($booking_id, ['internal_status' => $status]);
                 }
             }
 
