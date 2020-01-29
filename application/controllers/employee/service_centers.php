@@ -797,7 +797,7 @@ class Service_centers extends CI_Controller {
                         $result = $data[0];
 
                         if (!empty($data[0]['price_tags']) && ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
-                            if (!empty($v['price_tags']) && ($v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
+                            if (!empty($v['service_category']) && ($v['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
                                 $result['customer_total'] = $unit[0]['customer_total'];
                                 $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
                             }
