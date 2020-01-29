@@ -3542,7 +3542,7 @@ class Booking extends CI_Controller {
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state,
@@ -3553,7 +3553,7 @@ class Booking extends CI_Controller {
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state,
             service_center_booking_action.current_status as service_center_current_status";

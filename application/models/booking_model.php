@@ -573,7 +573,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
             booking_details.type = '"._247AROUND_BOOKING."' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%b-%Y') desc $add_limit"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
         );
 
        // echo $this->db->last_query();
@@ -2435,7 +2435,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_queries($post,$pincode_status,$query_status) {
-        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }  
@@ -2446,7 +2446,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_queries($post,$pincode_status,$query_status){
-        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
