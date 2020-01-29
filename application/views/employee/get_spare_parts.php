@@ -300,9 +300,15 @@
             success: function(data){
                 $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){
-                  //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
+                    
+                    /* Start Unapprove requested spare count */
+                    spare_parts_requested_table.ajax.reload( function ( json ) { 
+                        $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    },false );
+                    /* End */
+                    
                     load_table(table_type);
                 } else {
                     alert("Spare Parts Cancellation Failed!");
