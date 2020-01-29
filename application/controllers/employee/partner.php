@@ -8145,7 +8145,7 @@ class Partner extends CI_Controller {
     }
     public function brandCollateralPartner()
     {
-       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
+       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','DATE_FORMAT(date,"%d-%b-%Y")');
        $receieved_Data = $this->get_post_data();
        $new_receieved_Data = $this->get_brand_partner_filtered_data($receieved_Data);
        if(!empty($new_receieved_Data['order']))
@@ -8956,7 +8956,7 @@ class Partner extends CI_Controller {
             } else {
                 $data['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
             }
-            $data['create_date'] = $value['create_date'];
+            $data['create_date'] =  date('d-m-Y', strtotime($value['create_date']));
             array_push($list, $data);
         }
         
