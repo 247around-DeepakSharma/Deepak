@@ -5048,6 +5048,7 @@ class Booking extends CI_Controller {
     
     function update_booking_address(){
         log_message('info', __METHOD__. " POST DATA ". print_r($this->input->post(), true));
+        ob_clean();
         $address = $this->input->post("address");
         $booking_id = $this->input->post("booking_id");
         $this->booking_model->update_booking($booking_id, array('booking_address' => $address));
