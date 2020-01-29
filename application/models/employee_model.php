@@ -130,9 +130,10 @@ class Employee_model extends CI_Model{
        * 
        */
       function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM]){
-          $this->db->select('*');
-          $this->db->where_in('groups', $arr_groups);
-          $this->db->where('active','1');
+          $this->db->select('employee.*, rm_region_mapping.region');
+          $this->db->join('rm_region_mapping', 'employee.id = rm_region_mapping.rm_id');
+          $this->db->where_in('employee.groups', $arr_groups);
+          $this->db->where('employee.active','1');
           $query = $this->db->get('employee');          
           return $query->result_array();
       }

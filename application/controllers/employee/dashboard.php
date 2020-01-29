@@ -445,7 +445,7 @@ class Dashboard extends CI_Controller {
      * @return array
      */
     private function make_rm_final_bookings_data($startDate, $endDate, $partnerid = "") {
-        $rm_array = $this->employee_model->get_rm_details();
+        $rm_array = $this->employee_model->get_rm_details([_247AROUND_RM]);
         $region = array();
         $rm = [];
         $cancelled = [];
@@ -458,27 +458,13 @@ class Dashboard extends CI_Controller {
             $partner_id = "";
         }
         foreach ($rm_array as $value) {
-                    $rm_head = false;
-            switch ($value['full_name']) {
-                case EAST_RM:
-                    $region[] = "East";
-                    $rm_head = true;
-                break;
-                case SOUTH_RM:
-                    $region[] = "South";
-                    $rm_head = true;
-                break;
-                case WEST_RM:
-                    $region[] = "West";
-                     $rm_head = true;
-                break;
-                case NORTH_RM:
-                    $region[] = "North";
-                    $rm_head = true;
-                break;
+            $rm_head = false;
+            if(!empty($value['region'])){
+                $rm_head = true;
             }
+            
             if($rm_head){
-                $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+                $sf_list = $this->vendor_model->get_sf_associated_with_rm($value['id'], true);
                 if (!empty($sf_list)) {
                     $sf_id = $sf_list[0]['service_centres_id'];
                     $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
@@ -2042,26 +2028,27 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field){
              if($this->session->userdata('partner_id') ){
                 if($is_pending){
-                    $select = "employee_relation.region as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                 }
                 else{
-                    $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,booking_details.booking_id,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
+                    }
                 }
-            }
             else{
                 if($is_pending){
-                    $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    $select = "employee.full_name as entity,service_centres.rm_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
                 }
                 else{
-                     $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
+                     $select = "employee.full_name as entity,service_centres.rm_id as id,booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
             }
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.$service_centres_field)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+            $conditionsArray['join']['rm_region_mapping'] = "service_centres.rm_id = rm_region_mapping.rm_id";
+            $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
@@ -2150,11 +2137,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionsArray['where']['assigned_vendor_id'] = $this->input->post('vendor_id');
             }
             if($rmID != "00"){
-                $conditionsArray['where']["employee_relation.agent_id"] = $rmID;    
+                $conditionsArray['where']["service_centres.rm_id"] = $rmID;    
             }
             $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
         }
         else{
             if($rmID != "00"){
@@ -2199,14 +2185,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $stateData = array();
         if($is_am == 0){
             if($rmID != "00"){
-                $conditionsArray['where']["employee_relation.agent_id"] = $rmID;    
+                $conditionsArray['where']["service_centres.rm_id"] = $rmID;    
             }
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+            $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
         }
         else{
             if($rmID != "00"){
-                 $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                 $conditionsArray['where']["service_centres.rm_id"] = $rmID;
             }
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
