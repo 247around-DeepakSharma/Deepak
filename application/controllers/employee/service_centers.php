@@ -7078,8 +7078,9 @@ class Service_centers extends CI_Controller {
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__ . " SF Id " . $sf_id);
         $this->check_WH_UserSession();
+        ob_start();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
-
+        ob_end_clean(); 
         if ($pdf_details['status']) {
             if (!empty($pdf_details['file_name'])) {
                 header('Content-Description: File Transfer');
