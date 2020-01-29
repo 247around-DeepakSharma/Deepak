@@ -2355,6 +2355,13 @@ class Service_centers extends CI_Controller {
 
             if (!$this->input->post("call_from_api")) {
                 $service_center_id = $this->session->userdata('service_center_id');
+                
+                if (empty($access)) {
+                    $is_file = $this->validate_part_data();
+                } else {
+                    $is_file['code'] = true;
+                }
+                
                 if (!$this->form_validation->run()) {
                     $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
                     if (!empty($is_file['code'])) {
@@ -2362,11 +2369,6 @@ class Service_centers extends CI_Controller {
                         $this->session->set_userdata($userSession);
                     }
                     $this->update_booking_status($booking_id);
-                }
-                if (empty($access)) {
-                    $is_file = $this->validate_part_data();
-                } else {
-                    $is_file['code'] = true;
                 }
             } else {
                 $is_file['code'] = true;
