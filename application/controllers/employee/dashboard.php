@@ -2075,6 +2075,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
         }else if($for == "ARM"){
             $rm = $this->input->post("rm");
+            // Need to discuss
             $arms = $this->get_arm_ids_under_rm($rm);
             $wherein = array();
             foreach($arms as $arm){
@@ -2097,16 +2098,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * get id's of rm's who don't report to other rms
      */
     private function get_top_level_rm_ids(){
-        $where = array(
-                'e1.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL,
-                'e2.groups NOT IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL
-            );
-        $join = array(
-            "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",
-            "employee e2"=> "ehm.manager_id = e2.id"
-        );
-        $joinType = array("inner", "inner");
-        return $this->reusable_model->get_search_result_data("employee e1", "e1.id as 'id'", $where, $join, NULL, NULL, NULL, $joinType, NULL);
+        return $this->reusable_model->get_search_result_data("rm_region_mapping", "rm_region_mapping.rm_id as 'id'", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     }
     /**
      * get arm ids under rm
