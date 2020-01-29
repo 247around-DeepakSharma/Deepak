@@ -62,15 +62,15 @@
         </table>
                 
     </div>
-<div id="purchase_invoice" class="modal fade" role="dialog">
+<div id="purchase_invoice" class="modal fade" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" onclick="btn_create_invoice.disabled=false;close_model()">&times;</button>
                 <h4 class="modal-title" id="modal-title">Generate Purchase Invoice</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body height-full-length">
                 <form class="form-horizontal" id ="purchase_invoice_form" action="#"  method="POST" >
                     <div class="col-md-12" >
                         <div class="col-md-6 ">
@@ -154,6 +154,10 @@
                          $("#invoice_date").val(data[0]['invoice_date']);
                        var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
                        for(k =0; k < data.length; k++){
+                           if(data[k]["hsn_code"]==null)
+                           {
+                               data[k]["hsn_code"]='';
+                           }
                             html +='<div class="col-md-12" >';
                             html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
                             html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data_list[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
@@ -290,3 +294,9 @@
         $("#"+id).attr('disabled',true);
     }
 </script>
+<style>
+    .height-full-length
+    {
+    overflow: hidden;
+    }
+</style>
