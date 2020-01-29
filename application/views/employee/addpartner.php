@@ -3090,7 +3090,9 @@
                             </div>
                         </div>
                     </div>
-                    <input type="submit" value="Update" class=" btn btn-primary" style="background: #164f4e;">
+                    <div class='text-center center-block'>
+                        <input type="submit" value="Update" class=" btn btn-primary" style="background: #164f4e;">
+                    </div>
                 </form>
             </div>
         </div>
@@ -3992,6 +3994,7 @@
     });
     
     function load_form(tab_id){
+        sessionStorage.setItem("last-url", tab_id);
         total_div  = document.getElementsByClassName('form_container').length;
         for(var i =1;i<=total_div;i++){
             if(i != tab_id){
@@ -4145,7 +4148,7 @@
        document.getElementById("l_c_form").submit();
     }
     else{
-       alert("Please Select All mendatory Fields");
+       alert("Please Select All mandatory Fields");
        return false;
     }
     }
@@ -4337,6 +4340,13 @@
            department = $("#contact_person_department_"+i).val();
            role = $("#contact_person_role_"+i).val();
            states = getMultipleSelectedValues("contact_person_states_"+i);
+            var filter = /^[1-9][0-9]{9}$/;
+            if(!filter.test(contact) && contact!='')
+            {   
+                alert('Please enter valid 10 digit contact number.');
+                $("#contact_person_contact_1").focus();
+                return false;
+            }
            if(name && email && contact && department && role){ 
               current_checkbox_values =  $('#final_checkbox_value_holder').val();
               if(current_checkbox_values){
@@ -4349,7 +4359,7 @@
                $('#states_value_holder_'+i).val(states);
            }
            else{
-               alert('Please add all mendatory fields');
+               alert('Please add all mandatory fields!!');
                return false;
            }
        }
@@ -4418,10 +4428,20 @@
            $('#checkbox_value_holder').val(new_string);
            if(name && email && contact && department && role){ 
                $('#states_value_holder').val(states);
-                return true;
+               var filter = /^[1-9][0-9]{9}$/;
+               if(!filter.test(contact))
+                {   
+                    alert('Please enter valid 10 digit contact number.');
+                    $("#contact_person_contact").focus();
+                    return false;
+                }
+                else
+                {                 
+                   return true;  
+                }
            }
            else{
-               alert('Please add all mendatory fields');
+               alert('Please add all mandatory fields!!');
                return false;
            }
     }
@@ -5851,5 +5871,14 @@
             }
         }
     }
-    
+
+
+    $(document).ready(function(){
+        var lastUrl = sessionStorage.getItem("last-url");
+        if(lastUrl!=null)
+        {           
+            $("#"+lastUrl).trigger('click');
+        }
+    })
 </script>
+
