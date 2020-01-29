@@ -31,6 +31,28 @@
                             </div>
                             <div class="col-md-4"></div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div  class="form-group">
+                                    <label  for="state" class="col-md-4" style="text-align: right;">Select State *</label>
+                                    <div class="col-md-6">
+                                        <select id="state" class="state form-control" name ="state">
+                                            <?php 
+                                            foreach($state as $state_data)
+                                            {
+                                            ?>    
+                                            <option value="<?php echo $state_data["gst_number"]; ?>"><?php echo $state_data['city']; ?></option>
+                                            <?php
+                                            }
+                                            ?>      
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+
                         <div class="form-group col-md-12">
                             <div class="col-md-4"></div>
                             <div class="col-md-4 form-group">
@@ -65,7 +87,7 @@
         $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_otp',
-                data: {},
+                data: {state : $("#state").val()},
                 beforeSend: function(){
                     $('body').loadingModal({
                     position: 'auto',

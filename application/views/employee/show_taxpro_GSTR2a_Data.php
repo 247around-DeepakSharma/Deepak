@@ -92,6 +92,25 @@
             <div class="clear"></div>
             <div class="panel-body">
                 <div class="col-md-12 ">
+                    <div class="row">
+                        <div class="form-inline">
+                            <div class="form-group col-md-3">
+                                <select class="form-control" id="state" name="state">
+                                    <option value="0" selected>All</option>
+                                    <?php 
+                                        foreach($state as $state_data)
+                                        {
+                                    ?>    
+                                        <option value="<?php echo $state_data["gst_number"]; ?>"><?php echo $state_data['city']; ?></option>
+                                    <?php
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                            <button class="btn btn-success col-md-2" id="get_gst_data">Submit</button>
+                        </div>
+                    </div>
+                    <br>
                     <div id="container_1" class="form_container">
                         <input type="hidden" id="entity_type" value="vendor">
                         <table id="GSTR2a_table" class="table table-striped table-bordered" style="width:100%">
@@ -100,6 +119,7 @@
                                 <th>Invoice No.</th>
                                 <th>Vendor Name</th>
                                 <th>GST No.</th>
+                                <th>City</th>
                                 <th>Invoice Date</th>
                                 <th>IGST Amt</th>
                                 <th>CGST Amt</th>
@@ -374,5 +394,11 @@
             $(select).closest("tr").find("button").attr("disabled", true);
         }
     }
+    
+    
+    //function to get gst data on basis of filter
+     $('#get_gst_data').on('click',function(){
+        GSTR2a_datatable.ajax.reload(null, false); 
+    });
  
 </script>
