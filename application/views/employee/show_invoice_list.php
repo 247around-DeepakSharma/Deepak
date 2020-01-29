@@ -38,7 +38,7 @@
                     <tr>
                         <td><?php echo $key+1;?></td>
                         <td><?php echo $value['invoice_id'];?></td>
-                        <td><?php echo $value['create_date']; ?></td>                        
+                        <td><?php echo date("d-M-Y", strtotime($value['create_date'])); ?></td>                        
                         <td><?php echo $value['type_code'];?></td>
                         <td><?php echo $value['part_number'];?></td>
                         <td><?php echo $value['description'];?></td>

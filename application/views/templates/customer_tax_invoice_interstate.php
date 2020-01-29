@@ -32,7 +32,7 @@
             <tr><td colspan="3">Invoice No:<?php echo $meta['invoice_id']; ?></td>		
                 <td colspan="3">Booking ID:</td>
                 <td colspan="2"><?php echo $meta['booking_id']; ?></td></tr>
-            <tr><td colspan="3">Invoice Date: <?php echo $meta['invoice_date']; ?></td>	
+            <tr><td colspan="3">Invoice Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>	
                 <td colspan="3">Reverse Charge (Y/N):</td>
                 <td colspan="2">N</td>
             </tr>

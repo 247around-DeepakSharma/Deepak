@@ -37,7 +37,7 @@
                                 <td><?php echo $value->services;?></td>
                                 <td><?php echo $value->category;?></td>
                                 <td><?php echo $value->order_date;?></td>
-                                <td><?php echo $value->delivery_date;?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value->delivery_date));?></td>
                                 <td><?php if($value->current_status == "Pending"){ echo $value->internal_status; } else { echo $value->current_status."(<strong> ".$value->internal_status."</strong>)";};?></td>
                                 <td><?php echo ($value->cp_basic_charge + $value->cp_tax_charge);?></td>
                                 <td><?php echo ($value->cp_claimed_price)?></td>

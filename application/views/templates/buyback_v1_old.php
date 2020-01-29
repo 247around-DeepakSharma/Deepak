@@ -28,7 +28,7 @@
                     <?php echo $meta['sd'] . " - " . $meta['ed']; ?></td>
             </tr>
             <tr class="bold">
-                <td colspan="3">Invoice Date: <?php echo $meta['invoice_date']; ?></td>
+                <td colspan="3">Invoice Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>
                 <td colspan="2">Reverse Charge (Y/N):</td>
                 <td colspan="1" style="border-right: 2px solid;">N</td>
             </tr>

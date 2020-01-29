@@ -21,8 +21,8 @@
                                 <td><?php echo $contractDetails['collateral_type'] ?></td>
                                 <td><a target="_blank" href=<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contractDetails['file']?>><?php echo $contractDetails['file'] ?></a></td>
                                 <td><?php echo $contractDetails['document_description'] ?></td>
-                                <td><?php echo $contractDetails['start_date'] ?></td>
-                                <td><?php echo $contractDetails['end_date'] ?></td>
+                                <td><?php echo date("d-M-Y", strtotime($contractDetails['start_date'])) ?></td>
+                                <td><?php echo date("d-M-Y", strtotime($contractDetails['end_date'])) ?></td>
                                 </tr>
                             <?php
                             $sn++;

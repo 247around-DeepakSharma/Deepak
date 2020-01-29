@@ -21,7 +21,7 @@
                     <?php foreach ($data as $key => $value) { ?>		
                         <tr>
                             <td ><?php echo ($key + 1) . '.' ?></td>
-                            <td style="padding:1px;text-align: center"><?php echo date('d M Y', strtotime($value['event_date'])) ?></td>
+                            <td style="padding:1px;text-align: center"><?php echo date('d-M-Y', strtotime($value['event_date'])) ?></td>
                             <td style="padding:1px;text-align: center"><?php echo date('l', strtotime($value['event_date'])) ?></td>
                             <td style="padding:1px;text-align: center;"><?php echo $value['event_name'] ?></td>
                             <td style="padding:1px;text-align: center">
