@@ -110,10 +110,10 @@
                                     ?>
                             </td> 
                             <td> 
-                                <?php echo date('d-m-Y', strtotime($courier->shipment_date)) ?> 
+                                <?php echo date('d-M-Y', strtotime($courier->shipment_date)) ?> 
                             </td> 
                             <td> 
-                                <?php echo date('d-m-Y', strtotime($courier->create_date)) ;?> 
+                                <?php echo date('d-M-Y', strtotime($courier->create_date)) ;?> 
                             </td> 
                             <td> <?php
                                 

@@ -63,7 +63,7 @@
                                         <td style="text-align: center;">                                            
                                             <span class="hsncode_details_text" id="<?php echo $val['id']."|gst_rate";?>"><?php echo $val['gst_rate']; ?></span> <span class="hsn_code_details_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                         </td>
-                                        <td style="text-align: center;"><?php echo date("jS M, Y", strtotime($val['create_date'])); ?></td>
+                                        <td style="text-align: center;"><?php echo date("d-M-Y", strtotime($val['create_date'])); ?></td>
                                     </tr>
                                 <?php } ?>
                             </table>                            

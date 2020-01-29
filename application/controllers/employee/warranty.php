@@ -569,6 +569,11 @@ class Warranty extends CI_Controller {
     }
     
     
+    /**
+     *  @desc : This function is used validate warranty period that it must be valid integer value greater than 0
+     *  @param : void
+     *  @return : void
+     */
     public function validate_warranty_period($integer)
     {
         $valid = 0;
@@ -595,6 +600,11 @@ class Warranty extends CI_Controller {
         
     }
     
+    /**
+     *  @desc : This function is used validate warranty grace period that it must be valid integer value greater than 0
+     *  @param : void
+     *  @return : void
+     */
      public function validate_warranty_grace_period($integer)
     {
         $valid = 0;
@@ -622,6 +632,11 @@ class Warranty extends CI_Controller {
     }
     
     
+    /**
+     *  @desc : This function is used validate partner id that it must be valid integer value greater than 0
+     *  @param : void
+     *  @return : void
+     */
      public function validate_partner($integer)
     {
         $valid = 0;
@@ -648,6 +663,11 @@ class Warranty extends CI_Controller {
         
     }
     
+    /**
+     *  @desc : This function is used validate service id that it must be valid integer value greater than 0
+     *  @param : void
+     *  @return : void
+     */
     public function validate_service($integer)
     {
         $valid = 0;
@@ -674,7 +694,11 @@ class Warranty extends CI_Controller {
         
     }
     
-    
+    /**
+     *  @desc : This function is used validate state code that it must be valid integer value
+     *  @param : void
+     *  @return : void
+     */
      public function validate_state($state_array)
     {
         $valid = 1;
@@ -716,7 +740,11 @@ class Warranty extends CI_Controller {
         
     }
     
-    
+    /**
+     *  @desc : This function is used validate start date syntax
+     *  @param : void
+     *  @return : void
+     */
     public function validate_start_date($date)
     {
         $valid = 0;
@@ -745,7 +773,11 @@ class Warranty extends CI_Controller {
         }    
     }
     
-    
+    /**
+     *  @desc : This function is used validate end date syntax and it should be greater than start date
+     *  @param : void
+     *  @return : void
+     */
     public function validate_end_date($date, $start_date)
     {
         $valid = 0;
@@ -768,7 +800,7 @@ class Warranty extends CI_Controller {
             
             if($date<$start_date)
             {
-                $this->form_validation->set_message('validate_end_date', 'The end date field should be less than start date date '.$start_date);
+                $this->form_validation->set_message('validate_end_date', 'The end date field should be greater than start date '.$start_date);
                 return FALSE;
             }
             else
@@ -784,6 +816,11 @@ class Warranty extends CI_Controller {
     }
     
     
+     /**
+     *  @desc : This function is used validate warranty type
+     *  @param : void
+     *  @return : void
+     */
      public function validate_warranty_type($integer)
     {
         $valid = 0;
@@ -856,6 +893,11 @@ class Warranty extends CI_Controller {
        echo json_encode($output);
     }
 
+     /**
+     *  @desc : This function is used to get list of warranty plans
+     *  @param : void
+     *  @return : void
+     */
     function get_warranty_plan_data() {
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
@@ -898,6 +940,11 @@ class Warranty extends CI_Controller {
         );
     }
     
+     /**
+     *  @desc : This function is used to get rows for warranty plans table
+     *  @param : void
+     *  @return : void
+     */
      function get_warranty_plan_table($model_list, $no) {
         $row = array();
         $json_data = json_encode($model_list);

@@ -505,7 +505,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-m-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-M-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
@@ -745,7 +745,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group date">
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)) { echo date("d-m-Y", strtotime($booking_model_purchase_date)); } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo date("d-m-Y", strtotime($booking_unit_details['purchase_date'])); } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)) { echo date("d-M-Y", strtotime($booking_model_purchase_date)); } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo date("d-m-Y", strtotime($booking_unit_details['purchase_date'])); } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>

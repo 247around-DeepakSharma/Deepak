@@ -28,7 +28,7 @@
                         <td class="text-center"><?php echo $value['services']; ?></td>
                         <td class="text-center"><?php echo $value['name']; ?></td>
                         <td class="text-center"><?php echo $value['booking_date']; ?></td>
-                        <td class="text-center"><?php echo date('d-m-Y',  strtotime($value['create_date'])); ?></td>
+                        <td class="text-center"><?php echo date('d-M-Y',  strtotime($value['create_date'])); ?></td>
                      </tr>
                              
                      <?php } ?>

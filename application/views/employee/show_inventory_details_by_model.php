@@ -85,7 +85,7 @@
 
 
                                     <td><?php echo $customertot; ?></td>
-                                    <td><?php echo date("d-m-Y H:i:s", strtotime($value['create_date'])); ?></td>
+                                    <td><?php echo date("d-M-Y H:i:s", strtotime($value['create_date'])); ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>

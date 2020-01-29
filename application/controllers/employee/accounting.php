@@ -873,7 +873,7 @@ class Accounting extends CI_Controller {
         $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
-        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
+        $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
@@ -1198,7 +1198,7 @@ class Accounting extends CI_Controller {
             $row[] = $no;
         }
         $row[] = $order_list->invoice_id;
-        $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = date("d-M-Y", strtotime($order_list->from_date)). " to ". date("d-M-Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
         $row[] = $order_list->sub_category;
         $row[] = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
@@ -1245,8 +1245,8 @@ class Accounting extends CI_Controller {
         else{
             $row[] = "Partner";
         }
-        $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
-        $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = date("d-M-Y", strtotime($order_list->invoice_date));
+        $row[] = date("d-M-Y", strtotime($order_list->from_date)) . " to " . date("d-M-Y", strtotime($order_list->to_date));
         $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
@@ -1299,7 +1299,7 @@ class Accounting extends CI_Controller {
         $row = array();
        
         $row[] = $no;
-        $row[] = date("jS M, Y", strtotime($transaction_list->transaction_date));
+        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
         $row[] = round($transaction_list->credit_amount,0);
         $row[] = $transaction_list->invoice_id;
         $row[] = $transaction_list->description;
@@ -1411,7 +1411,17 @@ class Accounting extends CI_Controller {
      */
     function generate_taxpro_otp(){
        
-        $url = TAXPRO_OTP_REQUEST_URL;
+        $state = $this->input->post("state", TRUE);
+        if($state == 2)
+        {
+            //For UP
+            $url = TAXPRO_OTP_REQUEST_URL_UP;
+        }
+        else
+        {
+            //For Delhi
+            $url = TAXPRO_OTP_REQUEST_URL;
+        }  
         //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=OTPREQUEST&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1";
         $activity = array(
             'entity_type' => _247AROUND_PARTNER_STRING,
@@ -1433,7 +1443,18 @@ class Accounting extends CI_Controller {
      */
     function generate_taxpro_auth_token(){
         $otp = $this->input->post("otp");
-        $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.$otp;
+        $state = $this->input->post("state", TRUE);
+        if($state == 2)
+        {
+            //For UP
+            $url = TAXPRO_AUTH_TOKEN_REQUEST_URL_UP.$otp;
+        }
+        else
+        {
+            //For Delhi
+            $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.$otp;
+        }    
+        
         //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=AUTHTOKEN&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1&OTP=575757";
         $activity = array(
             'entity_type' => _247AROUND_PARTNER_STRING,
@@ -1447,7 +1468,7 @@ class Accounting extends CI_Controller {
         $this->partner_model->log_partner_activity($activity);
         $response = json_decode($api_response);
         if($response->status_cd == '1'){
-           $this->fetch_taxpro_gstr2a_data($response->auth_token);
+           $this->fetch_taxpro_gstr2a_data($response->auth_token, $state);
            echo "success";
         }
         else{
@@ -1460,14 +1481,26 @@ class Accounting extends CI_Controller {
      * @param authtoken
      * @return void
      */
-    function fetch_taxpro_gstr2a_data($autnToken){ 
+    function fetch_taxpro_gstr2a_data($autnToken, $state=1){ 
         $to_date = date("Y-m");
         $from_date = date("2017-07");
         while($from_date < $to_date){
             $year = date('Y', strtotime($from_date));
             $month = date('m', strtotime($from_date));
             $ret_period = $month.$year;
-            $url = TAXPRO__FEATCH_GSTR2A_URL.$autnToken.'&ret_period='.$ret_period;
+            if($state == 2)
+            {
+                //For UP
+                $url = TAXPRO__FEATCH_GSTR2A_URL_UP.$autnToken.'&ret_period='.$ret_period;
+                $gstin = _247_AROUND_GSTIN_UP;
+            }
+            else
+            {
+                //For Delhi
+                $url = TAXPRO__FEATCH_GSTR2A_URL.$autnToken.'&ret_period='.$ret_period;
+                $gstin = _247_AROUND_GSTIN;
+            }    
+                
             $activity = array(
                 'entity_type' => _247AROUND_PARTNER_STRING,
                 'partner_id' => _247AROUND,
@@ -1515,7 +1548,8 @@ class Accounting extends CI_Controller {
                                 'invoice_date' => $date,
                                 'checksum' => $checksum,
                                 'gstr2a_period' => $ret_period,
-                                'create_date' => date('Y-m-d H:i:s')
+                                'create_date' => date('Y-m-d H:i:s'),
+                                'state_gstin' => $gstin
                             );
                         $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
                         if(empty($check_checksum)){
@@ -1558,6 +1592,18 @@ class Accounting extends CI_Controller {
         $post = $this->get_gst2ra_post_data();
         $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
+        $state_id = $this->input->post("state", TRUE);
+        if($state_id == 2)
+        {
+            //For UP
+            $state_gstin = _247_AROUND_GSTIN_UP;
+        }
+        else
+        {
+            //For Delhi
+            $state_gstin = _247_AROUND_GSTIN;
+        }   
+        $post['where']['state_gstin'] = $state_gstin;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
         $post['entity_type'] = $this->input->post("entity");
         if($post['entity_type'] == 'vendor'){

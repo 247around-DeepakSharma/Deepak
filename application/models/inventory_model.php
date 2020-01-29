@@ -715,7 +715,7 @@ class Inventory_model extends CI_Model {
      */
     function count_filtered_inventory_stocks($post){
         $sfIDArray =array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -1040,7 +1040,7 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         
         //RM Specific Bookings
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             if(!empty($rmServiceCentersData)){
@@ -2221,7 +2221,7 @@ class Inventory_model extends CI_Model {
      */
     function count_filtered_inventory_stocks_list($post){
         $sfIDArray =array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];

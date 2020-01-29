@@ -415,22 +415,27 @@ class engineerApi extends CI_Controller {
 
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
+                break;
 /*   get users notification on phone number */
             case 'usernotifications':
                 $this->getUserNotifications();
+                break;
 
 /*   get partners active list */
             case 'partners':
-                $this->getActivepartnersList();   
+                $this->getActivepartnersList(); 
+                break;  
 
 /*   get partner appliances */
             case 'partnerAppliances':  
                 $this->getPartner_appliances();  ////getPartner_appliances
+                break;
 
 
 /*   get partner appliances */
             case 'partnerappliancesModels':  
                 $this->getPartnerAppliancesModels();  ////getPartner_appliances
+                break;
 
             default:
                 break;
@@ -1431,25 +1436,14 @@ class engineerApi extends CI_Controller {
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
             /* check spare part oredered status on booking which need to be cancel */
             $isdisable = false;
+            /*   Abhishek Removing Switch case and check according to spare id if any status for any part without cancelled*/
+            $status="";
             if (isset($bookinghistory['spare_parts'])) {
                 foreach ($bookinghistory['spare_parts'] as $sp) {
-                    switch ($sp['status']) {
-                        case SPARE_PARTS_REQUESTED:
-                            $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
-                            $isdisable = true;
-                            break;
-                        case SPARE_SHIPPED_BY_PARTNER:
-                        case SPARE_DELIVERED_TO_SF:
-                        case DEFECTIVE_PARTS_REJECTED:
-                        case DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE:
-                        case DEFECTIVE_PARTS_RECEIVED:
-                        case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
-                        case DEFECTIVE_PARTS_SHIPPED:
-                        case DEFECTIVE_PARTS_PENDING:
-                        case SPARE_OOW_SHIPPED:
-                            $status = CANCEL_PAGE_SPARE_SHIPPED;
-                            $isdisable = true;
-                            break;
+                    $spare_status = $this->engineer_model->check_cancell_allowed($sp['id']);
+                    if($spare_status[0]['status']!=_247AROUND_CANCELLED){
+                         $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                         $isdisable = true;
                     }
                 }
             }
@@ -1910,7 +1904,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-        	///  Abhishek ... Insread of count passing the entire response ////
+            ///  Abhishek ... Insread of count passing the entire response ////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
                     . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
@@ -2060,7 +2054,7 @@ class engineerApi extends CI_Controller {
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
- 			return $missed_bookings;  ////  Removing return to response  making internal call
+            return $missed_bookings;  ////  Removing return to response  making internal call
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0023', 'Engineer ID or Service Center Id not found'));
@@ -3131,12 +3125,12 @@ class engineerApi extends CI_Controller {
                 return $response;
             } else {
            //// Removing JSON return make internal call and return Array
-            	    $response["spare_flag"] = 0;
+                    $response["spare_flag"] = 0;
                     $response["message"] = "Booking data not found";
                     return $response;
             }
         } else {
-        	//// Removing JSON return make internal call and return Array
+            //// Removing JSON return make internal call and return Array
                     $response["spare_flag"] = 0;
                     $response["message"] = "Booking data not found";
                     return $response;

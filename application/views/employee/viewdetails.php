@@ -173,12 +173,14 @@
                             <th>Partner Status </th>
                             <td><?php echo $booking_history[0]['partner_internal_status']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Initial Booking Date </th>
+                            <td style="max-width: 330px;"><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['initial_booking_date']); ?></td>                        
                         <?php if($booking_history[0]['internal_status'] != 'Completed') {?>
-                         <tr>
                             <th> Actor / Action </th>
                             <td><?php echo $booking_history[0]['actor']." / ".$booking_history[0]['next_action']; ?></td>
-                        </tr>
                         <?php } ?>
+                        </tr>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
                             <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
@@ -687,15 +689,15 @@
                                         <td>
                                             <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                         </td>
-                                        <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                        <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
                                         <!--   Show spare Apprival Date --->
                                         <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
-                                        <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
+                                        <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-M-Y'); ?></td>
                                         <?php }else{ ?>
                                          <td>-</td>
                                         <?php  } ?>
 
-                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
+                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
 
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -722,7 +724,7 @@
                                         <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
 
                                         <?php if (!empty($sp['acknowledge_date'])) { ?>
-                                           <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>  
+                                           <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>  
                                         <?php }else{ ?>
 
                                            <td> - </td> 
@@ -885,7 +887,7 @@
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
-                                        <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
+                                        <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-M-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
                                         <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
                                         <td><?php echo $sp['sell_invoice_id'];?></td>
                                         <td><?php echo $sp['status']; ?></td>
@@ -1042,7 +1044,7 @@
                                                                 ?></td>
                                        <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                        <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td>
@@ -1129,7 +1131,7 @@
                                                                 ?></td>
                                        <td><?php echo $sp['courier_price_by_wh']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-m-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
+                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-M-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
                                         <td><?php echo $sp['wh_challan_number']; ?></td>
                                         <td>
                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 

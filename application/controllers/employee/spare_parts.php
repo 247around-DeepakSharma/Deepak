@@ -807,7 +807,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = date("d-M-Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->consumed_status;
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
@@ -2010,7 +2010,7 @@ class Spare_parts extends CI_Controller {
         }
         $id = $this->session->userdata('id');
         //Getting employee relation if present
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];

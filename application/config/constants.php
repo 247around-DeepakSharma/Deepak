@@ -161,7 +161,7 @@ define('_247AROUND_RM','regionalmanager');
 define('_247AROUND_DEVELOPER','developer');
 define('_247AROUND_ACCOUNTANT','accountant');
 define('_247AROUND_AM','accountmanager');
-
+define('_247AROUND_ASM','areasalesmanager');
 //
 define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
 

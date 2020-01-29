@@ -634,7 +634,7 @@ class Partner extends CI_Controller {
                         "entity_type" => "partner",
                         "entity_id" => $partner_id,
                         "notification_type" => 8,
-                        "message" => "Grace Period extended till ".date("d-m-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
+                        "message" => "Grace Period extended till ".date("d-M-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
                         "marquee" => 1,
                         "start_date" => date("Y-m-d H:i:s"),
                         "end_date" => date('Y-m-d H:i:s', strtotime("+1 day", strtotime(date("Y-m-d H:i:s")))),
@@ -4382,7 +4382,7 @@ class Partner extends CI_Controller {
         if(count($state_arr) === count($arr_state)) {
             $data['account_manager_details'][0]['state'] = "Pan India";
         }
-        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL, 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
@@ -5642,10 +5642,10 @@ class Partner extends CI_Controller {
         foreach($data as $sparePartBookings){
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
-            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-m-Y",strtotime($sparePartBookings['create_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-m-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-m-Y",strtotime($sparePartBookings['booking_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-m-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-M-Y",strtotime($sparePartBookings['create_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-M-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-M-Y",strtotime($sparePartBookings['booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-M-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
             $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
@@ -5662,25 +5662,25 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['model_number'];
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
-            $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-m-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-M-Y",strtotime($sparePartBookings['date_of_request'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-M-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['model_number_shipped'];
             $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
-            $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['shipped_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-M-Y",strtotime($sparePartBookings['shipped_date'])):'');
             $tempArray[] = $sparePartBookings['purchase_invoice_id'];
             $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
-            $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-m-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
+            $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-M-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
-            $tempArray[] = ((!empty($sparePartBookings['received_defective_part_date']))?date("d-m-Y",strtotime($sparePartBookings['received_defective_part_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['defective_part_shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['defective_part_shipped_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['received_defective_part_date']))?date("d-M-Y",strtotime($sparePartBookings['received_defective_part_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['defective_part_shipped_date']))?date("d-M-Y",strtotime($sparePartBookings['defective_part_shipped_date'])):'');
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $tempArray[] = $sparePartBookings['sf_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_sf'];
@@ -6627,7 +6627,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -7052,7 +7052,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $tempString2;
                     
                      if (!is_null($row['defective_part_shipped_date'])) {
-                         $tempString3 =  date("d-m-Y", strtotime($row['defective_part_shipped_date']));
+                         $tempString3 =  date("d-M-Y", strtotime($row['defective_part_shipped_date']));
                      }
                     $tempArray[] = $tempString3;
                     
@@ -7299,7 +7299,7 @@ class Partner extends CI_Controller {
                           $tempString =  $row['partner_challan_number'];
                     }
                     $tempArray[] = $tempString;
-                    $tempArray[] = date("d-m-Y", strtotime($row['shipped_date']));
+                    $tempArray[] = date("d-M-Y", strtotime($row['shipped_date']));
                     $tempArray[] = $row['remarks_by_partner'];
                     $finalArray[] = $tempArray;
            }
@@ -7423,7 +7423,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";      
                     $tempArray[] = $row['quantity'];
                     if (!is_null($row['received_defective_part_date'])) {
-                         $tempString2 =   date("d-m-Y", strtotime($row['received_defective_part_date']));
+                         $tempString2 =   date("d-M-Y", strtotime($row['received_defective_part_date']));
                     }
                     $tempArray[] = $tempString2;
                     $tempArray[] = $row['awb_by_partner'];
@@ -8486,13 +8486,13 @@ class Partner extends CI_Controller {
         if(!empty($this->partner_id)){
             $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);
             
-            $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-m-Y H:i:s', strtotime($data[0]['date'])));
+            $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-M-Y H:i:s', strtotime($data[0]['date'])));
             $status = $data[0]['status'];
             
             foreach($data as $value) {
                 if($value['status'] !== $status)
                 {
-                    $arr[] = array('status'=>$value['status'], 'date'=>date('d-m-Y H:i:s', strtotime($value['date'])));
+                    $arr[] = array('status'=>$value['status'], 'date'=>date('d-M-Y H:i:s', strtotime($value['date'])));
                     $status = $value['status'];
                 }
             }
@@ -8639,7 +8639,7 @@ class Partner extends CI_Controller {
 
     }
 
-
+/*   Abhishek this function used to get NRN Approved Bookings */
 
       function get_nrn_approval_table(){
       $agent_id = $this->session->userdata('agent_id');
@@ -8664,6 +8664,14 @@ class Partner extends CI_Controller {
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
        }
+
+       /*  Default case if somehow index does not come */
+       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
+        $postData['length'] = 25;
+        $postData['start'] = 0;
+       }
+
+       
        if(!empty($postData['search'])){
             $booking_id = $postData['search']['value'];
            $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";

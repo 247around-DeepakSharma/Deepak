@@ -266,6 +266,14 @@ class Booking_utilities {
             if($pdf_response['response'] === 'Success'){ 
                 //Update JOb Card Booking
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
+                $f = TMP_FOLDER.$output_file_pdf;
+                unlink($f);
+                if (!empty($qr) && file_exists($qr)) {
+                    $res1 = 0;
+                    system(" chmod 777 " . $qr, $res1);
+                    unlink($qr);
+                }
+                
                 return true;
             } else {
                 log_message('info', __FUNCTION__ . ' Error in Booking PDF not created '. $booking_id);
@@ -351,7 +359,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking) && !empty($getbooking[0]['booking_id'])) {
-            $date1 = date('d-m-Y', strtotime('now'));
+            $date1 = date('d-M-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
             $datetime1 = date_create($date1);
             $datetime2 = date_create($date2);

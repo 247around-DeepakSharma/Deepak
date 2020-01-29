@@ -573,7 +573,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
             booking_details.type = '"._247AROUND_BOOKING."' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%b-%Y') desc $add_limit"
         );
 
        // echo $this->db->last_query();
@@ -2212,7 +2212,7 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        $this->db->_reserved_identifiers = array('*',"'%d-%m-%Y')", "SELECT");
+        $this->db->_reserved_identifiers = array('*',"'%d-%b-%Y')", "SELECT");
         if (empty($select)) {
             $select = '*';
         }
@@ -2435,7 +2435,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_queries($post,$pincode_status,$query_status) {
-        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }  
@@ -2446,7 +2446,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_queries($post,$pincode_status,$query_status){
-        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -2630,7 +2630,7 @@ class Booking_model extends CI_Model {
         return $this->db->affected_rows();
     }
     function get_booking_tat_required_data($booking_id){
-        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date,"
                 . "booking_details.is_upcountry,date(booking_details.service_center_closed_date) as sf_closed_date,"
                 . "date(booking_details.closed_date) as around_closed_date,spare_parts_details.id as spare_id,spare_parts_details.status as spare_status,date(spare_parts_details.date_of_request) as part_request_date,"
                 . "date(spare_parts_details.acknowledge_date) as spare_receieved_date ,"

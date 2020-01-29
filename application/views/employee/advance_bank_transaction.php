@@ -231,6 +231,7 @@
             <div class="form-group ">
                 <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
                 <div class="col-md-6">
+                    <label for="credit_debit" generated="true" class="error"></label>
                     <input type="radio"   name="credit_debit" value = "Credit">   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input type="radio"   name="credit_debit" value = "Debit" >    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>

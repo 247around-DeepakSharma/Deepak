@@ -465,6 +465,7 @@ class Engineer_model extends CI_Model {
 
          $this->db->select($select); 
          $this->db->where($where);
+         $this->db->order_by("id", "desc"); /// Order in decresing order in notifications //
          $this->db->from('engineer_notification_detail');
          $query = $this->db->get();
          return $query->result_array();
@@ -522,6 +523,24 @@ class Engineer_model extends CI_Model {
          $this->db->select($select); 
          $this->db->where($where);
          $this->db->from('appliance_model_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to spare with spare id
+     *@param - $spare id
+     *@return - Row
+     */
+
+
+   function check_cancell_allowed($spare){
+
+         $this->db->select("*"); 
+         $this->db->where('id',$spare);
+         $this->db->from('spare_parts_details');
          $query = $this->db->get();
          return $query->result_array();
 

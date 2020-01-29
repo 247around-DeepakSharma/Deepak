@@ -1612,7 +1612,7 @@
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
-                            <td><?php echo date("d-m-Y", strtotime($value['start_date'])); ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
                         <tr>
                             <?php
@@ -2517,7 +2517,7 @@
                                                     </a>
 
                                                 </td> 
-                                                <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
+                                                <td><?php echo date("d-M-Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
                                                     <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactivate</button>
