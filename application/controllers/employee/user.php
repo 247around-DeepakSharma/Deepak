@@ -376,6 +376,7 @@ class User extends CI_Controller {
         $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
         $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);//$this->employee_model->get_employee_groups();
         $data['employee_list'] = $this->employee_model->get_employee();
+        $data['regions'] = $this->employee_model->get_regions();
         $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/employee_add_edit', $data);
@@ -526,9 +527,14 @@ class User extends CI_Controller {
      */
     function process_add_employee(){
         $data = $this->input->post();
-        
+        // Save value of region in a varibale if added employee is an RM
+        if(!empty($data['region']))
+        {
+            $rm_region = $data['region'];
+            unset($data['region']);
+        }
         $removeKeys = array('manager', 'subordinate');
-        $data1=array_diff_key($data, array_flip($removeKeys));
+        $data1=array_diff_key($data, array_flip($removeKeys));        
         
         if($data == $data1)
             exit("Please add manager or subordinate!");
@@ -611,6 +617,12 @@ class User extends CI_Controller {
         }
         //*********END
         
+        // Update region (North,South,East,West) with its respective RM 
+        if(($data1['groups'] == _247AROUND_RM) && !empty($rm_region) && $id){
+            $this->employee_model->map_region_to_rm($rm_region, $id);
+        }
+        // END
+        
         $tag='employee_login_details';
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
@@ -665,6 +677,7 @@ class User extends CI_Controller {
         
         $cond= array('where' => array('entity_type'=>'247Around'), 'order_by' => 'department');
         $data['employee_dept'] = $this->employee_model->get_entity_role('department',$cond);
+        $data['regions'] = $this->employee_model->get_regions();
         if(!empty($data['employee_dept'])) {
             $cond= array('where' => array('entity_type'=>'247Around', 'department' => $data['query'][0]['department']), 'order_by' => 'role');
             $data['employee_role'] = $this->employee_model->get_entity_role('role',$cond);
@@ -697,9 +710,12 @@ class User extends CI_Controller {
         $data1=array_diff_key($data, array_flip($removeKeys));
         
         $data1['groups']= str_replace(' ', '', $data1['groups']);
-        
-        $this->employee_model->update($data1['id'],$data1);
-        
+        // Update region (North,South,East,West) with its respective RM 
+        if(($data1['groups'] == _247AROUND_RM) && !empty($data1['region']) && !empty($data1['id'])){
+            $this->employee_model->map_region_to_rm($data1['region'], $data1['id']);
+            unset($data1['region']);
+        }
+        $this->employee_model->update($data1['id'],$data1);      
         $data2 = array();
         if(!empty($data['manager'])) {
             $manager=$this->input->post('manager');

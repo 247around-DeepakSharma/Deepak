@@ -1612,7 +1612,7 @@
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
-                            <td><?php echo date("d-m-Y", strtotime($value['start_date'])); ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
                         <tr>
                             <?php

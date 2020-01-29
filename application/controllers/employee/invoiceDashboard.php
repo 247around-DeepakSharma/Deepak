@@ -252,7 +252,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_from = $email_template[2];
         $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
-        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
+        $subject = vsprintf($email_template[4], array(date('d-M-Y', strtotime($explode_date_range[0])),date('d-M-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
         $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", SF_INVOICE_SUMMARY);
 //        $this->load->view('employee/sf_invoice_summary', $t_data);
@@ -306,7 +306,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_from = $email_template[2];
         $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
-        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
+        $subject = vsprintf($email_template[4], array(date('d-M-Y', strtotime($explode_date_range[0])),date('d-M-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
         $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", PARTNER_INVOICE_SUMMARY);
     }

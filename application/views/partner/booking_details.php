@@ -61,12 +61,12 @@
                                         <td><?php 
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
                                         $time2 = strtotime($createDatArray[0]);
-                                        $reg_date = date('d-m-Y',$time2);
+                                        $reg_date = date('d-M-Y',$time2);
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('d-m-Y',$time);
+                                        $booking_date = date('d-M-Y',$time);
                                         echo $booking_date ?></td>
                                         
                                     </tr>
@@ -222,7 +222,7 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
-                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date('d-m-Y', strtotime($unit_detail['purchase_date'])); }?></td>
+                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date('d-M-Y', strtotime($unit_detail['purchase_date'])); }?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
                                                             <?php $cp = 0; if($key == 0){ $cp = 0; if ($booking_history[0]['is_upcountry'] == 1) { ?>
@@ -346,14 +346,14 @@
                                                                 <td>
                                                                     <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                                                 </td>
-                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
                                                             <!--   Show spare Apprival Date --->
                                                                 <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00' ){ ?>
-                                                                <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-M-Y'); ?></td>
                                                                 <?php }else{ ?>
                                                                   <td>-</td>
                                                                 <?php  } ?>
-                                                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
@@ -504,7 +504,7 @@
                                                                             echo $sp['purchase_price']; 
                                                                         }?></td>
                                                                         <td><?php if (!empty($sp['estimate_cost_given_date'])) {
-                                                                                echo date("d-m-Y", strtotime($sp['estimate_cost_given_date']));
+                                                                                echo date("d-M-Y", strtotime($sp['estimate_cost_given_date']));
                                                                             } ?>
                                                                         </td>
                                                                         <td><?php if (!is_null($sp['incoming_invoice_pdf'])) {
@@ -716,7 +716,7 @@
                                                                                 ?></td>
                                                        <td><?php echo $sp['courier_price_by_wh']; ?></td>
                                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
-                                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-m-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
+                                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-M-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
                                                         <td><?php echo $sp['wh_challan_number']; ?></td>
                                                         <td>
                                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 

@@ -4804,7 +4804,7 @@ function generate_image($base64, $image_name,$directory){
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
-                return date_format(date_create($date), "d-m-Y");
+                return date_format(date_create($date), "d-M-Y");
             }
         } else {
             return '';
