@@ -697,7 +697,7 @@ class Service_centers extends CI_Controller {
 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
-                        $this->update_booking_internal_status($booking_id, "InProcess_Completed", $partner_id);
+                        $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }

@@ -4954,14 +4954,6 @@ function generate_image($base64, $image_name,$directory){
                 }
             }
 
-            if (!empty($status) && $defective_part_required == 1) {
-                // update in service center booking action.
-                $this->My_CI->vendor_model->update_service_center_action($booking_id, array('internal_status' => $status));
-                if(empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->My_CI->booking_model->update_booking($booking_id, ['internal_status' => $status]);
-                }
-            }
-
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {
                 $this->My_CI->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
             }
