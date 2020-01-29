@@ -110,7 +110,7 @@
                                     <td><?php echo $value['company_name']; ?></td>
                                     <td><?php echo $value['billable_weight']; ?></td>
                                     <td><?php echo $value['actual_weight']; ?></td>
-                                    <td><?php echo date('Y-m-d', strtotime($value['create_date'])); ?></td>
+                                    <td><?php echo date('d-M-Y', strtotime($value['create_date'])); ?></td>
                                     <td><?php echo $value['courier_charge']; $total_courier_charges = $total_courier_charges + $value['courier_charge']; ?></td>
                                     <td>
                                         <button type="button" class="btn btn-success btn-xs" onclick="recheck_docket_nember('<?php echo $value['id']; ?>', '<?php echo $value['awb_number']; ?>', '<?php echo $value['courier_charge']; ?>')">Recheck</button>
@@ -152,7 +152,7 @@
                                     <td><?php echo $value['courier_invoice_id']; ?></td>
                                     <td><?php echo $value['awb_number']; ?></td>
                                     <td><?php echo $value['company_name']; ?></td>
-                                    <td><?php echo date('Y-m-d', strtotime($value['create_date'])); ?></td>
+                                    <td><?php echo date('d-M-Y', strtotime($value['create_date'])); ?></td>
                                     <td><?php echo $value['courier_charge'];  $total_courier_charges = $total_courier_charges + $value['courier_charge']; ?></td>
                                     <td><?php echo $value['reject_remarks']; ?></td>
                                 </tr>

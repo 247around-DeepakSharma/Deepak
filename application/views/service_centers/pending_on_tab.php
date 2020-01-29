@@ -323,7 +323,7 @@
                                             <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?= $row->booking_date."<br/>"; ?> 
+                                            <?= date("d-M-Y", strtotime($row->booking_date))."<br/>"; ?> 
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
                                         <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
@@ -552,7 +552,7 @@
                                             <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?= $row->booking_date."<br/>"; ?> 
+                                            <?= date("d-M-Y", strtotime($row->booking_date))."<br/>"; ?> 
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
                                         <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
@@ -782,7 +782,7 @@
                                             <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?= $row->booking_date."<br/>"; ?> 
+                                            <?= date("d-M-Y", strtotime($row->booking_date))."<br/>"; ?> 
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
                                         <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
@@ -953,7 +953,7 @@
                                         <?php echo $row['parts_requested']; ?>
                                     </td>
                                     <td>
-                                        <?php if($row['shipped_date'] != "0000-00-00"){echo $row['shipped_date'];} ?>
+                                        <?php if($row['shipped_date'] != "0000-00-00"){echo date("d-M-Y", strtotime($row['shipped_date']));} ?>
                                     </td>     
                                     <td><?php echo $row['shipped_quantity']; ?></td>
                                     <td>

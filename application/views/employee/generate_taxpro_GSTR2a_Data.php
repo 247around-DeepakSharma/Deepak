@@ -38,8 +38,14 @@
                                     <label  for="state" class="col-md-4" style="text-align: right;">Select State *</label>
                                     <div class="col-md-6">
                                         <select id="state" class="state form-control" name ="state">
-                                            <option value="1">Delhi</option>
-                                            <option value="2">Uttar Pradesh</option>
+                                            <?php 
+                                            foreach($state as $state_data)
+                                            {
+                                            ?>    
+                                            <option value="<?php echo $state_data["gst_number"]; ?>"><?php echo $state_data['city']; ?></option>
+                                            <?php
+                                            }
+                                            ?>      
                                         </select>
                                     </div>
                                 </div>
@@ -80,7 +86,7 @@
         $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_otp',
-                data: {},
+                data: {state : $("#state").val()},
                 beforeSend: function(){
                     $('body').loadingModal({
                     position: 'auto',

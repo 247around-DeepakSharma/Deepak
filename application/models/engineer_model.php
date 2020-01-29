@@ -319,7 +319,7 @@ class Engineer_model extends CI_Model {
         
         $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
             eb.`current_status`, eb.`internal_status`, partners.public_name as partner_name, bud.appliance_brand, eb.`cancellation_reason`, eb.`cancellation_remark`,
-            eb.`closing_remark`, bd.initial_booking_date, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            eb.`closing_remark`, DATE_FORMAT(bd.initial_booking_date,"%d-%b-%Y") , DATE_FORMAT(eb.closed_date,"%d-%b-%Y") , if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
             FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
             JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
             JOIN booking_details as bd on bd.booking_id = eb.booking_id JOIN partners on partners.id = bd.partner_id

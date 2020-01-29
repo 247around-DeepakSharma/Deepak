@@ -61,7 +61,7 @@
                             <td><?php echo $row->services; ?></td>
                             <td><?php echo $row->category; ?></td>
                             <td><?php echo $row->capacity; ?></td>
-                            <td><?php echo date('jS M, Y', strtotime($row->create_date)); ?></td>
+                            <td><?php echo date('d-M-Y', strtotime($row->create_date)); ?></td>
                             <td>
                                 <button id='<?php echo "updatebtn" . $key; ?>' class="btn btn-primary" onclick="loadupdatemodel('<?php echo $key; ?>')" 
                                         value="update" data-service_id="<?php echo $row->service_id; ?>"  

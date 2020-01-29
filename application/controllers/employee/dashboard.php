@@ -1353,8 +1353,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $tempArray = [];
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
-                $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
-                    "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                if(!empty($escalation['zone']) && !empty($escalation['escalation']) && !empty($escalation['rm_name']))
+                {
+                    $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                        "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                }
             }
         }
          $esclationPercentage= array_values($tempArray);
@@ -1868,7 +1871,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         return $structuredArray;
     }
-
     function get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id){
         $where = $joinType  = $join = $requestTypeArray = $where_in = array();
         //Filter on service ID
@@ -2074,6 +2076,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
         }else if($for == "ARM"){
             $rm = $this->input->post("rm");
+            // Need to discuss
             $arms = $this->get_arm_ids_under_rm($rm);
             $wherein = array();
             foreach($arms as $arm){
@@ -2096,16 +2099,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * get id's of rm's who don't report to other rms
      */
     private function get_top_level_rm_ids(){
-        $where = array(
-                'e1.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL,
-                'e2.groups NOT IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL
-            );
-        $join = array(
-            "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",
-            "employee e2"=> "ehm.manager_id = e2.id"
-        );
-        $joinType = array("inner", "inner");
-        return $this->reusable_model->get_search_result_data("employee e1", "e1.id as 'id'", $where, $join, NULL, NULL, NULL, $joinType, NULL);
+        return $this->reusable_model->get_search_result_data("rm_region_mapping", "rm_region_mapping.rm_id as 'id'", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     }
     /**
      * get arm ids under rm
@@ -2724,7 +2718,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                        log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                     }
-               
                 }
 
              }
@@ -3104,7 +3097,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $rmmissingview=$this->load->view('dashboard/rm_missing_report',$data,true);
         echo $rmmissingview;
     }
-    
     function get_am_booking_data()
     {
                $am=array();

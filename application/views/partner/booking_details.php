@@ -93,7 +93,7 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
+                                        <td><?php echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
@@ -389,11 +389,11 @@
                                                                 </td>
                                                                 <td><?php echo $sp['serial_number']; ?></td>
                                                                 <?php if (!empty($sp['acknowledge_date'])) { ?>
-                                                                    <td><?php echo $sp['acknowledge_date']; ?></td>
+                                                                    <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                                                 <?php }else{ ?>
                                                                     <td> - </td>
                                                                 <?php } ?>
-                                                                <td><?php echo $sp['acknowledge_date']; ?></td>
+                                                                <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
                                                                 <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -553,7 +553,7 @@
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                                                    <td><?php echo $sp['shipped_date']; ?></td>
+                                                                    <td><?php echo date("d-M-Y", strtotime($sp['shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['edd']; ?></td>
                                                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
                                                                     <td> 
@@ -632,7 +632,7 @@
                                                                                     ?></td>
                                                                     <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                                                    <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                                                    <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                                                     <td>
@@ -771,7 +771,7 @@
                                                                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf']; ?>">
                                                                                 <img style="width:27px;" src="<?php echo base_url(); ?>images/invoice_icon.png" /></a>
                                                                         </td> 
-                                                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                                                        <td><?php echo date("d-M-Y", strtotime($sp['oow_invoice_date'])); ?></td>  
                                                                     </tr>
                                                                  <?php }
                                                                         }

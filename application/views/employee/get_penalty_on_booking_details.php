@@ -27,7 +27,7 @@
                             <input type="hidden" name="booking_id[]" id="booking_id" value="<?php echo $row['booking_id']; ?>">
                         </td>
                         <td>
-                            <?php echo date_format(date_create($row['create_date']),"d/m/Y");?>
+                            <?php echo date_format(date_create($row['create_date']),"d-M-Y");?>
                         </td>
                         <td><?php echo $row['name'];?></td>
                         <td><?php if(!empty($row['remarks'])){echo $row['remarks'];}else{ echo "No remarks Found";} ?></td>

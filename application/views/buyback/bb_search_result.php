@@ -51,8 +51,8 @@
                                 <td><?php echo $value->services;?></td>
                                 <td><?php echo $value->category;?></td>
                                 <td><?php echo $value->city;?></td>
-                                <td><?php echo $value->order_date;?></td>
-                                <td><?php echo $value->delivery_date;?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value->order_date));?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value->delivery_date));?></td>
                                 <td><?php echo $value->current_status;?></td>
                                 <td><?php echo $value->partner_basic_charge;?></td>
                                 <td><?php echo ($value->cp_basic_charge + $value->cp_tax_charge);?></td>

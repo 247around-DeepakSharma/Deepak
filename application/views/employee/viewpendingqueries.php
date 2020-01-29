@@ -120,7 +120,7 @@ function outbound_call(phone_number){
              
                     <td><?= $row->services;  ?></td>
                    
-                    <td ><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                    <td ><?= date("d-M-Y", strtotime($row->booking_date)); ?> / <?= $row->booking_timeslot; ?></td>
                     <?php if($status !="Cancelled"){ ?>
                     <td  id="status_<?php echo $row->booking_id; ?>">
                         <?php

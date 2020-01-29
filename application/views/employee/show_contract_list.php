@@ -29,8 +29,8 @@
                         <td ><?php echo $i.'.'?></td>
                         <td><?php echo $value->public_name; ?></td>
                         <td><?php echo $value->collateral_type; ?></td>
-                        <td><?php echo $value->start_date; ?></td>
-                        <td><?php echo $value->end_date; ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value->start_date)); ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value->end_date)); ?></td>
                         <td><?php if($value->collateral_tag != NULL){ ?> 
                             <a href="<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/<?php echo $value->file; ?>" target="_blank"><button class="btn btn-xs btn-primary">view</button></a>
                             <?php } ?>
