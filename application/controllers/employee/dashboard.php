@@ -1353,8 +1353,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $tempArray = [];
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
-                $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
-                    "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                if(!empty($escalation['zone']) && !empty($escalation['escalation']) && !empty($escalation['rm_name']))
+                {
+                    $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
+                        "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
+                }
             }
         }
          $esclationPercentage= array_values($tempArray);

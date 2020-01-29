@@ -2300,7 +2300,7 @@ class Service_centers extends CI_Controller {
                 $service_center_id = $this->session->userdata('service_center_id');
                 if (!$this->form_validation->run()) {
                     $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-                    if (!$is_file['code']) {
+                    if (!empty($is_file['code'])) {
                         $userSession = array("error" => "Form validation Error");
                         $this->session->set_userdata($userSession);
                     }
