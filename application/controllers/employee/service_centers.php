@@ -797,7 +797,7 @@ class Service_centers extends CI_Controller {
                         $result = $data[0];
 
                         if (!empty($data[0]['price_tags']) && ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
-                            if (!empty($v['price_tags']) && ($v['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
+                            if (!empty($v['service_category']) && ($v['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS)) {
                                 $result['customer_total'] = $unit[0]['customer_total'];
                                 $result['vendor_basic_percentage'] = $unit[0]['vendor_basic_percentage'];
                             }
@@ -2300,7 +2300,7 @@ class Service_centers extends CI_Controller {
                 $service_center_id = $this->session->userdata('service_center_id');
                 if (!$this->form_validation->run()) {
                     $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
-                    if (!$is_file['code']) {
+                    if (!empty($is_file['code'])) {
                         $userSession = array("error" => "Form validation Error");
                         $this->session->set_userdata($userSession);
                     }
@@ -6487,7 +6487,7 @@ class Service_centers extends CI_Controller {
 
             $to = $email_template[1];
             $cc = $email_template[3];
-            $bcc = $email_template[4];
+            $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array());
             $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['consumption_reason'], '', $results[0]['invoice_pic']));
 

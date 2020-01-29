@@ -2377,7 +2377,7 @@ class engineerApi extends CI_Controller {
                 }
 
                 //Call curl for updating spare parts using code from where service center ask for spare parts
-                $url = base_url() . "employee/service_centers/transfer_incentive_to_paytm_wallet";
+                $url = base_url() . "employee/service_centers/update_spare_parts"; //// Abhishek Change Wrong function called for spare part update ///
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

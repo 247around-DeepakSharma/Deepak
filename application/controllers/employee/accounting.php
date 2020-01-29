@@ -1400,7 +1400,9 @@ class Accounting extends CI_Controller {
      */
     function generate_gstr2a_report(){ 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/generate_taxpro_GSTR2a_Data');
+        //get state dropdown data
+        $data['state'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.entity_id' => 247001));
+        $this->load->view('employee/generate_taxpro_GSTR2a_Data', $data);
     }
     
     
@@ -1410,18 +1412,10 @@ class Accounting extends CI_Controller {
      * @return api response
      */
     function generate_taxpro_otp(){
-       
         $state = $this->input->post("state", TRUE);
-        if($state == 2)
-        {
-            //For UP
-            $url = TAXPRO_OTP_REQUEST_URL_UP;
-        }
-        else
-        {
-            //For Delhi
-            $url = TAXPRO_OTP_REQUEST_URL;
-        }  
+        $state_username_gstin = $this->get_state_user_name_gstin($state);
+        $url = TAXPRO_OTP_REQUEST_URL.'&username='.$state_username_gstin.'&gstin='.$state;
+         
         //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=OTPREQUEST&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1";
         $activity = array(
             'entity_type' => _247AROUND_PARTNER_STRING,
@@ -1430,7 +1424,7 @@ class Accounting extends CI_Controller {
             'header' => "",
             'json_request_data' => $url,
         );
-        $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
+          $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
         $activity['json_response_string'] = $api_response;
         $this->partner_model->log_partner_activity($activity);
         echo $api_response;
@@ -1442,18 +1436,10 @@ class Accounting extends CI_Controller {
      * @return boolean message
      */
     function generate_taxpro_auth_token(){
-        $otp = $this->input->post("otp");
+        $otp = $this->input->post("otp", TRUE);
         $state = $this->input->post("state", TRUE);
-        if($state == 2)
-        {
-            //For UP
-            $url = TAXPRO_AUTH_TOKEN_REQUEST_URL_UP.$otp;
-        }
-        else
-        {
-            //For Delhi
-            $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.$otp;
-        }    
+        $state_username_gstin = $this->get_state_user_name_gstin($state);
+        $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.'&gstin='.$state.'&username='.$state_username_gstin.'&otp='.$otp; 
         
         //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=AUTHTOKEN&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1&OTP=575757";
         $activity = array(
@@ -1467,6 +1453,7 @@ class Accounting extends CI_Controller {
         $activity['json_response_string'] = $api_response;
         $this->partner_model->log_partner_activity($activity);
         $response = json_decode($api_response);
+       // print_r($response);
         if($response->status_cd == '1'){
            $this->fetch_taxpro_gstr2a_data($response->auth_token, $state);
            echo "success";
@@ -1481,25 +1468,16 @@ class Accounting extends CI_Controller {
      * @param authtoken
      * @return void
      */
-    function fetch_taxpro_gstr2a_data($autnToken, $state=1){ 
+    function fetch_taxpro_gstr2a_data($autnToken, $state="07AAFCB1281J1ZQ"){ 
         $to_date = date("Y-m");
-        $from_date = date("2017-07");
+        $from_date = date("2019-04");
         while($from_date < $to_date){
             $year = date('Y', strtotime($from_date));
             $month = date('m', strtotime($from_date));
             $ret_period = $month.$year;
-            if($state == 2)
-            {
-                //For UP
-                $url = TAXPRO__FEATCH_GSTR2A_URL_UP.$autnToken.'&ret_period='.$ret_period;
-                $gstin = _247_AROUND_GSTIN_UP;
-            }
-            else
-            {
-                //For Delhi
-                $url = TAXPRO__FEATCH_GSTR2A_URL.$autnToken.'&ret_period='.$ret_period;
-                $gstin = _247_AROUND_GSTIN;
-            }    
+            
+            $state_username_gstin = $this->get_state_user_name_gstin($state);
+            $url = TAXPRO__FEATCH_GSTR2A_URL.'&gstin='.$state.'&username='.$state_username_gstin.'&authtoken='.$autnToken.'&ret_period='.$ret_period; 
                 
             $activity = array(
                 'entity_type' => _247AROUND_PARTNER_STRING,
@@ -1511,53 +1489,56 @@ class Accounting extends CI_Controller {
             $api_response = $this->invoice_lib->taxpro_api_curl_call($url);
             
             $response = json_decode($api_response, TRUE);
-            $data_on_gstin_array = $response['b2b'];
-            $row_batch = array();
-            foreach ($data_on_gstin_array as $data_on_gstin) {
-                $gst_no = $data_on_gstin['ctin'];
-                $data_on_invoice_array = $data_on_gstin['inv'];
-                foreach ($data_on_invoice_array as $data_on_invoice) {
-                    $checksum = $data_on_invoice['chksum'];
-                        $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
-                        $invoice_val = $data_on_invoice['val'];
-                        $invoice_number = $data_on_invoice['inum'];
-                        $data_on_invoice_items_array = $data_on_invoice['itms'];
-                        foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
-                            $data_on_tax = $data_on_invoice_items['itm_det'];
-                            $gst_rate = $data_on_tax['rt'];
-                            $taxable_val = $data_on_tax['txval'];
-                            if (isset($data_on_tax['iamt'])){
-                                $cgst_val = 0;
-                                $sgst_val = 0;
-                                $igst_val = $data_on_tax['iamt'];
+            if(array_key_exists('b2b',$response)){
+                $data_on_gstin_array = $response['b2b'];
+                $row_batch = array();
+                foreach ($data_on_gstin_array as $data_on_gstin) {
+                    $gst_no = $data_on_gstin['ctin'];
+                    $data_on_invoice_array = $data_on_gstin['inv'];
+                    foreach ($data_on_invoice_array as $data_on_invoice) {
+                        $checksum = $data_on_invoice['chksum'];
+                            $date =  date("Y-m-d", strtotime($data_on_invoice['idt']));
+                            $invoice_val = $data_on_invoice['val'];
+                            $invoice_number = $data_on_invoice['inum'];
+                            $data_on_invoice_items_array = $data_on_invoice['itms'];
+                            foreach ($data_on_invoice_items_array as $data_on_invoice_items) { 
+                                $data_on_tax = $data_on_invoice_items['itm_det'];
+                                $gst_rate = $data_on_tax['rt'];
+                                $taxable_val = $data_on_tax['txval'];
+                                if (isset($data_on_tax['iamt'])){
+                                    $cgst_val = 0;
+                                    $sgst_val = 0;
+                                    $igst_val = $data_on_tax['iamt'];
+                                }
+                                else{
+                                    $cgst_val = $data_on_tax['camt'];
+                                    $sgst_val = $data_on_tax['samt'];
+                                    $igst_val = 0;
+                                }
+                                $row = array(
+                                    'gst_no' => $gst_no,
+                                    'invoice_number' => $invoice_number,
+                                    'invoice_amount' => $invoice_val,
+                                    'gst_rate' => $gst_rate,
+                                    'taxable_value' => $taxable_val,
+                                    'igst_amount' => $igst_val,
+                                    'cgst_amount' => $cgst_val,
+                                    'sgst_amount' => $sgst_val,
+                                    'invoice_date' => $date,
+                                    'checksum' => $checksum,
+                                    'gstr2a_period' => $ret_period,
+                                    'create_date' => date('Y-m-d H:i:s'),
+                                    'state_gstin' => $state
+                                );
+                            $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                            if(empty($check_checksum)){
+                                array_push($row_batch, $row);
                             }
-                            else{
-                                $cgst_val = $data_on_tax['camt'];
-                                $sgst_val = $data_on_tax['samt'];
-                                $igst_val = 0;
-                            }
-                            $row = array(
-                                'gst_no' => $gst_no,
-                                'invoice_number' => $invoice_number,
-                                'invoice_amount' => $invoice_val,
-                                'gst_rate' => $gst_rate,
-                                'taxable_value' => $taxable_val,
-                                'igst_amount' => $igst_val,
-                                'cgst_amount' => $cgst_val,
-                                'sgst_amount' => $sgst_val,
-                                'invoice_date' => $date,
-                                'checksum' => $checksum,
-                                'gstr2a_period' => $ret_period,
-                                'create_date' => date('Y-m-d H:i:s'),
-                                'state_gstin' => $gstin
-                            );
-                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
-                        if(empty($check_checksum)){
-                            array_push($row_batch, $row);
                         }
                     }
                 }
-            }
+            } 
+            
             if(!empty($row_batch)){
                 $this->accounting_model->insert_taxpro_gstr2a_data($row_batch);
             }
@@ -1576,6 +1557,8 @@ class Accounting extends CI_Controller {
      */
     function show_gstr2a_report(){
         $data = array();
+        //get state dropdown data
+        $data['state'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.entity_id' => 247001));
         $data['last_updated_data'] = $this->reusable_model->execute_custom_select_query('SELECT `create_date` FROM `taxpro_gstr2a_data` ORDER BY create_date desc LIMIT 1')[0]['create_date'];
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_taxpro_GSTR2a_Data', $data);
@@ -1592,18 +1575,12 @@ class Accounting extends CI_Controller {
         $post = $this->get_gst2ra_post_data();
         $post['where']['taxpro_gstr2a_data.is_rejected'] =  0;
         $post['where']['taxpro_gstr2a_data.is_mapped'] =  0;
-        $state_id = $this->input->post("state", TRUE);
-        if($state_id == 2)
+        $state_id = $this->input->post("state", TRUE);  
+        if($state_id != 0)
         {
-            //For UP
-            $state_gstin = _247_AROUND_GSTIN_UP;
+            //if all state option is not selected
+            $post['where']['state_gstin'] = $state_id;
         }
-        else
-        {
-            //For Delhi
-            $state_gstin = _247_AROUND_GSTIN;
-        }   
-        $post['where']['state_gstin'] = $state_gstin;
         //$post['where']['NOT EXISTS(select taxpro_checksum from vendor_partner_invoices where vendor_partner_invoices.taxpro_checksum = taxpro_gstr2a_data.checksum)'] =  NULL;
         $post['entity_type'] = $this->input->post("entity");
         if($post['entity_type'] == 'vendor'){
@@ -1612,18 +1589,18 @@ class Accounting extends CI_Controller {
             $inv_where['invoice_id like "%Around-GST-DN%"'] = NULL;
             $post['column_search'] = array('service_centres.name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
             $post['column_order'] = 'service_centres.name';
-            $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id";
+            $select = "taxpro_gstr2a_data.*, service_centres.company_name, service_centres.name, service_centres.id as vendor_id, egd.city";
         }
         else if($post['entity_type'] == 'partner'){
             $inv_where['vendor_partner'] = 'partner';
             $post['column_search'] = array('partners.public_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
             $post['column_order'] = 'partners.public_name';
-            $select = "taxpro_gstr2a_data.*, partners.company_name, partners.public_name as name, partners.id as vendor_id";
+            $select = "taxpro_gstr2a_data.*, partners.company_name, partners.public_name as name, partners.id as vendor_id, egd.city";
         }
         else if($post['entity_type'] == 'other'){
             $post['column_search'] = array('gstin_detail.company_name', 'taxpro_gstr2a_data.gst_no', 'taxpro_gstr2a_data.invoice_number');
             $post['column_order'] = 'taxpro_gstr2a_data.invoice_number';
-            $select = "taxpro_gstr2a_data.*, gstin_detail.company_name, gstin_detail.company_name as name, gstin_detail.id as vendor_id";
+            $select = "taxpro_gstr2a_data.*, gstin_detail.company_name, gstin_detail.company_name as name, gstin_detail.id as vendor_id, egd.city";
             $post['where']['service_centres.id'] =  null;
             $post['where']['partners.id'] =  null;
         }
@@ -1705,6 +1682,7 @@ class Accounting extends CI_Controller {
             $row[] = "<a class='".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
         }
         $row[] = $data_list['gst_no'];
+        $row[]= $data_list['city'];
         $row[] = $this->miscelleneous->get_formatted_date($data_list['invoice_date']);
         $row[] = $data_list['igst_amount'];
         $row[] = $data_list['cgst_amount'];
@@ -1898,5 +1876,20 @@ class Accounting extends CI_Controller {
             $return["message"] = "Error Occured while Updating Status";
         }
         echo json_encode($return);
+    }
+    
+    //function to get state USER_NAME_GSTIN
+    function get_state_user_name_gstin($state_gstin)
+    {
+        $state_gstin_array = USER_NAME_GSTIN;
+        //check if key exists in constant array
+        if(array_key_exists($state_gstin,$state_gstin_array))
+        {
+            return $state_gstin_array[$state_gstin]["USER_NAME_GSTIN"];
+        }
+        else
+        {
+            return false;
+        }    
     }
 }
