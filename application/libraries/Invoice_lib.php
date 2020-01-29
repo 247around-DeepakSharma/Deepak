@@ -749,6 +749,7 @@ class Invoice_lib {
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
                 $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
+                $tmp_arr['consumption'] = $value2[0]['consumption'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -835,7 +836,7 @@ class Invoice_lib {
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*';
+            $select = 'spare_parts_details.*,spare_consumption_status.consumed_status';
             $where = array('spare_parts_details.id' => $spare_id,
                 "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
                 'defective_part_required' => 1);
@@ -848,7 +849,6 @@ class Invoice_lib {
             $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
             $shipped_inventory_id = '';
             foreach ($spare_parts_details as $spare_key => $spare_parts_details_value) {
-
                 if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value[0]['parts_shipped'])) {
                     $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
 
@@ -872,6 +872,15 @@ class Invoice_lib {
                         $spare_parts_details[0][$spare_key]['part_number'] = '';
                     }
                 }
+
+/*  By: Abhishek : Consumption status  on Challan */
+            if(!empty($spare_parts_details_value[0]['consumed_status'])){
+                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
+            }else{
+                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
+            }
+            
+
             }
 
             $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
@@ -944,7 +953,6 @@ class Invoice_lib {
 
             $shipped_inventory_id = '';
             foreach ($spare_parts_details as $spare_key => $spare_parts_details_value) {
-
                 if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value[0]['parts_shipped'])) {
                     $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
 
@@ -967,6 +975,14 @@ class Invoice_lib {
                         $spare_parts_details[$spare_key][0]['part_number'] = '';
                     }
                 }
+
+            /*  By: Abhishek : Consumption status  on Challan */
+            if(!empty($spare_parts_details_value[0]['consumed_status'])){
+                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
+            }else{
+                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
+            }
+
             }
 
             $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
