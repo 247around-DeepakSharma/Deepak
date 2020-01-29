@@ -1711,6 +1711,8 @@ function manageAccountNameField(value){
 
 <script type="text/javascript">
     function load_form(tab_id){
+        var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
+        sessionStorage.setItem("last-url-s"+current_partner_id, tab_id);
        total_div  = document.getElementsByClassName('form_container').length;
        for(var i =1;i<=total_div;i++){
            if(i != tab_id){
@@ -2024,4 +2026,14 @@ function manageAccountNameField(value){
         }
 
     }
+
+
+    $(document).ready(function(){
+        var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
+        var lastUrl = sessionStorage.getItem("last-url-s"+current_partner_id);
+        if(lastUrl!=null)
+        {
+            $("#"+lastUrl).trigger('click');
+        }
+    });
 </script>

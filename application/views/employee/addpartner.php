@@ -3994,7 +3994,8 @@
     });
     
     function load_form(tab_id){
-        sessionStorage.setItem("last-url", tab_id);
+        var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
+        sessionStorage.setItem("last-url"+current_partner_id, tab_id);
         total_div  = document.getElementsByClassName('form_container').length;
         for(var i =1;i<=total_div;i++){
             if(i != tab_id){
@@ -5874,7 +5875,8 @@
 
 
     $(document).ready(function(){
-        var lastUrl = sessionStorage.getItem("last-url");
+        var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
+        var lastUrl = sessionStorage.getItem("last-url"+current_partner_id);
         if(lastUrl!=null)
         {           
             $("#"+lastUrl).trigger('click');
