@@ -429,7 +429,7 @@ class accounting_model extends CI_Model {
             $this->db->join('partners', 'partners.gst_number = taxpro_gstr2a_data.gst_no', 'left');
             $this->db->join('gstin_detail', 'gstin_detail.gst_number = taxpro_gstr2a_data.gst_no', 'left');
         }
-        
+        $this->db->join('entity_gst_details as egd', 'egd.gst_number = taxpro_gstr2a_data.state_gstin', 'left');
         if(!empty($condition['where'])){
             $this->db->where($condition['where']);
         }
