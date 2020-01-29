@@ -65,7 +65,9 @@
                                             <input type="hidden" class="form-control spare_parts" id="old_serial_number_pic" name="old_serial_number_pic" value="<?php echo $spare_parts_details['serial_number_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
+                                        <a href="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $spare_parts_details['serial_number_pic']; ?>" target="_blank">
                                         <img src="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $spare_parts_details['serial_number_pic']; ?>" id="display_serial_number_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        </a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -80,7 +82,9 @@
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
+                                        <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
                                         <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        </a>
                                       <?php } ?>
                                     </div>
                                 </div>
@@ -173,8 +177,10 @@
                                                 <input type="hidden" class="form-control spare_parts" id="old_defective_parts_pic" name="old_defective_parts_pic" value="<?php echo $spare_parts_details['defective_parts_pic']; ?>">
                                             </div>
                                             <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
+                                            <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" target="_blank">
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" id="display_defective_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
-                                           <?php } ?>
+                                            </a>
+                                            <?php } ?>
                                         </div>
                                     </div>
 
@@ -187,8 +193,10 @@
                                                 <input type="hidden" class="form-control spare_parts" id="old_defective_back_parts_pic" name="old_defective_back_parts_pic" value="<?php echo $spare_parts_details['defective_back_parts_pic']; ?>">
                                             </div>
                                             <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
+                                            <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_back_parts_pic']; ?>" target="_blank">
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_back_parts_pic']; ?>" id="display_defective_back_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
-                                           <?php } ?>
+                                            </a>
+                                            <?php } ?>
                                         </div>
                                     </div>
 
