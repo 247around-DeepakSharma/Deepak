@@ -3433,10 +3433,6 @@ class Service_centers extends CI_Controller {
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
                         $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['update_date'] = date('Y-m-d H:i:s');
-                        $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
                     }
 
