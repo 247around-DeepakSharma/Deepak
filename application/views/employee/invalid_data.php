@@ -46,7 +46,7 @@
                         <th>phone Number is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -59,7 +59,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationdemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -77,7 +77,7 @@
                         <th>product is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -90,7 +90,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationdemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -108,7 +108,7 @@
                         <th>product Type is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -121,7 +121,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationdemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -139,7 +139,7 @@
                         <th>pincode is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -152,7 +152,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationdemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -170,7 +170,7 @@
                         <th>Shipped/delivered is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -183,7 +183,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationdemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -201,7 +201,7 @@
                         <th>Order ID is not valid Excel data:</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -214,7 +214,7 @@
                         <td><?php if(isset($data['call_type_installation_table_top_installationDemo_service'])){echo $data['call_type_installation_table_top_installationDemo_service']; }?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>
@@ -231,7 +231,7 @@
                         <th>phone Number is same as Order Id</th>
                         <td><?php echo $data['sub_order_id']; ?></td>
                         <td><?php echo $data['referred_date_and_time']; ?></td>
-                        <td><?php if(isset($data['delivery_date'])){echo $data['delivery_date'];} ?></td>
+                        <td><?php if(isset($data['delivery_date'])){echo date("d-M-Y", strtotime($data['delivery_date']));} ?></td>
                         <td><?php echo $data['brand']; ?></td>
                         <td><?php echo $data['model']; ?></td>
                         <td><?php echo $data['product']; ?></td>
@@ -244,7 +244,7 @@
                         <td><?php echo $data['call_type_installation_table_top_installationDemo_service']; ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
-                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>
+                        <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo date("d-M-Y", strtotime($data['scheduled_appointment_datemmddyyyy'])); } ?></td>
                         <td><?php if(isset($data['remarks_by_around_247'])){echo $data['remarks_by_around_247'];} ?></td>
                         <td><?php if(isset($data['status_by_snapdeal'])){echo $data['status_by_snapdeal'];} ?></td>
                         <td><?php if(isset($data['remarks_by_snapdeal'])){echo $data['remarks_by_snapdeal'];} ?></td>

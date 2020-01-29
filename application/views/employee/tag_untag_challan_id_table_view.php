@@ -45,9 +45,9 @@
                     <tr> 
                         <td><?php echo $sn; ?></td>
                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $value['challan_file']; ?>" ><?php echo $value['serial_no'] ?></a></td>
-                        <td><?php echo $value['from_date'] ?></td>
-                        <td><?php echo $value['to_date'] ?></td>
-                        <td><?php echo $value['challan_tender_date'] ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value['from_date'])) ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value['to_date'] ))?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value['challan_tender_date'])) ?></td>
                         <td><?php echo round($value['amount']) ?></td>
                         <td><?php if($value['type'] === 'ST'){echo "Service Tax";}
                         else if($value['type'] === 'VAT'){echo "VAT";}

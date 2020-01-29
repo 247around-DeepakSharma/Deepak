@@ -25,7 +25,7 @@
                                     <td><?php echo $item['parts_count']; ?></td>
                                     <td><?php echo $item['invoice_id']; ?></td>
                                     <td><?php echo $item['amount']; ?></td>
-                                    <td><?php echo $item['invoice_date']; ?></td>
+                                    <td><?php echo date("d-M-Y", strtotime($item['invoice_date'])); ?></td>
                                 </tr>
                             <?php } ?>
                         <?php }else{ ?>

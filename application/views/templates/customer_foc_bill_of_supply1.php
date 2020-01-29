@@ -40,7 +40,7 @@ include 'customer_foc_bill_of_supply_variables.php';
 
             <tr><td colspan="2">Invoice No: <?php echo $meta['invoice_id']; ?></td>		
                 <td colspan="4" style="border-right: 2px solid;">Period: <?php echo $meta['sd']; ?> - <?php echo $meta['ed']; ?>
-            <tr><td colspan="2">Invoice Date: <?php echo $meta['invoice_date']; ?></td>	
+            <tr><td colspan="2">Invoice Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>	
                 <td colspan="4" style="border-right: 2px solid;">Reverse Charge (Y/N): N</td>
             </tr>
 

@@ -3381,10 +3381,6 @@ class Service_centers extends CI_Controller {
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
                         $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['update_date'] = date('Y-m-d H:i:s');
-                        $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
                     }
 
@@ -6116,7 +6112,7 @@ class Service_centers extends CI_Controller {
                                 $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, "spare_parts_details.partner_challan_number IS NULL" => NULL);
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
-                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
+                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
                                 $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
                                 if (!empty($part_details_challan)) {
                                     $this->generate_challan_to_sf($part_details_challan);
@@ -6274,6 +6270,7 @@ class Service_centers extends CI_Controller {
                     $spare_parts['part_number'] = $value['part_number'];
                     $spare_parts['shipped_quantity'] = $value['quantity'];
                     $spare_parts['inventory_id'] = $value['shipped_inventory_id'];
+                    $spare_parts['consumption'] = $value['consumed_status']; 
                 }
                 $spare_details[][] = $spare_parts;
             }
@@ -7026,8 +7023,9 @@ class Service_centers extends CI_Controller {
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__ . " SF Id " . $sf_id);
         $this->check_WH_UserSession();
+        ob_start();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
-
+        ob_end_clean(); 
         if ($pdf_details['status']) {
             if (!empty($pdf_details['file_name'])) {
                 header('Content-Description: File Transfer');

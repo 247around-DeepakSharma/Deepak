@@ -41,12 +41,12 @@
                                     <?php echo $value['partner_order_id'];?></a>
                                 </td>
                                 <td><?php echo $value['admin_remarks'];?></td>
-                                <td><?php echo $value['order_date'];?></td>
-                                <td><?php echo $value['delivery_date'];?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value['order_date']));?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value['delivery_date']));?></td>
                                 <td><?php echo $value['current_status'];?></td>
                                 <td><?php echo $value['internal_status'];?></td>
                                 <td><?php echo $value['remarks'];?></td>
-                                <td><?php echo $value['update_date'];?></td>
+                                <td><?php echo date("d-M-Y", strtotime($value['update_date']));?></td>
                             </tr>
                             <?php }
                                 ?>

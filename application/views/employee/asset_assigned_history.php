@@ -14,7 +14,7 @@
                             <td><?php echo ($key +1) ?></td>
                             <td><?php echo $row['full_name']; ?></td>
                             <td><?php echo $row['agent_name']; ?></td>
-                            <td><?php echo date('d-m-y', strtotime($row['create_date'])); ?></td>
+                            <td><?php echo date('d-M-Y', strtotime($row['create_date'])); ?></td>
                         </tr>
 
     <?php }

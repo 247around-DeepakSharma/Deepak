@@ -117,7 +117,7 @@
                                                     }
                                                 }
                                                 ?>
-                                                <p><?php echo $val['checkpoint_status_date']; ?></p>
+                                                <p><?php echo date("d-M-Y", strtotime($val['checkpoint_status_date'])); ?></p>
                                             </td>
                                             <td><?php echo $val['checkpoint_status_description'] . ' ' . $val['checkpoint_status_details']; ?></td>
                                         </tr>
