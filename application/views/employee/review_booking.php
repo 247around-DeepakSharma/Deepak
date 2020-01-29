@@ -52,8 +52,8 @@
                             <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>)"><?php echo $value['booking_primary_contact_no'];  ?></a>
                         </td>
                        
-                        <td><?php echo $value['initial_booking_date'];  ?></td>
-                        <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value['initial_booking_date']));  ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($value['booking_date']))." / ".$value['booking_timeslot'] ;  ?></td>
                         <td><?php echo  date('d-M-Y',strtotime($value['reschedule_date_request'])) ; ?>
                         <div class="blink">
                            <div class="esclate"><?php echo '<b>' . $value['count_reschedule'] . " times</b><br>";?></div>

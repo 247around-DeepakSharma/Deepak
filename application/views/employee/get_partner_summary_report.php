@@ -98,7 +98,7 @@
                                 ?>
                                 <tr>
                                     <td> <?php echo implode(", ", $finalFilterArray); ?></td>
-                                    <td> <?php echo $summaryReport['create_date'] ?></td>
+                                    <td> <?php echo date("d-M-Y", strtotime($summaryReport['create_date'])) ?></td>
                                     <td> <a class="btn btn-success" style="background: #2a3f54;" href="<?php echo base_url(); ?>employee/partner/download_custom_summary_report/<?php echo $summaryReport['url'] ?>">Download</a></td>
                                 </tr>
                                 <?php
