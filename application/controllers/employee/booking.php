@@ -2482,16 +2482,13 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
-        //$is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
+        $booking['current_status'] = $internal_status;
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts && $is_update_spare_parts != DEFECTIVE_PARTS_SHIPPED) { 
-            $booking['current_status'] = _247AROUND_PENDING;
             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
         } else if($is_update_spare_parts == DEFECTIVE_PARTS_SHIPPED) {
-            $booking['current_status'] = _247AROUND_PENDING;
             $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
         } else {
-            $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
             $booking['closed_date'] = date('Y-m-d H:i:s');
             if(!empty($b_unit_details)){
