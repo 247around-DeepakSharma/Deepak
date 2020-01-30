@@ -98,8 +98,8 @@
             <td ></td>
             <td colspan="3" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
             <td colspan="1" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="4" style="text-align: center"><b>Total Amount </b></td>
-            <td colspan="3" style="text-align: center"><b><?php echo $total_value; ?></b></td>
+            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
+            <td colspan="4" style="text-align: center"><b><?php echo $total_value; ?></b></td>
         </tr>
         <tr>
             <td style="text-align: right;padding-top: 3%; padding-bottom: 3%;padding-right: 2%" colspan="13">For <?php echo $excel_data['sf_name']; ?></td>

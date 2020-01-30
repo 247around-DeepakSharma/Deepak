@@ -234,6 +234,9 @@ if ($this->uri->segment(3)) {
         $("#datatable1").dataTable({
             "pageLength": 100,
             dom: 'Bfrtip',
+            "language": {                
+                "searchPlaceholder": "Search by Any Column",
+            },
             // Configure the drop down options.
             lengthMenu: [
             [ 100, 200,500, -1 ],

@@ -1010,7 +1010,7 @@ class Accounting extends CI_Controller {
     function get_payment_summary_searched_data(){
         $post = $this->getPaymentSummaryDataTablePost();
         $post['column_order'] = array( NULL, 'bank_transactions.id');
-        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'transaction_date', 'transaction_id');
+        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'DATE_FORMAT(transaction_date,"%d-%b-%Y")', 'transaction_id');
         $data = array();
         
         switch ($this->input->post('request_type')){
@@ -1148,7 +1148,7 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-        $row[] = $transaction_list->transaction_date;
+        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
         $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
         $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
@@ -1169,7 +1169,7 @@ class Accounting extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = $transaction_list->name;
-        $row[] = $transaction_list->transaction_date;
+        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
         $row[] = $transaction_list->description;
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
         $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
@@ -1279,7 +1279,7 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-        $row[] = $transaction_list->transaction_date;
+        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
         $row[] = $transaction_list->description;
         $row[] = round($transaction_list->credit_amount,0);
         $row[] = round($transaction_list->debit_amount,0);
