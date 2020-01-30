@@ -31,28 +31,30 @@
         </div>
     
         <div class="x_content">
-            <table class="table table-bordered table-hover table-striped" id="nrn_table" style=" z-index: -1;position: static;">
-                <thead>
-                    <tr>
-                                    <th class="text-center">S.No</th>
-                                    <th class="text-center">Booking ID</th>
-                                    <th class="text-center">Appliance</th>
-                                    <th class="text-center">Customer Name</th>
-                                    <th class="text-center">Part Request Age(Days)</th>
-                                    <th class="text-center">Required Parts</th>
-                                    <th class="text-center">Parts Number</th>
-                                    <th class="text-center">Quantity</th>
-                                    <th class="text-center">Model Number</th>
-                                    <th class="text-center">Serial Number</th>
-                                    <th class="text-center">State</th>
-                                    <th class="text-center">Problem Description</th>
-                                    <th class="text-center">NRN Remark</th>
-                                    <th class="text-center">Approval File</th>
-                                    <th data-sortable="false" class="text-center"> NRN Status</th>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" id="nrn_table" style=" z-index: -1;position: static;">
+                    <thead>
+                        <tr>
+                                        <th class="text-center">S.No</th>
+                                        <th class="text-center">Booking ID</th>
+                                        <th class="text-center">Appliance</th>
+                                        <th class="text-center">Customer Name</th>
+                                        <th class="text-center">Part Request Age(Days)</th>
+                                        <th class="text-center">Required Parts</th>
+                                        <th class="text-center">Parts Number</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">Model Number</th>
+                                        <th class="text-center">Serial Number</th>
+                                        <th class="text-center">State</th>
+                                        <th class="text-center">Problem Description</th>
+                                        <th class="text-center">NRN Remark</th>
+                                        <th class="text-center">Approval File</th>
+                                        <th data-sortable="false" class="text-center"> NRN Status</th>
 
-                    </tr>
-                </thead>
-            </table>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
