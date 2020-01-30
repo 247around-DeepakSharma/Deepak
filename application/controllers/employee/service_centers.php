@@ -2974,6 +2974,10 @@ class Service_centers extends CI_Controller {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$output_file_name\"");
             readfile($output_file_excel);
+            // Delete the file from temporary folder
+            if(file_exists($output_file_excel)){
+                unlink($output_file_excel);
+            }
             exit;
         }
     }
