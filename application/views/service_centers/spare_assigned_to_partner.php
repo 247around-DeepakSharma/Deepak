@@ -238,6 +238,9 @@ $("#on_partner").DataTable({
     "pageLength": 100,
     dom: 'Bfrtip',
     // Configure the drop down options.
+    "language": {                
+                "searchPlaceholder": "Search by Any Column",
+     },
     lengthMenu: [
         [ 25, 50,100, -1 ],
         [ '25', '50', '100', 'All' ]
