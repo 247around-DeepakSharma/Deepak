@@ -6685,7 +6685,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->booking_primary_contact_no;
             $tempArray[] = $row->city;
             $tempArray[] = $row->state;
-            $tempArray[] = $row->booking_date;
+            $tempArray[] = date("d-M-Y", strtotime($row->booking_date));
             $tempArray[] = $row->aging;
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
@@ -7226,7 +7226,7 @@ class Partner extends CI_Controller {
                  $tempArray[] = $row['booking_primary_contact_no'];
                  $tempArray[] = $row['city'];
                  $tempArray[] = $row['state'];
-                 $tempArray[] = $row['booking_date'];
+                 $tempArray[] = date('d-M-Y', strtotime($row['booking_date']));
                  $tempArray[] = $row['age'];
                  $tempString5  = "'".$row['booking_id']."'";
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
