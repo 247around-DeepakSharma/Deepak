@@ -1635,8 +1635,8 @@ EOD;
             write_file($csv, $new_report);
             //Upload File On AWS and save link in file_upload table
             $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
-            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
+            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.create_date,'%d-%m-%Y'),'%d-%b-%Y')");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
                     $subject, $email_body,

@@ -86,7 +86,7 @@
                
                 <tr id="<?php echo "row".$count;?>">
                    <td><?php  echo $count;$count++; if($value['is_advance'] ==1){?> <p id="advance_text">Advance</p><?php }?></td>
-               <td><?php echo $value['transaction_date']; ?></td>
+               <td><?php echo date('d-M-Y', strtotime($value['transaction_date'])); ?></td>
                <td><?php echo $value['description']; ?></td>
                <td><?php echo round($value['credit_amount'],0); if($value['is_advance'] ==0){ $credit_amount += intval($value['credit_amount']); } ?></td>       
                <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>
