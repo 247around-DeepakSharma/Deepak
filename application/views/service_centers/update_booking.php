@@ -797,6 +797,7 @@ function delete_supporting_file(id){
     });
 }
 function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
+        $("#submitform").attr("disabled", false);
         if(isChecked){
             var parent_booking_id = $('#parent_id_temp').val();
             if(!is_already_repeat){
@@ -823,6 +824,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                              $(".cloned :input").attr("disabled", true);
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
+                              $("#submitform").attr("disabled", true);
                               $('.Service:checked').prop('checked', false);
                                 $('.Service').each(function() {
                                     $(this).prop('disabled', true);
@@ -859,6 +861,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $("#parent_id").val(id);
         $("#is_repeat").val("1");
         $('#repeat_booking_model').modal('hide');
+        $("#submitform").attr("disabled", false);
     }
     
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});

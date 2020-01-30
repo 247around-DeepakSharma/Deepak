@@ -100,7 +100,7 @@
                                             <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?= $row->booking_date."<br/>"; ?> 
+                                            <?= date('d-M-Y', strtotime($row->booking_date))."<br/>"; ?> 
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
                                         <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
