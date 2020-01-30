@@ -674,13 +674,13 @@
                                 <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                
-                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
-                                    echo $courier_boxes_weight_details['box_count'];
+                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])) {
+                                    echo $sp['sf_box_count'];
                                 } ?></td>
                                 <td><?php
                                         if (!empty($sp['awb_by_sf'])) {
-                                            if (!empty($courier_boxes_weight_details['billable_weight'])) {
-                                                $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
+                                            if (!empty($sp['wh_billable_weight'])) {
+                                                $expl_data = explode('.', $sp['wh_billable_weight']);
                                                 if (!empty($expl_data[0])) {
                                                     echo $expl_data[0] . ' KG ';
                                                 }
@@ -759,11 +759,11 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
                                             <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($wh_courier_boxes_weight_details['box_count'])){ echo $wh_courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($sp['wh_box_count'])){ echo $sp['wh_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_wh'])) {
-                                                        if (!empty($wh_courier_boxes_weight_details['billable_weight'])) {
-                                                            $expl_data = explode('.', $wh_courier_boxes_weight_details['billable_weight']);
+                                                        if (!empty($sp['wh_billable_weight'])) {
+                                                            $expl_data = explode('.', $sp['wh_billable_weight']);
                                                             if (!empty($expl_data[0])) {
                                                                 echo $expl_data[0] . ' KG ';
                                                             }
