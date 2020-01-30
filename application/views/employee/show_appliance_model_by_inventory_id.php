@@ -146,10 +146,9 @@
         }
         
     }
-
-
-$(".updatemax_qty").click(function(){
-
+/*  UPdate Click Dynamically Binding */
+$('body').on('click', '.updatemax_qty', function() {
+    // do something
 var id = $(this).attr("data-id");
 var max_qty = $("#btn_max_text"+id).val(); //btn_max_text59925953
 
