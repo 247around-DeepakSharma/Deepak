@@ -280,7 +280,7 @@
         }
         else if($("#entity_type").val() === 'other'){ 
            GSTR2a_datatable.columns([0,1,2,3,4,5,6,7,8,9,10,11,12,13]).visible(true);
-           GSTR2a_datatable.columns( [12] ).visible( false );
+           GSTR2a_datatable.columns( [12,13] ).visible( false );
            $(GSTR2a_datatable.column(2).header()).text('Company Name');
         }
         else{
