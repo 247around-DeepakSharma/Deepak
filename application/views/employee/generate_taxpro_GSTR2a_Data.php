@@ -58,10 +58,11 @@
                                 <div class="col-md-4"></div>
                                 <div class="col-md-6">
 <!--                                <center>-->
-                                    <div><a style="padding-left: 25px;" onclick="generate_otp()">Request OTP</a></div>
-                                    <div style="margin-top:5px; padding-left: 25px;">
-                                        <input type="button" onclick="create_autntoken();" name="submit_btn" class="btn btn-info" value="Submit"/>
-                                    </div>
+<!--                                    <div><a style="padding-left: 25px;" onclick="generate_otp()">Request OTP</a></div>-->
+                                   
+                                         <input type="button" name="generate_otp" id="generate_otp" class="btn btn-info" value="Request OTP"/>
+                                         <input type="button" onclick="create_autntoken();" name="submit_btn" class="btn btn-info" value="Submit"/>
+                                
 <!--                                </center>-->
                                 </div>
                             </div>
@@ -82,7 +83,7 @@
         $("#state").select2();
     });
     
-    function generate_otp(){
+    $("#generate_otp").click(function(){
         $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_otp',
@@ -114,7 +115,7 @@
                  $('body').loadingModal('destroy');
             }
         });
-    }
+      });
     
     function create_autntoken(){ 
         if($("#otp").val()){ 
@@ -133,6 +134,7 @@
                     });
                 },
                 success: function (data) {
+                    data=data.trim();
                     if(data == "success"){
                         $("#success_msg").text("GSTR2a data updated successfully.");
                         $("#success_msg_div").show();
