@@ -3837,7 +3837,8 @@ class Service_centers extends CI_Controller {
                 $post = array();
                 $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
+                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                /*   Abhishek Getting Consumption reason */
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
 
@@ -3854,6 +3855,14 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
+
+                            /*  By: Abhishek : Consumption status  on Challan */
+                            if(!empty($value['consumed_status'])){
+                            $spare_parts['consumption'] = $value['consumed_status']; 
+                            }else{
+                            $spare_parts['consumption'] = 'NA'; 
+                            }
+
                         }
                         $spare_details[][] = $spare_parts;
                     }
@@ -6332,7 +6341,6 @@ class Service_centers extends CI_Controller {
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
-        $send_mail = 0;
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
@@ -6359,8 +6367,9 @@ class Service_centers extends CI_Controller {
         if (!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
+               //send email
+                $this->send_mail_for_parts_received_by_warehouse($booking_id);
                 //update inventory stocks
-                $send_mail = 1;
                 $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
@@ -6465,12 +6474,6 @@ class Service_centers extends CI_Controller {
             }
         }
         
-        if($send_mail == 1)
-        {
-            //send mail
-            $this->send_mail_for_parts_received_by_warehouse($booking_id);
-        }
-    
     }
     
     
