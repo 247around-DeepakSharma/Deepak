@@ -2298,6 +2298,13 @@ class Service_centers extends CI_Controller {
 
             if (!$this->input->post("call_from_api")) {
                 $service_center_id = $this->session->userdata('service_center_id');
+                
+                if (empty($access)) {
+                    $is_file = $this->validate_part_data();
+                } else {
+                    $is_file['code'] = true;
+                }
+                
                 if (!$this->form_validation->run()) {
                     $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
                     if (!empty($is_file['code'])) {
@@ -2305,11 +2312,6 @@ class Service_centers extends CI_Controller {
                         $this->session->set_userdata($userSession);
                     }
                     $this->update_booking_status($booking_id);
-                }
-                if (empty($access)) {
-                    $is_file = $this->validate_part_data();
-                } else {
-                    $is_file['code'] = true;
                 }
             } else {
                 $is_file['code'] = true;
@@ -3835,7 +3837,8 @@ class Service_centers extends CI_Controller {
                 $post = array();
                 $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
+                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                /*   Abhishek Getting Consumption reason */
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
 
@@ -3852,6 +3855,14 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
+
+                            /*  By: Abhishek : Consumption status  on Challan */
+                            if(!empty($value['consumed_status'])){
+                            $spare_parts['consumption'] = $value['consumed_status']; 
+                            }else{
+                            $spare_parts['consumption'] = 'NA'; 
+                            }
+
                         }
                         $spare_details[][] = $spare_parts;
                     }
@@ -7880,6 +7891,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to update micro warehouse related field. Just pass field name, value and table primary key id
      */
     function update_micro_warehouse_column() {
+        ob_clean();
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
         $this->form_validation->set_rules('column', 'column', 'required');

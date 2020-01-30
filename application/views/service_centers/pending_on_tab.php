@@ -178,13 +178,18 @@
                                         </td>                                        
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                             <?php if ($row->nrn_approved==0) { ?>
-                                            <a class="btn btn-sm btn-primary <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date))) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
-                                        <?php }else{ ?>
+                                            <?php if ($row->nrn_approved == 0) { ?>
+                                                <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date))) { ?> 
+                                                    <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>  
+                                                 <?php } else { ?> 
+                                                    <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id)); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                                <?php } ?>
 
-                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                            <?php } else { ?>
 
-                                        <?php } ?>
+                                                <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+
+                                            <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>

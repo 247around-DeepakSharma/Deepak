@@ -88,7 +88,7 @@
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td  style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
                             <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-							<td  style='font-size:13px;width:6%;'  colspan=" . "6" . " align=" . "\"center\"" . ">" . round($info['value']) . "
+							<td  style='font-size:13px;width:6%;'  colspan=" . "6" . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             $total_qty +=$info['qty'];
             $total_value +=$info['value'];
