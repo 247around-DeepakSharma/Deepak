@@ -1750,15 +1750,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $total_16 = $total_16+$tArray['TAT_16'];
             $total_greater_than_3 = $total_greater_than_3 + $tArray['TAT_GREATER_THAN_3'];
             $total_pending = $total_pending+$tArray['Total_Pending'];
-            $tArray['TAT_0_per'] = sprintf("%01.0f",(($tArray['TAT_0']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_1_per'] = sprintf("%01.0f",(($tArray['TAT_1']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_2_per'] = sprintf("%01.0f",(($tArray['TAT_2']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_3_per'] = sprintf("%01.0f",(($tArray['TAT_3']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_4_per'] = sprintf("%01.0f",(($tArray['TAT_4']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_5_per'] = sprintf("%01.0f",(($tArray['TAT_5']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_8_per'] = sprintf("%01.0f",(($tArray['TAT_8']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_16_per'] = sprintf("%01.0f",(($tArray['TAT_16']*100)/$tArray['Total_Pending']));
-            $tArray['TAT_total_per'] = sprintf("%01.0f",(($tArray['Total_Pending']*100)/$tArray['Total_Pending']));
+            $tArray['TAT_0_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_0']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_1_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_1']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_2_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_2']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_3_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_3']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_4_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_4']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_5_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_5']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_8_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_8']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_16_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['TAT_16']*100)/$tArray['Total_Pending'])) : 0;
+            $tArray['TAT_total_per'] = !empty($tArray['Total_Pending']) ? sprintf("%01.0f",(($tArray['Total_Pending']*100)/$tArray['Total_Pending'])) : 0;
             $outputArray[] = $tArray;
         }
         // sort array by TAT_GREATER_THAN_3 desc.
@@ -1776,15 +1776,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $totalTempArray['TAT_8'] = $total_8;
         $totalTempArray['TAT_16'] = $total_16;
         $totalTempArray['Total_Pending'] = $total_pending;
-        $totalTempArray['TAT_0_per'] = sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_1_per'] = sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_2_per'] = sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_3_per'] = sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_4_per'] = sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_5_per'] = sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_8_per'] = sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_16_per'] = sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['Total_Pending']));
-        $totalTempArray['TAT_total_per'] = sprintf("%01.0f",(($totalTempArray['Total_Pending']*100)/$totalTempArray['Total_Pending']));
+        $totalTempArray['TAT_0_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_0']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_1_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_1']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_2_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_2']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_3_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_3']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_4_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_4']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_5_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_5']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_8_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_8']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_16_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['TAT_16']*100)/$totalTempArray['Total_Pending'])) : 0;
+        $totalTempArray['TAT_total_per'] = !empty($totalTempArray['Total_Pending']) ? sprintf("%01.0f",(($totalTempArray['Total_Pending']*100)/$totalTempArray['Total_Pending'])) : 0;
         $outputArray[] = $totalTempArray;
         return $outputArray;
     }
