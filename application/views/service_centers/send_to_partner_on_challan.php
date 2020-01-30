@@ -300,6 +300,9 @@
         pageLength:100,
         dom: 'Bfrtip',
         // Configure the drop down options.
+        "language": {                
+                "searchPlaceholder": "Search by Any Column",
+     },
         lengthMenu: [
             [ 100, 200,500, -1 ],
             [ '100', '200', '500', 'All' ]

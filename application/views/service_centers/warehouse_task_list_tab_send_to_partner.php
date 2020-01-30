@@ -324,6 +324,9 @@
     $('#defective_parts_send_to_partner').DataTable({
        pageLength:100,
        dom: 'Bfrtip',
+       "language": {                
+                "searchPlaceholder": "Search by Any Column",
+            },
         // Configure the drop down options.
         lengthMenu: [
             [ 100, 200,500, -1 ],
