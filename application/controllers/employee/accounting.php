@@ -1010,7 +1010,7 @@ class Accounting extends CI_Controller {
     function get_payment_summary_searched_data(){
         $post = $this->getPaymentSummaryDataTablePost();
         $post['column_order'] = array( NULL, 'bank_transactions.id');
-        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'transaction_date', 'transaction_id');
+        $post['column_search'] = array('description', 'credit_amount', 'debit_amount', 'invoice_id', 'Date_Format(transaction_date,"%d-%b-%Y")', 'transaction_id');
         $data = array();
         
         switch ($this->input->post('request_type')){
