@@ -427,4 +427,24 @@ class Engineer_model extends CI_Model {
         }
         $this->db->update("engineer_incentive_details", $data);
     }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to spare with spare id
+     *@param - $spare id
+     *@return - Row
+     */
+
+
+   function check_cancell_allowed($spare){
+
+         $this->db->select("*"); 
+         $this->db->where('id',$spare);
+         $this->db->from('spare_parts_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
 }
