@@ -149,6 +149,11 @@ class booking_creation_lib {
             }
             
             $booking['is_repeat'] = $is_repeat;
+            $booking['repeat_booking_flag'] = FALSE;
+            if (in_array(REPEAT_BOOKING_TAG, $booking['prices']))
+            {
+             $booking['repeat_booking_flag'] = TRUE;
+            }
             $booking['c2c'] = $this->My_CI->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
             return $booking;
         } else {
