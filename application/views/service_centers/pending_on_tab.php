@@ -151,12 +151,12 @@
                                         <td style="vertical-align: middle;">
                                             <?php if ($row->nrn_approved==0) { ?>
                                                 
-                                                 <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>    
-
-                                           <?php  }else{ ?>
-
+                                            <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { ?>
+                                                <a target="_blank" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                            <?php }else{ ?>
+                                                 <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>    
+                                            <?php } }else{ ?>
                                                  <a target="_blank" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
-
                                            <?php } ?>
                                            
                                         </td>
