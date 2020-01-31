@@ -47,8 +47,8 @@ font-weight:900;
                                     <th>Model Number</th>
                                     <th>Part Number</th>
                                     <th>Max Quantity</th>
-                                    <th>BOM Status</th>
-                                    <th style="width:250px;">BOM Action</th>
+                                    <th class="no-sort">BOM Status</th>
+                                    <th class="no-sort" style="width:250px;">BOM Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,6 +112,10 @@ font-weight:900;
                     title: 'bom_mapping_list_'+part_name+time
                 },
             ],
+            columnDefs: [
+             {
+              orderable: false, targets: [6] 
+             } ]
     });
     
     
@@ -121,10 +125,8 @@ font-weight:900;
      //if the letter is not digit then display error and don't type anything
      if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
         //display error message
-        $("#errmsg").html("Digits Only and Greater than 0").show();
+       swal("Error!", "Digits Only and Greater than 0", "error");
                return false;
-    }else{
-       $("#errmsg").html("Digits Only and Greater than 0").hide(); 
     }
    });
 
@@ -165,6 +167,10 @@ font-weight:900;
         }
         
     }
+/// Copy paste not allowed //
+   $('.max_qty').on("cut copy paste",function(e) {
+       swal("Error!", "This operation is not allowed", "error");
+   });
 /*  UPdate Click Dynamically Binding */
 $('body').on('click', '.updatemax_qty', function() {
     // do something
@@ -172,10 +178,9 @@ var id = $(this).attr("data-id");
 var max_qty = $("#btn_max_text"+id).val(); //btn_max_text59925953
 if(max_qty==0){
 // Show and hide error msg in 0 value
-$("#errmsg").html("Digits Only and Greater than 0").show(); 
+ swal("Error!", "Digits Only and Greater than 0", "error");
 }else{
-// Show and hide error msg in 0 value 
-$("#errmsg").html("Digits Only and Greater than 0").hide(); 
+// Show and hide error msg in 0 value  
        if(confirm("Are you sure you want to update max quantity ?")){
                     $.ajax({
                      method:'POST',            
