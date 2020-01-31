@@ -375,110 +375,109 @@
             <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
           
                 <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
-                    <div class="table-responsive">
-                        <table class="table  table-striped table-bordered" >
-                            <thead>
-                                <tr>
-                                    <th >Model Number </th>
-                                    <th >Original Requested Parts </th>
-                                    <th >Final Requested Parts </th>
-    <!--                                <th > Requested Part Number </th>-->
-                                    <th >Requested Parts Type</th>
-                                    <th >Parts Warranty Status</th>
-                                    <th >Requested Quantity</th>
-                                    <th >Requested Date</th>
-                                    <th>Approval Date</th>
-                                    <th >Date Of Purchase</th>
-                                    <th >Invoice Image </th>
-                                    <th >Serial Number Image </th>
-                                    <th >Defective Front Part Image </th>
-                                    <th >Defective Back Part Image </th>
-                                    <th >Serial Number </th>
-                                    <th >Acknowledge Date BY SF </th>
-                                    <th >Remarks By SC </th>
-                                    <th>Current Status</th>
-                                    <th>Spare Cancellation Reason</th>
-                                    <th>Consumption</th>
-                                    <th>Consumption Reason</th>
-                                    <?php if($this->session->userdata("is_micro_wh") == 1){ ?>
-                                    <th>Remove MSL Consumption</th>
-                                    <?php } ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
-                                <tr>
-                                    <td><?php echo $sp['model_number']; ?></td>
-                                    <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['original_parts_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
-                                    <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>"; }  ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
+                
+                    <table class="table  table-striped table-bordered" >
+                        <thead>
+                            <tr>
+                                <th >Model Number </th>
+                                <th >Original Requested Parts </th>
+                                <th >Final Requested Parts </th>
+<!--                                <th > Requested Part Number </th>-->
+                                <th >Requested Parts Type</th>
+                                <th >Parts Warranty Status</th>
+                                <th >Requested Quantity</th>
+                                <th >Requested Date</th>
+                                <th>Approval Date</th>
+                                <th >Date Of Purchase</th>
+                                <th >Invoice Image </th>
+                                <th >Serial Number Image </th>
+                                <th >Defective Front Part Image </th>
+                                <th >Defective Back Part Image </th>
+                                <th >Serial Number </th>
+                                <th >Acknowledge Date BY SF </th>
+                                <th >Remarks By SC </th>
+                                <th>Current Status</th>
+                                <th>Spare Cancellation Reason</th>
+                                <th>Consumption</th>
+                                <th>Consumption Reason</th>
+                                <?php if($this->session->userdata("is_micro_wh") == 1){ ?>
+                                <th>Remove MSL Consumption</th>
+                                <?php } ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                            <tr>
+                                <td><?php echo $sp['model_number']; ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['original_parts_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>"; }  ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
 
-    <!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
-                                    <td><?php echo $sp['parts_requested_type']; ?></td>
-                                    <td><?php
-                                        if ($sp['part_warranty_status']==2){
-                                            echo "Out - Warranty";
-                                        }else if($sp['part_warranty_status']==1){
-                                            echo "In - Warranty";
-                                        }else{
-                                            echo "NA";
-                                        }
-                                    ?></td>
-                                    <td>
-                                        <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
-                                    </td>
-                                    <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
-                                    <!--   Show spare Apprival Date --->
-                                    <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
-                                          <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-M-Y'); ?></td>
-                                    <?php }else{ ?>
-                                         <td>-</td>
-                                    <?php  } ?> 
-                                    <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
-                                    <td><?php if (!is_null($sp['invoice_pic'])) {
-                                        if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
-                                        } ?>
-                                    </td>
-                                    <td><?php if (!is_null($sp['serial_number_pic'])) {
-                                        if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
-                                        } ?>
-                                    </td>
-                                    <td><?php if (!is_null($sp['defective_parts_pic'])) {
-                                        if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php }
-                                        } ?>
-                                    </td>
-                                    <td><?php if (!is_null($sp['defective_back_parts_pic'])) {
-                                        if ($sp['defective_back_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank">Click Here</a><?php }
-                                        } ?>
-                                    </td>
-                                    <td><?php echo $sp['serial_number']; ?></td>
+<!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
+                                <td><?php echo $sp['parts_requested_type']; ?></td>
+                                <td><?php
+                                    if ($sp['part_warranty_status']==2){
+                                        echo "Out - Warranty";
+                                    }else if($sp['part_warranty_status']==1){
+                                        echo "In - Warranty";
+                                    }else{
+                                        echo "NA";
+                                    }
+                                ?></td>
+                                <td>
+                                    <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
+                                </td>
+                                <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
+                                <!--   Show spare Apprival Date --->
+                                <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
+                                      <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-M-Y'); ?></td>
+                                <?php }else{ ?>
+                                     <td>-</td>
+                                <?php  } ?> 
+                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
+                                <td><?php if (!is_null($sp['invoice_pic'])) {
+                                    if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    } ?>
+                                </td>
+                                <td><?php if (!is_null($sp['serial_number_pic'])) {
+                                    if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    } ?>
+                                </td>
+                                <td><?php if (!is_null($sp['defective_parts_pic'])) {
+                                    if ($sp['defective_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_parts_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    } ?>
+                                </td>
+                                <td><?php if (!is_null($sp['defective_back_parts_pic'])) {
+                                    if ($sp['defective_back_parts_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_back_parts_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    } ?>
+                                </td>
+                                <td><?php echo $sp['serial_number']; ?></td>
 
-                                    <?php if (!empty($sp['acknowledge_date'])) { ?>
-                                        <td><?php echo date('d-M-Y', strtotime($sp['acknowledge_date'])); ?></td>
-                                    <?php }else{ ?>
-                                        <td> - </td>
-                                    <?php } ?>
-
-                                    <td><?php echo $sp['remarks_by_sc']; ?></td>
-                                    <td><?php echo $sp['status'];?></td>
-                                    <td><?php echo $sp['part_cancel_reason'];?></td>
-                                    <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
-                                    <td><?php echo $sp['consumed_status']; ?></td>
-                                    <?php if($this->session->userdata("is_micro_wh") == 1){ 
-                                        if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
-                                    <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
-                                    <?php }else if($saas_module && ($sp['status'] == SPARE_DELIVERED_TO_SF || $sp['status'] == SPARE_OOW_SHIPPED || $sp['status'] == SPARE_PARTS_SHIPPED)){ ?>
-                                        <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)" >Remove</button></td>
-                                    <?php }else{ ?>
-                                        <td><button class="btn btn-primary" disabled>Remove</button></td>
-                                    <?php } ?>
-                                    <?php } ?>
-                                </tr>
-                                <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
-                                    $defective_parts_shipped = TRUE;
-                                    } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                <?php if (!empty($sp['acknowledge_date'])) { ?>
+                                    <td><?php echo date('d-M-Y', strtotime($sp['acknowledge_date'])); ?></td>
+                                <?php }else{ ?>
+                                    <td> - </td>
+                                <?php } ?>
+                                
+                                <td><?php echo $sp['remarks_by_sc']; ?></td>
+                                <td><?php echo $sp['status'];?></td>
+                                <td><?php echo $sp['part_cancel_reason'];?></td>
+                                <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                <td><?php echo $sp['consumed_status']; ?></td>
+                                <?php if($this->session->userdata("is_micro_wh") == 1){ 
+                                    if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
+                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
+                                <?php }else if($saas_module && ($sp['status'] == SPARE_DELIVERED_TO_SF || $sp['status'] == SPARE_OOW_SHIPPED || $sp['status'] == SPARE_PARTS_SHIPPED)){ ?>
+                                    <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)" >Remove</button></td>
+                                <?php }else{ ?>
+                                    <td><button class="btn btn-primary" disabled>Remove</button></td>
+                                <?php } ?>
+                                <?php } ?>
+                            </tr>
+                            <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
+                                $defective_parts_shipped = TRUE;
+                                } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
+                        </tbody>
+                    </table>
                 <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >

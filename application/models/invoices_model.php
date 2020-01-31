@@ -2440,7 +2440,7 @@ class invoices_model extends CI_Model {
                 . " WHERE invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
                 . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
                 . "  $wh $partner_wh ) "
-                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY from_date ";
+                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
         
         $query = $this->db->query($sql);
         return $query->result();
