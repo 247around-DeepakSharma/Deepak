@@ -635,6 +635,7 @@
                     <div class="col-md-12" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Spare Parts Requested By SF</h1>
                         <div class="col-md-12" style="padding-left:1px;">
+                            <div class="table-responsive">
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
@@ -786,6 +787,7 @@
                                         } ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>

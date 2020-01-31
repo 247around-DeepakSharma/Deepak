@@ -375,7 +375,7 @@
             <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
           
                 <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
-                
+                    <div class="table-responsive">
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
@@ -477,6 +477,7 @@
                                 } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
+                    </div>
                 <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >
