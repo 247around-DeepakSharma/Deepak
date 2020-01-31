@@ -573,7 +573,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
             booking_details.type = '"._247AROUND_BOOKING."' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%b-%Y') desc $add_limit"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
         );
 
        // echo $this->db->last_query();
@@ -737,7 +737,7 @@ class Booking_model extends CI_Model {
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
         $post['courier_pod'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, courier_lost_spare_status.pod as courier_pod, courier_lost_spare_status.remarks as courier_remarks, courier_lost_spare_status.status as courier_status, courier_lost_spare_status.agent_id ', array('booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE);
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, courier_lost_spare_status.pod as courier_pod, courier_lost_spare_status.remarks as courier_remarks, courier_lost_spare_status.status as courier_status, courier_lost_spare_status.agent_id,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight ', array('spare_parts_details.booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE, TRUE, TRUE);
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -2435,7 +2435,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_queries($post,$pincode_status,$query_status) {
-        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }  
@@ -2446,7 +2446,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_queries($post,$pincode_status,$query_status){
-        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -2630,7 +2630,7 @@ class Booking_model extends CI_Model {
         return $this->db->affected_rows();
     }
     function get_booking_tat_required_data($booking_id){
-        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date,"
+        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
                 . "booking_details.is_upcountry,date(booking_details.service_center_closed_date) as sf_closed_date,"
                 . "date(booking_details.closed_date) as around_closed_date,spare_parts_details.id as spare_id,spare_parts_details.status as spare_status,date(spare_parts_details.date_of_request) as part_request_date,"
                 . "date(spare_parts_details.acknowledge_date) as spare_receieved_date ,"

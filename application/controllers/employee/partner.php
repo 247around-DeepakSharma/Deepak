@@ -249,7 +249,7 @@ class Partner extends CI_Controller {
         if (!empty($spare_parts_list)) {
             $data['booking_history']['spare_parts'] = $spare_parts_list;
         }
-        
+        /*
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
          $awb = NULL;
          $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
@@ -268,6 +268,7 @@ class Partner extends CI_Controller {
                 $data['wh_courier_boxes_weight_details'] = $courier_boxes_weight_wh[0];
             }
         }
+         */
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
@@ -6618,7 +6619,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -6675,7 +6676,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->booking_primary_contact_no;
             $tempArray[] = $row->city;
             $tempArray[] = $row->state;
-            $tempArray[] = $row->booking_date;
+            $tempArray[] = date("d-M-Y", strtotime($row->booking_date));
             $tempArray[] = $row->aging;
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
@@ -7216,7 +7217,7 @@ class Partner extends CI_Controller {
                  $tempArray[] = $row['booking_primary_contact_no'];
                  $tempArray[] = $row['city'];
                  $tempArray[] = $row['state'];
-                 $tempArray[] = $row['booking_date'];
+                 $tempArray[] = date('d-M-Y', strtotime($row['booking_date']));
                  $tempArray[] = $row['age'];
                  $tempString5  = "'".$row['booking_id']."'";
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
@@ -8136,7 +8137,7 @@ class Partner extends CI_Controller {
     }
     public function brandCollateralPartner()
     {
-       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','date');
+       $coloumnarr=array('sno','`collateral_type`.`collateral_type`','`services`.`services`','`collateral`.`brand`','`collateral`.`request_type`','file','`collateral`.`document_description`','delete','DATE_FORMAT(date,"%d-%b-%Y")');
        $receieved_Data = $this->get_post_data();
        $new_receieved_Data = $this->get_brand_partner_filtered_data($receieved_Data);
        if(!empty($new_receieved_Data['order']))
@@ -8947,7 +8948,7 @@ class Partner extends CI_Controller {
             } else {
                 $data['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
             }
-            $data['create_date'] = $value['create_date'];
+            $data['create_date'] =  date('d-m-Y', strtotime($value['create_date']));
             array_push($list, $data);
         }
         

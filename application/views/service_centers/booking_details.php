@@ -79,9 +79,9 @@
                           
                             <tr>
                                  <th>Booking date/Timeslot </th>
-                                <td><?php echo $booking_history[0]['booking_date']."/".$booking_history[0]['booking_timeslot']; ?></td>
+                                <td><?php echo date("d-M-Y", strtotime($booking_history[0]['booking_date']))."/".$booking_history[0]['booking_timeslot']; ?></td>
                                 <th> Closed Date </th>
-                                <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
+                                <td><?php echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); ?></td>
                                 
                             </tr>
                            
@@ -375,7 +375,7 @@
             <?php if (isset($booking_history['spare_parts'])) { $estimate_given = false; $parts_shipped = false; $defective_parts_shipped = FALSE; ?>
           
                 <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
-                
+                    <div class="table-responsive">
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
@@ -478,6 +478,7 @@
                                 } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
+                    </div>
                 <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >
@@ -675,13 +676,13 @@
                                 <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                
-                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
-                                    echo $courier_boxes_weight_details['box_count'];
+                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])) {
+                                    echo $sp['sf_box_count'];
                                 } ?></td>
                                 <td><?php
                                         if (!empty($sp['awb_by_sf'])) {
-                                            if (!empty($courier_boxes_weight_details['billable_weight'])) {
-                                                $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
+                                            if (!empty($sp['wh_billable_weight'])) {
+                                                $expl_data = explode('.', $sp['wh_billable_weight']);
                                                 if (!empty($expl_data[0])) {
                                                     echo $expl_data[0] . ' KG ';
                                                 }
@@ -760,11 +761,11 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
                                             <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($wh_courier_boxes_weight_details['box_count'])){ echo $wh_courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($sp['wh_box_count'])){ echo $sp['wh_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_wh'])) {
-                                                        if (!empty($wh_courier_boxes_weight_details['billable_weight'])) {
-                                                            $expl_data = explode('.', $wh_courier_boxes_weight_details['billable_weight']);
+                                                        if (!empty($sp['wh_billable_weight'])) {
+                                                            $expl_data = explode('.', $sp['wh_billable_weight']);
                                                             if (!empty($expl_data[0])) {
                                                                 echo $expl_data[0] . ' KG ';
                                                             }
@@ -964,7 +965,7 @@
                             
                             <td><?php echo $signature_details[0]['amount_paid']; ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
                             <td><?php echo $signature_details[0]['remarks']; ?></td>
                             
@@ -1062,7 +1063,7 @@
                 <td ><?php echo $index?></td>
                 <td ><?php echo $paytm['paid_amount']?></td>
                 <td ><?php echo $paytm['txn_id']?></td>
-                <td ><?php echo $paytm['create_date']?></td>
+                <td ><?php echo date("d-M-Y", strtotime($paytm['create_date']))?></td>
                             <?php
                         }?>
                 <?php $index++;?>

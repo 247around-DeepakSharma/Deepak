@@ -3593,7 +3593,7 @@ class vendor extends CI_Controller {
                 
         foreach ($query as $row) {
             $responce->rows[$i]['id'] = $row->id;
-            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,$row->from_date,$row->to_date,$row->active);
+            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,date('d-M-Y', strtotime($row->from_date)),date('d-M-Y', strtotime($row->to_date)),$row->active);
             $i++;
         }
  

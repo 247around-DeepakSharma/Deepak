@@ -187,7 +187,7 @@
                                 " / ".$this->miscelleneous->get_formatted_date($booking_history[0]['service_center_closed_date']); } 
                                 else  { echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']); } ?></td>
                             <th>EDD / Delivery Date</th>
-                            <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($booking_history[0]['estimated_delivery_date']))." / ".date("d-M-Y", strtotime($booking_history[0]['delivery_date'])); ?></td>
                         </tr>
                         <tr>
                             <th>Rating Stars </th>
@@ -226,7 +226,7 @@
                             <th>Closing Remarks</th>
                             <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th>Service Promise Date</th>
-                            <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
+                            <td ><?php echo date("d-M-Y", strtotime($booking_history[0]['service_promise_date']));?></td>
                         </tr>
                         <tr>
                             <th >Jeeves CD/BD</th>
@@ -489,7 +489,7 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
                                     </td>
-                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo $unit_detail['sf_purchase_date'];}?></td>
+                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date("d-M-Y", strtotime($unit_detail['purchase_date']));}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo date("d-M-Y", strtotime($unit_detail['sf_purchase_date']));}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
@@ -601,8 +601,8 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
                                              <?php } else { echo $detail['scba_serial_number'];} ?>
                                     </td>
-                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo $detail['scba_sf_purchase_date'];}?></td>
-                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo $detail['scba_sf_closed_date'];}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_purchase_date']));}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_closed_date']));}?></td>
                                     <td><?php echo $detail['appliance_description']?></td>
                                     <td><?php  print_r($detail['price_tags']); ?></td>
                                     <td><?php echo $detail['scba_basic_charges']?></td>
@@ -635,6 +635,7 @@
                     <div class="col-md-12" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Spare Parts Requested By SF</h1>
                         <div class="col-md-12" style="padding-left:1px;">
+                            <div class="table-responsive">
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
@@ -721,7 +722,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" data-booking_id="<?php echo $sp['booking_id'];?>" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
 
                                         <?php if (!empty($sp['acknowledge_date'])) { ?>
                                            <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>  
@@ -786,6 +787,7 @@
                                         } ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1028,11 +1030,11 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
                                             <span id="<?php echo "awb_loader_".$sp['awb_by_sf'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])){ echo $sp['sf_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
-                                                        if (!empty($courier_boxes_weight_details['billable_weight'])) {
-                                                            $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
+                                                        if (!empty($sp['sf_billable_weight'])) {
+                                                            $expl_data = explode('.', $sp['sf_billable_weight']);
                                                             if (!empty($expl_data[0])) {
                                                                 echo $expl_data[0] . ' KG ';
                                                             }
@@ -1115,11 +1117,11 @@
                                         ?>
                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
                                             <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($wh_courier_boxes_weight_details['box_count'])){ echo $wh_courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($sp['wh_box_count'])){ echo $sp['wh_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_wh'])) {
-                                                        if (!empty($wh_courier_boxes_weight_details['billable_weight'])) {
-                                                            $expl_data = explode('.', $wh_courier_boxes_weight_details['billable_weight']);
+                                                        if (!empty($sp['wh_billable_weight'])) {
+                                                            $expl_data = explode('.', $sp['wh_billable_weight']);
                                                             if (!empty($expl_data[0])) {
                                                                 echo $expl_data[0] . ' KG ';
                                                             }
@@ -1228,7 +1230,7 @@
                                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf'];  ?>">
                                              <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a>
                                         </td> 
-                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                        <td><?php echo date("d-M-Y", strtotime($sp['oow_invoice_date'])); ?></td>  
                                     </tr>
                                     <?php } }?>
                                 </tbody>
@@ -1367,7 +1369,7 @@
                         <tr>
                             <td><?php if(isset($unit_details[0]['en_amount_paid'])){ echo $unit_details[0]['en_amount_paid']; } ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
                             <td><?php echo $signature_details[0]['remarks']; ?></td>
                             
@@ -1458,7 +1460,7 @@
                  <td ><?php echo $index?></td>
                 <td ><?php echo $paytm['paid_amount']?></td>
                 <td ><?php echo $paytm['txn_id']?></td>
-                <td ><?php echo $paytm['create_date']?></td>
+                <td ><?php echo date("d-M-Y", strtotime($paytm['create_date']))?></td>
                 <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
                 <td>
                     <?php if($paytm['vendor_invoice_id']){?>
@@ -2294,7 +2296,8 @@ function uploadfile(){
 $(".serial_no_edit").click(function() {
     if ($(this).siblings(".serial_no_text").is(":hidden")) {
         var prethis = $(this);
-        var text_id = $(this).siblings(".serial_no_text").attr('id');       
+        var text_id = $(this).siblings(".serial_no_text").attr('id');    
+        var booking_id = $(this).siblings(".serial_no_text").attr('data-booking_id');
         var split = text_id.split('|');
         var line_item_id = split[0];
         var column = split[1];
@@ -2313,9 +2316,10 @@ $(".serial_no_edit").click(function() {
                 
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: { data: data_value, id: line_item_id, column:column},
+            data: { data: data_value, id: line_item_id, column:column, booking_id:booking_id},
             success: function (data) {
-                if(data === "Success"){
+                data = $.trim(data);
+                if(data.toLowerCase() === "success"){
                     
                     prethis.siblings("input").remove();
                     prethis.siblings(".serial_no_text").show();

@@ -756,7 +756,8 @@
                                     <div class='rect3' style='background-color:#f4c20d'></div>\n\
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
                                 </div>",
-                "emptyTable":     "No Data Found"
+                "emptyTable":     "No Data Found",
+                "searchPlaceholder": "Search by BookingID / Spare Part Name / Spare Type / AWB Number",
             },
             "order": [],
             "pageLength": 25,
@@ -944,3 +945,18 @@
         
      }
 </script>
+<style>
+.dataTables_filter label
+{
+    width: 400px;
+    max-width:100%;
+}
+.dataTables_filter label .input-sm
+{
+    width: 87% !important;
+}
+.dataTables_filter label .input-sm::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+ font-size:11px;
+ font-weight:bold;
+}
+</style>

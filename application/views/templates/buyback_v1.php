@@ -24,7 +24,7 @@
             </tr>
             <tr>
                 <td colspan="3">Invoice No:<?php echo $meta['invoice_id']; ?></td>		
-                <td colspan="3" style="border-right: 2px solid;">Invoice Date: <?php echo $meta['invoice_date']; ?></td>
+                <td colspan="3" style="border-right: 2px solid;">Invoice Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>
             </tr>
             <tr class="bold">
                 <td colspan="3">Period:

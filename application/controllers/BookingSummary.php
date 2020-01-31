@@ -1635,8 +1635,8 @@ EOD;
             write_file($csv, $new_report);
             //Upload File On AWS and save link in file_upload table
             $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
-            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')");
+            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.create_date,'%d-%m-%Y'),'%d-%b-%Y')");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
                     $subject, $email_body,
@@ -1685,7 +1685,7 @@ EOD;
         $partnersArray[4] = array("id"=>MURPHY_ID,"public_name"=>'Murphy');
         $partnersArray[4] = array("id"=>JEEVES_ID,"public_name"=>'Jeeves');
         foreach($partnersArray as $partners){
-            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $subject = "247around Services Report  - ".$partners['public_name']." - " . date('d-M-Y');
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com,nits@247around.com", "arunk@247around.com,souvikg@247around.com,suresh@247around.com,oza@247around.com",

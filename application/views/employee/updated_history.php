@@ -35,7 +35,7 @@
                                         <td><?php echo $i;?></td>
                                         <td><?php echo $data['public_name'];?></td>
                                        <td><?php echo $data['updated_by'][$index]?></td>
-                                         <td><?php echo $data['update_date'][$index]?></td>
+                                         <td><?php echo date("d-M-Y", strtotime($data['update_date'][$index]))?></td>
                                         <td><?php echo implode(",<br>",$updated_columns)?></td>
                                     </tr>
                                     <?php

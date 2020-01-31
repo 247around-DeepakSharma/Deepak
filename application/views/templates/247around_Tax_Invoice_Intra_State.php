@@ -48,7 +48,7 @@
             <tr><td colspan="3">Invoice No:<?php echo $meta['invoice_id']; ?></td>		
                 <td colspan="7" style="border-right: 2px solid;">Reference No: </td>
             </tr>
-            <tr><td colspan="3">Date: <?php echo $meta['invoice_date']; ?></td>	
+            <tr><td colspan="3">Date: <?php echo date("d-M-Y", strtotime($meta['invoice_date'])); ?></td>	
                 <td colspan="7" style="border-right: 2px solid;">Period: <?php echo $meta['sd']; ?> - <?php echo $meta['ed']; ?></td>
             </tr>
             <tr><td colspan="3">Reverse Charge (Y/N): N</td>	

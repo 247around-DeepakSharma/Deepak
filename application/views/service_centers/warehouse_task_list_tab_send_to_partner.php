@@ -102,7 +102,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d/m/Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -325,6 +325,9 @@
     $('#defective_parts_send_to_partner').DataTable({
        pageLength:100,
        dom: 'Bfrtip',
+       "language": {                
+                "searchPlaceholder": "Search by Any Column",
+            },
         // Configure the drop down options.
         lengthMenu: [
             [ 100, 200,500, -1 ],
