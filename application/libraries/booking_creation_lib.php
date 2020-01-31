@@ -152,8 +152,9 @@ class booking_creation_lib {
             /*  Update response for booking details */
             $booking['repeat_booking_flag'] = FALSE;
             $where_booking = array(
-                'booking_id' => $
+                'booking_id' => $booking_id
             );
+        // Error forgot the vaiable //
             $b_details = $this->My_CI->booking_model->get_bookings_count_by_any("booking_details.request_type",$where_booking);
             if ($b_details[0]['request_type'] =REPEAT_BOOKING_TAG)
             {
