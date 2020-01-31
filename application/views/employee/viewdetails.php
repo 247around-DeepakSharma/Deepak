@@ -720,7 +720,7 @@
                                             }
                                             ?>
                                         </td>
-                                        <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
+                                        <td style=" word-break: break-all;"><span class="serial_no_text" data-booking_id="<?php echo $sp['booking_id'];?>" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
 
                                         <?php if (!empty($sp['acknowledge_date'])) { ?>
                                            <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>  
@@ -2294,7 +2294,8 @@ function uploadfile(){
 $(".serial_no_edit").click(function() {
     if ($(this).siblings(".serial_no_text").is(":hidden")) {
         var prethis = $(this);
-        var text_id = $(this).siblings(".serial_no_text").attr('id');       
+        var text_id = $(this).siblings(".serial_no_text").attr('id');    
+        var booking_id = $(this).siblings(".serial_no_text").attr('data-booking_id');
         var split = text_id.split('|');
         var line_item_id = split[0];
         var column = split[1];
@@ -2313,9 +2314,10 @@ $(".serial_no_edit").click(function() {
                 
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: { data: data_value, id: line_item_id, column:column},
+            data: { data: data_value, id: line_item_id, column:column, booking_id:booking_id},
             success: function (data) {
-                if(data === "Success"){
+                data = $.trim(data);
+                if(data.toLowerCase() === "success"){
                     
                     prethis.siblings("input").remove();
                     prethis.siblings(".serial_no_text").show();

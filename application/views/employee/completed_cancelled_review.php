@@ -116,6 +116,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <?php
                               if($review_status == "Completed"){
                               ?>
+                                <th class="jumbotron" >Review Age</th>
                                 <th class="jumbotron" >Warranty Status</th>
                               <?php
                               }
@@ -230,6 +231,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
                               <?php if($review_status == "Completed"){ ?>
+                              <?php
+                                $booking_review_age = '--'; 
+                                $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']);
+                                $booking_closed_datediff = time() - $sf_booking_closed_date;
+                                if($booking_closed_datediff >= 0){
+                                    $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
+                                }
+                              ?>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_review_age ?></strong></td>
                               <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
