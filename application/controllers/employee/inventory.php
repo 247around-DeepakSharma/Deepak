@@ -3574,8 +3574,13 @@ class Inventory extends CI_Controller {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
             $column = $this->input->post('column');
-
+            $booking_id = $this->input->post('booking_id');
             $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            // if serial number is changed , update in booking_unit_details table also.
+            if(!empty($booking_id) && $column == 'serial_number')
+            {
+                $this->booking_model->update_booking_unit_details($booking_id, array($column => $data));
+            }
             echo "Success";
         } else {
             echo "Error";
@@ -3626,6 +3631,11 @@ class Inventory extends CI_Controller {
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
             $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            // if serial number image is changed , update in booking_unit_details table also.
+            if(!empty($bookingID) && $spareColumn == 'serial_number_pic')
+            {
+                $this->booking_model->update_booking_unit_details($bookingID, array($spareColumn => $defective_parts_pic));
+            }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
@@ -6875,7 +6885,7 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
-        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Current Booking Status',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', u.name as 'RM Name',users.name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Current Booking Status',"
                 . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
