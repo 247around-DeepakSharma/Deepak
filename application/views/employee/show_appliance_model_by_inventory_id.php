@@ -17,6 +17,11 @@
     .x_title span {
         color: #333;
     }
+    #errmsg
+{
+color: red;
+font-weight:900;
+}
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -53,7 +58,7 @@
                                     <td><?php echo $value['services']; ?></td>
                                     <td><?php echo $value['model_number']; ?></td>
                                     <td><?php echo $value['part_number']; ?></td>
-                                    <td><input type="number" class="form-control" id="btn_max_text<?php echo $value['id']; ?>" name="max_quantity" value="<?php echo $value['max_quantity']; ?>" placeholder="Enter Max Quantity"><button class="updatemax_qty btn btn-success" data-id="<?php echo $value['id']; ?>">Update</button></td>
+                                    <td><input type="text" class="form-control max_qty" id="btn_max_text<?php echo $value['id']; ?>" name="max_quantity" value="<?php echo $value['max_quantity']; ?>" placeholder="Enter Max Quantity"><button class="updatemax_qty btn btn-success" data-id="<?php echo $value['id']; ?>">Update</button> &nbsp;<span id="errmsg"></span> </td>
                                     <td><?php if($value['active'] == 1 ){ echo 'Active'; } else { echo ' Inactive'; } ?></td>
 
                                     <td><?php 
@@ -110,6 +115,20 @@
     });
     
     
+  //$(".updatemax_qty").keyup(function (e) {
+    $(document).ready(function () {
+    $('body').on('keypress','.max_qty', function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $("#errmsg").html("Digits Only and Greater than 0").show();
+               return false;
+    }else{
+       $("#errmsg").html("Digits Only and Greater than 0").hide(); 
+    }
+   });
+
+ });
         
     
     function change_model_status(is_active,model_mapping_id,model_number){
@@ -151,7 +170,12 @@ $('body').on('click', '.updatemax_qty', function() {
     // do something
 var id = $(this).attr("data-id");
 var max_qty = $("#btn_max_text"+id).val(); //btn_max_text59925953
-
+if(max_qty==0){
+// Show and hide error msg in 0 value
+$("#errmsg").html("Digits Only and Greater than 0").show(); 
+}else{
+// Show and hide error msg in 0 value 
+$("#errmsg").html("Digits Only and Greater than 0").hide(); 
        if(confirm("Are you sure you want to update max quantity ?")){
                     $.ajax({
                      method:'POST',            
@@ -168,9 +192,12 @@ var max_qty = $("#btn_max_text"+id).val(); //btn_max_text59925953
                            }     
                     }
                     }); 
-    }  
+    } 
+} 
 
 });
+
+
 
 
 
