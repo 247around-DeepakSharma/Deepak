@@ -5530,6 +5530,41 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
+    function download_review_rescheduled_bookings($is_tab = 0){
+    $whereIN = $where = $join = array();
+    if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
+        
+    if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+        }
+     $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
+     $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+     
+     $ReorderdownloadRecord=array();
+     $countRecord=0;
+     if(is_array($data['data']) && count($data['data']) > 0)
+     {
+        foreach($data['data'] as $key => $value)
+        {
+            $ReorderdownloadRecord[$key]['countRecord']=++$countRecord;
+            $ReorderdownloadRecord[$key]['booking_id']=$value['booking_id'];
+            $ReorderdownloadRecord[$key]['service_center_name']=$value['service_center_name'];
+            $ReorderdownloadRecord[$key]['customername']=$value['customername'];
+            $ReorderdownloadRecord[$key]['booking_primary_contact_no']=$value['booking_primary_contact_no'];
+            $ReorderdownloadRecord[$key]['initial_booking_date']=$this->miscelleneous->get_formatted_date($value['initial_booking_date']);
+            $ReorderdownloadRecord[$key]['booking_date']=$this->miscelleneous->get_formatted_date($value['booking_date'])." / ".$value['booking_timeslot'];
+            $ReorderdownloadRecord[$key]['reschedule_date_request']=$this->miscelleneous->get_formatted_date($value['reschedule_date_request']);
+            $ReorderdownloadRecord[$key]['reschedule_reason']=$value['reschedule_reason'];       
+        }    
+        $this->miscelleneous->downloadCSV($ReorderdownloadRecord, ['S.No.','Booking Id','Service Center','User Name','User Contact No.','Original Booking Date','Booking Date','Reschedule Booking Date','Reschedule Reason'], 'data_'.date('Ymd-His'));
+     }
+    }
     function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL){
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
