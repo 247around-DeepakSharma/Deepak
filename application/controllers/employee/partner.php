@@ -2713,12 +2713,7 @@ class Partner extends CI_Controller {
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
                 $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
-                
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
                 
@@ -2862,10 +2857,6 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
 
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = $rejection_reason;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-            
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
         
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
