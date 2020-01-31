@@ -3574,8 +3574,13 @@ class Inventory extends CI_Controller {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
             $column = $this->input->post('column');
-
+            $booking_id = $this->input->post('booking_id');
             $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            // if serial number is changed , update in booking_unit_details table also.
+            if(!empty($booking_id) && $column == 'serial_number')
+            {
+                $this->booking_model->update_booking_unit_details($booking_id, array($column => $data));
+            }
             echo "Success";
         } else {
             echo "Error";
@@ -3626,6 +3631,11 @@ class Inventory extends CI_Controller {
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
             $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            // if serial number image is changed , update in booking_unit_details table also.
+            if(!empty($bookingID) && $spareColumn == 'serial_number_pic')
+            {
+                $this->booking_model->update_booking_unit_details($bookingID, array($spareColumn => $defective_parts_pic));
+            }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
