@@ -217,6 +217,7 @@
                                                      }
 
                                                      if ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) && empty($disabled_flag) ) {
+                                                         $disabled_flag = true;
                                                          ?>
                                                 <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                                <?php } if(empty($disabled_flag)){ ?>
