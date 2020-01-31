@@ -6331,6 +6331,7 @@ class Service_centers extends CI_Controller {
      * @return Void
      */
     function generate_challan_to_sf($part_details) {
+        $delivery_challan_file_name_array = array();
         if (!empty($part_details)) {
             $spare_details = array();
             foreach ($part_details as $value) {
@@ -6384,6 +6385,7 @@ class Service_centers extends CI_Controller {
 
         if (!empty($spare_details)) {
             $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details);
+            array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
             if (!empty($data['partner_challan_file'])) {
                 if (!empty($spare_details)) {
                     foreach ($spare_details as $val) {
@@ -6391,6 +6393,10 @@ class Service_centers extends CI_Controller {
                     }
                 }
             }
+        }
+        
+        foreach ($delivery_challan_file_name_array as $value_unlink) {
+            unlink(TMP_FOLDER . $value_unlink);
         }
     }
 
