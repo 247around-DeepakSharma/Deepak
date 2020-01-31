@@ -1,6 +1,19 @@
 <div style="width:100%;margin-left:10px;margin-right:5px;">
     <h2 align="left">Rescheduled Bookings</h2>
     <div class="col-md-12" style="padding-left: 0px;">
+        <?php
+        if(is_array($data) && count($data) > 0)
+        {
+        ?>
+        <div class="row">
+            <div class="col-md-1 pull-right" style="margin-top:20px;padding-bottom:10px">
+                       <a href="<?php echo base_url(); ?>employee/booking/download_review_rescheduled_bookings" class="btn btn-primary pull-right"  value="Download" title="Download Rescheduled Bookings">Export</a>
+             </div>
+        </div>
+        <?php
+        }
+        ?>
+        
         <form action="<?php echo base_url(); ?>employee/booking/process_review_reschedule_bookings" method="post">
             <table class="table table-bordered table-hover table-striped">
                 <thead>
