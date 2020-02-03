@@ -1468,13 +1468,14 @@ class Accounting extends CI_Controller {
      * @param authtoken
      * @return void
      */
-    function fetch_taxpro_gstr2a_data($autnToken, $state="07AAFCB1281J1ZQ"){ 
+     function fetch_taxpro_gstr2a_data($autnToken, $state="07AAFCB1281J1ZQ"){ 
         $to_date = date("Y-m");
         $from_date = date("2019-04");
         while($from_date < $to_date){
             $year = date('Y', strtotime($from_date));
             $month = date('m', strtotime($from_date));
-            $ret_period = $month.$year;   
+            $ret_period = $month.$year;
+            
             $state_username_gstin = $this->get_state_user_name_gstin($state);
             $url = TAXPRO__FEATCH_GSTR2A_URL.'&gstin='.$state.'&username='.$state_username_gstin.'&authtoken='.$autnToken.'&ret_period='.$ret_period; 
                 
@@ -1533,25 +1534,6 @@ class Accounting extends CI_Controller {
                             if(empty($check_checksum)){
                                 array_push($row_batch, $row);
                             }
-
-                            $row = array(
-                                'gst_no' => $gst_no,
-                                'invoice_number' => $invoice_number,
-                                'invoice_amount' => $invoice_val,
-                                'gst_rate' => $gst_rate,
-                                'taxable_value' => $taxable_val,
-                                'igst_amount' => $igst_val,
-                                'cgst_amount' => $cgst_val,
-                                'sgst_amount' => $sgst_val,
-                                'invoice_date' => $date,
-                                'checksum' => $checksum,
-                                'gstr2a_period' => $ret_period,
-                                'create_date' => date('Y-m-d H:i:s'),
-                                'state_gstin' => $gstin
-                            );
-                        $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
-                        if(empty($check_checksum)){
-                            array_push($row_batch, $row);
                         }
                     }
                 }
@@ -1567,7 +1549,7 @@ class Accounting extends CI_Controller {
             $from_date = date('Y-m', strtotime('+1 months', strtotime($from_date)));
         }
     }
-    
+   
     /**
      * @desc This function is used to show the gstr2a data from taxpro
      * @param voide
