@@ -1719,6 +1719,34 @@ class vendor_model extends CI_Model {
         return $response;
     }
     
+    function get_rm_contact_details_by_sf_id($sf_id){
+        if(!empty($sf_id)){
+            $sql = "Select service_centres.id, employee.id,employee.full_name,"
+                    . "employee.phone,employee.official_email,employee.office_centre,"
+                    . "employee.languages,employee.designation from service_centres,employee "
+                    . "where service_centres.id=".$sf_id." and service_centres.rm_id = employee.id";
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+       
+        return $response;
+    }
+    function get_asm_contact_details_by_sf_id($sf_id){
+        if(!empty($sf_id)){
+            $sql = "Select service_centres.id, employee.id,employee.full_name,"
+                    . "employee.phone,employee.official_email,employee.office_centre,"
+                    . "employee.languages,employee.designation from service_centres,employee "
+                    . "where service_centres.id=".$sf_id." and service_centres.asm_id = employee.id";
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+       
+        return $response;
+    }
+    
+    
     /**
      * @Desc: This function is used to update employee_relation table
      * @parmas: $agent_id, $sf_id
