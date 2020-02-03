@@ -343,6 +343,16 @@ class User_invoice extends CI_Controller {
                     $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, FALSE);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false, false);
                     log_message("info", __METHOD__ . " SF Credit note uploaded to s3 for booking ID " . $booking_id . " Invoice ID " . $response['meta']['invoice_id']);
+                    
+                    if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
+                        unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
+                        unlink(TMP_FOLDER.$convert['triplicate_file']);
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
+                        unlink(TMP_FOLDER.$convert['copy_file']);
+                    }
                     //$output_pdf_file_name = $convert['main_pdf_file_name'];
 //                $email_template = $this->booking_model->get_booking_email_template("paytm_payment_voucher");
 //                $subject =  vsprintf($email_template[4], array($booking_id));

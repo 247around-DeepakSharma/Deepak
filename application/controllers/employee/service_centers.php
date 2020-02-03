@@ -2781,7 +2781,7 @@ class Service_centers extends CI_Controller {
             }
             $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('id' => $id));
             if(!empty($pre_sp) && !empty($pre_sp[0]['awb_by_partner'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s')));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
             }
 
             if ($ss) { //if($ss){
@@ -3563,9 +3563,11 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
-            }
+            
+        }
+        
+        foreach ($delivery_challan_file_name_array as $value_unlink) {
+            unlink(TMP_FOLDER . $value_unlink);
         }
     }
 
@@ -6391,7 +6393,7 @@ class Service_centers extends CI_Controller {
         if ($response) {
             
             if(!empty($spare_part_detail[0]['awb_by_sf'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
             }
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
