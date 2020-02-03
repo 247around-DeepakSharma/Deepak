@@ -393,7 +393,7 @@
                                                                 <?php }else{ ?>
                                                                     <td> - </td>
                                                                 <?php } ?>
-                                                                
+                                                                <!-- Removed duplicate date -->
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
                                                                 <td><?php echo $sp['part_cancel_reason'];?></td>
