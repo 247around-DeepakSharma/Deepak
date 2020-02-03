@@ -1435,7 +1435,7 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="", $amount_paid=0) {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="", $amount_paid=0, $revert_file = "") {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
@@ -1457,6 +1457,9 @@ class Miscelleneous {
         $data['result'] = $result;
         if($amount_paid) {
             $data['amount_paid'] = $amount_paid;
+        }
+        if(!empty($revert_file)){
+            $data['revert_file_name'] =$revert_file;
         }
         $data['email_message_id'] = $email_message_id;
 

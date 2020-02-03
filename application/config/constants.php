@@ -580,7 +580,7 @@ define("PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING", "Partner Sweetener Charge");
 
 // Region Constatnts
 define('EAST_RM', 'Souvik Ganguly');
-define('SOUTH_RM', 'K sankara Narayana Krishnan');
+define('SOUTH_RM', 'K Sankara Narayana Krishnan');
 define('WEST_RM', 'Rajendra Oza');
 define('NORTH_RM', 'Arun Kaushik');
 define('TOTAL', 'Total');
@@ -710,6 +710,7 @@ define('INPROCESS_COMPLETED_BY_ENGINEER_STATUS', 'InProcess Completed By Enginee
 define('INPROCESS_CANCELLED_BY_ENGINEER_STATUS', 'InProcess Cancelled By Engineer');
 define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
 define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
+
 define('_247AROUND_ENGINEER_NOTIFICATIONS', 'engg_notify');
 define( 'API_ACCESS_KEY_FIREBASE', 'AAAA4jTNT0A:APA91bFeqC-QN3TTsbzJc5W-Bk0NIzm0px_z8IOYXlNIaXByGgvg34_igzLCFKiF8VdCtkCod7xkBTIVlymGI2Cb5XijOBFDzwvE6jMC1Inx0of3G5S8lqVmh37bHjZAcQ4GOnpz75rC');
 define( 'API_KARIX_USER_ID', 'ebb22edc-e76e-4df9-ab6d-7842099e2e24');

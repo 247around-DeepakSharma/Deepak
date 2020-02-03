@@ -759,15 +759,20 @@ class Upload_buyback_process extends CI_Controller {
             //Processing File
             $response = $this->process_price_quote_upload_file($inputFileName, $inputFileExtn);
             
+            
             if(!empty($response)){
+                //Upload files to AWS
+                $directory_xls = "vendor-partner-docs/" . $response;
+                $this->s3->putObjectFile(TMP_FOLDER.$response, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+        
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
-                $body = $template[0];
+                $body = $template[0]." <br/><br/><b><a href='".S3_WEBSITE_URL.$directory_xls."' target='_blank'>Click here to download file</a></b>";
                 $to = NITS_ANUJ_EMAIL_ID.",".$this->session->userdata('official_email');
                 $from = $template[2];
                 $cc = $template[3];
                 $subject = $template[4];
-                $attachment = $response;
+                $attachment = "";
                 
                 $sendmail = $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment,'buyback_price_sheet_with_quote');
                 
@@ -776,13 +781,18 @@ class Upload_buyback_process extends CI_Controller {
                 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . ' Mail has been send successfully');
-                    unlink($response);
-                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
+                    if(file_exists(TMP_FOLDER.$response)) {
+                       unlink(TMP_FOLDER.$response);
+                    }
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID, 0, $response);
                     $msg = "File Created Successfully And Mailed To Registed Email";
                     $response = array("code" => '247', "msg" => $msg);
                 } else {
                     log_message('info', __FUNCTION__ . 'Error in Sending Mail');
-                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID);
+                    if(file_exists(TMP_FOLDER.$response)) {
+                       unlink(TMP_FOLDER.$response);
+                    }
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID, $response);
                     $msg = "Error In sending Email";
                     $response = array("code" => '-247', "msg" => $msg);
                 }
@@ -920,11 +930,11 @@ class Upload_buyback_process extends CI_Controller {
         }
         
         // Write the file
-        $file_name = TMP_FOLDER . "updated_price_sheet_".date('Y_m_d_H_i_s').".xls";
+        $file_name =  "updated_price_sheet_".date('Y_m_d_H_i_s').".xls";
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel5');
-        $objWriter->save($file_name);
+        $objWriter->save(TMP_FOLDER.$file_name);
         
-        if(file_exists($file_name)){
+        if(file_exists(TMP_FOLDER.$file_name)){
             $response = $file_name;
         }else{
             $response = FALSE;

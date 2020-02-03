@@ -240,7 +240,7 @@
                                 <label for="Invoice Date" class="col-md-4">Invoice Date</label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date">
-                                        <input <?php echo ((isset($invoice_details[0]['invoice_date'])) ? 'disabled' : 'style="background-color:#fff;cursor: pointer;"' ); ?> id="invoice_date" class="form-control" placeholder="Select Date" name="invoice_date" type="text" required readonly='true' value="<?php if (isset($invoice_details[0]['invoice_date'])) {
+                                        <input  id="invoice_date" class="form-control" placeholder="Select Date" name="invoice_date" type="<?php echo ((isset($invoice_details[0]['invoice_date'])) ? 'hidden' : 'text' ); ?>" required readonly='true' value="<?php if (isset($invoice_details[0]['invoice_date'])) {
                                             echo $invoice_details[0]['invoice_date'];
                                             } else { echo date('Y-m-d');} ?>">
                                         <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>

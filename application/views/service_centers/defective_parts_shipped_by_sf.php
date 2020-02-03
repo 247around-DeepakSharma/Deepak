@@ -134,6 +134,13 @@
         }
 
     }
+    
+    div.dt-buttons {
+        float: left;
+        margin-top: 35px;
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
 
 </style>
 

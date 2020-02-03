@@ -6943,7 +6943,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             } else {
                 $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
                         . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
-                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate";
+                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate,"
+                        . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file";
                 $where = array();
 
                 if ($this->input->post('sf_id')) {
@@ -6971,7 +6972,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
                 } else {
-                    $select .= ",service_centres.name as 'sf_name'";
+                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -6992,7 +6993,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                         
                     }
                     $post['is_inventory'] = TRUE;
-                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post,TRUE);
                 }
 
 
@@ -8254,15 +8255,16 @@ function get_bom_list_by_inventory_id($inventory_id) {
     function get_list_sale_purchage_invoice_data(){
  
         $post = $this->post_sale_purchage_invoice();
-        $partner_id=trim($_POST['partner_id']);
-        $select = "invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+        $partner_id = trim($_POST['partner_id']);
+        $select = "invoice_details.id, invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
                 . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
-                . "vendor_partner_invoices.sub_category,courier_details.AWB_no,courier_details.courier_name,date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") as shipment_date";
-        
-        $where = array("sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+                . "vendor_partner_invoices.sub_category";
 
-        $post['column_search'] = array('invoice_details.invoice_id','invoice_details.description', 'entity_gst_details.gst_number', 'AWB_no',
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number',
+
             'courier_name', 'part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
 
@@ -8354,10 +8356,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = $spare_list->gst_number;
         $row[] = $spare_list->to_gst_number;
         $row[] = $spare_list->sub_category;
-        $row[] = $spare_list->AWB_no;
-        $row[] = $spare_list->courier_name;
-        $row[] = $spare_list->shipment_date;
-          
+//        $row[] = $spare_list->AWB_no;
+//        $row[] = $spare_list->courier_name;
+//        $row[] = $spare_list->shipment_date;
         return $row;
 
 
