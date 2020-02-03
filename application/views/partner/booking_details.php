@@ -393,7 +393,9 @@
                                                                 <?php }else{ ?>
                                                                     <td> - </td>
                                                                 <?php } ?>
+
                                                                 <td><?php echo $sp['acknowledge_date']; ?></td>
+
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
                                                                 <td><?php echo $sp['part_cancel_reason'];?></td>
