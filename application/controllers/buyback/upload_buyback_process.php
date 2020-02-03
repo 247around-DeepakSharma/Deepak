@@ -763,7 +763,7 @@ class Upload_buyback_process extends CI_Controller {
             if(!empty($response)){
                 //Upload files to AWS
                 $directory_xls = "vendor-partner-docs/" . $response;
-                $this->My_CI->s3->putObjectFile(TMP_FOLDER.$response, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$response, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
         
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
