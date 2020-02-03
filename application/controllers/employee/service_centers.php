@@ -3633,7 +3633,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__ . json_encode($_POST, true), true);
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-
+        $delivery_challan_file_name_array = array();
         $challan_file = 'challan_file' . date('dmYHis');
 
         $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
@@ -3645,6 +3645,7 @@ class Service_centers extends CI_Controller {
             foreach ($explode as $value) {
                 if (copy(S3_WEBSITE_URL . "vendor-partner-docs/" . trim($value), TMP_FOLDER . $value)) {
                     $zip .= TMP_FOLDER . $value . " ";
+                    array_push($delivery_challan_file_name_array, $value);
                 }
             }
         }
@@ -3661,6 +3662,9 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
+            foreach ($delivery_challan_file_name_array as $value_unlink) {
+                unlink(TMP_FOLDER . $value_unlink);
+            }
         }
     }
 
