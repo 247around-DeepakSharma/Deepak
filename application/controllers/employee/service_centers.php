@@ -2784,7 +2784,7 @@ class Service_centers extends CI_Controller {
             }
             $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('id' => $id));
             if(!empty($pre_sp) && !empty($pre_sp[0]['awb_by_partner'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s')));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
             }
 
             if ($ss) { //if($ss){
@@ -3566,9 +3566,11 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
-            }
+            
+        }
+        
+        foreach ($delivery_challan_file_name_array as $value_unlink) {
+            unlink(TMP_FOLDER . $value_unlink);
         }
     }
 
@@ -6412,7 +6414,7 @@ class Service_centers extends CI_Controller {
         if ($response) {
             
             if(!empty($spare_part_detail[0]['awb_by_sf'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
             }
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
@@ -6489,10 +6491,11 @@ class Service_centers extends CI_Controller {
 
      */
     function send_mail_for_parts_received_by_warehouse($booking_id, $spare_id) {
+        log_message('info', __FUNCTION__ . '=> trying to send email for booking id=' . $booking_id);
         $email_template = $this->booking_model->get_booking_email_template(WAREHOUSE_RECEIVE_PART_FROM_SF);
-        $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.defective_parts_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by".
-                 " FROM booking_details as bd, spare_parts_details as spd, service_centres as sc, inventory_ledger as il, partners as p".
-                 " WHERE bd.booking_id = spd.booking_id and bd.assigned_vendor_id = sc.id and spd.booking_id = il.booking_id and p.id=bd.partner_id and bd.booking_id = ? and spd.id=? order by il.id limit 1";
+        $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.defective_parts_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by, scs.reason_text".
+                 " FROM booking_details as bd, spare_parts_details as spd, service_centres as sc, inventory_ledger as il, partners as p, spare_consumption_status as scs".
+                 " WHERE bd.booking_id = spd.booking_id and bd.assigned_vendor_id = sc.id and spd.booking_id = il.booking_id and spd.consumed_part_status_id = scs.id and p.id=bd.partner_id and bd.booking_id = ? and spd.id=? order by il.id limit 1";
         $params = array($booking_id, $spare_id);
         $results = execute_paramaterised_query($query, $params);
         if (!empty($email_template) && $results) {
@@ -6501,10 +6504,14 @@ class Service_centers extends CI_Controller {
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array());
-            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['consumption_reason'], $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
+            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['reason_text'], $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
 
             $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
         }
+        else{
+            log_message('info', __FUNCTION__ . '=> Email details not found for booking id=' . $booking_id);
+        }
+            
     }
 
     /*

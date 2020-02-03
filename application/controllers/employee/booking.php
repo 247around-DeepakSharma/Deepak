@@ -5126,12 +5126,12 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        
-        $this->invoice_lib->generate_challan_file('SY-1824041809242', 129);
+        $this->notify->sendEmail("noreply@247around.com", "abhaya@247around.com", "", "", "Higehst Quotes", "test", TMP_FOLDER."updated_price_sheet_2020_01_18_09_26_59.xls",'buyback_price_sheet_with_quote');
+        //$this->invoice_lib->generate_challan_file('SY-1824041809242', 129);
 //        $this->partner_sd_cb->test();
-//        $bucket = "bookings-collateral";
+        //$bucket = "bookings-collateral-test";
 //        //$directory_xls = "invoices-excel/ARD-PV-1819-0073.pdf";
-//        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.pdf", $bucket, "invoices-excel/Around-1819-1621.pdf", S3::ACL_PUBLIC_READ);
+       // $this->s3->putObjectFile(TMP_FOLDER."17-Jan-2020-14-27-03-hq.xlsx", $bucket, "vendor-partner-docs/17-Jan-2020-14-27-03-hq.xlsx", S3::ACL_PUBLIC_READ);
 //        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.xlsx", $bucket, "invoices-excel/Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
 //        $this->s3->putObjectFile(TMP_FOLDER."copy_Around-1819-1621.xlsx", $bucket, "invoices-excel/copy_Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
        // $this->load->library('serial_no_validation');
