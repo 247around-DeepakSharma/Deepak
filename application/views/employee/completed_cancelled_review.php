@@ -112,7 +112,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                </h2>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
                   <div class="col-md-12" style="font-size:82%;">
-                      <table class="table table-bordered table-hover table-striped" id="completed_cancelled_review_table">
+                      <table class="table table-bordered table-hover table-striped completed_cancelled_review_table" id="completed_cancelled_review_table">
                         <thead>
                            <tr>
                               <th class="jumbotron no-sort" >S.N.</th>
@@ -123,9 +123,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <th class="jumbotron no-sort" >Amount Paid</th>
                               <th class="jumbotron" >Age</th>
                               <?php
-                              if($review_status == "Completed"){
+                              if($review_status == "Completed" || $review_status == "Cancelled"){
                               ?>
                                 <th class="jumbotron" >Review Age</th>
+                              <?php
+                              }
+                              ?> 
+                              <?php
+                              if($review_status == "Completed"){
+                              ?>
                                 <th class="jumbotron no-sort" >Warranty Status</th>
                               <?php
                               }
@@ -239,16 +245,20 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               ?>
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
-                              <?php if($review_status == "Completed"){ ?>
                               <?php
-                                $booking_review_age = '--'; 
-                                $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']);
-                                $booking_closed_datediff = time() - $sf_booking_closed_date;
-                                if($booking_closed_datediff >= 0){
-                                    $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
-                                }
+                                if($review_status == "Completed" || $review_status == "Cancelled"){
+                                    $booking_review_age = '--'; 
+                                    $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']);
+                                    $booking_closed_datediff = time() - $sf_booking_closed_date;
+                                    if($booking_closed_datediff >= 0){
+                                        $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
+                                    }
                               ?>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_review_age ?></strong></td>
+                              <?php
+                                }
+                              ?>
+                              <?php if($review_status == "Completed"){ ?>                              
                               <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
@@ -389,8 +399,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
     });
    
    $(document).ready(function(){
-       <?php if($review_status == "Completed"){ ?>
-            $('#completed_cancelled_review_table').DataTable({
+       $('.completed_cancelled_review_table').DataTable().destroy();
+       <?php if(($review_status == "Completed" || $review_status == "Cancelled")){ ?>
+            $('.completed_cancelled_review_table').DataTable({
+                "searching": false,
                 "ordering": true,
                 columnDefs: [{
                   orderable: false,
