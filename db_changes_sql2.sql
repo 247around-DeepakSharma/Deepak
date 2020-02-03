@@ -1787,3 +1787,7 @@ SELECT * FROM `employee` WHERE full_name like '%sankara%'; -- 10146
 
 update `employee` set groups = 'areasalesmanager' where groups = 'regionalmanager';
 update `employee` set groups = 'regionalmanager' where id IN  (36,24,38,10146);
+
+
+--Ankit Bhatt 2020-02-03
+update `email_template` set template='<table border="1" cellspacing="0" cellpadding="0"><tr><td colspan="10">Parts Received By Warehouse</td></tr><tr><th>Booking Id</th><th>SF</th><th>Receive Date</th><th>Shipped By</th><th>Part Name</th><th>Part Number</th><th>Quantity</th><th>Consumption Reason</th><th>Warehouse</th><th>Image Link</th></tr><tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr><tr><td colspan="10">Thanks!!</td></tr></table>' where tag= 'parts_received_by_warehouse';
