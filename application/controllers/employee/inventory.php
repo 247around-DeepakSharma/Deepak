@@ -3914,9 +3914,9 @@ class Inventory extends CI_Controller {
                             if (!empty($exist_courier_details)) {
                                 $courier_company_details_id = trim($exist_courier_details[0]['id']);
 
-                                $awb_by_wh = trim($exist_courier_details[0]['awb_number']);
-                                $courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
-                                $courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
+                                //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
+                                //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
+                                //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
                             } else {
                                 $awb_data = array(
                                     'awb_number' => trim($awb_number),
@@ -3931,6 +3931,7 @@ class Inventory extends CI_Controller {
                                     'courier_invoice_file' => $courier_file['message'],
                                     'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
                                     'created_by' => 1,
+                                    'shippment_date' => $courier_data['shipment_date'],
                                     'is_exist' => 1
                                 );
 
@@ -5756,8 +5757,7 @@ class Inventory extends CI_Controller {
                     unset($response['meta']['main_company_sign_cell']);
 
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
-                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
-
+                    
                     $invoice_details = array(
                         'invoice_id' => $response['meta']['invoice_id'],
                         'type_code' => 'A',
@@ -5797,6 +5797,8 @@ class Inventory extends CI_Controller {
                     $this->invoices_model->insert_new_invoice($invoice_details);
 
                     $this->invoice_lib->insert_def_invoice_breakup($response);
+                    
+                    $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
                     log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
 
@@ -8110,8 +8112,7 @@ class Inventory extends CI_Controller {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number',
-            'courier_name', 'part_number');
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
 
         // print_r($list);  exit;
