@@ -260,7 +260,7 @@ class Upload_buyback_process extends CI_Controller {
         $rowData['partner_name'] = "Amazon";
         $rowData['subcat'] = $data[1];
         $rowData['city'] = $data[3];
-        $order_date = date('d-m-Y', strtotime($data[4]));
+-        $order_date = date('d-m-Y', strtotime($data[4]));
         $rowData['order_date'] = date("Y-m-d", strtotime($order_date));
         $rowData['partner_order_id'] = $data[5];
         $rowData['order_key'] = $data[6];

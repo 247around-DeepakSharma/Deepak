@@ -104,7 +104,7 @@ class Courier_tracking extends CI_Controller {
                         if(!empty($awb_number_to_be_deleted_from_api)){
                             $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
                             echo "DELETE AWB BY API";
-                            print_r($delete_status);
+                            //print_r($delete_status);
                             if($delete_status['status']){
                                 log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                             }else{
@@ -541,7 +541,7 @@ class Courier_tracking extends CI_Controller {
                         if(!empty($awb_number_to_be_deleted_from_api)){
                             $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
                             echo "DELETE AWB BY API";
-                            print_r($delete_status);
+                            //print_r($delete_status);
                             if($delete_status['status']){
                                 log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                             }else{

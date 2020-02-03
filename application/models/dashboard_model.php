@@ -863,6 +863,9 @@ class dashboard_model extends CI_Model {
         return $result->result_array();
     }
 
+
+
+
         /**
      * @desc this function is used to count report rows
      * @param string $table_name
@@ -910,8 +913,12 @@ class dashboard_model extends CI_Model {
 
     
         $query = $this->db->get($table_name);
+       // print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
+
+
+
 
     /**
      * @desc this function is used to fetch view data from db
@@ -954,5 +961,4 @@ class dashboard_model extends CI_Model {
        // print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
- 
 }

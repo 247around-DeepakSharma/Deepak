@@ -1696,6 +1696,7 @@ class Booking extends CI_Controller {
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "", "BOOKING_VIEW_DETAILS");
             return;
         }
+
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
@@ -1852,8 +1853,8 @@ class Booking extends CI_Controller {
             }
         } else {
             $data['symptom'][0] = array("symptom" => "Default");
-            
-            if(!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+
+            if (!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
                 $data['completion_symptom'][0] = array("symptom" => "Default");
                 $data['technical_defect'][0] = array("defect" => "Default");
                 $data['technical_solution'][0] = array("technical_solution" => "Default");

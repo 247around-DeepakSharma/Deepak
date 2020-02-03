@@ -435,6 +435,7 @@ class engineerApi extends CI_Controller {
 /*   get partner appliances */
             case 'partnerappliancesModels':  
                 $this->getPartnerAppliancesModels();  ////getPartner_appliances
+                break;
 
             default:
                 break;

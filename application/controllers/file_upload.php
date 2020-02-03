@@ -16,6 +16,7 @@ class File_upload extends CI_Controller {
 
     function __Construct() {
         parent::__Construct();
+
         //load library
         $this->load->library('PHPReport');
         $this->load->library('miscelleneous');

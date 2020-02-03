@@ -778,6 +778,7 @@ class Accounting extends CI_Controller {
         }
         return $data;
     }
+            
      /**
      * @desc This function is used to get service center invoice data
      * @param type $post

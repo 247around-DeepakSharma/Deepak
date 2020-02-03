@@ -56,6 +56,7 @@ $route['service_center/completed_booking/(:any)'] = 'employee/service_centers/co
 $route['service_center/cancelled_booking'] = 'employee/service_centers/cancelled_booking';
 $route['service_center/cancelled_booking/(:any)'] = 'employee/service_centers/cancelled_booking/$1';
 $route['service_center/booking_details/(:any)'] = 'employee/service_centers/booking_details/$1';
+$route['service_center/get_appliance_details'] = 'employee/service_centers/get_appliance_details';
 $route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/cancel_booking_form/$1';
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
 $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
@@ -235,15 +236,18 @@ $route['partner/inventory/tag_spare_invoice'] = 'employee/partner/tag_spare_invo
 $route['partner/search_docket_number'] = 'employee/partner/search_docket_number';
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
-$route['partner/brand_collateral']='employee/partner/brandCollateral';
-$route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
+$route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
+
+
+
 
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 
