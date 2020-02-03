@@ -23,7 +23,16 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
             </div>
-             
+            
+            <div class="col-md-3 pull-right" style="margin-top:20px;">                           
+                <select type="text" class="form-control"  id="request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="request_type" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value="">Choose Request Type</option>
+                    <?php
+                    foreach($request_types as $key => $request_type) { ?>
+                        <option value="<?= $key ?>" <?php if(!empty($request_type_selected) && $key == $request_type_selected) { echo 'selected';}?>><?= $request_type; ?></option>                  
+                    <?php } ?>
+                </select>                           
+            </div> 
              <?php if($status == 'Completed') { ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
@@ -106,26 +115,26 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                       <table class="table table-bordered table-hover table-striped" id="completed_cancelled_review_table">
                         <thead>
                            <tr>
-                              <th class="jumbotron" >S.N.</th>
-                              <th class="jumbotron" >Booking Id</th>
+                              <th class="jumbotron no-sort" >S.N.</th>
+                              <th class="jumbotron no-sort" >Booking Id</th>
 <!--                              <th class="jumbotron" >Service Center </th>-->
-                              <th class="jumbotron" style="text-align: center;">Price Details</th>
-                              <th class="jumbotron" >Amount Due</th>
-                              <th class="jumbotron" >Amount Paid</th>
+                              <th class="jumbotron no-sort" style="text-align: center;">Price Details</th>
+                              <th class="jumbotron no-sort" >Amount Due</th>
+                              <th class="jumbotron no-sort" >Amount Paid</th>
                               <th class="jumbotron" >Age</th>
                               <?php
                               if($review_status == "Completed"){
                               ?>
                                 <th class="jumbotron" >Review Age</th>
-                                <th class="jumbotron" >Warranty Status</th>
+                                <th class="jumbotron no-sort" >Warranty Status</th>
                               <?php
                               }
                               ?>                              
-                              <th class="jumbotron" >Admin Remarks</th>
-                              <th class="jumbotron" >Vendor Remarks</th>
-                              <th class="jumbotron" >Vendor Cancellation Reason</th>
-                              <th class="jumbotron" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>"/></th>
-                              <th class="jumbotron" >Action</th>
+                              <th class="jumbotron no-sort" >Admin Remarks</th>
+                              <th class="jumbotron no-sort" >Vendor Remarks</th>
+                              <th class="jumbotron no-sort" >Vendor Cancellation Reason</th>
+                              <th class="jumbotron no-sort" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>"/></th>
+                              <th class="jumbotron no-sort" >Action</th>
                            </tr>
                         </thead>
                         <tbody>
@@ -372,9 +381,22 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
     });    
     $('#state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
        placeholder: 'State'
-    });    
+    });  
+    $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
+       placeholder: 'Request Type'
+    });
    
    $(document).ready(function(){
+       <?php if($review_status == "Completed"){ ?>
+            $('#completed_cancelled_review_table').DataTable({
+                "ordering": true,
+                columnDefs: [{
+                  orderable: false,
+                  targets: "no-sort"
+                }]
+            });
+       <?php } ?>
+           
         $(".selecctall").change(function(){
             var dataId = $(this).attr('data-id');
             var isChecked = $("."+dataId).prop("checked");
