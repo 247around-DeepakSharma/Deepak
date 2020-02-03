@@ -397,9 +397,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
     });
    
    $(document).ready(function(){
-       $('.completed_cancelled_review_table').DataTable().destroy();
+       $('.completed_cancelled_review_table').each(function( index ) {
+            $(this).DataTable().destroy();
+       });
+       
+       console.log($.fn.dataTable.isDataTable(".completed_cancelled_review_table"));
        <?php if(($review_status == "Completed" || $review_status == "Cancelled")){ ?>
             $('.completed_cancelled_review_table').DataTable({
+                "paging": false,
+                "info":     false,
                 "searching": false,
                 "ordering": true,
                 columnDefs: [{
