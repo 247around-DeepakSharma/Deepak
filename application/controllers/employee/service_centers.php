@@ -6558,10 +6558,11 @@ class Service_centers extends CI_Controller {
 
      */
     function send_mail_for_parts_received_by_warehouse($booking_id, $spare_id) {
+        log_message('info', __FUNCTION__ . '=> trying to send email for booking id=' . $booking_id);
         $email_template = $this->booking_model->get_booking_email_template(WAREHOUSE_RECEIVE_PART_FROM_SF);
-        $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.defective_parts_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by".
-                 " FROM booking_details as bd, spare_parts_details as spd, service_centres as sc, inventory_ledger as il, partners as p".
-                 " WHERE bd.booking_id = spd.booking_id and bd.assigned_vendor_id = sc.id and spd.booking_id = il.booking_id and p.id=bd.partner_id and bd.booking_id = ? and spd.id=? order by il.id limit 1";
+        $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.defective_parts_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by, scs.reason_text".
+                 " FROM booking_details as bd, spare_parts_details as spd, service_centres as sc, inventory_ledger as il, partners as p, spare_consumption_status as scs".
+                 " WHERE bd.booking_id = spd.booking_id and bd.assigned_vendor_id = sc.id and spd.booking_id = il.booking_id and spd.consumed_part_status_id = scs.id and p.id=bd.partner_id and bd.booking_id = ? and spd.id=? order by il.id limit 1";
         $params = array($booking_id, $spare_id);
         $results = execute_paramaterised_query($query, $params);
         if (!empty($email_template) && $results) {
@@ -6570,10 +6571,14 @@ class Service_centers extends CI_Controller {
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array());
-            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['consumption_reason'], $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
+            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['reason_text'], $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
 
             $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
         }
+        else{
+            log_message('info', __FUNCTION__ . '=> Email details not found for booking id=' . $booking_id);
+        }
+            
     }
 
     /*
