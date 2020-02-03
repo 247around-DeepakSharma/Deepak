@@ -10,7 +10,7 @@
     <h4 class="modal-title">Regional Contacts:</h4>
     </div>
         <div class="col-md-6" style="padding-left: 28px;">
-    <h4 class="modal-title">TV Bracket Ordering:</h4>
+    <!--<h4 class="modal-title">TV Bracket Ordering:</h4>-->
     </div>
         </div>
 </div>
@@ -19,9 +19,31 @@
     <div class="row">
         <div class="col-md-12">
             <div class="row">
+                
+               <div class="col-md-6">
+                     <?php if (isset($new_asm_details) && !empty($new_asm_details)) {
+                    foreach ($new_asm_details as $asm) {
+                        ?>
+                        <div class="col-md-12">
+                            <div class="long-card" style="padding: 10px 16px;">
+                                    <h5><b>Mr. <?php echo ucwords($asm['full_name']); ?></b></h5> 
+                                    <p>Escalation <?php if(isset(explode(',', $asm['designation'])[1])){echo ucwords(explode(',', $asm['designation'])[1]);} ?></p>
+                                    <p><i class="fa fa-user"></i> <?php echo ucwords($asm['designation']); ?></p>
+                                    <p><i class="fa fa-newspaper-o"></i> <?php echo ucwords($asm['office_centre']); ?> Office, <i class="fa fa-phone"></i> <span><?php echo $asm['phone']; ?></span></p>
+                                    <p><i class="fa fa-language"></i> <?php echo $asm['languages']; ?></p>
+                                    <p><i class="fa fa-envelope"></i> <?php echo $asm['official_email']; ?></p>
+                            </div>
+                        </div>
+                    <?php }
+                } ?>
+                </div>
+                
                 <div class="col-md-6">
-                <?php if (isset($rm_details) && !empty($rm_details)) {
-                    foreach ($rm_details as $rm) {
+                   <?php
+                   //print_r($new_rm_details);
+                   ?>
+                <?php if (isset($new_rm_details) && !empty($new_rm_details)) {
+                    foreach ($new_rm_details as $rm) {
                         ?>
                         <div class="col-md-12">
                             <div class="long-card" style="padding: 10px 16px;">
@@ -36,15 +58,6 @@
                     <?php }
                 } ?>
                     </div>
-                <div class="col-md-6">
-                    <div class="long-card" style="padding: 10px 16px;">
-                    <h5><b>Ms. Vijaya</b></h5> 
-                    <p><i class="fa fa-user"></i> Back Office Closure Champion</p>
-                    <p><i class="fa fa-newspaper-o"></i> Delhi Office</p>
-                    <p><i class="fa fa-phone"></i> 8506902678 <span> <strong>|</strong> <i class="fa fa-language"></i> English and Hindi</span></p>
-                    <p><i class="fa fa-envelope"></i> vijaya@247around.com,booking@247around.com</p>
-                </div>
-                </div>
             </div>
         </div>
     </div>
