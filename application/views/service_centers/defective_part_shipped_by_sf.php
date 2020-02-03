@@ -63,7 +63,7 @@
                                         <?php echo $row['part_number']; ?>
                                     </td>                    
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td ><a onclick="get_awb_details('<?php echo $row['courier_name_by_sf']; ?>','<?php echo $row['awb_by_sf']; ?>','<?php echo DEFECTIVE_PARTS_SHIPPED; ?>','<?php echo "awb_loader_".$row['awb_by_sf']; ?>')">
                                         <?php echo $row['awb_by_sf']; ?></a>

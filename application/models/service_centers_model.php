@@ -242,7 +242,7 @@ class Service_centers_model extends CI_Model {
         }
         else if($status == "Completed"){
             $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status ='Completed' LIMIT 1) ";
-            
+
         } else if($status == "All"){
              $where_sc = $where_sc." AND EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id AND sc_sub.internal_status IN ('Completed', 'Cancelled') LIMIT 1) ";
         }
@@ -297,7 +297,7 @@ class Service_centers_model extends CI_Model {
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
-                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_create_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
@@ -314,8 +314,8 @@ class Service_centers_model extends CI_Model {
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array()) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [],$having_arr);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array()) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, NULL, Null, 0, [],$having_arr);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id

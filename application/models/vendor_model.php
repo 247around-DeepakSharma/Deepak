@@ -1719,6 +1719,34 @@ class vendor_model extends CI_Model {
         return $response;
     }
     
+    function get_rm_contact_details_by_sf_id($sf_id){
+        if(!empty($sf_id)){
+            $sql = "Select service_centres.id, employee.id,employee.full_name,"
+                    . "employee.phone,employee.official_email,employee.office_centre,"
+                    . "employee.languages,employee.designation from service_centres,employee "
+                    . "where service_centres.id=".$sf_id." and service_centres.rm_id = employee.id";
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+       
+        return $response;
+    }
+    function get_asm_contact_details_by_sf_id($sf_id){
+        if(!empty($sf_id)){
+            $sql = "Select service_centres.id, employee.id,employee.full_name,"
+                    . "employee.phone,employee.official_email,employee.office_centre,"
+                    . "employee.languages,employee.designation from service_centres,employee "
+                    . "where service_centres.id=".$sf_id." and service_centres.asm_id = employee.id";
+            $response = $this->db->query($sql)->result_array();
+        }else{
+            $response = false;
+        }
+       
+        return $response;
+    }
+    
+    
     /**
      * @Desc: This function is used to update employee_relation table
      * @parmas: $agent_id, $sf_id
@@ -2287,5 +2315,41 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('sms_template');
         return $query->result();
     }
+    
+    /**
+     * 
+     * @Desc: This function is used to get the list of all SFs associated with given employee
+     * @params: agent_id, hierarchy boolean
+     * @return: Array or Empty
+     * @author : Prity Sharma
+     * @date : 29-01-2020
+     */
+    function get_sf_associated_with_rm($agent_id, $hierarchy = false)
+    {
+        // if $hierarchy is true we get the list of all SFs associated with given employee and his team as well.
+        // else only those SFs which are individually associated with current agent are fetched
+        if($hierarchy)
+        {
+            $arr_hierarchy_agents = $this->miscelleneous->get_child_managers($agent_id);
+            if(!empty($arr_hierarchy_agents)){
+                $agent_id = implode(',', $arr_hierarchy_agents);
+            }
+            $this->db->select('group_concat(service_centres.id) as service_centres_id');
+        }
+        else
+        {
+            $this->db->select('group_concat(service_centres.id) as individual_service_centres_id');
+        }
+        
+        $this->db->where('(service_centres.rm_id IN ('.$agent_id.') OR service_centres.asm_id IN ('.$agent_id.'))', NULL);
+        $query = $this->db->get('service_centres');
+        $result = $query->result_array();
+        if(!empty($result)){
+            return $result;
+        } else {
+            return '';
+        }
+    }
+    
 }
 

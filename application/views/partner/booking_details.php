@@ -61,12 +61,12 @@
                                         <td><?php 
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
                                         $time2 = strtotime($createDatArray[0]);
-                                        $reg_date = date('d-m-Y',$time2);
+                                        $reg_date = date('d-M-Y',$time2);
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('d-m-Y',$time);
+                                        $booking_date = date('d-M-Y',$time);
                                         echo $booking_date ?></td>
                                         
                                     </tr>
@@ -93,7 +93,7 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
+                                        <td><?php echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
@@ -222,7 +222,7 @@
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
-                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date('d-m-Y', strtotime($unit_detail['purchase_date'])); }?></td>
+                                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date('d-M-Y', strtotime($unit_detail['purchase_date'])); }?></td>
                                                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
                                                             <?php $cp = 0; if($key == 0){ $cp = 0; if ($booking_history[0]['is_upcountry'] == 1) { ?>
@@ -346,14 +346,14 @@
                                                                 <td>
                                                                     <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                                                 </td>
-                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
                                                             <!--   Show spare Apprival Date --->
                                                                 <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00' ){ ?>
-                                                                <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-M-Y'); ?></td>
                                                                 <?php }else{ ?>
                                                                   <td>-</td>
                                                                 <?php  } ?>
-                                                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
@@ -389,11 +389,11 @@
                                                                 </td>
                                                                 <td><?php echo $sp['serial_number']; ?></td>
                                                                 <?php if (!empty($sp['acknowledge_date'])) { ?>
-                                                                    <td><?php echo $sp['acknowledge_date']; ?></td>
+                                                                    <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                                                 <?php }else{ ?>
                                                                     <td> - </td>
                                                                 <?php } ?>
-                                                                <td><?php echo $sp['acknowledge_date']; ?></td>
+                                                                <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
                                                                 <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -504,7 +504,7 @@
                                                                             echo $sp['purchase_price']; 
                                                                         }?></td>
                                                                         <td><?php if (!empty($sp['estimate_cost_given_date'])) {
-                                                                                echo date("d-m-Y", strtotime($sp['estimate_cost_given_date']));
+                                                                                echo date("d-M-Y", strtotime($sp['estimate_cost_given_date']));
                                                                             } ?>
                                                                         </td>
                                                                         <td><?php if (!is_null($sp['incoming_invoice_pdf'])) {
@@ -553,7 +553,7 @@
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                                                    <td><?php echo $sp['shipped_date']; ?></td>
+                                                                    <td><?php echo date("d-M-Y", strtotime($sp['shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['edd']; ?></td>
                                                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
                                                                     <td> 
@@ -613,14 +613,14 @@
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     
                                                                     <td><?php
-                                                                                if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
-                                                                                    echo $courier_boxes_weight_details['box_count'];
+                                                                                if (!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])) {
+                                                                                    echo $sp['sf_box_count'];
                                                                                 }
                                                                           ?></td>
                                                                     <td><?php
                                                                             if (!empty($sp['awb_by_sf'])) {
-                                                                                if (!empty($courier_boxes_weight_details['billable_weight'])) {
-                                                                                    $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
+                                                                                if (!empty($sp['sf_billable_weight'])) {
+                                                                                    $expl_data = explode('.', $sp['sf_billable_weight']);
                                                                                     if (!empty($expl_data[0])) {
                                                                                         echo $expl_data[0] . ' KG ';
                                                                                     }
@@ -632,7 +632,7 @@
                                                                                     ?></td>
                                                                     <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                                                    <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                                                    <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                                                     <td>
@@ -700,11 +700,11 @@
                                                         ?>
                                                         <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
                                                             <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($wh_courier_boxes_weight_details['box_count'])){ echo $wh_courier_boxes_weight_details['box_count']; } ?></td>
+                                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($sp['wh_box_count'])){ echo $sp['wh_box_count']; } ?></td>
                                                         <td><?php
                                                                     if (!empty($sp['awb_by_wh'])) {
-                                                                        if (!empty($wh_courier_boxes_weight_details['billable_weight'])) {
-                                                                            $expl_data = explode('.', $wh_courier_boxes_weight_details['billable_weight']);
+                                                                        if (!empty($sp['wh_billable_weight'])) {
+                                                                            $expl_data = explode('.', $sp['wh_billable_weight']);
                                                                             if (!empty($expl_data[0])) {
                                                                                 echo $expl_data[0] . ' KG ';
                                                                             }
@@ -716,7 +716,7 @@
                                                                                 ?></td>
                                                        <td><?php echo $sp['courier_price_by_wh']; ?></td>
                                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
-                                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-m-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
+                                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-M-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
                                                         <td><?php echo $sp['wh_challan_number']; ?></td>
                                                         <td>
                                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 
@@ -771,7 +771,7 @@
                                                                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf']; ?>">
                                                                                 <img style="width:27px;" src="<?php echo base_url(); ?>images/invoice_icon.png" /></a>
                                                                         </td> 
-                                                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                                                        <td><?php echo date("d-M-Y", strtotime($sp['oow_invoice_date'])); ?></td>  
                                                                     </tr>
                                                                  <?php }
                                                                         }

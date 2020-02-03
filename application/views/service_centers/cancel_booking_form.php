@@ -25,7 +25,7 @@
             <h1 class="page-header">
                Cancel Booking 
             </h1>
-            <form class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php echo $user_and_booking_details[0]['booking_id']; ?>" method="POST">
+             <form class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php if(!empty($user_and_booking_details)){ echo $user_and_booking_details[0]['booking_id']; }?>" method="POST">
                <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                   <label for="name" class="col-md-2">User Name</label>
                   <div class="col-md-6">

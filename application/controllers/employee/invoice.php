@@ -5680,6 +5680,7 @@ exit();
      * @desc This is used to update hsn code details related field. Just pass field name, value and table primary key id
      */
     function update_hsn_code_details_column(){
+        ob_clean();
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
         $this->form_validation->set_rules('column', 'column', 'required');

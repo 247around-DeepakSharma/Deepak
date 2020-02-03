@@ -3870,7 +3870,7 @@ function generate_image($base64, $image_name,$directory){
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
         $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
         $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
@@ -4804,7 +4804,7 @@ function generate_image($base64, $image_name,$directory){
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
-                return date_format(date_create($date), "d-m-Y");
+                return date_format(date_create($date), "d-M-Y");
             }
         } else {
             return '';
@@ -4956,14 +4956,6 @@ function generate_image($base64, $image_name,$directory){
                 if (!empty($spare_id)) {
                     $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 'partner_id' => $post_data['partner_id'], 'service_center_id' => $this->My_CI->session->userdata('service_center_id'));
                     $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
-            }
-
-            if (!empty($status) && $defective_part_required == 1) {
-                // update in service center booking action.
-                $this->My_CI->vendor_model->update_service_center_action($booking_id, array('internal_status' => $status));
-                if(empty($this->My_CI->session->userdata('service_center_id'))) {
-                    $this->My_CI->booking_model->update_booking($booking_id, ['internal_status' => $status]);
                 }
             }
 

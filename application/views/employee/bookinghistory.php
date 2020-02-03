@@ -47,7 +47,7 @@
                             <td><?php echo $row->booking_id;?></td>
                             <td><?php echo $row->customername;?></td>
                             <td><?php echo $row->services;?></td>
-                            <td><?php echo $row->booking_date;?></td>
+                            <td><?php echo date("d-M-Y", strtotime($row->booking_date));?></td>
                             <td><?php echo $row->booking_timeslot;?></td>
                             <td><?php echo $row->current_status;?></td>
                             <td>

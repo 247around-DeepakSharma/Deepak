@@ -1032,6 +1032,7 @@ EOD;
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
+                    
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         
                         //get rm email
@@ -1047,11 +1048,15 @@ EOD;
 
                         $file_path = "";
                         if (!empty($file_data)) {
-                            $file_path = TMP_FOLDER . $data['data'][0]['service_center_name'] . "-" . date('Y-m-d');
+                            $serviceCenterName=$data['data'][0]['service_center_name'];
+                            $serviceCenterName  =   strtolower($serviceCenterName);
+                            $serviceCenterName  =   str_replace(' ', '-', $serviceCenterName);  // Replaces all spaces with hyphens.
+                            $serviceCenterName  =   preg_replace('/[^A-Za-z0-9\-]/', '', $serviceCenterName); // Removes special chars.
+                            $file_path          =   TMP_FOLDER . $serviceCenterName . "-" . date('Y-m-d');
+			    //$file_path = TMP_FOLDER . $data['data'][0]['service_center_name'] . "-" . date('Y-m-d'); Removed line
                             $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
 
                             foreach ($file_data as $booking_id) {
-
                                 fwrite($file, $booking_id['booking_id'] . "\n");
                             }
                             fclose($file);
@@ -1065,7 +1070,12 @@ EOD;
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);
                         exec("rm -rf " . escapeshellarg($file_path));
-                    } else {
+                        if (isset($file_path) && $file_path!='') 
+                        {                            
+                            unlink($file_path.'.txt');
+                        }
+                                                
+                    } else {                        
                         log_message('info', __FUNCTION__ . " Empty Data Get");
                     }
                 }
@@ -1625,8 +1635,8 @@ EOD;
             write_file($csv, $new_report);
             //Upload File On AWS and save link in file_upload table
             $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
-            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')");
+            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.create_date,'%d-%m-%Y'),'%d-%b-%Y')");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
                     $subject, $email_body,
@@ -1675,7 +1685,7 @@ EOD;
         $partnersArray[4] = array("id"=>MURPHY_ID,"public_name"=>'Murphy');
         $partnersArray[4] = array("id"=>JEEVES_ID,"public_name"=>'Jeeves');
         foreach($partnersArray as $partners){
-            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partners['id'],"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $subject = "247around Services Report  - ".$partners['public_name']." - " . date('d-M-Y');
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com,nits@247around.com", "arunk@247around.com,souvikg@247around.com,suresh@247around.com,oza@247around.com",
@@ -1693,8 +1703,8 @@ EOD;
      */
     function send_call_center_report_to_partner($partner_id = "", $date_report_start = "", $date_report_end = "") {
         $partner_id = !empty($partner_id) ? $partner_id : VIDEOCON_ID;
-        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-m-Y', strtotime(' -1 day'));
-        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-m-Y', strtotime(' -1 day'));
+        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-M-Y', strtotime(' -1 day'));
+        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-M-Y', strtotime(' -1 day'));
         $this->reporting_lib->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
     }
 }

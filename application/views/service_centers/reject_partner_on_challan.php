@@ -105,7 +105,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -275,6 +275,9 @@
         "pageLength": 100,
             dom: 'Bfrtip',
             // Configure the drop down options.
+            "language": {                
+                "searchPlaceholder": "Search by Any Column",
+            },
             lengthMenu: [
                 [ 25, 50,100, -1 ],
                 [ '25', '50', '100', 'All' ]

@@ -736,7 +736,8 @@ class vendor extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->get_allstates();
-        $results['employee_rm'] = $this->employee_model->get_rm_details();
+        $results['employee_rm'] = $this->employee_model->get_rm_details([_247AROUND_RM]);
+        $results['employee_asm'] = $this->employee_model->get_rm_details([_247AROUND_ASM]);
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
         $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -3592,7 +3593,7 @@ class vendor extends CI_Controller {
                 
         foreach ($query as $row) {
             $responce->rows[$i]['id'] = $row->id;
-            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,$row->from_date,$row->to_date,$row->active);
+            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,date('d-M-Y', strtotime($row->from_date)),date('d-M-Y', strtotime($row->to_date)),$row->active);
             $i++;
         }
  
@@ -4384,6 +4385,9 @@ class vendor extends CI_Controller {
                 header('Content-Type: application/octet-stream');
                 header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
                 readfile($output_file_excel);
+                // Delete file from temp folder
+                // @modified by : Ankit Rajvanshi
+                unlink($output_file_excel);
                 exit;
             } 
 
@@ -5974,7 +5978,7 @@ class vendor extends CI_Controller {
     }
     
     function getRMs() {
-        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_RM]);
         $rm_id = $this->input->post('rm_id');
         $option = '<option value="" disabled '.(empty($rm_id) && count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
@@ -5985,7 +5989,7 @@ class vendor extends CI_Controller {
     }
     
     function getASMs() {
-        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM]);
         $asm_id = $this->input->post('asm_id');
         $option = '<option value="" disabled '.(empty($asm_id) && count($data) > 1 ? 'selected' : '').'>Select Area Sales Manager</option>';
         foreach ($data as $employee) {

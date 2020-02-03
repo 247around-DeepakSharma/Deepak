@@ -129,11 +129,12 @@ class Employee_model extends CI_Model{
        * @return: Array
        * 
        */
-      function get_rm_details(){
-          $this->db->select('*');
-          $this->db->where_in('groups',[_247AROUND_RM,_247AROUND_ASM]);
-          $this->db->where('active','1');
-          $query = $this->db->get('employee');
+      function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM]){
+          $this->db->select('employee.*, rm_region_mapping.region');
+          $this->db->join('rm_region_mapping', 'employee.id = rm_region_mapping.rm_id');
+          $this->db->where_in('employee.groups', $arr_groups);
+          $this->db->where('employee.active','1');
+          $query = $this->db->get('employee');          
           return $query->result_array();
       }
       
@@ -505,8 +506,9 @@ FROM
     * @param type $state
     * @return type
     */
-   function get_state_wise_rm($state) {
-        $sql = "SELECT
+   function get_state_wise_rm($state, $arr_groups = [_247AROUND_RM, _247AROUND_ASM]) {
+       $str_groups = implode(',', $arr_groups); 
+       $sql = "SELECT
                     employee.id,
                     employee.full_name
                 FROM
@@ -514,8 +516,35 @@ FROM
                     LEFT JOIN employee ON (employee_relation.agent_id = employee.id)
                     LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
                 WHERE 
-                    employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."') AND
+                    employee.groups IN ('".$str_groups."') AND
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
+   
+    /**
+     * @Desc: This function is used to get all regions (North,South,East,West)
+     * @params: void
+     * @return: Array
+     * @author Prity Sharma
+     * @date : 22-01-2020
+    */
+    function get_regions(){
+        $this->db->select('region,rm_id');
+        $this->db->distinct();
+        $query = $this->db->get('rm_region_mapping');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function maps a region with its respective RM (North,South,East,West)
+     * @params: void
+     * @return: NULL
+     * @author Prity Sharma
+     * @date : 27-01-2020
+    */
+    function map_region_to_rm($region, $rm_id){
+        $this->db->set("rm_id",$rm_id);
+        $this->db->where('region', $region);
+        $this->db->update("rm_region_mapping");
+    }
 }

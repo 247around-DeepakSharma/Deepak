@@ -198,7 +198,7 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->potential_value; ?></td>
-                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                    <td><?= date("d-M-Y", strtotime($row->booking_date)); ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>">
                         <?php
                             echo $row->current_status;
@@ -313,7 +313,7 @@
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
                         <td><?= $row->services; ?></td>
-                        <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                        <td><?= date("d-M-Y", strtotime($row->booking_date)); ?> / <?= $row->booking_timeslot; ?></td>
                         <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                         <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
                         <?php if(isset($saas_module) && (!$saas_module)) { ?>
@@ -523,7 +523,7 @@
                         <td><?= $row->services; ?></td>
                         <td><?php if(isset($row->service_centre_name)){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; } ?></a></td>
                         <td><?=$row->city; ?></td>
-                        <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($row->closed_date)); ?></td>
                         <?php if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>
@@ -662,7 +662,7 @@
                             <?php } ?>
                         </td>
                         <td><?=$row->city; ?></td>
-                        <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
+                        <td><?php echo date("d-M-Y", strtotime($row->closed_date)); ?></td>
                         <?php if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>

@@ -3574,8 +3574,13 @@ class Inventory extends CI_Controller {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
             $column = $this->input->post('column');
-
+            $booking_id = $this->input->post('booking_id');
             $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            // if serial number is changed , update in booking_unit_details table also.
+            if(!empty($booking_id) && $column == 'serial_number')
+            {
+                $this->booking_model->update_booking_unit_details($booking_id, array($column => $data));
+            }
             echo "Success";
         } else {
             echo "Error";
@@ -3626,6 +3631,11 @@ class Inventory extends CI_Controller {
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
             $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            // if serial number image is changed , update in booking_unit_details table also.
+            if(!empty($bookingID) && $spareColumn == 'serial_number_pic')
+            {
+                $this->booking_model->update_booking_unit_details($bookingID, array($spareColumn => $defective_parts_pic));
+            }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
             echo json_encode(array('code' => "error", "message" => "File size or file type is not supported"));
@@ -5864,7 +5874,7 @@ class Inventory extends CI_Controller {
 //                                    }
                 //generate courier details table
                 $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-m-Y', strtotime($defective_parts_shippped_date_by_wh))));
+                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-M-Y', strtotime($defective_parts_shippped_date_by_wh))));
                 $courier_details_table = $this->table->generate();
                 $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $booking_partner_id));
                 $partner_name = '';
@@ -6877,18 +6887,18 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
-        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Current Booking Status',"
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', u.name as 'RM Name',users.name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Current Booking Status',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
-                . "spare_parts_details.shipped_date as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
                 . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
-                . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "DATE_FORMAT(spare_parts_details.acknowledge_date,'%d-%b-%Y') as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
-                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
-                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
+                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"
                 . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
                 . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
                 . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as 'Purchase Invoice', "

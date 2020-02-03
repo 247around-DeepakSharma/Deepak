@@ -48,7 +48,7 @@
                            </td>
                           
                            <td>
-                              <?= $row->booking_date; ?> /
+                              <?= date("d-M-Y", strtotime($row->booking_date)); ?> /
                               <?= $row->booking_timeslot; ?>
                            </td>
                           

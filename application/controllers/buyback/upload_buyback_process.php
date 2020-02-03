@@ -260,7 +260,7 @@ class Upload_buyback_process extends CI_Controller {
         $rowData['partner_name'] = "Amazon";
         $rowData['subcat'] = $data[1];
         $rowData['city'] = $data[3];
-        $order_date = date('d-m-Y', strtotime($data[4]));
+        $order_date = date('d-M-Y', strtotime($data[4]));
         $rowData['order_date'] = date("Y-m-d", strtotime($order_date));
         $rowData['partner_order_id'] = $data[5];
         $rowData['order_key'] = $data[6];
@@ -781,12 +781,17 @@ class Upload_buyback_process extends CI_Controller {
                 
                 if ($sendmail) {
                     log_message('info', __FUNCTION__ . ' Mail has been send successfully');
-                    unlink($response);
+                    if(file_exists(TMP_FOLDER.$response)) {
+                       unlink(TMP_FOLDER.$response);
+                    }
                     $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_SUCCESS_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID, 0, $response);
                     $msg = "File Created Successfully And Mailed To Registed Email";
                     $response = array("code" => '247', "msg" => $msg);
                 } else {
                     log_message('info', __FUNCTION__ . 'Error in Sending Mail');
+                    if(file_exists(TMP_FOLDER.$response)) {
+                       unlink(TMP_FOLDER.$response);
+                    }
                     $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_PRICE_QUOTE,FILE_UPLOAD_FAILED_STATUS,$email_message_id, "partner", AMAZON_SELLER_ID, $response);
                     $msg = "Error In sending Email";
                     $response = array("code" => '-247', "msg" => $msg);
