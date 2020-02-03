@@ -1754,6 +1754,7 @@ CREATE TABLE `spare_state_change_tracker` (
 
 ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
 
+
 --Ankit Bhatt 2020-01-22
 insert into `email_template`(tag, subject, template, cc, bcc, active)
 values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', 1);
@@ -1791,3 +1792,26 @@ update `employee` set groups = 'regionalmanager' where id IN  (36,24,38,10146);
 --Ankit Bhatt 2020-01-27
 ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
 update taxpro_gstr2a_data set state_gstin = '07AAFCB1281J1ZQ' where state_gstin ='';
+
+--Abhay 07-01-2020
+ALTER TABLE `courier_company_invoice_details` ADD `is_delivered` INT(1) NOT NULL DEFAULT '0' AFTER `shippment_date`, ADD `delivered_date` DATETIME NULL DEFAULT NULL AFTER `is_delivered`;
+
+
+---Release Date 08-01-2020
+
+--Abhay 24-01-2020
+SELECT awb_by_sf, sum(courier_charges_by_sf) as courier_charges_by_sf, defective_part_shipped_date, received_defective_part_date, status FROM `spare_parts_details` WHERE spare_parts_details.awb_by_sf IS NOT NULL GROUP by awb_by_sf
+
+
+--Abhay Feb 03
+CREATE TABLE `billed_docket` (
+  `id` int(11) NOT NULL,
+  `courier_id` int(11) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `invoice_id` varchar(128) NOT NULL,
+  `basic_charge` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
