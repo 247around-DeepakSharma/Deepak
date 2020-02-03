@@ -710,15 +710,7 @@ class invoices_model extends CI_Model {
 
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
-        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
-        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
-        
-        
-        
-        
         
         $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
@@ -739,7 +731,6 @@ class invoices_model extends CI_Model {
         $result['micro_warehouse_list'] = array();
         $result['packaging_data'] = array();
         $result['spare_requested_data'] = $spare_requested_data;
-        $final_courier = array_merge($courier,$pickup_courier, $warehouse_courier, $defective_return_to_partner);
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -773,31 +764,9 @@ class invoices_model extends CI_Model {
                 
                 $result['packaging_rate'] = $packaging[0]['fixed_charges'];
                 $result['packaging_quantity'] = count($packaging_charge);
-                
-                $result['warehouse_courier'] = $warehouse_courier;
+               
                 $result['packaging_data'] = $packaging_charge;
             }
-        }
-
-        if (!empty($final_courier)) {
-            $c_data = array();
-            $courier_price = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
-            if($courier_price > 0){
-                $c_data[0]['description'] = 'Courier Charges';
-                $c_data[0]['hsn_code'] = '';
-                $c_data[0]['qty'] = '';
-                $c_data[0]['rate'] = '';
-                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
-                $result['result'] = array_merge($result['result'], $c_data);
-                
-            }
-            $result['courier'] = $courier;
-            $result['pickup_courier'] = $pickup_courier;
-            $result['final_courier'] = $final_courier;
-            $result['defective_part_by_wh'] = $defective_return_to_partner;
-            
         }
 
         if (!empty($misc)) {
@@ -914,6 +883,63 @@ class invoices_model extends CI_Model {
         
         return array('count' => sprintf("%.2f", $count), "list" => $micro_wh_lists);
     }
+    /**
+     * @desc This function is used to return courier charges data for partner invoicing 
+     * @param int $partner_id
+     * @param String $from_date_tmp
+     * @param String $to_date_tmp
+     * @return Array
+     */
+    function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp){
+        $from_date = date('Y-m-d', strtotime('-4 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        log_message("info", $from_date . "- " . $to_date);
+        //Defective return by SF
+        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        //Courier Pickup from Partner
+        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
+        //Warehouse sent part to SF
+        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        // Warehouse sent Defective Part to Partner
+        $warehouse_return = $this->get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date);
+        //MSL New Part return to partner and MSL sent to SF from warehouse
+        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
+        
+        $final_courier = array_merge($courier, $pickup_courier, $warehouse_courier, $warehouse_return, $defective_return_to_partner);
+        $result = array();
+        if (!empty($final_courier)) {
+            $c_data = array();
+            $courier_price = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
+            if($courier_price > 0){
+                $c_data[0]['description'] = 'Courier Charges';
+                $c_data[0]['hsn_code'] = '';
+                $c_data[0]['qty'] = '';
+                $c_data[0]['rate'] = '';
+                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $c_data[0]['product_or_services'] = 'Courier';
+                $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
+                
+                $partners_data = $this->partner_model->getpartner_details("company_name, address as company_address,partners.pincode, partners.district, partners.state, gst_number",
+                        array('partners.id' => $partner_id));
+                
+                $c_data[0]['company_name'] = $partners_data[0]['company_name'];
+                $c_data[0]['company_address'] = $partners_data[0]['company_address'];
+                $c_data[0]['pincode'] = $partners_data[0]['pincode'];
+                $c_data[0]['district'] = $partners_data[0]['district'];
+                $c_data[0]['state'] = $partners_data[0]['state'];
+                $c_data[0]['gst_number'] = $partners_data[0]['gst_number'];
+                
+                $result['courier'] = array_merge($courier, $warehouse_courier, $pickup_courier, $warehouse_return);
+                $result['final_courier'] = $final_courier;
+                $result['msl'] = $defective_return_to_partner;
+                
+                $response = $this->_set_partner_excel_invoice_data($c_data, $from_date_tmp, $to_date_tmp, "Tax Invoice");
+                $result['booking'] = $response['booking'];
+                $result['meta'] = $response['meta'];
+            }
+        }
+        return $result;
+    }
 
     /**
      * @desc: This is used to generate Partner Main invoice. 
@@ -964,20 +990,15 @@ class invoices_model extends CI_Model {
             $data['Completed']['annexure'] = $anx_data['Completed']['annexure'];
             // --- Pending Bookings ------
             $data['Pending']['annexure'] = $anx_data['Pending']['annexure'];
-            $data['courier'] = $result_data['courier'];
             $data['upcountry'] = $result_data['upcountry'];
-            $data['warehouse_courier'] = $result_data['warehouse_courier'];
             $data['misc'] = $result_data['misc'];
             $data['warehouse_storage_charge'] = $result_data['warehouse_storage_charge'];
-            $data['final_courier'] = $result_data['final_courier'];
-            $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
             $data['packaging_rate'] = $result_data['packaging_rate'];
             $data['packaging_quantity'] = $result_data['packaging_quantity'];
             $data['annexure'] = $anx_data['annexure'];
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
             $data['penalty_booking_data'] = (!empty($penalty_data['penalty_booking_data']) ? $penalty_data['penalty_booking_data'] : array());
-            $data['pickup_courier'] = $result_data['pickup_courier'];
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];
           
@@ -2183,30 +2204,33 @@ class invoices_model extends CI_Model {
      */
     function get_partner_courier_charges($partner_id, $from_date, $to_date){
         
-        $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
-                awb_by_sf as awb, box_count, count(bd.booking_id) as count_of_booking,
-                SUM(sp.courier_charges_by_sf) as courier_charges_by_sf, bd.city,
-                CASE WHEN (billable_weight > 0 ) THEN 
-                (concat(billable_weight, ' KG'))
-                ELSE '' END AS billable_weight,
-                CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
-                (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
-                FROM  booking_details as bd
-                JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
-                LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
-                WHERE
-                bd.current_status =  '"._247AROUND_COMPLETED."'
-                AND bd.partner_id = '$partner_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
-                AND bd.closed_date >=  '$from_date'
-                AND bd.closed_date <  '$to_date'
-                AND (`approved_defective_parts_by_partner` = 1 OR defective_part_received_by_wh = 1 )
-                AND partner_courier_invoice_id IS NULL
-                AND awb_by_sf IS NOT NULL
-                GROUP BY awb HAVING courier_charges_by_sf > 0 
-                
-                ";
-     
+        $sql = "SELECT
+                    GROUP_CONCAT(s1.id) as sp_id,
+                    GROUP_CONCAT(bd.booking_id) as booking_id,
+                    c.awb_number as awb, c.id as courier_id,
+                    box_count,
+                    bd.city, c.company_name as courier_name,
+                    CASE WHEN (billable_weight > 0 ) THEN 
+                         (concat(billable_weight, ' KG'))
+                         ELSE '' END AS billable_weight,
+                    CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
+                         (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                    count(s1.id) as count_of_booking, 
+                    p.p_count, 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                 FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
+                 JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_sf 
+                 JOIN (Select count(s2.id) as p_count, s2.awb_by_sf FROM spare_parts_details as s2 GROUP by s2.awb_by_sf) as p ON p.awb_by_sf = s1.awb_by_sf
+                 LEFT JOIN billed_docket as b ON b.courier_id =  c.id AND b.entity_id = '$partner_id'
+                 WHERE 
+                    s1.awb_by_sf IS NOT NULL 
+                    AND bd.partner_id = '$partner_id' 
+                    AND b.invoice_id IS NULL
+                    AND c.delivered_date >= '$from_date'
+                    AND c.delivered_date < '$to_date'
+                 GROUP by s1.awb_by_sf
+                 HAVING courier_charges_by_sf > 10
+               ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2218,27 +2242,34 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date){
-        $sql = "SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
-                awb_by_partner as awb, 
-                SUM(sp.courier_price_by_partner) as courier_charges_by_sf, bd.city,
-                CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, ' KG')) ELSE '' END AS billable_weight,
-                box_count, count(bd.booking_id) as count_of_booking,
-                '' AS courier_receipt_link
-                FROM  booking_details as bd
-                JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
-                LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
-                WHERE
-                 bd.current_status =  '"._247AROUND_COMPLETED."'
-                AND bd.partner_id = '$partner_id'
-                AND sp.partner_id = '$partner_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
-                AND sp.booking_id = bd.booking_id
-                AND bd.closed_date >=  '$from_date'
-                AND bd.closed_date <  '$to_date'
-                AND `around_pickup_from_partner` = 1
-                AND partner_warehouse_courier_invoice_id IS NULL
-                AND awb_by_partner IS NOT NULL
-                GROUP BY awb HAVING courier_charges_by_sf > 0 
+        $sql = "SELECT
+                    GROUP_CONCAT(s1.id) as sp_id,
+                    GROUP_CONCAT(bd.booking_id) as booking_id,
+                    c.awb_number as awb, c.id as courier_id,
+                    box_count,
+                    bd.city, c.company_name as courier_name,
+                    CASE WHEN (billable_weight > 0 ) THEN 
+                         (concat(billable_weight, ' KG'))
+                         ELSE '' END AS billable_weight,
+                    CASE WHEN (courier_pic_by_partner IS NOT NULL) THEN 
+                         (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                    count(s1.id) as count_of_booking, 
+                    p.p_count,
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                 FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
+                 JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
+                 JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
+                 LEFT JOIN billed_docket as b ON b.courier_id =  c.id AND b.entity_id = '$partner_id'
+                 WHERE 
+                    s1.awb_by_partner IS NOT NULL 
+                    AND b.invoice_id IS NULL
+                    AND s1.partner_id = '$partner_id'
+                    AND bd.partner_id = '$partner_id'
+                    AND c.delivered_date >= '$from_date'
+                    AND c.delivered_date < '$to_date'
+                    AND `around_pickup_from_partner` = 1
+                 GROUP by s1.awb_by_partner
+                 HAVING courier_charges_by_sf > 10 
                 ";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -2454,25 +2485,67 @@ class invoices_model extends CI_Model {
      */
     function get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(DISTINCT sp.booking_id) as booking_id, '
-                . ' awb_by_partner,'
-                . ' awb_by_partner as awb, COALESCE(SUM(courier_price_by_partner),0) as courier_charges_by_sf, '
-                . ' CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, " KG")) ELSE "" END AS billable_weight,'
-                . ' box_count, count(bd.booking_id) as count_of_booking,'
-                . ' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
-                . ' THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
-                . ' FROM spare_parts_details as sp '
-                . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
-                . ' LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner '
-                . ' WHERE '
-                . ' entity_type = "'._247AROUND_SF_STRING.'" '
-                . ' AND bd.partner_id = "'.$partner_id.'" '
-                . ' AND awb_by_partner IS NOT NULL '
-                . ' AND sp.shipped_date >= "'.$from_date.'" '
-                . ' AND sp.shipped_date < "'.$to_date.'" '
-                . ' AND  parts_shipped IS NOT NULL '
-                . ' AND partner_warehouse_courier_invoice_id IS NULL'
-                . ' GROUP BY awb_by_partner HAVING courier_charges_by_sf > 0 ';
+        $sql = "SELECT
+                    GROUP_CONCAT(s1.id) as sp_id, c.id as courier_id,
+                    GROUP_CONCAT(bd.booking_id) as booking_id,
+                    c.awb_number as awb, 
+                    box_count,
+                    bd.city, c.company_name as courier_name,
+                    CASE WHEN (billable_weight > 0 ) THEN 
+                         (concat(billable_weight, ' KG'))
+                         ELSE '' END AS billable_weight,
+                    CASE WHEN (courier_pic_by_partner IS NOT NULL) THEN 
+                         (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                    count(s1.id) as count_of_booking, 
+                    p.p_count,
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                 FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
+                 JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
+                 JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
+                 LEFT JOIN billed_docket as b ON b.courier_id =  c.id AND b.entity_id = '$partner_id'
+                 WHERE 
+                    s1.awb_by_partner IS NOT NULL
+                    AND s1.entity_type = '"._247AROUND_SF_STRING."' 
+                    AND bd.partner_id = '$partner_id'
+                    AND b.invoice_id IS NULL
+                    AND c.delivered_date >= '$from_date'
+                    AND c.delivered_date < '$to_date'
+                 GROUP by s1.awb_by_partner
+                 HAVING courier_charges_by_sf > 10";
+                
+       
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date){
+        log_message('info', __METHOD__. " Enterring..");
+        $sql = "SELECT
+                    GROUP_CONCAT(s1.id) as sp_id,c.id as courier_id,
+                    GROUP_CONCAT(bd.booking_id) as booking_id,
+                    c.awb_number as awb, 
+                    box_count,
+                    bd.city,c.company_name as courier_name,
+                    CASE WHEN (billable_weight > 0 ) THEN 
+                         (concat(billable_weight, ' KG'))
+                         ELSE '' END AS billable_weight,
+                    CASE WHEN (defective_parts_shippped_courier_pic_by_wh IS NOT NULL) THEN 
+                         (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                    count(s1.id) as count_of_booking, 
+                    p.p_count, 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+                 FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
+                 JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_wh 
+                 JOIN (Select count(s2.id) as p_count, s2.awb_by_wh FROM spare_parts_details as s2 WHERE awb_by_wh IS NOT NULL GROUP by s2.awb_by_wh) as p ON p.awb_by_wh = s1.awb_by_wh
+                 LEFT JOIN billed_docket as b ON b.courier_id =  c.id AND b.entity_id = '$partner_id'
+                 WHERE 
+                    s1.awb_by_wh IS NOT NULL
+                    AND bd.partner_id = '$partner_id'
+                    AND b.invoice_id IS NULL
+                    AND c.shippment_date >= '$from_date'
+                    AND c.shippment_date < '$to_date'
+                 GROUP by s1.awb_by_wh
+                 HAVING courier_charges_by_sf > 10";
                 
        
         $query = $this->db->query($sql);
@@ -2501,19 +2574,34 @@ class invoices_model extends CI_Model {
     
     function get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(courier_details.id) as c_id, "" AS billable_weight, '
-                . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb,  count(booking_id) as count_of_booking, '
-                . ' "" AS box_count, '
-                . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
-                .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
-                . ' FROM `courier_details` '
-                . ' WHERE `sender_entity_type` = "'._247AROUND_SF_STRING.'"  '
-                . ' AND receiver_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-                . ' AND `receiver_entity_id` = "'.$partner_id.'" '
-                . ' AND shipment_date >= "'.$from_date.'" '
-                . ' AND shipment_date < "'.$to_date.'" '
-                . ' AND partner_invoice_id IS NULL '
-                . ' GROUP BY `AWB_no`  HAVING courier_charges_by_sf > 0 ';
+        $sql = "SELECT
+                GROUP_CONCAT(s1.id) as c_id,c.id as courier_id,
+                s1.booking_id as booking_id,
+                c.awb_number as awb, 
+                box_count, c.company_name as courier_name,
+                '' As city,
+                CASE WHEN (billable_weight > 0 ) THEN 
+                     (concat(billable_weight, ' KG'))
+                     ELSE '' END AS billable_weight,
+                CASE WHEN (courier_file IS NOT NULL) THEN 
+                     (concat('".S3_WEBSITE_URL."vendor-partner-docs/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
+                s1.quantity as count_of_booking, 
+                p.p_count, 
+                round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+             FROM `courier_details` as s1 
+             JOIN courier_company_invoice_details as c ON c.awb_number = s1.AWB_no 
+             JOIN (Select count(s2.id) as p_count, s2.AWB_no FROM courier_details as s2 GROUP by s2.AWB_no) as p ON p.AWB_no = c.awb_number
+             LEFT JOIN billed_docket as b ON b.courier_id =  c.id AND b.entity_id = '$partner_id'
+             WHERE 
+                s1.AWB_no IS NOT NULL
+                AND s1.sender_entity_type = '"._247AROUND_SF_STRING."' 
+                AND (receiver_entity_type = '"._247AROUND_PARTNER_STRING."' OR receiver_entity_type = '"._247AROUND_SF_STRING."' )
+                AND bill_to_partner = '$partner_id'
+                AND b.invoice_id IS NULL
+                AND c.shippment_date >= '$from_date'
+                AND c.shippment_date < '$to_date'
+             GROUP by c.awb_number
+             HAVING courier_charges_by_sf > 10";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -3052,6 +3140,17 @@ class invoices_model extends CI_Model {
 
     function insert_performa_invoice($details) {
         $this->db->insert('vendor_partner_proforma_invoices', $details);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc this function is used to insert billed_courier details.
+     * We are inserting those courier id who has billed to partner.
+     * @param String $data
+     * @return int
+     */
+    function insert_billed_courier_invoice($data){
+        $this->db->insert('billed_docket', $data);
         return $this->db->insert_id();
     }
 }

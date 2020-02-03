@@ -2694,10 +2694,15 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         
-        
-        
         if ($response) {
-
+            
+            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_sf", array('spare_parts_details.id' => $spare_id));
+            if(!empty($spare_id) && empty($get_awb[0]['awb_by_sf'])){
+                
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), 
+                        array('delivered_date' => date('Y-m-d H:i:s')));
+            }
+            
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
             
@@ -2714,12 +2719,7 @@ class Partner extends CI_Controller {
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                
                 $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
-                
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
                 
@@ -2791,6 +2791,11 @@ class Partner extends CI_Controller {
         }
         
         if($response){
+            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
+            if(!empty($spare_id) && empty($get_awb[0]['awb_by_wh'])){
+                
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_wh'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
+            }
             
             $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
             $this->asynchronous_lib->do_background_process($psendUrl, array());
@@ -2863,10 +2868,6 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
 
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = $rejection_reason;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-            
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
         
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 

@@ -5126,12 +5126,12 @@ class Booking extends CI_Controller {
     }
 
     function test(){
-        
-        $this->invoice_lib->generate_challan_file('SY-1824041809242', 129);
+        $this->notify->sendEmail("noreply@247around.com", "abhaya@247around.com", "", "", "Higehst Quotes", "test", TMP_FOLDER."updated_price_sheet_2020_01_18_09_26_59.xls",'buyback_price_sheet_with_quote');
+        //$this->invoice_lib->generate_challan_file('SY-1824041809242', 129);
 //        $this->partner_sd_cb->test();
-//        $bucket = "bookings-collateral";
+        //$bucket = "bookings-collateral-test";
 //        //$directory_xls = "invoices-excel/ARD-PV-1819-0073.pdf";
-//        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.pdf", $bucket, "invoices-excel/Around-1819-1621.pdf", S3::ACL_PUBLIC_READ);
+       // $this->s3->putObjectFile(TMP_FOLDER."17-Jan-2020-14-27-03-hq.xlsx", $bucket, "vendor-partner-docs/17-Jan-2020-14-27-03-hq.xlsx", S3::ACL_PUBLIC_READ);
 //        $this->s3->putObjectFile(TMP_FOLDER."Around-1819-1621.xlsx", $bucket, "invoices-excel/Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
 //        $this->s3->putObjectFile(TMP_FOLDER."copy_Around-1819-1621.xlsx", $bucket, "invoices-excel/copy_Around-1819-1621.xlsx", S3::ACL_PUBLIC_READ);
        // $this->load->library('serial_no_validation');
@@ -5203,9 +5203,9 @@ class Booking extends CI_Controller {
         echo json_encode($res);
         
     }
-    function get_request_type($actor){
+    function get_request_type($actor = ""){
         $where = array();
-        if($actor != 'blank'){
+        if(!empty($actor) && $actor != 'blank'){
             $where['actor'] = $actor;
         }
         $whereIN['current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED) ;
@@ -5434,7 +5434,45 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL){
+
+    function download_review_rescheduled_bookings($is_tab = 0){
+    $whereIN = $where = $join = array();
+    if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
+        
+    if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where = array('agent_filters.agent_id' => $am_id,'agent_filters.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
+            $join['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
+        }
+     $data['data'] = $this->booking_model->review_reschedule_bookings_request($whereIN, $where, $join);
+     $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+     
+     $ReorderdownloadRecord=array();
+     $countRecord=0;
+     if(is_array($data['data']) && count($data['data']) > 0)
+     {
+        foreach($data['data'] as $key => $value)
+        {
+            $ReorderdownloadRecord[$key]['countRecord']=++$countRecord;
+            $ReorderdownloadRecord[$key]['booking_id']=$value['booking_id'];
+            $ReorderdownloadRecord[$key]['service_center_name']=$value['service_center_name'];
+            $ReorderdownloadRecord[$key]['customername']=$value['customername'];
+            $ReorderdownloadRecord[$key]['booking_primary_contact_no']=$value['booking_primary_contact_no'];
+            $ReorderdownloadRecord[$key]['initial_booking_date']=$this->miscelleneous->get_formatted_date($value['initial_booking_date']);
+            $ReorderdownloadRecord[$key]['booking_date']=$this->miscelleneous->get_formatted_date($value['booking_date'])." / ".$value['booking_timeslot'];
+            $ReorderdownloadRecord[$key]['reschedule_date_request']=$this->miscelleneous->get_formatted_date($value['reschedule_date_request']);
+            $ReorderdownloadRecord[$key]['reschedule_reason']=$value['reschedule_reason'];       
+        }    
+        $this->miscelleneous->downloadCSV($ReorderdownloadRecord, ['S.No.','Booking Id','Service Center','User Name','User Contact No.','Original Booking Date','Booking Date','Reschedule Booking Date','Reschedule Reason'], 'data_'.date('Ymd-His'));
+     }
+    }
+    
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL){
+        $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
@@ -5480,7 +5518,14 @@ class Booking extends CI_Controller {
         if(!empty($partner_id)) {
            $whereIN['booking_details.partner_id'] = [$partner_id];
         }
+        if(!empty($request_type)) {
+           $data['request_type_selected'] = $request_type;
+           $request_type_selected = !empty($arr_request_types[$request_type]) ? $arr_request_types[$request_type] : "";   
+           $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
+           $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
+        }
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
         
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
@@ -5488,7 +5533,7 @@ class Booking extends CI_Controller {
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where);
             $data['status'] = $status;
             $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);

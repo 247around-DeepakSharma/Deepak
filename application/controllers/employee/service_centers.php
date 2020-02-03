@@ -2784,7 +2784,7 @@ class Service_centers extends CI_Controller {
             }
             $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('id' => $id));
             if(!empty($pre_sp) && !empty($pre_sp[0]['awb_by_partner'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s')));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
             }
 
             if ($ss) { //if($ss){
@@ -3566,9 +3566,11 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
-            }
+            
+        }
+        
+        foreach ($delivery_challan_file_name_array as $value_unlink) {
+            unlink(TMP_FOLDER . $value_unlink);
         }
     }
 
@@ -5363,7 +5365,9 @@ class Service_centers extends CI_Controller {
 
     public function get_contact_us_page() {
         //$this->checkUserSession();
-        $data['rm_details'] = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
+        //$data['rm_details'] = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('service_center_id'));
+        $data['new_rm_details'] = $this->vendor_model->get_rm_contact_details_by_sf_id($this->session->userdata('service_center_id'));
+        $data['new_asm_details'] = $this->vendor_model->get_asm_contact_details_by_sf_id($this->session->userdata('service_center_id'));
         $this->load->view('service_centers/contact_us', $data);
     }
 
@@ -6274,6 +6278,7 @@ class Service_centers extends CI_Controller {
      * @return Void
      */
     function generate_challan_to_sf($part_details) {
+        $delivery_challan_file_name_array = array();
         if (!empty($part_details)) {
             $spare_details = array();
             foreach ($part_details as $value) {
@@ -6327,6 +6332,7 @@ class Service_centers extends CI_Controller {
 
         if (!empty($spare_details)) {
             $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details);
+            array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
             if (!empty($data['partner_challan_file'])) {
                 if (!empty($spare_details)) {
                     foreach ($spare_details as $val) {
@@ -6334,6 +6340,10 @@ class Service_centers extends CI_Controller {
                     }
                 }
             }
+        }
+        
+        foreach ($delivery_challan_file_name_array as $value_unlink) {
+            unlink(TMP_FOLDER . $value_unlink);
         }
     }
 
@@ -6404,7 +6414,7 @@ class Service_centers extends CI_Controller {
         if ($response) {
             
             if(!empty($spare_part_detail[0]['awb_by_sf'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
             }
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
@@ -6419,13 +6429,7 @@ class Service_centers extends CI_Controller {
 
             $actor = $next_action = 'not_define';
             if (empty($is_exist)) {
-                $sc_data['current_status'] = "InProcess";
-                $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
                 $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
-
-
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
 
                 if (!empty($partner_status)) {
@@ -6572,10 +6576,6 @@ class Service_centers extends CI_Controller {
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
-
-            $sc_data['current_status'] = "InProcess";
-            $sc_data['internal_status'] = $rejection_reason;
-            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
