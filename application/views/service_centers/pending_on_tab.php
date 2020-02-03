@@ -152,11 +152,11 @@
                                             <?php if ($row->nrn_approved==0) { ?>
                                                 
                                             <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { ?>
-                                                <a target="_blank" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                                <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                             <?php }else{ ?>
                                                  <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                             <?php } }else{ ?>
-                                                 <a target="_blank" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                                 <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                            <?php } ?>
                                            
                                         </td>
@@ -230,11 +230,13 @@
                                         </td>
                                         <td style="vertical-align: middle;">
                                              <?php if ($row->nrn_approved==0) { ?>
-                                            <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel' <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
+                                            <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { ?> 
+                                                <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                            <?php }else{?> 
+                                                <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                                <?php } ?>
                                         <?php }else{ ?>
-
                                              <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel' <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
-
                                         <?php } ?>
                                         </td>                                        
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
