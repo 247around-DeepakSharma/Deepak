@@ -19,7 +19,7 @@
 <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/get_add_new_transaction/<?php if(!empty($invoice_array)){ ?><?php echo $invoice_array[0]['vendor_partner'];?>/<?php echo $invoice_array[0]['vendor_partner_id']; } ?>" >
  <input type="text" name="selected_amount_collected" id="selected_amount_collected" value="" hidden />
          <input type="text" name="selected_tds" id="selected_tds" value="" hidden />
-  <table class="table table-bordered  table-hover table-striped data"  >
+  <table class="table table-bordered  table-hover table-striped data"   id="invoice_generated_report">
    <thead>
       <tr >
          
@@ -48,8 +48,8 @@
          <th>Amount to be Paid By Partner</th>
          <th>Amount Paid</th> 
          <th>Remarks</th> 
-         <th>Select<input align="center" type="checkbox" id="selecctall_amt"/></th>
-         <th>Action</th>
+         <th class='do-not-export'>Select<input align="center" type="checkbox" id="selecctall_amt"/></th>
+         <th class='do-not-export'>Action</th>
 <!--         <th>Update</th>
          <th>Resend</th>-->
         
@@ -115,7 +115,7 @@
          <td id="<?php echo 'amount_paid_'.$count; ?>"><?php echo sprintf("%.2f",$invoice['amount_paid']) ?></td>
          <td><?php echo $invoice['remarks']; ?></td>
         
-         <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="checkbox_amt form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
+         <td class='do-not-export'><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="checkbox_amt form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
              
              <input type="hidden" class ="in_disable" name="<?php echo "tds_amount[".$invoice['invoice_id']."] "; ?>" id="<?php echo "intdsAmount_".$count; ?>" value="<?php if($invoice['amount_paid'] > 0 ) { echo "0.00";} else { echo $invoice['tds_amount'];} ?>"/>
              <input type="hidden" class ="in_disable"    name="<?php echo "amount_collected[".$invoice['invoice_id']."] "; ?>" id="<?php echo "inAmountCollected_".$count; ?>" value="<?php if($invoice['amount_collected_paid'] > 0) {echo $invoice['amount_collected_paid'] - $invoice['amount_paid'];} else { echo $invoice['amount_collected_paid'] + $invoice['amount_paid'];}?>"/>
@@ -125,7 +125,7 @@
         
 
          </td>
-         <td>
+         <td class='do-not-export'>
              <?php if($invoice['vendor_partner'] == "vendor") { ?>
              
                 <div class="dropdown">
@@ -609,3 +609,48 @@ function bd_update(btn, id){
     }
 }
 </script>
+
+<?php if(isset($invoice_array) && count($invoice_array) > 0) { ?>
+<script>
+    $(document).ready(function() { 
+    $('#invoice_generated_report').DataTable({
+        "processing": true, 
+        "serverSide": false,  
+         "dom": 'lBfrtip',
+         "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    title: 'invoice_generated_<?php echo date('Ymd-His'); ?>',
+                    exportOptions: {
+                    columns: [':not(.do-not-export)'],
+                     format: {
+                        body: function(data, column, row) {
+                        data = data.replace('Main', '');
+                        data = data.replace('Detail', '');
+                        data = data.replace('History', '');
+                        data = data.replace(/<.*?>/g, "");
+                        data = data.trim();
+                        return data;
+                        }
+                    }
+                   },                    
+                }
+            ], 
+            
+        "order": [],
+        "ordering": false,     
+        "deferRender": true,
+        "searching": false,
+        "paging":false
+});
+});
+</script>
+<style>
+.form-control
+{
+    width:100% !important;
+}
+</style>
+<?php } ?>
+
