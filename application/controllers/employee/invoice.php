@@ -1,8 +1,4 @@
-<?php
-
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+<?php if (!defined('BASEPATH')) { exit('No direct script access allowed'); }
 
 /** Error reporting */
 error_reporting(E_ALL);
@@ -470,6 +466,147 @@ class Invoice extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/view_transactions', $invoice);
     }
+    /**
+     * @desc This function is used to create courier invoice for partner.
+     * We will bill to partner with full courier amount. 
+     * @param int $partner_id
+     * @param Date $f_date
+     * @param Date $t_date
+     * @param String $invoice_type
+     * @param Array $misc_data
+     * @param int $agent_id
+     * @param String $hsn_code
+     * @return boolean
+     */
+    function create_partner_courier_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $misc_data, $agent_id, $hsn_code){
+        log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id . ' invoice_type: ' . $invoice_type . ' agent_id: ' . $agent_id);
+        //$data = $misc_data['annexure'];
+        $meta = $misc_data['meta'];
+        $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
+        $files = array();
+        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta);
+        //echo $c_files_name;
+        array_push($files, $output_file_excel);
+        log_message('info', __METHOD__ . "=> File created " . $output_file_excel);
+        $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
+       // print_r($convert);
+        $output_pdf_file_name = $convert['main_pdf_file_name'];
+        
+        array_push($files, $output_pdf_file_name);
+        array_push($files, $convert['copy_file']);
+        array_push($files, $convert['excel_file']);
+        if ($invoice_type == "final") {
+            
+            if(isset($data[0]['invoice_email_to'])){
+               $invoice_email_to = $data[0]['invoice_email_to'];
+               $invoice_email_cc = $data[0]['invoice_email_cc'];
+            } else {
+                $partner_details = $this->partner_model->getpartner_details('partner_id,invoice_email_to,invoice_email_cc', array('partners.id' =>$partner_id) );
+                $invoice_email_to = $partner_details[0]['invoice_email_to'];
+                $invoice_email_cc = $partner_details[0]['invoice_email_cc'];
+            }
+            
+            $invoice_details = array(
+                'invoice_id' => $meta['invoice_id'],
+                'type_code' => 'A',
+                'type' => 'Cash',
+                'vendor_partner' => 'partner',
+                'vendor_partner_id' => $partner_id,
+                'invoice_file_main' => $output_pdf_file_name,
+                'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
+                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_pdf_file_name),
+                'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
+                'to_date' => date("Y-m-d", strtotime($t_date)),
+                'num_bookings' => $meta['service_count'],
+                'total_service_charge' => ($meta['total_ins_charge']),
+                'total_additional_service_charge' => 0.00,
+                'service_tax' => 0.00,
+                'vat' => 0.00,
+                'total_amount_collected' => $meta['sub_total_amount'],
+                'tds_amount' => 0,
+                'tds_rate' => 0,
+                'rating' => 5,
+                'invoice_date' => date('Y-m-d'),
+                'around_royalty' => $meta['sub_total_amount'],
+                'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
+                //Amount needs to be collected from Vendor
+                'amount_collected_paid' => $meta['sub_total_amount'],
+                //add agent_id
+                'agent_id' => $agent_id,
+                "cgst_tax_rate" => $meta['cgst_tax_rate'],
+                "sgst_tax_rate" => $meta['sgst_tax_rate'],
+                "igst_tax_rate" => $meta['igst_tax_rate'],
+                "igst_tax_amount" => $meta["igst_total_tax_amount"],
+                "sgst_tax_amount" => $meta["sgst_total_tax_amount"],
+                "cgst_tax_amount" => $meta["cgst_total_tax_amount"],
+                "invoice_file_pdf" => $convert['copy_file'], 
+                "hsn_code" => $hsn_code,
+                'vertical' => SERVICE,
+                'category' => INSTALLATION_AND_REPAIR,
+                'sub_category' => COURIER,
+                'accounting' => 1,
+            );
+
+            $this->invoices_model->action_partner_invoice($invoice_details);
+//            $this->invoices_model->insert_new_invoice($invoice_details);
+            log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+            //Insert invoice Breakup
+            $this->insert_invoice_breakup($misc_data);
+            
+            //get email template from database
+            $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $subject = vsprintf($email_template[4], array($meta['company_name'], $f_date, $t_date));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $invoice_email_to;
+            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $this->upload_invoice_to_S3($meta['invoice_id']);
+            
+            $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+            
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_COURIER_INVOICE_EMAIL_TAG);
+            
+            if(!empty($misc_data['msl'])){
+                foreach ($misc_data['msl'] as $defective_id) {
+                    $c_id = explode(",", $defective_id['c_id']);
+                    foreach($c_id as $cid){
+                       $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
+                    }
+                }
+            }
+
+            if(!empty($misc_data['courier'])){
+                foreach ($misc_data['courier'] as $spare_array) {
+                    $s_id = explode(",", $spare_array['sp_id']);
+                    foreach($s_id as $spare_id){
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                    }
+                }
+            }
+            
+            if(!empty($misc_data['final_courier'])){
+                foreach ($misc_data['final_courier'] as $spare_array) {
+                   
+                    $this->inventory_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
+                        "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
+                }
+            }
+            
+        } else {
+           
+            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_pdf_file_name);
+        }
+
+        //Delete XLS files now
+        foreach ($files as $file_name) {
+            exec("rm -rf " . escapeshellarg($file_name));
+            if (file_exists($file_name)) {
+                unlink($file_name);
+            }
+        }
+        return true;
+    }
 
     /**
      * @desc: generate details partner Detailed invoices
@@ -489,7 +626,6 @@ class Invoice extends CI_Controller {
             $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
         }
         
-        $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
         $meta['total_upcountry_price'] = 0;
         $total_upcountry_distance = $total_upcountry_booking = 0;
         
@@ -515,12 +651,6 @@ class Invoice extends CI_Controller {
             array_push($files, $u_files_name);
 
             log_message('info', __METHOD__ . "=> File created " . $u_files_name);
-        }
-
-        if (!empty($misc_data['final_courier'])) {
-            $c_files_name = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta);
-            array_push($files, $c_files_name);
-            log_message('info', __METHOD__ . "=> File created " . $c_files_name);
         }
 
         if(!empty($misc_data['misc'])){
@@ -567,20 +697,6 @@ class Invoice extends CI_Controller {
                 $invoice_email_cc = $partner_details[0]['invoice_email_cc'];
             }
             
-            //get email template from database
-            $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
-            $subject = vsprintf($email_template[4], array($meta['company_name'], $f_date, $t_date));
-            $message = $email_template[0];
-            $email_from = $email_template[2];
-
-            $to = $invoice_email_to;
-            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
-            $this->upload_invoice_to_S3($meta['invoice_id']);
-            $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
-
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
-           
-
             $invoice_details = array(
                 'invoice_id' => $meta['invoice_id'],
                 'type_code' => 'A',
@@ -603,7 +719,6 @@ class Invoice extends CI_Controller {
                 'tds_rate' => 0,
                 'upcountry_booking' => $total_upcountry_booking,
                 'upcountry_distance' => $total_upcountry_distance,
-                'courier_charges' =>  $meta['total_courier_charge'],
                 'upcountry_price' => $meta['total_upcountry_price'],
                 'rating' => 5,
                 'invoice_date' => date('Y-m-d'),
@@ -639,6 +754,19 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
             //Insert invoice Breakup
             $this->insert_invoice_breakup($misc_data);
+            
+            //get email template from database
+            $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_DETAILED_EMAIL_TAG);
+            $subject = vsprintf($email_template[4], array($meta['company_name'], $f_date, $t_date));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $invoice_email_to;
+            $cc = $invoice_email_cc.", " .ACCOUNTANT_EMAILID;
+            $this->upload_invoice_to_S3($meta['invoice_id']);
+            $pdf_attachement_url = 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/invoices-excel/' . $output_pdf_file_name;
+
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_INVOICE_DETAILED_EMAIL_TAG);
 
             foreach ($data as $value1) {
 
@@ -655,59 +783,6 @@ class Invoice extends CI_Controller {
                         $this->booking_model->update_booking(trim($up_b[$i]), array('upcountry_partner_invoice_id' => $meta['invoice_id']));
                     }
 
-                }
-            }
-            
-            if(!empty($misc_data['warehouse_courier'])){
-                foreach ($misc_data['warehouse_courier'] as $spare_courier) {
-                    $sp_id = explode(",", $spare_courier['sp_id']);
-                    foreach($sp_id as $sid){
-                        $this->service_centers_model->update_spare_parts(array('id' => $sid), array('partner_warehouse_courier_invoice_id' =>$meta['invoice_id']));
-                    }
-                }
-            }
-            
-            if(!empty($misc_data['defective_part_by_wh'])){
-                foreach ($misc_data['defective_part_by_wh'] as $defective_id) {
-                    $c_id = explode(",", $defective_id['c_id']);
-                    foreach($c_id as $cid){
-                       $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-            
-            if(!empty($misc_data['courier'])){
-                foreach ($misc_data['courier'] as $spare_array) {
-                    $s_id = explode(",", $spare_array['sp_id']);
-                    foreach($s_id as $spare_id){
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-            
-            if(!empty($misc_data['pickup_courier'])){
-                foreach ($misc_data['pickup_courier'] as $pickup) {
-                    $s_id = explode(",", $pickup['sp_id']);
-                    foreach($s_id as $spare_id){
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_warehouse_courier_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-            
-            if(!empty($misc_data['pickup_courier'])){
-                foreach ($misc_data['pickup_courier'] as $pickup) {
-                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pickup['awb']), 
-                            array('partner_id' =>$partner_id, "booking_id" => $pickup['booking_id'], "partner_invoice_id" => $meta['invoice_id'],
-                                'basic_billed_charge_to_partner' => $pickup['courier_charges_by_sf']));
-                }
-            }
-            
-            if(!empty($misc_data['courier'])){
-                foreach ($misc_data['courier'] as $spare_array) {
-                   
-                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_array['awb']), 
-                            array('partner_id' =>$partner_id, "booking_id" => $spare_array['booking_id'], "partner_invoice_id" => $meta['invoice_id'],
-                                'basic_billed_charge_to_partner' => $spare_array['courier_charges_by_sf']));
                 }
             }
             
@@ -765,11 +840,10 @@ class Invoice extends CI_Controller {
                 exec($cmd);
 
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
-                        . ' ' . $output_file_excel);
+                        . ' ' . $output_file_excel);               
             } else {
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
-
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
@@ -920,23 +994,7 @@ class Invoice extends CI_Controller {
             }
             $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
            */
-            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-            $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
-                
-            //get email template from database
-            $email_template = $this->booking_model->get_booking_email_template(CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
-            $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
-            $message = $email_template[0];
-            $email_from = $email_template[2];
-                
-            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
-
-            //Send SMS to PoC/Owner
-            $this->send_invoice_sms("Cash",  $meta['sd'], $meta['total_amount_paid'], $meta['owner_phone_1'], $vendor_id);
-
-           //Upload Excel files to AWS
-            $this->upload_invoice_to_S3($meta['invoice_id']);
+            
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
             $t_part_charge = $meta['r_pc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
@@ -1006,6 +1064,24 @@ class Invoice extends CI_Controller {
              */
 
              $this->update_invoice_id_in_unit_details($data, $meta['invoice_id'], $invoice_type, "vendor_cash_invoice_id");
+             
+            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
+            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+            $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
+                
+            //get email template from database
+            $email_template = $this->booking_model->get_booking_email_template(CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+            $subject = vsprintf($email_template[4], array($meta['company_name'],$meta['sd'],$meta['ed']));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+                
+            $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,CASH_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+
+            //Send SMS to PoC/Owner
+            $this->send_invoice_sms("Cash",  $meta['sd'], $meta['total_amount_paid'], $meta['owner_phone_1'], $vendor_id);
+
+           //Upload Excel files to AWS
+            $this->upload_invoice_to_S3($meta['invoice_id']);
              
              foreach ($invoices_d['upcountry'] as $value) {
                  if(!empty($value['booking_id'])){
@@ -1231,22 +1307,6 @@ class Invoice extends CI_Controller {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
                 */
-                //get email template from database
-                $email_template = $this->booking_model->get_booking_email_template(FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
-                $subject = vsprintf($email_template[4], array($invoice_data['meta']['company_name'],$invoice_data['meta']['sd'],$invoice_data['meta']['ed']));
-                $message = $email_template[0];
-                $email_from = $email_template[2];
-                $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
-                
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
-                $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
-                 //Upload Excel files to AWS
-                $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
-                
-                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
-                
-                //Send SMS to PoC/Owner
-                $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
                
                 //Save this invoice info in table
                 $invoice_details_insert = array(
@@ -1349,6 +1409,23 @@ class Invoice extends CI_Controller {
                 
                 //Insert invoice Breakup
                 $this->insert_invoice_breakup($invoice_data);
+                
+                //get email template from database
+                $email_template = $this->booking_model->get_booking_email_template(FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                $subject = vsprintf($email_template[4], array($invoice_data['meta']['company_name'],$invoice_data['meta']['sd'],$invoice_data['meta']['ed']));
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
+                
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
+                 //Upload Excel files to AWS
+                $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
+                
+                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement,FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                
+                //Send SMS to PoC/Owner
+                $this->send_invoice_sms("FOC", $invoice_data['meta']['sd'], $invoice_data['meta']['t_vp_w_tds'], $invoice_data['meta']['owner_phone_1'], $vendor_id);
                 
                 //Update Penalty Amount
                 foreach ($invoice_data['d_penalty'] as $value) {
@@ -1628,7 +1705,7 @@ class Invoice extends CI_Controller {
             log_message('info', "Invoice generate - partner id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
                     print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
 
-            $s = $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id']);
+            $s = $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id'], $details['vendor_invoice_type']);
         }
         
         if($s && $details['vendor_partner_id'] == "All"){
@@ -1727,7 +1804,7 @@ class Invoice extends CI_Controller {
      * @param type $date_range
      * @param type $invoice_type
      */
-    function generate_partner_invoices($partner_id, $date_range, $invoice_type,$agent_id) {
+    function generate_partner_invoices($partner_id, $date_range, $invoice_type,$agent_id, $vendor_partner_invoice_type) {
         log_message('info', __FUNCTION__ . '=> Entering... Partner Id' . $partner_id . " date range " . $date_range . " invoice type " . $invoice_type.' agent_id:'.$agent_id);
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
@@ -1743,9 +1820,18 @@ class Invoice extends CI_Controller {
            return true;
         } else {
             log_message('info', __FUNCTION__ . '=> Partner Id ' . $partner_id);
-            return $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id);
+            echo $vendor_partner_invoice_type;
+            switch ($vendor_partner_invoice_type){
+                case 'cash':
+                    return $this->create_partner_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id);
+                    break;
+                case 'courier':
+                    return $this->create_partner_courier_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id);
+                    break;
+            }
             
         }
+exit();
 
         log_message('info', __FUNCTION__ . '=> Exiting...');
     }
@@ -1813,7 +1899,7 @@ class Invoice extends CI_Controller {
 
                 }
                 break;
-
+               
             case "brackets":
                 log_message('info', __FUNCTION__ . " Brackets");
                 //This constant is used to track all vendors selected to avoid sending mail when all vendor +draft is selected
@@ -1940,14 +2026,7 @@ class Invoice extends CI_Controller {
                 
                 if ($invoice_type == 'final') {
                     log_message('info', __FUNCTION__ . " Final");
-                    
-                    $this->send_invoice_sms("Stand", $invoice['meta']['sd'], $invoice['meta']['sub_total_amount'], $invoice['meta']['owner_phone_1'], $vendor_id);
-                    //Upload Excel files to AWS
-                    $this->upload_invoice_to_S3($invoice['meta']['invoice_id'], false);
-                    
-                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name;
-                    $send_mail = $this->send_brackets_invoice_mail($vendor_id, $attachment, $from_date);
-                    
+
                     $invoice_details = array(
                         'invoice_id' => $invoice['meta']['invoice_id'],
                         'type' => 'Stand',
@@ -1992,6 +2071,13 @@ class Invoice extends CI_Controller {
                     );
                     
                     $this->invoices_model->action_partner_invoice($invoice_details);
+                    
+                    $this->send_invoice_sms("Stand", $invoice['meta']['sd'], $invoice['meta']['sub_total_amount'], $invoice['meta']['owner_phone_1'], $vendor_id);
+                    //Upload Excel files to AWS
+                    $this->upload_invoice_to_S3($invoice['meta']['invoice_id'], false);
+                    
+                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name;
+                    $send_mail = $this->send_brackets_invoice_mail($vendor_id, $attachment, $from_date);
                     
                     foreach($invoice['booking'] as $key=>$value){
                         $invoice['booking'][$key]['product_or_services']='Product';
@@ -2122,6 +2208,36 @@ class Invoice extends CI_Controller {
                 return false;
             }
 
+        } else {
+            log_message('info', __FUNCTION__ . ' Data Not Found');
+            echo "Data Not found".PHP_EOL;
+            return FALSE;
+        }
+    }
+    
+    function create_partner_courier_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id){
+        log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
+        $invoices = $this->invoices_model->generate_partner_courier_invoice($partner_id, $from_date, $to_date);;
+        if(!empty($invoices)){
+            $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
+            
+            $status =$this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
+            if($status){
+                $hsn_code = $invoices['booking'][0]['hsn_code'];
+                log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
+                unset($invoices['meta']['main_company_logo_cell']);
+                unset($invoices['meta']['main_company_seal_cell']);
+                unset($invoices['meta']['main_company_sign_cell']);
+                //unset($invoices['booking']);
+                $this->create_partner_courier_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
+                return true;
+                
+            } else {
+                log_message('info', __FUNCTION__ . ' Invoice File is not created. invoice id' . $invoices['meta']['invoice_id']);
+                echo ' Invoice File is not created. invoice id'.PHP_EOL;
+                return false;
+            }
+            
         } else {
             log_message('info', __FUNCTION__ . ' Data Not Found');
             echo "Data Not found".PHP_EOL;
@@ -2397,16 +2513,7 @@ class Invoice extends CI_Controller {
 
         log_message('info', 'Excel data: ' . print_r($meta, true));
          if ($invoice_type === "final") {
-            $out['pdf'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
-            $out['excel'] = $output_file_excel;
-            $out['invoice_id'] = $meta['invoice_id'];
-            $out['detailed_excel'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$meta['invoice_id'] . '-detailed.xlsx';
             
-            //Send SMS to PoC/Owner
-            $this->send_invoice_sms("Buyback",  $meta['sd'], $meta['sub_total_amount'], $meta['owner_phone_1'], $vendor_id);
-            
-           //Upload Excel files to AWS
-            $this->upload_invoice_to_S3($meta['invoice_id']);
             $gst_amount = (array_sum(array_column($data, 'gst_amount')));
 
             //Save this invoice info in table
@@ -2452,6 +2559,18 @@ class Invoice extends CI_Controller {
             );
 
             $this->invoices_model->action_partner_invoice($invoice_details);
+            
+            $out['pdf'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
+            $out['excel'] = $output_file_excel;
+            $out['invoice_id'] = $meta['invoice_id'];
+            $out['detailed_excel'] = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$meta['invoice_id'] . '-detailed.xlsx';
+            
+            //Send SMS to PoC/Owner
+            $this->send_invoice_sms("Buyback",  $meta['sd'], $meta['sub_total_amount'], $meta['owner_phone_1'], $vendor_id);
+            
+           //Upload Excel files to AWS
+            $this->upload_invoice_to_S3($meta['invoice_id']);
+            
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
             if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx")) {
                 unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx");
@@ -4050,20 +4169,7 @@ class Invoice extends CI_Controller {
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
-//                $to = $email_template[3];
-                $cc = $email_template[3];;
-
-                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
-
-                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
-                exec($cmd);
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
-
-                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
-                unlink(TMP_FOLDER . $output_pdf_file_name);
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+                
 
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
@@ -4105,6 +4211,21 @@ class Invoice extends CI_Controller {
                 
                 //Insert invoice Breakup
                 $this->insert_invoice_breakup($response); 
+                
+                $to = $vendor_details[0]['owner_email'] . ", " . $vendor_details[0]['primary_contact_email'];
+//                $to = $email_template[3];
+                $cc = $email_template[3];;
+
+                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+
+                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                exec($cmd);
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
+
+                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                unlink(TMP_FOLDER . $output_pdf_file_name);
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
 
@@ -4346,29 +4467,6 @@ class Invoice extends CI_Controller {
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
             $response['meta']['copy_file'] = $convert['copy_file'];
 
-            $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
-            $subject = vsprintf($email_template[4], array($spare[0]['company_name'], $spare[0]['booking_id']));
-            $message = $email_template[0];
-            $email_from = $email_template[2];
-
-            $to = $email_template[3];
-            $cc = "";
-            
-            unset($response['meta']['main_company_logo_cell']);
-            unset($response['meta']['main_company_seal_cell']);
-            unset($response['meta']['main_company_sign_cell']);
-
-            $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
-
-            $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
-            exec($cmd);
-            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "", SPARE_INVOICE_EMAIL_TAG);
-
-            unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
-            unlink(TMP_FOLDER . $output_pdf_file_name);
-            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
-            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
-
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],
                 'type_code' => 'B',
@@ -4405,7 +4503,7 @@ class Invoice extends CI_Controller {
                 "reference_invoice_id" => (($is_oow == 1) ? $spare[0]['reference_invoice_id'] : NULL)
             );
 
-            $this->invoices_model->action_partner_invoice($invoice_details);
+            $this->invoices_model->insert_new_invoice($invoice_details);
 //            $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . ": Invoice ID inserted");
 
@@ -4413,6 +4511,30 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);
 
             $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+            
+            $email_template = $this->booking_model->get_booking_email_template(SPARE_INVOICE_EMAIL_TAG);
+            $subject = vsprintf($email_template[4], array($spare[0]['company_name'], $spare[0]['booking_id']));
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $email_template[3];
+            $cc = "";
+            
+            unset($response['meta']['main_company_logo_cell']);
+            unset($response['meta']['main_company_seal_cell']);
+            unset($response['meta']['main_company_sign_cell']);
+
+            $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+
+            $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+            exec($cmd);
+            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "", SPARE_INVOICE_EMAIL_TAG);
+
+            unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . $output_pdf_file_name);
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+            
         } else {
             return false;
         }
@@ -4544,20 +4666,6 @@ class Invoice extends CI_Controller {
                 $message = $email_template[0];
                 $email_from = $email_template[2];
 
-                $to = $partner_details[0]['invoice_email_to'];
-                $cc ="";
-
-                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
-
-                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
-                exec($cmd);
-                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
-
-                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
-                unlink(TMP_FOLDER . $output_pdf_file_name);
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
-                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
-
                 $invoice_details = array(
                     'invoice_id' => $response['meta']['invoice_id'],
                     'type_code' => 'A',
@@ -4599,6 +4707,20 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
                 $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+                
+                $to = $partner_details[0]['invoice_email_to'];
+                $cc ="";
+
+                $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
+
+                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER . $output_pdf_file_name;
+                exec($cmd);
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER . $output_pdf_file_name, "",SPARE_INVOICE_EMAIL_TAG);
+
+                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                unlink(TMP_FOLDER . $output_pdf_file_name);
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_data['id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": Invoice Updated in Spare Parts " . $response['meta']['invoice_id']);

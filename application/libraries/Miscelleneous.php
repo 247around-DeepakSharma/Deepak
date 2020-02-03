@@ -4830,6 +4830,11 @@ function generate_image($base64, $image_name,$directory){
                     continue;
                 }
                 
+                if(!empty($spare_part_detail[0]['awb_by_partner'])){
+                    $this->My_CI->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), 
+                            array('delivered_date' => date('Y-m-d H:i:s')));
+                }
+                
                 $status = "";
                 $defective_part_required = $spare_part_detail['defective_part_required'];
 
