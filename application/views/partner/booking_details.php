@@ -394,7 +394,11 @@
                                                                     <td> - </td>
                                                                 <?php } ?>
 
-                                                                <td><?php echo $sp['acknowledge_date']; ?></td>
+
+                                                                
+
+
+                                                                <!-- Removed duplicate date -->
 
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
