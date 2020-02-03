@@ -652,5 +652,7 @@ function bd_update(btn, id){
     width:100% !important;
 }
 </style>
+
 <?php } ?>
+
 
