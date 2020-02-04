@@ -1552,5 +1552,24 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             return false;
         }
     }
+    
+    /**
+     * @Desc: This function maps a SF with its respective RM, ASM
+     * @params: void
+     * @return: NULL
+     * @author Prity Sharma
+     * @date : 04-02-2020
+    */
+    function update_rm_asm_to_sf($agent_id,$service_centres_id,$is_rm) {
+        if($is_rm){
+            $this->db->set("rm_id",$agent_id);
+        }
+        else
+        {
+            $this->db->set("asm_id",$agent_id);
+        }
+        $this->db->where('id IN ('.$service_centres_id.')', NULL);
+        $this->db->update("service_centres");
+    }
 
 }
