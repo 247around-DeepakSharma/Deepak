@@ -2488,7 +2488,7 @@ class invoices_model extends CI_Model {
      * @params: Array $where
      * @return: array
      * 
-     */
+     */  
     public function get_partner_last_cash_invoice_for_installation_service() 
     {   
       $query = $this->db->query("SELECT a.id,a.vendor_partner_id,a.invoice_date,a.type,a.category,a.invoice_id,"
