@@ -345,7 +345,7 @@
                     <div class="clear clear_bottom">
                         <br>
                         <center><input type="submit" value="Save Plan Details" class="btn btn-primary" id="submit_btn">
-                        <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/view_warranty_plan>Cancel</a>"; ?>
+                        <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/warranty/warranty_plan_list>Cancel</a>"; ?>
                         </center>
 <!--                    </div>-->
                 </div>
