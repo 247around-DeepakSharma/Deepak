@@ -2461,12 +2461,7 @@ class invoices_model extends CI_Model {
         if(!empty($partner_active)){
            $partner_wh = " AND partners.is_active = 1 ";
         }
-<<<<<<< HEAD
-        $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
-=======
-        
        $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
->>>>>>> 91fa74b92... CRM-5333 Annual charges consolidated view
                 . " WHERE partners.id = v.vendor_partner_id "
                 . " AND v.vendor_partner = 'partner' "
                 . " AND invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%'"
@@ -2474,12 +2469,8 @@ class invoices_model extends CI_Model {
                 . " WHERE invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
                 . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
                 . "  $wh $partner_wh ) "
-<<<<<<< HEAD
-                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
-=======
                 .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY v.from_date ";
-        
->>>>>>> 91fa74b92... CRM-5333 Annual charges consolidated view
+
         $query = $this->db->query($sql);
         return $query->result();
     }
