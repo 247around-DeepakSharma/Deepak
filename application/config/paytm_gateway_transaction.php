@@ -43,9 +43,6 @@ define('PAYTM_TXN_URL', 'https://'.$PAYTM_DOMAIN.'/oltp-web/processTransaction')
 //$PAYTM_STATUS_QUERY_NEW_URL='https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
 
 
-define('PAYTM_GATEWAY_INDUSTRY_TYPE_ID','Retail');
-define('PAYTM_GATEWAY_CHANNEL_ID', 'WEB');
-
 if(ENVIRONMENT == 'production'){
     $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL='https://securegw.paytm.in/merchant-status/getTxnStatus';
     $PAYTM_GATEWAY_TXN_URL='https://securegw.paytm.in/theia/processTransaction';
