@@ -1672,4 +1672,21 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
         $header_response = get_headers($url, 1);
         return(bool)preg_match('~HTTP/1\.\d\s+200\s+OK~', $header_response[0]);
     }  
+    
+    /**
+     * @desc this function is used to get current financial year
+     * @param null
+     * @return year
+     */
+    function get_current_financial_year(){
+        $current_month = date('m');
+        // 3 means March Month
+        if ($current_month > 3) {
+            $financial_year = date('Y').'-04-01' .'/' . (date('Y')+1).'-03-31';
+        } else {
+            $financial_year = (date('Y')-1).'-04-01' .'/' . date('Y').'-03-31';
+        }
+
+        return $financial_year ;
+    }
 }
