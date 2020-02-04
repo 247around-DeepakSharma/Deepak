@@ -209,6 +209,24 @@
             "pageLength": 25,
             "lengthMenu": [[10, 25, 50,100, -1], [10, 25, 50, 100,"All"]],
             "ordering": false,
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'Warranty_plan_List',
+                    exportOptions: {
+                       columns: [1,2,3,4,5,6,7,8],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/warranty/get_warranty_plan_list",
                 "type": "POST",
