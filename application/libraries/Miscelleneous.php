@@ -4927,8 +4927,16 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                //update spare acknowledge date if empty.
+                if(!empty($spare_part_detail['awb_by_partner']) && empty($spare_part_detail['acknowledge_date'])) {
+                    $up['acknowledge_date'] = date('Y-m-d');
+                }
                 if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
+                }
+                // update delivery date in courier company invoice details if empty.
+                if(!empty($spare_part_detail['awb_by_partner'])) {
+                    $this->My_CI->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner'], 'delivered_date is null' => NULL], ['delivered_date' => date('Y-m-d H:i:s')]);
                 }
                 
                 if (!empty($defective_part_required) && $defective_part_required == 1 && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {

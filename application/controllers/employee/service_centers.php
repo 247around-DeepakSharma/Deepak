@@ -3635,7 +3635,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__ . json_encode($_POST, true), true);
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-
+        $delivery_challan_file_name_array = array();
         $challan_file = 'challan_file' . date('dmYHis');
 
         $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
@@ -3647,6 +3647,7 @@ class Service_centers extends CI_Controller {
             foreach ($explode as $value) {
                 if (copy(S3_WEBSITE_URL . "vendor-partner-docs/" . trim($value), TMP_FOLDER . $value)) {
                     $zip .= TMP_FOLDER . $value . " ";
+                    array_push($delivery_challan_file_name_array, $value);
                 }
             }
         }
@@ -3663,6 +3664,9 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
+            foreach ($delivery_challan_file_name_array as $value_unlink) {
+                unlink(TMP_FOLDER . $value_unlink);
+            }
         }
     }
 
@@ -5883,8 +5887,8 @@ class Service_centers extends CI_Controller {
             $a .= ', "' . $spare_list['id'] . '"';
             $a .= ")'>Receive</a>";
             $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-            $a .=" data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "/1'   />";
-
+            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "/1'   />";
+            
 
             $row[] = $a;
         } else {

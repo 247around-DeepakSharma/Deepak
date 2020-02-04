@@ -14,6 +14,7 @@ class User extends CI_Controller {
 
         $this->load->model('user_model');
         $this->load->model('employee_model');
+        $this->load->model('service_centers_model');
         $this->load->model('booking_model');
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
@@ -513,6 +514,15 @@ class User extends CI_Controller {
                 $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
                 $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
                 $this->employee_model->update_rm_relation_details($emp_rel["agent_id"],$str1,$str2,$str3);
+                // Map RMs and ASMs to their respective SFs in service_centers Table
+                $sf_ids = $str2;
+                if($isRM){
+                    $sf_ids = $str1;
+                }
+                if(!empty($emp_rel["agent_id"]) && !empty($sf_ids))
+                {
+                    $this->service_centers_model->update_rm_asm_to_sf($emp_rel["agent_id"],$sf_ids,$isRM);                
+                }
                 
             }  
             return true;
