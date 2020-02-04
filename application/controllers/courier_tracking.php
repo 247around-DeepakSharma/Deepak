@@ -87,9 +87,13 @@ class Courier_tracking extends CI_Controller {
                 //make array of all delivered data so that we can update status of that spare
                 foreach ( $awb_number_list->data->items as $key => $value){
                     if($value->status == 'delivered'){
-                        echo " FOr each update ". $key.PHP_EOL;
+                        
+                        if(isset($value->tracking_number) && !empty($value->tracking_number)){
+                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NOT NULL' => NULL),
+                                    array('delivered_date' => date('Y-m-d H:i:s')));
+                        }
+                        echo " FOr each update ". $key.PHP_EOL; 
                         $update_status = $this->process_partner_shipped_auto_acknowledge_data($value);
-                       
                         if($update_status){
                             log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
                             $deleted_awb_number_tmp_arr = array();
@@ -394,9 +398,8 @@ class Courier_tracking extends CI_Controller {
      * @return: boolean
      */
     function process_partner_shipped_auto_acknowledge_data($data) {
-        log_message('info', __METHOD__. " ". print_r($data, TRUE));
+        log_message('info', __METHOD__. " ". print_r($data->order_id, TRUE));
         $res = FALSE;
-
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
 
@@ -406,7 +409,6 @@ class Courier_tracking extends CI_Controller {
             $tmp_arr['auto_acknowledeged'] = 2;
 
             $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status", array("spare_parts_details.id" => $parts_details[0], "spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER));
-            print_r($getsparedata);
             if (!empty($getsparedata)) {
                 echo "update Data";
                 //auto acknowledge spare by updating status in spare parts table and setting auto_acknowledge flag 2 for the api
@@ -475,7 +477,7 @@ class Courier_tracking extends CI_Controller {
      * This function is used to update data for recieved defactive part by partner
      */
     function update_defactive_part_status($data){
-        log_message('info', __FUNCTION__ ."start with data".print_r($data,FALSE));
+        log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
         $res = FALSE;
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
@@ -524,6 +526,10 @@ class Courier_tracking extends CI_Controller {
                 //make array of all delivered data so that we can update status of that spare
                 foreach ($awb_number_list->data->items as $key => $value){
                     if($value->status == 'delivered'){
+                        if(isset($value->tracking_number) && !empty($value->tracking_number)){
+                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
+                                    array('delivered_date' => date('Y-m-d H:i:s')));
+                        }
                         $update_status = $this->update_defactive_part_status($value);
                         if($update_status){
                             log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
@@ -594,6 +600,10 @@ class Courier_tracking extends CI_Controller {
                         if ($update_status) {
                             log_message('info', 'Courier Status Updated Successfully for awb number ' . $value->tracking_number);
                             if ($value->status == 'delivered') {
+                                if(isset($value->tracking_number) && !empty($value->tracking_number)){
+                                    $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
+                                            array( 'delivered_date' => date('Y-m-d H:i:s')));
+                                }
                                 $deleted_awb_number_tmp_arr = array();
                                 $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
                                 $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;

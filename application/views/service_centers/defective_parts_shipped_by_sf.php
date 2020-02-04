@@ -222,6 +222,25 @@ $('.close').on('click', function(data) {
 });
 
 $("#revieve_multiple_parts_btn").click(function(){
+    var unique_docket = '';
+    $(".checkbox_revieve_class").each(function() {
+        if (this.checked) { 
+            var docket_number = $(this).data("docket_number") ;
+            if(unique_docket == ''){
+               unique_docket =  docket_number;
+            }else{
+                if(unique_docket != docket_number){
+                  alert('Please select unique docket number to acknowledge spare.');  
+                  return false;
+                }
+            }
+        }
+      
+    });
+});
+
+
+$("#revieve_multiple_parts_btn").click(function(){
 $("#revieve_multiple_parts_btn").attr('disabled',true);
 $(".recieve_defective").attr('disabled',true);
 $(".loader").css("display","block !important");
@@ -262,6 +281,7 @@ if(flag) {
      */
     
     $(document).on('click',".change-consumption-multiple", function(e) {
+        $("#multiple_received").attr('disabled',true);
         //Declaring new Form Data Instance  
         var formData = new FormData();
         //Getting Files Collection

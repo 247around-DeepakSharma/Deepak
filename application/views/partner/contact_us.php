@@ -214,10 +214,13 @@
     <div class="tab-pane" id="tabs-2">
                                   <div class="x_title">
                                          <h2>Holiday List  <?php echo date("Y") ?></h2>
-        <div style='border-radius: 5px;background: #EEEEEE;margin-bottom: 10px;width:330px;margin-top: 4px;margin-left: 9px;' class='col-md-6'><b>NOTE:</b> <i>Checkmark shows Holiday declared.</i></div>
+        <div style='border-radius: 5px;background: #EEEEEE;margin-bottom: 10px;width:330px;margin-top: 4px;margin-left: 9px;' class='col-md-6'><b>NOTE:</b> <i>1 shows Holiday declared.</i></div>
                                             <div class="clearfix"></div>
                                             </div>
-                                 <table class="table table-bordered table-hover table-striped">
+        <iframe src="https://bookings-collateral.s3.amazonaws.com/holiday-pdf/Holiday2020.pdf#zoom=FitH"
+                    style='width:100%;height:600px;border:none;'  scrolling="no"></iframe>
+        
+                               <?php /* ?>  <table class="table table-bordered table-hover table-striped">
                                      <thead style="background: #2a3f54;color: #fff;">
                     <tr>
                         <th>S.N.</th>
@@ -266,7 +269,7 @@
                     <?php } ?>
 
                 </tbody>
-            </table>
+            </table><?php */ ?>
                             </div>
                         </div>
                     </div>

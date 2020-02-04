@@ -17,11 +17,15 @@ function partner_vendor1(vendor_partner_id){
      if(par_ven === "partner"){
          //document.getElementById("myRadio1").disabled = true;
          document.getElementById("myRadio2").disabled = true;
-         document.getElementById("myRadio3").disabled = true;
+         //document.getElementById("myRadio3").disabled = true;
+         
+         $("#myRadio3").prop("checked", true);
          document.getElementById("brackets").style.display = "none";
          document.getElementById("brackets").disabled = true;
          document.getElementById("myRadio4").disabled = true;
          document.getElementById("myRadio5").disabled = true;
+         document.getElementById("courier").style.display = "block";
+         
      } else {
       //  document.getElementById("myRadio1").disabled = false;
          document.getElementById("myRadio2").disabled = false;
@@ -30,6 +34,8 @@ function partner_vendor1(vendor_partner_id){
          document.getElementById("brackets").disabled = false;
          document.getElementById("myRadio4").disabled = false;
          document.getElementById("myRadio5").disabled = false;
+         document.getElementById("courier").style.display = "none";
+         document.getElementById("myRadio6").disabled = false;
      }
 
 
@@ -223,9 +229,9 @@ color: red;
 <!--		     <span class="col-md-2"><input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "all" checked >All </span>-->
                       <span class="col-md-2"><input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc" checked>FOC</span>
                       <span class="col-md-2"><input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash" >CASH</span>
-                      <span class="col-md-4" id="brackets"><input type="radio"  id="myRadio4" name="vendor_invoice_type" value = "brackets" >BRACKETS</span>
+                      <span class="col-md-2" id="brackets"><input type="radio"  id="myRadio4" name="vendor_invoice_type" value = "brackets" >BRACKETS</span>
                       <span class="col-md-2" ><input type="radio"  id="myRadio5" name="vendor_invoice_type" value = "buyback" >Buyback</span>
-                      
+                      <span class="col-md-2" id="courier"><input type="radio"  id="myRadio6" name="vendor_invoice_type" value = "courier" >Courier</span>
 
 
                 </div>

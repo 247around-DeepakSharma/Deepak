@@ -1,9 +1,11 @@
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;"><b>Holiday List <?php echo date("Y") ?></b></center></div>
-        <div style='border-radius: 5px;background: #EEEEEE;margin-top: 10px;margin-bottom: 10px;width:330px;' class='col-md-6'><b>NOTE:</b> <i>Checkmark shows Holiday declared.</i></div>
+        <div style='border-radius: 5px;background: #EEEEEE;margin-top: 10px;margin-bottom: 10px;width:330px;' class='col-md-6'><b>NOTE:</b> <i>1 shows Holiday declared.</i></div>
         <div class="panel-body">
-            <table class="table table-condensed table-bordered table-striped">
+            <iframe src="https://bookings-collateral.s3.amazonaws.com/holiday-pdf/Holiday2020.pdf#zoom=FitH"
+                    style='width:100%;height:600px;border:none;'  scrolling="no"></iframe>
+            <?php /* ?><table class="table table-condensed table-bordered table-striped">
                 <thead>
                     <tr>
                         <th class="jumbotron">S.N.</th>
@@ -52,8 +54,13 @@
                     <?php } ?>
 
                 </tbody>
-            </table>
+            </table><?php */ ?>
 
         </div>
     </div>
 </div>
+<style>
+iframe{
+    overflow:hidden;
+}
+</style>

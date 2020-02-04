@@ -951,8 +951,8 @@ class Warranty extends CI_Controller {
         $row[] = $no;
         $row[] = $model_list->plan_name;
         $row[] = $model_list->plan_description;
-        $row[] = $model_list->period_start;
-        $row[] = $model_list->period_end;
+        $row[] = $this->miscelleneous->get_formatted_date($model_list->period_start);
+        $row[] = $this->miscelleneous->get_formatted_date($model_list->period_end);
         $row[] = $model_list->public_name;
         $row[] = $model_list->services;
         $row[] = $model_list->warranty_period . " months";
