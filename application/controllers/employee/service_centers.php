@@ -2782,7 +2782,7 @@ class Service_centers extends CI_Controller {
                 $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
-            $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('id' => $id));
+            $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('spare_parts_details.id' => $id));
             if(!empty($pre_sp) && !empty($pre_sp[0]['awb_by_partner'])){
                 $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s')));
             }
