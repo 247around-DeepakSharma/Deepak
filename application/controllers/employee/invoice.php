@@ -113,7 +113,7 @@ class Invoice extends CI_Controller {
         $invoice_type = $this->input->post('invoice_type');
         $data = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
-        $custom_query = 0;
+        //$custom_query = 0;
         $settle_amount = 1;
         if($this->input->post('settle_invoice')){
           
@@ -137,49 +137,33 @@ class Invoice extends CI_Controller {
             }
          
         }else if($invoice_period === 'cur_fin_year'){
-            $custom_query = 1;
-            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')
-                    ."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') "
-                    . "and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') "
-                    . "THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
-            if($settle_amount == 0){
-                $where .= " AND settle_amount = 0 ";
-            }
+            $current_financial_year = $this->invoice_lib->get_current_financial_year();
+            $financial_year = explode('/', $current_financial_year);
+            $financial_year_start = $financial_year[0];
+            $financial_year_end = $financial_year[1];
+            $where['vendor_partner'] = $this->input->post('source');
+            $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+            $where['from_date >='] = $financial_year_start;
+            $where['from_date <='] = $financial_year_end;
+            $where['settle_amount'] = 0;
             
              if($this->input->post('invoice_type')){
                $types = implode('","', $invoice_type); 
                 if($types){
-                    $where .= ' AND type IN ("'.$types.'") ';
+                    $where['type IN ("'.$types.'")'] = NULL;
                 }
-            }
-        }
-        
-        if($custom_query == 0)
-        {
-            if(!empty($this->input->post('vertical'))){
-            $where['vertical'] = $this->input->post('vertical');
-            }
-            if(!empty($this->input->post('category'))){
-                $where['category'] = $this->input->post('category');
-            }
-            if(!empty($this->input->post('sub_category'))){
-                $where['sub_category'] = $this->input->post('sub_category');
-            }
-        }
-        else
-        {
-            if(!empty($this->input->post('vertical'))){
-                $where .= " and vertical='".$this->input->post('vertical')."'";
-            }
-            if(!empty($this->input->post('category'))){
-                $where .= " and category='".$this->input->post('category')."'";
-            }
-            if(!empty($this->input->post('sub_category'))){
-                $where .= " and sub_category='".$this->input->post('sub_category')."'";
             }
         }    
         
-        
+        if(!empty($this->input->post('vertical'))){
+            $where['vertical'] = $this->input->post('vertical');
+        }
+        if(!empty($this->input->post('category'))){
+            $where['category'] = $this->input->post('category');
+        }
+        if(!empty($this->input->post('sub_category'))){
+            $where['sub_category'] = $this->input->post('sub_category');
+        }
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
