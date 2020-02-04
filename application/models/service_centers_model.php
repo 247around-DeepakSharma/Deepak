@@ -46,27 +46,31 @@ class Service_centers_model extends CI_Model {
                 //Future Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
                     $booking = " ";
-                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' ";
+                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.partner_internal_status !='Booking Completed By Engineer'";
+                    // not show if engg complete
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.partner_internal_status !='Booking Completed By Engineer'";
+                    // not show if engg complete
                 } 
                 
             } else {
                 if($i ==1){
                 // Today Day
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
-                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  ";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";
+                // not show if engg complete
                 
                 } else if($i==2) {
                 //Tomorrow Booking
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
-                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  ";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'"; 
+                // not show if engg complete
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";  // not show if engg complete
                 } else if ($i== 4) {
                     $day = " ";
                     $status = " AND sc.current_status='InProcess' AND bd.nrn_approved = 0  AND sc.internal_status IN (".$this->stored_internal_status().")";
@@ -118,6 +122,7 @@ class Service_centers_model extends CI_Model {
                  . " AND b.sub_vendor_id IS NOT NULL "
                  . " AND b.upcountry_paid_by_customer = 0 "
                  . " AND b.sf_upcountry_rate = bd.sf_upcountry_rate"
+                 . " AND b.partner_internal_status!='Booking Completed By Engineer' "  // not show if engg complete
                  . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
                  . " AND b.assigned_vendor_id = '$service_center_id' ) "
                  . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "

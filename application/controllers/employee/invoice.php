@@ -5206,7 +5206,24 @@ exit();
     public function partners_annual_charges() {  
          $this->miscelleneous->load_nav_header();
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
-                 . "from_date, to_date,amount_collected_paid, invoice_file_main");  
+                 . "from_date, to_date,amount_collected_paid, invoice_file_main",'',1);
+         $partner_last_cash_invoice_for_inst =$this->invoices_model->get_partner_last_cash_invoice_for_installation_service(); 
+         if(is_array($partner_last_cash_invoice_for_inst) && count($partner_last_cash_invoice_for_inst) > 0)
+         {
+            
+            foreach($partner_last_cash_invoice_for_inst as $key => $value)
+            {
+                $partner_id                 =   $value['vendor_partner_id'];
+                $invoice_id                 =   $value['invoice_id'];
+                $amount                     =   $value['amount_collected_paid'];
+                $invoice_file_main          =   $value['invoice_file_main'];
+                $invoice_date               =   $value['invoice_date'];
+                $data['last_inst_cash_invoce'][$partner_id]['invoice']      =   $invoice_id;
+                $data['last_inst_cash_invoce'][$partner_id]['amount']       =   $amount;
+                $data['last_inst_cash_invoce'][$partner_id]['invoice_file'] =   $invoice_file_main;
+                $data['last_inst_cash_invoce'][$partner_id]['invoice_date'] =   $invoice_date;
+            }
+         }        
          $this->load->view('employee/partners_annual_charges_view', $data);  
     }
     
