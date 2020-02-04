@@ -2463,7 +2463,7 @@ class invoices_model extends CI_Model {
            $partner_wh = " AND partners.is_active = 1 ";
         }
         
-        $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
+       $sql = "SELECT $select FROM vendor_partner_invoices as v, partners"
                 . " WHERE partners.id = v.vendor_partner_id "
                 . " AND v.vendor_partner = 'partner' "
                 . " AND invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%'"
@@ -2471,10 +2471,35 @@ class invoices_model extends CI_Model {
                 . " WHERE invoice_tagged LIKE '%".ANNUAL_CHARGE_INVOICE_TAGGING."%' "
                 . "AND vp.vendor_partner ='partner' AND v.vendor_partner_id = vp.vendor_partner_id"
                 . "  $wh $partner_wh ) "
-                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY public_name ";
+                .  " $wh $partner_wh GROUP BY vendor_partner_id ORDER BY v.from_date ";
         
         $query = $this->db->query($sql);
         return $query->result();
+    }
+     /**
+     * @desc: This function is used to get  partner's last cash invoice for Installation service 
+     * @params: Array $where
+     * @return: array
+     * 
+     */
+    public function get_partner_last_cash_invoice_for_installation_service() 
+    {   
+      $query = $this->db->query("SELECT a.id,a.vendor_partner_id,a.invoice_date,a.type,a.category,a.invoice_id,"
+              . "a.invoice_file_main,a.amount_collected_paid,a.invoice_date FROM vendor_partner_invoices AS a, "
+              . "( SELECT vendor_partner_id, invoice_date, MAX(id) AS ID FROM vendor_partner_invoices where "
+              . "vendor_partner='partner' and type='".CASH."' and `category` = '".INSTALLATION_AND_REPAIR."' GROUP BY "
+              . "vendor_partner_id, invoice_date ) AS b, ( SELECT vendor_partner_id, MAX(invoice_date) AS invoice_date "
+              . "FROM vendor_partner_invoices where vendor_partner='partner' and type='".CASH."' and "
+              . "`category` = '".INSTALLATION_AND_REPAIR."' GROUP BY vendor_partner_id ) AS c WHERE "
+              . "b.vendor_partner_id = c.vendor_partner_id AND b.invoice_date = c.invoice_date AND a.id = b.id");
+                if($query->num_rows > 0)
+                {
+                 return $query->result_array();
+                }
+                else
+                {
+                  return false;
+                }
     }
     /**
      * @desc This is used to get partner warehouse courier data
