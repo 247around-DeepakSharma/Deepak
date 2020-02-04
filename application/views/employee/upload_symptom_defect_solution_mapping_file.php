@@ -23,7 +23,7 @@
                 ?>
                 <h3 class="page-header">
                     <b> Upload Symptom Defect Solution File</b>
-                    <a style="float:right;" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/inventory_master_list_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                    <a style="float:right;" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/upload_symptom_defect_solution_mapping_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                 </h3>
 
                 <section>
