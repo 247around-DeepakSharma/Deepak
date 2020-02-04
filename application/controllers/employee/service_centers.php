@@ -5887,8 +5887,8 @@ class Service_centers extends CI_Controller {
             $a .= ', "' . $spare_list['id'] . '"';
             $a .= ")'>Receive</a>";
             $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-            $a .=" data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "/1'   />";
-
+            $a .=" data-docket_number='" . $spare_list['awb_by_sf'] . "'  data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "/1'   />";
+            
 
             $row[] = $a;
         } else {
