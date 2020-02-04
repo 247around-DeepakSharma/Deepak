@@ -53,11 +53,8 @@ class Notify {
 
                     $this->My_CI->email->subject($subject);
                     $this->My_CI->email->message($message);
-echo $this->My_CI->email->send();
-echo "<br/>";
-echo $this->My_CI->email->print_debugger();
-exit();
-                    if (1) {
+
+                    if ($this->My_CI->email->send()) {
                         $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
                         return true;
                     } else {
