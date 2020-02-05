@@ -5794,6 +5794,7 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
@@ -5802,6 +5803,7 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_id" => $sf_id,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
