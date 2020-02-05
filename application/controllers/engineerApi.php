@@ -3613,6 +3613,9 @@ class engineerApi extends CI_Controller {
                         // Removing extra hit  Giving flag in same hit  Abhishek ///
                         $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                         $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                        /*  Completion Allow Flag */
+                        $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
+                        $data['Bookings'][$key]['complete_allow'] =  $complete_flag;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -3632,6 +3635,56 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0062", $validation['message']));
         }
     }
+
+    /*
+     * @Desc - This function used to check the completion is allowed for a booking or not    
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
+
+    function checkCompletionAllowed($booking_id){
+
+        $allow = TRUE;
+        $select = "*";
+        $where = array(
+            'booking_id'=>$booking_id,
+            'shipped_date IS  NULL'=> NULL,
+            'status !=' =>_247AROUND_CANCELLED
+        );
+        $spares = $this->engineer_model->get_spare_details($select,$where);
+    
+            if(!empty($spares)){
+                $allow = FALSE;
+                return $allow; 
+            }
+/*  Check for booking cancel complete by engg */
+        $booking_select = "booking_id,partner_internal_status";
+        $booking_where = array(
+            "booking_id"=>$booking_id,
+            "partner_internal_status IN( '".BOOKING_COMPLETED_BY_ENGINEER_STATUS."','".BOOKING_CANCELLED_BY_ENGINEER_STATUS."')" => NULL
+        );
+        $booking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
+        if(!empty($booking_details)){
+                $allow = FALSE;
+                return $allow;  
+        }
+
+/*  Check for booking cancel complete by SF */
+        $sfbooking_select = "booking_id,internal_status";
+        $sfbooking_where = array(
+            "booking_id"=>$booking_id,
+            "internal_status IN( '".SF_BOOKING_COMPLETE_STATUS."','".SF_BOOKING_CANCELLED_STATUS."')" => NULL
+        );
+        $sfbooking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
+        if(!empty($sfbooking_details)){
+                $allow = FALSE;
+                return $allow;  
+        }
+
+    }
+
+
 
     /*
      * @Desc - This function is used to get bookings on which engineer earns incentive    
