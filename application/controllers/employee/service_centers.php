@@ -8374,7 +8374,7 @@ class Service_centers extends CI_Controller {
         $data['tobooking'] = $tobooking;
         $to_update = false;
         $from_update = false;
-        if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
+        if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to) || ($tobooking == $frombooking) ) {   //// DO not transfer in between same booking spares ///
             echo 'fail';
         } else {
             $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $from_spare_id),true);
