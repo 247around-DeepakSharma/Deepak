@@ -153,7 +153,7 @@
                 });
                // alert('File validation is in progress, please wait....');
             } else {
-                alert("Please Select Partner ");
+                alert("Please Select Appliance. ");
                 return false;
             }
 
