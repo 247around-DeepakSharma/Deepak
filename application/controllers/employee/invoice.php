@@ -5013,18 +5013,17 @@ exit();
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
+            $c_gst = TRUE;
 
             if ($data['vendor_partner'] == "vendor") {
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
-                        . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+                        . "state,address as company_address,company_name,district, pincode, gst_status", array("id" => $data['vendor_partner_id']));
                 
-                if(!empty($entity_details[0]['gst_number'])){
-                    
-                    $c_gst = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
-                    
+                if (!empty($entity_details[0]['gst_number']) && !empty($entity_details[0]['gst_status']) && ($entity_details[0]['gst_status'] != _247AROUND_CANCELLED)) {
+                
                 } else {
-                    $c_gst = TRUE;
+                    $entity_details[0]['gst_number'] = "";
                 }
 
             } else {
@@ -5032,7 +5031,7 @@ exit();
                 $entity_details = $this->partner_model->getpartner_details("gst_number,"
                         . "company_name, state, address as company_address, district, pincode, "
                         . "invoice_email_to,invoice_email_cc", array('partners.id' => $data['vendor_partner_id']));
-                $c_gst = true;
+                //$c_gst = true;
             }
 
             if (!empty($c_gst)) {
