@@ -4910,6 +4910,7 @@ function generate_image($base64, $image_name,$directory){
                 //update spare acknowledge date if empty.
                 if(!empty($spare_part_detail['awb_by_partner']) && empty($spare_part_detail['acknowledge_date'])) {
                     $up['acknowledge_date'] = date('Y-m-d');
+                    $up['auto_acknowledeged'] = 1;
                 }
                 if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
