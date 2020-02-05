@@ -5794,6 +5794,7 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
             );
@@ -5802,6 +5803,7 @@ class Service_centers extends CI_Controller {
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "approved_defective_parts_by_admin" => 1,
+                "(spare_lost is null or spare_lost = 0)" => NULL,
                 "spare_parts_details.defective_return_to_entity_id" => $sf_id,
                 "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
                 "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "')" => NULL,
@@ -8269,8 +8271,8 @@ class Service_centers extends CI_Controller {
             $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
             $toinventory_req_id = $to_details[0]['requested_inventory_id'];
-            if (empty($from_details) || empty($to_details)) {
-                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
+            if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
+                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
                 redirect(base_url() . 'service_center/delivered_spare_transfer');
             } else {
                 $data['from_booking'] = $from_details;
@@ -8303,7 +8305,7 @@ class Service_centers extends CI_Controller {
         $data['tobooking'] = $tobooking;
         $to_update = false;
         $from_update = false;
-        if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
+        if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to) || ($tobooking == $frombooking) ) {   //// DO not transfer in between same booking spares ///
             echo 'fail';
         } else {
             $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $from_spare_id),true);

@@ -455,6 +455,22 @@ class Engineer_model extends CI_Model {
     }
 
 
+
+  /* @author Abhishek Awasthi
+     *@Desc - This function is used to get spare data 
+     *@param - $spare id
+     *@return - Row
+     */
+   function get_spare_details($select,$where){
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('spare_parts_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
   /*  @author Abhishek Awasthi
      *@Desc - This function is used to insert engineer notification details
      *@param - $select, $where
@@ -546,6 +562,23 @@ class Engineer_model extends CI_Model {
 
    }
 
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get booking data
+     *@param - $spare id
+     *@return - Row
+     */
+
+
+   function get_booking_details($select,$where){
+
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('booking_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
 
 
 

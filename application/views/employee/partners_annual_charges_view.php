@@ -83,7 +83,9 @@
                             if($StartRowCount > 0)
                             {
                             ?>
-                            <tr><td></td><td></td><td></td><td></td><td class="text-center">Total Amount</td><td class="text-center"><i class='fa fa-inr'></i> <?php echo $totalAmount; ?></td><td></td><td><i class='fa fa-inr'></i> <?php echo $TotalCashInoviceInst; ?></td></tr>
+                            <tfoot>
+                            <tr><td></td><td></td><td></td><td></td><td class="text-center"><strong>Total Amount</strong></td><td class="text-center"><strong><i class='fa fa-inr'></i> <?php echo $totalAmount; ?></strong></td><td></td><td><strong><i class='fa fa-inr'></i> <?php echo $TotalCashInoviceInst; ?></strong></td></tr>
+                            </tfoot>
                             <?php
                             }
                             ?>
@@ -98,23 +100,58 @@
 <script>
     $(document).ready(function() {
     $('#annual_charges_report').DataTable({
-"processing": true, 
-"serverSide": false,  
- "dom": 'lBfrtip',
-                "buttons": [
-                {
-                    extend: 'excel',
-                    text: '<span class="fa fa-file-excel-o"></span>  Export',
-                    title: 'annual_charges_<?php echo date('Ymd-His'); ?>'                   
-                }
-            ],            
-            "order": [],            
-            "ordering": false,     
-            "deferRender": true,
-            "searching": false,
-            "paging":false
-
-
-});
-} );
+    "processing": true, 
+    "serverSide": false,  
+    "dom": 'lBfrtip',
+    "buttons": [
+    {
+        extend: 'excel',
+        text: '<span class="fa fa-file-excel-o"></span>  Export',
+        title: 'annual_charges_<?php echo date('Ymd-His'); ?>',
+        footer: true
+    }  
+    ],            
+    "order": [],            
+    "ordering": true,     
+    "deferRender": true,
+    //"searching": false,
+    //"paging":false
+    "pageLength": 10,
+     "language": {                
+        "emptyTable":     "No Data Found",
+        "searchPlaceholder": "Search by any column."
+    },
+    });
+    });
 </script>
+<style>
+#annual_charges_report_filter label
+{
+    float: right !important;
+}
+#annual_charges_report_filter .input-sm
+{
+    width: 272px !important;    
+}
+.dataTables_length label
+{
+    float:left;
+}
+.dt-buttons
+{
+    float:left;
+    margin-left:85px;
+}
+.paging_simple_numbers
+{
+    width: 45%;
+    float: right;
+    text-align: right;
+}
+.dataTables_info
+{
+    width: 45%;
+    float: left;
+    padding-top: 30px;
+}
+</style>
