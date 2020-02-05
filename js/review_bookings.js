@@ -137,6 +137,7 @@ function send_remarks_multitab(review_status, is_partner) {
         $('#loader_gif_'+str).hide();
         $('#btn_send_remarks_'+str).prop("disabled", false);
         document.getElementById("row_"+bookingID).style.background = "#89d4a7";
+        $('.modal').modal('hide');
     });
 
 }
