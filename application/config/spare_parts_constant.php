@@ -162,6 +162,7 @@ define('WRONG_PART_RECEIVED_TAG', 'wrong_part_received');
 define('PART_SHIPPED_BUT_NOT_USED_TAG', 'ok_part_received_but_not_used');
 define('PART_CANCELLED_STATUS_TAG', 'part_cancelled');
 define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
+define('PART_NOT_RECEIVED_TAG', 'part_not_received');
 
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped By SF');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
