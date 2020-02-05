@@ -467,6 +467,7 @@
         var total_discount = parseFloat(partner_discount) + parseFloat(around_discount);
         if(!isNaN(curval.val()) && !isNaN(total_discount)){
             if(parseFloat(curval.val())<0 || parseFloat(total_discount)<0) {
+                $('#'+current_cntrl_id).val(0);
                 alert('Discount Cannot be less than 0.00');
                flg=false;
             } else if((parseFloat(curval.val())>parseFloat(maxval)) || (parseFloat(total_discount)>parseFloat(maxval))) {
@@ -475,6 +476,7 @@
                flg=false;
             }
         } else {
+            $('#'+current_cntrl_id).val(0);
             alert('Enter numeric value');
             flg=false;
         }
