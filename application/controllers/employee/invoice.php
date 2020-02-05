@@ -113,7 +113,7 @@ class Invoice extends CI_Controller {
         $invoice_type = $this->input->post('invoice_type');
         $data = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
-        
+        //$custom_query = 0;
         $settle_amount = 1;
         if($this->input->post('settle_invoice')){
           
@@ -137,21 +137,23 @@ class Invoice extends CI_Controller {
             }
          
         }else if($invoice_period === 'cur_fin_year'){
-            $where = "vendor_partner = '".$this->input->post('source')."' AND vendor_partner_id = '".$this->input->post('vendor_partner_id')
-                    ."' AND case WHEN month(CURDATE()) IN ('1','2','3') THEN from_date >= CONCAT(YEAR(CURDATE())-1,'-04-01') "
-                    . "and from_date <= CONCAT(YEAR(CURDATE()),'-03-31') WHEN month(from_date) NOT IN ('1','2','3') "
-                    . "THEN from_date >= CONCAT(YEAR(CURDATE()),'-04-01') and from_date <= CONCAT(YEAR(CURDATE())+1,'-03-31') END";
-            if($settle_amount == 0){
-                $where .= " AND settle_amount = 0 ";
-            }
+            $current_financial_year = $this->invoice_lib->get_current_financial_year();
+            $financial_year = explode('/', $current_financial_year);
+            $financial_year_start = $financial_year[0];
+            $financial_year_end = $financial_year[1];
+            $where['vendor_partner'] = $this->input->post('source');
+            $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+            $where['from_date >='] = $financial_year_start;
+            $where['from_date <='] = $financial_year_end;
+            $where['settle_amount'] = 0;
             
              if($this->input->post('invoice_type')){
                $types = implode('","', $invoice_type); 
                 if($types){
-                    $where .= ' AND type IN ("'.$types.'") ';
+                    $where['type IN ("'.$types.'")'] = NULL;
                 }
             }
-        }
+        }    
         
         if(!empty($this->input->post('vertical'))){
             $where['vertical'] = $this->input->post('vertical');
@@ -162,7 +164,6 @@ class Invoice extends CI_Controller {
         if(!empty($this->input->post('sub_category'))){
             $where['sub_category'] = $this->input->post('sub_category');
         }
-        
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
@@ -5189,7 +5190,24 @@ exit();
     public function partners_annual_charges() {  
          $this->miscelleneous->load_nav_header();
          $data['annual_charges_data'] =$this->invoices_model->get_partners_annual_charges("public_name, invoice_id, vendor_partner_id, "
-                 . "from_date, to_date,amount_collected_paid, invoice_file_main");  
+                 . "from_date, to_date,amount_collected_paid, invoice_file_main",'',1);
+         $partner_last_cash_invoice_for_inst =$this->invoices_model->get_partner_last_cash_invoice_for_installation_service(); 
+         if(is_array($partner_last_cash_invoice_for_inst) && count($partner_last_cash_invoice_for_inst) > 0)
+         {
+            
+            foreach($partner_last_cash_invoice_for_inst as $key => $value)
+            {
+                $partner_id                 =   $value['vendor_partner_id'];
+                $invoice_id                 =   $value['invoice_id'];
+                $amount                     =   $value['amount_collected_paid'];
+                $invoice_file_main          =   $value['invoice_file_main'];
+                $invoice_date               =   $value['invoice_date'];
+                $data['last_inst_cash_invoce'][$partner_id]['invoice']      =   $invoice_id;
+                $data['last_inst_cash_invoce'][$partner_id]['amount']       =   $amount;
+                $data['last_inst_cash_invoce'][$partner_id]['invoice_file'] =   $invoice_file_main;
+                $data['last_inst_cash_invoce'][$partner_id]['invoice_date'] =   $invoice_date;
+            }
+         }        
          $this->load->view('employee/partners_annual_charges_view', $data);  
     }
     
