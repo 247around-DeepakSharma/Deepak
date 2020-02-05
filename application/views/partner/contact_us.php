@@ -217,8 +217,8 @@
         <div style='border-radius: 5px;background: #EEEEEE;margin-bottom: 10px;width:330px;margin-top: 4px;margin-left: 9px;' class='col-md-6'><b>NOTE:</b> <i>1 shows Holiday declared.</i></div>
                                             <div class="clearfix"></div>
                                             </div>
-        <iframe src="https://bookings-collateral.s3.amazonaws.com/holiday-pdf/Holiday2020.pdf#zoom=FitH"
-                    style='width:100%;height:600px;border:none;'  scrolling="no"></iframe>
+        <iframe src="https://bookings-collateral.s3.amazonaws.com/holiday-pdf/Holiday2020.pdf"
+                    style='width:100%;height:600px;border:none;'  scrolling="no" target="_blank"></iframe>
         
                                <?php /* ?>  <table class="table table-bordered table-hover table-striped">
                                      <thead style="background: #2a3f54;color: #fff;">
