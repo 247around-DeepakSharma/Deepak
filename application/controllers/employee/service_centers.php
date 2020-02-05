@@ -506,7 +506,7 @@ class Service_centers extends CI_Controller {
         }
 
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -2077,7 +2077,7 @@ class Service_centers extends CI_Controller {
                 CASE SPARE_PARTS_REQUIRED:
                 CASE SPARE_OOW_EST_REQUESTED:
                     log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
-                    $this->update_part_consumption($this->input->post());
+                    $this->update_part_consumption($booking_id, $this->input->post());
                     $this->update_spare_parts();
                     break;
 
@@ -2235,13 +2235,16 @@ class Service_centers extends CI_Controller {
      * Update consumption at the time of spare part request.
      * @param type $post
      */
-    function update_part_consumption($post) {
+    function update_part_consumption($booking_id, $post) {
         if(!empty($post['spare_consumption_status'])) { 
             foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
                 $update_data = [];
+                $courier_lost_spare = [];
                 $update_data['spare_parts_details.consumed_part_status_id'] = $consumed_status_id;
                 
                 $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consumed_status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
                 // set Ok part return in case of wrong & Ok part.
                 if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
@@ -2253,6 +2256,7 @@ class Service_centers extends CI_Controller {
                 }
                 // courier lost.
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                    $courier_lost_spare[] = $spare_part_detail;
                     $update_data['status'] = COURIER_LOST;
                 }
                 // set defective part return for part consumed.
@@ -2266,6 +2270,11 @@ class Service_centers extends CI_Controller {
                 // update spare parts details.
                 $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
             }
+            
+            if (!empty($courier_lost_spare) && !empty($this->session->userdata('service_center_id'))) {
+                $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+            }
+
         }
         
         return true;
