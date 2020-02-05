@@ -111,7 +111,7 @@
         footer: true
     }  
     ],            
-    "order": [1],            
+    "order": [],            
     "ordering": true,     
     "deferRender": true,
     //"searching": false,
