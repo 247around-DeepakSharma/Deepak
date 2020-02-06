@@ -165,12 +165,12 @@
     var time = moment().format('D-MMM-YYYY');
     
     $('#model_partner_id').select2({
-        allowClear: true,
-        placeholder: 'Select Partner'
+     //   allowClear: true,
+     //   placeholder: 'Select Partner'
     });
     $('#model_service_id').select2({
-        allowClear: true,
-        placeholder: 'Select Appliance'
+      //  allowClear: true,
+      //  placeholder: 'Select Appliance'
     });
     $(document).ready(function(){
         
