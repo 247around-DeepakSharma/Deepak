@@ -168,6 +168,7 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Center</th>
+                        <th>RM</th>
                         <th>State</th>
                         <?php if(isset($saas_module) && (!$saas_module)) { ?>
                         <th></th>
@@ -292,7 +293,7 @@
                     pageSize: 'LEGAL',
                     title: 'pending_bookings',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7, 8],
+                       columns: [1,2,3,4,5,6,7, 8, 9],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

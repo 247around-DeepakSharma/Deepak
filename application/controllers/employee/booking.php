@@ -3542,7 +3542,7 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name,
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
@@ -3553,7 +3553,7 @@ class Booking extends CI_Controller {
          }
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name,
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
@@ -4316,6 +4316,7 @@ class Booking extends CI_Controller {
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = $order_list->rm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
             $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
