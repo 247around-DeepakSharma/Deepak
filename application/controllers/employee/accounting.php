@@ -1531,7 +1531,7 @@ class Accounting extends CI_Controller {
                                     'create_date' => date('Y-m-d H:i:s'),
                                     'state_gstin' => $state
                                 );
-                            $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
+                            $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum, 'gst_no' => $gst_no, 'invoice_number' => $invoice_number, 'invoice_amount' => $invoice_val, 'gst_rate' => $gst_rate, 'taxable_value' => $taxable_val, 'invoice_date' => $date));
                             if(empty($check_checksum)){
                                 array_push($row_batch, $row);
                             }

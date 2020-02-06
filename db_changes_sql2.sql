@@ -1818,3 +1818,22 @@ CREATE TABLE `billed_docket` (
 
 --Ankit Bhatt 2020-02-03
 update `email_template` set template='<table border="1" cellspacing="0" cellpadding="0"><tr><td colspan="10">Parts Received By Warehouse</td></tr><tr><th>Booking Id</th><th>SF</th><th>Receive Date</th><th>Shipped By</th><th>Part Name</th><th>Part Number</th><th>Quantity</th><th>Consumption Reason</th><th>Warehouse</th><th>Image Link</th></tr><tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr><tr><td colspan="10">Thanks!!</td></tr></table>' where tag= 'parts_received_by_warehouse';
+
+--Ankit Bhatt 2020-02-06
+delete FROM `taxpro_gstr2a_data` WHERE id in(1909,1910,1911,1912,1913,1914,1915,1916,1917,1918,1919,1920,1921,1922,1923,1924,1925,1926,1927,1928,1929,1894,1895,1896,1897,1900,1901,1907,1930,1931,1932,2078,2063,2064,2079,2080
+,2160,2161,2162,2135,1514,1515,1516,1519,1526,1527,1528,1530,1534,1522,1523,1531,1532,1533,1535,1827,1828,1829,1830,1832,1833,1834,1835,2065,2066,2067,2068,2069,2133,2134
+,2165,2166,2253,2254,2255,2256,2257,2261,2262,2263,2264,2265,2266,2267,2330,2331,2332,2333,2334,2335,2336,2337,2268,2269,2270,2271,2272
+,1507,1508,1509,1510,1511,1512,1838,1839,1840,1841,1842,1843,1521)
+
+delete FROM `taxpro_gstr2a_data` WHERE id >=2273 and id <=2303;
+delete FROM `taxpro_gstr2a_data` WHERE id >=1933 and id <=2036;
+delete FROM `taxpro_gstr2a_data` WHERE id >=2081 and id <=2126;
+delete FROM `taxpro_gstr2a_data` WHERE id >=2038 and id <=2047;
+delete FROM `taxpro_gstr2a_data` WHERE id >=2136 and id <=2158;
+delete FROM `taxpro_gstr2a_data` WHERE id >=2169 and id <=2196;
+delete FROM `taxpro_gstr2a_data` WHERE id >=2199 and id <=2249;
+delete FROM `taxpro_gstr2a_data` WHERE id >=1782 and id <=1791;
+delete FROM `taxpro_gstr2a_data` WHERE id >=1846 and id <=1854;
+delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
+
+ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
