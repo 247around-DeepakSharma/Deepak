@@ -3726,7 +3726,6 @@ class Service_centers extends CI_Controller {
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
             foreach ($delivery_challan_file_name_array as $value_unlink) {
-                system(" chmod 777 " . TMP_FOLDER . $value_unlink, $res2);
                 unlink(TMP_FOLDER . $value_unlink);
             }
         }
