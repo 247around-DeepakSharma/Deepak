@@ -177,6 +177,10 @@
     $(document).on("click", ".open-adminremarks", function () {
         
         var booking_id = $(this).data('booking_id');
+        var booking_request_type = $(this).data('request_type');
+        if(typeof booking_request_type === undefined){
+            booking_request_type = 'NA';
+        }
         var url = $(this).data('url');
         var keys = $(this).data('keys'); 
         var split_url = url.split('/');
@@ -188,9 +192,14 @@
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
              $("#reject_btn").attr("onclick","approve_spare_part()");
+             booking_request_type = booking_request_type.toUpperCase();
+             booking_request_type = booking_request_type.replace(/\s/g, '');
              var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
                  HTML+= '<option selected="" disabled="">Select warranty status</option>';
-                 HTML+= '<option value="1"> In-Warranty </option>';
+                 if(booking_request_type.indexOf("OUTOFWARRANTY") < 0)
+                 {
+                    HTML+= '<option value="1"> In-Warranty </option>';
+                 }
                  HTML+= '<option value="2"> Out Of Warranty </option>';
                  HTML+= '</select>';
              $("#status_label").css({'display':'block'}).html("Spare Part Status By SF");
