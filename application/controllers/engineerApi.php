@@ -1499,9 +1499,9 @@ class engineerApi extends CI_Controller {
                 }
 
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
-
+//  Appending Status of Engg //
                 $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING,
-                        "Booking Cancelled By Engineer From App",
+                        BOOKING_CANCELLED_BY_ENGINEER_STATUS." - Booking Cancelled By Engineer From App",
                         $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
                 $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
