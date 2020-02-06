@@ -1499,9 +1499,9 @@ class engineerApi extends CI_Controller {
                 }
 
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
-
+//  Appending Status of Engg //
                 $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING,
-                        "Booking Cancelled By Engineer From App",
+                        BOOKING_CANCELLED_BY_ENGINEER_STATUS." - Booking Cancelled By Engineer From App",
                         $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
                 $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
@@ -3616,6 +3616,9 @@ class engineerApi extends CI_Controller {
                         /*  Completion Allow Flag */
                         $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
                         $data['Bookings'][$key]['complete_allow'] =  $complete_flag;
+                        /*  Cancel Allow Flag */
+                        $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
+                        $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -3635,6 +3638,48 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0062", $validation['message']));
         }
     }
+
+
+
+
+      /*
+     * @Desc - This function used to check the cancellation is allowed for a booking or not    
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
+
+    function checkCancellationAllowed($booking_id){
+
+        $allow = TRUE;
+/*  Check for booking cancel complete by engg */
+        $booking_select = "booking_id,partner_internal_status";
+        $booking_where = array(
+            "booking_id"=>$booking_id,
+            "partner_internal_status IN('".BOOKING_CANCELLED_BY_ENGINEER_STATUS."')" => NULL
+        );
+        $booking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
+        if(!empty($booking_details)){
+                $allow = FALSE;
+                return $allow;  
+        }
+
+/*  Check for booking cancel complete by Engg */
+        // $sfbooking_select = "booking_id,internal_status";
+        // $sfbooking_where = array(
+        //     "booking_id"=>$booking_id,
+        //     "partner_current_status IN('".SF_BOOKING_CANCELLED_STATUS."')" => NULL
+        // );
+        // $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select,$sfbooking_where);  
+        // if(!empty($sfbooking_details)){
+        //         $allow = FALSE;
+        //         return $allow;  
+        // }
+
+    }
+
+
+
 
     /*
      * @Desc - This function used to check the completion is allowed for a booking or not    
@@ -3676,7 +3721,7 @@ class engineerApi extends CI_Controller {
             "booking_id"=>$booking_id,
             "internal_status IN( '".SF_BOOKING_COMPLETE_STATUS."','".SF_BOOKING_CANCELLED_STATUS."')" => NULL
         );
-        $sfbooking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
+        $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select,$sfbooking_where);  // Vaiable mismatch passing where and select of sf status
         if(!empty($sfbooking_details)){
                 $allow = FALSE;
                 return $allow;  
