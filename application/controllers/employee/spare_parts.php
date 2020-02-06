@@ -145,6 +145,9 @@ class Spare_parts extends CI_Controller {
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'users.name', 'users.phone_number',
             'defective_part_shipped');
+        if(!empty($post['where'])) {
+            $post['where']["(spare_lost is null or spare_lost = 0)"] = NULL;
+        }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
