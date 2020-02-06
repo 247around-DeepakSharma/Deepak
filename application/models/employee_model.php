@@ -517,6 +517,7 @@ FROM
                     LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
                 WHERE 
                     employee.groups IN ('".$str_groups."') AND
+                    employee.active = 1 AND    
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
