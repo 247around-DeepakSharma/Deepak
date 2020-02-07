@@ -252,7 +252,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge*</label>
+                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="service_charge" id="service_charge" value="1">
                                             
@@ -268,7 +268,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge*</label>
+                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="gas_charge" id="gas_charge" value="1">
                                             
@@ -283,7 +283,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge*</label>
+                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="transport_charge" id="transport_charge" value="1">
                                             

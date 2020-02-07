@@ -548,7 +548,7 @@ class Warranty extends CI_Controller {
                             //transaction was successful, so commit transaction
                             $this->db->trans_commit();
                             $this->session->set_flashdata('success','Warranty plan saved successfully.');    
-                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                            redirect(base_url().'employee/warranty/warranty_plan_list');
                         }    
                        
                 }
