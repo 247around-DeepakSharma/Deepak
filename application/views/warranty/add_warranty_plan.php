@@ -324,9 +324,7 @@
                                         ?>">
                                         <label for="description" class="col-md-3 vertical-align">Description</label>
                                         <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description">
-                                                
-                                             </textarea>
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description"></textarea>
                                             <?php echo form_error('description'); ?>
                                             <p class="alert alert-danger error_message" id="description_error">
                                                 
