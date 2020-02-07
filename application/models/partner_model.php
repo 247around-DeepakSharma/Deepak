@@ -2755,5 +2755,454 @@ function get_data_for_partner_callback($booking_id) {
        
     }
 
+    /**
+     * Method returns query for detailed summary report
+     * @param type $partner_id
+     * @param type $whereConditions
+     * @author Ankit Rajvanshi
+     */
+    function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
+        if(!$whereConditions){
+            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 3 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
+        }
+        else{
+            $where = $whereConditions;
+        }
+        
+        if(!empty($partner_id)) {
+            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+         }
+        
+        $sql = "SELECT 
+                    `247around Booking ID`,
+                    `Agent Name`,
+                    `Creation Source`,
+                    `Create Date`,
+                    `Brand`,
+                    `Customer Name`,
+                    `Pincode`,
+                    `City`,
+                    `State`,
+                    `Phone`,
+                    `Email`,
+                    `Is Upcountry`,
+                    `Service Center`,
+                    `Engineer`,
+                    `RM`,
+                    `ASM`,
+                    `Product`,
+                    `Category`,
+                    `Capacity`,
+                    `Model`,
+                    `Product Serial Number`,	
+                    `Date of Purchase By Customer`,
+                    `Date Of Purchase By SF`,
+                    `Service Type`,
+                    `Standard Service Type`,
+                    `First Booking Date`,
+                    `Current Booking Date`,
+                    `Timeslot`,
+                    `Customer Remarks`,
+                    `Reschedule Remarks`,
+                    `Closing Remarks`,
+                    `Cancellation Remarks`,
+                    `Final Status Level 2`,
+                    `Final Status Level 1`,
+                    `Line Item Status`,
+                    `Dependency On`,
+                    `Closed Date`,
+                    TAT,
+                    Ageing,
+                    Rating,
+                    `Rating Comments`,
+                    `Is Part Involve`,
+                    `Requested Part Code`,
+                    `Requested Part`,
+                    `Part Requested Date`,
+                    `Part Warranty Status`,
+                    `Spare Approval Date`,
+                    `Spare approval Person Name`,
+                    `Requested On Partner/Warehouse`,
+                    `Shipped Part Code`,
+                    `Shipped Part`,
+                    `Part Shipped Date`,
+                    `Part Charge`,
+                    `Shipped Invoice Number (To SF)`,
+                    `Shipped Challan Number`,
+                    `Shipped AWB Number (To SF)`,
+                    `SF Acknowledged Date`,
+                    `Is auto Acknowledge`,
+                    `Part Consumed`,
+                    `Shipped Defective Part Code`,
+                    `Shipped Defective Part`,
+                    `Defective Part Shipped Date`,
+                    `SF Challan Number`,
+                    `SF AWB Number (Defective Shipped)`,
+                    `SF Courier Name`,
+                    `Defective received Date`  
+            FROM (SELECT
+                    booking_details.booking_id as '247around Booking ID',
+                    ' ' as 'Agent Name',
+                    ' ' as 'Creation Source',
+                    DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
+                    ud.appliance_brand as 'Brand',
+                    users.name as 'Customer Name',
+                    booking_details.booking_pincode as 'Pincode',
+                    booking_details.city as 'City',
+                    booking_details.state as 'State',
+                    booking_details.booking_primary_contact_no as 'Phone',
+                    users.user_email as 'Email',
+                    CASE WHEN(booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END AS 'Is Upcountry',
+                    service_centres.name as 'Service Center',
+                    engineer_details.name as 'Engineer',
+                    regional_manager.full_name as 'RM',
+                    area_sales_manager.full_name as 'ASM',
+                    services AS 'Product',
+                    ud.appliance_category AS 'Category',
+                    ud.appliance_capacity AS 'Capacity',
+                (
+                            CASE WHEN(
+                                    service_center_booking_action.model_number IS NULL OR service_center_booking_action.model_number = ''
+                ) 	THEN 
+                                    ud.sf_model_number ELSE service_center_booking_action.model_number
+                            END
+                    ) AS 'Model',
+                    GROUP_CONCAT(
+                      DISTINCT(
+                            CASE WHEN(
+                              ud.serial_number IS NULL OR ud.serial_number = ''
+                            ) THEN '' ELSE CONCAT('`',
+                            ud.serial_number)
+                      END
+                    )
+                    ) AS 'Product Serial Number',	
+                    DATE_FORMAT(DATE(ud.purchase_date), '%d-%m-%Y') as 'Date of Purchase By Customer',
+                    IFNULL(
+                IF(
+                  DATE_FORMAT(
+                    DATE(ud.sf_purchase_date),
+                    '%d-%m-%Y '
+                  ) = '00-00-0000',
+                  '',
+                  DATE_FORMAT(
+                    DATE(ud.sf_purchase_date),
+                    '%d-%m-%Y '
+                  )
+                ),
+                ''
+              ) as 'Date Of Purchase By SF',
+                    booking_details.request_type AS 'Service Type',
+                    '--' AS 'Standard Service Type',
+                    DATE_FORMAT(
+                      STR_TO_DATE(
+                            booking_details.initial_booking_date,
+                            '%d-%m-%Y'
+                      ),
+                      '%d-%m-%Y'
+                    ) AS 'First Booking Date',
+                    DATE_FORMAT(
+                      STR_TO_DATE(
+                            booking_details.booking_date,
+                            '%d-%m-%Y'
+                      ),
+                      '%d-%m-%Y'
+                    ) AS 'Current Booking Date',
+                    booking_details.booking_timeslot AS 'Timeslot',
+                    booking_details.booking_remarks AS 'Customer Remarks',
+                    booking_details.reschedule_reason AS 'Reschedule Remarks',
+                    CASE WHEN(
+                      booking_details.current_status = 'Completed' || booking_details.current_status = 'Cancelled'
+                    ) THEN(closing_remarks) ELSE ''
+                    END AS 'Closing Remarks',
+                    (
+                      CASE WHEN(
+                            booking_details.current_status = booking_details.current_status = 'Cancelled'
+                      ) THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(
+                            service_center_booking_action.cancellation_reason
+                      )
+                    END
+                    ) AS 'Cancellation Remarks',
+                    partner_internal_status AS 'Final Status Level 2',
+                    booking_details.current_status AS 'Final Status Level 1',
+                    ud.booking_status AS 'Line Item Status',
+                    booking_details.actor AS 'Dependency On',
+                    DATE_FORMAT(
+                      booking_details.service_center_closed_date,
+                      '%d-%m-%Y'
+                    ) AS 'Closed Date',
+                    (
+                      CASE WHEN booking_details.service_center_closed_date IS NOT NULL THEN(
+                            CASE WHEN DATEDIFF(
+                              DATE(
+                                    booking_details.service_center_closed_date
+                              ),
+                              STR_TO_DATE(
+                                    booking_details.initial_booking_date,
+                                    '%d-%m-%Y'
+                              )
+                            ) < 0 THEN 0 ELSE DATEDIFF(
+                              DATE(
+                                    booking_details.service_center_closed_date
+                              ),
+                              STR_TO_DATE(
+                                    booking_details.initial_booking_date,
+                                    '%d-%m-%Y'
+                              )
+                            )
+                      END
+                    ) ELSE ''
+                    END
+                    ) AS TAT,
+                    (
+                      CASE WHEN booking_details.current_status IN('Pending',
+                      'Rescheduled',
+                      'FollowUp') AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(
+                            CURDATE(),
+                            STR_TO_DATE(
+                              booking_details.initial_booking_date,
+                              '%d-%m-%Y'
+                            )) ELSE ''
+                      END
+                    ) AS Ageing,
+                    booking_details.rating_stars AS 'Rating',
+                    booking_details.rating_comments AS 'Rating Comments',
+                    (CASE WHEN spare_parts_details.booking_id is not null THEN 'Yes' ELSE 'No' END) AS 'Is Part Involve',
+                    ' ' AS 'Requested Part Code',
+                    ' ' AS 'Requested Part',
+                    ' ' AS 'Part Requested Date',
+                    ' ' AS 'Part Warranty Status',
+                    ' ' AS 'Spare Approval Date',
+                    ' ' AS 'Spare approval Person Name',
+                    ' ' AS 'Requested On Partner/Warehouse',
+                    ' ' AS 'Shipped Part Code',
+                    ' ' AS 'Shipped Part',
+                    ' ' AS 'Part Shipped Date',
+                    ' ' AS 'Part Charge',
+                    ' ' AS 'Shipped Invoice Number (To SF)',
+                    ' ' AS 'Shipped Challan Number',
+                    ' ' AS 'Shipped AWB Number (To SF)',
+                    ' ' AS 'SF Acknowledged Date',
+                    ' ' AS 'Is auto Acknowledge',
+                    ' ' AS 'Part Consumed',
+                    ' ' AS 'Shipped Defective Part Code',
+                    ' ' AS 'Shipped Defective Part',
+                    ' ' AS 'Defective Part Shipped Date',
+                    ' ' AS 'SF Challan Number',
+                    ' ' AS 'SF AWB Number (Defective Shipped)',
+                    ' ' AS 'SF Courier Name',
+                    ' ' AS 'Defective received Date'
+            FROM
+                    booking_details
+                    LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
+                    LEFT JOIN spare_parts_details ON (ud.booking_id = spare_parts_details.booking_id)
+                    LEFT JOIN services ON (booking_details.service_id = services.id)
+                    LEFT JOIN users ON (booking_details.user_id = users.user_id)
+                    LEFT JOIN service_centres ON (booking_details.assigned_vendor_id = service_centres.id)
+                    LEFT JOIN employee regional_manager ON (service_centres.rm_id = regional_manager.id)
+                    LEFT JOIN employee area_sales_manager ON (service_centres.asm_id = area_sales_manager.id)
+                    LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
+                    LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
+            WHERE product_or_services != 'Product' AND (
+                DATE(booking_details.create_date) >= '2019-12-01' AND DATE(booking_details.create_date) <= '2019-12-20') AND(
+                booking_details.partner_id = 247130 OR booking_details.origin_partner_id = '247130'
+              )	
+            GROUP BY
+                    ud.id
+
+            UNION ALL
+
+            SELECT
+                    booking_details.booking_id as '247around Booking ID',
+                    ' ' as 'Agent Name',
+                    ' ' as 'Creation Source',
+                    DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
+                    ud.appliance_brand as 'Brand',
+                    users.name as 'Customer Name',
+                    booking_details.booking_pincode as 'Pincode',
+                    booking_details.city as 'City',
+                    booking_details.state as 'State',
+                    booking_details.booking_primary_contact_no as 'Phone',
+                    users.user_email as 'Email',
+                    CASE WHEN(booking_details.is_upcountry = '0') THEN 'Local' ELSE 'Upcountry' END AS 'Is Upcountry',
+                    service_centres.name as 'Service Center',
+                    engineer_details.name as 'Engineer',
+                    regional_manager.full_name as 'RM',
+                    area_sales_manager.full_name as 'ASM',
+                    services AS 'Product',
+                    ud.appliance_category AS 'Category',
+                    ud.appliance_capacity AS 'Capacity',
+                (
+                            CASE WHEN(
+                                    service_center_booking_action.model_number IS NULL OR service_center_booking_action.model_number = ''
+                ) 	THEN 
+                                    ud.sf_model_number ELSE service_center_booking_action.model_number
+                            END
+                    ) AS 'Model',
+                    GROUP_CONCAT(
+                      DISTINCT(
+                            CASE WHEN(
+                              ud.serial_number IS NULL OR ud.serial_number = ''
+                            ) THEN '' ELSE CONCAT('`',
+                            ud.serial_number)
+                      END
+                    )
+                    ) AS 'Product Serial Number',	
+                    DATE_FORMAT(DATE(ud.purchase_date), '%d-%m-%Y') as 'Date of Purchase By Customer',
+                    IFNULL(
+                IF(
+                  DATE_FORMAT(
+                    DATE(ud.sf_purchase_date),
+                    '%d-%m-%Y '
+                  ) = '00-00-0000',
+                  '',
+                  DATE_FORMAT(
+                    DATE(ud.sf_purchase_date),
+                    '%d-%m-%Y '
+                  )
+                ),
+                ''
+              ) as 'Date Of Purchase By SF',
+                    booking_details.request_type AS 'Service Type',
+                    '--' AS 'Standard Service Type',
+                    DATE_FORMAT(
+                      STR_TO_DATE(
+                            booking_details.initial_booking_date,
+                            '%d-%m-%Y'
+                      ),
+                      '%d-%m-%Y'
+                    ) AS 'First Booking Date',
+                    DATE_FORMAT(
+                      STR_TO_DATE(
+                            booking_details.booking_date,
+                            '%d-%m-%Y'
+                      ),
+                      '%d-%m-%Y'
+                    ) AS 'Current Booking Date',
+                    booking_details.booking_timeslot AS 'Timeslot',
+                    booking_details.booking_remarks AS 'Customer Remarks',
+                    booking_details.reschedule_reason AS 'Reschedule Remarks',
+                    CASE WHEN(
+                      booking_details.current_status = 'Completed' || booking_details.current_status = 'Cancelled'
+                    ) THEN(closing_remarks) ELSE ''
+                    END AS 'Closing Remarks',
+                    (
+                      CASE WHEN(
+                            booking_details.current_status = booking_details.current_status = 'Cancelled'
+                      ) THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(
+                            service_center_booking_action.cancellation_reason
+                      )
+                    END
+                    ) AS 'Cancellation Remarks',
+                    partner_internal_status AS 'Final Status Level 2',
+                    booking_details.current_status AS 'Final Status Level 1',
+                    spare_parts_details.status AS 'Line Item Status',
+                    booking_details.actor AS 'Dependency On',
+                    DATE_FORMAT(
+                      booking_details.service_center_closed_date,
+                      '%d-%m-%Y'
+                    ) AS 'Closed Date',
+                    (
+                      CASE WHEN booking_details.service_center_closed_date IS NOT NULL THEN(
+                            CASE WHEN DATEDIFF(
+                              DATE(
+                                    booking_details.service_center_closed_date
+                              ),
+                              STR_TO_DATE(
+                                    booking_details.initial_booking_date,
+                                    '%d-%m-%Y'
+                              )
+                            ) < 0 THEN 0 ELSE DATEDIFF(
+                              DATE(
+                                    booking_details.service_center_closed_date
+                              ),
+                              STR_TO_DATE(
+                                    booking_details.initial_booking_date,
+                                    '%d-%m-%Y'
+                              )
+                            )
+                      END
+                    ) ELSE ''
+                    END
+                    ) AS TAT,
+                    (
+                      CASE WHEN booking_details.current_status IN('Pending',
+                      'Rescheduled',
+                      'FollowUp') AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(
+                            CURDATE(),
+                            STR_TO_DATE(
+                              booking_details.initial_booking_date,
+                              '%d-%m-%Y'
+                            )) ELSE ''
+                      END
+                    ) AS Ageing,
+                    booking_details.rating_stars AS 'Rating',
+                    booking_details.rating_comments AS 'Rating Comments',
+                    IF(
+                      spare_parts_details.parts_requested IS NOT NULL,
+                      'Yes',
+                      'No'
+                    ) AS 'Is Part Involve',
+                    requested_part_detail.part_number AS 'Requested Part Code',
+                    spare_parts_details.parts_requested AS 'Requested Part',
+                    spare_parts_details.date_of_request AS 'Part Requested Date',
+                    (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'Part In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Part Out-Warranty' ELSE '' END) AS 'Part Warranty Status',
+                    spare_parts_details.spare_approval_date AS 'Spare Approval Date',
+                    (CASE WHEN spare_parts_details.approval_entity_type = '247around' THEN spare_approval_person.full_name WHEN spare_parts_details.approval_entity_type = 'partner' THEN spare_approval_person_partner.agent_name ELSE ' ' END) AS 'Spare approval Person Name',
+                    (CASE WHEN spare_parts_details.is_micro_wh = 1 THEN 'Micro-warehouse' WHEN spare_parts_details.is_micro_wh = 2 THEN 'Warehouse' ELSE 'Partner' END) AS 'Requested On Partner/Warehouse',
+                    shipped_part_detail.part_number AS 'Shipped Part Code',
+                    spare_parts_details.parts_shipped AS 'Shipped Part',
+                    DATE_FORMAT(DATE(spare_parts_details.shipped_date), '%d-%m-%Y') AS 'Part Shipped Date',
+                    spare_parts_details.challan_approx_value AS 'Part Charge',
+                    spare_parts_details.purchase_invoice_id AS 'Shipped Invoice Number (To SF)',
+                    spare_parts_details.partner_challan_number AS 'Shipped Challan Number',
+                    spare_parts_details.awb_by_partner AS 'Shipped AWB Number (To SF)',
+                    spare_parts_details.acknowledge_date AS 'SF Acknowledged Date',
+                    (CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'Yes' ELSE 'No' END) AS 'Is auto Acknowledge',
+                    (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'YES' ELSE 'NO' END) AS 'Part Consumed',
+                    (
+                            CASE WHEN spare_parts_details.defective_part_shipped IS NOT NULL THEN 
+                                    shipped_part_detail.part_number 
+                            ELSE ''
+                            END
+                    )
+                     AS 'Shipped Defective Part Code',
+                    spare_parts_details.defective_part_shipped AS 'Shipped Defective Part',
+                    DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%d-%m-%Y') AS 'Defective Part Shipped Date',
+                    spare_parts_details.sf_challan_number AS 'SF Challan Number',
+                    spare_parts_details.awb_by_sf AS 'SF AWB Number (Defective Shipped)',
+                    spare_parts_details.courier_name_by_sf AS 'SF Courier Name',
+                    DATE_FORMAT(spare_parts_details.received_defective_part_date, '%d-%m-%Y') AS 'Defective received Date'
+
+            FROM
+                booking_details
+                LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
+                LEFT JOIN spare_parts_details ON (ud.booking_id = spare_parts_details.booking_id)
+                LEFT JOIN inventory_master_list requested_part_detail ON (spare_parts_details.requested_inventory_id = requested_part_detail.inventory_id) 
+                LEFT JOIN inventory_master_list shipped_part_detail ON (spare_parts_details.shipped_inventory_id = shipped_part_detail.inventory_id)
+                LEFT JOIN services ON (booking_details.service_id = services.id)
+                LEFT JOIN users ON (booking_details.user_id = users.user_id)
+                LEFT JOIN service_centres ON (booking_details.assigned_vendor_id = service_centres.id)
+                LEFT JOIN employee regional_manager ON (service_centres.rm_id = regional_manager.id)
+                LEFT JOIN employee area_sales_manager ON (service_centres.asm_id = area_sales_manager.id)
+                LEFT JOIN employee spare_approval_person ON (spare_parts_details.approval_agent_id = spare_approval_person.id AND approval_entity_type = '247around')
+                LEFT JOIN entity_login_table spare_approval_person_partner ON (spare_parts_details.approval_agent_id = spare_approval_person_partner.agent_id AND approval_entity_type = 'partner')
+                LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
+                LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
+                LEFT JOIN spare_consumption_status ON (spare_parts_details.consumed_part_status_id = spare_consumption_status.id)
+            WHERE 
+                product_or_services != 'Product' AND spare_parts_details.booking_id is not null AND (
+                DATE(booking_details.create_date) >= '2019-12-01' AND DATE(booking_details.create_date) <= '2019-12-20') AND(
+                booking_details.partner_id = 247130 OR booking_details.origin_partner_id = '247130'
+              )	
+            GROUP BY
+                ud.id,
+                spare_parts_details.id
+            ) t 
+            ORDER BY
+                `247around Booking ID`"; 
+        
+        return $query = $this->db->query($sql);
+    } 
+
 }
 
