@@ -2028,7 +2028,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
-        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$agent_type = _247AROUND_RM){
+        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field){
              if($this->session->userdata('partner_id') ){
                 if($is_pending){
                     $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
@@ -2041,25 +2041,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
             else{
                 if($is_pending){
-                    $select = "employee.full_name as entity,employee.id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                    $select = "employee.full_name as entity,service_centres.rm_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
                             . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
                 else{
-                     $select = "employee.full_name as entity,employee.id as id,booking_details.booking_id,"
+                     $select = "employee.full_name as entity,service_centres.rm_id as id,booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
             }
             $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
             $conditionsArray['join']['rm_region_mapping'] = "service_centres.rm_id = rm_region_mapping.rm_id";
-            if($agent_type == _247AROUND_RM)
-            {
-                $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
-            }
-            else
-            {
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
-            }            
-            $conditionsArray['joinType']['rm_region_mapping'] = 'left';
+            $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
@@ -2094,7 +2086,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['where_in']['employee.id'] = $wherein;
             $service_centres_field = 'individual_service_centres_id';
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field, _247AROUND_ASM);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
