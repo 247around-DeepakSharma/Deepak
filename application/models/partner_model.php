@@ -1537,7 +1537,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1579,6 +1579,12 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($oow_spare_flag)){
           $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
+        
+        /* Shipped spare Part By Central Warehouse Get Spare Part Boxes Count and Courier Weight */        
+        if (!empty($partner_shipped_courier_flag)) {
+            $this->db->join('courier_company_invoice_details AS cci_details', 'spare_parts_details.awb_by_partner = cci_details.awb_number', 'left');
+        }
+        
         /* Shipped Defective Part By SF Get Defective Part Boxes Count and Courier Weight */        
         if (!empty($sf_shipped_courier_flag)) {
             $this->db->join('courier_company_invoice_details AS ccid', 'spare_parts_details.awb_by_sf = ccid.awb_number', 'left');
