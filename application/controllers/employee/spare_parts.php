@@ -3003,11 +3003,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->form_validation->set_rules('defective_parts_shippped_date_by_wh', 'Enter Shipped Date', 'required');
         $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
         $data = array();
+        $spare_data = array();
         if ($this->form_validation->run()) {
             $invoice_ids = trim($this->input->post('invoice_ids'));
-            $data['awb_number'] = $this->input->post('awb_by_wh');
-            $data['company_name'] = $this->input->post('courier_name_by_wh');
-            $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
+            $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
+            $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
             $exist_courier_image = $this->input->post('exist_courier_image');
             $bulk_courier_price = $this->input->post('courier_price_by_wh');
 
@@ -3031,7 +3032,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $where = array('inventory_ledger.invoice_id' => $val);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
-                    $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+                    $courier_id_arr[] = array('courier_id'=> $inventory_ledger[0]['courier_id'], 'invoice_id' => $val) ;
                     $eway_details = array();
                     $eway_details['courier_details_id'] = $inventory_ledger[0]['courier_id'];
                     $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
@@ -3044,18 +3045,18 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     break;
                 }
             }
-            
-           
-            if(!empty($eway_data)){
+
+
+            if (!empty($eway_data)) {
                 $this->inventory_model->insert_ewaybill_details_in_bulk($eway_data);
             }
             
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
-                    $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
                 } else {
-                    $data['courier_charge'] = $bulk_courier_price;
+                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
                 }
 
                 if (!empty($exist_courier_image)) {
@@ -3064,10 +3065,14 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
                 }
 
-                $data['courier_invoice_file'] = $courier_file['message'];
+                $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
               
-                foreach ($courier_id_arr as $key => $courier_id) {
-                    $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $courier_id), $data);
+                foreach ($courier_id_arr as $val) {
+                    
+                    $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
+                    if ($affected_id) {
+                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $val['invoice_id']), $spare_data);
+                    }
                 }
             } else {
                 $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
