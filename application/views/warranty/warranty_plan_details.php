@@ -340,9 +340,7 @@
                                         ?>">
                                         <label for="description" class="col-md-3 vertical-align">Description</label>
                                         <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" name = "description" id="description">
-                                               <?php echo $details[0]['plan_description']; ?>
-                                             </textarea>
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" name = "description" id="description"><?php echo trim($details[0]['plan_description']); ?></textarea>
                                             <?php echo form_error('description'); ?>
                                             <p class="alert alert-danger error_message" id="description_error">
                                                 
