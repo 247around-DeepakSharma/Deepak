@@ -1904,11 +1904,11 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            ///  Abhishek ... Insread of count passing the entire response ////
-            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+            ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
                     . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
-            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
+            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $incentive_select = "sum(partner_incentive) as total_earning";
@@ -2035,9 +2035,9 @@ class engineerApi extends CI_Controller {
 
     function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
-        $response = array();  ////  Removing Call from API and making internal call
+        $response = array();  ////  Removing Call from API and making internal call and add alternate number //
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
                     . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -2065,8 +2065,9 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
  
+ ///and add alternate number
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
                     . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -2098,7 +2099,8 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if ($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED) {
-                $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.request_type, booking_details.amount_due, "
+               /// and add alternate number
+                $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.request_type, booking_details.amount_due, "
                         . "engineer_booking_action.amount_paid, CAST(engineer_booking_action.closed_date AS date) as closed_date, "
                         . "CASE WHEN service_center_booking_action.current_status = '" . _247AROUND_PENDING . "' THEN 'Booking ON SF Approval'
                                 WHEN service_center_booking_action.current_status = 'InProcess' THEN 'Booking ON Admin Review'
@@ -3580,7 +3582,8 @@ class engineerApi extends CI_Controller {
                     $booking_id = $search;
                 }
             }
-            $select = "services.services, users.phone_number, users.name as name, users.phone_number, booking_details.*";
+            // Add alternate number ///
+            $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*";
             $post['length'] = -1;
             if (!empty($booking_id)) {
                 $post['search_value'] = $booking_id;
@@ -3769,7 +3772,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("engineer_id", "service_center_id", "engineer_pincode", "booking_slot"), $requestData);
         if ($validation['status']) {
-            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
+            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
