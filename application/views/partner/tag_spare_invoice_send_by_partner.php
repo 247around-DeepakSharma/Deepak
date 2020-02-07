@@ -118,7 +118,7 @@
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" />
                                             <span id="error_despatch_doc_no" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
@@ -343,7 +343,7 @@
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" />
                                             <span id="error_on_despatch_doc_no" class="error" style="color: red;"></span>
                                         </div>
                                     </div>

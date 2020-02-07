@@ -163,10 +163,11 @@
                                 <div class="col-md-6">
 
                                     <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value="<?php
-                                    if ((set_value("courier_charges_by_sf"))) {
-                                        echo set_value("courier_charges_by_sf");
-                                    }
-                                    ?>" placeholder="Please Enter Courier Charges" required="">
+
+if ((set_value("courier_charges_by_sf"))) {
+    echo set_value("courier_charges_by_sf");
+}
+?>" onblur="chkPrice($(this),2000)" placeholder="Please Enter Courier Charges" required="">
                                 </div>
                             </div>
                             <div class="form-group ">
@@ -386,6 +387,13 @@
                 $(this).val('');
                 return false;
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
         }
     });
 
@@ -419,6 +427,13 @@
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
@@ -734,7 +749,33 @@
 
     }
 
+/*
+ * Use to validate the courier charges.
+ */
+    function chkPrice(curval,maxval){
+        //alert(curval.val());
+        let flg=true;
+            if(!isNaN(curval.val())){
+                if(parseFloat(curval.val())<1) {
+                    alert('Courier Charges cannot be less than 1.00');
+                   flg=false;
+                } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+                   alert('Courier Charges cannot be more than '+maxval);
+                   flg=false;
+                }
+            } else {
+                alert('Enter numeric value');
+                flg=false;
+            }
+            if(!flg)
+            {
+            window.setTimeout(function () { 
+                curval.focus();
+            }, 0);
 
+               }
+
+        }   
 
 
 </script>
