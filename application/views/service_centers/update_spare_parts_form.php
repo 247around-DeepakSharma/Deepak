@@ -809,6 +809,13 @@
         
         function check_awb_exist(){
             var awb = $("#awb").val();
+            var characterReg = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+            if (characterReg.test(awb) && awb != '') {
+                awb = '';
+                $("#awb").val('');
+                alert('Special Characters are not allowed in AWB.');
+                return false;
+            }  
             if(awb){
                     $.ajax({
                     type: 'POST',
@@ -882,6 +889,114 @@
        $(".part_warranty_status").on('change',function(){                 
                  $("#part_warranty_status_0").val($(this).val());
        }); 
+       
+        $("#shipped_spare_parts_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    
+    $("#shipped_spare_parts_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+               $(this).val('');
+               return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
     
 </script>
 <?php foreach($spare_parts as $ssKey => $sp) { if(!empty($sp->requested_inventory_id)) { ?><script> change_shipped_model('<?php echo $ssKey; ?>'); </script> <?php } } ?>

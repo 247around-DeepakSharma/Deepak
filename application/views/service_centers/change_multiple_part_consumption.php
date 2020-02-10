@@ -111,6 +111,14 @@
                 return false;
             }
         }
+        ,
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
     });
 
     $("#defective_parts_shipped_weight_in_gram").on({
@@ -142,6 +150,13 @@
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
