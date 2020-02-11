@@ -103,6 +103,22 @@
     
     $(document).ready(function () {
         $('#change-consumption-form').on('submit',(function(e) {
+            
+            var weight_in_kg = $("#defective_parts_shipped_weight_in_kg").val();
+            var weight_in_gram = $("#defective_parts_shipped_weight_in_gram").val();
+            
+            if(parseInt(weight_in_kg) < 0){
+                $("#defective_parts_shipped_weight_in_kg").val('');
+                alert("Please Enter valid Weight in KG.");
+                return false;
+            }
+            
+            if(parseInt(weight_in_gram) < 0){
+                $("#defective_parts_shipped_weight_in_gram").val('');
+                alert("Please Enter valid Weight in Gram.");
+                return false;
+            }
+            
            /*
             if($(".spare_consumption_status").val() == '' || $(".spare_consumption_status").val() == null) {
                 e.stopImmediatePropagation(); 

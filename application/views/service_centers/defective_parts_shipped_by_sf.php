@@ -300,6 +300,22 @@ if(flag) {
             return false;
         }
         */
+        var weight_in_kg = $("#defective_parts_shipped_weight_in_kg").val();
+        var weight_in_gram = $("#defective_parts_shipped_weight_in_gram").val();
+
+        if(parseInt(weight_in_kg) < 0){
+            $("#defective_parts_shipped_weight_in_kg").val('');
+            alert("Please Enter valid Weight in KG.");
+            $("#multiple_received").attr('disabled',false);
+            return false;
+        }
+
+        if(parseInt(weight_in_gram) < 0){
+            $("#defective_parts_shipped_weight_in_gram").val('');
+            $("#multiple_received").attr('disabled',false);
+            alert("Please Enter valid Weight in Gram.");
+            return false;
+        }
         
         if($('#multiple-consumption-remarks').val() == '' || $('#multiple-consumption-remarks').val() == null) {
             e.stopImmediatePropagation(); // to prevent multiple alerts
