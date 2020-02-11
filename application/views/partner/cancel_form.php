@@ -8,6 +8,13 @@ if (isset($user_and_booking_details['spare_parts'])) {
          */
         if ($sp['status'] != _247AROUND_CANCELLED) {
             switch ($sp['status']){
+                /**
+                 * handeled spare part on approval case and OOW cases.
+                 * modified by : Ankit Rajvanshi
+                 */
+                case SPARE_OOW_EST_REQUESTED:
+                case SPARE_OOW_EST_GIVEN:
+                case SPARE_PART_ON_APPROVAL:
                 case SPARE_PARTS_REQUESTED: 
                      $status = CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER;
                      $isdisable= true;
