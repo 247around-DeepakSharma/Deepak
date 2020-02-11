@@ -59,7 +59,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService','get_warranty_data'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
