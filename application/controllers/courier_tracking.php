@@ -236,7 +236,15 @@ class Courier_tracking extends CI_Controller {
         $post['length'] = 6000;
         $post['start'] = 0;
         $post['select'] = $select;
-        $post['where'] = array('spare_parts_details.status' => $status);
+        /**
+         * awb number should be created also for shipped by warehouse parts & OOW shipped by partner parts.
+         * modified by : ankit rajvanshi
+         */
+        if($status == SPARE_SHIPPED_BY_PARTNER) {
+            $post['where']['spare_parts_details.status IN ("'.SPARE_PARTS_SHIPPED.'", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'", "'.SPARE_OOW_SHIPPED.'")'] = NULL;
+        } else {
+            $post['where'] = array('spare_parts_details.status' => $status);
+        }
         $spare_data = $this->inventory_model->get_spare_parts_query($post);
         if(!empty($spare_data)){
             foreach ($spare_data as $key => $val) {
