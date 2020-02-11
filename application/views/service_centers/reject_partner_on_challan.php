@@ -138,9 +138,6 @@
                             <?php $sn_no++; } ?>
                         </tbody>
                         </table>
-                        <center> 
-                          <input type= "button" id="button_send" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Select Address" >
-                        </center>
 
     </div>
   </div> 
