@@ -2637,18 +2637,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 }
 
                 if ($affected_id) {
-                    /* Insert Spare Tracking Details */
-                    if (!empty($spare_id)) {
-
-                        if (!empty($spare_data['partner_id'])) {
-                            $partner_id = $spare_data['partner_id'];
-                        }
-                        if (!empty($data['status'])) {
-                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($reason), 'agent_id' => $this->session->userdata("id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
-                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                        }
-                    }
-
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
                     $booking['internal_status'] = SPARE_PARTS_REQUIRED;
