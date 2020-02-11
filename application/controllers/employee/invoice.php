@@ -1239,9 +1239,7 @@ class Invoice extends CI_Controller {
                 if(!empty($invoice_details[$j]['rating_stars'])){
                     $rating += $invoice_details[$j]['rating_stars'];
                     $rating_count++;
-                } else {
-                    $rating += 1;
-                }
+                } 
             }
             if($rating_count == 0){
                 $rating_count = 1;
