@@ -944,7 +944,7 @@ class Invoice_lib {
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
             /* Consumption reason in Partner on DC  */
-            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id,spare_consumption_status.consumed_status';
+            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'defective_part_required' => 1);
             $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where, true);
         }
