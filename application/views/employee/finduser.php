@@ -133,7 +133,7 @@
                     <div class="form-group">
                         <label for="order id" class="col-md-2">Order ID</label>
                         <div class="col-md-4">
-                        <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
+                        <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
                         </div>
 
                     </div>
