@@ -6481,7 +6481,7 @@ class Service_centers extends CI_Controller {
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
-                //echo 'Defective Spare Parts Received.';
+                echo 'Defective Spare Parts Received.';
                 exit;
 //                $this->session->set_userdata($userSession);
 //                redirect(base_url() . "service_center/defective_spare_parts");
