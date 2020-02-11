@@ -7801,9 +7801,9 @@ class Partner extends CI_Controller {
             echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
-    function get_booking_relatives($booking_id){
+    function get_booking_relatives($booking_id = ""){
 //        $this->checkUserSession();
-        if($this->session->userdata('loggedIn') == TRUE) {
+        if(($this->session->userdata('loggedIn') == TRUE) && (!empty($booking_id))) {
             $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
             if(!empty($relativeData)){
                 echo  json_encode($relativeData[0]);
@@ -7812,6 +7812,10 @@ class Partner extends CI_Controller {
                 echo false;
             }
         }
+        else
+        {
+            return false;
+    }
     }
  
      /*
