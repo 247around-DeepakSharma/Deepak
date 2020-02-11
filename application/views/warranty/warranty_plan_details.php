@@ -257,7 +257,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge*</label>
+                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="service_charge"  <?php if($details[0]['inclusive_svc_charge'] == 1){
                                                 echo "checked";
@@ -275,7 +275,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge*</label>
+                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="gas_charge" <?php if($details[0]['inclusive_gas_charge'] == 1){
                                                 echo "checked";
@@ -292,7 +292,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge*</label>
+                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="transport_charge" <?php if($details[0]['inclusive_transport_charge'] == 1){
                                                 echo "checked";
@@ -340,9 +340,7 @@
                                         ?>">
                                         <label for="description" class="col-md-3 vertical-align">Description</label>
                                         <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" name = "description" id="description">
-                                               <?php echo $details[0]['plan_description']; ?>
-                                             </textarea>
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" name = "description" id="description"><?php echo trim($details[0]['plan_description']); ?></textarea>
                                             <?php echo form_error('description'); ?>
                                             <p class="alert alert-danger error_message" id="description_error">
                                                 

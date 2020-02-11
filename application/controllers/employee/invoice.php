@@ -4863,20 +4863,20 @@ exit();
                         foreach ($data as $value ) {
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                "status" => SPARE_SHIPPED_BY_PARTNER, 'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
+                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
                             
                             $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
                             
-                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-                            $actor = $next_action = 'not_define';
-                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
-                            if (!empty($partner_status)) {
-                                $booking['partner_current_status'] = $partner_status[0];
-                                $booking['partner_internal_status'] = $partner_status[1];
-                                $actor = $booking['actor'] = $partner_status[2];
-                                $next_action = $booking['next_action'] = $partner_status[3];
-                            }
-                            $this->booking_model->update_booking($value->booking_id, $booking);
+//                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+//                            $actor = $next_action = 'not_define';
+//                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
+//                            if (!empty($partner_status)) {
+//                                $booking['partner_current_status'] = $partner_status[0];
+//                                $booking['partner_internal_status'] = $partner_status[1];
+//                                $actor = $booking['actor'] = $partner_status[2];
+//                                $next_action = $booking['next_action'] = $partner_status[3];
+//                            }
+//                            $this->booking_model->update_booking($value->booking_id, $booking);
                             
                             $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);

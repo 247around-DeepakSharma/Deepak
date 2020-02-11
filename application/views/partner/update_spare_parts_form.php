@@ -516,7 +516,7 @@
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
+                                    <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
                                     <?php echo form_error('approx_value'); ?>
                                 </div>
                             </div>
@@ -601,6 +601,38 @@
 
 <script type="text/javascript">
     
+    
+     $("#awb").on({
+        "click": function () {
+            var awb_number = $(this).val();
+            var regex = /^[0-9a-zA-Z\_]+$/
+              if(regex.test(awb_number) == false){
+                  $(this).val('');
+              }
+        },
+        "keypress": function (e) {
+            var awb_number = $(this).val();
+            var regex = /^[0-9a-zA-Z\_]+$/
+              if(regex.test(awb_number) == false){
+                  $(this).val('');
+              }
+        },
+        "mouseleave": function () {
+            var awb_number = $(this).val();
+            var regex = /^[0-9a-zA-Z\_]+$/
+              if(regex.test(awb_number) == false){
+                  $(this).val('');
+              }
+        },
+        "mouseout":function(){
+           var awb_number = $(this).val();
+           var regex = /^[0-9a-zA-Z\_]+$/
+              if(regex.test(awb_number) == false){
+                  $(this).val('');
+              } 
+        }
+    });
+        
     $(".hsn_code").on("change",function(){
     var string_id = $(this).attr("id");
     var array = string_id.split("_");
@@ -682,7 +714,7 @@
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
-                approx_value :"Please Enter Approx Value.",
+                approx_value :"Please Enter Valid Approx Value.",
                 courier_price_by_partner:{
                     digits: "Courier Price can only be Numeric.",
                     range: "Courier price should be in between 0 to 2000."
@@ -989,6 +1021,13 @@
                 $(this).val('');
                 return false;
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
         }
     });
     
@@ -1011,6 +1050,13 @@
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0) {
                 $(this).val('');
                 return false;
             }

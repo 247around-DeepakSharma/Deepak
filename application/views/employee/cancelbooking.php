@@ -21,20 +21,33 @@ function check_text(){
 </script>
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
                        foreach($user_and_booking_details['spare_parts'] as $sp){
-                           switch ($sp['status']){
-                               case SPARE_PARTS_REQUESTED: 
-                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
-                                    $isdisable= true;
-                                   break;
-                               default:
-                                    if(!empty($sp['shipped_date'])) {
-                                        $status = CANCEL_PAGE_SPARE_SHIPPED;
-                                        $isdisable= true;
+                           /**
+                            * check for non-cancelled spare parts.
+                            * modified by : Ankit Rajvanshi
+                            */
+                           if ($sp['status'] != _247AROUND_CANCELLED) {
+                                switch ($sp['status']){
+                                    /**
+                                     * handeled spare part on approval case and OOW cases.
+                                     * modified by : Ankit Rajvanshi
+                                     */
+                                    case SPARE_OOW_EST_REQUESTED:
+                                    case SPARE_OOW_EST_GIVEN:
+                                    case SPARE_PART_ON_APPROVAL:
+                                    case SPARE_PARTS_REQUESTED: 
+                                         $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                         $isdisable= true;
+                                        break;
+                                    default:
+                                         if(!empty($sp['shipped_date'])) {
+                                             $status = CANCEL_PAGE_SPARE_SHIPPED;
+                                             $isdisable= true;
+                                         }
                                     }
-                           }
-                          
-                       }
-                   } ?>
+                                }
+                            }
+                        }
+                    ?>
 <div id="page-wrapper"> 
    <div class="container-fluid">
         <div class="row">

@@ -410,7 +410,7 @@ class Warranty extends CI_Controller {
                        $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
                        $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                        $state = $this->input->post('state');
-                       $arr_data['plan_description'] = $this->input->post('description', TRUE);
+                       $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
                        
                        //check if user selected checkboxes or not
                        if(isset($_POST['service_charge']))
@@ -548,7 +548,7 @@ class Warranty extends CI_Controller {
                             //transaction was successful, so commit transaction
                             $this->db->trans_commit();
                             $this->session->set_flashdata('success','Warranty plan saved successfully.');    
-                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                            redirect(base_url().'employee/warranty/warranty_plan_list');
                         }    
                        
                 }
@@ -1063,7 +1063,7 @@ class Warranty extends CI_Controller {
                         if ($this->form_validation->run() == FALSE) { 
                             //validation fail
                             $this->session->set_flashdata('error','Please Fill All Mandatory Fields.'.validation_errors());    
-                            redirect(base_url().'employee/warranty/warranty_plan_details');
+                            redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
                         } 
                         else { 
                             //validation success
@@ -1079,7 +1079,7 @@ class Warranty extends CI_Controller {
                                $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
                                $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                                $state = $this->input->post('state');
-                               $arr_data['plan_description'] = $this->input->post('description', TRUE);
+                               $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
                                
                                $created_by_name = $this->session->userdata('employee_id');
                                $created_by_id = $this->session->userdata('id');
@@ -1158,7 +1158,7 @@ class Warranty extends CI_Controller {
                                             //states not found
                                             $this->db->trans_rollback();
                                             $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
-                                            redirect(base_url().'employee/warranty/warranty_plan_details');
+                                            redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
                                             return false;
                                         }    
 
@@ -1187,7 +1187,7 @@ class Warranty extends CI_Controller {
                                     //transaction was unsuccessful, so rollback transaction
                                     $this->db->trans_rollback();
                                     $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
-                                    redirect(base_url().'employee/warranty/warranty_plan_details');
+                                    redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
                                     return false;
                                 }
                                 else
@@ -1204,14 +1204,14 @@ class Warranty extends CI_Controller {
                     {
                         //invalid plan_id
                         $this->session->set_flashdata('error','Cannot perform this action.');    
-                        redirect(base_url().'employee/warranty/warranty_plan_details');
+                        redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
                     }    
                 }
                 else
                 {
                     //plan_id not found
                     $this->session->set_flashdata('error','Cannot perform this action.');    
-                    redirect(base_url().'employee/warranty/warranty_plan_details');
+                    redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
                 }    
                 
 
@@ -1226,7 +1226,7 @@ class Warranty extends CI_Controller {
         {
             $this->db->trans_rollback();
             $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
-            redirect(base_url().'employee/warranty/warranty_plan_details');
+            redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
         }
     }
 }

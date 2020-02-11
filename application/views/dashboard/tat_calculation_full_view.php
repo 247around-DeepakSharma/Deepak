@@ -301,7 +301,7 @@
             }
             ?>
                 <td>
-                      <?php if(!empty($values['TAT_Total_bookings'])) { ?>
+                <?php if(!empty($values['TAT_Total_bookings']) && !($this->session->userdata('partner_id'))) { ?>
                         <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_Total_bookings']; ?>">
                             <input type="submit" value="<?php echo $values['Total_Pending'];?>" class="btn btn-success">
@@ -468,7 +468,7 @@
 ?>
         <?php if ($is_pending) {?>
             <td>
-                <?php if(!empty($values['TAT_Total_bookings'])) { ?>
+                <?php if(!empty($values['TAT_Total_bookings']) && !($this->session->userdata('partner_id'))) { ?>
                   <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                       <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_Total_bookings']; ?>">
                       <input type="submit" value="<?php echo $values['Total_Pending'];?>" class="btn btn-success">
