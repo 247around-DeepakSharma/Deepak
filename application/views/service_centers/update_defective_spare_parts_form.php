@@ -270,6 +270,13 @@
                 $(this).val('');
                 return false;
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
         }
     });
     
@@ -304,6 +311,13 @@
                 return false;
             }
             if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }

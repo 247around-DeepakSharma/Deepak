@@ -222,21 +222,8 @@ $('.close').on('click', function(data) {
 });
 
 $("#revieve_multiple_parts_btn").click(function(){
-    var unique_docket = '';
-    $(".checkbox_revieve_class").each(function() {
-        if (this.checked) { 
-            var docket_number = $(this).data("docket_number") ;
-            if(unique_docket == ''){
-               unique_docket =  docket_number;
-            }else{
-                if(unique_docket != docket_number){
-                  alert('Please select unique docket number to acknowledge spare.');  
-                  return false;
-                }
-            }
-        }
-      
-    });
+    
+    
 });
 
 
@@ -255,11 +242,26 @@ $('.checkbox_revieve_class').each(function () {
     }
 });
 
+var docket_uniqu_detail = new Array();
+$(".checkbox_revieve_class").each(function() {
+    if (this.checked) { 
+        docket_uniqu_detail.push($(this).data("docket_number"));
+    }
+});
+
 if(flag) {
     $('.checkbox_revieve_class').prop('checked', false);
     var count_consumption_status_type = jQuery.unique(consumption_status).length;
     if(count_consumption_status_type > 1) {
         alert('Please select part having same consumption reason.');
+        $("#revieve_multiple_parts_btn").attr('disabled',false);
+        $(".recieve_defective").attr('disabled',false);
+        return false;
+    } 
+    
+    var dockket_count = jQuery.unique(docket_uniqu_detail).length;
+    if(dockket_count > 1) {
+        alert('Please select unique docket number to acknowledge spare.');
         $("#revieve_multiple_parts_btn").attr('disabled',false);
         $(".recieve_defective").attr('disabled',false);
         return false;
