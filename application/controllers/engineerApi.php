@@ -77,7 +77,7 @@ class engineerApi extends CI_Controller {
 // temporary check for version update ///
             if($requestData["app_version"]!='2.17' ){
             log_message('info', "Force update error");
-            $this->sendJsonResponse(array('0001', 'failure'));
+            $this->sendJsonResponse(array('0001', 'Please update your app , then try again !'));
             exit;
             }
 
