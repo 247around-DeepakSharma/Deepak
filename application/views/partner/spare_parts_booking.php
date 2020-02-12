@@ -62,11 +62,11 @@
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Send Email</th>
-                                    <th class="text-center">Action</th>
+                                    <th class="text-center">Spare Action&nbsp;<span data-toggle="tooltip" title="Dispatch/Reject Update Spare"><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
-                                    <th data-sortable="false" class="text-center">Approve NRN</th>
+                                    <th data-sortable="false" class="text-center">NRN Approve&nbsp;<span data-toggle="tooltip" title="Only for NRN Approval cases"><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                 </tr>
                             </thead>
                         </table>
@@ -543,6 +543,11 @@ $('body').on('click', '.approved_nrn_booking', function() {
     background-color: transparent !important;
 }
         </style>
+		<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
         
         <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');
