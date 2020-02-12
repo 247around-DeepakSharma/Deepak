@@ -5625,7 +5625,7 @@ class Booking extends CI_Controller {
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
         
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having,$join);
         
         if(!empty($total_rows)){
             $data['per_page'] = 100;
