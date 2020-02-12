@@ -6949,7 +6949,7 @@ class Partner extends CI_Controller {
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
 
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >Approve</a>";
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >NRN</a>";
 
                       $finalArray[] = $tempArray;
            }
