@@ -175,11 +175,11 @@
                     <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
                         <div class="well profile_view" style="width:100%!important;">
                             <div class="left col-xs-12">
-                                <h2><b>Ms. Geeta Gupta</b></h2>
+                                <h2><b>Mr. Sonu Yadav</b></h2>
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 9871165247</li>
-                                    <li><i class="fa fa-envelope"></i> Email: geetag@247around.com </li>
+                                    <li><i class="fa fa-phone"></i> Phone: 9717165247</li>
+                                    <li><i class="fa fa-envelope"></i> Email: sonuy@247around.com </li>
                                 </ul>
                             </div>
                         </div>

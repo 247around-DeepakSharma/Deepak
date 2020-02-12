@@ -6965,7 +6965,7 @@ class Partner extends CI_Controller {
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
 
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >Approve</a>";
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >NRN</a>";
 
                       $finalArray[] = $tempArray;
            }
@@ -7817,9 +7817,9 @@ class Partner extends CI_Controller {
             echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
-    function get_booking_relatives($booking_id){
+    function get_booking_relatives($booking_id = ""){
 //        $this->checkUserSession();
-        if($this->session->userdata('loggedIn') == TRUE) {
+        if(($this->session->userdata('loggedIn') == TRUE) && (!empty($booking_id))) {
             $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
             if(!empty($relativeData)){
                 echo  json_encode($relativeData[0]);
@@ -7828,6 +7828,10 @@ class Partner extends CI_Controller {
                 echo false;
             }
         }
+        else
+        {
+            return false;
+    }
     }
  
      /*
