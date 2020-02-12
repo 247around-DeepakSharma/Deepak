@@ -320,8 +320,8 @@ class Service_centers_model extends CI_Model {
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array()) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, NULL, Null, 0, [],$having_arr);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(),$join_arr=array()) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, NULL, Null, 0, $join_arr,$having_arr);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
