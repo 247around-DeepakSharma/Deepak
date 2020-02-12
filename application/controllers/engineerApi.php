@@ -74,8 +74,8 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
-// temporary check for version update ///
-            if($requestData["app_version"]!='2.18' ){
+// temporary check for version update check for key also for older version apps///
+            if(!isset($requestData["app_version"])  || $requestData["app_version"]!='2.18' ){
             log_message('info', "Force update error");
             $this->sendJsonResponse(array('0001', 'Please update your app , then try again !'));
             exit;
