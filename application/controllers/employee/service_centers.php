@@ -6391,6 +6391,13 @@ class Service_centers extends CI_Controller {
         }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
+            //case when consumption reason is changed by admin
+            $spare_consumption_status_new_reason = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $post_data['spare_consumption_status'][$spare_id]], NULL, NULL, NULL, NULL, NULL)[0];
+            if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_new_reason['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
+                //send email
+                $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $spare_consumption_status_new_reason['reason_text']);
+            }
+            
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
 
@@ -6506,7 +6513,7 @@ class Service_centers extends CI_Controller {
      * @desc This function is send mail when warehouse receive parts from SF
 
      */
-    function send_mail_for_parts_received_by_warehouse($booking_id, $spare_id) {
+    function send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $reason_text = '') {
         log_message('info', __FUNCTION__ . '=> trying to send email for booking id=' . $booking_id);
         $email_template = $this->booking_model->get_booking_email_template(WAREHOUSE_RECEIVE_PART_FROM_SF);
         $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.defective_parts_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by, scs.reason_text".
@@ -6515,12 +6522,14 @@ class Service_centers extends CI_Controller {
         $params = array($booking_id, $spare_id);
         $results = execute_paramaterised_query($query, $params);
         if (!empty($email_template) && $results) {
-
+            if($reason_text == ''){
+                $reason_text = $results[0]['reason_text'];
+            }
             $to = $email_template[1];
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array());
-            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['reason_text'], $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
+            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $reason_text, $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
 
             $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
         }
