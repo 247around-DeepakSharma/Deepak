@@ -248,12 +248,6 @@ class ApiDataRequest extends CI_Controller {
                 $data['invoice_gst_rate'] = $gst_rate;
                 //Update Spare Parts Table
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                
-                /* Insert Spare Tracking Details */
-                if (!empty($id)) {
-                    $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'partner_id' => $partner_id, 'service_center_id' => $vendor_id);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
 
                 if ($response) {
                     //Update Unit Table

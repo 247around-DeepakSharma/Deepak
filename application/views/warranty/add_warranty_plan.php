@@ -252,7 +252,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge*</label>
+                                        <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="service_charge" id="service_charge" value="1">
                                             
@@ -268,7 +268,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge*</label>
+                                        <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="gas_charge" id="gas_charge" value="1">
                                             
@@ -283,7 +283,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge*</label>
+                                        <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge</label>
                                         <div class="col-md-8">
                                             <input type="checkbox" name="transport_charge" id="transport_charge" value="1">
                                             
@@ -324,9 +324,7 @@
                                         ?>">
                                         <label for="description" class="col-md-3 vertical-align">Description</label>
                                         <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description">
-                                                
-                                             </textarea>
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description"></textarea>
                                             <?php echo form_error('description'); ?>
                                             <p class="alert alert-danger error_message" id="description_error">
                                                 

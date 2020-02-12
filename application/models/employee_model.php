@@ -130,10 +130,9 @@ class Employee_model extends CI_Model{
        * 
        */
       function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM]){
-          $this->db->select('employee.*, rm_region_mapping.region');
-          $this->db->join('rm_region_mapping', 'employee.id = rm_region_mapping.rm_id', 'left');
-          $this->db->where_in('employee.groups', $arr_groups);
-          $this->db->where('employee.active','1');
+          $this->db->select('*');
+          $this->db->where_in('groups', $arr_groups);
+          $this->db->where('active','1');
           $query = $this->db->get('employee');          
           return $query->result_array();
       }
@@ -517,6 +516,7 @@ FROM
                     LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
                 WHERE 
                     employee.groups IN ('".$str_groups."') AND
+                    employee.active = 1 AND    
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }

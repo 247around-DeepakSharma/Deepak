@@ -33,7 +33,6 @@
     </div>    
     <div class="row form-group"> 
         <div class="col-md-12" style="text-align: center; padding: 5px;"> 
-            <input type="hidden" name="service_center_id" id="service_center_id" value="<?php echo $spare_part_detail['service_center_id']; ?>">
             <input type="submit" name="reject-part" class="btn btn-primary reject-part" value="Save" class="btn btn-primary">
         </div>
     </div>

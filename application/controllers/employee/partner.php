@@ -2192,11 +2192,18 @@ class Partner extends CI_Controller {
             $internal_status = "";
             foreach ($shipped_part_details as $key => $value) {               
                 if ($value['shippingStatus'] == 1) {
+                    //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                    /*
+                      if($request_type == REPAIR_OOW_TAG){
+                      $data['status'] = SPARE_OOW_SHIPPED;
+                      } else {
+                      $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                      } */
 
                     if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $status = $data['status'] = SPARE_OOW_SHIPPED;
+                        $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
-                        $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                        $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                     }
 
                     $data['parts_shipped'] = $value['shipped_parts_name'];
@@ -2210,7 +2217,7 @@ class Partner extends CI_Controller {
                     $data['quantity'] = $value['quantity'];
                     $data['shipped_quantity']=$value['shipped_quantity'];  
                     }
-                    $remarks_by_partner = $data['remarks_by_partner'] = $value['remarks_by_partner'];
+                    $data['remarks_by_partner'] = $value['remarks_by_partner'];
                     if (!empty($value['requested_inventory_id'])) {
                         $data['shipped_inventory_id'] = $value['requested_inventory_id'];
                     }
@@ -2263,21 +2270,11 @@ class Partner extends CI_Controller {
                     $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
                 } else if ($value['shippingStatus'] == 0) {
 
-                    $spare_id = $value['spare_id'];
-                    $status = _247AROUND_CANCELLED;
-                    $remarks_by_partner = $value['remarks_by_partner'];
-                    
                     $current_status = _247AROUND_PENDING;
                     $internal_status = _247AROUND_PENDING;
 
                     $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "");
                     $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
-                }
-                
-                 /* Insert Spare Tracking Details */
-                if (!empty($spare_id)) {
-                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($remarks_by_partner), 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $this->input->post('assigned_vendor_id'));
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
 
@@ -2787,14 +2784,8 @@ class Partner extends CI_Controller {
         if (empty($is_cron)) {
             $this->checkUserSession();
         }
-        
+
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED, 'received_defective_part_date' => date("Y-m-d H:i:s")));
-        /* Insert Spare Tracking Details */
-        if (!empty($spare_id)) {
-            $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $spare_id ),true);
-            $tracking_details = array('spare_id' => $spare_id, 'action' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, 'remarks' => DEFECTIVE_PARTS_RECEIVED, 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $spare_part_data[0]["service_center_id"]);
-            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        }
         
         if($response){
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
@@ -2833,14 +2824,7 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner' => '0'));
         
         if ($response) {
-            
-            /* Insert Spare Tracking Details */
-            if (!empty($spare_id)) {
-                $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $spare_id), true);
-                $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $spare_part_data[0]["service_center_id"]);
-                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-            }
-
+           
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
             $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
@@ -6998,7 +6982,7 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'") ) OR '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'") ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
@@ -7817,9 +7801,9 @@ class Partner extends CI_Controller {
             echo "<p style= 'text-align: center;background: #f35b5b;color: white;font-size: 20px;'>There is an open Repeat booking (".$openBookings[0]['booking_id'].") for ".$booking_id." , Until repeat booking is not closed you can not create new repeat booking</p>";
         }
     }
-    function get_booking_relatives($booking_id){
+    function get_booking_relatives($booking_id = ""){
 //        $this->checkUserSession();
-        if($this->session->userdata('loggedIn') == TRUE) {
+        if(($this->session->userdata('loggedIn') == TRUE) && (!empty($booking_id))) {
             $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
             if(!empty($relativeData)){
                 echo  json_encode($relativeData[0]);
@@ -7828,6 +7812,10 @@ class Partner extends CI_Controller {
                 echo false;
             }
         }
+        else
+        {
+            return false;
+    }
     }
  
      /*
@@ -8770,35 +8758,16 @@ class Partner extends CI_Controller {
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
             $where_inventory = array('booking_id' => trim($booking_id));
-            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
-            
-            $review_counter=0;
-            $sc_action=array();
-            foreach ($spare_inventory_update as  $update_pending) {
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory, $where_inventory);
+
+            $review_counter = 0;
+            $sc_action = array();
+            foreach ($spare_inventory_update as $update_pending) {
 
 
                 if (!empty($update_pending['shipped_date'])) {
-                   
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'nrn_approv_by_partner'=>1
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
-
-                /* Insert Spare Tracking Details */
-                if (!empty($update_pending['id'])) {
-                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => NRN_APPROVED_BY_PARTNER, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $partner_id, 'service_center_id' => $update_pending['service_center_id']);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
-
-                $unit_array = array(
-                    'serial_number' => $update_pending['serial_number'],
-                    'sf_model_number' => $update_pending['model_number'],
-                    'serial_number_pic' => $update_pending['serial_number_pic']
-                );
-                 //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
                     $where = array('id' => trim($update_pending['id']));
                     $data = array(

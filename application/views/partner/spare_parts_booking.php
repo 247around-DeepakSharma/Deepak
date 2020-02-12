@@ -151,7 +151,7 @@
   <div class="modal-dialog" style="width: 55%;">
     <!-- Modal content-->
     <div class="modal-content" >
-        <form id="idForm"  action="<?php echo base_url(); ?>employee/partner/do_partner_nrn_approval"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
+        <form id="idForm"  action="<?php echo base_url(); ?>employee/partner/de_partner_nrn_approval"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>

@@ -2,25 +2,29 @@
 $isdisable = false;
 if (isset($user_and_booking_details['spare_parts'])) {
     foreach ($user_and_booking_details['spare_parts'] as $sp) {
-        switch ($sp['status']) {
-            case SPARE_PARTS_REQUESTED:
-                $status = CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER;
-                $isdisable = true;
-                break;
-            case SPARE_SHIPPED_BY_PARTNER:
-            case SPARE_DELIVERED_TO_SF:
-            case DEFECTIVE_PARTS_REJECTED:
-            case DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE:
-            case DEFECTIVE_PARTS_RECEIVED:
-            case DEFECTIVE_PARTS_SHIPPED:
-            case DEFECTIVE_PARTS_PENDING:
-            case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
-            case _247AROUND_COMPLETED:
-            case DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH:
-            case SPARE_OOW_SHIPPED:
-                $status = CANCEL_PAGE_SPARE_SHIPPED;
-                $isdisable = true;
-                break;
+        /**
+         * check for non-cancelled spare parts.
+         * modified by : Ankit Rajvanhsi
+         */
+        if ($sp['status'] != _247AROUND_CANCELLED) {
+            switch ($sp['status']){
+                /**
+                 * handeled spare part on approval case and OOW cases.
+                 * modified by : Ankit Rajvanshi
+                 */
+                case SPARE_OOW_EST_REQUESTED:
+                case SPARE_OOW_EST_GIVEN:
+                case SPARE_PART_ON_APPROVAL:
+                case SPARE_PARTS_REQUESTED: 
+                     $status = CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER;
+                     $isdisable= true;
+                    break;
+                default:
+                     if(!empty($sp['shipped_date'])) {
+                         $status = CANCEL_PAGE_SPARE_SHIPPED;
+                         $isdisable= true;
+                     }
+            }
         }
     }
 }
