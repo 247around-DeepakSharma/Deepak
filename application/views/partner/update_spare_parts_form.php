@@ -651,8 +651,8 @@
     $('#shipment_date').daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
-        maxDate: someDate,
-        minDate:false,
+        maxDate: false,
+        minDate:new Date(),
         locale:{
             format: 'YYYY-MM-DD'
         }
