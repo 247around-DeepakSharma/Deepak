@@ -74,6 +74,12 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
+// temporary check for version update ///
+            if($requestData["app_version"]!='2.17' ){
+            log_message('info', "Force update error");
+            $this->sendJsonResponse(array('0001', 'failure'));
+            exit;
+            }
 
             //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
