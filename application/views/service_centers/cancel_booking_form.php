@@ -75,35 +75,39 @@
                 <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if(!is_null($engineer_data[0]['closed_date'])){ echo $engineer_data[0]['closed_date']; } }  } ?>">
                <div>
                 <div class="col-md-6 col-md-offset-2">
-                   <?php $isdisable = false; $flag = false; if(isset($user_and_booking_details['spare_parts'])){ 
+                   <?php $isdisable = false; if(!empty($user_and_booking_details['spare_parts'])) {  
                        foreach($user_and_booking_details['spare_parts'] as $sp){
-                           
-                           if ($sp['status'] == _247AROUND_CANCELLED) {
-                                $flag = true;
-                            } else {
-                                $flag = false;
-                            }
-
-                            switch ($sp['status']){
-                               case SPARE_PARTS_REQUESTED: 
-                                    $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
-                                    $isdisable= true;
-                                   break;
+                           /**
+                            * check for non-cancelled spare parts.
+                            * modified by : Ankit Rajvanshi
+                            */
+                           if ($sp['status'] != _247AROUND_CANCELLED) {
+                                switch ($sp['status']){
+                                    /**
+                                     * handeled spare part on approval case and OOW cases.
+                                     * modified by : Ankit Rajvanshi
+                                     */
+                                    case SPARE_OOW_EST_REQUESTED:
+                                    case SPARE_OOW_EST_GIVEN:
+                                    case SPARE_PART_ON_APPROVAL:
+                                    case SPARE_PARTS_REQUESTED: 
+                                        $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                                        $isdisable= true;
+                                    break;
                                 default:
                                     if(!empty($sp['shipped_date'])) {
                                         $status = CANCEL_PAGE_SPARE_SHIPPED;
                                         $isdisable= true;
                                     }
-
-                           }
-                          
+                                }    
+                            }
                        }
                    } ?>
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
-                    <?php } else { if(!empty($flag)){ ?>
+                    <?php } else { ?>
                     <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
-                    <?php } }?>
+                    <?php } ?>
                   
                   </div>
                </div>

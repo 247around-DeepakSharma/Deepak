@@ -254,7 +254,7 @@ class Dealers extends CI_Controller {
                 $html .= "<td>0.00</td>";
 		$html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "' value ='".$prices['is_upcountry']."' /><input class='price_checkbox'";
 		$html .=" type='checkbox' id='checkbox_" . $i . "'";
-		$html .= "name='prices[]'";
+		$html .= "name='prices[]' data-price_tag='".$prices['service_category']."'";
                 if(in_array($prices['service_category'], $explode)){
                      $html .= " checked ";
                 }
@@ -263,7 +263,7 @@ class Dealers extends CI_Controller {
                      $html .= " disabled ";
   
                 }
-		$html .= "  onclick='final_price(),get_symptom(),set_upcountry()'" .
+		$html .= "  onclick='final_price(),get_symptom(),set_upcountry(),check_booking_request()'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".intval($prices['partner_net_payable'])."_".$i . " ></td><tr>";
 
 		$i++;

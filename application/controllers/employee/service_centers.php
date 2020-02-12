@@ -6436,8 +6436,8 @@ class Service_centers extends CI_Controller {
         }
         if ($response) {
             
-            if(!empty($spare_part_detail[0]['awb_by_sf'])){
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
+            if(!empty($spare_part_detail['awb_by_sf'])){
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail['awb_by_sf'], 'delivered_date IS NULL' => NULL), array('delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
             }
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id

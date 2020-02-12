@@ -157,7 +157,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                     <label for="Model Number">Model Number  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
-                                    <select class="form-control select-model"  name="model_number" id="model_number_1" >
+                                    <select class="form-control select-model"  name="model_number" id="model_number_1" onchange="check_booking_request()">
                                         <option selected disabled>Select Model</option>
                                     </select>
                                     </span>
@@ -176,7 +176,7 @@
                                 <div class="form-group col-md-12 " id="purchase_d">
                                     <label for="Purchase Date">Purchase Date *<span id="error_purchase" style="color: red;"></label>
                                 <div class="input-group date">
-                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" readonly style="background : #fff;cursor:pointer;">
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" readonly style="background : #fff;cursor:pointer;" onchange="check_booking_request()">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -210,6 +210,9 @@
                 <div class="panel-heading">Step 2</div>
                 <div class="panel-body">
                     <div class="row">
+                        <div class="col-md-12" style="margin-bottom:10px;">
+                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                        </div>
                         <div class="col-md-12">
 
                             <div class="form-group">
@@ -1010,6 +1013,59 @@
         }
 
     }
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        $(".price_checkbox").attr("disabled", false);
+        if($(".input-model").length && $(".input-model").is(":hidden"))
+        {
+            var model_number = $(".select-model").val();
+        }
+        else
+        {
+            var model_number = $(".input-model").val();
+        } 
+        var dop = $("#purchase_date").val();
+        var partner_id = $("#partner_id").val();
+        var service_id = $("#service_id").val();
+        var booking_id = 1;
+        var booking_create_date = "<?= date('Y-m-d')?>";
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        $("#submitform").attr("disabled", false);
+        $('.errorMsg').html("");
+
+        if(dop !== "" && booking_request_types.length > 0){ 
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/booking/get_warranty_data/2",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'booking_request_types' : booking_request_types
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        $("#submitform").attr("disabled", true);                        
+                    }
+                }                           
+            });
+        }
+    }
+    // function ends here ---------------------------------------------------------------- 
 </script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 
