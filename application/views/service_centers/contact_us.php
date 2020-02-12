@@ -107,44 +107,40 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+<!--    <div class="col-md-6">
         <div class="modal-header">
-    <h4 class="modal-title">247around Invoices Related:</h4>
-</div>
-<div class="modal-body">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="container">
-                    <h5><b>Mr. Sonu Yadav</b></h5> 
-                    <p><i class="fa fa-newspaper-o"></i> Delhi Office</p>
-                    <p>‭<i class="fa fa-phone"></i> +91 9717165247</p>
-                    <p><i class="fa fa-envelope"></i> sonuy@247around.com</p>
+            <h4 class="modal-title">247around Invoices Related:</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="container">
+                            <h5><b>Mr. Sonu Yadav</b></h5> 
+                            <p><i class="fa fa-newspaper-o"></i> Delhi Office</p>
+                            <p>‭<i class="fa fa-phone"></i> +91 9717165247</p>
+                            <p><i class="fa fa-envelope"></i> sonuy@247around.com</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-    </div>
-    <div class="col-md-6">
+    </div>-->
+    <div class="col-md-12">
         <div class="modal-header">
-    <h4 class="modal-title">CRM Training Helpline Number:</h4>
-</div>
-<div class="modal-body">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="container">
-                    <!--<h5><b>For CRM related issues</b></h5>--> 
-                    <p>‭<i class="fa fa-phone"></i> +91 7428532447</p>
-                   <p>‭<i class="fa fa-phone"></i> +91 9650702247</p>
-                    <p></p>
+            <h4 class="modal-title">CRM Training and Invoice Queries<br/>Helpline Number:</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card" style="padding: 10px 10px;">
+                            <p>‭<i class="fa fa-phone"></i> +91 7428532447</p>
+                            <p>‭<i class="fa fa-phone"></i> +91 9650702247</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-        
-        
+        </div>        
     </div>
 </div>
