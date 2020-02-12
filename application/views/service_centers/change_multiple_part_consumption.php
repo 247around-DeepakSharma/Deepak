@@ -34,13 +34,13 @@
         <label>Weight</label>
     </div>        
     <div class="col-md-4"> 
-        <input type="number" class="form-control" style="width: 100%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight"> 
+        <input type="text" class="form-control" style="width: 100%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight"> 
     </div>
      <div class="col-md-2"> 
         <label><strong> in KG</strong> </label>
     </div> 
     <div class="col-md-4">
-        <input type="number" class="form-control" style="width: 50%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight">&nbsp;<strong>in Gram </strong>   
+        <input type="text" class="form-control" style="width: 50%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight">&nbsp;<strong>in Gram </strong>   
     </div>        
 </div> 
 <div class="row form-group" style="padding: 10px;"> 
@@ -78,6 +78,15 @@
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
+             var isValid = false;
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
@@ -90,6 +99,16 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            var isValid = false;
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+           }
+            
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
@@ -102,6 +121,16 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            var isValid = false;
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
+           
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
@@ -111,11 +140,37 @@
                 return false;
             }
         }
+        ,
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            var isValid = false;
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+           }
+           
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+        }
     });
 
     $("#defective_parts_shipped_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
@@ -129,6 +184,14 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
@@ -141,10 +204,34 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+
         }
     });
     $(".spare_consumption_status").select2();

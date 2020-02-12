@@ -751,6 +751,14 @@
      $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='') ) {
                 $(this).val('');
                 return false;
@@ -758,6 +766,14 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
@@ -765,7 +781,30 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
@@ -776,6 +815,14 @@
     $("#shipped_spare_parts_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
@@ -783,6 +830,14 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
@@ -790,10 +845,34 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
+                $(this).val('');
+                return false;
+            }
+
         }
     });
     $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
@@ -807,7 +886,7 @@
             case 40: // Down
                 break;
             default:
-                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var regex = new RegExp("^[0-9]+$");
                 var key = event.key;
                 if (!regex.test(key)) {
                     event.preventDefault();
