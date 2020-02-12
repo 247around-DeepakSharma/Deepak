@@ -1596,7 +1596,7 @@ EOD;
             {
                 $csv_file = "";
             }
-            $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,"summary_report");
+            $send_email = $this->notify->sendEmailFromSendGrid($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,"summary_report");
             //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
             if ($send_email) {
                 log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $partner_data['public_name']);
@@ -1638,7 +1638,7 @@ EOD;
             $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
             $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
+            $this->notify->sendEmailFromSendGrid(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
                     $subject, $email_body,
                     $csv,"partner_summary_report_percentage_format");
 //            $this->notify->sendEmail(NOREPLY_EMAIL_ID,"bsdflipkart@jeeves.co.in, radha.c@jeeves.co.in, naveen.n@jeeves.co.in, manish.agarwal@flipkart.com, vinesh.poojari@flipkart.com, sathis.s@mnw.co.in, dilipkumar.ms@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
