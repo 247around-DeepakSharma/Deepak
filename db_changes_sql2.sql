@@ -1819,3 +1819,7 @@ CREATE TABLE `billed_docket` (
 --Ankit Bhatt 2020-02-03
 update `email_template` set template='<table border="1" cellspacing="0" cellpadding="0"><tr><td colspan="10">Parts Received By Warehouse</td></tr><tr><th>Booking Id</th><th>SF</th><th>Receive Date</th><th>Shipped By</th><th>Part Name</th><th>Part Number</th><th>Quantity</th><th>Consumption Reason</th><th>Warehouse</th><th>Image Link</th></tr><tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr><tr><td colspan="10">Thanks!!</td></tr></table>' where tag= 'parts_received_by_warehouse';
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+-- Kajal 13-02-2020
+ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
