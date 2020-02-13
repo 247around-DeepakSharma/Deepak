@@ -8658,10 +8658,10 @@ class Partner extends CI_Controller {
        }
 
        /*  Default case if somehow index does not come */
-       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
+       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length'])){
         $postData['length'] = 50;
         $postData['start'] = 0;
-       }
+       } 
 
        
        if(!empty($postData['search'])){
