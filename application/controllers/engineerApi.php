@@ -74,8 +74,8 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
-// temporary check for version update ///
-            if($requestData["app_version"]!='2.17' ){
+// temporary check for version update check for key also for older version apps///
+            if(!isset($requestData["app_version"])  || $requestData["app_version"]!='2.18' ){
             log_message('info', "Force update error");
             $this->sendJsonResponse(array('0001', 'Please update your app , then try again !'));
             exit;
@@ -438,9 +438,18 @@ class engineerApi extends CI_Controller {
                 break;
 
 
-/*   get partner appliances */
+/*   get partner appliances models */
             case 'partnerappliancesModels':  
                 $this->getPartnerAppliancesModels();  ////getPartner_appliances
+                break;
+/*   get partner appliances model part types */
+            case 'partnerappliancesModelsPartTypes':  
+                $this->getPartnerAppliancesModelsPartTypes();  ////get parts types
+                break;
+
+/*   get partner appliances model part types inventory list */
+            case 'partnerappliancesModelsPartTypesInventory':  
+                $this->getPartnerAppliancesModelsPartTypesInventory();  ////get parts names
                 break;
 
             default:
@@ -2070,7 +2079,6 @@ class engineerApi extends CI_Controller {
     function getTommorowBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
- 
  ///and add alternate number
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
@@ -3918,7 +3926,7 @@ function _getPartner_appliances($select,$where){
 function getPartnerAppliancesModels(){
 
 
-      log_message("info", __METHOD__ . " Entering..in partners list");
+      log_message("info", __METHOD__ . " Entering..in models list");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
@@ -3929,7 +3937,7 @@ function getPartnerAppliancesModels(){
                 'appliance_model_details.active'=>1
 
             );
-            $response = $this->getPartner_appliancesModels($select,$where);
+            $response = $this->_getPartner_appliancesModels($select,$where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "partners Found");
                 $this->jsonResponseString['response']['partner_appliances_models'] = $response;  /////response key according to umesh
@@ -3955,10 +3963,88 @@ function _getPartner_appliancesModels($select,$where){
 
 }
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get part types
+     *@param - array
+     *@return - Row
+     */
+
+function getPartnerAppliancesModelsPartTypes(){
+
+        log_message("info", __METHOD__ . " Entering..in types list");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("partner_id"), $requestData);
+        if ($validation['status']) {
+             $select = 'inventory_master_list.type';
+            $where =array(
+                'inventory_master_list.service_id'=>$requestData['service_id'],
+                'inventory_master_list.entity_id'=>$requestData['partner_id']
+            );
+            $response = $this->getPartner_appliancesInventoryData($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "types Found");
+                $this->jsonResponseString['response']['part_types'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . "types not found");
+                $this->jsonResponseString['response']['part_types'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'types not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+}
 
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get parts data
+     *@param - $select ,$where
+     *@return - Array
+     */
+
+function getPartner_appliancesInventoryData($select,$where){
+
+    return  $this->engineer_model->getPartner_appliancesInventoryData($select,$where);
+
+}
 
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get parts inventory
+     *@param - array
+     *@return - Row
+     */
+
+function getPartnerAppliancesModelsPartTypesInventory(){
+
+        log_message("info", __METHOD__ . " Entering..in parts list");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("partner_id"), $requestData);
+        if ($validation['status']) {
+             $select = 'inventory_master_list.type,part_number,part_name,price,oow_vendor_margin,oow_around_margin,hsn_code,gst_rate';
+            $where =array(
+                'inventory_master_list.service_id'=>$requestData['service_id'],
+                'inventory_master_list.entity_id'=>$requestData['partner_id'],
+                'inventory_master_list.type'=>$requestData['part_type']
+            );
+            $response = $this->getPartner_appliancesInventoryData($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "parts Found");
+                $this->jsonResponseString['response']['parts'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . "parts not found");
+                $this->jsonResponseString['response']['parts'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'types not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+}
 
 
 
