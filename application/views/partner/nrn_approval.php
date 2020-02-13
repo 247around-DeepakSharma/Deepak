@@ -71,13 +71,14 @@
 <script>
     $(document).ready(function () {
         nrn_table = $('#nrn_table').DataTable({
-            "processing": false,
+            "processing": true,
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
             },
-            "serverSide": false, 
+            "serverSide": true, 
             "order": [], 
             "pageLength": 50,
+			"lengthMenu": [[10, 25, 50, 100,-1], [10, 25, 50, 100 ,"All"]],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/partner/get_nrn_approval_table",
                 "type": "POST",
