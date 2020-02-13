@@ -3074,7 +3074,7 @@ class Service_centers extends CI_Controller {
 
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.defective_part_rejected_by_partner" => 0,
+            "spare_parts_details.defective_part_rejected_by_wh" => 0,
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
         );
@@ -7102,6 +7102,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.service_center_id" => $service_center_id,
+            "spare_parts_details.defective_part_rejected_by_wh" => 0,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
         );
         $group_by = "spare_parts_details.service_center_id";

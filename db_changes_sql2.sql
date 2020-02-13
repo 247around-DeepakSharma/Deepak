@@ -1830,3 +1830,7 @@ ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_numbe
 
 --Ankit Rajvanshi 05-02-2020
 INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
+
+-- Kajal 13-02-2020
+ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;

@@ -699,6 +699,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, partners
                 WHERE `partner_net_payable` >0
                 AND ud.service_id = services.id
+                AND partner_refuse_to_pay = 0
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
                 AND ( ( ud.partner_id =  '$partner_id'

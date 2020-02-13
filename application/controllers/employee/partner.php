@@ -8663,7 +8663,7 @@ class Partner extends CI_Controller {
       //   }
 
        $partner_id = $this->session->userdata('partner_id');
-       $where = "booking_details.nrn_approved ='1'";
+       $where = "booking_details.nrn_approved ='1' and booking_details.partner_id ='$partner_id'";
        // $flag_nrn='1';
        // $where = "booking_details.nrn_approved=".$flag_nrn."";
        if($this->input->post('state')){
@@ -8673,7 +8673,7 @@ class Partner extends CI_Controller {
 
        /*  Default case if somehow index does not come */
        if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
-        $postData['length'] = 25;
+        $postData['length'] = 50;
         $postData['start'] = 0;
        }
 
