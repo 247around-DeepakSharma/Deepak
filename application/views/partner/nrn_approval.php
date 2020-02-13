@@ -71,14 +71,19 @@
 <script>
     $(document).ready(function () {
         nrn_table = $('#nrn_table').DataTable({
-            "processing": false,
+            "processing": true,
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
             },
+<<<<<<< HEAD
 
             "serverSide": false, 
+=======
+            "serverSide": true, 
+>>>>>>> 3f281486c... CRM-5532 Correct datatable and add all option in pagination
             "order": [], 
             "pageLength": 50,
+			"lengthMenu": [[10, 25, 50, 100,-1], [10, 25, 50, 100 ,"All"]],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/partner/get_nrn_approval_table",
                 "type": "POST",
