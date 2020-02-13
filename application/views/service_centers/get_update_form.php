@@ -764,13 +764,16 @@ function alpha(e) {
           checkbox_value = 0;
      }
 
-     // check for consumption reason.
+     // check for consumption reason if spare part required is checked.
      $('.spare-consumption').children('tbody').children('tr').each(function(index) {
         var checkReason = $(this).find("td:eq(5)").children('.spare_consumption_status').val();
-        if(checkReason == null || checkReason == '') {
-            alert('Please provide consumption reason of previously requested parts.');
-            checkbox_value = 0;
-            return false;
+        var reason = $("input[name='reason']:checked"). val();
+        if(reason == "<?php echo SPARE_PARTS_REQUIRED; ?>") {
+            if(checkReason == null || checkReason == '') {
+                alert('Please provide consumption reason of previously requested parts.');
+                checkbox_value = 0;
+                return false;
+            }
         }
      });
 
