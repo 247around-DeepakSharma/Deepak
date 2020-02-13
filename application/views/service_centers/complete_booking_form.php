@@ -529,7 +529,7 @@
                                                 echo $en_consumpton_details[$spare_part_detail['id']]['wrong_part_data']; 
                                             } 
                                             ?>'>
-                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>" <?php if(!empty($spare_part_detail['awb_by_sf'])) { echo 'readonly';} ?>>
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
@@ -1437,6 +1437,12 @@
         $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
 </script>
+<style>
+select[readonly].select2-hidden-accessible + .select2-container {
+  pointer-events: none;
+  touch-action: none;
+}
+</style>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

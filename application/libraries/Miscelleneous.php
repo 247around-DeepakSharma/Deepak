@@ -4811,9 +4811,10 @@ function generate_image($base64, $image_name,$directory){
     }
     
     /**
-     * 
+     * Method save spare consumption data in spare parts details on booking completion 
      * @param type $post_data
      * @return boolean
+     * @author Ankit Rajvanshi
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
         
@@ -4828,11 +4829,6 @@ function generate_image($base64, $image_name,$directory){
                 if($spare_part_detail['status'] == DEFECTIVE_PARTS_SHIPPED) {
                     $spare_part_shipped_count = $spare_part_shipped_count + 1;
                     continue;
-                }
-                
-                if(!empty($spare_part_detail[0]['awb_by_partner'])){
-                    $this->My_CI->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_partner'], 'delivered_date IS NULL' => NULL), 
-                            array('delivered_date' => date('Y-m-d H:i:s')));
                 }
                 
                 $status = "";
