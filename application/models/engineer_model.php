@@ -581,6 +581,25 @@ class Engineer_model extends CI_Model {
    }
 
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get parts data
+     *@param - $select ,$where
+     *@return - Array
+     */
+
+
+   function getPartner_appliancesInventoryData($select,$where){
+
+         $this->db->distinct();
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('inventory_master_list');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
 
 
 
