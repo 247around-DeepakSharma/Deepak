@@ -3227,7 +3227,7 @@ class engineerApi extends CI_Controller {
                 }
             }
         }
-        return false;
+        return true; /// Default must be true for non spare bookings // 
     }
 
     /*
