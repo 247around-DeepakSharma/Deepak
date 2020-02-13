@@ -33,7 +33,7 @@ class Notify {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
-                if(!empty($to)){
+                if(!empty($to) && !empty($from)) {
                     $this->My_CI->email->clear(TRUE);
 
                     //Attach file with mail
@@ -61,6 +61,9 @@ class Notify {
                         log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
                         return false;
                     }
+                } else {
+                    log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                    return false;
                 }
 
 		break;
