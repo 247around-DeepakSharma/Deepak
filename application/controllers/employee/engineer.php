@@ -226,8 +226,7 @@ class Engineer extends CI_Controller {
 
         $data = array();
         $no = $post['start'];
-
-        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
+        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y') as create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
             $service_id = $this->engineer_model->get_engineer_appliance(array("engineer_id" => $value->id, "is_active" => 1), "service_id");
