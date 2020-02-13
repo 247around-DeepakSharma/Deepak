@@ -41,15 +41,15 @@
         <table  class="table table-striped table-bordered" id="engineer_datatable">
             <thead>
             <tr>
-          	<th>S.No</th>
+            <th>S.No</th>
                 <th>Service Center Name</th>
                 <th>State</th>
                 <th>City</th>
-          	<th>Engineer Name</th>
+            <th>Engineer Name</th>
                 <th>Appliances</th>
-          	<th>Mobile</th>
-          	<th>Alternate Mobile Number</th>
-          	<th>ID Proof</th>
+            <th>Mobile</th>
+            <th>Alternate Mobile Number</th>
+            <th>ID Proof</th>
                 <th>Create Date</th>
                 <th>Verified</th> <!-- Remove duplicate coloumn -->
                 <th>Status</th>
