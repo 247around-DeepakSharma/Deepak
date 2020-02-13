@@ -227,7 +227,7 @@ class Engineer extends CI_Controller {
         $data = array();
         $no = $post['start'];
 
-        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y'), service_centres.name as company_name, service_centres.state, service_centres.district", $post);
+        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y') as create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
             $service_id = $this->engineer_model->get_engineer_appliance(array("engineer_id" => $value->id, "is_active" => 1), "service_id");
@@ -283,6 +283,8 @@ class Engineer extends CI_Controller {
         $row[] = $alternet_phone_call_button;
         $row[] = $engineer_list->identity_proof;
         $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
+// Remove Duplicate code //
+/*  Handle cases for verified and not verified  engg due to which datatable error was coming */
         if (!$this->input->post("service_center_id")) {
             if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
                 if ($engineer_list->varified == 0) {
@@ -304,6 +306,8 @@ class Engineer extends CI_Controller {
                 $row[] = "<span class='label label-success'>Verified</span>";
             }
         }
+
+
         $row[] = $row_action;
         $row[] = "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/get_edit_engineer_form/" . $engineer_list->id . ">Edit</a>";
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";

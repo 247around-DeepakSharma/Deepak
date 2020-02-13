@@ -876,6 +876,8 @@
                             $("#courier_price_by_partner").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+                            $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
+                            $("#shipped_spare_parts_weight_in_gram").val('').removeAttr("readonly");
                         }
     
                     }
