@@ -384,7 +384,6 @@
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
                             <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
-                            <td></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1906,9 +1905,24 @@
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
                 if(data[i].id === "00"){
                     html += "<td><button class='btn btn-info'>"+ data[i].entity+ "</button></td>";
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"</button></td>';
+                    total += data[i].TAT_0;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"</button></td>';                                 +'</form></td>';
+                    total += data[i].TAT_1;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"</button></td>';
+                    total += data[i].TAT_2;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"</button></td>';
+                    total += data[i].TAT_3;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"</button></td>';
+                    total += data[i].TAT_4;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"</button></td>';
+                    total += data[i].TAT_5;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"</button></td>';
+                    total += data[i].TAT_8;
+                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"</button></td>';
+                    total += data[i].TAT_16;
                 }else{
                     html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
-                }
                 html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
@@ -1949,6 +1963,7 @@
                             +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
                              +'</form></td>';
                 total += data[i].TAT_16;
+                }
                 html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
                 html += '</tr>';
             }
