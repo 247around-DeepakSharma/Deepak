@@ -2234,6 +2234,7 @@ class Service_centers extends CI_Controller {
     /**
      * Update consumption at the time of spare part request.
      * @param type $post
+     * @author Ankit Rajvanshi
      */
     function update_part_consumption($booking_id, $post) {
         if(!empty($post['spare_consumption_status'])) { 
@@ -2270,7 +2271,7 @@ class Service_centers extends CI_Controller {
                 // update spare parts details.
                 $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
             }
-            
+            // send mail in case of courier lost.
             if (!empty($courier_lost_spare) && !empty($this->session->userdata('service_center_id'))) {
                 $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
             }
@@ -6589,6 +6590,7 @@ class Service_centers extends CI_Controller {
             'remarks_defective_part_by_wh' => $rejection_reason,
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
+            'approved_defective_parts_by_admin' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh')
         );
 
