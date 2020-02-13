@@ -1811,6 +1811,7 @@ CREATE TABLE `billed_docket` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
 --Ankit Bhatt 2020-02-03
 update `email_template` set template='<table border="1" cellspacing="0" cellpadding="0"><tr><td colspan="10">Parts Received By Warehouse</td></tr><tr><th>Booking Id</th><th>SF</th><th>Receive Date</th><th>Shipped By</th><th>Part Name</th><th>Part Number</th><th>Quantity</th><th>Consumption Reason</th><th>Warehouse</th><th>Image Link</th></tr><tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr><tr><td colspan="10">Thanks!!</td></tr></table>' where tag= 'parts_received_by_warehouse';
 
@@ -1878,3 +1879,6 @@ ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT N
 
 --Ankit 15-01-2019
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
+
+--Ankit Rajvanshi 05-02-2020
+INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
