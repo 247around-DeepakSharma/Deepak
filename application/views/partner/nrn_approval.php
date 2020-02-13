@@ -67,7 +67,7 @@
 <?php } ?>        
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
-<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?> 
 <script>
     $(document).ready(function () {
         nrn_table = $('#nrn_table').DataTable({
