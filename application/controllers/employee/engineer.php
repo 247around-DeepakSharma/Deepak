@@ -304,6 +304,31 @@ class Engineer extends CI_Controller {
                 $row[] = "<span class='label label-success'>Verified</span>";
             }
         }
+         
+/*  Handle cases for verified and not verified  engg due to which datatable error was coming */
+        if (!$this->input->post("service_center_id")) {
+            if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+                if ($engineer_list->varified == 0) {
+                    $row[] = "<button type='button' class='btn btn-danger btn-sm' onclick='verify_engineer(" . $engineer_list->id . ", 1)'>Not Verified</button>";
+                } else {
+                    $row[] = "<span class='label label-success'>Verified</span>";
+                }
+            } else {
+                if ($engineer_list->varified == 0) {
+                    $row[] = "<span class='label label-danger'>Not Verified</span>";
+                } else {
+                    $row[] = "<span class='label label-success'>Verified</span>";
+                }
+            }
+        } else {
+            if ($engineer_list->varified == 0) {
+                $row[] = "<span class='label label-danger'>Not Verified</span>";
+            } else {
+                $row[] = "<span class='label label-success'>Verified</span>";
+            }
+        }
+
+
         $row[] = $row_action;
         $row[] = "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/get_edit_engineer_form/" . $engineer_list->id . ">Edit</a>";
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";
