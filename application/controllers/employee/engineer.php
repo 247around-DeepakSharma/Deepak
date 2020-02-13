@@ -283,28 +283,7 @@ class Engineer extends CI_Controller {
         $row[] = $alternet_phone_call_button;
         $row[] = $engineer_list->identity_proof;
         $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
-        if (!$this->input->post("service_center_id")) {
-            if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
-                if ($engineer_list->varified == 0) {
-                    $row[] = "<button type='button' class='btn btn-danger btn-sm' onclick='verify_engineer(" . $engineer_list->id . ", 1)'>Not Verified</button>";
-                } else {
-                    $row[] = "<span class='label label-success'>Verified</span>";
-                }
-            } else {
-                if ($engineer_list->varified == 0) {
-                    $row[] = "<span class='label label-danger'>Not Verified</span>";
-                } else {
-                    $row[] = "<span class='label label-success'>Verified</span>";
-                }
-            }
-        } else {
-            if ($engineer_list->varified == 0) {
-                $row[] = "<span class='label label-danger'>Not Verified</span>";
-            } else {
-                $row[] = "<span class='label label-success'>Verified</span>";
-            }
-        }
-         
+// Remove Duplicate code //
 /*  Handle cases for verified and not verified  engg due to which datatable error was coming */
         if (!$this->input->post("service_center_id")) {
             if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
