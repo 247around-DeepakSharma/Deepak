@@ -5615,8 +5615,7 @@ class Booking extends CI_Controller {
         if(!empty($partner_id)) {
            $whereIN['booking_details.partner_id'] = [$partner_id];
         }
-        if(!empty($request_type)) {
-           $data['request_type_selected'] = $request_type;
+        if(!empty($request_type)) {           
            $request_type_selected = !empty($arr_request_types[$request_type]) ? $arr_request_types[$request_type] : "";   
            $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
@@ -5624,7 +5623,7 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
-        
+        $data['request_type_selected'] = $request_type;
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){
