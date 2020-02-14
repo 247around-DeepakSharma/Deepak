@@ -6431,6 +6431,8 @@ class Service_centers extends CI_Controller {
             $post_data['spare_consumption_status'][$spare_id] = $consumption_data['consumed_status_id'];
             unset($post_data['consumption_data']);
         }
+        // fetch record from booking details of $booking_id.
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
@@ -6481,19 +6483,21 @@ class Service_centers extends CI_Controller {
 
             $actor = $next_action = 'not_define';
             if (empty($is_exist)) {
-                $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
-                }
                 // "Warehouse Received Defective Spare Parts"
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor, $next_action, $is_cron);
+                
+                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
 
-                $this->booking_model->update_booking($booking_id, $booking);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
             } else {
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor, $next_action, $is_cron);
             }
@@ -6613,6 +6617,9 @@ class Service_centers extends CI_Controller {
 
         $this->validate_reject_defective_part_pic_file();
 
+        // fetch record from booking details of $booking_id.
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        
         $data = array(
             'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,
             'remarks_defective_part_by_wh' => $rejection_reason,
@@ -6626,20 +6633,22 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
 
-            $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
-
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $decode_partner_id, $booking_id);
-            $actor = $next_action = 'not_define';
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-                $actor = $booking['actor'] = $partner_status[2];
-                $next_action = $booking['next_action'] = $partner_status[3];
-            }
             //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
             $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action);
-            $this->booking_model->update_booking($booking_id, $booking);
+            
+            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $decode_partner_id, $booking_id);
+                $actor = $next_action = 'not_define';
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->booking_model->update_booking($booking_id, $booking);
+            }
             echo 'Defective Parts Rejected To SF';
             exit;
 //            $userSession = array('success' => 'Defective Parts Rejected To SF');
