@@ -291,7 +291,7 @@ class invoices_model extends CI_Model {
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
-                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
+                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
                 $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
@@ -303,12 +303,14 @@ class invoices_model extends CI_Model {
 
 
             $data = $this->db->query($sql);
-            $result = $data->result_array();
+            $result1 = $data->result_array();
+            $result = array();
             if($vendor_partner ==  _247AROUND_SF_STRING){
+                $result[0]['amount_collected_paid'] = (array_sum(array_column($result1, 'amount_collected_paid')));
                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
             } else {
                  $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
+                 $result[0]['final_amount'] = sprintf("%.2f",($result1[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             }
             return $result;
     }
@@ -433,7 +435,8 @@ class invoices_model extends CI_Model {
                   AND users.user_id = booking_details.user_id
                   AND booking_unit_details.partner_net_payable > 0 
                   AND booking_unit_details.partner_id = partners.id
-                  AND partner_invoice_id IS NULL 
+                  AND partner_invoice_id IS NULL
+                  AND partner_refuse_to_pay = 0
                   
                   AND ( $completed_cond $pending_cond
                     ) 
