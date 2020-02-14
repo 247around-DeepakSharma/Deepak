@@ -1831,4 +1831,7 @@ INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`,
 CREATE TABLE `247around`.`engineer_configs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `configuration_type` VARCHAR(255) NOT NULL ,  `config_value` VARCHAR(255) NULL ,  `description` VARCHAR(255) NULL DEFAULT NULL ,  `groups` VARCHAR(255) NULL DEFAULT NULL ,  `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `create_date` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL AFTER `description`;
- 
+--Gorakh 04-02-2020
+ALTER TABLE `spare_state_change_tracker` CHANGE `partner_id` `entity_id` INT(11) NULL DEFAULT NULL, CHANGE `service_center_id` `entity_type` VARCHAR(35) NULL DEFAULT NULL;
+--Gorakh 15-02-2020
+ALTER TABLE `booking_state_change`  ADD `spare_id` INT NULL DEFAULT NULL  AFTER `service_center_id`;

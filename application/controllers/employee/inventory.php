@@ -1078,7 +1078,7 @@ class Inventory extends CI_Controller {
         if (!empty($id)) {
             // fetch record from booking details of $booking_id.
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
-            $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $id ),true);
+            
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1094,7 +1094,7 @@ class Inventory extends CI_Controller {
                         $data['spare_cancellation_reason'] = $this->input->post("spare_cancel_id");
                     }
                     $where = array('id' => $id);
-                    $data['status'] = _247AROUND_CANCELLED;
+                    $track_status = $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
 
                     //////   Handle agents for cancellation /// Abhishek
@@ -1129,13 +1129,13 @@ class Inventory extends CI_Controller {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
                         }
-                        $new_state = SPARE_PARTS_CANCELLED;
+                       $track_status =  $new_state = SPARE_PARTS_CANCELLED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     } else {
                         if ($line_items < 2) {
                             $b['internal_status'] = REQUESTED_QUOTE_REJECTED;
                         }
-                        $new_state = REQUESTED_QUOTE_REJECTED;
+                        $track_status = $new_state = REQUESTED_QUOTE_REJECTED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     }
                     
@@ -1147,7 +1147,7 @@ class Inventory extends CI_Controller {
                     }
                     else if($requestType == 'DELIVERED_PART_CANCELLED'){
                         $old_state = SPARE_DELIVERED_TO_SF;
-                        $new_state = REMOVE_PART_CONSUMPTION;
+                       $track_status = $new_state = REMOVE_PART_CONSUMPTION;
                     }
                     
                     $sc_data['current_status'] = _247AROUND_PENDING;
@@ -1162,7 +1162,7 @@ class Inventory extends CI_Controller {
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id);
                     $data = array('status' => _247AROUND_CANCELLED, "spare_cancelled_date" => date("Y-m-d h:i:s"));
-                    $new_state = SPARE_PARTS_CANCELLED;
+                    $track_status = $new_state = SPARE_PARTS_CANCELLED;
                     $old_state = SPARE_PARTS_REQUESTED;
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = _247AROUND_COMPLETED;
@@ -1174,9 +1174,9 @@ class Inventory extends CI_Controller {
                 case 'REJECT_COURIER_INVOICE':
                     $where = array('id' => $id);
                     $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
-                    $new_state = "Courier Invoice Rejected By Admin";
+                    $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
-                    
+
                     if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                         $b['internal_status'] = "Courier Invoice Rejected By Admin";
                     }
@@ -1205,10 +1205,9 @@ class Inventory extends CI_Controller {
                         $this->service_centers_model->update_spare_parts($where, $spare_data);
                     }
 
-                    $where = array("id" => $id);
-                    $this->service_centers_model->update_spare_parts($where, $data);
-
-                    $new_state = "Courier Invoice Approved By Admin";
+                    $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
+                    
+                    $track_status = $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
                     if($booking_details['current_status'] == _247AROUND_COMPLETED) {
@@ -1226,19 +1225,21 @@ class Inventory extends CI_Controller {
                     if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                         $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
+                    $track_status = $new_state = DEFECTIVE_PARTS_SHIPPED;
+
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS':
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
-                    $new_state = "Spare Parts Not Required To Partner";
+                    $track_status = $new_state = "Spare Parts Not Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING':
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
-                    $new_state = "Spare Parts Not Required To Partner";
+                    $track_status =  $new_state = "Spare Parts Not Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = "Completed";
@@ -1250,7 +1251,7 @@ class Inventory extends CI_Controller {
                 CASE 'REQUIRED_PARTS':
                     $data['defective_part_required'] = 1;
                     $where = array('id' => $id);
-                    $new_state = "Spare Parts Required To Partner";
+                    $track_status = $new_state = "Spare Parts Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
             }
@@ -1265,21 +1266,27 @@ class Inventory extends CI_Controller {
                 $agent_id = $this->session->userdata('id');
                 $agent_name = $this->session->userdata('employee_id');
                 $entity_id = _247AROUND;
-
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id);
+                $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $id);
             } else if ($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
                 $entity_id = $this->session->userdata('partner_id');
-
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id);
+                $track_entity_type = _247AROUND_PARTNER_STRING;
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id, "", $id );
             } else if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
                 $agent_name = $this->session->userdata('service_center_name');
                 $entity_id = $this->session->userdata('service_center_id');
-
-                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $entity_id);
+                $track_entity_type = _247AROUND_SF_STRING;
+                $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $entity_id, $id);
             }
+            
+            /* Insert Spare Tracking Details */
+                if (!empty($id)) {
+                    $tracking_details = array('spare_id' => $id, 'action' => $track_status, 'remarks' => trim($remarks), 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
             if (!empty($partner_id) && !empty($b['internal_status'])) {
@@ -4181,10 +4188,14 @@ class Inventory extends CI_Controller {
         $transfered_by = $this->input->post('transfered_by');
         if ($this->session->userdata("partner_id")) {
             $s_partner_id = $this->session->userdata("partner_id");
-        } if($this->session->userdata("service_center_id")){
-        	$s_partner_id = $this->session->userdata("service_center_id");
+
+            $track_entity_type = _247AROUND_PARTNER_STRING;
+        } if ($this->session->userdata("service_center_id")) {
+            $s_partner_id = $this->session->userdata("service_center_id");
+            $track_entity_type = _247AROUND_SF_STRING;
         } else {
             $s_partner_id = _247AROUND;
+            $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
         if (!empty($ledger['booking_id'])) {
             if (isset($fomData['spare_id']) && $fomData['spare_id'] != 'new_spare_id') {
@@ -4198,19 +4209,25 @@ class Inventory extends CI_Controller {
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
                 
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
+
+                /* Insert Spare Tracking Details */
+                if (!empty($fomData['spare_id'])) {
+                    $tracking_details = array('spare_id' => $fomData['spare_id'], 'action' => SPARE_SHIPPED_TO_WAREHOUSE, 'remarks' => '', 'agent_id' => $action_agent_id, 'entity_id' => $s_partner_id, 'entity_type' => $track_entity_type);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
-                        if (!empty($partner_status)) {
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
-                            $booking['partner_internal_status'] = $partner_status[1];
-                            $actor = $booking['actor'] = $partner_status[2];
-                            $next_action = $booking['next_action'] = $partner_status[3];
-                            
-                            $this->booking_model->update_booking($ledger['booking_id'], $booking);
-                        }
-                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+
+                        $this->booking_model->update_booking($ledger['booking_id'], $booking);
+                    }
+                    $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL, $fomData['spare_id']);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
                 } else {
                     log_message('info', ' error in updating spare details');
@@ -5557,9 +5574,12 @@ class Inventory extends CI_Controller {
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
                     $service_center_id = $this->session->userdata('service_center_id');
+                    /* Insert Spare Tracking Details */
+                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;
-                    $this->notify->insert_state_change($val['booking_id'], DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                    $this->notify->insert_state_change($val['booking_id'], DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id, $val['spare_id']);
                     log_message("info", "Booking State change inserted");
                 }
             }

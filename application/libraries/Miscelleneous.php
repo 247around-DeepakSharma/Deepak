@@ -4936,6 +4936,23 @@ function generate_image($base64, $image_name,$directory){
                         }
                     }
                 }
+                
+                if (!empty($this->My_CI->session->userdata('service_center_id'))) {
+                    $agent_id = $this->My_CI->session->userdata("service_center_agent_id");
+                    $track_entity_id = $this->My_CI->session->userdata('service_center_id');
+                    $track_entity_type = _247AROUND_SF_STRING;
+                } else {
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $track_entity_id = _247AROUND;
+                    $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                }
+
+                /* Insert Spare Tracking Details */
+                if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
+                    $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
+
             }
 
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {

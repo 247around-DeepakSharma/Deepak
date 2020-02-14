@@ -174,3 +174,5 @@ define('DAMAGE_PARTS_SHIPPED', 'Damage Part Shipped By SF');
 
 define('COURIER_LOST_APPROVED_STATUS', 'Courier Lost Approved');
 define('PART_CONSUMED_STATUS_ID', '1');
+/* Alternate spare part Picked */
+define('ALTERNATE_PART_PICKED', 'Alternate Part Picked');
