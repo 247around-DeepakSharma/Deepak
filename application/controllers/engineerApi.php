@@ -3758,7 +3758,7 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type";
+            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type,is_paid"; /// Sending if paid or not ///
             $where = array(
                 "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
                 "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
