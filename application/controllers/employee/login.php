@@ -554,7 +554,8 @@ class Login extends CI_Controller {
         $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
         $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
         $login_data['is_login_by_247'] = $is_login_by_247;
-        $login_id = $this->employee_model->add_login_logout_details($login_data);
+        $login_id = 1;
+//        $login_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($login_id) {
             log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['agent_id']);

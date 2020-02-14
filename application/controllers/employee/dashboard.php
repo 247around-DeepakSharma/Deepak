@@ -945,9 +945,9 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     $SfBookingArray = array();
     $esclationPercentage = array();
     //create groupby array for booking(group by rm and then vendor)
-    $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    $groupBy['booking'] = array("service_centres.rm_id as agent_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
-    $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    $groupBy['escalation'] = array("service_centres.rm_id as agent_id","vendor_escalation_log.vendor_id");
     $partner_id = NULL;
     if($this->session->userdata('partner_id')){
         $partner_id = $this->session->userdata('partner_id');
@@ -1320,9 +1320,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     $rmArray = $rmEscalationArray = $esclationPercentage = array();
     //create groupby array for booking(group by rm and then vendor)
-    $groupBy['booking'] = array("employee_relation.agent_id","booking_details.assigned_vendor_id");
+    $groupBy['booking'] = array("service_centres.rm_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
-    $groupBy['escalation'] = array("employee_relation.agent_id","vendor_escalation_log.vendor_id");
+    $groupBy['escalation'] = array("service_centres.rm_id","vendor_escalation_log.vendor_id");
     // get escalation data and booking data for all vendor related to rm
     $escalationBookingData = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,NULL,NULL,$groupBy,$partnerID);
     //Create Associative array for Vendor booking(Pass Vendor ID get vendor Booking)
@@ -2654,7 +2654,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function send_missing_pincode_details(){
         log_message('info', __METHOD__ . "=>start");
-       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",array("employee.groups IN ("._247AROUND_RM.","._247AROUND_ASM.")"=>NULL),NULL
                ,NULL,NULL,NULL,NULL,array());
         $data['serviceData']= $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,NULL,NULL,NULL);
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
@@ -2690,7 +2690,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             $india_pincode["state_".$value['state_id']]=$value['state_pincode_count'];
                         }
                     }
-                    $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email,employee_relation.state_code",NULL,array("employee"=>"employee_relation.agent_id = employee.id")
+                    $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email,group_concat(agent_state_mapping.state_code) as state_code",NULL,array("employee"=>"agent_state_mapping.agent_id = employee.id")
                            ,NULL,NULL,NULL,NULL,array());
                     $vendor_mapping_data=$this->vendor_model->get_vendor_mapping_groupby_applliance_state(array());
                     $active_services=$this->vendor_model->get_active_services();
@@ -2779,14 +2779,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $join['state_code'] = 'india_pincode.state=state_code.state';
                 $groupBY = array('district');
                 $indiaPincodeArray = $this->reusable_model->get_search_result_data("india_pincode",$select,NULL,$join,NULL,NULL,NULL,NULL,$groupBY);
-                $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,employee_relation.agent_id,employee.full_name,COUNT(DISTINCT pincode) as total_pincode"; 
+                $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,service_centres.rm_id as agent_id,employee.full_name,COUNT(DISTINCT pincode) as total_pincode"; 
                 $vendorJoin['state_code'] = 'vendor_pincode_mapping.State=state_code.state';
-                $vendorJoin['employee_relation'] = 'FIND_IN_SET(vendor_pincode_mapping.Vendor_ID,employee_relation.service_centres_id)';
-                $vendorJoin['employee'] = 'employee.id=employee_relation.agent_id';
+                $vendorJoin['service_centres'] = 'vendor_pincode_mapping.Vendor_ID = service_centres.id)';
+                $vendorJoin['employee'] = 'employee.id=service_centres.rm_id';
                 $vendorGroupBY = array('City','vendor_pincode_mapping.Appliance_ID');
                 $where = NULL;
                 if($rmID){
-                    $where['employee_relation.agent_id'] = $rmID;
+                    $where['service_centres.rm_id'] = $rmID;
                 }
                  if($appliance_id){
                     $where['vendor_pincode_mapping.Appliance_ID'] = $appliance_id;
@@ -3061,11 +3061,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         $totalPincode = array_sum(array_values($india_pincode));
-        $where = NULL;
+        $where['employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'] = NULL;
         if($rmID){
-            $where['agent_id'] = $rmID;
+            $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $rmData = $this->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.full_name,employee_relation.state_code",$where,array("employee"=>"employee_relation.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
@@ -3314,4 +3314,5 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
 
 }
+
 

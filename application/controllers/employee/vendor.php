@@ -91,8 +91,8 @@ class vendor extends CI_Controller {
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                //Updating details of SF in employee_relation table
-                $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
+                //Updating details of SF against RM
+                $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
                     log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
@@ -151,17 +151,17 @@ class vendor extends CI_Controller {
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
 
-                //Adding values in admin groups present in employee_relation table
-                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
-                if($check_admin_sf_relation != FALSE){
-                    //Logging success 
-                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
-                }else{
-                    //Logging Error 
-                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
-                }
+                //Adding values in admin groups 
+//                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
+//                if($check_admin_sf_relation != FALSE){
+//                    //Logging success 
+//                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
+//                }else{
+//                    //Logging Error 
+//                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
+//                }
 
-                //Updating details of SF in employee_relation table
+                //Updating details of SF against RM
                 $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
