@@ -4022,7 +4022,7 @@ function check_for_upgrade(){
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response']['upgrade'] = array();
-            $this->sendJsonResponse(array("9998",'Upgrade not required');
+            $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
 
 }
