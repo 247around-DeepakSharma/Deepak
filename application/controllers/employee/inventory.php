@@ -1075,6 +1075,8 @@ class Inventory extends CI_Controller {
         }
         
         if (!empty($id)) {
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $id ),true);
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
@@ -1178,8 +1180,10 @@ class Inventory extends CI_Controller {
                     $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
                     $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
-
-                    $b['internal_status'] = "Courier Invoice Rejected By Admin";
+                    
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $b['internal_status'] = "Courier Invoice Rejected By Admin";
+                    }
                     /* Insert Spare Tracking Details */
                     if (!empty($id)) {
                         $tracking_details = array('spare_id' => $id, 'action' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
@@ -1216,7 +1220,9 @@ class Inventory extends CI_Controller {
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
-                    $b['internal_status'] = "Courier Invoice Approved By Admin";
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $b['internal_status'] = "Courier Invoice Approved By Admin";
+                    }
                     $flag = FALSE;
                     break;
 
