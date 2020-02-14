@@ -4016,12 +4016,12 @@ function check_for_upgrade(){
         if ($requestData['app_version']!=APP_VERSION) { 
                 // get configuration data from table for App version upgrade // 
                 $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
-                $this->jsonResponseString['response']['upgrade'] = $response;  /////response key according to umesh
+                $this->jsonResponseString['response'] = $response;  // Response one up according to umesh//
                 $this->sendJsonResponse(array('0000', 'success')); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response']['upgrade'] = array();
+            $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
             $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
 
