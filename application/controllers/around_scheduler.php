@@ -1160,9 +1160,16 @@ class Around_scheduler extends CI_Controller {
                 . "sf_not_exist_booking_details sf INNER JOIN booking_details  ON sf.booking_id=booking_details.booking_id WHERE sf.rm_id IS NULL  GROUP BY sf.pincode";
         $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
         if ($affectedRows > 0) {
-            $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
-      GROUP BY india_pincode.pincode";
+            $getRmSql = "SELECT 
+                            india_pincode.pincode,
+                            agent_state_mapping.agent_id as rm_id,
+                            india_pincode.state
+                        FROM 
+                            india_pincode
+                            INNER JOIN state_code ON state_code.state=india_pincode.state
+                            LEFT JOIN agent_state_mapping ON (agent_state_mapping.state_code = state_code.state_code)
+                        WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
+                        GROUP BY india_pincode.pincode";
             $result = $this->reusable_model->execute_custom_select_query($getRmSql);
             if ($result) {
                 foreach ($result as $data) {
@@ -2132,14 +2139,23 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             );
         $this->table->set_template($table_template);
         $this->table->set_heading(array('Regional Manager', 'Penalty Resson', 'Total Bookings', 'Total penalty', 'Penalty Amount'));
-        $query = "select employee.full_name, penalty_details.criteria, count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, 
-                count(penalty_on_booking.id) as total_penalty_count, SUM(penalty_on_booking.penalty_amount) as penalty_amount 
-                from penalty_on_booking join employee_relation on FIND_IN_SET(penalty_on_booking.service_center_id, employee_relation.service_centres_id) 
-                join employee on employee.id = employee_relation.agent_id 
-                join penalty_details on penalty_details.id = penalty_on_booking.criteria_id 
-                WHERE penalty_remove_reason IS NULL AND penalty_on_booking.create_date >= '".$start_date."' AND penalty_on_booking.create_date <= '".$end_date."'
-                group by criteria_id, employee_relation.agent_id 
-                ORDER BY `employee`.`full_name` ASC";
+        $query = "select 
+                    employee.full_name,
+                    penalty_details.criteria,
+                    count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, 
+                    count(penalty_on_booking.id) as total_penalty_count,
+                    SUM(penalty_on_booking.penalty_amount) as penalty_amount 
+                from 
+                    penalty_on_booking
+                    join service_centres ON (penalty_on_booking.service_center_id = service_centres.id)
+                    join employee ON employee.id = service_centres.rm_id
+                    join penalty_details on penalty_details.id = penalty_on_booking.criteria_id 
+                WHERE
+                    penalty_remove_reason IS NULL AND penalty_on_booking.create_date >= '".$start_date."' AND penalty_on_booking.create_date <= '".$end_date."'
+                group by
+                    criteria_id, service_centres.rm_id 
+                ORDER BY 
+                    `employee`.`full_name` ASC";
         $data = $this->reusable_model->execute_custom_select_query($query);
         if(!empty($data)){
             $table = $this->table->generate($data);

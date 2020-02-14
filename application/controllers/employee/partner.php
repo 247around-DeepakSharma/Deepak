@@ -2723,6 +2723,8 @@ class Partner extends CI_Controller {
                     array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
             
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
@@ -2738,7 +2740,9 @@ class Partner extends CI_Controller {
                 }
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
 
-                $this->booking_model->update_booking($booking_id, $booking);
+                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
             } else {
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
             }
@@ -2870,12 +2874,15 @@ class Partner extends CI_Controller {
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         if ($response) {
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
 
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
         
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], 
                     $this->session->userdata('partner_id'), $booking_id);
             $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
@@ -2884,6 +2891,7 @@ class Partner extends CI_Controller {
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
+
             /* Insert Spare Tracking Details */
             if (!empty($spare_id)) {
                     $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('agent_id'), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
@@ -2891,8 +2899,9 @@ class Partner extends CI_Controller {
             }
             
             $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action, "", $spare_id);
-            $this->booking_model->update_booking($booking_id, $booking);
-
+            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $this->booking_model->update_booking($booking_id, $booking);
+            }
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -6830,8 +6839,9 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
+        // Adding Booking request type in selection
         $select = "spare_parts_details.booking_id,services.services, i.part_number,spare_parts_details.parts_requested as parts_requested, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, booking_details.request_type,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
@@ -6867,9 +6877,10 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['remarks_by_sc'];
                     $bookingIdTemp = "'".$row['booking_id']."'";                    
                     $tempString3 =  '<a href="#" data-toggle="modal" id="spare_parts'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2707" class="btn btn-sm btn-danger open-adminremarks1" title="Cancel" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Cancel</a>';
-                     
                      $tempArray[] =  $tempString3;                       
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal777' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' >Approve</a>";
+                     // Adding Booking request type attribute with the link, 
+                     // so that we can compare booking request type with part warranty status.
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal777' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' data-request_type='".$row['request_type']."' >Approve</a>";
 
 
                       $finalArray[] = $tempArray;

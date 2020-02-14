@@ -600,6 +600,46 @@ class Engineer_model extends CI_Model {
    }
 
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get config data
+     *@param - $config_type
+     *@return - Row
+     */
+
+ function get_engineer_config($config_type){
+
+         $this->db->select("*"); 
+         $this->db->where('configuration_type',$config_type);
+         $this->db->from('engineer_configs');
+         $query = $this->db->get();
+         return $query->result();
+
+
+ }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to update config
+     *@param -  
+     *@return - json
+     */
+
+
+   function update_config_data($data,$where){
+
+    $this->db->where($where);
+    $this->db->update('engineer_configs',$data);
+    if($this->db->affected_rows() > 0){
+        return TRUE;
+    }else{
+        return FALSE;
+    }
+
+
+   }
+
+
+
 
 
 

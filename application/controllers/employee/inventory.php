@@ -1075,6 +1075,9 @@ class Inventory extends CI_Controller {
         }
         
         if (!empty($id)) {
+
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1198,23 +1201,20 @@ class Inventory extends CI_Controller {
                     $track_status = $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
-                    $b['internal_status'] = "Courier Invoice Approved By Admin";
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $b['internal_status'] = "Courier Invoice Approved By Admin";
+                    }
                     $flag = FALSE;
                     break;
 
                 case 'DEFECTIVE_PARTS_SHIPPED_BY_SF':
                     $where = array('id' => $id);
                     $data = array('status' => DEFECTIVE_PARTS_SHIPPED);
-                    $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                    $sc_data['update_date'] = date("Y-m-d H:i:s");
-
-                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
                     $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $track_status = $new_state = DEFECTIVE_PARTS_SHIPPED;
-
-                    $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    }
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS':
@@ -1278,7 +1278,7 @@ class Inventory extends CI_Controller {
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
             if (!empty($partner_id) && !empty($b['internal_status'])) {
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
                 if (!empty($partner_status)) {
                     if ($line_items < 2) {
                         $b['partner_current_status'] = $partner_status[0];
@@ -1545,7 +1545,7 @@ class Inventory extends CI_Controller {
         $sfIDArray = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
+            $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("rm_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",", $sfIDList);
         }
@@ -2383,7 +2383,7 @@ class Inventory extends CI_Controller {
         $sfIDArray = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
+            $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("rm_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",", $sfIDList);
         }
@@ -3194,7 +3194,7 @@ class Inventory extends CI_Controller {
         $sfIDArray = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
+            $rmServiceCentersData = $this->reusable_model->get_search_result_data("service_centres", "group_concat(id) as service_centres_id", array("(rm_id = '".$rm_id."' || asm_id = '".$rm_id."')" => NULL), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",", $sfIDList);
         }

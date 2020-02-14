@@ -717,7 +717,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("(rm_id = '".$rm_id."' || asm_id = '".$rm_id."')"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -1042,7 +1042,7 @@ class Inventory_model extends CI_Model {
         //RM Specific Bookings
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             if(!empty($rmServiceCentersData)){
                 $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
                 $sfIDArray = explode(",",$sfIDList);
@@ -2225,7 +2225,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }

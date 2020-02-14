@@ -1577,5 +1577,20 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->where('id IN ('.$service_centres_id.')', NULL);
         $this->db->update("service_centres");
     }
+    
+    function update_service_centers_by_state($arrayUpdateColumn,$arrayWhere)
+    {
+        if(!empty($arrayUpdateColumn) && !empty($arrayWhere))
+        {
+            $this->db->set($arrayUpdateColumn);
+            $this->db->where($arrayWhere);
+            $this->db->update("service_centres");
+            return $this->db->affected_rows();
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 }

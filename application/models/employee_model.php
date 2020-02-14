@@ -18,18 +18,6 @@ class Employee_model extends CI_Model{
 
   }
   
-  
-  /* @desc : this function for create employee relation
-   * @param : array(employee relation detail)
-   * @return :  id
-   */
-
-  function insertEmployeeRelation($insert){
-    $this->db->insert('employee_relation',$insert);
-    return   $this->db->insert_id();
-
-  }
-  
   /* @desc : this function for count total employee
    * @param : void
    * @return : no. of employee
@@ -191,7 +179,7 @@ class Employee_model extends CI_Model{
       function get_employee_for_cron_mail(){
           $this->db->select('*');
           $this->db->where('groups',_247AROUND_ADMIN);
-          $this->db->or_where('groups',_247AROUND_RM);
+          $this->db->or_where('groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")',NULL);
           $this->db->where('active','1');
           $query = $this->db->get('employee');
           echo $this->db->last_query();
@@ -370,40 +358,19 @@ class Employee_model extends CI_Model{
    }
    
    /**
-    * @desc : This function is used to check existence of rm id in employee_relation
-    * @param type $id
-    * @return type
-    */
-   function chk_entry_in_employee_relation($id) {
-        if(!empty($id))
-        {
-            $data=$this->db->query("select * from `employee_relation` where agent_id =".$id)->result_array();
-            if(count( $data) == 0 ){
-                 $emp_rel["agent_id"] = $id;
-                 $emp_rel["active"] = 1;
-                 $emp_rel["create_date"] = date('Y-m-d H:i:s');
-                $this->insertEmployeeRelation($emp_rel);
-            }
-        }
-
-   }
-   /**
     * @Desc: This function is used to get assigned states 
     * @params: void
     * @return: Array
     * 
     */
     function get_rm_mapped_state($rmid){
-        $sql= "select `state_code`.`state` from state_code where `state_code`.state_code in (
-            SELECT
-  DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(vals, ',', n.digit+1), ',', -1) val
-FROM
-  (select state_code as vals from employee_relation where agent_id=".$rmid.") tt1
-  INNER JOIN
-  (SELECT 0 digit UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3  UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10) n
-  ON LENGTH(REPLACE(vals, ',' , '')) <= LENGTH(vals)-n.digit)";
+        $sql= "select
+              state_code.state from state_code            
+              JOIN agent_state_mapping ON (agent_state_mapping.state_code = state_code.state_code)
+            WHERE
+              agent_state_mapping.agent_id = '".$rmid."'";
         return $this->db->query($sql)->result_array();
- }
+    }
     
    /**
     * @desc : This function is used to update state mapping. New User added is RM and any ASM details are propagated to this RM 
@@ -411,94 +378,6 @@ FROM
     * @return type
     */
    function update_new_rm_mapping($id) {
-       $sql="update `employee_relation`
-        left join 
-        (SELECT `manager_id` as `id`,  GROUP_CONCAT(`individual_service_centres_id` SEPARATOR ',')  as `center_id`, GROUP_CONCAT(`state_code` SEPARATOR ',') as `state_id` FROM `employee_relation` 
-        left JOIN `employee_hierarchy_mapping` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id`
-        where `employee_hierarchy_mapping`.`manager_id` = ".$id.") as tempq on (tempq.id=employee_relation.agent_id)
-        set `service_centres_id`=tempq.`center_id` , `state_code`=tempq.`state_id`
-        where `agent_id`=tempq.id";
-       return $this->db->query($sql);
-   }
-   
-   
-   /**
-    * @desc : This procedure is to update its manager mapping if he is a regionalmanager or areasalesmanager 
-    * @param type $id
-    * @return type
-    */
-   function update_asm_manager_mapping($id) {
-       $sql="update `employee_relation` "
-               . "Left Join ( select e1.id,`employee_relation`.`individual_service_centres_id`, `employee_relation`.`state_code` "
-               . "from `employee_hierarchy_mapping` join `employee` e1 on e1.`id` =`employee_hierarchy_mapping`.`manager_id` "
-               . "join `employee_relation` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id` "
-               . "where e1.`groups` IN ('"._247AROUND_RM."','"._247AROUND_ASM."') and `employee_hierarchy_mapping`.`employee_id`=".$id.") a "
-               . "on a.id=`employee_relation`.agent_id "
-               . "set `employee_relation`.`state_code`= if((`employee_relation`.`state_code` is null or `employee_relation`.`state_code` =''),a.`state_code`,concat(`employee_relation`.`state_code`, concat(',',a.`state_code`) )), "
-               . "`employee_relation`.`service_centres_id`=if((`employee_relation`.`service_centres_id` is null or `employee_relation`.`service_centres_id` =''),a.`individual_service_centres_id`,concat(`employee_relation`.`service_centres_id`,concat(',',a.`individual_service_centres_id`)) ) "
-               . "where `employee_relation`.`agent_id`=a.id";
-       //print_r($sql);
-       return $this->db->query($sql);
-   }
-   
-   /**
-    * @desc : This function is used to update rm/asm state mapping
-    * @param type $id,$state
-    * @return type
-    */
-   function update_rm_state_mapping($id,$state) {
-       //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
-       $query="UPDATE `employee_relation` SET "
-                         ."   `service_centres_id`= if ((`service_centres_id` IS NULL OR  `service_centres_id` = ''), "
-                        ."(SELECT GROUP_CONCAT(id ORDER BY id SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL),"
-                        ."concat(`service_centres_id`,concat(',',(SELECT GROUP_CONCAT(`id` ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL)))),"
- 
-                        ."`individual_service_centres_id` = if((`individual_service_centres_id` IS NULL OR  `individual_service_centres_id` = ''), " 
-                        ." (SELECT GROUP_CONCAT(id ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL), "
-                        ."concat(`individual_service_centres_id`,concat( ',',(SELECT GROUP_CONCAT(id ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL)))),"
-
-                        ."`state_code`= if( (`state_code` IS NULL OR  `state_code` = ''), (select `state_code` from `state_code` WHERE `state`='".$state."' LIMIT 1),"
-                        ." concat(`state_code`,(select concat(',',`state_code`) from `state_code` WHERE `state`='".$state."' LIMIT 1)))"
-                        ."   WHERE `agent_id`=".$id;
-      // print_r($query);
-       return $this->db->query($query);
-   }
-   
-
-
-   function update_rm_relation_details($id,$service_centres_id,$individual_service_centres_id, $state_code) {
-//     //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
-//     $query="UPDATE `employee_relation` SET "
-//                       ."   `service_centres_id`= '".$service_centres_id."',"
-//                      ."`individual_service_centres_id` = '".$individual_service_centres_id."',"
-//                      ."`state_code`= '".$state_code."'"
-//                      ."   WHERE `agent_id`=".$id;
-//    // print_r($query);
-
-   $this->db->set("service_centres_id",$service_centres_id);
-   $this->db->set("individual_service_centres_id",$individual_service_centres_id);
-   $this->db->set("state_code",$state_code);
-   $this->db->where('agent_id', $id);
-   $this->db->update("employee_relation");
-}
-
-   /**
-    * @desc : This function is used to remove all mapping of state in database
-    * @param type $state
-    * @return type
-    */
-   function pick_all_rm_state_map($state) {
-
-        
-
-        $sql_individual_service_centres_id = "select emp_rel.agent_id,emp_rel.service_centres_id,emp_rel.individual_service_centres_id,emp_rel.state_code from `employee_relation` as emp_rel 
-        LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , emp_rel.`state_code`) 
-        WHERE `state_code`.`state` = '".trim($state)."'";
-       
-        $res=$this->db->query($sql_individual_service_centres_id)->result_array();
-        return $res;
-
-
    }
    
    /**
@@ -506,18 +385,15 @@ FROM
     * @param type $state
     * @return type
     */
-   function get_state_wise_rm($state, $arr_groups = [_247AROUND_RM, _247AROUND_ASM]) {
-       $str_groups = implode(',', $arr_groups); 
+   function get_state_wise_rm($state) {
        $sql = "SELECT
                     employee.id,
                     employee.full_name
                 FROM
-                    employee_relation
-                    LEFT JOIN employee ON (employee_relation.agent_id = employee.id)
-                    LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
+                    agent_state_mapping
+                    LEFT JOIN employee ON (agent_state_mapping.agent_id = employee.id)
+                    LEFT JOIN state_code ON (state_code.state_code = agent_state_mapping.state_code)
                 WHERE 
-                    employee.groups IN ('".$str_groups."') AND
-                    employee.active = 1 AND    
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
@@ -547,5 +423,69 @@ FROM
         $this->db->set("rm_id",$rm_id);
         $this->db->where('region', $region);
         $this->db->update("rm_region_mapping");
+    }
+    
+    function insertData_agent_state_mapping($insert)
+    {
+            $this->db->insert('agent_state_mapping',$insert);
+            return   $this->db->insert_id();
+    }
+    
+    function get_state_of_rm_asm($state,$group,$agent)
+    {
+        if(!empty($state) && !empty($group) && !empty($agent))
+        {
+                $this->db->select('agent_state_mapping.agent_id,state_code.state');
+                $this->db->from('agent_state_mapping');
+                $this->db->join('state_code', 'agent_state_mapping.state_code=state_code.state_code');
+                $this->db->join('employee', 'agent_state_mapping.agent_id=employee.id');
+                $this->db->where_in('state_code.state', $state);
+                $this->db->where('employee.groups', $group);
+                $this->db->where_not_in('agent_state_mapping.agent_id', $agent);
+                $query = $this->db->get();
+                return $query->result_array();	
+        }
+    }
+    
+    function delete_agent_state_mapping($agentID,$state)
+    {
+        if(!empty($agentID) && !empty($state))
+        {
+                $sql="delete a from agent_state_mapping a inner join state_code s on a.state_code=s.state_code where s.state='".$state."' and a.agent_id=".$agentID."";
+                $this->db->query($sql);
+                return true;
+        }
+        else
+        {
+                return false;
+        }
+    }
+    
+    function insert_agent_state_mapping($agentID,$state,$created_by)
+    {
+        if(!empty($agentID) && !empty($state) && !empty($created_by))
+        {
+                $sql="insert into agent_state_mapping (agent_id,state_code,created_by) select '$agentID',state_code,'created_by' from state_code where state='$state'";
+                $this->db->query($sql);
+        }
+        else
+        {
+                return false;
+        }
+    }
+    
+    function get_asm_from_rm($state,$agent)
+    {
+        if(!empty($state) && !empty($agent))
+        {
+        $this->db->select('agent_state_mapping.agent_id,state_code.state');
+        $this->db->from('agent_state_mapping');
+        $this->db->join('state_code', 'agent_state_mapping.state_code=state_code.state_code');
+        $this->db->join('employee_hierarchy_mapping', 'agent_state_mapping.agent_id=employee_hierarchy_mapping.employee_id');
+        $this->db->where_in('state_code.state', $state);
+        $this->db->where('employee_hierarchy_mapping.manager_id', $agent);
+        $query = $this->db->get();
+        return $query->result_array();
+        }
     }
 }
