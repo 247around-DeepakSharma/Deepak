@@ -74,8 +74,14 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
-
-            //username is user email address, not her name
+ 
+// temporary check for version update check for key also for older version apps///
+            if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
+            log_message('info', "Force update error");
+            $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
+            exit;
+            }
+      //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
             }
@@ -276,11 +282,11 @@ class engineerApi extends CI_Controller {
               case 'cancelBooking':
               $this->processCancelBooking();
               break;
-
-              case 'rescheduleBooking':
-              $this->processRescheduleBooking();
+            */
+            case 'checkForUpgrade':
+              $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
               break;
-             */
+             
             case 'engineerLogin':
                 $this->processEngineerLogin();
                 break;
@@ -3988,6 +3994,32 @@ function getPartnerAppliancesModelsPartTypesInventory(){
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+}
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to check app upgrade
+     *@param - 
+     *@return - json
+     */
+
+function check_for_upgrade(){
+
+        log_message("info", __METHOD__ . " Entering..in upgrade");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("app_version"), $requestData);
+        if ($requestData['app_version']!=APP_VERSION) { 
+                // get configuration data from table for App version upgrade // 
+                $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
+                $this->jsonResponseString['response']['upgrade'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success')); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response']['upgrade'] = array();
+            $this->sendJsonResponse(array("9998",'Upgrade not required');
         }
 
 }

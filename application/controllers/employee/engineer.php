@@ -700,4 +700,51 @@ class Engineer extends CI_Controller {
         $this->load->view('employee/engineers_list_for_notifications');
     }
 
+
+    /* @desc - This function is used to get list of enggineer and send them Firebase Notifications
+     */
+
+    function configurations() {
+
+        $this->miscelleneous->load_nav_header();
+        $data['force_upgrade'] = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        $this->load->view('employee/engineers_configurations',$data);
+    }
+
+
+
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to update config
+     *@param -  
+     *@return - json
+     */
+
+
+   function update_config(){
+
+    $where = array(
+        'configuration_type'=>trim($_POST['config_type'])
+    );
+    $data=array(
+        'config_value'=>$_POST['config_value']
+    );
+    $response = $this->engineer_model->update_config_data($data,$where);
+
+    if($response){
+
+        echo json_encode(array('response'=>true));
+    }else{
+
+        echo json_encode(array('response'=>false));
+    }
+
+
+   }
+
+
+
+
+
+
 }

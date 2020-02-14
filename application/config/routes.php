@@ -302,8 +302,8 @@ $route['partner/inventory/upload_bom_file'] = 'employee/inventory/upload_bom_fil
 $route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file/0';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engineer_bookings';
+$route['engineer/configurations'] = 'employee/engineer/configurations';
 $route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
-
 $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_plan_details/$1';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

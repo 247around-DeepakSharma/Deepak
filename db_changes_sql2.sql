@@ -1826,4 +1826,9 @@ ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 --Ankit Rajvanshi 05-02-2020
 INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
->>>>>>> 996472f68... CRM-4468 new reason "Part not Received" added in consumption reason
+
+---Abhishek 13-02-2020 --
+CREATE TABLE `247around`.`engineer_configs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `configuration_type` VARCHAR(255) NOT NULL ,  `config_value` VARCHAR(255) NULL ,  `description` VARCHAR(255) NULL DEFAULT NULL ,  `groups` VARCHAR(255) NULL DEFAULT NULL ,  `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `create_date` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL AFTER `description`;
+ 
