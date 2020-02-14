@@ -76,12 +76,15 @@ class engineerApi extends CI_Controller {
             $this->token = $requestData['token'];
  
 // temporary check for version update check for key also for older version apps///
-            if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
-            log_message('info', "Force update error");
-            $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
-            exit;
-            }
-      //username is user email address, not her name
+ 
+            // if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
+            // log_message('info', "Force update error");
+            // $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
+            // exit;
+            // }
+
+            //username is user email address, not her name
+ 
             if (array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
             }
