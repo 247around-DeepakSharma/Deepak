@@ -1229,16 +1229,12 @@ class Inventory extends CI_Controller {
                 case 'DEFECTIVE_PARTS_SHIPPED_BY_SF':
                     $where = array('id' => $id);
                     $data = array('status' => DEFECTIVE_PARTS_SHIPPED);
-                    $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-                    $sc_data['update_date'] = date("Y-m-d H:i:s");
-
-                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                     $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $new_state = DEFECTIVE_PARTS_SHIPPED;
-
-                    $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+                    }
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS':
@@ -1296,7 +1292,7 @@ class Inventory extends CI_Controller {
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
             if (!empty($partner_id) && !empty($b['internal_status'])) {
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
                 if (!empty($partner_status)) {
                     if ($line_items < 2) {
                         $b['partner_current_status'] = $partner_status[0];
