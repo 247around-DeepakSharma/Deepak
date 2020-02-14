@@ -67,9 +67,6 @@
                             </tr>                            
                         </table>
                     </div>
-                    <?php if(!empty($spare_parts_details)) { ?>
-                    <hr />
-                    <?php } ?>
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
 
@@ -449,6 +446,7 @@
                                 </div>
                             </div>
                         </div>
+                         <?php if(!empty($spare_parts_details)) { ?>
                         <div class="row">
                         <div class="col-md-11" style="margin-left:10px;">
                             <table class="table table-bordered spare-consumption">
@@ -504,7 +502,8 @@
                             </table>
                             <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
                         </div>
-                    </div>                        
+                    </div>       
+                        <?php } ?>
                         <div class="row" >
                             <div class="col-md-12" style="margin-left:10px; margin-right:10px;">
                                 <div class="form-group">
