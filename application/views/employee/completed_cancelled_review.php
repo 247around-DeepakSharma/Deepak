@@ -125,7 +125,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <?php
                               if($review_status == "Completed" || $review_status == "Cancelled"){
                               ?>
-                                <th class="jumbotron" >Review Age</th>
+                                <th class="jumbotron" title="Age after SF completed action from his side.">Review Age&nbsp;<i class="fa fa fa-info-circle"></i></th>
                               <?php
                               }
                               ?> 
@@ -402,7 +402,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
        $('.completed_cancelled_review_table').each(function( index ) {
             $(this).DataTable().destroy();
        });
-       
        console.log($.fn.dataTable.isDataTable(".completed_cancelled_review_table"));
        <?php if(($review_status == "Completed" || $review_status == "Cancelled")){ ?>
             $('.completed_cancelled_review_table').DataTable({
