@@ -389,12 +389,15 @@ class paytm_payment_lib {
         //get rm by booking id
         $join['service_centres'] ="booking_details.assigned_vendor_id = service_centres.id";
         $where['booking_details.booking_id'] = $booking_id;
-        $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name",$where,$join,NULL,NULL,NULL,NULL,array());
-        $RMjoin['employee'] ="employee.id = employee_relation.agent_id";
-        $RMwhere['FIND_IN_SET('.$vendorArray[0]['id'].', employee_relation.service_centres_id)'] = NULL;
-        $RMArray = $this->P_P->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",$RMwhere,$RMjoin,NULL,NULL,NULL,NULL,array());
+        $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name,service_centres.rm_id",$where,$join,NULL,NULL,NULL,NULL,array());
+        $RMwhere['employee.id'] = !empty($vendorArray[0]['rm_id']) ? $vendorArray[0]['rm_id'] : 0;
+        $RMArray = $this->P_P->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",$RMwhere,NULL,NULL,NULL,NULL,NULL,array());
         $to = TRANSACTION_SUCCESS_TO; 
-        $cc = TRANSACTION_SUCCESS_CC.",".$RMArray[0]['official_email'];
+        $cc = TRANSACTION_SUCCESS_CC;
+        if(!empty($RMArray[0]['official_email']))
+        {
+            $cc .= ",".$RMArray[0]['official_email'];
+        }
         $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
         $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
                $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
@@ -594,12 +597,15 @@ class paytm_payment_lib {
                 //get rm by booking id
             $join['service_centres'] ="booking_details.assigned_vendor_id = service_centres.id";
             $where['booking_details.booking_id'] = $booking_id;
-            $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name",$where,$join,NULL,NULL,NULL,NULL,array());
-            $RMjoin['employee'] ="employee.id = employee_relation.agent_id";
-            $RMwhere['FIND_IN_SET('.$vendorArray[0]['id'].', employee_relation.service_centres_id)'] = NULL;
-            $RMArray = $this->P_P->reusable_model->get_search_result_data("employee_relation","employee_relation.agent_id,employee.official_email",$RMwhere,$RMjoin,NULL,NULL,NULL,NULL,array());
+            $vendorArray = $this->P_P->reusable_model->get_search_result_data("booking_details","service_centres.id,service_centres.name,service_centres.rm_id",$where,$join,NULL,NULL,NULL,NULL,array());
+            $RMwhere['employee.id'] = !empty($vendorArray[0]['rm_id']) ? $vendorArray[0]['rm_id'] : 0;
+            $RMArray = $this->P_P->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",$RMwhere,NULL,NULL,NULL,NULL,NULL,array());
             $to = TRANSACTION_SUCCESS_TO; 
-            $cc = TRANSACTION_SUCCESS_CC.",".$RMArray[0]['official_email'];
+            $cc = TRANSACTION_SUCCESS_CC;
+            if(!empty($RMArray[0]['official_email']))
+            {
+                $cc .= ",".$RMArray[0]['official_email'];
+            }
             $subject = "New Transaction From Paytm For SF  '".$vendorArray[0]['name']."'";
             $message = "Hi,<br/> We got a new transaction from Paytm, Details are Below: <br/> BookingID - " .$booking_id.",  <br/> OrderID - ".$data['order_id'].",  <br/> Paid Amount - ".
                    $data['paid_amount'].",  <br/> Service Center - ".$vendorArray[0]['name'];
