@@ -2714,6 +2714,8 @@ class Partner extends CI_Controller {
                     array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
             
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
@@ -2728,8 +2730,9 @@ class Partner extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
-
-                $this->booking_model->update_booking($booking_id, $booking);
+                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
             } else {
                 $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
             }
@@ -2850,12 +2853,15 @@ class Partner extends CI_Controller {
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         if ($response) {
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
 
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
         
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], 
                     $this->session->userdata('partner_id'), $booking_id);
             $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
@@ -2865,8 +2871,9 @@ class Partner extends CI_Controller {
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
             $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
-            $this->booking_model->update_booking($booking_id, $booking);
-
+            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $this->booking_model->update_booking($booking_id, $booking);
+            }
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
