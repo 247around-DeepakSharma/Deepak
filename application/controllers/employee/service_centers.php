@@ -3434,8 +3434,21 @@ class Service_centers extends CI_Controller {
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
                         $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
+                        // if booking completed change internal status.
                         if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                            $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PARTS_SHIPPED, $partner_id, $booking_id);
+                            if (!empty($partner_status)) {
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                                $booking['actor'] = $partner_status[2];
+                                $booking['next_action'] = $partner_status[3];
+
+                                if (!empty($booking_action) && $booking_action == 'reshedule') {
+                                    unset($booking['actor']);
+                                    unset($booking['next_action']);
+                                }
+                            }
+                            $this->booking_model->update_booking($booking_id, $booking);
                         }
                     }
 
