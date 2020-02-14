@@ -3297,6 +3297,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     $booking_id = $this->input->post('booking_id');
+                    $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
                     $quantity = $spare_details[0]['shipped_quantity'];
                     $partner_id = $this->input->post('booking_partner_id');
                     $data['awb_by_sf'] = $awb;
@@ -3406,7 +3407,9 @@ class Service_centers extends CI_Controller {
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
                         $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define");
-                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                            $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
+                        }
                     }
 
                     if (!empty($this->input->post("shipped_inventory_id"))) {
