@@ -4016,7 +4016,7 @@ function check_for_upgrade(){
         if ($requestData['app_version']!=APP_VERSION) { 
                 // get configuration data from table for App version upgrade // 
                 $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
-                $this->jsonResponseString['response'] = $response;  // Response one up according to umesh//
+                $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
                 $this->sendJsonResponse(array('0000', 'success')); // send success response //
                
         } else {
