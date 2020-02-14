@@ -6484,7 +6484,7 @@ class Service_centers extends CI_Controller {
                 
                 if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                     $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
 
                     if (!empty($partner_status)) {
                         $booking['partner_current_status'] = $partner_status[0];
@@ -6641,7 +6641,7 @@ class Service_centers extends CI_Controller {
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $decode_partner_id, $booking_id);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
                 $actor = $next_action = 'not_define';
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
