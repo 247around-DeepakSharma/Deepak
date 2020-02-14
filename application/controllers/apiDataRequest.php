@@ -249,12 +249,7 @@ class ApiDataRequest extends CI_Controller {
                 //Update Spare Parts Table
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                 
-                /* Insert Spare Tracking Details */
-                if (!empty($id)) {
-                    $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'partner_id' => $partner_id, 'service_center_id' => $vendor_id);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
-
+               
                 if ($response) {
                     //Update Unit Table
                     $unit = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
@@ -325,11 +320,27 @@ class ApiDataRequest extends CI_Controller {
                         'internal_status' => SPARE_OOW_EST_GIVEN));
                     //Insert State Change
                     if ($this->session->userdata('partner_id')) {
-                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor, $next_action, $partner_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor, $next_action, $partner_id, "", $id);
+                        $track_agent_id = $this->session->userdata('agent_id');
+                        $track_entity_id = $this->session->userdata('partner_id');
+                        $track_entity_type = _247AROUND_PARTNER_STRING;
                     } else if ($this->session->userdata('service_center_id')) {
-                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor, $next_action, NULL, $this->session->userdata('service_center_id'));
+                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", $agent_id, "", $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $id);
+                        $track_agent_id = $this->session->userdata("service_center_agent_id");
+                        $track_entity_id = $this->session->userdata('service_center_id');
+                        $track_entity_type = _247AROUND_SF_STRING;
                     } else {
-                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", _247AROUND_DEFAULT_AGENT, "", $actor, $next_action, _247AROUND);
+                        $this->notify->insert_state_change($booking_id, SPARE_OOW_EST_GIVEN, SPARE_OOW_EST_REQUESTED, "", _247AROUND_DEFAULT_AGENT, "", $actor, $next_action, _247AROUND, "", $id);
+                        $track_agent_id = _247AROUND_DEFAULT_AGENT;
+                        $track_entity_id = _247AROUND;  
+                        $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                        
+                    }
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => '', 'agent_id' => $track_agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
                     $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
