@@ -528,7 +528,8 @@ class Service_centers extends CI_Controller {
         if (($this->form_validation->run() == FALSE) || ($booking_id == "") || (is_null($booking_id))) {
             $this->complete_booking_form(urlencode(base64_encode($booking_id)));
         } else {
-
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
 
@@ -693,7 +694,9 @@ class Service_centers extends CI_Controller {
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
                     if ($is_update_spare_parts) {
-                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                            $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
+                        }
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
