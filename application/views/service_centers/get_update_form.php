@@ -67,66 +67,6 @@
                             </tr>                            
                         </table>
                     </div>
-                    <?php if(!empty($spare_parts_details)) { ?>
-                    <hr />
-                    <div class="row">
-                        <div class="col-md-12" style="margin-left:-16px;">
-                            <table class="table table-bordered spare-consumption">
-                                <caption style="font-weight:bold;">Please let us know the status of the previously requested parts.</caption>
-                                <thead>
-                                    <tr style="background-color:#f5f5f5;">
-                                        <th width="2%">S.No.</th>
-                                        <th width="20%">Part Number</th>
-                                        <th width="15%">Part Name</th>
-                                        <th width="10%">Part Type</th>
-                                        <th width="15%">Status</th>
-                                        <th width="23%">
-                                            <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
-                                            <span class="glyphicon glyphicon-info-sign"></span>
-                                            </a> Consumption Reason<span style="color:red;">*</span> 
-                                        </th>
-                                        <th width="15%">Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                        foreach($spare_parts_details as $SerialNo => $spare_part_detail) { $consumption_status_description = '';
-                                        if(empty($spare_part_detail['parts_shipped'])) { continue; }
-                                        //echo"<pre>";print_r($bookinghistory['spare_parts']);exit; 
-                                    ?>
-                                    <tr>
-                                        <td><?php echo ++$SerialNo; ?></td>
-                                        <td><?php echo $spare_part_detail['part_number']; ?></td>
-                                        <td><?php echo $spare_part_detail['parts_requested']; ?></td>
-                                        <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
-                                        <td><?php echo $spare_part_detail['status']; ?></td>
-                                        <td>
-                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
-                                                <option value="" selected disabled>Select Reason</option>
-                                                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
-                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['reason_text']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
-                                                    <?php if(isset($en_consumpton_details)){
-                                                        if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
-                                                           echo "selected"; 
-                                                        }
-                                                    } ?>
-                                                    ><?php echo $status['reason_text']; ?></option>
-                                                <?php $description_no++; } ?>
-                                            </select>
-
-                                        </td>
-                                        <td>
-                                            <textarea name="consumption_remarks[<?php echo $spare_part_detail['id']; ?>]" rows="2" class="form-control"></textarea>
-                                        </td>
-                                    </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                            <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
-                        </div>
-                    </div>
-                    <?php } ?>
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
 
@@ -506,6 +446,64 @@
                                 </div>
                             </div>
                         </div>
+                         <?php if(!empty($spare_parts_details)) { ?>
+                        <div class="row">
+                        <div class="col-md-11" style="margin-left:10px;">
+                            <table class="table table-bordered spare-consumption">
+                                <caption style="font-weight:bold;">Please let us know the status of the previously requested parts.</caption>
+                                <thead>
+                                    <tr style="background-color:#f5f5f5;">
+                                        <th width="2%">S.No.</th>
+                                        <th width="20%">Part Number</th>
+                                        <th width="15%">Part Name</th>
+                                        <th width="10%">Part Type</th>
+                                        <th width="15%">Status</th>
+                                        <th width="23%">
+                                            <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                            </a> Consumption Reason<span style="color:red;">*</span> 
+                                        </th>
+                                        <th width="15%">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                        foreach($spare_parts_details as $SerialNo => $spare_part_detail) { $consumption_status_description = '';
+                                        if(empty($spare_part_detail['parts_shipped'])) { continue; }
+                                    ?>
+                                    <tr>
+                                        <td><?php echo ++$SerialNo; ?></td>
+                                        <td><?php echo $spare_part_detail['part_number']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
+                                        <td><?php echo $spare_part_detail['status']; ?></td>
+                                        <td>
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                                <option value="" selected disabled>Select Reason</option>
+                                                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
+                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
+                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
+                                                    <?php if(isset($en_consumpton_details)){
+                                                        if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
+                                                           echo "selected"; 
+                                                        }
+                                                    } ?>
+                                                    ><?php echo $status['consumed_status']; ?></option>
+                                                <?php $description_no++; } ?>
+                                            </select>
+
+                                        </td>
+                                        <td>
+                                            <textarea name="consumption_remarks[<?php echo $spare_part_detail['id']; ?>]" rows="2" class="form-control"></textarea>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
+                        </div>
+                    </div>       
+                        <?php } ?>
                         <div class="row" >
                             <div class="col-md-12" style="margin-left:10px; margin-right:10px;">
                                 <div class="form-group">
