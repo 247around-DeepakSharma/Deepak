@@ -715,7 +715,7 @@ class invoices_model extends CI_Model {
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
-                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as file';
+                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'misc-images/",purchase_invoice_file) as purchase_invoice_file';
 
         $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();

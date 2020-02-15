@@ -1832,3 +1832,5 @@ CREATE TABLE `247around`.`engineer_configs` ( `id` INT(11) NOT NULL AUTO_INCREME
 
 ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL AFTER `description`;
  
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
