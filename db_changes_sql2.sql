@@ -1876,3 +1876,6 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10170,22),(10170,2
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10178,5),(10178,9);
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,20);
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
+
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
