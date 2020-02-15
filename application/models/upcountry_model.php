@@ -835,7 +835,7 @@ class Upcountry_model extends CI_Model {
     
     function upcountry_partner_invoice($partner_id, $from_date, $to_date, $spare_requested_unit_id = ""){
         $sql = "SELECT CASE WHEN (bd.partner_id = '".PAYTM_ID."' ) "
-                . "THEN (CONCAT( '', GROUP_CONCAT( DISTINCT ( SUBSTRING_INDEX(bd.order_id, '-', 1) ) ) , '' )) ELSE (CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' )) END AS order_id,"
+                . "THEN (CONCAT( '', GROUP_CONCAT( DISTINCT ( SUBSTRING_INDEX(bd.order_id, '-', 1) ) ) , '' )) ELSE (CONCAT( '''', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) )) END AS order_id,"
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (".UPCOUNTRY_DISTANCE_CAP.") ELSE (upcountry_distance) END AS upcountry_distance, "
                 . " CASE when(upcountry_distance >".UPCOUNTRY_DISTANCE_CAP.") THEN (partner_upcountry_rate * ".UPCOUNTRY_DISTANCE_CAP." ) ELSE  (partner_upcountry_rate *upcountry_distance ) END AS upcountry_price,"
@@ -856,7 +856,7 @@ class Upcountry_model extends CI_Model {
                 . " AND ud.ud_closed_date < '$to_date' "
                 . " AND bd.current_status = 'Completed' "
                 . " ) $spare_requested_unit_id )"
-                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id HAVING upcountry_price > 0 ";
         
         $query = $this->db->query($sql);
         if($query->num_rows > 0){
