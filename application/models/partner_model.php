@@ -2749,7 +2749,6 @@ function get_data_for_partner_callback($booking_id) {
                     `Date of Purchase By Customer`,
                     `Date Of Purchase By SF`,
                     `Service Type`,
-                    `Standard Service Type`,
                     `First Booking Date`,
                     `Current Booking Date`,
                     `Timeslot`,
@@ -2767,6 +2766,8 @@ function get_data_for_partner_callback($booking_id) {
                     Rating,
                     `Rating Comments`,
                     `Is Part Involve`,
+                    `Consumption Reason`,
+                    `Is Part Lost`,
                     `Requested Part Code`,
                     `Requested Part`,
                     `Part Requested Date`,
@@ -2790,7 +2791,11 @@ function get_data_for_partner_callback($booking_id) {
                     `SF Challan Number`,
                     `SF AWB Number (Defective Shipped)`,
                     `SF Courier Name`,
-                    `Defective received Date`  
+                    `Defective received Date`,
+                    `Reverse Sale Invoice Id`,
+                    `Reverse Purchase Invoice Id`,
+                    `Purchase Invoice Id`,
+                    `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
                     ' ' as 'Agent Name',
@@ -2843,7 +2848,6 @@ function get_data_for_partner_callback($booking_id) {
                 ''
               ) as 'Date Of Purchase By SF',
                     booking_details.request_type AS 'Service Type',
-                    '--' AS 'Standard Service Type',
                     DATE_FORMAT(
                       STR_TO_DATE(
                             booking_details.initial_booking_date,
@@ -2918,6 +2922,8 @@ function get_data_for_partner_callback($booking_id) {
                     booking_details.rating_stars AS 'Rating',
                     booking_details.rating_comments AS 'Rating Comments',
                     (CASE WHEN spare_parts_details.booking_id is not null THEN 'Yes' ELSE 'No' END) AS 'Is Part Involve',
+                    ' ' as 'Consumption Reason',
+                    ' ' as 'Is Part Lost',
                     ' ' AS 'Requested Part Code',
                     ' ' AS 'Requested Part',
                     ' ' AS 'Part Requested Date',
@@ -2941,7 +2947,11 @@ function get_data_for_partner_callback($booking_id) {
                     ' ' AS 'SF Challan Number',
                     ' ' AS 'SF AWB Number (Defective Shipped)',
                     ' ' AS 'SF Courier Name',
-                    ' ' AS 'Defective received Date'
+                    ' ' AS 'Defective received Date',
+                    ' ' AS 'Reverse Sale Invoice Id',
+                    ' ' AS 'Reverse Purchase Invoice Id',
+                    ' ' AS 'Purchase Invoice Id',
+                    ' ' AS 'Sale Invoice Id'                    
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
@@ -2953,10 +2963,7 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN employee area_sales_manager ON (service_centres.asm_id = area_sales_manager.id)
                     LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
                     LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
-            WHERE product_or_services != 'Product' AND (
-                DATE(booking_details.create_date) >= '2019-12-01' AND DATE(booking_details.create_date) <= '2019-12-20') AND(
-                booking_details.partner_id = 247130 OR booking_details.origin_partner_id = '247130'
-              )	
+            WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
 
@@ -3014,7 +3021,6 @@ function get_data_for_partner_callback($booking_id) {
                 ''
               ) as 'Date Of Purchase By SF',
                     booking_details.request_type AS 'Service Type',
-                    '--' AS 'Standard Service Type',
                     DATE_FORMAT(
                       STR_TO_DATE(
                             booking_details.initial_booking_date,
@@ -3086,13 +3092,15 @@ function get_data_for_partner_callback($booking_id) {
                             )) ELSE ''
                       END
                     ) AS Ageing,
-                    booking_details.rating_stars AS 'Rating',
-                    booking_details.rating_comments AS 'Rating Comments',
+                    IFNULL(booking_details.rating_stars, ' ') AS 'Rating',
+                    IFNULL(booking_details.rating_comments, ' ') AS 'Rating Comments',
                     IF(
                       spare_parts_details.parts_requested IS NOT NULL,
                       'Yes',
                       'No'
                     ) AS 'Is Part Involve',
+                    IFNULL(spare_consumption_status.consumed_status, ' ') as 'Consumption Reason',
+                    (CASE WHEN spare_lost = 1 THEN 'Yes' ELSE 'No' END) as 'Is Part Lost',
                     requested_part_detail.part_number AS 'Requested Part Code',
                     spare_parts_details.parts_requested AS 'Requested Part',
                     spare_parts_details.date_of_request AS 'Part Requested Date',
@@ -3100,14 +3108,14 @@ function get_data_for_partner_callback($booking_id) {
                     spare_parts_details.spare_approval_date AS 'Spare Approval Date',
                     (CASE WHEN spare_parts_details.approval_entity_type = '247around' THEN spare_approval_person.full_name WHEN spare_parts_details.approval_entity_type = 'partner' THEN spare_approval_person_partner.agent_name ELSE ' ' END) AS 'Spare approval Person Name',
                     (CASE WHEN spare_parts_details.is_micro_wh = 1 THEN 'Micro-warehouse' WHEN spare_parts_details.is_micro_wh = 2 THEN 'Warehouse' ELSE 'Partner' END) AS 'Requested On Partner/Warehouse',
-                    shipped_part_detail.part_number AS 'Shipped Part Code',
-                    spare_parts_details.parts_shipped AS 'Shipped Part',
-                    DATE_FORMAT(DATE(spare_parts_details.shipped_date), '%d-%m-%Y') AS 'Part Shipped Date',
+                    IFNULL(shipped_part_detail.part_number, ' ') AS 'Shipped Part Code',
+                    IFNULL(spare_parts_details.parts_shipped, ' ') AS 'Shipped Part',
+                    IFNULL(DATE_FORMAT(DATE(spare_parts_details.shipped_date), '%d-%m-%Y'), ' ') AS 'Part Shipped Date',
                     spare_parts_details.challan_approx_value AS 'Part Charge',
-                    spare_parts_details.purchase_invoice_id AS 'Shipped Invoice Number (To SF)',
-                    spare_parts_details.partner_challan_number AS 'Shipped Challan Number',
-                    spare_parts_details.awb_by_partner AS 'Shipped AWB Number (To SF)',
-                    spare_parts_details.acknowledge_date AS 'SF Acknowledged Date',
+                    IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Shipped Invoice Number (To SF)',
+                    IFNULL(spare_parts_details.partner_challan_number, ' ') AS 'Shipped Challan Number',
+                    IFNULL(spare_parts_details.awb_by_partner, ' ') AS 'Shipped AWB Number (To SF)',
+                    IFNULL(spare_parts_details.acknowledge_date, ' ') AS 'SF Acknowledged Date',
                     (CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'Yes' ELSE 'No' END) AS 'Is auto Acknowledge',
                     (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'YES' ELSE 'NO' END) AS 'Part Consumed',
                     (
@@ -3117,12 +3125,16 @@ function get_data_for_partner_callback($booking_id) {
                             END
                     )
                      AS 'Shipped Defective Part Code',
-                    spare_parts_details.defective_part_shipped AS 'Shipped Defective Part',
-                    DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%d-%m-%Y') AS 'Defective Part Shipped Date',
-                    spare_parts_details.sf_challan_number AS 'SF Challan Number',
-                    spare_parts_details.awb_by_sf AS 'SF AWB Number (Defective Shipped)',
-                    spare_parts_details.courier_name_by_sf AS 'SF Courier Name',
-                    DATE_FORMAT(spare_parts_details.received_defective_part_date, '%d-%m-%Y') AS 'Defective received Date'
+                    IFNULL(spare_parts_details.defective_part_shipped, ' ') AS 'Shipped Defective Part',
+                    IFNULL(DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%d-%m-%Y'),' ') AS 'Defective Part Shipped Date',
+                    IFNULL(spare_parts_details.sf_challan_number, ' ') AS 'SF Challan Number',
+                    IFNULL(spare_parts_details.awb_by_sf, ' ') AS 'SF AWB Number (Defective Shipped)',
+                    IFNULL(spare_parts_details.courier_name_by_sf, ' ') AS 'SF Courier Name',
+                    IFNULL(DATE_FORMAT(spare_parts_details.received_defective_part_date, '%d-%m-%Y'), ' ')  AS 'Defective received Date',
+                    IFNULL(spare_parts_details.reverse_sale_invoice_id, ' ') AS 'Reverse Sale Invoice Id',
+                    IFNULL(spare_parts_details.reverse_purchase_invoice_id, ' ') AS 'Reverse Purchase Invoice Id',
+                    IFNULL(spare_parts_details.purchase_invoice_id, ' ') AS 'Purchase Invoice Id',
+                    IFNULL(spare_parts_details.sell_invoice_id, ' ') AS 'Sale Invoice Id'
 
             FROM
                 booking_details
@@ -3140,18 +3152,15 @@ function get_data_for_partner_callback($booking_id) {
                 LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
                 LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
                 LEFT JOIN spare_consumption_status ON (spare_parts_details.consumed_part_status_id = spare_consumption_status.id)
-            WHERE 
-                product_or_services != 'Product' AND spare_parts_details.booking_id is not null AND (
-                DATE(booking_details.create_date) >= '2019-12-01' AND DATE(booking_details.create_date) <= '2019-12-20') AND(
-                booking_details.partner_id = 247130 OR booking_details.origin_partner_id = '247130'
-              )	
+            WHERE {$where}
+                AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
                 ud.id,
                 spare_parts_details.id
             ) t 
             ORDER BY
                 `247around Booking ID`"; 
-        
+
         return $query = $this->db->query($sql);
     } 
 
