@@ -2403,12 +2403,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         
         $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-        $approval_entity_type = _247AROUND_SF_STRING;
-        if($this->session->userdata('emp_name') && $this->session->userdata('userType')!='partner'){
+
+        $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
+        if ($this->session->userdata('emp_name') && $this->session->userdata('userType') != 'partner') {
             $agent_name = $this->session->userdata('emp_name');
             $agent_id   = $this->session->userdata('id');
             $approval_agent_id = $agent_id;
-            $track_entity_type = $approval_entity_type = _247AROUND_SF_STRING;
+            $track_entity_type = $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
 
         } else if ($this->session->userdata('userType') == 'partner') { //// Partner Session ////
             $agent_name = $this->session->userdata('partner_name');
@@ -2419,7 +2420,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $agent_id = _247AROUND_DEFAULT_AGENT;
             $agent_name = _247AROUND_DEFAULT_AGENT_NAME; 
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-            $approval_entity_type = _247AROUND_SF_STRING;
+            $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
         
