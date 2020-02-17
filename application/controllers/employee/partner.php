@@ -9014,6 +9014,13 @@ class Partner extends CI_Controller {
         }
         
         $status = $postArray['Status'];
+        if($postArray['State']){
+            $state = explode(",",$postArray['State']);
+        }
+        else{
+            $state =array('All');
+        }
+        
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
@@ -9039,6 +9046,9 @@ class Partner extends CI_Controller {
                 $where[] = "booking_details.service_center_closed_date IS NOT NULL";
             }
             }
+            if(!in_array('All',$state)){
+                $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+            }            
            log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
            
            if(!empty($this->session->userdata('service_center_id'))) {
