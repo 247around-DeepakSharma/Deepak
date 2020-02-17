@@ -3494,6 +3494,7 @@ class Partner extends CI_Controller {
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
+        $str_disabled = !empty($this->input->post("str_disabled")) ? $this->input->post("str_disabled") : "";
         if($this->input->post("add_booking")){
             $add_booking = $this->input->post("add_booking");
         }
@@ -3528,7 +3529,11 @@ class Partner extends CI_Controller {
                 $explode = explode(",", $service_category);
             }
             foreach ($result as $prices) {
-                
+                // Do not show request type Installation if Spare is requested on Booking
+                if(!empty($str_disabled) && strpos(str_replace(" ", "", strtoupper($prices['service_category'])), "INSTALLATION") !== false)    
+                {
+                    continue;
+                }
                 $customer_total = $prices['customer_total'];
                 $partner_net_payable = $prices['partner_net_payable'];
                 $customer_net_payable = $prices['customer_net_payable'];
@@ -9023,6 +9028,13 @@ class Partner extends CI_Controller {
         }
         
         $status = $postArray['Status'];
+        if($postArray['State']){
+            $state = explode(",",$postArray['State']);
+        }
+        else{
+            $state =array('All');
+        }
+        
         if(!empty($postArray['Completion_Date_Range'])) {
             $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
             $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
@@ -9048,6 +9060,9 @@ class Partner extends CI_Controller {
                 $where[] = "booking_details.service_center_closed_date IS NOT NULL";
             }
             }
+            if(!in_array('All',$state)){
+                $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+            }            
            log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
            
            if(!empty($this->session->userdata('service_center_id'))) {

@@ -3476,6 +3476,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to process spare transfer
      */
     function bulkConversion_process() {
+        ob_clean();
         if (empty($this->session->userdata('userType'))) {
             redirect(base_url() . "employee/login");
         }

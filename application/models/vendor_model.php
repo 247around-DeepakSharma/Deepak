@@ -1648,6 +1648,7 @@ class vendor_model extends CI_Model {
         $this->db->where_in('employee.groups',[_247AROUND_RM, _247AROUND_ASM]);
         $this->db->join('agent_state_mapping', 'agent_state_mapping.agent_id = employee.id', 'left');
         $this->db->join('service_centres', 'service_centres.rm_id = employee.id OR service_centres.asm_id = employee.id', 'left');
+        $this->db->group_by('employee.id');
         $query = $this->db->get('employee');
         $result = $query->result_array();
         if(!empty($result)){

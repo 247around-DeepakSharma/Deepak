@@ -1750,8 +1750,8 @@ values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list'
 
 
 --Ankit Bhatt 2020-01-22
-insert into `email_template`(tag, subject, template, from, to, cc, bcc, active)
-values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '', '', 1);
+insert into `email_template`(tag, subject, template, cc, bcc, active)
+values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', 1);
 
 --Ankit Bhatt 2020-01-27
 ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
@@ -1840,10 +1840,15 @@ ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL A
 -- Kajal 13-02-2020
 ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
---Gorakh 04-02-2020
-ALTER TABLE `spare_state_change_tracker` CHANGE `partner_id` `entity_id` INT(11) NULL DEFAULT NULL, CHANGE `service_center_id` `entity_type` VARCHAR(35) NULL DEFAULT NULL;
---Gorakh 15-02-2020
-ALTER TABLE `booking_state_change`  ADD `spare_id` INT NULL DEFAULT NULL  AFTER `service_center_id`;
+
+
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+
+Add above Lines after this line :
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
+
+
 -- Prity 14-02-2020
 CREATE TABLE `agent_state_mapping` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1877,9 +1882,32 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10178,5),(10178,9)
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,20);
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
--- Kajal 14-02-2020
-ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+ -- ghanshyam 17-02-2020----------------------------------------
+ CREATE TABLE `accessories_product_description` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `appliance` int(10) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `basic_charge` float(10,2) NOT NULL,
+  `hsn_code` varchar(50) NOT NULL,
+  `tax_rate` float(10,2) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+ALTER TABLE `accessories_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_name` (`product_name`),
+  ADD KEY `FK_appliance` (`appliance`);
 
---Ankit Bhatt 2020-02-12
-UPDATE account_holders_bank_details SET ifsc_code = UPPER(ifsc_code);
+  ALTER TABLE `accessories_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+  ---------------------------------------------------------------
+
+-- Ankit Rajvanshi 17-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
+  
+

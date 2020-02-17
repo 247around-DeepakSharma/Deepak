@@ -3920,7 +3920,6 @@ function generate_image($base64, $image_name,$directory){
         $data['closed_date'] = NULL;
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
-        $data['service_center_closed_date'] = NULL;
         log_message('info', __FUNCTION__ . " Booking_id " . $booking_id . " Update service center action table: " . print_r($data, true));
         $this->My_CI->vendor_model->update_service_center_action($booking_id, $data);
         //Send Push Notification
