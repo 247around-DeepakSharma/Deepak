@@ -52,9 +52,9 @@
           	<th>ID Proof</th>
                 <th>Create Date</th>
                 <th>Verified</th> <!-- Remove duplicate coloumn -->
-                <th>Status</th>
+                <th>Enable/Disable</th>  <!-- Change Column Name -->
                 <th>Edit</th>
-                <!--<th>Delete</th>-->
+                <th>Status</th> <!-- Show Status Active/Inactive -->
             </tr>
             </thead>
             <tbody></tbody>
@@ -103,11 +103,11 @@
         //Set column definition initialisation properties.
         columnDefs: [
             {
-                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12], //first column / numbering column disable sort in buttons
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12,13], //first column / numbering column disable sort in buttons
                 "orderable": false //set not orderable
             },
             {
-                "targets": [ 13 ],
+                "targets": [  ],
                 "visible": false,
             }
         ]
