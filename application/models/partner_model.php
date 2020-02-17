@@ -2716,6 +2716,61 @@ function get_data_for_partner_callback($booking_id) {
         $results = execute_paramaterised_query($query, $params);
         return $results;
     }
+    
+    /*
+     * This method used get the spare history
+     * @param: $select
+     * @param: $where
+     * @return:Array
+     */
+    function  get_spare_state_change_tracking($select, $where, $join = false){
+        $this->db->select($select);
+        $this->db->where($where);
+        if(!empty($join)){
+        $this->db->join('spare_parts_details', 'spare_state_change_tracker.spare_id = spare_parts_details.id');
+        }
+        $query = $this->db->get('spare_state_change_tracker');
+        $data =  $query->result_array();
+
+        foreach ($data as $key => $value) {
+            if ($value['entity_type'] != _247AROUND_SF_STRING) {
+                // If Partner Id is 247001
+                if ($value['entity_id'] == _247AROUND) {
+                    $sql = "SELECT full_name FROM employee WHERE employee.id = '" . $value['agent_id'] . "'";
+                    $query1 = $this->db->query($sql);
+                    $data1 = $query1->result_array();
+                    $data[$key]['full_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                    $data[$key]['source'] = _247AROUND_EMPLOYEE_STRING;
+                } else {
+                    // For Partner
+                    $data1 = $this->dealer_model->entity_login(array('agent_id' => $value['agent_id']));
+                    $data[$key]['full_name'] = isset($data1[0]['agent_name']) ? $data1[0]['agent_name'] : '';
+                    $data[$key]['source'] = isset($data1[0]['entity_name']) ? $data1[0]['entity_name'] : '';
+                }
+            } else if ($value['entity_type'] == _247AROUND_SF_STRING) {
+                // For Service center
+                if ($value['entity_type'] == _247AROUND_SF_STRING) {
+                    $this->db->select("service_centers_login.full_name,service_centres.name as source ");
+                } else {
+                    $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
+                }
+                $this->db->from('service_centers_login');
+                $this->db->where('service_centers_login.id', $value['agent_id']);
+                $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+                $query1 = $this->db->get();
+                $data1 = $query1->result_array();
+                $data[$key]['full_name'] = isset($data1[0]['full_name']) ? $data1[0]['full_name'] : '';
+                $data[$key]['source'] = isset($data1[0]['source']) ? $data1[0]['source'] : '';
+            }
+        }
+        
+        if(!empty($data)){
+            return $data; 
+        } else {
+            return false;
+        }
+       
+    }
 
     /**
      * Method returns query for detailed summary report

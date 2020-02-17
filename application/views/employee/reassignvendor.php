@@ -175,8 +175,15 @@
 
                         </table>
                         <center>
-                            <div><input type="Submit" value="Save" class="btn btn-primary btn-lg">
-                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg"></div>
+                            <div>
+                                <?php
+                                if(empty($booking_data)) { ?>
+                                    <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">
+                                <?php } else {?>
+                                    <center><h3 class='text-danger'>Booking already completed by SF, First reject booking from review panel then Re-assign the Booking</h3></center>
+                                <?php } ?>
+                            </div>
                         </center>
                     </form> <?php } ?>
         </div>

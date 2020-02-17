@@ -2441,17 +2441,20 @@ class Spare_parts extends CI_Controller {
             $agent_name = $this->session->userdata('emp_name');
             $agent_id = $this->session->userdata('id');
             $approval_agent_id = $agent_id;
-            $approval_entity_type = _247AROUND_EMPLOYEE_STRING; /// Entity Type will be 247around 
+            $track_entity_type = $approval_entity_type = _247AROUND_SF_STRING;
+
         } else if ($this->session->userdata('userType') == 'partner') { //// Partner Session ////
             $agent_name = $this->session->userdata('partner_name');
             $agent_id = $this->session->userdata('agent_id');
             $approval_agent_id = $agent_id;
-            $approval_entity_type = _247AROUND_PARTNER_STRING;
+            $track_entity_type = $approval_entity_type = _247AROUND_PARTNER_STRING;
         } else {
             $agent_id = _247AROUND_DEFAULT_AGENT;
             $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-            $approval_entity_type = _247AROUND_EMPLOYEE_STRING;  /// Entity Type will be 247around 
+            $approval_entity_type = _247AROUND_SF_STRING;
+            $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+
         }
 
 
@@ -2555,6 +2558,19 @@ class Spare_parts extends CI_Controller {
                             $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             //$data['shipped_quantity'] = $data['quantity'];
                             // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
+                            
+                            /*Checked Spare Approved By Admin Or Partner*/
+                            $track_partner_id = _247AROUND;
+                            if ($this->session->userdata('userType') == 'partner') {
+                                $track_partner_id = $partner_id;
+                            }
+                            /* Insert Spare Tracking Details When picked alternate inventory*/
+                            if (!empty($spare_id)) {
+                                if ($spare_parts_details[0]['requested_inventory_id'] != $warehouse_details['inventory_id']) {
+                                    $tracking_details = array('spare_id' => $spare_id, 'action' => ALTERNATE_PART_PICKED, 'remarks' => 'Requested Spare Part Stock Not Available Alternate Part Picked', 'agent_id' => $agent_id, 'entity_id' => $track_partner_id, 'entity_type' => $track_entity_type);
+                                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                                }
+                            }
                         } else {
                             $spare_data['partner_id'] = $partner_id;
                             $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2616,7 +2632,7 @@ class Spare_parts extends CI_Controller {
                             $auto_estimate_approve = 0;
                         }
                     }
-
+                    
                     if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED &&
                             isset($requested_inventory_id) &&
                             !empty($requested_inventory_id) &&
@@ -2668,18 +2684,7 @@ class Spare_parts extends CI_Controller {
                 }
 
                 if ($affected_id) {
-                    /* Insert Spare Tracking Details */
-                    if (!empty($spare_id)) {
-
-                        if (!empty($spare_data['partner_id'])) {
-                            $partner_id = $spare_data['partner_id'];
-                        }
-                        if (!empty($data['status'])) {
-                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($reason), 'agent_id' => $this->session->userdata("id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
-                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                        }
-                    }
-
+                   
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
                     $booking['internal_status'] = SPARE_PARTS_REQUIRED;
@@ -2697,8 +2702,17 @@ class Spare_parts extends CI_Controller {
                         $new_state = PART_APPROVED_BY_ADMIN . " from Partner Panel";
                         $state_change_partner_id = $partner_id;
                     }
+                    
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+                        if (!empty($data['status'])) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($reason." ".$new_state), 'agent_id' => $agent_id, 'entity_id' => $state_change_partner_id, 'entity_type' => $track_entity_type);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
 
-                    $this->notify->insert_state_change($booking_id, $new_state, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, $state_change_partner_id, NULL);
+                    $this->notify->insert_state_change($booking_id, $new_state, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, $state_change_partner_id, NULL, $spare_id);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
                         if (!empty($spare_parts_details[0]['invoice_pic'])) {
@@ -4094,6 +4108,19 @@ class Spare_parts extends CI_Controller {
         }
         $headings = array("Main Part Code", "Alternate Part Code", "Model Number");
         $this->miscelleneous->downloadCSV($data, $headings, "alternate_spare_parts");
+    }
+    
+    /*
+     *  @desc : This function is used to get spare history.
+     *  @param : void
+     *  @return : void
+     */
+    function get_spare_tracking_histroy() {
+        $data = array();
+        if ($this->input->post("spare_id")) {
+            $data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date", array('spare_state_change_tracker.spare_id' => $this->input->post("spare_id")), false);
+        }
+        $this->load->view("employee/spare_history_details",$data);
     }
 
 }

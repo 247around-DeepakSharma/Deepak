@@ -379,6 +379,7 @@
                     <table class="table  table-striped table-bordered" >
                         <thead>
                             <tr>
+                                <th> Spare Id </th>
                                 <th >Model Number </th>
                                 <th >Original Requested Parts </th>
                                 <th >Final Requested Parts </th>
@@ -408,6 +409,9 @@
                         <tbody>
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
+                                <td>
+                                   <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                </td>
                                 <td><?php echo $sp['model_number']; ?></td>
                                 <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['original_parts_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/#','".$sp['part_number']."','".$sp['model_number']."','".$booking_history[0]['partner_id']."')\"><b>".$sp['part_number']."</b></a>"; }  ?><i class="fa fa-spinner fa-spin loader" style="font-size:24px;display:none;"></i></td>
@@ -791,7 +795,7 @@
                         </div>
                     </div>
                 </div>
-                <?php }  else if(empty ($booking_history['spare_parts'])){ ?> 
+                <?php } else if(empty ($booking_history['spare_parts'])){ ?> 
             <div class="text-danger">Spare Part Not Requested</div>
             <?php } ?>
              <div class="row">
@@ -1141,6 +1145,27 @@
             </div>
         </div>
     </div>
+    
+<!-- Start Spare History Modal -->
+<div id="spare_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 90%; margin-left: 10%;">
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 90%;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Spare History Spare Id: <span id="sp_id" style="font-weight: bold;"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div id="tracking_body"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Start Spare History Modal -->
+
 <style type="text/css">
     .spare_image {
     width: 350px;;
@@ -1400,4 +1425,23 @@ function OpenWindowWithPost(url, windowoption, name, params)
             });
         }
     }
+    /*
+    * Use to track the history of spare using spare_id
+    */
+    $(".spare_history_tracking").click(function(){
+       var spare_id = $(this).data("spare_id");
+       if(spare_id!=''){
+           $.ajax({
+                method:"POST",
+                data : {spare_id: spare_id},
+                url:'<?php echo base_url(); ?>employee/spare_parts/get_spare_tracking_histroy',
+                success: function(resonse){
+                    $("#sp_id").html(spare_id);
+                    $('#tracking_body').html(resonse);
+                    $('#spare_history_modal').modal('toggle');
+                }
+            });
+       }
+       
+   });
 </script>

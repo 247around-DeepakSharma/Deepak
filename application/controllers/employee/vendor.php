@@ -5114,6 +5114,7 @@ class vendor extends CI_Controller {
             if($is_partner){
                 $html .=  "<th>Partner Invoice Id</th>";
                 $html .=  "<th>Approval File</th>";
+                $html .=  "<th>Purchase Invoice File</th>";
             }
             if($is_sf){
                 $html  .= "<th>Vendor Invoice Id</th>";
@@ -5139,6 +5140,12 @@ class vendor extends CI_Controller {
                     if(!empty($value['approval_file'])){
                         
                         $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
+                    if(!empty($value['purchase_invoice_file'])){
+                        
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['purchase_invoice_file'].'" >Click Here</a></td>';
                     } else {
                         $html .= '<td></td>';
                     }
@@ -5501,7 +5508,7 @@ class vendor extends CI_Controller {
                 $bank_data['bank_name'] = trim($this->input->post('bank_name'));
                 $bank_data['account_type'] = trim($this->input->post('account_type'));
                 $bank_data['bank_account'] = trim($this->input->post('bank_account'));
-                $bank_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $bank_data['ifsc_code'] = strtoupper(trim($this->input->post('ifsc_code')));
                 $bank_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
                 $bank_data['ifsc_code_api_response'] = trim($this->input->post('ifsc_validation'));
                 $bank_data['is_verified'] = $this->input->post('is_verified');
