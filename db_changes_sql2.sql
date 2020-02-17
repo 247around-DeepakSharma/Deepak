@@ -1871,6 +1871,68 @@ delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
 ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
 
 
+
 --Ankit Bhatt 2020-02-18
 insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
+
+-- Kajal 13-02-2020
+ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+
+-- Prity 14-02-2020
+CREATE TABLE `agent_state_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `agent_id` int(11) NOT NULL,
+  `state_code` int(11) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_state_agent` (`agent_id`,`state_code`),
+  KEY `fk_agent_id` (`agent_id`),
+  KEY `fk_state_code` (`state_code`),
+  CONSTRAINT `agent_state_mapping_ibfk_1` FOREIGN KEY (`agent_id`) REFERENCES `employee` (`id`),
+  CONSTRAINT `agent_state_mapping_ibfk_2` FOREIGN KEY (`state_code`) REFERENCES `state_code` (`state_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (36,5),(36,6),(36,7),(36,8),(36,1),(36,2),(36,3),(36,4),(36,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (24,30),(24,27),(24,24),(24,22),(24,23);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10146,32),(10146,33),(10146,29),(10146,34),(10146,36),(10146,28);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (38,17),(38,21),(38,14),(38,12),(38,18),(38,16),(38,13),(38,15),(38,10),(38,20),(38,19);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10105,36);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10118,6),(10118,7);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10125,27);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10133,33),(10133,32);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10140,8);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10143,1),(10143,2),(10143,3),(10143,4);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10141,5),(10141,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10156,29);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10160,24);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10170,22),(10170,23);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10178,5),(10178,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,20);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
+
+ -- ghanshyam 17-02-2020----------------------------------------
+ CREATE TABLE `accessories_product_description` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `appliance` int(10) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `basic_charge` float(10,2) NOT NULL,
+  `hsn_code` varchar(50) NOT NULL,
+  `tax_rate` float(10,2) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `accessories_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_name` (`product_name`),
+  ADD KEY `FK_appliance` (`appliance`);
+
+  ALTER TABLE `accessories_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+  ---------------------------------------------------------------
