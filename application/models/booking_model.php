@@ -749,6 +749,14 @@ class Booking_model extends CI_Model {
         if(!empty($query_scba)){
             $result['allow_reshedule'] = false;
         }
+        
+        // If service_center_closed_date IS NOT NULL in booking_details Table
+        // we will not allow vendor to re-assign booking
+        $result['allow_reassign'] = true;
+        if(!empty($result[0]['service_center_closed_date'])){
+            $result['allow_reassign'] = false;
+        }
+        
         return $result;
     }
 
