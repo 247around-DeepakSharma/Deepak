@@ -3444,7 +3444,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
     /**
      * @desc This function is used to process spare transfer
      */
-  function bulkConversion_process() {
+
+    function bulkConversion_process() {
+        ob_clean();
         if (empty($this->session->userdata('userType'))) {
          redirect(base_url() . "employee/login");
         }
