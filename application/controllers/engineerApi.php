@@ -87,7 +87,13 @@ class engineerApi extends CI_Controller {
             }
 
             $this->requestId = $requestData['requestId'];
-            $this->deviceId = $requestData['deviceId'];
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+            if(isset($requestData['deviceId']) && !empty($requestData['deviceId'])){
+                $this->deviceId =   $requestData['deviceId'];
+            }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+            }
+
             $this->requestUrl = $requestData['requestUrl'];
 
             if ($this->requestUrl == "saveHandyMan") {
@@ -135,7 +141,14 @@ class engineerApi extends CI_Controller {
         $this->user = "";
         $this->user = $this->input->get('username');
         $this->token = $this->input->get('jwt');
-        $this->deviceId = $this->input->get('deviceId');
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+        $deviceID =  $this->input->get('deviceId');
+        if(isset($deviceID) && !empty($deviceID)){
+                $this->deviceId =   $deviceID;
+        }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+        }
+
         $this->requestId = $this->input->get('requestId');
         $this->requestUrl = $this->input->get('requestUrl');
 
