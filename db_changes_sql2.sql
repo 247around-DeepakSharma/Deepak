@@ -1834,3 +1834,34 @@ delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
 
 ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+
+-- ghanshyam 17-02-2020----------------------------------------
+ CREATE TABLE `accessories_product_description` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `appliance` int(10) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `basic_charge` float(10,2) NOT NULL,
+  `hsn_code` varchar(50) NOT NULL,
+  `tax_rate` float(10,2) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `accessories_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_name` (`product_name`),
+  ADD KEY `FK_appliance` (`appliance`);
+
+  ALTER TABLE `accessories_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+---------------------------------------------------------------
+-- Ghanshyam 20_02_2020
+
+ALTER TABLE accessories_product_description Change created_by agent_id int(10);
+ALTER TABLE accessories_product_description Change appliance service_id int(10);
+ALTER TABLE accessories_product_description Change created_date create_date timestamp NOT NULL DEFAULT current_timestamp();
+ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NULL AFTER create_date;
