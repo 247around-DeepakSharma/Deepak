@@ -3174,4 +3174,156 @@ class invoices_model extends CI_Model {
         $this->db->insert('billed_docket', $data);
         return $this->db->insert_id();
     }
+    
+    
+    /**
+     *  @desc : This function is used to get spare sale data
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_spare_sale_list($post, $select = "",$is_array = false) {
+        $this->_get_spare_sale_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+    }
+        
+        $query = $this->db->get();
+        log_message('info', __METHOD__. " ".$this->db->last_query());
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get data from the spare_parts_details table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_spare_sale_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->select($select,FALSE);
+        $this->db->from('spare_parts_details as spd');
+        $this->db->join('service_centres as sc', 'spd.service_center_id = sc.id');
+        $this->db->where('sell_invoice_id is NOT NULL', NULL, FALSE);
+        $this->db->where('sell_price > 0', NULL, FALSE);
+        $this->db->where('reverse_sale_invoice_id is NULL', NULL, FALSE);
+        $this->db->where(array('spare_lost' => 1, 'part_warranty_status' => 1));
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('spd.create_date','ASC');
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to get total spare sale data
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_spare_sale_list($post) {
+        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+      /**
+     *  @desc : This function is used to get total filtered spare sale data
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_spare_sale_list($post){
+        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+     /**
+     *  @desc : This function is used to update lost part status, defective part shipped status, and return reverse sale invoice id
+     *  @param : $sale_invoice_id
+     *  @return: Array()
+     */
+    function update_spare_parts_details($sale_invoice_id){
+        $this->db->select("reverse_sale_invoice_id, defective_part_shipped, consumed_part_status_id");
+        $this->db->from('spare_parts_details');
+        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
+        $query = $this->db->get();
+        $result =  $query->result_array();
+        $defective_part_shipped_status = $this->get_spare_part_status($result[0]['defective_part_shipped'], $result[0]['consumed_part_status_id']);
+        
+        $data = array("spare_lost" => 0, "status" => $defective_part_shipped_status);
+        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
+        $this->db->update('spare_parts_details', $data);
+        return $result[0]['reverse_sale_invoice_id'];
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get status for spare part on basis of defective_part_shipped and consumed_part_status_id
+     *  @param : $defective_part_shipped, $consumed_part_status_id
+     *  @return: string
+     */
+    function get_spare_part_status($defective_part_shipped, $consumed_part_status_id){
+        $status = "";
+        if($consumed_part_status_id == 1){
+            if(empty($defective_part_shipped)){
+                $status = "Defective part to be shipped by SF";
+            }
+            else{
+                $status = "Defective part shipped by SF";
+            }
+        }
+        else if($consumed_part_status_id == 2){
+            $status = "Courier lost";
+        }
+        else if($consumed_part_status_id == 3){
+            if(empty($defective_part_shipped)){
+                $status = "Damaged part to be shipped by SF";
+            }
+            else{
+                $status = "Damaged part shipped by SF";
+            }
+        }
+        else if($consumed_part_status_id == 4 || $consumed_part_status_id == 5){
+            if(empty($defective_part_shipped)){
+                $status = "OK part to be shipped by SF";
+            }
+            else{
+                $status = "OK part shipped by SF";
+            }
+        }
+        else{
+            //case - if $consumed_part_status_id is null
+            $status = "Defective part to be shipped by SF";
+        }
+        return $status;
+    }
 }
