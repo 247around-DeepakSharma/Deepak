@@ -3859,7 +3859,7 @@ API for getting partner  list in APP
         if ($validation['status']) {
             $select = 'services.id,services.services,partner_appliance_details.partner_id';
             $where =array(
-                'partner_appliance_details.partner_id'=>$resquestdata['partner_id']  /// Resolve Fatal Error
+                'partner_appliance_details.partner_id'=>$requestData['partner_id']  /// Resolve Fatal Error correct the vaiable name
 
             );
             $response = $this->_getPartner_appliances($select,$where);
