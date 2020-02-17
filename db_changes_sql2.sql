@@ -1838,6 +1838,13 @@ ALTER TABLE `booking_state_change`  ADD `spare_id` INT NULL DEFAULT NULL  AFTER 
 -- Kajal 14-02-2020
 ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
 
-
 --Ankit Bhatt 2020-02-12
 UPDATE account_holders_bank_details SET ifsc_code = UPPER(ifsc_code);
+-- Kajal 13-02-2020
+ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+
+-- Ankit Rajvanshi 17-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
+  

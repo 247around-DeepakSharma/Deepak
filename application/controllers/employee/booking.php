@@ -6113,6 +6113,71 @@ class Booking extends CI_Controller {
             echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
         }
     }
+    
+    /**
+     * Method shows the view of combined booking & spare report.
+     * @author Ankit Rajvanshi
+     * @since 07-02-2020
+     */
+    function get_detailed_summary_report() {
+
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
+        $data['services'] = $this->booking_model->selectservice();
+
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/get_detailed_summary_report',$data);
+        
+    }
+
+    /**
+     * Method shows the view of download history of combined booking & spare report.
+     * @author Ankit Rajvanshi
+     * @since 07-02-2020
+     */
+    function get_detailed_summary_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID, 'report_type' => 'partner_detailed_summary_report'),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
+                    }
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
 
     
 }
