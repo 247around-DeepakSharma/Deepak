@@ -1075,7 +1075,7 @@ class Booking extends CI_Controller {
         }
         
         $data['upcountry_charges'] = $upcountry_price;
-        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
         $this->miscelleneous->load_nav_header(); 
@@ -1896,6 +1896,7 @@ class Booking extends CI_Controller {
         }
  */
        
+        //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
@@ -5520,8 +5521,7 @@ class Booking extends CI_Controller {
         if(!empty($partner_id)) {
            $whereIN['booking_details.partner_id'] = [$partner_id];
         }
-        if(!empty($request_type)) {
-           $data['request_type_selected'] = $request_type;
+        if(!empty($request_type)) {           
            $request_type_selected = !empty($arr_request_types[$request_type]) ? $arr_request_types[$request_type] : "";   
            $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
@@ -5529,7 +5529,7 @@ class Booking extends CI_Controller {
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
-        
+        $data['request_type_selected'] = $request_type;
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){

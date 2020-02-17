@@ -125,7 +125,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <?php
                               if($review_status == "Completed" || $review_status == "Cancelled"){
                               ?>
-                                <th class="jumbotron" >Review Age</th>
+                                <th class="jumbotron" title="Age after SF completed action from his side.">Review Age&nbsp;<i class="fa fa fa-info-circle"></i></th>
                               <?php
                               }
                               ?> 
@@ -317,7 +317,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                  $offset = $per_page*$i;
                  if(!empty($review_status)){
                  ?>
-                 <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+                 <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>/<?php echo $request_type_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
                 }                
             }
@@ -402,7 +402,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
        $('.completed_cancelled_review_table').each(function( index ) {
             $(this).DataTable().destroy();
        });
-       
        console.log($.fn.dataTable.isDataTable(".completed_cancelled_review_table"));
        <?php if(($review_status == "Completed" || $review_status == "Cancelled")){ ?>
             $('.completed_cancelled_review_table').DataTable({

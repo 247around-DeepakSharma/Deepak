@@ -69,7 +69,7 @@ class dashboard_model extends CI_Model {
         
         $where = '';
         if(!empty($employee_id) || !empty($manager_id)) {
-            $where .= " and employee_relation.agent_id IN (".trim($manager_id.','.$employee_id, ',').")";
+            $where .= " and agent_state_mapping.agent_id IN (".trim($manager_id.','.$employee_id, ',').")";
         }
         
         $sql = "select 
@@ -81,13 +81,13 @@ class dashboard_model extends CI_Model {
                 from 
                     booking_details
                     left join state_code on (booking_details.state = state_code.state)
-                    left join employee_relation on find_in_set(state_code.state_code, employee_relation.state_code)
-                    left join employee_hierarchy_mapping on (employee_relation.agent_id = employee_hierarchy_mapping.manager_id)
-                    left join employee on (employee_relation.agent_id = employee.id and employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."'))
+                    left join agent_state_mapping on (state_code.state_code, agent_state_mapping.state_code)
+                    left join employee_hierarchy_mapping on (agent_state_mapping.agent_id = employee_hierarchy_mapping.manager_id)
+                    left join employee on (agent_state_mapping.agent_id = employee.id and employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."'))
                 where 
                     assigned_vendor_id is null AND booking_details.state <> ''	{$where}
                 group by 
-                    employee_relation.agent_id".(!empty($group_by_state) ? ',booking_details.state' : '')." order by employee.full_name";
+                    agent_state_mapping.agent_id".(!empty($group_by_state) ? ',booking_details.state' : '')." order by employee.full_name";
                     
        $query = $this->db->query($sql);
        return $query->result_array(); 
@@ -403,17 +403,17 @@ class dashboard_model extends CI_Model {
 //         return $this->db->get('sf_not_exist_booking_details sf')->result_array();
          
         if($rm_id){
-         $where="where employee_relation.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1";
+         $where="where agent_state_mapping.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1";
         }
         else{
-          $where="where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
+          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
         }
        $sql='SELECT sf.pincode,sf.city,state_code.state,services.services,emp.full_name as full_name '
                 .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.id '
-                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code)'
-               . 'JOIN employee emp ON emp.id = employee_relation.agent_id '
+                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN agent_state_mapping ON state_code.state_code=agent_state_mapping.state_code'
+               . 'JOIN employee emp ON emp.id = agent_state_mapping.agent_id '
                 .'LEFT JOIN '
-                 .'employee ON employee.id = employee_relation.agent_id '.$where;
+                 .'employee ON employee.id = agent_state_mapping.agent_id '.$where;
        $query = $this->db->query($sql);
        return $query->result_array();
  }
@@ -440,19 +440,23 @@ class dashboard_model extends CI_Model {
     $escalation_where=array();
     $booking_where=array();
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
-    $escalation_join = array("employee_relation"=>"FIND_IN_SET( vendor_escalation_log.vendor_id , employee_relation.service_centres_id )",
-        "booking_details"=>"booking_details.booking_id = vendor_escalation_log.booking_id","employee"=>"employee.id = employee_relation.agent_id");
-    $booking_join = array("employee_relation"=>"FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )","employee"=>"employee.id = employee_relation.agent_id");
+    $escalation_join = array("service_centres"=>"vendor_escalation_log.vendor_id = service_centres.id",
+        "booking_details"=>"booking_details.booking_id = vendor_escalation_log.booking_id","employee"=>"employee.id = service_centres.rm_id",
+        "rm_region_mapping"=>"service_centres.rm_id = rm_region_mapping.rm_id");
+    $escalation_joinType = array("rm_region_mapping" => 'left');
+    $booking_join = array("service_centres"=>"booking_details.assigned_vendor_id = service_centres.id","employee"=>"employee.id = service_centres.rm_id",
+        "rm_region_mapping"=>"service_centres.rm_id = rm_region_mapping.rm_id");
+    $booking_joinType = array("rm_region_mapping" => 'left');
     //Create Select String for booking and escalation
-    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,employee_relation.agent_id as rm_id,'
-            . 'employee_relation.region as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,'
+    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,service_centres.rm_id as rm_id,'
+            . 'rm_region_mapping.region as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,'
             . 'YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
     $escalation_select = $escalation_select_sub.',vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
-            . 'employee_relation.agent_id as rm_id,employee.full_name as rm_name,employee_relation.region as region,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
+            . 'service_centres.rm_id as rm_id,employee.full_name as rm_name,rm_region_mapping.region as region,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
     if($rm_id){
-       $escalation_where['employee_relation.agent_id'] = $rm_id;
-       $booking_where['employee_relation.agent_id'] = $rm_id;
+       $escalation_where['service_centres.rm_id'] = $rm_id;
+       $booking_where['service_centres.rm_id'] = $rm_id;
     }
      // If sf id is set add sf id in where array for booking and escalation
     if($sf_id){
@@ -474,9 +478,9 @@ class dashboard_model extends CI_Model {
             $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
        }
        //Get Booking data for above define where condition,select,join and requested group by
-    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,$booking_orderBy,NULL,NULL,$groupBy['booking']);
+    $data['booking'] = $this->reusable_model->get_search_result_data('booking_details',$booking_select,$booking_where,$booking_join,NULL,$booking_orderBy,NULL,$booking_joinType,$groupBy['booking']);
        //Get Escalation data for above define where condition,select,join and requested group by
-    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,$escalation_orderBy,NULL,NULL,$groupBy['escalation']);
+    $data['escalation'] = $this->reusable_model->get_search_result_data('vendor_escalation_log',$escalation_select,$escalation_where,$escalation_join,NULL,$escalation_orderBy,NULL,$escalation_joinType,$groupBy['escalation']);
     return $data;
      }
      function get_missing_pincode_query_count_by_admin(){
@@ -491,9 +495,9 @@ class dashboard_model extends CI_Model {
          
          
             $sql='SELECT COUNT(sf.pincode) as pincodeCount,employee.id,(CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END)'
-                  .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.id INNER JOIN employee_relation '
-                    . 'ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
-                  .'employee ON employee_relation.agent_id=employee.id where sf.active_flag=1 and sf.is_pincode_valid=1 group by full_name order by count(sf.pincode) DESC';
+                  .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.id INNER JOIN agent_state_mapping '
+                    . 'ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
+                  .'employee ON agent_state_mapping.agent_id=employee.id where sf.active_flag=1 and sf.is_pincode_valid=1 group by full_name order by count(sf.pincode) DESC';
             $query = $this->db->query($sql);
             return $query->result_array();          
      }
@@ -736,16 +740,16 @@ class dashboard_model extends CI_Model {
     function get_missing_pincode_by_rm_id($rm_id=NULL)
     {
         if($rm_id){
-         $where='where employee_relation.agent_id= '.$rm_id.' and sf.active_flag=1 and sf.is_pincode_valid=1';
+         $where='where agent_state_mapping.agent_id= '.$rm_id.' and sf.active_flag=1 and sf.is_pincode_valid=1';
         }
         else {
-          $where='where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
+          $where='where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
         }
         
        $sql='SELECT sf.pincode,COUNT(sf.pincode) as pincodeCount,state_code.state,sf.city,sf.service_id,services.services'
                 .' FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id LEFT JOIN state_code on sf.state=state_code.id'
-                .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
-                 .'employee ON employee_relation.agent_id=employee.id '. $where .' group by sf.pincode,sf.service_id order by COUNT(sf.pincode) DESC';
+                .' INNER JOIN agent_state_mapping ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
+                 .'employee ON agent_state_mapping.agent_id=employee.id '. $where .' group by sf.pincode,sf.service_id order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
        return $query->result_array();
      }
@@ -754,18 +758,18 @@ class dashboard_model extends CI_Model {
     {
         if($agentID)
         {
-         $where='where employee_relation.agent_id= '. $agentID.' and sf.active_flag=1 and sf.is_pincode_valid=1';
+         $where='where agent_state_mapping.agent_id= '. $agentID.' and sf.active_flag=1 and sf.is_pincode_valid=1';
         }
         else
         {
-          $where='where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
+          $where='where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
         }
        
         $sql='SELECT ' .$select
                 .'  FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id'
                 .' LEFT JOIN state_code ON sf.state=state_code.state_code'
-                .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
-                 .' employee ON employee_relation.agent_id=employee.id '.  $where .' '.$groupby.' order by COUNT(sf.pincode) DESC';
+                .' INNER JOIN agent_state_mapping ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
+                 .' employee ON agent_state_mapping.agent_id=employee.id '.  $where .' '.$groupby.' order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -773,18 +777,18 @@ class dashboard_model extends CI_Model {
     {
         if($agentID)
         {
-         $where="where employee_relation.agent_id= ". $agentID." and sf.active_flag=1 and sf.is_pincode_valid=1";
+         $where="where agent_state_mapping.agent_id= ". $agentID." and sf.active_flag=1 and sf.is_pincode_valid=1";
         }
         else
         {
-          $where="where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
+          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
         }
         
         $sql='SELECT '.$select
                 .' FROM sf_not_exist_booking_details sf LEFT JOIN partners on sf.partner_id=partners.id'
                 .' LEFT JOIN state_code ON sf.state=state_code.state_code'
-                .' INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code) LEFT JOIN '
-                 .' employee ON employee_relation.agent_id=employee.id '.$where.' ' .$groupby.'  order by COUNT(sf.pincode) DESC';
+                .' INNER JOIN agent_state_mapping ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
+                 .' employee ON agent_state_mapping.agent_id=employee.id '.$where.' ' .$groupby.'  order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
        return $query->result_array(); 
     }

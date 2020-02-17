@@ -121,15 +121,15 @@ class reusable_model extends CI_Model {
     }
     
     function get_rm_for_pincode($pincode){
-        $sql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
+        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN agent_state_mapping ON 
+        (state_code.state_code = agent_state_mapping.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
     function get_state_for_rm($rmID){
-       $sql = "SELECT state_code.state FROM employee_relation  LEFT JOIN state_code ON 
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_relation.agent_id = '" . $rmID . "'";
+       $sql = "SELECT state_code.state FROM agent_state_mapping  LEFT JOIN state_code ON 
+        (state_code.state_code = agent_state_mapping.state_code) WHERE agent_state_mapping.agent_id = '" . $rmID . "'";
          $query = $this->db->query($sql);
         return $query->result_array();
     }

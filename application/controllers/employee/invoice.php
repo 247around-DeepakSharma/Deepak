@@ -1239,9 +1239,7 @@ class Invoice extends CI_Controller {
                 if(!empty($invoice_details[$j]['rating_stars'])){
                     $rating += $invoice_details[$j]['rating_stars'];
                     $rating_count++;
-                } else {
-                    $rating += 1;
-                }
+                } 
             }
             if($rating_count == 0){
                 $rating_count = 1;
@@ -4631,6 +4629,7 @@ exit();
             $data[0]['partner_charge'] = $invoice_breakup_details[0]['taxable_value'];
             $data[0]['booking_id'] = $spare_data['booking_id'];
             $data[0]['approval_file'] = '';
+            $data[0]['purchase_invoice_file'] = '';
             $data[0]['create_date'] = date('Y-m-d H:i:s');
             
             $a = $this->booking_model->insert_misc_charges_in_batch($data);

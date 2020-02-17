@@ -33,7 +33,7 @@ class Notify {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
-                if(!empty($to)){
+                if(!empty($to) && !empty($from)) {
                     $this->My_CI->email->clear(TRUE);
 
                     //Attach file with mail
@@ -53,17 +53,16 @@ class Notify {
 
                     $this->My_CI->email->subject($subject);
                     $this->My_CI->email->message($message);
-echo $this->My_CI->email->send();
-echo "<br/>";
-echo $this->My_CI->email->print_debugger();
-exit();
-                    if (1) {
+                    if ($this->My_CI->email->send()) {
                         $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
                         return true;
                     } else {
                         log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
                         return false;
                     }
+                } else {
+                    log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                    return false;
                 }
 
 		break;
@@ -298,7 +297,7 @@ exit();
      * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL) {
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL, $spare_id = NULL) {
         //Log this state change as well for this booking
         $state_change['booking_id'] = $booking_id;
         //$state_change['old_state'] = $old_state;
@@ -307,6 +306,7 @@ exit();
         $state_change['agent_id'] = $agent_id;
         $state_change['partner_id'] = $partner_id;
         $state_change['service_center_id'] = $service_center_id;
+        $state_change['spare_id'] = $spare_id;
         if(!empty($actor)){
             $state_change['actor'] = $actor;
             $state_change['next_action'] = $next_action;
@@ -1079,5 +1079,59 @@ exit();
             return "9810594247";
         }
         
+    }
+    
+    /**
+     * @desc This function is used to send mail from send grid
+     * @param String $from
+     * @param String $to
+     * @param String $cc
+     * @param String $bcc
+     * @param String $subject
+     * @param String $message
+     * @param String $attachment
+     * @param String $template_tag
+     * @param String $attachment2
+     * @return boolean
+     */
+    function sendEmailFromSendGrid($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "") {
+	switch (ENVIRONMENT) {
+	    case 'production':
+		//Clear previous email
+                if(!empty($to)){
+                    $this->My_CI->email->smtp_host = SENDGRID_SMPTHOST;
+                    $this->My_CI->email->smtp_user = SENDGRID_SMPTUSER;
+                    $this->My_CI->email->smtp_pass = SENDGRID_SMPTPASSWORD;
+                    
+                    $this->My_CI->email->clear(TRUE);
+
+                    //Attach file with mail
+                    if (!empty($attachment)) {
+                        $this->My_CI->email->attach($attachment, 'attachment');
+                    }
+                    
+                    if(!empty($attachment2)){
+                        $this->My_CI->email->attach($attachment2, 'attachment');
+                    }
+
+                    $this->My_CI->email->from($from, '247around Team');
+
+                    $this->My_CI->email->to($to);
+                    $this->My_CI->email->bcc($bcc);
+                    $this->My_CI->email->cc($cc);
+
+                    $this->My_CI->email->subject($subject);
+                    $this->My_CI->email->message($message);
+                    if ($this->My_CI->email->send()) {
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, '');
+                        return true;
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                        return false;
+                    }
+                }
+
+		break;
+	}
     }
 }

@@ -717,7 +717,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("(rm_id = '".$rm_id."' || asm_id = '".$rm_id."')"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -1042,7 +1042,7 @@ class Inventory_model extends CI_Model {
         //RM Specific Bookings
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             if(!empty($rmServiceCentersData)){
                 $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
                 $sfIDArray = explode(",",$sfIDList);
@@ -1673,8 +1673,8 @@ class Inventory_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
         $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
-        $this->db->join('users as u', 'service_centres.rm_id = u.user_id', 'left');
-        $this->db->join('users', 'service_centres.asm_id = users.user_id', 'left');
+        $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
+        $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
         
         if (!empty($where)) {
             $this->db->where($where, false);
@@ -2225,7 +2225,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }

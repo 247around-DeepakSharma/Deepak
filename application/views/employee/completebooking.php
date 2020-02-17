@@ -555,7 +555,7 @@
                                         <td>
                                             <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
                                             <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
-                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>" <?php if(!empty($spare_part_detail['awb_by_sf'])) { echo 'readonly';} ?>>
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
@@ -1417,6 +1417,12 @@
             background : #eee !important;
         }    
     <?php } ?>
+</style>
+<style>
+select[readonly].select2-hidden-accessible + .select2-container {
+  pointer-events: none;
+  touch-action: none;
+}
 </style>
 <?php 
 if($this->session->userdata('error')){$this->session->unset_userdata('error');} 

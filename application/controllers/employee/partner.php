@@ -271,7 +271,7 @@ class Partner extends CI_Controller {
          */
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
-
+        //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/booking_details', $data);
@@ -1997,7 +1997,7 @@ class Partner extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action, $is_cron = "") {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action, $is_cron = "", $spare_id = NULL) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
         //Save state change
         $state_change['booking_id'] = $booking_id;
@@ -2022,7 +2022,8 @@ class Partner extends CI_Controller {
         $state_change['remarks'] = $remarks;
         $state_change['actor'] = $actor;
         $state_change['next_action'] = $next_action;
-
+        $state_change['spare_id'] = $spare_id;
+        
         // Insert data into booking state change
         $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
         if ($state_change_id) {
@@ -2189,7 +2190,7 @@ class Partner extends CI_Controller {
             $invoide_data = array();
             $current_status = "";
             $internal_status = "";
-            foreach ($shipped_part_details as $key => $value) {               
+            foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
 
                     if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
@@ -2259,7 +2260,7 @@ class Partner extends CI_Controller {
                         $internal_status = SPARE_PARTS_SHIPPED;
                     }
                 } else if ($value['shippingStatus'] == -1) {
-                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
 
                     $spare_id = $value['spare_id'];
@@ -2269,13 +2270,13 @@ class Partner extends CI_Controller {
                     $current_status = _247AROUND_PENDING;
                     $internal_status = _247AROUND_PENDING;
 
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "");
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "","", $spare_id);
                     $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
                 }
-                
+               
                  /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
-                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($remarks_by_partner), 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $this->input->post('assigned_vendor_id'));
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($remarks_by_partner), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
@@ -2308,7 +2309,7 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
+                $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action, "", $spare_id);
 
                 $this->booking_model->update_booking($booking_id, $booking);
 //                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
@@ -2694,6 +2695,12 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         
+        /* Insert Spare Tracking Details */
+        if (!empty($spare_id)) {
+            $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_RECEIVED, 'remarks' => DEFECTIVE_PARTS_RECEIVED, 'agent_id' => $this->session->userdata('agent_id'), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }
+
         if ($response) {
             
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_sf", array('spare_parts_details.id' => $spare_id));
@@ -2716,6 +2723,8 @@ class Partner extends CI_Controller {
                     array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
                         ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
             
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             
             $actor = $next_action = 'not_define';
             if(empty($is_exist)){
@@ -2729,11 +2738,13 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
 
-                $this->booking_model->update_booking($booking_id, $booking);
+                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                    $this->booking_model->update_booking($booking_id, $booking);
+                }
             } else {
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
             }
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
@@ -2785,8 +2796,7 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED, 'received_defective_part_date' => date("Y-m-d H:i:s")));
         /* Insert Spare Tracking Details */
         if (!empty($spare_id)) {
-            $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $spare_id ),true);
-            $tracking_details = array('spare_id' => $spare_id, 'action' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, 'remarks' => DEFECTIVE_PARTS_RECEIVED, 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+            $tracking_details = array('spare_id' => $spare_id, 'action' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, 'remarks' => DEFECTIVE_PARTS_RECEIVED, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         
@@ -2805,7 +2815,7 @@ class Partner extends CI_Controller {
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
 
-            $this->notify->insert_state_change($booking_id, PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, "", PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, $agent_id, $agent_name, $actor, $next_action, $partner_id);
+            $this->notify->insert_state_change($booking_id, PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, "", PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, $agent_id, $agent_name, $actor, $next_action, $partner_id, "", $spare_id);
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2830,14 +2840,13 @@ class Partner extends CI_Controller {
             
             /* Insert Spare Tracking Details */
             if (!empty($spare_id)) {
-                $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $spare_id), true);
-                $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $this->session->userdata("partner_id"), 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
 
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action, "", $spare_id);
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2859,18 +2868,21 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
-
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         if ($response) {
+            // fetch record from booking details of $booking_id.
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " Partner Id" . $this->session->userdata('partner_id'));
 
             $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED;
         
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], 
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], 
                     $this->session->userdata('partner_id'), $booking_id);
             $actor = $next_action = 'not_define';
             if (!empty($partner_status)) {
@@ -2879,9 +2891,17 @@ class Partner extends CI_Controller {
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
-            $this->booking_model->update_booking($booking_id, $booking);
 
+            /* Insert Spare Tracking Details */
+            if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('agent_id'), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+            
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action, "", $spare_id);
+            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $this->booking_model->update_booking($booking_id, $booking);
+            }
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -6819,8 +6839,9 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
+        // Adding Booking request type in selection
         $select = "spare_parts_details.booking_id,services.services, i.part_number,spare_parts_details.parts_requested as parts_requested, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, booking_details.request_type,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
@@ -6856,9 +6877,10 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['remarks_by_sc'];
                     $bookingIdTemp = "'".$row['booking_id']."'";                    
                     $tempString3 =  '<a href="#" data-toggle="modal" id="spare_parts'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2707" class="btn btn-sm btn-danger open-adminremarks1" title="Cancel" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Cancel</a>';
-                     
                      $tempArray[] =  $tempString3;                       
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal777' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' >Approve</a>";
+                     // Adding Booking request type attribute with the link, 
+                     // so that we can compare booking request type with part warranty status.
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal777' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' data-request_type='".$row['request_type']."' >Approve</a>";
 
 
                       $finalArray[] = $tempArray;
@@ -6965,7 +6987,7 @@ class Partner extends CI_Controller {
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
 
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >Approve</a>";
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >NRN</a>";
 
                       $finalArray[] = $tempArray;
            }
@@ -8663,7 +8685,7 @@ class Partner extends CI_Controller {
       //   }
 
        $partner_id = $this->session->userdata('partner_id');
-       $where = "booking_details.nrn_approved ='1'";
+       $where = "booking_details.nrn_approved ='1' and booking_details.partner_id ='$partner_id'";
        // $flag_nrn='1';
        // $where = "booking_details.nrn_approved=".$flag_nrn."";
        if($this->input->post('state')){
@@ -8672,10 +8694,10 @@ class Partner extends CI_Controller {
        }
 
        /*  Default case if somehow index does not come */
-       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
-        $postData['length'] = 25;
+       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length'])){
+        $postData['length'] = 50;
         $postData['start'] = 0;
-       }
+       } 
 
        
        if(!empty($postData['search'])){
@@ -8791,7 +8813,7 @@ class Partner extends CI_Controller {
 
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
-                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => NRN_APPROVED_BY_PARTNER, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'partner_id' => $partner_id, 'service_center_id' => $update_pending['service_center_id']);
+                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => NRN_APPROVED_BY_PARTNER, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
@@ -8908,9 +8930,10 @@ class Partner extends CI_Controller {
                 }
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
-
-                echo "1";   
+                foreach ($spare_inventory_update as $update_pending) {
+                    $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER, "", $update_pending['id']);
+                }
+            echo "1";   
         }else{
            echo "0";
         }

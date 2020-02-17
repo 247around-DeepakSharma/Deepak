@@ -130,8 +130,12 @@
                                  <div class="form-group "id="email_ids">
                                     
                                     <label for="" class="col-md-4">Spare Status By SF</label>
-                                    <div class="col-md-6">
-                                        <select class="form-control" id="part_warranty_status" name="part_warranty_status" value=""><option selected="" disabled="">Select warranty status</option><option value="1" selected="selected"> In-Warranty </option><option value="2"> Out Of Warranty </option></select>
+                                    <div class="col-md-6" id="part_warranty_option">
+                                        <select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">
+                                            <option selected="" disabled="">Select warranty status</option>
+                                            <option value="1" selected="selected"> In-Warranty </option>
+                                            <option value="2"> Out Of Warranty </option>
+                                        </select>
                                     </div>
                                 </div>
                             <br>
@@ -234,10 +238,28 @@
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
         var warranty = $(this).data('warranty');
+        // Getting Booking Request type
+        var booking_request_type = $(this).data('request_type');
+        if(typeof booking_request_type === undefined){
+            booking_request_type = 'NA';
+        }
+        booking_request_type = booking_request_type.toUpperCase();
+        booking_request_type = booking_request_type.replace(/\s/g, '');
          $('#apptextarea').val("");
         $('#appmodal-title').text("Approve Part For Booking -" + booking_id);
         $('#textarea').val("");
         $("#appurl").val(url);
+        // Appending Part Warranty Status Options 
+        // If Booking request type id OW, then IW part status will not be displayed
+        var HTML = '<select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">';
+            HTML+= '<option selected="" disabled="">Select warranty status</option>';
+            if(booking_request_type.indexOf("OUTOFWARRANTY") < 0)
+            {
+               HTML+= '<option value="1"> In-Warranty </option>';
+            }
+            HTML+= '<option value="2"> Out Of Warranty </option>';
+            HTML+= '</select>';
+        $("#part_warranty_option").html(HTML).css({'padding-bottom':'20px','display':'block'});
         $('#part_warranty_status option[value='+warranty+']').attr('selected','selected');
        // alert();
         
