@@ -1874,4 +1874,26 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10178,5),(10178,9)
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,20);
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
- 
+ -- ghanshyam 17-02-2020----------------------------------------
+ CREATE TABLE `accessories_product_description` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `appliance` int(10) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `basic_charge` float(10,2) NOT NULL,
+  `hsn_code` varchar(50) NOT NULL,
+  `tax_rate` float(10,2) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `accessories_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_name` (`product_name`),
+  ADD KEY `FK_appliance` (`appliance`);
+
+  ALTER TABLE `accessories_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+  ---------------------------------------------------------------
