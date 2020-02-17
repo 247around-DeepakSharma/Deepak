@@ -1835,3 +1835,5 @@ ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL A
 ALTER TABLE `spare_state_change_tracker` CHANGE `partner_id` `entity_id` INT(11) NULL DEFAULT NULL, CHANGE `service_center_id` `entity_type` VARCHAR(35) NULL DEFAULT NULL;
 --Gorakh 15-02-2020
 ALTER TABLE `booking_state_change`  ADD `spare_id` INT NULL DEFAULT NULL  AFTER `service_center_id`;
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;

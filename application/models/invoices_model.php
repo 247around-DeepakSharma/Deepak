@@ -409,7 +409,7 @@ class invoices_model extends CI_Model {
      */
     function getpartner_invoices_statuswise($partner_id, $completed_cond, $pending_cond ) {
         $sql1 = "SELECT booking_unit_details.id AS unit_id,"
-                . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (order_id) END AS order_id, "
+                . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (CONCAT('''', order_id)) END AS order_id, "
                 . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
@@ -712,10 +712,10 @@ class invoices_model extends CI_Model {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
         
-        $misc_select = 'booking_details.order_id, miscellaneous_charges.booking_id, '
+        $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
-                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as file';
+                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'misc-images/",purchase_invoice_file) as purchase_invoice_file';
 
         $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();
