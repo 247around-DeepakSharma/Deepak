@@ -255,6 +255,7 @@ class Engineer extends CI_Controller {
     function get_engineer_details_table($engineer_list, $no) {
         $row = array();
         $row_action = "";
+        $row_action1=""; // Extra  coloumn for excel export //
         $phone_call_button = $engineer_list->phone;
         $alternet_phone_call_button = $engineer_list->alternate_phone;
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
@@ -310,6 +311,16 @@ class Engineer extends CI_Controller {
         $row[] = $row_action;
         $row[] = "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/get_edit_engineer_form/" . $engineer_list->id . ">Edit</a>";
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";
+
+/*  Extra coloumn only for excel export show current status of engg */
+        if ($engineer_list->active == 0) {
+            $row_action1 .= "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/change_engineer_activation/" . $engineer_list->id . "/0>Disable</a>";
+        } else {
+            $row_action1 .= "<a id='edit' class='btn btn-small btn-success' href=" . base_url() . "employee/vendor/change_engineer_activation/" . $engineer_list->id . "/1>Enable</a>";
+        }
+
+        $row[] = $row_action1;
+
         return $row;
     }
 
