@@ -41,7 +41,7 @@
                         foreach($reason as $key =>$data1){?>
                         <?php 
                             // Do not allow to re-assign booking if Booking is in InProcess state
-                            if($data1->reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON && empty($user_and_booking_details['allow_reshedule'])){
+                            if($data1->reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON && empty($user_and_booking_details['allow_reassign'])){
                                 continue;
                             } 
                         ?>

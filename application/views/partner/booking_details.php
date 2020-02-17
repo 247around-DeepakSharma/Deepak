@@ -306,6 +306,7 @@
                                                 <table class="table  table-striped table-bordered" >
                                                     <thead>
                                                         <tr>
+                                                            <th> Spare Id </th>
                                                             <th >Request to Partner/Warehouse </th>
                                                             <th >Model Number </th>
                                                             <th >Original Requested Parts </th>
@@ -336,6 +337,9 @@
                                                                 }
                                                                 ?>
                                                             <tr>
+                                                                <td>
+                                                                    <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking" style="color: blue;"><?php echo $sp['id']; ?></a>
+                                                                </td>
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else if(in_array($sp['partner_id'],array(15,804))){
                                                                        echo "Warehouse (Central)";     
                                                                   }else { echo $booking_history[0]['city']. " Warehouse (Micro)";} ?></span></td>
@@ -907,6 +911,26 @@
 
         </div>
     </div>
+    
+<!-- Start Spare History Modal -->
+<div id="spare_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 90%; margin-left: 10%;">
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 90%;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Spare History Spare Id: <span id="sp_id" style="font-weight: bold;"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div id="tracking_body"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Start Spare History Modal -->
 <script>
     function update_purchase_price(spare_id,booking_unit_id){
         var price = $('#edit_purchase_price').val();
@@ -1067,4 +1091,24 @@
              }
             });
         }
+        
+    /*
+    * Use to track the history of spare using spare_id
+    */
+    $(".spare_history_tracking").click(function(){
+       var spare_id = $(this).data("spare_id");
+       if(spare_id!=''){
+           $.ajax({
+                method:"POST",
+                data : {spare_id: spare_id},
+                url:'<?php echo base_url(); ?>employee/spare_parts/get_spare_tracking_histroy',
+                success: function(resonse){
+                    $("#sp_id").html(spare_id);
+                    $('#tracking_body').html(resonse);
+                    $('#spare_history_modal').modal('toggle');
+                }
+            });
+       }
+       
+   });
 </script>
