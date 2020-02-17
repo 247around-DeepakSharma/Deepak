@@ -84,7 +84,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,9,10,11],
+                       columns: [1,2,3,4,5,6,7,9,10,13],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -107,7 +107,7 @@
                 "orderable": false //set not orderable
             },
             {
-                "targets": [  ],
+                "targets": [ 13 ],
                 "visible": false,
             }
         ]
