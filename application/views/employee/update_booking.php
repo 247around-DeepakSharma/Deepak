@@ -530,7 +530,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                     </tr>
                                                     <tbody>
                                                         <?php if(!empty($prices)) { ?>
-                                                        <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
+                                                        <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) {
+                                                        // Do not show request type Installation if Spare is requested on Booking
+                                                        if(!empty($str_disabled) && strpos(str_replace(" ", "", strtoupper($price['service_category'])), "INSTALLATION") !== false)    
+                                                        {
+                                                            continue;
+                                                        }
+                                                        ?>
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php 

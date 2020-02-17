@@ -831,7 +831,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
         postData['is_repeat'] = '<?php echo $is_repeat;?>';
         postData['partner_type'] = '<?php echo $partner_type;?>';
         postData['contact'] = '<?php echo $booking_history[0]['booking_primary_contact_no']; ?>';
-        
+        postData['str_disabled'] = '<?php echo $str_disabled; ?>';
         if( postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
            
