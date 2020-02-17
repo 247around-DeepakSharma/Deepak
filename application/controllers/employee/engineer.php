@@ -314,9 +314,9 @@ class Engineer extends CI_Controller {
 
 /*  Extra coloumn only for excel export show current status of engg */
         if ($engineer_list->active == 0) {
-            $row_action1 .= "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/change_engineer_activation/" . $engineer_list->id . "/0>Disable</a>";
+            $row_action1 .= "<span class='label label-danger'>InActive</span>"; // No action needed Show status only //
         } else {
-            $row_action1 .= "<a id='edit' class='btn btn-small btn-success' href=" . base_url() . "employee/vendor/change_engineer_activation/" . $engineer_list->id . "/1>Enable</a>";
+            $row_action1 .= "<span class='label label-success'>Active</span>";
         }
 
         $row[] = $row_action1;
