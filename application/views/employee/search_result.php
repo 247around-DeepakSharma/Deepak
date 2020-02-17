@@ -439,14 +439,11 @@
                                 . "href=" . base_url() . "employee/booking/get_edit_booking_form/$row->booking_id title='Edit Booking'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                             ?></td>
                         <td>
-                            <?php 
-                            $str_reassign_disabled = "";
-                            if(!empty($row->service_center_current_status) && $row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)
-                            {
-                                $str_reassign_disabled = "disabled";
-                            }
-                            ?>
-                            <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-color <?php echo $str_reassign_disabled?>' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                            <?php if(!empty($row->service_center_closed_date)){ ?> 
+                                <a target='_blank' class='btn btn-sm btn-color' title="Re- assign" disabled><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                            <?php } else { ?>
+                                <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-color' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                            <?php } ?>                            
                         </td>
                         <td>
                             <?php if ($row->nrn_approved==0) { ?>
