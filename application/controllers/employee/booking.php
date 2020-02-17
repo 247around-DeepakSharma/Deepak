@@ -6125,7 +6125,8 @@ class Booking extends CI_Controller {
      * @since 07-02-2020
      */
     function get_detailed_summary_report() {
-        
+
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
         $data['services'] = $this->booking_model->selectservice();
 
         $this->miscelleneous->load_nav_header();
@@ -6134,7 +6135,7 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * Method shows the view of combined booking & spare report.
+     * Method shows the view of download history of combined booking & spare report.
      * @author Ankit Rajvanshi
      * @since 07-02-2020
      */
