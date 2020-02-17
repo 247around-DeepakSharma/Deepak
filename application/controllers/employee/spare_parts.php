@@ -1693,6 +1693,7 @@ class Spare_parts extends CI_Controller {
      */
     function move_to_update_spare_parts_details() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
+        ob_clean();
         $spare_parts_id = $this->input->post('spare_parts_id');
         $partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
@@ -1712,7 +1713,7 @@ class Spare_parts extends CI_Controller {
             $data['is_micro_wh'] = 0;
             //  $data['remarks'] = "Spare Transfer to Partner";
             $row = $this->service_centers_model->update_spare_parts($where, $data);
-            if (!empty($row)) {
+            if ($row) {
                 if ($this->session->userdata('userType') == 'employee') {
                     $new_state = 'Spare Part Transferred to ' . $partner_id;
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $partner_id);
