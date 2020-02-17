@@ -1756,7 +1756,8 @@ ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEF
 
 
 --Ankit Bhatt 2020-01-22
-insert into `email_template`(tag, subject, template, cc, bcc, active) values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', 1);
+insert into `email_template`(tag, subject, template, from, to, cc, bcc, active)
+values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '', '', 1);
 
 --Ankit Bhatt 2020-01-27
 ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
@@ -1817,7 +1818,6 @@ CREATE TABLE `billed_docket` (
 
 --Ankit Bhatt 2020-02-03
 update `email_template` set template='<table border="1" cellspacing="0" cellpadding="0"><tr><td colspan="10">Parts Received By Warehouse</td></tr><tr><th>Booking Id</th><th>SF</th><th>Receive Date</th><th>Shipped By</th><th>Part Name</th><th>Part Number</th><th>Quantity</th><th>Consumption Reason</th><th>Warehouse</th><th>Image Link</th></tr><tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr><tr><td colspan="10">Thanks!!</td></tr></table>' where tag= 'parts_received_by_warehouse';
-values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
 
 -- Kajal 13-02-2020
 ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
@@ -1837,3 +1837,7 @@ ALTER TABLE `spare_state_change_tracker` CHANGE `partner_id` `entity_id` INT(11)
 ALTER TABLE `booking_state_change`  ADD `spare_id` INT NULL DEFAULT NULL  AFTER `service_center_id`;
 -- Kajal 14-02-2020
 ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+
+
+--Ankit Bhatt 2020-02-12
+UPDATE account_holders_bank_details SET ifsc_code = UPPER(ifsc_code);
