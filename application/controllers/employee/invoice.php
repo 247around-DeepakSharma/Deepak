@@ -4281,7 +4281,7 @@ exit();
      * @param Array $invoice_details
      * @param Array $spare_data
      */
-    function generate_reverse_sale_invoice($invoice_details, $spare_data){
+    function generate_reverse_sale_invoice($invoice_details, $spare_data, $in_warranty=0){
         log_message('info', __METHOD__. " invoice data ". print_r($invoice_details, true). " Spare Data ". print_r($spare_data, TRUE));
         $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
@@ -4322,7 +4322,16 @@ exit();
         $array[0]['reference_invoice_id'] = $invoice_details[0]['invoice_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
-        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, 1);
+        if($in_warranty == 1){
+            //for in warranty case
+            $status = 2;
+        }
+        else{
+            //for OOW
+            $status = 1;
+        }
+            
+        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, $status);
         if($a){
              return true;
         } else {
@@ -4465,7 +4474,21 @@ exit();
             $output_pdf_file_name = $convert['main_pdf_file_name'];
             $response['meta']['invoice_file_main'] = $output_pdf_file_name;
             $response['meta']['copy_file'] = $convert['copy_file'];
-
+            
+            if($is_oow == 1){
+                //Out of warranty case
+                $sub_category = OOW_NEW_PART_RETURN;
+                $reference_invoice_id = $spare[0]['reference_invoice_id'];
+            }   
+            else if($is_oow == 2){
+                //in-warranty case
+                $sub_category = "New Part Return";
+                $reference_invoice_id = $spare[0]['reference_invoice_id'];
+            }
+            else{
+                $sub_category = MSL_DEFECTIVE_RETURN;
+                $reference_invoice_id = NULL;
+            }
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],
                 'type_code' => 'B',
@@ -4497,9 +4520,9 @@ exit();
                 "remarks" => $data[0]['description'],
                 "vertical" => SERVICE,
                 "category" => SPARES,
-                "sub_category" => (($is_oow == 1) ? OOW_NEW_PART_RETURN : MSL_DEFECTIVE_RETURN),
+                "sub_category" => $sub_category,
                 "accounting" => 1,
-                "reference_invoice_id" => (($is_oow == 1) ? $spare[0]['reference_invoice_id'] : NULL)
+                "reference_invoice_id" => $reference_invoice_id
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4533,7 +4556,7 @@ exit();
             unlink(TMP_FOLDER . $output_pdf_file_name);
             unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
             unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
-            
+            return true;
         } else {
             return false;
         }
@@ -5848,6 +5871,154 @@ exit();
             $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
+        }
+    }
+    
+    /**
+     * @desc: This function is used to show all vendor spare sale invoices which were in in-warranty,
+     *  spare parts were lost and their reverse sale invoice is not created yet
+     */
+    function spare_sale_invoice_list() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/spare_sale_invoice_list");
+    } 
+    
+    
+    function get_spare_sale_list(){
+        $data = $this->get_spare_sale_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->invoices_model->count_all_spare_sale_list($post),
+            "recordsFiltered" => $this->invoices_model->count_filtered_spare_sale_list($post),
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+    
+    /**
+     *  @desc : This function is used to get list of spare sale
+     *  @param : void
+     *  @return : void
+     */
+    function get_spare_sale_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('spd.booking_id');
+
+        $where = array();
+        $i = 0;
+        $post['where'] = $where;
+
+        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price";
+        $list = $this->invoices_model->get_spare_sale_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_spare_sale_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     /**
+     *  @desc : This function is used to get rows for warranty plans table
+     *  @param : void
+     *  @return : void
+     */
+     function get_spare_sale_table($model_list, $no) {
+        $row = array();
+        $json_data = json_encode($model_list);
+        $row[] = $no;
+        $row[] = $model_list->booking_id;
+        $row[] = $model_list->parts_requested;
+        $row[] = $model_list->parts_requested_type;
+        $row[] = $model_list->model_number;
+        $row[] = $model_list->sell_invoice_id;
+        $row[] = $model_list->sell_price;
+        $row[] = $model_list->company_name;
+        $row[] = $model_list->district;
+        $row_number = $no - 1;
+        $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->sell_invoice_id."\",".$row_number.")'>Reverse Sale Invoice</button>";
+
+        return $row;
+    }
+    
+    //create reverse sale invoice for spare sold parts
+    public function reverse_spare_sale() {
+        try
+        {
+            //check if ajax request is used for this operation
+            if ($this->input->is_ajax_request()) {
+                $arr_post = $this->input->post();
+                //check if spare_id was sent
+                if(!empty($arr_post['sale_invoice_id']))
+                {
+                    $sale_invoice_id = $arr_post['sale_invoice_id'];
+                    $spare_lost_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
+                            . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
+                            . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate, shipped_quantity", 
+                                array('spare_parts_details.sell_invoice_id' => $sale_invoice_id, 
+                                    'sell_price > 0 ' => NULL,
+                                    'spare_parts_details.part_warranty_status' => 1,
+                                    'spare_lost' => 1,
+                                    '(reverse_sale_invoice_id IS NULL)' => NULL),
+                                true);
+
+                    if(!empty($spare_lost_data)){
+                        foreach ($spare_lost_data as $value) {
+                            if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
+                               $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
+                               $invoice_details[0]['booking_id'] = $value['booking_id'];
+
+                               if(!empty($invoice_details)){
+                                   $response = $this->generate_reverse_sale_invoice($invoice_details, $value, 1);
+                                   if($response){
+                                       //reverse sale invoice created successfully
+                                       $reverse_invoice_id_details = $this->invoices_model->update_spare_parts_details($sale_invoice_id);
+                                       //returning reverse_sale_invoice id so that we can display it
+                                       echo $reverse_invoice_id_details;
+                                       
+                                   }
+                                   else{
+                                       //failed to create reverse sale invoice
+                                       echo false;
+                                   }
+                               }
+                            }
+                        }
+                    }
+                    else{
+                        //reverse spare invoice cannot be created because spare details not found for given spare id
+                        echo false;
+                    }
+                   
+                }
+                else{
+                    echo false;
+                }
+             }
+            else {
+                echo false;
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo false;
         }
     }
 }
