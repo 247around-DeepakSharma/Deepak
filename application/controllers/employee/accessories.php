@@ -132,7 +132,7 @@ class Accessories extends CI_Controller {
     */
 	function show_accessories_list(){
 		
-        $data['product_list']=$this->accessories_model->show_accessories_list($where);
+        $data['product_list']=$this->accessories_model->show_accessories_list();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_accessories_list', $data);
     }
