@@ -166,8 +166,9 @@ $('#hsn_code').select2();
 
 $("#hsn_code").on('change',function(){
 	var hsncode=$("#hsn_code").val();
+	
 	var datastring="hsncode="+hsncode;
-	if(hsncode=='')
+	if(hsncode=='' || hsncode==null)
 	{
 		$('#tax_rate').val('');
 	}

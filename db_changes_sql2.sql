@@ -1880,6 +1880,16 @@ values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/inv
 ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 
+
+
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+
+Add above Lines after this line :
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
+
+
+
 -- Prity 14-02-2020
 CREATE TABLE `agent_state_mapping` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
