@@ -385,21 +385,6 @@
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group <?php
-                                        if (form_error('asm')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="asm" class="col-md-3 vertical-align">ASM*</label>
-                                        <div class="col-md-8">
-                                            <select id="asm" class="form-control" name="asm">
-                                                <option selected disabled>Select Area Sales Manager</option>                                                
-                                            </select>
-                                            <?php echo form_error('asm'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
                                         if (form_error('rm')) {
                                             echo 'has-error';
                                         }
@@ -413,6 +398,21 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('asm')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="asm" class="col-md-3 vertical-align">ASM*</label>
+                                        <div class="col-md-8">
+                                            <select id="asm" class="form-control" name="asm">
+                                                <option selected disabled>Select Area Sales Manager</option>                                                
+                                            </select>
+                                            <?php echo form_error('asm'); ?>
+                                        </div>
+                                    </div>
+                                </div>                                
                             </div>
                             <div class ="col-md-12">
                                 <div class="col-md-6">

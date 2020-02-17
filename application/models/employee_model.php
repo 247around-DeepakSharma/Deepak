@@ -506,8 +506,8 @@ FROM
     * @param type $state
     * @return type
     */
-   function get_state_wise_rm($state, $arr_groups = [_247AROUND_RM, _247AROUND_ASM]) {
-       $str_groups = implode(',', $arr_groups); 
+   function get_state_wise_rm($state,$arr_groups = [_247AROUND_RM,_247AROUND_ASM]) {
+       $str_groups = implode("','",$arr_groups);
        $sql = "SELECT
                     employee.id,
                     employee.full_name
@@ -516,8 +516,8 @@ FROM
                     LEFT JOIN employee ON (employee_relation.agent_id = employee.id)
                     LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
                 WHERE 
-                    employee.groups IN ('".$str_groups."') AND
-                    state_code.state = '".trim($state)."'";
+                    state_code.state = '".trim($state)."'
+                    AND employee.groups IN ('".$str_groups."')";
        return $this->db->query($sql)->result_array();
    }
    
