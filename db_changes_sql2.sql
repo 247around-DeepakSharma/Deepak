@@ -1750,8 +1750,8 @@ values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list'
 
 
 --Ankit Bhatt 2020-01-22
-insert into `email_template`(tag, subject, template, cc, bcc, active)
-values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', 1);
+insert into `email_template`(tag, subject, template, from, to, cc, bcc, active)
+values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '', '', 1);
 
 --Ankit Bhatt 2020-01-27
 ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
@@ -1879,3 +1879,7 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
 -- Kajal 14-02-2020
 ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+
+
+--Ankit Bhatt 2020-02-12
+UPDATE account_holders_bank_details SET ifsc_code = UPPER(ifsc_code);
