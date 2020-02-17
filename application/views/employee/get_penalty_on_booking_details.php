@@ -49,3 +49,29 @@
 <?php } else{
 echo "penalty not found"; }
 ?>
+
+<script>
+    $(document).ready(function(){
+        //variable to count number of checkbox checked
+        var checkbox_selected = 0;
+        $('input[type="checkbox"]').click(function(){
+            if($(this).prop("checked") == true){
+                //checkbox is checked
+                checkbox_selected++; 
+            }
+            else if($(this).prop("checked") == false){
+                //checkbox is unchecked
+                checkbox_selected--; 
+            }
+
+            if(checkbox_selected >=1)
+            {
+                $('#error_message').css('display','none');
+            }
+            else
+            {
+                $('#error_message').css('display','block');
+            }
+        });
+    });
+</script>
