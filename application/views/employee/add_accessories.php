@@ -7,7 +7,7 @@
    <div  class = "panel panel-info" style="margin:20px;">
       <div class="panel-heading" style="font-size:130%;">
          <b>
-            <center>ADD PRODUCT</center>
+            <center>ADD ACCESSORIES</center>
          </b>
       </div>
 
@@ -16,7 +16,7 @@
             <br>
             <div class='col-md-12' id='response_div' style='display:none'>
                <div class="alert alert-success" id='response_div_s'>
-                  <strong>Success!</strong> Product added successfully.
+                  <strong>Success!</strong> Accessories added successfully.
                </div>
                <div class="alert alert-danger" id='response_div_e'>
                   <strong>Error!</strong> <span id='response_div_e_span'></span>
@@ -137,7 +137,7 @@
 
 
          <div class="panel-footer" align='center'>
-            <input type="button" id="submitform" onclick="addproduct()" class="btn btn-primary" value="Add Product">
+            <input type="button" id="submitform" onclick="addproduct()" class="btn btn-primary" value="Add Accessories">
          </div>
          <div class="form-group  col-md-12" >
             <center>
@@ -247,7 +247,7 @@ function addproduct()
 	url: "<?php echo base_url() ?>employee/accessories/process_submit_add_product",
 	beforeSend()
 	{
-		$("#submitform").val("Adding product...");
+		$("#submitform").val("Adding Accessories...");
 		$("#submitform").prop('disabled',true);
 
 		$("#response_div").hide();
@@ -272,7 +272,7 @@ function addproduct()
 			$("#response_div_e_span").html(returndata.msg);
 		}
 		$("#response_div").show();
-		$("#submitform").val("Add product");
+		$("#submitform").val("Add Accessories");
 		$("#submitform").prop('disabled',false);
 	}
 	});
