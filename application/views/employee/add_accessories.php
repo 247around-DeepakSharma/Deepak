@@ -107,7 +107,7 @@
                                  foreach ($hsn_code_detail as $row1) 
                                  {
                                  ?>
-                              <option value="<?php echo $row1['id']?>" ><?php echo $row1['hsn_code']?></option>
+                              <option value="<?php echo $row1['hsn_code']?>" ><?php echo $row1['hsn_code']?></option>
                               <?php
                                  }
                                  ?>

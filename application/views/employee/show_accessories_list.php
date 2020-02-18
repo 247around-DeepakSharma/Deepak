@@ -37,7 +37,7 @@
                            <td class="text-center"><?php echo $row['product_name']; ?></td>
                            <td class="text-center"><?php echo $row['description']; ?></td>
                            <td class="text-center"><?php echo $row['basic_charge']; ?></td>
-                           <td class="text-center"><?php echo $row['text_hsn_code']; ?></td>
+                           <td class="text-center"><?php echo $row['hsn_code']; ?></td>
                            <td class="text-center"><?php echo $row['tax_rate']; ?></td>
                         </tr>
                         <?php

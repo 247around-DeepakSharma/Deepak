@@ -96,4 +96,5 @@ define("_247AROUND_AUDIO_SYSTEM_GST_RATE",18);
 //Chimney gst rate
 define("_247AROUND_CHIMNEY_GST_RATE",18);
 define('COURIER', 'Courier');
+define('ACCESSORIES_TAG','accessories');
 ?>
