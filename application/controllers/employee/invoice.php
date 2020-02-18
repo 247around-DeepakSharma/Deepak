@@ -5900,7 +5900,7 @@ exit();
     /**
      *  @desc : This function is used to get list of spare sale
      *  @param : void
-     *  @return : void
+     *  @return : array
      */
     function get_spare_sale_data() {
         $post['length'] = $this->input->post('length');
@@ -5911,7 +5911,7 @@ exit();
 
         $post['column_order'] = array();
         //column which will be searchable in datatable search
-        $post['column_search'] = array('spd.booking_id');
+        $post['column_search'] = array('spd.booking_id', 'spd.sell_invoice_id');
 
         $where = array();
         $i = 0;
@@ -5936,8 +5936,8 @@ exit();
     
      /**
      *  @desc : This function is used to get rows for warranty plans table
-     *  @param : void
-     *  @return : void
+     *  @param : array
+     *  @return : array
      */
      function get_spare_sale_table($model_list, $no) {
         $row = array();
@@ -5958,6 +5958,11 @@ exit();
     }
     
     //create reverse sale invoice for spare sold parts
+    /**
+     *  @desc : This function is used to generate reverse sale invoice
+     *  @param : $sale_invoice_id
+     *  @return : string
+     */
     public function reverse_spare_sale() {
         try
         {
@@ -5967,7 +5972,9 @@ exit();
                 //check if spare_id was sent
                 if(!empty($arr_post['sale_invoice_id']))
                 {
+                    //sale_invoice_id is sent for which we have to generate reverse sale invoice
                     $sale_invoice_id = $arr_post['sale_invoice_id'];
+                    //getting spare part details and applying conditions
                     $spare_lost_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
                             . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
                             . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate, shipped_quantity", 
@@ -5979,18 +5986,21 @@ exit();
                                 true);
 
                     if(!empty($spare_lost_data)){
+                        //checking if reverse sale invoice is already created or not and request for valid spare part is made  
                         foreach ($spare_lost_data as $value) {
                             if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
                                $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
                                $invoice_details[0]['booking_id'] = $value['booking_id'];
 
                                if(!empty($invoice_details)){
+                                   //invoice details found
                                    $response = $this->generate_reverse_sale_invoice($invoice_details, $value, 1);
                                    if($response){
                                        //reverse sale invoice created successfully
+                                       //we will update details for reverse sale
                                        $reverse_invoice_id_details = $this->invoices_model->update_spare_parts_details($sale_invoice_id);
-                                       //returning reverse_sale_invoice id so that we can display it
-                                       echo $reverse_invoice_id_details;
+                                       //returning reverse_sale_invoice id so that we can display reverse sale invoice pdf link to user
+                                       echo "<a href='".'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" . $reverse_invoice_id_details.".pdf' target='_blank' title='Click to view generated reverse sale invoice'>".$reverse_invoice_id_details."</a>";
                                        
                                    }
                                    else{
@@ -6002,7 +6012,7 @@ exit();
                         }
                     }
                     else{
-                        //reverse spare invoice cannot be created because spare details not found for given spare id
+                        //reverse spare invoice cannot be created because spare invoice details not found for given spare id
                         echo false;
                     }
                    
