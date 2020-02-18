@@ -1038,13 +1038,13 @@ class invoices_model extends CI_Model {
             foreach ($result as $key => $value) {
                 if($is_customer && empty($result[0]['gst_number'])){
                   
-                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
+                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                     $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value'] + ($value['taxable_value'] * ($value['gst_rate']/100))));
                     
                     
                 } else if((empty($is_customer)) && empty($result[0]['gst_number'])){
                    
-                    $meta['total_taxable_value'] = sprintf("%1\$.2f",($value['taxable_value']));
+                    $meta['total_taxable_value'] += sprintf("%1\$.2f",($value['taxable_value']));
                     $result[$key]['total_amount'] = sprintf("%1\$.2f",($value['taxable_value']));
                     $result[$key]['igst_rate'] =  $result[$key]['cgst_rate'] =  $result[$key]['sgst_rate'] = 0;
                     $result[$key]['cgst_tax_amount'] =   $result[$key]['sgst_tax_amount'] = $result[$key]['igst_tax_amount'] = 0;

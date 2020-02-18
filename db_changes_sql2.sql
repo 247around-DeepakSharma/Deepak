@@ -1946,3 +1946,6 @@ ALTER TABLE `accessories_product_description`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
   ---------------------------------------------------------------
+
+-- Kajal 18-02-2020
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Accessories', '1', 'SF Accessories Invoice', 'accessories');
