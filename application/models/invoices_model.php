@@ -310,6 +310,7 @@ class invoices_model extends CI_Model {
                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
             } else {
                  $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+                 $result[0]['amount_collected_paid'] = $result1[0]['amount_collected_paid'];
                  $result[0]['final_amount'] = sprintf("%.2f",($result1[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             }
             return $result;
