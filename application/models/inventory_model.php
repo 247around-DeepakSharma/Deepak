@@ -344,6 +344,7 @@ class Inventory_model extends CI_Model {
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_parts_shippped_date_by_wh, '%Y-%m-%d')) AS age_defective_part_shipped_date_wh,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
