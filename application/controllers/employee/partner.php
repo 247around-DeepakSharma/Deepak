@@ -4875,9 +4875,9 @@ class Partner extends CI_Controller {
           $is_wh = 0;
 
         if(!empty($is_wh)){
-            $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
+            $where = array('(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
-            $where = array('is_active'=>1);
+            $where = array();
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
