@@ -4889,20 +4889,20 @@ exit();
                         foreach ($data as $value ) {
 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
-                                "status" => SPARE_SHIPPED_BY_PARTNER, 'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
+                                'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
                             
                             $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
                             
-                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-                            $actor = $next_action = 'not_define';
-                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
-                            if (!empty($partner_status)) {
-                                $booking['partner_current_status'] = $partner_status[0];
-                                $booking['partner_internal_status'] = $partner_status[1];
-                                $actor = $booking['actor'] = $partner_status[2];
-                                $next_action = $booking['next_action'] = $partner_status[3];
-                            }
-                            $this->booking_model->update_booking($value->booking_id, $booking);
+//                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+//                            $actor = $next_action = 'not_define';
+//                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
+//                            if (!empty($partner_status)) {
+//                                $booking['partner_current_status'] = $partner_status[0];
+//                                $booking['partner_internal_status'] = $partner_status[1];
+//                                $actor = $booking['actor'] = $partner_status[2];
+//                                $next_action = $booking['next_action'] = $partner_status[3];
+//                            }
+//                            $this->booking_model->update_booking($value->booking_id, $booking);
                             
                             $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor,$next_action,_247AROUND);
@@ -5021,18 +5021,17 @@ exit();
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
+            $c_gst = TRUE;
 
             if ($data['vendor_partner'] == "vendor") {
 
                 $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
-                        . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+                        . "state,address as company_address,company_name,district, pincode, gst_status", array("id" => $data['vendor_partner_id']));
                 
-                if(!empty($entity_details[0]['gst_number'])){
-                    
-                    $c_gst = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
-                    
+                if (!empty($entity_details[0]['gst_number']) && !empty($entity_details[0]['gst_status']) && ($entity_details[0]['gst_status'] != _247AROUND_CANCELLED)) {
+                
                 } else {
-                    $c_gst = TRUE;
+                    $entity_details[0]['gst_number'] = "";
                 }
 
             } else {
@@ -5040,7 +5039,7 @@ exit();
                 $entity_details = $this->partner_model->getpartner_details("gst_number,"
                         . "company_name, state, address as company_address, district, pincode, "
                         . "invoice_email_to,invoice_email_cc", array('partners.id' => $data['vendor_partner_id']));
-                $c_gst = true;
+                //$c_gst = true;
             }
 
             if (!empty($c_gst)) {

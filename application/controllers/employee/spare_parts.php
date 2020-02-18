@@ -143,6 +143,9 @@ class Spare_parts extends CI_Controller {
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'users.name', 'users.phone_number',
             'defective_part_shipped');
+        if(!empty($post['where'])) {
+            $post['where']["(spare_lost is null or spare_lost = 0)"] = NULL;
+        }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -2411,6 +2414,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $approval_agent_id = $agent_id;
             $track_entity_type = $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
 
+            $approval_entity_type = _247AROUND_EMPLOYEE_STRING; /// Entity Type will be 247around 
         } else if ($this->session->userdata('userType') == 'partner') { //// Partner Session ////
             $agent_name = $this->session->userdata('partner_name');
             $agent_id   = $this->session->userdata('agent_id');
@@ -2422,6 +2426,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
             $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+            $approval_entity_type = _247AROUND_PARTNER_STRING;         
+        }else{
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            $agent_name = _247AROUND_DEFAULT_AGENT_NAME; 
+            $approval_agent_id = _247AROUND_DEFAULT_AGENT;
+            $approval_entity_type = _247AROUND_EMPLOYEE_STRING;  /// Entity Type will be 247around 
         }
         
  
@@ -3012,12 +3022,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->form_validation->set_rules('courier_price_by_wh', 'Enter Courier Price', 'required');
         $this->form_validation->set_rules('defective_parts_shippped_date_by_wh', 'Enter Shipped Date', 'required');
         $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
-
+        $data = array();
+        $spare_data = array();
         if ($this->form_validation->run()) {
             $invoice_ids = trim($this->input->post('invoice_ids'));
-            $courier_details['AWB_no'] = $this->input->post('awb_by_wh');
-            $courier_details['courier_name'] = $this->input->post('courier_name_by_wh');
-            $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
+            $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
+            $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
             $exist_courier_image = $this->input->post('exist_courier_image');
             $bulk_courier_price = $this->input->post('courier_price_by_wh');
 
@@ -3038,10 +3049,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
            
             foreach ($invoice_ids_arr as $kay => $val) {
-                $where = array('invoice_id' => $val);
+                $where = array('inventory_ledger.invoice_id' => $val);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
-                    $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+                    $courier_id_arr[] = array('courier_id'=> $inventory_ledger[0]['courier_id'], 'invoice_id' => $val) ;
                     $eway_details = array();
                     $eway_details['courier_details_id'] = $inventory_ledger[0]['courier_id'];
                     $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
@@ -3054,18 +3065,18 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     break;
                 }
             }
-            
-           
-            if(!empty($eway_data)){
+
+
+            if (!empty($eway_data)) {
                 $this->inventory_model->insert_ewaybill_details_in_bulk($eway_data);
             }
             
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
-                    $courier_details['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
                 } else {
-                    $courier_details['courier_charge'] = $bulk_courier_price;
+                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
                 }
 
                 if (!empty($exist_courier_image)) {
@@ -3074,10 +3085,14 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
                 }
 
-                $courier_details['courier_file'] = $courier_file['message'];
-
-                foreach ($courier_id_arr as $key => $courier_id) {
-                    $affected_id = $this->inventory_model->update_courier_detail(array('id' => $courier_id), $courier_details);
+                $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
+              
+                foreach ($courier_id_arr as $val) {
+                    
+                    $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
+                    if ($affected_id) {
+                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $val['invoice_id']), $spare_data);
+                    }
                 }
             } else {
                 $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
@@ -3104,19 +3119,20 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         log_message("info",__METHOD__);
         $MB = 1048576;
         //check if upload file is empty or not
-        if (!empty($file_details['file']['name'])) {
+        if (!empty($file_details['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['file']['size'] <= 2 * $MB) {
-                $allowed = array('pdf','jpg','png','jpeg','JPG','JPEG','PNG','PDF');
-                $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
+
+            if ($file_details['size'] <= 2 * $MB) {
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
+                $ext = pathinfo($file_details['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
-                    $upload_file_name = str_replace(' ', '_', trim($file_details['file']['name']));
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['name']));
 
                     $file_name = 'defective_spare_courier_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
                     //Upload files to AWS
                     $directory_xls = "vendor-partner-docs/" . $file_name;
-                    $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile($file_details['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;
                     $res['message'] = $file_name;

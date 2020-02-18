@@ -1076,9 +1076,10 @@ class Inventory extends CI_Controller {
         }
 
         if (!empty($id)) {
+
             // fetch record from booking details of $booking_id.
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
-            
+
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;

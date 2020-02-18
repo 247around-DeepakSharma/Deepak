@@ -458,9 +458,9 @@ class Dashboard extends CI_Controller {
             $partner_id = "";
         }
         foreach ($rm_array as $value) {
-            $rm_head = false;
+                    $rm_head = false;
             if(!empty($value['region'])){
-                $rm_head = true;
+                    $rm_head = true;
             }
             
             if($rm_head){
@@ -2032,17 +2032,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              if($this->session->userdata('partner_id') ){
                 if($is_pending){
                     $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
                 else{
                     $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                     }
                 }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee.id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as TAT";
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
                 else{
                      $select = "employee.full_name as entity,employee.id as id,booking_details.booking_id,"

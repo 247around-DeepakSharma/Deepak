@@ -312,6 +312,9 @@
                     return false;  
                 }
             }
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
             if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;

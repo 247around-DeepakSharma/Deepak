@@ -982,6 +982,11 @@ class Invoice_lib {
 //                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
 //            }else{
 //                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
+//            /*  By: Abhishek : Consumption status  on Challan */
+//            if(!empty($spare_parts_details_value[0]['consumed_status'])){
+//                $spare_parts_details[$spare_key][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
+//            }else{
+//                $spare_parts_details[$spare_key][$spare_key]['consumption'] = 'NA'; 
 //            }
 
             }

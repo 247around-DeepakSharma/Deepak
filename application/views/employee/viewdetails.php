@@ -923,6 +923,8 @@
                                         <th>Pickup Schedule</th>
                                         <th>Courier Name</th>
                                         <th>AWB </th>
+                                        <th>No. Of Boxes </th>
+                                        <th>Weight </th>
                                         <th>Shipped date </th>
                                         <th>EDD </th>
                                         <th>Remarks By Partner</th>
@@ -952,7 +954,21 @@
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_partner";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></span> 
                                             <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
-                                        </td>                                       
+                                        </td>  
+                                        <td><?php if(!empty($sp['awb_by_partner']) && !empty($sp['p_box_count'])){ echo $sp['p_box_count']; } ?></td>
+                                        <td><?php
+                                                    if (!empty($sp['awb_by_partner'])) {
+                                                        if (!empty($sp['p_billable_weight'])) {
+                                                            $expl_data = explode('.', $sp['p_billable_weight']);
+                                                            if (!empty($expl_data[0])) {
+                                                                echo $expl_data[0] . ' KG ';
+                                                            }
+                                                            if (!empty($expl_data[1])) {
+                                                                echo $expl_data[1] . ' Gram';
+                                                            }
+                                                        }
+                                                    }
+                                                    ?></td>
                                         <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>

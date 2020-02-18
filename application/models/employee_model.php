@@ -395,8 +395,9 @@ class Employee_model extends CI_Model{
                     LEFT JOIN employee ON (agent_state_mapping.agent_id = employee.id)
                     LEFT JOIN state_code ON (state_code.state_code = agent_state_mapping.state_code)
                 WHERE 
-                    state_code.state = '".trim($state)."'
-                    AND employee.groups IN ('".$str_groups."')";
+                    employee.groups IN ('".$str_groups."') AND
+                    employee.active = 1 AND    
+                    state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
    

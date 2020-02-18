@@ -1388,7 +1388,7 @@ class invoices_model extends CI_Model {
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh,
-                minimum_guarantee_charge,round(tax_rate,0) as gst_rate
+                minimum_guarantee_charge,round(tax_rate,0) as gst_rate, sc.gst_status
 
                 FROM  `booking_unit_details` AS ud 
                 JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
@@ -1538,7 +1538,7 @@ class invoices_model extends CI_Model {
                 $select = 'state,company_name,'
                         . ' address as company_address, pincode, district,'
                         . ' is_wh, owner_phone_1, sc_code, primary_contact_email,'
-                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number,minimum_guarantee_charge ';
+                        . ' owner_email, pan_no, contract_file, company_type, signature_file, gst_no as gst_number,minimum_guarantee_charge, gst_status ';
 
                 $vendor_details = $this->vendor_model->getVendorDetails($select, array('id' => $vendor_id));
 
@@ -1558,6 +1558,7 @@ class invoices_model extends CI_Model {
                 $result['booking'][0]['signature_file'] = $vendor_details[0]['company_type'];
                 $result['booking'][0]['gst_number'] = $vendor_details[0]['gst_number'];
                 $result['booking'][0]['minimum_guarantee_charge'] = $vendor_details[0]['minimum_guarantee_charge'];
+                $result['booking'][0]['gst_status'] = $vendor_details[0]['gst_status'];
             }
             
 //            if ($result['booking'][0]['is_wh'] == 1) {
@@ -1577,28 +1578,12 @@ class invoices_model extends CI_Model {
 //                }
 //            }
             // we have no gst number then we generte bill of supply.
-            // IF we have GSt number then check it is valid or not. 
-            // We are creating invoice only for valid GST Number.
-            if (!empty($result['booking'][0]['gst_number'])) {
-                $gst = $this->invoice_lib->check_gst_number_valid($vendor_id, $result['booking'][0]['gst_number']);
+            // If we have gst number but gst status is cancelled then we are not generating invoice
+            if (!empty($result['booking'][0]['gst_number']) && !empty($result['booking'][0]['gst_status']) && ($result[0]['gst_status'] != _247AROUND_CANCELLED)) {
+                return $result;
                
-                if(!empty($gst)){
-                   if($gst['status'] == true && $gst['gst_type'] == true ){
-                       return $result;
-                   } else if($gst['status'] == true && $gst['gst_type'] == FALSE ){
-                       $result['booking'][0]['gst_number'] = "";
-                       return $result;
-                   } else {
-                       $this->session->set_userdata(array('error' => "GST Number is Invalid"));
-                       return FALSE;
-                   }
-                } else {
-                    // IF we are getting false as response then we are not creating invoice 
-                    log_message("info", __METHOD__. " GST Number Invalid for Vendor ID ". $vendor_id);
-                    $this->session->set_userdata(array('error' => "GST Number is Invalid"));
-                    return FALSE;
-                }
             } else {
+                $result['booking'][0]['gst_number'] = "";
                 return $result;
             }
         } else {
