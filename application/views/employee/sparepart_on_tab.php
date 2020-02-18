@@ -369,6 +369,41 @@
         </div>
     </div>
 </div>
+<div role="tabpanel" class="tab-pane" id="return_defective_parts_from_wh_to_partner">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="return_defective_parts_from_wh_to_partner_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center">No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        <th class="text-center" data-orderable="false">Age</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div role="tabpanel" class="tab-pane" id="defective_part_shipped_by_SF">
     <div class="container-fluid">
         <div class="row" >
@@ -788,6 +823,7 @@
     var courier_lost_spare_parts_table;
     
     var defective_part_rejected_by_wh_table;
+    var return_defective_parts_from_wh_to_partner_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -1399,6 +1435,50 @@
                $(".dataTables_filter").addClass("pull-right");
             }
         });
+        
+        /*
+        * @uses: Return Defective From Warehouse To Partner
+        */
+        return_defective_parts_from_wh_to_partner_table = $('#return_defective_parts_from_wh_to_partner_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[14, "desc"]], //Initial no order.
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       ccolumns: [ 1,2,3,4,5,6,7,8,9,10]
+                    },
+                    title: 'return_defective_parts_from_wh_to_partner'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '14', awb_by_wh: ' IS NOT NULL', defective_parts_shippped_date_by_wh:'IS NOT NULL'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
+                    "orderable": false //set not orderable
+                },
+                {
+                    "targets": [14], //first column / numbering column
+                    "orderable": true //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+               $(".dataTables_filter").addClass("pull-right");
+            }
+        });
+        
        
     });
      

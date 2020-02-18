@@ -102,6 +102,7 @@
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective/Damage/Ok Part Shipped By SF ( Courier Audit )</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Warehouse</a></li>
+                            <li role="presentation"><a href="#return_defective_parts_from_wh_to_partner" aria-controls="return_defective_parts_from_wh_to_partner" class="spare_parts_tabs" role="tab" data-toggle="tab"> Returned Defective Part From Warehouse To Partner</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>
                         </ul>
                     </div>

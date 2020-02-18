@@ -128,6 +128,10 @@ class Spare_parts extends CI_Controller {
                 break;
             case 13:
                 $this->get_part_rejected_by_warehouse($post);
+                break;            
+            case 14:
+                /* Return Defective Part To Warehouse */
+                $this->get_return_defective_part_from_wh_partner($post);
                 break;
         }
     }
@@ -341,6 +345,86 @@ class Spare_parts extends CI_Controller {
 
         return $row;
     }
+      
+     /*
+     * @desc: Used to create tab in which we are showing
+     * Return: Defective Part To Warehouse
+     * @param: Array $post
+     */
+    function get_return_defective_part_from_wh_partner($post) {
+        log_message('info', __METHOD__);
+
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
+                . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
+                . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped, rejected_defective_part_pic_by_wh,"
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'defective_parts_shippped_date_by_wh', NULL, NULL, NULL, NULL, NULL);
+
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
+            'users.name', 'users.phone_number', 'defective_part_shipped', 'booking_details.request_type');
+        
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->return_defective_part_from_wh_to_partner_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+      
+     /**
+     * @desc This Function Is Used To Create Table Row Data For The Return Defective Part To Warehouse Tab
+     * @param Array $spare_list
+     * @param int $no
+     * @return Array
+     */
+    
+    function return_defective_part_from_wh_to_partner_table_data($spare_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
+            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+            if (!empty($wh_details)) {
+                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            } else {
+                $spare_pending_on = 'Warehouse';
+            }
+        } else {
+            $spare_pending_on = 'Partner';
+        }
+        $row[] = $spare_pending_on;
+        $row[] = $spare_list->name;
+        $row[] = $spare_list->booking_primary_contact_no;
+        $row[] = $spare_list->sc_name;
+        $row[] = $spare_list->source;
+        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
+        $row[] = $spare_list->quantity;
+        $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->part_number;
+        $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->request_type . "</span>";
+        $row[] = (empty($spare_list->age_defective_part_shipped_date_wh)) ? '0 Days' : $spare_list->age_defective_part_shipped_date_wh . " Days";
+ 
+        return $row;
+    }
+    
 
     /**
      * @desc Used to create tab in which we are showing
@@ -1640,6 +1724,15 @@ class Spare_parts extends CI_Controller {
         if (!empty($this->input->post('appliance_wise_parts_requested'))) {
             $post['where']['booking_details.service_id'] = $this->input->post('appliance_wise_parts_requested');
         }
+        /*@desc:  Where Clause To Return Defective part From WH To Partner */
+        if (!empty($this->input->post('awb_by_wh'))) {
+            unset($post['where']['status']);
+            unset($post['request_type']);
+            $post['where']['spare_parts_details.awb_by_wh '.$this->input->post('awb_by_wh').' AND spare_parts_details.defective_parts_shippped_date_by_wh '.$this->input->post('defective_parts_shippped_date_by_wh').''] = NULL ;
+        }
+        
+        
+        
         return $post;
     }
 
