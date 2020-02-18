@@ -3,7 +3,7 @@
       <div class="panel panel-info" >
          <div class="panel-heading" style="font-size:130%;">
             <b>
-               <center>PRODUCT LIST</center>
+               <center>ACCESSORIES LIST</center>
             </b>
          </div>
          <div class="panel-body">
@@ -61,7 +61,7 @@
    {
        extend: 'excel',
        text: '<span class="fa fa-file-excel-o"></span>  Export',
-       title: 'annual_charges_<?php echo date('Ymd-His'); ?>',
+       title: 'accessories_list_<?php echo date('Ymd-His'); ?>',
        footer: true
    }  
    ],            
