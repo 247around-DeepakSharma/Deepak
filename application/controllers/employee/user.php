@@ -771,8 +771,12 @@ class User extends CI_Controller {
         
         $data1['groups']= str_replace(' ', '', $data1['groups']);
         // Update region (North,South,East,West) with its respective RM 
-        if(($data1['groups'] == _247AROUND_RM) && !empty($data1['region']) && !empty($data1['id'])){
-            $this->employee_model->map_region_to_rm($data1['region'], $data1['id']);
+        if(!empty($data1['region']))
+        {
+            if(($data1['groups'] == _247AROUND_RM) && !empty($data1['id'])){
+                $this->employee_model->map_region_to_rm($data1['region'], $data1['id']);
+            }
+            // unset region from array to avoid insertion in employee table
             unset($data1['region']);
         }
         $this->employee_model->update($data1['id'],$data1);      

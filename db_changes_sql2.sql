@@ -1910,4 +1910,7 @@ ALTER TABLE `accessories_product_description`
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
   
+-- Prity 18-02-2020
+ALTER table booking_details ADD column created_by_agent_id int NOT NULL;
+ALTER table booking_details ADD column created_source int NOT NULL;
 

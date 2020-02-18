@@ -2278,6 +2278,13 @@ class Service_centers extends CI_Controller {
                 }
                 // update spare parts details.
                 $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+                
+                // generate challan.
+                if (!empty($this->session->userdata('service_center_id')) 
+                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                    $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));
+                }
             }
             // send mail in case of courier lost.
             if (!empty($courier_lost_spare) && !empty($this->session->userdata('service_center_id'))) {
@@ -3080,8 +3087,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.defective_part_rejected_by_wh" => 0,
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
         );
@@ -3887,7 +3893,7 @@ class Service_centers extends CI_Controller {
                 $post = array();
                 $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 /*   Abhishek Getting Consumption reason */
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
 
@@ -3905,13 +3911,13 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
-
+                            $spare_parts['consumed_status'] = $value['consumed_status']; 
                             /*  By: Abhishek : Consumption status  on Challan */
-                            if(!empty($value['consumed_status'])){
-                            $spare_parts['consumption'] = $value['consumed_status']; 
-                            }else{
-                            $spare_parts['consumption'] = 'NA'; 
-                            }
+//                            if(!empty($value['consumed_status'])){
+//                            $spare_parts['consumption'] = $value['consumed_status']; 
+//                            }else{
+//                            $spare_parts['consumption'] = 'NA'; 
+//                            }
 
                         }
                         $spare_details[][] = $spare_parts;
@@ -6429,16 +6435,8 @@ class Service_centers extends CI_Controller {
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
-            //case when consumption reason is changed by admin
-            $spare_consumption_status_new_reason = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $post_data['spare_consumption_status'][$spare_id]], NULL, NULL, NULL, NULL, NULL)[0];
-            if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_new_reason['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
-                //send email
-                $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $spare_consumption_status_new_reason['reason_text']);
-            }
-            
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
-
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if (!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
