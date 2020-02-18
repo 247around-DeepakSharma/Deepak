@@ -2199,17 +2199,38 @@ class engineerApi extends CI_Controller {
                 if ($value['document_type'] == "pdf") {
                     $pdf['document_type'] = $value['document_type'];
                     $pdf['document_description'] = $value['document_description'];
-                    $pdf['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $value['file'];
+                    /*  consition according to ENV set to engineer_config constant */
+                    $pdf['brand'] = $value['document_description'];
+                    $pdf['request_type'] = $value['document_description'];
+                    if(ENV=="test"){
+                    $pdf['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    }else{
+                    $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file']; 
+                    }
                     array_push($pdf_docs, $pdf);
                 } else if ($value['document_type'] == "video") {
                     $video['document_type'] = $value['document_type'];
                     $video['document_description'] = $value['document_description'];
-                    $video['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $value['file'];
+                    /*  consition according to ENV set to engineer_config constant */
+                    $video['brand'] = $value['document_description'];
+                    $video['request_type'] = $value['document_description'];
+                    if(ENV=="test"){
+                    $video['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    }else{
+                    $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    }
                     array_push($video_docs, $video);
                 } else {
                     $others['document_type'] = $value['document_type'];
                     $others['document_description'] = $value['document_description'];
-                    $others['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $value['file'];
+                    /*  consition according to ENV set to engineer_config constant */
+                    $others['brand'] = $value['document_description'];
+                    $others['request_type'] = $value['document_description'];
+                    if(ENV=="test"){
+                    $others['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
+                    }else{
+                    $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    }
                     array_push($other_docs, $others);
                 }
                 $i++;
