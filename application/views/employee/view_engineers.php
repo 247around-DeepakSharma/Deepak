@@ -41,18 +41,17 @@
         <table  class="table table-striped table-bordered" id="engineer_datatable">
             <thead>
             <tr>
-          	<th>S.No</th>
+            <th>S.No</th>
                 <th>Service Center Name</th>
                 <th>State</th>
                 <th>City</th>
-          	<th>Engineer Name</th>
+            <th>Engineer Name</th>
                 <th>Appliances</th>
-          	<th>Mobile</th>
-          	<th>Alternate Mobile Number</th>
-          	<th>ID Proof</th>
+            <th>Mobile</th>
+            <th>Alternate Mobile Number</th>
+            <th>ID Proof</th>
                 <th>Create Date</th>
-                <th>status</th>
-                <th>Verified</th>
+                <th>Verified</th> <!-- Remove duplicate coloumn -->
                 <th>Status</th>
                 <th>Edit</th>
                 <!--<th>Delete</th>-->
@@ -85,7 +84,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,9,10],
+                       columns: [1,2,3,4,5,6,7,9,10,11],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -104,11 +103,11 @@
         //Set column definition initialisation properties.
         columnDefs: [
             {
-                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8], //first column / numbering column
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12], //first column / numbering column disable sort in buttons
                 "orderable": false //set not orderable
             },
             {
-                "targets": [ 10 ],
+                "targets": [  ],
                 "visible": false,
             }
         ]

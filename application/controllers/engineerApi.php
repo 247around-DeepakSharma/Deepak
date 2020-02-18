@@ -1922,7 +1922,7 @@ class engineerApi extends CI_Controller {
                 "booking_details.assigned_vendor_id" => $requestData["service_center_id"],
                 "booking_details.assigned_engineer_id" => $requestData["engineer_id"],
                 "engineer_incentive_details.is_active" => 1,
-                "engineer_incentive_details.is_paid" => 0,
+              //  "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -3755,7 +3755,7 @@ class engineerApi extends CI_Controller {
                 "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
                 "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
                 "engineer_incentive_details.is_active" => 1,
-                "engineer_incentive_details.is_paid" => 0,
+               // "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $incentive_details = $this->engineer_model->get_en_incentive_details($select, $where);
             if (!empty($incentive_details)) {
