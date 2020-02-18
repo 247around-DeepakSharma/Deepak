@@ -766,7 +766,7 @@ function alpha(e) {
      $('.spare-consumption').children('tbody').children('tr').each(function(index) {
         var checkReason = $(this).find("td:eq(5)").children('.spare_consumption_status').val();
         var reason = $("input[name='reason']:checked"). val();
-        if(reason == "<?php echo SPARE_PARTS_REQUIRED; ?>") {
+        if(reason == "<?php echo SPARE_PARTS_REQUIRED; ?>" || reason == "<?php echo SPARE_OOW_EST_REQUESTED; ?>") {
             if(checkReason == null || checkReason == '') {
                 alert('Please provide consumption reason of previously requested parts.');
                 checkbox_value = 0;
