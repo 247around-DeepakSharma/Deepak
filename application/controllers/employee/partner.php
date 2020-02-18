@@ -5387,7 +5387,9 @@ class Partner extends CI_Controller {
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['services'] = $this->booking_model->selectservice();
-        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID,'report_type' => 'partner_custom_summary_report'),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        $data['detailedSummaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID,'report_type' => 'partner_detailed_summary_report'),NULL,array("length"=>50,"start"=>""),
                 array('id'=>'DESC'),NULL,NULL,array());
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/report',$data);
