@@ -1869,4 +1869,8 @@ delete FROM `taxpro_gstr2a_data` WHERE id >=1846 and id <=1854;
 delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
 
 ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
-values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+
+--Ankit Bhatt 2020-02-18
+insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
