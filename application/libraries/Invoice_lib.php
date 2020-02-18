@@ -835,7 +835,7 @@ class Invoice_lib {
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*,spare_consumption_status.consumed_status';
+            $select = 'spare_parts_details.*, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id,
                 "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
                 'defective_part_required' => 1);
@@ -872,12 +872,12 @@ class Invoice_lib {
                     }
                 }
 
-/*  By: Abhishek : Consumption status  on Challan */
-            if(!empty($spare_parts_details_value[0]['consumed_status'])){
-                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
-            }else{
-                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
-            }
+         /*  By: Abhishek : Consumption status  on Challan */
+//            if(!empty($spare_parts_details_value[0]['consumed_status'])){
+//                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
+//            }else{
+//                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
+//            }
             
 
             }
@@ -1034,7 +1034,7 @@ class Invoice_lib {
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*,spare_consumption_status.consumed_status';
+            $select = 'spare_parts_details.*, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id, 'defective_part_required' => 1);
             $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where);
         }
@@ -1061,11 +1061,11 @@ class Invoice_lib {
                 }
 
             /*  By: Abhishek : Consumption status  on Challan */
-            if(!empty($spare_parts_details_value[0]['consumed_status'])){
-                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
-            }else{
-                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
-            }
+//            if(!empty($spare_parts_details_value[0]['consumed_status'])){
+//                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
+//            }else{
+//                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
+//            }
             }
 
 
