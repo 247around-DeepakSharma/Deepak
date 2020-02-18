@@ -5001,7 +5001,7 @@ function generate_image($base64, $image_name,$directory){
                 $consumption_status_tag = $this->My_CI->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
 
                 if ($consumption_status_tag == PART_CONSUMED_TAG) {
-                    $status = DEFECTIVE_PARTS_PENDING;
+                    $status = DEFECTIVE_PARTS_SHIPPED;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
@@ -5016,21 +5016,21 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 if ($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
-                    $status = OK_PART_TO_BE_SHIPPED;
+                    $status = OK_PART_SHIPPED;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
                 }
 
                 if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
-                    $status = OK_PART_TO_BE_SHIPPED;
+                    $status = OK_PART_SHIPPED;
 
                     $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
                     $this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
                 }
 
                 if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    $status = DAMAGE_PART_SHIPPED;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }

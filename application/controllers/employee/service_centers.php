@@ -6429,16 +6429,8 @@ class Service_centers extends CI_Controller {
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
-            //case when consumption reason is changed by admin
-            $spare_consumption_status_new_reason = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $post_data['spare_consumption_status'][$spare_id]], NULL, NULL, NULL, NULL, NULL)[0];
-            if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_new_reason['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
-                //send email
-                $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $spare_consumption_status_new_reason['reason_text']);
-            }
-            
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
-
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if (!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
