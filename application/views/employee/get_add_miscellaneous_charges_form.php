@@ -124,6 +124,12 @@
                                     <input type="hidden" name="file_required" value="1" >
                                 </div>
                             </div>
+                            <div class="col-md-12 ">
+                                <div class="form-group col-md-11  ">
+                                    <label for="Purchase Invoice File">Purchase Invoice File </label>
+                                    <input type="file" class="form-control" id="purchase_invoice_file" name="purchase_invoice_file" accept="image/* , application/pdf" >
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-xs-5 col-md-4 col-md-offset-5">
                                     <button type="submit" class="btn btn-success"  id="submit_btn">Submit</button>

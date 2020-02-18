@@ -87,7 +87,13 @@ class engineerApi extends CI_Controller {
             }
 
             $this->requestId = $requestData['requestId'];
-            $this->deviceId = $requestData['deviceId'];
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+            if(isset($requestData['deviceId']) && !empty($requestData['deviceId'])){
+                $this->deviceId =   $requestData['deviceId'];
+            }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+            }
+
             $this->requestUrl = $requestData['requestUrl'];
 
             if ($this->requestUrl == "saveHandyMan") {
@@ -135,7 +141,14 @@ class engineerApi extends CI_Controller {
         $this->user = "";
         $this->user = $this->input->get('username');
         $this->token = $this->input->get('jwt');
-        $this->deviceId = $this->input->get('deviceId');
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+        $deviceID =  $this->input->get('deviceId');
+        if(isset($deviceID) && !empty($deviceID)){
+                $this->deviceId =   $deviceID;
+        }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+        }
+
         $this->requestId = $this->input->get('requestId');
         $this->requestUrl = $this->input->get('requestUrl');
 
@@ -1931,7 +1944,7 @@ class engineerApi extends CI_Controller {
                 "booking_details.assigned_vendor_id" => $requestData["service_center_id"],
                 "booking_details.assigned_engineer_id" => $requestData["engineer_id"],
                 "engineer_incentive_details.is_active" => 1,
-                "engineer_incentive_details.is_paid" => 0,
+              //  "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -3758,12 +3771,12 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type";
+            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type,is_paid"; /// Sending if paid or not ///
             $where = array(
                 "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
                 "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
                 "engineer_incentive_details.is_active" => 1,
-                "engineer_incentive_details.is_paid" => 0,
+               // "engineer_incentive_details.is_paid" => 0, // Showing all amount paid/unpaid
             );
             $incentive_details = $this->engineer_model->get_en_incentive_details($select, $where);
             if (!empty($incentive_details)) {
@@ -3891,7 +3904,7 @@ API for getting partner  list in APP
         if ($validation['status']) {
             $select = 'services.id,services.services,partner_appliance_details.partner_id';
             $where =array(
-                'partner_appliance_details.partner_id'=>$resquestdata['partner_id']  /// Resolve Fatal Error
+                'partner_appliance_details.partner_id'=>$requestData['partner_id']  /// Resolve Fatal Error correct the vaiable name
 
             );
             $response = $this->_getPartner_appliances($select,$where);
@@ -4061,12 +4074,12 @@ function check_for_upgrade(){
         if ($requestData['app_version']!=APP_VERSION) { 
                 // get configuration data from table for App version upgrade // 
                 $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
-                $this->jsonResponseString['response']['upgrade'] = $response;  /////response key according to umesh
+                $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
                 $this->sendJsonResponse(array('0000', 'success')); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response']['upgrade'] = array();
+            $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
             $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
 

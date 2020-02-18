@@ -749,6 +749,14 @@ class Booking_model extends CI_Model {
         if(!empty($query_scba)){
             $result['allow_reshedule'] = false;
         }
+        
+        // If service_center_closed_date IS NOT NULL in booking_details Table
+        // we will not allow vendor to re-assign booking
+        $result['allow_reassign'] = true;
+        if(!empty($result[0]['service_center_closed_date'])){
+            $result['allow_reassign'] = false;
+        }
+        
         return $result;
     }
 
@@ -2220,7 +2228,7 @@ class Booking_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('users');
         $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
-        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
+//        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('employee', 'service_centres.rm_id = employee.id','left');

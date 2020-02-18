@@ -91,8 +91,8 @@ class vendor extends CI_Controller {
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                //Updating details of SF in employee_relation table
-                $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
+                //Updating details of SF against RM
+                $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
                     log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
@@ -151,17 +151,17 @@ class vendor extends CI_Controller {
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
 
-                //Adding values in admin groups present in employee_relation table
-                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
-                if($check_admin_sf_relation != FALSE){
-                    //Logging success 
-                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
-                }else{
-                    //Logging Error 
-                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
-                }
+                //Adding values in admin groups 
+//                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
+//                if($check_admin_sf_relation != FALSE){
+//                    //Logging success 
+//                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
+//                }else{
+//                    //Logging Error 
+//                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
+//                }
 
-                //Updating details of SF in employee_relation table
+                //Updating details of SF against RM
                 $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
@@ -5114,6 +5114,7 @@ class vendor extends CI_Controller {
             if($is_partner){
                 $html .=  "<th>Partner Invoice Id</th>";
                 $html .=  "<th>Approval File</th>";
+                $html .=  "<th>Purchase Invoice File</th>";
             }
             if($is_sf){
                 $html  .= "<th>Vendor Invoice Id</th>";
@@ -5139,6 +5140,12 @@ class vendor extends CI_Controller {
                     if(!empty($value['approval_file'])){
                         
                         $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
+                    if(!empty($value['purchase_invoice_file'])){
+                        
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['purchase_invoice_file'].'" >Click Here</a></td>';
                     } else {
                         $html .= '<td></td>';
                     }
@@ -5501,7 +5508,7 @@ class vendor extends CI_Controller {
                 $bank_data['bank_name'] = trim($this->input->post('bank_name'));
                 $bank_data['account_type'] = trim($this->input->post('account_type'));
                 $bank_data['bank_account'] = trim($this->input->post('bank_account'));
-                $bank_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $bank_data['ifsc_code'] = strtoupper(trim($this->input->post('ifsc_code')));
                 $bank_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
                 $bank_data['ifsc_code_api_response'] = trim($this->input->post('ifsc_validation'));
                 $bank_data['is_verified'] = $this->input->post('is_verified');

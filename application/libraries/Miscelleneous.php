@@ -3230,8 +3230,7 @@ function generate_image($base64, $image_name,$directory){
             $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["agent_filters"] = "agent_filters.entity_id=booking_details.partner_id";
-            $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $join["employee"] = "employee.id=employee_relation.agent_id";
+            $join["employee"] = "employee.id=service_centres.rm_id";
             $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
             $join["services"] = "services.id=booking_details.service_id";
             $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
@@ -3449,12 +3448,11 @@ function generate_image($base64, $image_name,$directory){
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
                 . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
-        $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
         $join['employee e'] = "e.id = agent_filters.agent_id";
-        $join['employee'] = "employee.id = employee_relation.agent_id";
+        $join['employee'] = "employee.id = service_centres.rm_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
@@ -4837,7 +4835,7 @@ function generate_image($base64, $image_name,$directory){
      * @author Ankit Rajvanshi
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
-               
+        
         $spare_part_shipped_count = 0;
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
@@ -4956,10 +4954,20 @@ function generate_image($base64, $image_name,$directory){
                         }
                     }
                 }
-               
+                
+                if (!empty($this->My_CI->session->userdata('service_center_id'))) {
+                    $agent_id = $this->My_CI->session->userdata("service_center_agent_id");
+                    $track_entity_id = $this->My_CI->session->userdata('service_center_id');
+                    $track_entity_type = _247AROUND_SF_STRING;
+                } else {
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $track_entity_id = _247AROUND;
+                    $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                }
+
                 /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
-                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 'partner_id' => $post_data['partner_id'], 'service_center_id' => $this->My_CI->session->userdata('service_center_id'));
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
                     $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
