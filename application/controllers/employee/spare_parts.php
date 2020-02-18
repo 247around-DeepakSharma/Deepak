@@ -1693,6 +1693,7 @@ class Spare_parts extends CI_Controller {
      */
     function move_to_update_spare_parts_details() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
+        ob_clean();
         $spare_parts_id = $this->input->post('spare_parts_id');
         $partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
@@ -1712,7 +1713,7 @@ class Spare_parts extends CI_Controller {
             $data['is_micro_wh'] = 0;
             //  $data['remarks'] = "Spare Transfer to Partner";
             $row = $this->service_centers_model->update_spare_parts($where, $data);
-            if (!empty($row)) {
+            if ($row) {
                 if ($this->session->userdata('userType') == 'employee') {
                     $new_state = 'Spare Part Transferred to ' . $partner_id;
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $partner_id);
@@ -2436,12 +2437,12 @@ class Spare_parts extends CI_Controller {
         
         $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-        $approval_entity_type = _247AROUND_SF_STRING;
+        $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
         if ($this->session->userdata('emp_name') && $this->session->userdata('userType') != 'partner') {
             $agent_name = $this->session->userdata('emp_name');
             $agent_id = $this->session->userdata('id');
             $approval_agent_id = $agent_id;
-            $track_entity_type = $approval_entity_type = _247AROUND_SF_STRING;
+            $track_entity_type = $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
 
         } else if ($this->session->userdata('userType') == 'partner') { //// Partner Session ////
             $agent_name = $this->session->userdata('partner_name');
@@ -2452,7 +2453,7 @@ class Spare_parts extends CI_Controller {
             $agent_id = _247AROUND_DEFAULT_AGENT;
             $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-            $approval_entity_type = _247AROUND_SF_STRING;
+            $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
 
         }
@@ -3476,6 +3477,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to process spare transfer
      */
     function bulkConversion_process() {
+        ob_clean();
         if (empty($this->session->userdata('userType'))) {
             redirect(base_url() . "employee/login");
         }

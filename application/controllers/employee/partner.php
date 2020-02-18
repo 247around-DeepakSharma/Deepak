@@ -3494,6 +3494,7 @@ class Partner extends CI_Controller {
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
+        $str_disabled = !empty($this->input->post("str_disabled")) ? $this->input->post("str_disabled") : "";
         if($this->input->post("add_booking")){
             $add_booking = $this->input->post("add_booking");
         }
@@ -3528,7 +3529,11 @@ class Partner extends CI_Controller {
                 $explode = explode(",", $service_category);
             }
             foreach ($result as $prices) {
-                
+                // Do not show request type Installation if Spare is requested on Booking
+                if(!empty($str_disabled) && strpos(str_replace(" ", "", strtoupper($prices['service_category'])), "INSTALLATION") !== false)    
+                {
+                    continue;
+                }
                 $customer_total = $prices['customer_total'];
                 $partner_net_payable = $prices['partner_net_payable'];
                 $customer_net_payable = $prices['customer_net_payable'];
@@ -4872,9 +4877,9 @@ class Partner extends CI_Controller {
           $is_wh = 0;
 
         if(!empty($is_wh)){
-            $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
+            $where = array('(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
-            $where = array('is_active'=>1);
+            $where = array();
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
