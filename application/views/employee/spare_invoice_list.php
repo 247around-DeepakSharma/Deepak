@@ -20,6 +20,8 @@
                     <th>Partner Name</th>
                     <th>Purchase Price</th>
                     <th>Sell Price</th>
+                    <th>Total Quote Given(With Tax)</th>
+                    <th>Basic Amount</th>
                     <th>Purchase Invoice ID</th>
                     <th>Purchase Invoice PDF</th>
                     <th>Sale Invoice ID</th>
@@ -35,8 +37,30 @@
                     <td><?php  if($value->part_warranty_status==SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){echo REPAIR_OOW_TAG;}else{ echo REPAIR_IN_WARRANTY_TAG;}  ?></td>
                     <td><?php echo $value->status; ?></td>
                     <td><?php  echo $value->public_name; ?></td>
-                    <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->purchase_price; ?></td>
-                    <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->sell_price; ?></td>
+                    <td> 
+                        <?php if (!empty($value->purchase_price)) { ?>
+                            <i class="fa fa-inr" aria-hidden="true"></i> 
+                            <?php echo $value->purchase_price; ?>
+                        <?php } ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($value->sell_price)) { ?>
+                            <i class="fa fa-inr" aria-hidden="true"></i> 
+                            <?php echo $value->sell_price; ?>
+                        <?php } ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($value->purchase_price)) { ?>
+                        <i class="fa fa-inr" aria-hidden="true"></i> 
+                            <?php echo $value->purchase_price; ?>
+                        <?php } ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($value->basic_amount)) { ?>
+                        <i class="fa fa-inr" aria-hidden="true"></i> 
+                            <?php echo $value->basic_amount; ?>
+                        <?php } ?>
+                    </td>
                     <td><?php echo $value->invoice_id; ?></td>
                     <td class="text-center">
                     <?php
