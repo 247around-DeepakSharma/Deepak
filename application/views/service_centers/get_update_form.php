@@ -79,7 +79,7 @@
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
                             <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
-                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
+                            <?php if(!empty($bookinghistory['allow_reshedule']) || !empty($bookinghistory['allow_estimate_approved'])) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
                             <div class="radio ">
                                 <label>
