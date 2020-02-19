@@ -4615,6 +4615,7 @@ class Partner extends CI_Controller {
             $msg = "Partner Documents has been updated successfully";
             $this->session->set_userdata('success', $msg);
         }
+		$this->session->set_flashdata('current_tab', 2);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -4657,7 +4658,7 @@ class Partner extends CI_Controller {
             //Echoing message in Log file
             log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
         }
-
+		$this->session->set_flashdata('current_tab', 3);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -4757,6 +4758,7 @@ class Partner extends CI_Controller {
                 }
             }
         }
+		$this->session->set_flashdata('current_tab', 4);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
     /**
@@ -4848,6 +4850,7 @@ class Partner extends CI_Controller {
             $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
             $this->session->set_userdata('success', $msg);
+			$this->session->set_flashdata('current_tab', 5);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
@@ -5127,6 +5130,7 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata('success', $msg);
             }
         //    echo "here".$partner; die();
+		$this->session->set_flashdata('current_tab', 6);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner);
     }
     
@@ -6100,6 +6104,7 @@ class Partner extends CI_Controller {
             $msg =  "Something went Wrong Please try again or contact to admin!!";
             $this->session->set_userdata('error', $msg);
         }
+		$this->session->set_flashdata('current_tab', 16);
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
@@ -6316,14 +6321,17 @@ class Partner extends CI_Controller {
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
+				$this->session->set_flashdata('current_tab', 9);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+				$this->session->set_flashdata('current_tab', 9);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Select All Field');
+			$this->session->set_flashdata('current_tab', 9);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
     }  
@@ -6406,6 +6414,7 @@ class Partner extends CI_Controller {
         }
         else{
             $this->session->set_userdata('success', $msg);
+			$this->session->set_flashdata('current_tab', 8);
             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
         }
     }
@@ -7630,14 +7639,17 @@ class Partner extends CI_Controller {
             if($action){
                 log_message("info", __METHOD__ .$msg);
                 $this->session->set_userdata('success', 'Data Entered Successfully');
+				$this->session->set_flashdata('current_tab', 10);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+				$this->session->set_flashdata('current_tab', 10);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Fill All Bank Detail');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
     }
@@ -7662,10 +7674,12 @@ class Partner extends CI_Controller {
         }
         if($update){
             $this->session->set_userdata('success', 'Bank Data Updated Successfully');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
         else{
             $this->session->set_userdata('failed', 'Data can not be updated. Please Try Again...');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
     }
@@ -7916,6 +7930,7 @@ class Partner extends CI_Controller {
             );
             $this->partner_model->edit_partner($partner, $partner_id);
         }
+		$this->session->set_flashdata('current_tab', 12);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -7974,6 +7989,7 @@ class Partner extends CI_Controller {
             if($explode_array){
             $affected_rows = $this->partner_model->deactivate_collateral($explode_array);
              if($affected_rows){
+				$this->session->set_flashdata('current_tab', 6);
                 echo "Collateral has been deactivated successfully";
             }
         }
@@ -8022,9 +8038,11 @@ class Partner extends CI_Controller {
                 }
                 $this->notify->insert_state_change($contactID, "Contact Person - ".$v,"Contact Person", $contactID." has been ".$v, $agent, $agentName, 
                         'not_define','not_define',$partner_id);
+				$this->session->set_flashdata('current_tab', 8);
                 echo "Successfully Done";
             }
             else{
+				$this->session->set_flashdata('current_tab', 8);
                 echo "Something Went Wrong Please Try Again";
             }
         }
@@ -8105,6 +8123,7 @@ class Partner extends CI_Controller {
                 }
                       $msg = "Partner Sample Pic has been updated successfully";
                        $this->session->set_userdata('success', $msg);
+					   $this->session->set_flashdata('current_tab', 7);
                   redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
@@ -8331,6 +8350,7 @@ class Partner extends CI_Controller {
                         }
                     } else {
                         $this->session->set_userdata(array('error' => 'Duplicate entry'));
+						$this->session->set_flashdata('current_tab', 13);
                         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
                     }
                 } else {
@@ -8340,10 +8360,12 @@ class Partner extends CI_Controller {
 
             if ($flag) {
                 $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+				$this->session->set_flashdata('current_tab', 13);
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
         } else {
             $this->session->set_userdata(array('error' => 'Please Check Around Margin and Vendor Margin.'));
+			$this->session->set_flashdata('current_tab', 13);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
@@ -8951,8 +8973,10 @@ class Partner extends CI_Controller {
             if(in_array('all', $post_data['service_center_id'])) {
                 unset($post_data['service_center_id'][array_search('all', $post_data['service_center_id'])]);
             }
+			$this->session->set_flashdata('current_tab', 17);
             $this->partner_model->insert_en_vendor_brand_mapping($partner_id, $post_data['service_center_id']);
         } else {
+			$this->session->set_flashdata('current_tab', 17);
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
     }

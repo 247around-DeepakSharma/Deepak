@@ -63,6 +63,13 @@
 </style>
 <div id="page-wrapper">
     <div class="row">
+	<?php
+	$current_tab=$this->session->flashdata('current_tab');
+	if($current_tab=='')
+	{
+		$current_tab=1;
+	}
+	?>
         <div  class = "panel panel-info" style="margin:20px;" >
             <div class="panel-heading" style="font-size:130%;">
                 <?php if(isset($query)){?>
@@ -134,11 +141,11 @@
 <!--Case 2 tab starts here-->
                     <div id="tabs" style=""  class="col-md-12 panel-title" style="padding: 10px 8px 0px;">
                         <ul>
-                            <li><a href="#" id="1" onclick="load_form(this.id)"  class="nav nav-pills panel-title">Basic Details</a></li>
-                            <li><a href="#tab-2"  id="2" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a></li>
-                            <li><a href="#tab-3"  id="3" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Products and Brands</a></li>
-                            <li><a href="#tab-4"  id="4" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Contact Person</a></li>
-                            <li><a href="#tab-4"  id="5" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Bank Details</a></li>
+                            <li><a href="#" id="1" onclick="load_form(this.id)"  class="nav nav-pills panel-title" <?php if($current_tab!=1){ ?>style="background-color:#d9edf7"<?php } ?>>Basic Details</a></li>
+                            <li><a href="#tab-2"  id="2" onclick="load_form(this.id)"  class="nav nav-pills panel-title" <?php if($current_tab!=2){ ?>style="background-color:#d9edf7"<?php } ?>>Documents</a></li>
+                            <li><a href="#tab-3"  id="3" onclick="load_form(this.id)"  class="nav nav-pills panel-title" <?php if($current_tab!=3){ ?>style="background-color:#d9edf7"<?php } ?>>Products and Brands</a></li>
+                            <li><a href="#tab-4"  id="4" onclick="load_form(this.id)"  class="nav nav-pills panel-title" <?php if($current_tab!=4){ ?>style="background-color:#d9edf7"<?php } ?>>Contact Person</a></li>
+                            <li><a href="#tab-4"  id="5" onclick="load_form(this.id)"  class="nav nav-pills panel-title" <?php if($current_tab!=5){ ?>style="background-color:#d9edf7"<?php } ?>>Bank Details</a></li>
                         </ul>
                     </div>
                     <?php
@@ -152,7 +159,7 @@
             echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->flashdata('vendor_added')."</p>";
         }
         ?>
-        <div id="container-1" class="panel-body form_container" style="display:block;padding-top: 0px;">
+        <div id="container-1" class="panel-body form_container" style="<?php if($current_tab!=1){ ?>display:none;<?php } ?>padding-top: 0px;">
             <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor" method="POST" enctype="multipart/form-data">
                 <div  class = "panel panel-info">
                     <div class="panel-heading" style="background-color:#ECF0F1"><b>Company Information</b></div>
@@ -550,7 +557,7 @@
      </div>    
 <!--page2starts here-->
 <div class="clear" style="margin-top: 0px;"></div>
- <div id="container-2" style="display:none;padding-top: 0px;" class="form_container panel-body">
+ <div id="container-2" style="<?php if($current_tab!=2){ ?>display:none;<?php } ?>padding-top: 0px;" class="form_container panel-body">
         <form name="myForm" class="form-horizontal" id ="booking_form2" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_documents" method="POST" enctype="multipart/form-data">
             <div  class = "panel panel-info">
                 <div>
@@ -841,7 +848,7 @@
    </form>
  </div>   
 <div class="clear" style="margin-top:0px;"></div>
-<div id="container-3" style="display:none;padding-top: 0px;" class="form_container panel-body">
+<div id="container-3" style="<?php if($current_tab!=3){ ?>display:none;<?php } ?>padding-top: 0px;" class="form_container panel-body">
     <form name="myForm" class="form-horizontal" id ="booking_form3" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_brand_mapping" method="POST" enctype="multipart/form-data">            
          <div>
                                 <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
@@ -913,7 +920,7 @@
                                                             </form>
                         </div>
 <div class="clear" style="margin-top:0px;"></div>
-    <div id="container-4" style="display:none;padding-top: 0px;" class="form_container panel-body">
+    <div id="container-4" style="<?php if($current_tab!=4){ ?>display:none;<?php } ?>padding-top: 0px;" class="form_container panel-body">
         <form name="myForm" class="form-horizontal" id ="booking_form4" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_contact_person" method="POST" enctype="multipart/form-data">            
            <div>
                                 <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
@@ -1199,7 +1206,7 @@
         </form>
     </div>
 <div class="clear" style="margin-top:0px;"></div>
-    <div id="container-5" style="display:none;padding-top: 0px;" class="form_container panel-body">
+    <div id="container-5" style="<?php if($current_tab!=5){ ?>display:none;<?php } ?>padding-top: 0px;" class="form_container panel-body">
         <form name="myForm" class="form-horizontal" id ="booking_form5" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor/save_vendor_bank_details" method="POST" enctype="multipart/form-data">            
                                 <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
                                     if (isset($query[0]['id'])) {
@@ -2033,7 +2040,7 @@ function manageAccountNameField(value){
         var lastUrl = sessionStorage.getItem("last-url-s"+current_partner_id);
         if(lastUrl!=null)
         {
-            $("#"+lastUrl).trigger('click');
+           // $("#"+lastUrl).trigger('click');
         }
     });
 </script>

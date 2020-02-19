@@ -458,7 +458,7 @@ class User extends CI_Controller {
                     $stateString = implode(',', array_map(function ($entry) {
                                 return $entry['state'];
                             }, $result));
-                    $errormessage = "Error: State $stateString already served by other asm you can not assign to this ASM.";
+                    $errormessage = "State $stateString already served by other asm you can not assign to this ASM.";
                     $statusFlg = false;
                 }
             }
@@ -469,7 +469,7 @@ class User extends CI_Controller {
                     $stateString = implode(',', array_map(function ($entry) {
                                 return $entry['state'];
                             }, $result));
-                    $errormessage = "Error: State $stateString already served by other RM you can not assign this RM.";
+                    $errormessage = "State $stateString already served by other RM you can not assign this RM.";
                     $statusFlg = false;
                 }
             }
@@ -496,7 +496,7 @@ class User extends CI_Controller {
                     $stateString = implode(', ', array_map(function ($entry) {
                                 return $entry['state'];
                             }, $result));
-                    $errormessage = "Error: RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
+                    $errormessage = "RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
                     $statusFlg = false;
                 }
             }
@@ -843,6 +843,14 @@ class User extends CI_Controller {
      * @return: view
      */
     function deactive_employee($id){
+        // check if any SF is associated with the Employee
+        // If yes, Employee can not be de-activated
+        $arr_vendors = $this->vendor_model->get_sf_associated_with_rm($id);
+        if(!empty($arr_vendors[0]['individual_service_centres_id']))
+        {
+            $this->session->set_userdata('error','Employee can not be deactivated, There are some Vendors associated with this employee');
+            redirect(base_url() . "employee/user/show_employee_list");
+        }
         $data = array("active"=>0);
         $this->employee_model->update($id,$data);
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
