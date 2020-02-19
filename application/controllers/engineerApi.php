@@ -4212,7 +4212,7 @@ function submitPreviousPartsConsumptionData(){
               $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED,API_PREV_CONSUME_NOT_UPDATED_MSG));
             }
         }else{
-        $this->sendJsonResponse(array('0078', 'Please fill All Details'));
+        $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED, API_PREV_CONSUME_NOT_UPDATED_KEY_MISS_MSG));  // Managing Error msgs with Same error key ///
         }
         
 
