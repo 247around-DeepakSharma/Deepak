@@ -2053,6 +2053,9 @@ class engineerApi extends CI_Controller {
                     $bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    // Abhishek Check if we required the previous consumption or not return true/false
+                    $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
+                    $bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message'];
                 }
@@ -2077,6 +2080,9 @@ class engineerApi extends CI_Controller {
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    // Abhishek Check if we required the previous consumption or not return true/false
+                    $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
+                    $missed_bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $missed_bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $missed_bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
@@ -2107,6 +2113,9 @@ class engineerApi extends CI_Controller {
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    // Abhishek Check if we required the previous consumption or not return true/false
+                    $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
+                    $tomorrowBooking[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $tomorrowBooking[$key]['message'] =  $spare_resquest['message']; 
 
                 }
@@ -2119,6 +2128,25 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
         }
     }
+
+/*  Check if we required the previous consumption or not return true/false
+    
+    Author @ Abhishek Awasthi
+    parameters @ booking_id
+    return boolean
+
+*/
+
+    function checkConsumptionForPreviousPart($booking_id){
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => false]);
+       if(!empty($spare_parts_details)){
+         return TRUE;
+       }else{
+        return FALSE;
+       }        
+    }
+
+
 
     function getEngineerBookingsByStatus() {
         log_message("info", __METHOD__ . " Entering..");
@@ -3670,6 +3698,9 @@ class engineerApi extends CI_Controller {
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
+                        // Abhishek Check if we required the previous consumption or not return true/false
+                        $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
+                        $data[$key]['pre_consume_req'] =  $previous_consumption_required;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
