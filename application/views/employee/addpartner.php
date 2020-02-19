@@ -60,6 +60,11 @@
 </style>
 <div id="page-wrapper">
     <?php
+		$current_tab=$this->session->flashdata('current_tab');
+		if($current_tab=='')
+		{
+			$current_tab=1;
+		}
         if ($this->session->userdata('success')) {
             echo '<div class="alert alert-success alert-dismissible" role="alert">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -137,23 +142,23 @@
                             }
                             else{
                             ?>
-                        <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Basic Details</span></a></li>
-                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>> <a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
-                        <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Operation Region</span></a></li>
-                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
-                        <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
-                        <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
-                        <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
-                        <li><a id="8" href="#tabs-8" onclick="load_form(this.id)"><span class="panel-title">Add Contacts</span></a></li>
-                        <li><a id="9" href="#tabs-9" onclick="load_form(this.id)"><span class="panel-title">Central Warehouse</span></a></li>
-                        <li><a id="10" href="#tabs-10" onclick="load_form(this.id)"><span class="panel-title">Bank Details</span></a></li>
-                        <li><a id="11" href="#tabs-11" onclick="load_form(this.id)"><span class="panel-title">Variable Charges</span></a></li>
-                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)"><span class="panel-title">Micro Warehouse</span></a></li>
-                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
-                        <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
-                        <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
-                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
-                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)"><span class="panel-title">Enable Service Center For App</span></a></li>                        
+                        <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)" <?php if($current_tab!=1){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Basic Details</span></a></li>
+                        <li <?php $saas_flag=false;if($saas_flag){ ?>style="display:none;" <?php } ?>> <a id="2" href="#tabs-2"  onclick="load_form(this.id)" <?php if($current_tab!=2){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Documents</span></a></li>
+                        <li><a id="3" href="#tabs-3" onclick="load_form(this.id)" <?php if($current_tab!=3){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Operation Region</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="4" href="#tabs-4" onclick="load_form(this.id)" <?php if($current_tab!=4){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Contracts</span></a></li>
+                        <li><a id="5" href="#tabs-5" onclick="load_form(this.id)" <?php if($current_tab!=5){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Brand Mapping</span></a></li>
+                        <li><a id="6" href="#tabs-6" onclick="load_form(this.id)" <?php if($current_tab!=6){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Brand Collateral</span></a></li>
+                        <li><a id="7" href="#tabs-7" onclick="load_form(this.id)" <?php if($current_tab!=7){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Upload Serial No</span></a></li>
+                        <li><a id="8" href="#tabs-8" onclick="load_form(this.id)" <?php if($current_tab!=8){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Contacts</span></a></li>
+                        <li><a id="9" href="#tabs-9" onclick="load_form(this.id)" <?php if($current_tab!=9){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Central Warehouse</span></a></li>
+                        <li><a id="10" href="#tabs-10" onclick="load_form(this.id)" <?php if($current_tab!=10){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Bank Details</span></a></li>
+                        <li><a id="11" href="#tabs-11" onclick="load_form(this.id)" <?php if($current_tab!=11){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Variable Charges</span></a></li>
+                        <li><a id="12" href="#tabs-12" onclick="load_form(this.id)" <?php if($current_tab!=12){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Micro Warehouse</span></a></li>
+                        <li><a id="13" href="#tabs-13" onclick="load_form(this.id)" <?php if($current_tab!=13){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="14" href="#tabs-14" onclick="load_form(this.id)" <?php if($current_tab!=14){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Number</span></a></li>
+                        <li><a id="15" href="#tabs-15" onclick="load_form(this.id)" <?php if($current_tab!=15){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Mapping</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)" <?php if($current_tab!=16){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Account Manager</span></a></li>
+                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)" <?php if($current_tab!=17){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Enable Service Center For App</span></a></li>                        
                         <?php
                             }
                         ?>
@@ -162,7 +167,7 @@
             </div>
             <div class="clear"></div>
            
-            <div id="container_1" class="form_container">
+            <div id="container_1" class="form_container" style="<?php if($current_tab!=1){ ?>display:none;<?php } else { ?>display:block<?php } ?>">
                 <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
                     <div>
                         <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])) {
@@ -951,7 +956,7 @@
                 </form>
             </div>
             <div class="clear"></div>
-            <div id="container_2" style="display:none" class="form_container">
+            <div id="container_2" style="<?php if($current_tab!=2){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
                 <form name="document_form" class="form-horizontal" onsubmit="return validate_partner_document()" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_document_form" method="POST" enctype="multipart/form-data">
                     <?php
                         if(isset($query[0]['id'])){
@@ -1198,7 +1203,7 @@
             </div>
         </div>
         <div class="clear"></div>
-        <div id="container_3" style="display:none;" class="form_container">
+        <div id="container_3" style="<?php if($current_tab!=3){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <form name="myForm" class="form-horizontal" id ="operation_region_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_operation_region_form" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
@@ -1251,7 +1256,7 @@
             </form>
         </div>
         <div class="clear"></div>
-        <div id="container_4" style="display:none" class="form_container">
+        <div id="container_4" style="<?php if($current_tab!=4){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <form name="document_form" class="form-horizontal" id ="document_form" action="<?php echo base_url() ?>employee/partner/process_partner_contracts" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
@@ -1409,7 +1414,7 @@
                 ?>
         </div>
         <div class="clear"></div>
-        <div id="container_5" style="display:none;margin: 30px 10px;" class="form_container">
+        <div id="container_5"  style="<?php if($current_tab!=5){ ?>display:none;;margin: 30px 10px;<?php } else { ?>display:block;;margin: 30px 10px;<?php } ?>" class="form_container">
             <form name="myForm" class="form-horizontal" id ="operation_region_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_brand_mapping" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
@@ -1456,7 +1461,7 @@
             </form>
         </div>
         <div class="clear"></div>
-        <div id="container_6" style="display:none;" class="form_container">
+        <div id="container_6" style="<?php if($current_tab!=6){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <form name="l_c_form" class="form-horizontal" id ="l_c_form" action="<?php echo base_url() ?>employee/partner/process_partner_learning_collaterals" method="POST" enctype="multipart/form-data">
                 <?php
                     if(isset($query[0]['id'])){
@@ -1625,7 +1630,7 @@
         </div>
         <div class="clear"></div>
         <!--             action="<?php //echo base_url(); ?>file_upload/process_upload_serial_number" -->
-        <div id="container_7" style="display:none;" class="form_container">
+        <div id="container_7" style="<?php if($current_tab!=7){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <!--                  <form class="form-horizontal"  id="fileinfo"  method="POST" enctype="multipart/form-data">-->
             <input type='hidden' name='sample_no_pic'/>
             <div class="form-group  <?php if (form_error('excel')) {
@@ -1744,7 +1749,7 @@
              ?>
             </div>     
              <div class="clear"></div>
-              <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
+              <div id="container_8"  style="<?php if($current_tab!=8){ ?>display:none;margin: 30px 10px;<?php } else { ?>display:block;margin: 30px 10px;<?php } ?>" class="form_container">
                  <button class="btn" onclick="show_add_contact_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Contacts</button>
                  <form name="contact_form" class="form-horizontal" id ="contact_form" action="<?php echo base_url() ?>employee/partner/process_partner_contacts" method="POST" enctype="multipart/form-data" onsubmit="return process_contact_persons_validations()" style="display:none;">
                    <input type="hidden" id="final_checkbox_value_holder" name="final_checkbox_value_holder" value="">
@@ -1954,7 +1959,7 @@
         
              
         <div class="clear"></div>
-        <div id="container_9"  style="display:none;margin: 30px 10px;" class="form_container">
+        <div id="container_9"  style="<?php if($current_tab!=9){ ?>display:none;margin: 30px 10px<?php } else { ?>display:block;margin: 30px 10px<?php } ?>" class="form_container">
             <button class="btn btn-primary" onclick="show_add_warehouse_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Warehouse</button>
             <form  class="form-horizontal" id ="warehouse_form" action="<?php echo base_url() ?>employee/partner/process_add_warehouse_details" method="POST" enctype="multipart/form-data" >
                 <?php if(isset($query[0]['id'])){ ?>
@@ -2088,7 +2093,7 @@
             </div>
         </div>
         <div class="clear"></div>
-        <div id="container_10"  style="display:none;margin: 30px 10px;" class="form_container">
+        <div id="container_10"  style="<?php if($current_tab!=10){ ?>display:none;margin: 30px 10px<?php } else { ?>display:block;margin: 30px 10px<?php } ?>" class="form_container">
             <button class="btn btn-primary" onclick="show_add_bank_detail_form()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Bank Detail</button>
             <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/partner/process_add_bank_detail_details" method="POST" enctype="multipart/form-data" >
                 <?php if(isset($query[0]['id'])){ ?>
@@ -2238,7 +2243,7 @@
                 </div>
             </div>
             <div class="clear"></div>
-            <div id="container_11"  style="display:none;margin: 30px 10px;" class="form_container">
+            <div id="container_11"  style="<?php if($current_tab!=11){ ?>display:none;margin: 30px 10px<?php } else { ?>display:block;margin: 30px 10px<?php } ?>" class="form_container">
                     <form  class="form-horizontal" id ="bank_detail_form" action="<?php echo base_url() ?>employee/accounting/process_partner_variable_charges" method="POST" enctype="multipart/form-data" >
                     <?php if(isset($query[0]['id'])){ ?>
                         <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
@@ -2332,7 +2337,7 @@
                 </div>
             </div>
             <div class="clear"></div>
-            <div id="container_12" class="form_container" style="display:none;">
+            <div id="container_12" class="form_container" style="<?php if($current_tab!=12){ ?>display:none;<?php } else { ?>display:block<?php } ?>">
                 <form class="form-horizontal" id="warehouse_setting_form"  novalidate="novalidate" action="<?php echo base_url() ?>employee/partner/process_partner_warehouse_config" method="POST" enctype="multipart/form-data">
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Micro Warehouse Details</b></div>
@@ -2539,7 +2544,7 @@
          </div>
             
              <div class="clear"></div>
-            <div id="container_13" style="display:none" class="form_container">
+            <div id="container_13" style="<?php if($current_tab!=13){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <form name="document_form" class="form-horizontal" id ="add_spare_part_margin" action="<?php echo base_url() ?>employee/partner/process_to_tag_marging_on_spare_parts" method="POST" enctype="multipart/form-data">
                 
                 <div class="col-md-12">
@@ -2612,7 +2617,7 @@
             
         </div>
         <div class="clear"></div>  
-        <div id="container_14" style="display:none" class="form_container">
+        <div id="container_14" style="<?php if($current_tab!=14){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
             <form name="model_number" class="form-horizontal" id ="model_number" action="<?php echo base_url() ?>employee/partner/" method="POST" enctype="multipart/form-data">
                 <div class="col-md-12">
                     <div class="panel panel-default">
@@ -2680,7 +2685,7 @@
             </form>
         </div> 
         <div class="clear"></div>
-        <div id="container_15" style="display:none" class="form_container">
+        <div id="container_15" style="<?php if($current_tab!=15){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
                 <div class="col-md-12">
                     <form name="model_mapping" class="form-horizontal" id ="model_mapping"  action="#" method="POST" enctype="multipart/form-data">
                     <div class="panel panel-default">
@@ -2776,7 +2781,7 @@
                 </div>
         </div>
         <div class="clear"></div>
-            <div id="container_16" style="display:none;margin: 30px 10px;" class="form_container">
+            <div id="container_16" style="<?php if($current_tab!=16){ ?>display:none;margin: 30px 10px<?php } else { ?>display:block;margin: 30px 10px<?php } ?>" class="form_container">
                 <button class="btn" onclick="show_partner_am_mapping()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Account Manager</button>
                 <form name="partner_am_mapping_form" class="form-horizontal" id ="partner_am_mapping_form" action="<?php echo base_url() ?>employee/partner/process_partner_am_mapping" method="POST" enctype="multipart/form-data" onsubmit="return process_partner_am_mapping_validations()" style="display:none;">
                     <!--<input type="hidden" id="final_checkbox_value_holder" name="final_checkbox_value_holder" value="">-->
@@ -2909,7 +2914,7 @@
                 ?>
         </div>
         <div class="clear"></div>
-        <div id="container_17" style="display:none;margin: 30px 10px;" class="form_container">
+        <div id="container_17" style="<?php if($current_tab!=17){ ?>display:none;margin: 30px 10px<?php } else { ?>display:block;margin: 30px 10px<?php } ?>" class="form_container">
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading"><b>Enable Service Centers For App</b></div>
@@ -5879,7 +5884,7 @@
         var lastUrl = sessionStorage.getItem("last-url"+current_partner_id);
         if(lastUrl!=null)
         {           
-            $("#"+lastUrl).trigger('click');
+           // $("#"+lastUrl).trigger('click');
         }
     })
 </script>

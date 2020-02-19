@@ -2374,7 +2374,11 @@ class vendor extends CI_Controller {
                 }
                 if($booking_id != NULL){
                             $booking_data  = $this->booking_model->getbooking_history($booking_id);
-                            $data['pincode'] = $booking_data[0]['booking_pincode'];
+                            if (isset($booking_data[0])) {
+                                $data['pincode'] = $booking_data[0]['booking_pincode'];
+                            } else {
+                                $data['pincode'] = '';
+                            }
                             $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
                             if($pincodeAvaliablity){
                                     $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
@@ -5382,6 +5386,7 @@ class vendor extends CI_Controller {
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_flashdata('vendor_added', "Vendor Documents Has been updated Successfully , Please Fill other details");
+				$this->session->set_flashdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
     }
@@ -5400,6 +5405,7 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
+			$this->session->set_flashdata('current_tab', 3);
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
     }
@@ -5480,6 +5486,7 @@ class vendor extends CI_Controller {
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+		$this->session->set_flashdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -5521,6 +5528,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
+				$this->session->set_flashdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){
