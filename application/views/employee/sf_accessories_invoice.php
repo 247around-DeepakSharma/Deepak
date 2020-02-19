@@ -76,7 +76,7 @@
                                                     <label for="accessories" class="col-md-4">Accessories *</label>
                                                     <div class="col-md-6">
                                                         <div class="accessories_holder" id="accessories_holder_1">
-                                                            <select class="form-control accessories" name ="accessories[0]" id="accessories_1" required>
+                                                            <select class="form-control accessories" name ="accessories[0][id]" id="accessories_1" required>
                                                                 <option selected  value=''>Select Accessories</option>
                                                                 <?php foreach ($services_name as $key => $value) { ?>
                                                                     <option value ="<?php echo $value['id']; ?>" > <?php echo $value['product_name']; ?> </option>
@@ -93,7 +93,7 @@
                                                     <label for="quantity" class="col-md-4">Quantity *</label>							
                                                     <div class="col-md-6">
                                                         <div class="quantity_holder" id="quantity_holder_1">
-                                                            <select class="form-control quantity" name ="quantity[0]" id="quantity_1" minimum="1" maximum="30" required>
+                                                            <select class="form-control quantity" name ="accessories[0][qty]" id="quantity_1" minimum="1" maximum="30" required>
                                                                 <option selected  value=''>Select Quantity</option>
                                                                 <?php foreach ($quantity_list as $key => $value) {
                                                                     ?>
@@ -169,8 +169,8 @@
                 placeholder: "Select Accessories",
                 allowClear: true,
             });
-            $('#accessories_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+']');
-            $('#quantity_'+cloneIndex).attr('name','quantity['+(cloneIndex-1)+']');
+            $('#accessories_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+'][id]');
+            $('#quantity_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+'][qty]');
             $("#select2-quantity_"+cloneIndex+"-container").val("");
             $("#select2-accessories_"+cloneIndex+"-container").val("");
             cloneIndex++;
