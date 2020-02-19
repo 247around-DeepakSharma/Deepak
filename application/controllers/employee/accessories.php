@@ -157,30 +157,36 @@ class Accessories extends CI_Controller {
             
             $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
             $accessories = $this->input->post('accessories');
-            $quantity = $this->input->post('quantity');
+            $count=0;
 
             if(!empty($accessories)) {
                 foreach ($accessories as $key=>$accessory) {
-                    $accessory_details=$this->accessories_model->show_accessories_list(array('accessories_product_description.id' => $accessory))[0];
+                    $accessory_details=$this->accessories_model->show_accessories_list(array('accessories_product_description.id' => $accessory['id']))[0];
 
-                    $total_amount = $amount = sprintf("%.2f", ($accessory_details['basic_charge']*(1+($accessory_details['tax_rate']/100)))*$quantity[$key]);                
+                    $total_amount = $amount = sprintf("%.2f", ($accessory_details['basic_charge']*(1+($accessory_details['tax_rate']/100)))*$accessory['qty']);                
                     $hsn_code = $accessory_details['hsn_code'];
                     $gst_rate = $accessory_details['tax_rate'];
-                    $data[$key]['description'] =  "SF Invoice for Accessory ".$accessory_details['product_name'];
-                    $data[$key]['taxable_value'] = sprintf("%.2f", $total_amount);
-                    $data[$key]['product_or_services'] = "Product";
-                    $data[$key]['gst_number']="";
+                    $data[$count]['description'] =  $accessory_details['product_name'];
+                    $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
+                    $data[$count]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
+                    $data[$count]['product_or_services'] = "Product";
+                    if(!empty($vendor_data['gst_no'])){
+                        $data[$count]['gst_number'] = $vendor_data['gst_no'];
+                    } else {
+                        $data[$count]['gst_number'] = TRUE;
+                    }
 
-                    $data[$key]['company_name'] = $vendor_data['company_name'];
-                    $data[$key]['company_address'] = $vendor_data['company_address'];
-                    $data[$key]['district'] = $vendor_data['district'];
-                    $data[$key]['pincode'] = $vendor_data['pincode'];
-                    $data[$key]['state'] = $vendor_data['state'];
-                    $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']/$quantity[$key]));
-                    $data[$key]['qty'] = $quantity[$key];
-                    $data[$key]['hsn_code'] = $hsn_code;
-                    $data[$key]['gst_rate'] = $gst_rate;
-                    $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                    $data[$count]['company_name'] = $vendor_data['company_name'];
+                    $data[$count]['company_address'] = $vendor_data['company_address'];
+                    $data[$count]['district'] = $vendor_data['district'];
+                    $data[$count]['pincode'] = $vendor_data['pincode'];
+                    $data[$count]['state'] = $vendor_data['state'];
+                    $data[$count]['rate'] = sprintf("%.2f", ($data[$count]['taxable_value']/$accessory['qty']));
+                    $data[$count]['qty'] = $accessory['qty'];
+                    $data[$count]['hsn_code'] = $hsn_code;
+                    $data[$count]['gst_rate'] = $gst_rate;
+                    $data[$count]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                    ++$count;
                 }
             }
             
@@ -199,14 +205,15 @@ class Accessories extends CI_Controller {
 
                     $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
 
-                    $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
-                    exec($cmd); 
-
-                    unlink(TMP_FOLDER.$output_pdf_file_name);
-                    unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
-
-                    unlink(TMP_FOLDER.$invoice_id.".xlsx");
-                    unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+                    $email_tag = SF_ACCESSORIES_INVOICE;    
+                    $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                    $subject = $email_template[4];
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+                    $to = $vendor_data['invoice_email_to'].",".$this->session->userdata("official_email").(!empty($email_template[1]) ? ",".$email_template[1] : "");
+                    $cc = $vendor_data['invoice_email_cc'].(!empty($email_template[3]) ? ",".$email_template[3] : "");
+                    $pdf_attachement_url = S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name;
+                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, $pdf_attachement_url, $email_tag);
                 }
 
                 $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => ACCESSORIES_TAG));
@@ -222,6 +229,15 @@ class Accessories extends CI_Controller {
                 $this->invoice_lib->insert_invoice_breackup($response);
                 $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $sfID, $convert, $this->session->userdata('id'), $hsn_code);
                 $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+                
+                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+                exec($cmd); 
+
+                unlink(TMP_FOLDER.$output_pdf_file_name);
+                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+
+                unlink(TMP_FOLDER.$invoice_id.".xlsx");
+                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
                 
                 $this->session->set_userdata(array('success' => "SF Accessories Invoice Inserted Successfully!!"));
                 redirect(base_url()."employee/accessories/sf_accessories_invoice");
