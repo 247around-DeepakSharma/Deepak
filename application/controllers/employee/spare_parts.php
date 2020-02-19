@@ -2426,12 +2426,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
             $approval_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
-            $approval_entity_type = _247AROUND_PARTNER_STRING;         
-        }else{
-            $agent_id = _247AROUND_DEFAULT_AGENT;
-            $agent_name = _247AROUND_DEFAULT_AGENT_NAME; 
-            $approval_agent_id = _247AROUND_DEFAULT_AGENT;
-            $approval_entity_type = _247AROUND_EMPLOYEE_STRING;  /// Entity Type will be 247around 
         }
         
  
