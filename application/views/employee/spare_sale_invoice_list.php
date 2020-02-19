@@ -156,7 +156,8 @@
                                     <div class='rect2' style='background-color:#4885ed'></div>\n\
                                     <div class='rect3' style='background-color:#f4c20d'></div>\n\
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
-                                </div>"
+                                </div>",
+                "search": "Filter By : Booking ID, Sale Invoice ID"
             },
             select: {
                 style: 'multi'
@@ -170,7 +171,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'Warranty_plan_List',
+                    title: 'Spare_Sale_List',
                     exportOptions: {
                        columns: [1,2,3,4,5,6,7,8],
                         modifier : {
