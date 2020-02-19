@@ -1248,10 +1248,13 @@
                                         <td style="word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['oow_invoice_id']; ?></td>
                                         <td><?php echo $sp['oow_incoming_invoice_amount']; ?></td>
-                                        <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf'];  ?>">
+                                        <td>
+                                            <?php if(!empty($sp['oow_incoming_invoice_pdf'])){ ?>
+                                            <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf'];  ?>">
                                              <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a>
+                                            <?php } ?>
                                         </td> 
-                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                        <td><?php if(!empty($sp['oow_invoice_date'])){ echo date("d-M-Y", strtotime($sp['oow_invoice_date'])); } ?></td>  
                                     </tr>
                                     <?php } }?>
                                 </tbody>
