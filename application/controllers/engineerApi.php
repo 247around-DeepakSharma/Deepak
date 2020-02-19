@@ -468,6 +468,11 @@ class engineerApi extends CI_Controller {
                 $this->getPartnerAppliancesModelsPartTypesInventory();  ////get parts names
                 break;
 
+/*   this API used to submit previous parts consume data */
+            case 'submitPrevPartsConsumption':  
+                $this->submitPreviousPartsConsumptionData();  ////Submit Request for Previous consume data
+                break;
+
             default:
                 break;
         }
@@ -3557,8 +3562,13 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["booking_id"])) {
             $booking_id = $requestData['booking_id'];
-            $select = 'spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.status, spare_parts_details.quantity, inventory_master_list.part_number';
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+            $select = 'spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.status, spare_parts_details.quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_parts_type,spare_parts_details.shipped_date, inventory_master_list.part_number';
+            /*  Response and condition according to Second Part Request and also acc to first part request */
+            if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
+            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => 'LP-6228241911252', 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+            }else{
+            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+            }
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
@@ -4140,6 +4150,76 @@ function check_for_upgrade(){
 
 }
 
+
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to check app upgrade
+     *@param - 
+     *@return - json
+*/
+
+// function previousPartsConsumptionData(){
+
+//         log_message("info", __METHOD__ . " Entering..in previousPartsConsumptionData list");
+//         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+//         $validation = $this->validateKeys(array("booking_id"), $requestData);
+//         if ($validation['status']) {
+//             $response  = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped,spare_parts_details.shipped_parts_type,spare_parts_details.shipped_date,spare_parts_details.status, inventory_master_list.part_number', ['booking_id' => 'LP-6228241911252', 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+//             if (!empty($response)) {
+//                 log_message("info", __METHOD__ . " previousPartsConsumptionData parts Found");
+//                 $this->jsonResponseString['response']['prevparts'] = $response;  /////response key according to umesh
+//                 $this->sendJsonResponse(array('0000', 'success'));
+//             } else {
+//                 log_message("info", __METHOD__ . "previousPartsConsumptionData parts not found");
+//                 $this->jsonResponseString['response']['prevparts'] = array();  ////response key according to umesh
+//                 $this->sendJsonResponse(array('0000', 'previousPartsConsumptionData not found'));
+//             }
+//         } else {
+//             log_message("info", __METHOD__ . $validation['message']);
+//             $this->sendJsonResponse(array("0077", $validation['message']));
+//         }
+
+// }
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to update previous part Consumption
+     *@param - 
+     *@return - boolean
+*/
+
+function submitPreviousPartsConsumptionData(){
+
+        $postData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = json_decode($postData['submitPreviousPartsConsumption'], true);
+        $spares_data = $requestData["spares_data"];
+        if(!empty($spares_data)){
+            $updated = FALSE;
+            foreach ($spares_data as $spare){
+                $data_update =array(
+                    'consumed_part_status_id'=>$spare['consume_id'],
+                    'consumption_remarks'=>$spare['consumption_remarks']
+                );
+                $where = array(
+                   'id'=>$spare['spare_id']
+                );
+                $affected_row = $this->service_centers_model->update_spare_parts($where, $data_update);
+                if($affected_row){
+                    $updated = TRUE;
+                }else{
+                    $updated = FALSE;
+                }
+            }
+            if($updated){
+              $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
+            }else{
+              $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED,API_PREV_CONSUME_NOT_UPDATED_MSG));
+            }
+        }else{
+        $this->sendJsonResponse(array('0078', 'Please fill All Details'));
+        }
+        
+
+}
 
 
 
