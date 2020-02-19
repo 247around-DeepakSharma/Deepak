@@ -5863,10 +5863,14 @@ class Booking extends CI_Controller {
             }
         }
     }
-            /**
+
+    /**
      * @desc: This function is used to update both Bookings and Queries.
+     * @param type $user_id
+     * @param type $booking_id
+     * @param type $insert_state_change : defines whether to insert entry in booking state change table or not
      */
-    function update_booking_by_sf($user_id, $booking_id) {
+    function update_booking_by_sf($user_id, $booking_id, $do_not_insert_state_change = 0) {
         $bookings = array($booking_id);
         if($booking_id != INSERT_NEW_BOOKING){
             $bookings = $this->booking_model->getbooking_history($booking_id);

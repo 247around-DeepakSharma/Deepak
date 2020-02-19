@@ -44,8 +44,12 @@ else
 
             $button_caption = "Submit Booking";
             $redirect_url = "";
+            // if Request Type Change is done before Booking completion from SF panel and Admin Panel
+            // Do not insert data in booking_state_change Table
+            $do_not_insert_state_change = 0;
             if(!empty($booking_history['redirect_url']))
             {
+                $do_not_insert_state_change = 1;
                 $button_caption = "Next";
                 $redirect_url = $booking_history['redirect_url'];
                 $header = "Step 1 : Update Request type for ".$booking_history[0]['booking_id'];
@@ -55,7 +59,7 @@ else
             <br/><br/>
             <h3 style="color:red;text-align: center;font-size: 16px;margin-bottom: -39px;font-weight:bold;" class="errorMsg"></h3>
             <div class="panel-body">                
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>service_center/update_booking_by_sf/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id; }  ?> "  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>service_center/update_booking_by_sf/<?php echo $booking_history[0]['user_id'];?>/<?php echo $bkng_id;?>/<?php echo $do_not_insert_state_change;}  ?> "  method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $is_repeat_value ?>" name="is_repeat" id="is_repeat">
                     <input type="hidden" name="upcountry_data" value="<?php echo json_decode(""); ?>" id="upcountry_data" /> 
                     <input type="hidden" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>"/>
