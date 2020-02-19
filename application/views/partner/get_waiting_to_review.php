@@ -139,6 +139,7 @@
             postData['rejected_by'] = $('#partner_id_cancel').val();
             sendAjaxRequest(postData, partner_remarksUrl).done(function (data) {
                 alert(data);
+                $('.modal').modal('hide') // closes all active pop ups.
                 document.getElementById("row_"+bookingID).style.background = "rgb(255, 227, 147)";
             });
         }
