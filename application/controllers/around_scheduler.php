@@ -2630,5 +2630,21 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
+    /**
+     * @desc This is used to validate gst for all active vendors
+     * @param Array $upload_serial_number_pic
+     * @return boolean
+     * Ghanshyam
+     */
+    function get_all_vendors_to_validate_sf_gst() {
+        $allVendors = $this->vendor_model->viewvendor('', 1);
+        foreach ($allVendors as $key => $value) {
+            $vendorID = $value['id'];
+            $vendorGstNumber = $value['gst_no'];
+            if (!empty($vendorGstNumber)) {
+                $status = $this->invoice_lib->get_gstin_status_by_api($vendorID);
+            }
+        }
+    }
 
 }
