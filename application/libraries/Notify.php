@@ -301,8 +301,10 @@ class Notify {
     function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL, $spare_id = NULL) {
         // if Request Type Change is done before Booking completion from SF panel and Admin Panel
         // Do not insert data in booking_state_change Table
-        $currentURL = current_url();        
-        if(strpos($currentURL,'update_booking_by_sf')){
+        $currentURL = current_url();    
+        $arr_url = explode("/", $currentURL);
+        $do_not_insert_state_change = end($arr_url);
+        if(strpos($currentURL,'update_booking_by_sf') && !empty($do_not_insert_state_change) && $do_not_insert_state_change == 1){
             return;
         }
 
