@@ -4887,26 +4887,29 @@ exit();
                         $this->invoices_model->action_partner_invoice($invoice);
                         $this->invoices_model->insert_invoice_breakup($invoice_breakup);
                         foreach ($data as $value ) {
-
+                            // get booking_details.
+                            $booking_details = $this->reusable_model->get_search_query('booking_details', '*', array('booking_details.booking_id' => $value->booking_id), NULL, NULL, NULL, NULL, NULL)->result_array()[0];
+                            
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("purchase_invoice_id" => $invoice['invoice_id'],
                                 'invoice_gst_rate' => $part_data[$value->id]['gst_rate']));
                             
-                            $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
-                            
-//                            $booking['internal_status'] = SPARE_PARTS_SHIPPED;
-//                            $actor = $next_action = 'not_define';
-//                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
-//                            if (!empty($partner_status)) {
-//                                $booking['partner_current_status'] = $partner_status[0];
-//                                $booking['partner_internal_status'] = $partner_status[1];
-//                                $actor = $booking['actor'] = $partner_status[2];
-//                                $next_action = $booking['next_action'] = $partner_status[3];
-//                            }
-//                            $this->booking_model->update_booking($value->booking_id, $booking);
-                            
-                            $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    $actor,$next_action,_247AROUND);
-                            
+                            if($booking_details['current_status'] == _247AROUND_PENDING) {
+                                $this->vendor_model->update_service_center_action($value->booking_id, array('current_status' => "InProcess", 'internal_status' => SPARE_PARTS_SHIPPED));
+
+                                $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                                $actor = $next_action = 'not_define';
+                                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $value->booking_id);
+                                if (!empty($partner_status)) {
+                                    $booking['partner_current_status'] = $partner_status[0];
+                                    $booking['partner_internal_status'] = $partner_status[1];
+                                    $actor = $booking['actor'] = $partner_status[2];
+                                    $next_action = $booking['next_action'] = $partner_status[3];
+                                }
+                                $this->booking_model->update_booking($value->booking_id, $booking);
+
+                                $this->notify->insert_state_change($value->booking_id, "Invoice Approved", "", "Admin Approve Partner OOW Invoice ", $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                                $actor, $next_action,_247AROUND);
+                            }
                             // Send OOW invoice to Inventory Manager
                             /* changed by kalyani for removing duplicate invoice id error
                             //$url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $value->id;
