@@ -136,5 +136,120 @@ class Accessories extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_accessories_list', $data);
     }
+    
+    /**
+     * @desc: This method is used to generate SF accessories invoices.
+     * This method is used to get data from Form.
+     */
+    function process_sf_accessories_invoice() {
+        $sfID = $this->input->post('sf_id');
+        
+        if($sfID){
+            log_message('info', __FUNCTION__ . " Entering......");
+            
+            $data = array();
+            $total_amount = $amount = 0;
+            $sd = $ed = $invoice_date = date("Y-m-d");
+            $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
+                                . "state,address as company_address, owner_phone_1,"
+                                . "company_name, pincode, "
+                                . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $sfID))[0];
+            
+            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
+            $accessories = $this->input->post('accessories');
+            $count=0;
+
+            if(!empty($accessories)) {
+                foreach ($accessories as $key=>$accessory) {
+                    $accessory_details=$this->accessories_model->show_accessories_list(array('accessories_product_description.id' => $accessory['id']))[0];
+
+                    $total_amount = $amount = sprintf("%.2f", ($accessory_details['basic_charge']*(1+($accessory_details['tax_rate']/100)))*$accessory['qty']);                
+                    $hsn_code = $accessory_details['hsn_code'];
+                    $gst_rate = $accessory_details['tax_rate'];
+                    $data[$count]['description'] =  $accessory_details['product_name'];
+                    $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
+                    $data[$count]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
+                    $data[$count]['product_or_services'] = "Product";
+                    if(!empty($vendor_data['gst_no'])){
+                        $data[$count]['gst_number'] = $vendor_data['gst_no'];
+                    } else {
+                        $data[$count]['gst_number'] = TRUE;
+                    }
+
+                    $data[$count]['company_name'] = $vendor_data['company_name'];
+                    $data[$count]['company_address'] = $vendor_data['company_address'];
+                    $data[$count]['district'] = $vendor_data['district'];
+                    $data[$count]['pincode'] = $vendor_data['pincode'];
+                    $data[$count]['state'] = $vendor_data['state'];
+                    $data[$count]['rate'] = sprintf("%.2f", ($data[$count]['taxable_value']/$accessory['qty']));
+                    $data[$count]['qty'] = $accessory['qty'];
+                    $data[$count]['hsn_code'] = $hsn_code;
+                    $data[$count]['gst_rate'] = $gst_rate;
+                    $data[$count]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                    ++$count;
+                }
+            }
+            
+            if(!empty($data)){
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
+                $response['meta']['invoice_id'] = $invoice_id;
+                
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                if($status){
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                    $response['meta']['invoice_detailed_excel'] = NULL;
+
+                    $email_tag = SF_ACCESSORIES_INVOICE;    
+                    $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                    $subject = $email_template[4];
+                    $message = $email_template[0];
+                    $email_from = $email_template[2];
+                    $to = $vendor_data['invoice_email_to'].",".$this->session->userdata("official_email").(!empty($email_template[1]) ? ",".$email_template[1] : "");
+                    $cc = $vendor_data['invoice_email_cc'].(!empty($email_template[3]) ? ",".$email_template[3] : "");
+                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag);
+                }
+
+                $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => ACCESSORIES_TAG));
+
+                if(!empty($invoice_tag_details)) {
+                    $response['meta']['vertical'] = $invoice_tag_details[0]['vertical'];
+                    $response['meta']['category'] = $invoice_tag_details[0]['category'];
+                    $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
+                }
+                $response['meta']['accounting'] = 1;
+                $response['meta']['due_date'] = $response['meta']['invoice_date'];
+                
+                $this->invoice_lib->insert_invoice_breackup($response);
+                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $sfID, $convert, $this->session->userdata('id'), $hsn_code);
+                $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
+                
+                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                
+                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+                exec($cmd); 
+
+                unlink(TMP_FOLDER.$output_pdf_file_name);
+                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
+
+                unlink(TMP_FOLDER.$invoice_id.".xlsx");
+                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+                
+                $this->session->set_userdata(array('success' => "SF Accessories Invoice Inserted Successfully!!"));
+                redirect(base_url()."employee/accessories/sf_accessories_invoice");
+            }
+            else{
+                $this->session->set_userdata(array('error' => "No Accessories Data Found!!"));
+                redirect(base_url()."employee/accessories/sf_accessories_invoice");
+            }
+        }
+        else{
+            $this->session->set_userdata(array('error' => "Select Service Center"));
+            redirect(base_url()."employee/accessories/sf_accessories_invoice");
+        }
+    }
      
 }

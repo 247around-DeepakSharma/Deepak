@@ -1679,10 +1679,12 @@ class Service_centers extends CI_Controller {
                 $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
                 $is_est_approved = false;
                 $spareShipped = false;
+                $data['bookinghistory']['allow_estimate_approved'] = false;
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
                             array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            $data['bookinghistory']['allow_estimate_approved'] = true;
                             $is_est_approved = true;
                         }
 
@@ -1710,7 +1712,7 @@ class Service_centers extends CI_Controller {
                         }
                     }
                 }
-
+                
                 $data['spare_shipped'] = $spareShipped;
                 $date_diff = date_diff($current_date, $current_booking_date);
                 $data['Service_Center_Visit'] = 0;
@@ -4008,7 +4010,7 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            unlink(TMP_FOLDER . $challan_file_zip . '.zip');
+            unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
             foreach ($delivery_challan_file_name_array as $value_unlink) {
                 unlink(TMP_FOLDER . $value_unlink);
             }

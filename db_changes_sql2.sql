@@ -1918,3 +1918,9 @@ ALTER table booking_details ADD column created_source int NOT NULL;
 --Ankit Bhatt 2020-02-18
 insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
+
+-- Kajal 18-02-2020
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Accessories', '1', 'SF Accessories Invoice', 'accessories');
+
+-- Kajal 19-02-2020
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_accessories_invoice', 'SF Accessories Invoice', 'Dear SF, <br/><br/> Please find Accessories Invoice attached for your reference.  <br/><br/> With Regards, <br>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);

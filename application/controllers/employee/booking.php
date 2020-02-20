@@ -5563,7 +5563,13 @@ class Booking extends CI_Controller {
                 $arrBookingsData = array_filter($arrBookingsData);                
                 $arrBookingsData = array_chunk($arrBookingsData, 50);
                 $data['bookings_data'] = $arrBookingsData;
-            }   
+            }
+            if (!empty($data['charges'])) {
+                foreach ($data['charges'] as $key => $value) {
+                    $bookingID = $value['booking_id'];
+                    $data['bookings_comment_count'][$bookingID] = count($this->booking_model->get_remarks(array('booking_id' => $bookingID, "isActive" => 1, 'comment_type' => 1)));
+                }
+            }
             // Function ends here
             $data['data_id'] = $data_id;
             $this->load->view('employee/completed_cancelled_review', $data);
@@ -5863,10 +5869,14 @@ class Booking extends CI_Controller {
             }
         }
     }
-            /**
+
+    /**
      * @desc: This function is used to update both Bookings and Queries.
+     * @param type $user_id
+     * @param type $booking_id
+     * @param type $insert_state_change : defines whether to insert entry in booking state change table or not
      */
-    function update_booking_by_sf($user_id, $booking_id) {
+    function update_booking_by_sf($user_id, $booking_id, $do_not_insert_state_change = 0) {
         $bookings = array($booking_id);
         if($booking_id != INSERT_NEW_BOOKING){
             $bookings = $this->booking_model->getbooking_history($booking_id);
