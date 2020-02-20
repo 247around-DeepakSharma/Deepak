@@ -3713,7 +3713,7 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-                        $data[$key]['pre_consume_req'] =  $previous_consumption_required;
+                        $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
