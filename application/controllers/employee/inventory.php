@@ -8532,9 +8532,17 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $where = array("spare_parts_details.id IN(" . $spare_ids . ")" => NULL);
             $oow_invoice_data = $this->inventory_model->get_spare_invoice_details($select, $where);
             $invoice_details =array();
-            foreach ($oow_invoice_data as $key => $val ){
+            foreach ($oow_invoice_data as $key => $val) {
                 $tax_amount = $this->booking_model->get_calculated_tax_charge($val['total_invoice_amount'], $val['gst_rate']);
-                $invoice_details[$key]['invoice_amount'] = $val['total_invoice_amount']- $tax_amount;
+                $invoice_details[$key]['id'] = $val['id'];
+                $invoice_details[$key]['spare_id'] = $val['spare_id'];
+                $invoice_details[$key]['invoice_id'] = $val['invoice_id'];
+                $invoice_details[$key]['booking_id'] = $val['booking_id'];
+                $invoice_details[$key]['invoice_date'] = $val['invoice_date'];
+                $invoice_details[$key]['hsn_code'] = $val['hsn_code'];
+                $invoice_details[$key]['gst_rate'] = $val['gst_rate'];
+                $invoice_details[$key]['invoice_pdf'] = $val['invoice_pdf'];
+                $invoice_details[$key]['invoice_amount'] = $val['total_invoice_amount'] - $tax_amount;
             }
         }
         
