@@ -5,10 +5,10 @@
 <div id="page-wrapper">
 <div class="row">
    <div  class = "panel panel-info" style="margin:20px;">
-      <div class="panel-heading" style="font-size:130%;">
-         <b>
-            <center>ADD ACCESSORIES</center>
-         </b>
+      <div class="panel-heading" style='height:auto;overflow:hidden'>
+        <div class='col-md-6'>ADD ACCESSORIES</div>
+        <div class='col-md-6' style='text-align:right'>
+            <a href='<?php echo base_url(); ?>employee/accessories/show_accessories_list' class='btn btn-primary btn-sm'>Show Accessories List</a></div>
       </div>
 
       <div class="container1">
