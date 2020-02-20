@@ -121,6 +121,8 @@
         </div>
     </div>
 </div>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script>
     $('#service_center').select2({
         width : '300px',
