@@ -1,4 +1,5 @@
 <form id="reject-defective-form" method="post" enctype="multipart/form-data" action="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $spare_id; ?>/<?php echo $booking_id; ?>/<?php echo urlencode(base64_encode($booking_details['partner_id'])); ?>">
+   <center><img id="reject_loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
     <div class="row form-group"> 
         <div class="col-md-2"> 
             <label>Reject  Reason&nbsp;<span style="color:red;">*</span></label>
@@ -33,7 +34,8 @@
     </div>    
     <div class="row form-group"> 
         <div class="col-md-12" style="text-align: center; padding: 5px;"> 
-            <input type="submit" name="reject-part" class="btn btn-primary reject-part" value="Save" class="btn btn-primary">
+            <input type="hidden" name="service_center_id" id="service_center_id" value="<?php echo $spare_part_detail['service_center_id']; ?>">
+            <input type="submit" id="reject_part" name="reject-part" class="btn btn-primary reject-part" value="Sumit">
         </div>
     </div>
 </form>
@@ -85,7 +87,8 @@
              
             e.preventDefault();
             var formData = new FormData(this);
-
+            $("#reject_loader_gif").css('display','block');
+            $("#reject_part").attr('disabled', 'disabled');
             $.ajax({
                 type:'POST',
                 url: "<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $spare_id; ?>/<?php echo $booking_id; ?>/<?php echo urlencode(base64_encode($booking_details['partner_id'])); ?>",
@@ -95,6 +98,8 @@
                 processData: false,
                 success:function(data){
                     alert(data);
+                    $("#reject_loader_gif").css('display','none');
+                    $("#reject_part").removeAttr("disabled");
                     $('#RejectSpareConsumptionModal').modal('hide');
                     inventory_spare_table.ajax.reload();
                 },
