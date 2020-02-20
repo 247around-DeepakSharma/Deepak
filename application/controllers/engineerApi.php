@@ -4194,8 +4194,9 @@ function submitPreviousPartsConsumptionData(){
             foreach ($spares_data as $spare){
                 $data_update =array(
                     'consumed_part_status_id'=>$spare['consumed_spare_status_id'], /// Key Acc to umesh so that he has not change format of data sending //
-                    'consumption_remarks'=>$spare['consumption_remarks']
+                    'consumption_remarks'=>$spare['remarks']
                 );
+                /// Key Acc to umesh so that he has not change format of data sending //
                 $where = array(
                    'id'=>$spare['spare_id']
                 );

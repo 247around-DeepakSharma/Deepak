@@ -202,15 +202,6 @@ class Accessories extends CI_Controller {
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
                     $response['meta']['invoice_detailed_excel'] = NULL;
-
-                    $email_tag = SF_ACCESSORIES_INVOICE;    
-                    $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                    $subject = $email_template[4];
-                    $message = $email_template[0];
-                    $email_from = $email_template[2];
-                    $to = $vendor_data['invoice_email_to'].",".$this->session->userdata("official_email").(!empty($email_template[1]) ? ",".$email_template[1] : "");
-                    $cc = $vendor_data['invoice_email_cc'].(!empty($email_template[3]) ? ",".$email_template[3] : "");
-                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag);
                 }
 
                 $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => ACCESSORIES_TAG));
@@ -232,6 +223,16 @@ class Accessories extends CI_Controller {
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd); 
 
+                $email_tag = SF_ACCESSORIES_INVOICE;    
+                $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                $subject = $email_template[4];
+                $message = $email_template[0];
+                $email_from = $email_template[2];
+                $to = $vendor_data['invoice_email_to'].",".$this->session->userdata("official_email").(!empty($email_template[1]) ? ",".$email_template[1] : "");
+                $cc = $vendor_data['invoice_email_cc'].(!empty($email_template[3]) ? ",".$email_template[3] : "");
+                $pdf_attachement_url = S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name;
+                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, $pdf_attachement_url, $email_tag);
+                
                 unlink(TMP_FOLDER.$output_pdf_file_name);
                 unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
 
