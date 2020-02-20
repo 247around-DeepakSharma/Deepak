@@ -1924,3 +1924,11 @@ INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accou
 
 -- Kajal 19-02-2020
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_accessories_invoice', 'SF Accessories Invoice', 'Dear SF, <br/><br/> Please find Accessories Invoice attached for your reference.  <br/><br/> With Regards, <br>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+
+-- Ghanshyam 20_02_2020
+
+ALTER TABLE accessories_product_description Change created_by agent_id int(10);
+ALTER TABLE accessories_product_description Change appliance service_id int(10);
+ALTER TABLE accessories_product_description Change created_date create_date timestamp NOT NULL DEFAULT current_timestamp();
+ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NULL AFTER create_date;
