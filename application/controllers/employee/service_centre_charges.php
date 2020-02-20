@@ -1460,7 +1460,8 @@ class service_centre_charges extends CI_Controller {
                             $to = $email_template[1]. ", ".$this->session->userdata('official_email');
                             $cc = $email_template[3];
                             $subject = vsprintf($email_template[4], array($booking_id));
-                            $bcc = $email_template[5];
+                            $cc = (!empty($email_template[3]) ? $email_template[3] : "");
+                            $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
                             $message = vsprintf($email_template[0], array($agent_id, $this->table->generate(), $a));
@@ -1549,7 +1550,7 @@ class service_centre_charges extends CI_Controller {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
             $purchase_invoice_file = $this->miscelleneous->upload_file_to_s3($_FILES["purchase_invoice_file"], 
-                    "file_purchase_invoice", $allowedExts, $booking_id, "misc-images", "file_purchase_invoice");
+                    "file_purchase_invoice", $allowedExts, $booking_id, "purchase-invoices", "file_purchase_invoice");
             if($purchase_invoice_file){
                 return true;
             } else {

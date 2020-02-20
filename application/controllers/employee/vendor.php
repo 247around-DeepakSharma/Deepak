@@ -5149,7 +5149,7 @@ class vendor extends CI_Controller {
                     }
                     if(!empty($value['purchase_invoice_file'])){
                         
-                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['purchase_invoice_file'].'" >Click Here</a></td>';
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'purchase-invoices/'.$value['purchase_invoice_file'].'" >Click Here</a></td>';
                     } else {
                         $html .= '<td></td>';
                     }
