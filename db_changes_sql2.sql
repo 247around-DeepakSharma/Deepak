@@ -1924,3 +1924,6 @@ INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accou
 
 -- Kajal 19-02-2020
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_accessories_invoice', 'SF Accessories Invoice', 'Dear SF, <br/><br/> Please find Accessories Invoice attached for your reference.  <br/><br/> With Regards, <br>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
+
+--Ankit Bhatt 2020-02-20
+update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);

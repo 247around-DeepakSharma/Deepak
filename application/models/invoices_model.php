@@ -3214,6 +3214,7 @@ class invoices_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('spare_parts_details as spd');
         $this->db->join('service_centres as sc', 'spd.service_center_id = sc.id');
+        $this->db->join('invoice_details as id', 'spd.sell_invoice_id  = id.invoice_id ');
         $this->db->where('sell_invoice_id is NOT NULL', NULL, FALSE);
         $this->db->where('sell_price > 0', NULL, FALSE);
         $this->db->where('reverse_sale_invoice_id is NULL', NULL, FALSE);
