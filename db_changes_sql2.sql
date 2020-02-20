@@ -1934,3 +1934,6 @@ ALTER TABLE accessories_product_description Change created_by agent_id int(10);
 ALTER TABLE accessories_product_description Change appliance service_id int(10);
 ALTER TABLE accessories_product_description Change created_date create_date timestamp NOT NULL DEFAULT current_timestamp();
 ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NULL AFTER create_date;
+
+--Ankit Bhatt 2020-02-20
+update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
