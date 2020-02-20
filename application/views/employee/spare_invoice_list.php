@@ -18,11 +18,10 @@
                     <th>Part Type</th>
                     <th>Spare Status</th>
                     <th>Partner Name</th>
-                    <th>Purchase Price</th>
-                    <th>Sell Price</th>
-                    <th>Total Quote Given(With Tax)</th>
-                    <th>Basic Amount</th>
+                    <th>Purchase Price(With Tax) </th>
                     <th>Purchase Invoice ID</th>
+                    <th>Total Quote Given(With Tax)</th>
+                    <th>Sell Price(With Tax)</th>                    
                     <th>Purchase Invoice PDF</th>
                     <th>Sale Invoice ID</th>
                     <th>Create Purchase Invoice </th>
@@ -43,25 +42,20 @@
                             <?php echo $value->purchase_price; ?>
                         <?php } ?>
                     </td>
-                    <td>
-                        <?php if (!empty($value->sell_price)) { ?>
-                            <i class="fa fa-inr" aria-hidden="true"></i> 
-                            <?php echo $value->sell_price; ?>
-                        <?php } ?>
-                    </td>
-                    <td>
-                        <?php if (!empty($value->purchase_price)) { ?>
-                        <i class="fa fa-inr" aria-hidden="true"></i> 
-                            <?php echo $value->purchase_price; ?>
-                        <?php } ?>
-                    </td>
+                    <td><?php echo $value->invoice_id; ?></td>
                     <td>
                         <?php if (!empty($value->basic_amount)) { ?>
                         <i class="fa fa-inr" aria-hidden="true"></i> 
                             <?php echo $value->basic_amount; ?>
                         <?php } ?>
                     </td>
-                    <td><?php echo $value->invoice_id; ?></td>
+                    <td>
+                        <?php if (!empty($value->sell_price)) { ?>
+                            <i class="fa fa-inr" aria-hidden="true"></i> 
+                            <?php echo $value->sell_price; ?>
+                        <?php } ?>
+                    </td>
+                    
                     <td class="text-center">
                     <?php
                     if (!empty($value->invoice_pdf)) {
