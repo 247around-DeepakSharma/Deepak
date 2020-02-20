@@ -943,8 +943,14 @@
                        <?php  }else{ ?>
                         <td> - </td>
                         <?php }  ?>
-                        
+                        <!--- Abhishek if en_current_status  is not available check -->
+                        <?php 
+                        if(isset($unit['en_current_status']) && !empty($unit['en_current_status'])){ ?>
                         <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                        <?php }else{ ?>
+                        <td> - </td>
+                        <?php }
+                         ?>
                     </tr>
                     <?php }?>
                 </tbody>
