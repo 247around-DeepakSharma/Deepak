@@ -6440,6 +6440,7 @@ class Service_centers extends CI_Controller {
                 //send email
                 $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $spare_consumption_status_new_reason['reason_text']);
             }
+
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
