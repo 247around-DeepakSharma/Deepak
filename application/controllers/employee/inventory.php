@@ -8414,10 +8414,22 @@ class Inventory extends CI_Controller {
         $spare_id_array = $this->input->post("spare_id_array");
         if (!empty($spare_id_array)) {
             $spare_ids = implode(',', $spare_id_array);
-            $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
+            $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount as total_invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
             $where = array("spare_parts_details.id IN(" . $spare_ids . ")" => NULL);
-
-            $invoice_details = $this->inventory_model->get_spare_invoice_details($select, $where);
+            $oow_invoice_data = $this->inventory_model->get_spare_invoice_details($select, $where);
+            $invoice_details =array();
+            foreach ($oow_invoice_data as $key => $val) {
+                $tax_amount = $this->booking_model->get_calculated_tax_charge($val['total_invoice_amount'], $val['gst_rate']);
+                $invoice_details[$key]['id'] = $val['id'];
+                $invoice_details[$key]['spare_id'] = $val['spare_id'];
+                $invoice_details[$key]['invoice_id'] = $val['invoice_id'];
+                $invoice_details[$key]['booking_id'] = $val['booking_id'];
+                $invoice_details[$key]['invoice_date'] = $val['invoice_date'];
+                $invoice_details[$key]['hsn_code'] = $val['hsn_code'];
+                $invoice_details[$key]['gst_rate'] = $val['gst_rate'];
+                $invoice_details[$key]['invoice_pdf'] = $val['invoice_pdf'];
+                $invoice_details[$key]['invoice_amount'] = $val['total_invoice_amount'] - $tax_amount;
+            }
         }
 
         echo json_encode($invoice_details);

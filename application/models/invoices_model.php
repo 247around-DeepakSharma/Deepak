@@ -724,7 +724,7 @@ class invoices_model extends CI_Model {
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
-                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'misc-images/",purchase_invoice_file) as purchase_invoice_file';
+                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'purchase-invoices/",purchase_invoice_file) as purchase_invoice_file';
 
         $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();
@@ -3266,65 +3266,5 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
-    
-     /**
-     *  @desc : This function is used to update lost part status, defective part shipped status, and return reverse sale invoice id
-     *  @param : $sale_invoice_id
-     *  @return: Array()
-     */
-    function update_spare_parts_details($sale_invoice_id){
-        $this->db->select("reverse_sale_invoice_id, defective_part_shipped, consumed_part_status_id");
-        $this->db->from('spare_parts_details');
-        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
-        $query = $this->db->get();
-        $result =  $query->result_array();
-        $defective_part_shipped_status = $this->get_spare_part_status($result[0]['defective_part_shipped'], $result[0]['consumed_part_status_id']);
-        
-        $data = array("spare_lost" => 0, "status" => $defective_part_shipped_status);
-        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
-        $this->db->update('spare_parts_details', $data);
-        return $result[0]['reverse_sale_invoice_id'];
-    }
-    
-    
-    /**
-     *  @desc : This function is used to get status for spare part on basis of defective_part_shipped and consumed_part_status_id
-     *  @param : $defective_part_shipped, $consumed_part_status_id
-     *  @return: string
-     */
-    function get_spare_part_status($defective_part_shipped, $consumed_part_status_id){
-        $status = "";
-        if($consumed_part_status_id == 1){
-            if(empty($defective_part_shipped)){
-                $status = "Defective part to be shipped by SF";
-            }
-            else{
-                $status = "Defective part shipped by SF";
-            }
-        }
-        else if($consumed_part_status_id == 2){
-            $status = "Courier lost";
-        }
-        else if($consumed_part_status_id == 3){
-            if(empty($defective_part_shipped)){
-                $status = "Damaged part to be shipped by SF";
-            }
-            else{
-                $status = "Damaged part shipped by SF";
-            }
-        }
-        else if($consumed_part_status_id == 4 || $consumed_part_status_id == 5){
-            if(empty($defective_part_shipped)){
-                $status = "OK part to be shipped by SF";
-            }
-            else{
-                $status = "OK part shipped by SF";
-            }
-        }
-        else{
-            //case - if $consumed_part_status_id is null
-            $status = "Defective part to be shipped by SF";
-        }
-        return $status;
-    }
+   
 }
