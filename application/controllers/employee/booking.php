@@ -5563,7 +5563,13 @@ class Booking extends CI_Controller {
                 $arrBookingsData = array_filter($arrBookingsData);                
                 $arrBookingsData = array_chunk($arrBookingsData, 50);
                 $data['bookings_data'] = $arrBookingsData;
-            }   
+            }
+            if (!empty($data['charges'])) {
+                foreach ($data['charges'] as $key => $value) {
+                    $bookingID = $value['booking_id'];
+                    $data['bookings_comment_count'][$bookingID] = count($this->booking_model->get_remarks(array('booking_id' => $bookingID, "isActive" => 1, 'comment_type' => 1)));
+                }
+            }
             // Function ends here
             $data['data_id'] = $data_id;
             $this->load->view('employee/completed_cancelled_review', $data);
