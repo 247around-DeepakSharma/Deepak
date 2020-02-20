@@ -1721,8 +1721,10 @@ class Partner extends CI_Controller {
             
             $data['is_repeat'] = $is_repeat;
             $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($data['unit_details']) ? $data['unit_details'] : [];
+            $data['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);
             $this->miscelleneous->load_partner_nav_header();
-            //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -3495,6 +3497,7 @@ class Partner extends CI_Controller {
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
         $str_disabled = !empty($this->input->post("str_disabled")) ? $this->input->post("str_disabled") : "";
+        $is_partner_invoiced = !empty($this->input->post("is_partner_invoiced")) ? $this->input->post("is_partner_invoiced") : false;
         if($this->input->post("add_booking")){
             $add_booking = $this->input->post("add_booking");
         }
@@ -3571,13 +3574,22 @@ class Partner extends CI_Controller {
                             $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
+                        // If partner is billed against a line item do not allow to uncheck this item
+                        if($is_partner_invoiced)
+                        {
+                            $onclick = "onclick='return false;' ";
+                        }
                     }
                     else{
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
                             $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
-                            //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                            // If partner is billed against a line item , Repeat booking category can not be selected
+                            if($is_partner_invoiced)
+                            {
+                                $onclick = "onclick='return false;' ";
+                            }
                          }
                     }
                 }
