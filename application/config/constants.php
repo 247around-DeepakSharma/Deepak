@@ -720,5 +720,7 @@ define( 'API_KARIX_PASSWORD','15ac0df1-cd00-4d75-b792-78ea27c8023a');
 define( 'API_KARIX_SOURCE','+13253077759');
 define( 'API_KARIX_CHANNEL','whatsapp');  // Use "sms" or "whatsapp"
 
+define( 'MSG_PARTNER_INVOICED','*Booking already invoiced to Partner, selected services can not be un-checked.'); 
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

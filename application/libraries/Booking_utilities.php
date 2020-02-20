@@ -1034,5 +1034,25 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         }
         return false;
     }
+    
+    /**
+     * Check if any line item against a booking is invoiced to partner
+     * @author Prity Sharma
+     * @date 20-02-2020
+     * @param type $booking
+     * @return boolean
+     */
+    function is_partner_invoiced($arr_booking_unit_details){
+        if(empty($arr_booking_unit_details)){
+            return false;
+        }
+        
+        foreach($arr_booking_unit_details as $values){
+            if(!empty($values['partner_invoice_id'])){
+                 return true;
+            }
+        }
+        return false;
+    }
 
 }

@@ -2007,7 +2007,10 @@ class Booking extends CI_Controller {
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);      
         if($booking){            
             $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);  
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking); 
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+            $booking['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);            
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -6121,6 +6124,9 @@ class Booking extends CI_Controller {
         if($booking){
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
             $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+            $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);           
             $booking['allow_skip_validations'] = 1;
             $this->miscelleneous->load_nav_header();
             $this->load->view('service_centers/update_booking', $booking);    

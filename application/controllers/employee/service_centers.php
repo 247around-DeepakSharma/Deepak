@@ -8270,6 +8270,9 @@ class Service_centers extends CI_Controller {
             if (($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))) {
                 $is_spare_requested = $this->is_spare_requested($booking);
                 $booking['booking_history']['is_spare_requested'] = $is_spare_requested;
+                // Check if any line item against booking is invoiced to partner or not
+                $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+                $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);                                       
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/update_booking', $booking);
             } else {
