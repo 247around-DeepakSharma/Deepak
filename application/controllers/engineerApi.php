@@ -3710,7 +3710,7 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-                        $data[$key]['pre_consume_req'] =  $previous_consumption_required;
+                        $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -4194,8 +4194,9 @@ function submitPreviousPartsConsumptionData(){
             foreach ($spares_data as $spare){
                 $data_update =array(
                     'consumed_part_status_id'=>$spare['consumed_spare_status_id'], /// Key Acc to umesh so that he has not change format of data sending //
-                    'consumption_remarks'=>$spare['consumption_remarks']
+                    'consumption_remarks'=>$spare['remarks']
                 );
+                /// Key Acc to umesh so that he has not change format of data sending //
                 $where = array(
                    'id'=>$spare['spare_id']
                 );
