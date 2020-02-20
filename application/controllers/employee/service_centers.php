@@ -6432,14 +6432,7 @@ class Service_centers extends CI_Controller {
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-        if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
-            //case when consumption reason is changed by admin
-            $spare_consumption_status_new_reason = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $post_data['spare_consumption_status'][$spare_id]], NULL, NULL, NULL, NULL, NULL)[0];
-            if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_new_reason['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
-                //send email
-                $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id, $spare_consumption_status_new_reason['reason_text']);
-            }
-            
+        if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
@@ -8340,9 +8333,15 @@ class Service_centers extends CI_Controller {
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
             $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
-            $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            if(!empty($from_details))
+            {
+                $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            }
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-            $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            if(!empty($to_details))
+            {
+                $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
                 $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
                 redirect(base_url() . 'service_center/delivered_spare_transfer');

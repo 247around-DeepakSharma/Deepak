@@ -306,8 +306,14 @@ class Booking extends CI_Controller {
 
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
-
-                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    if(!empty($discount[$brand_id][$key + 1][$services_details['id']][0]))
+                    {
+                        $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    }
+                    else
+                    {
+                        $services_details['around_paid_basic_charges'] =    0;
+                    }
                     $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
