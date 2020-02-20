@@ -400,6 +400,7 @@
                                 <th>Spare Cancellation Reason</th>
                                 <th>Consumption</th>
                                 <th>Consumption Reason</th>
+                                <th>Consumption Remarks</th>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ ?>
                                 <th>Remove MSL Consumption</th>
                                 <?php } ?>
@@ -461,6 +462,7 @@
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
                                 <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                 <td><?php echo $sp['consumed_status']; ?></td>
+                                <td><?php echo $sp['consumption_remarks']; ?></td>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ 
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
                                 <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
