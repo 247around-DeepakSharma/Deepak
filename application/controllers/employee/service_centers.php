@@ -6646,10 +6646,8 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
 
-            //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             
-            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+            if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
@@ -6661,6 +6659,8 @@ class Service_centers extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
+                //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
+                $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             }
             echo 'Defective Parts Rejected To SF';
             exit;
