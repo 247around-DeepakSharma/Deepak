@@ -505,7 +505,7 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
 
-        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -2252,14 +2252,9 @@ class Service_centers extends CI_Controller {
                 // fetch record of $spare_id from table spare_parts_details. 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
-                // set Ok part return in case of wrong & Ok part.
-                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
+                // set Ok part return in case of wrong & damage/broken part.
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $update_data['status'] = OK_PART_TO_BE_SHIPPED;
-                    $update_data['defective_part_required'] = 1;
-                }
-                // if damage/broken set status damage part to be shipped.
-                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-                    $update_data['status'] = DAMAGE_PART_TO_BE_SHIPPED;
                     $update_data['defective_part_required'] = 1;
                 }
                 // in case of courier lost .
@@ -6646,10 +6641,8 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
 
-            //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             
-            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+            if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
@@ -6661,6 +6654,8 @@ class Service_centers extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
+                //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
+                $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             }
             echo 'Defective Parts Rejected To SF';
             exit;
@@ -8263,6 +8258,9 @@ class Service_centers extends CI_Controller {
             if (($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))) {
                 $is_spare_requested = $this->is_spare_requested($booking);
                 $booking['booking_history']['is_spare_requested'] = $is_spare_requested;
+                // Check if any line item against booking is invoiced to partner or not
+                $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+                $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);                                       
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/update_booking', $booking);
             } else {
