@@ -3,7 +3,7 @@
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
 <div class="container-fluid">
     <div style="padding: 3px;">
-        <h3>Dispatch Defective Part</h3>
+        <h3>Dispatch Defective/Ok Part</h3>
     </div>
     <div class="row" style="margin-top: 10px;">
         
