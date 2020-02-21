@@ -2229,7 +2229,7 @@ class engineerApi extends CI_Controller {
         $other_docs = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["booking_id"])) {
-            $documets = $this->service_centers_model->get_collateral_for_service_center_bookings($requestData["booking_id"]);
+            $documets = $this->service_centers_model->get_collateral_for_service_center_bookingsAPI($requestData["booking_id"]); /// Makeing seperate function for API
             $i = 0;
             foreach ($documets as $key => $value) {
                 if ($value['document_type'] == "pdf") {
