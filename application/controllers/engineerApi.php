@@ -3568,7 +3568,7 @@ class engineerApi extends CI_Controller {
                 // exclude OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID  ///
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  
             }
-            $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1,"tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+            $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1,'tag <> "'.PART_NOT_RECEIVED_TAG.'"' => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
 
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
