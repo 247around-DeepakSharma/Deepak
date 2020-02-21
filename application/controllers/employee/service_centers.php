@@ -692,17 +692,16 @@ class Service_centers extends CI_Controller {
                     $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id);
                     //This is used to cancel those spare parts who has not shipped by partner.
                     $this->cancel_spare_parts($partner_id, $booking_id);
+                    /**
+                     * Mark booking InProcess_Completed as booking and spare separated .
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+                    $this->session->set_userdata('success', "Updated Successfully!!");
 
                     if ($is_update_spare_parts) {
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                            $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
-                        }
-                        $this->session->set_userdata('success', "Updated Successfully!!");
-
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
-                        $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
-                        $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
