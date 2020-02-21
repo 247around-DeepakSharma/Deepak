@@ -3238,6 +3238,7 @@ class invoices_model extends CI_Model {
 
             $this->db->where($like, null, false);
         }
+        $this->db->group_by("spd.id");
 
         if (!empty($post['order'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);

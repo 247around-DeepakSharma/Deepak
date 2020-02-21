@@ -692,17 +692,16 @@ class Service_centers extends CI_Controller {
                     $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id);
                     //This is used to cancel those spare parts who has not shipped by partner.
                     $this->cancel_spare_parts($partner_id, $booking_id);
+                    /**
+                     * Mark booking InProcess_Completed as booking and spare separated .
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
+                    $this->session->set_userdata('success', "Updated Successfully!!");
 
                     if ($is_update_spare_parts) {
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                            $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
-                        }
-                        $this->session->set_userdata('success', "Updated Successfully!!");
-
                         redirect(base_url() . "service_center/get_defective_parts_booking");
                     } else {
-                        $this->update_booking_internal_status($booking_id, SF_BOOKING_COMPLETE_STATUS, $partner_id);
-                        $this->session->set_userdata('success', "Updated Successfully!!");
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
@@ -3086,7 +3085,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
@@ -3290,8 +3289,6 @@ class Service_centers extends CI_Controller {
 
                     if ($spare_part_detail['status'] == OK_PART_TO_BE_SHIPPED) {
                         $data['status'] = OK_PARTS_SHIPPED;
-                    } else if ($spare_part_detail['status'] == DAMAGE_PART_TO_BE_SHIPPED) {
-                        $data['status'] = DAMAGE_PARTS_SHIPPED;
                     } else {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
@@ -3409,29 +3406,38 @@ class Service_centers extends CI_Controller {
                             $this->service_centers_model->update_awb_details($awb_data, trim($awb));
                         }
                     }
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
-
-                    //insert details into state change table   
+                    /**
+                     * Update booking internal only when booking is completed.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    
+                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
-                        $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
-                        $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_SHIPPED, $partner_id);
-                        // if booking completed change internal status.
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PARTS_SHIPPED, $partner_id, $booking_id);
-                            if (!empty($partner_status)) {
-                                $booking['partner_current_status'] = $partner_status[0];
-                                $booking['partner_internal_status'] = $partner_status[1];
-                                $booking['actor'] = $partner_status[2];
-                                $booking['next_action'] = $partner_status[3];
-
-                                if (!empty($booking_action) && $booking_action == 'reshedule') {
-                                    unset($booking['actor']);
-                                    unset($booking['next_action']);
-                                }
-                            }
-                            $this->booking_model->update_booking($booking_id, $booking);
-                        }
+                        $booking_internal_status = $data['status'];
+                    } else {
+                        $booking_internal_status = $defective_part_pending_details[0]['status'];
                     }
+
+                    // if booking completed change internal status.
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $booking['internal_status'] = $booking_internal_status;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking_internal_status, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $booking['actor'] = $partner_status[2];
+                            $booking['next_action'] = $partner_status[3];
+
+                            if (!empty($booking_action) && $booking_action == 'reshedule') {
+                                unset($booking['actor']);
+                                unset($booking['next_action']);
+                            }
+                        }
+                        $this->booking_model->update_booking($booking_id, $booking);
+                    }
+                    
+                    //insert details into state change table   
+                    $this->insert_details_in_state_change($booking_id, $booking_internal_status, $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
 
                     if (!empty($this->input->post("shipped_inventory_id"))) {
                         $ledger_data = array(
@@ -3454,22 +3460,6 @@ class Service_centers extends CI_Controller {
                     //send email
                     $email_template = $this->booking_model->get_booking_email_template(COURIER_DETAILS);
                     if (!empty($email_template)) {
-                        //$wh_email = '';
-                        //get warehouse incharge email
-                        //for now we add manish ji as a default warehouse
-                        //when in spare parts table we start inserting wh_id as a seperate column then we have to 
-                        //get the wh id from that table not by default
-//                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-//                    if(!empty($wh_incharge_id)){
-//                        //get 247around warehouse incharge email
-//                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-//                            'contact_person.entity_id' => DEFAULT_WAREHOUSE_ID,
-//                            'contact_person.entity_type' => _247AROUND_SF_STRING
-//                        );
-//                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-//                        $wh_email = !empty($email_details)?$email_details[0]['official_email']:'';
-//                    }
-
                         $rm_email = $this->get_rm_email($service_center_id);
 
                         $attachment = S3_WEBSITE_URL . "misc-images/" . $defective_courier_receipt;
@@ -6435,6 +6425,7 @@ class Service_centers extends CI_Controller {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $spare_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
         if (!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
@@ -6456,15 +6447,22 @@ class Service_centers extends CI_Controller {
                     $this->inventory_model->insert_inventory_stock($insert_data);
                 }
             }
+            
+            $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+            if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                $spare_status = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
+            } else {
+                $spare_status = Ok_PARTS_RECEIVED_BY_WAREHOUSE;
+            }
         }
         
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,
+            'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => $spare_status,
             'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 
         /* Insert Spare Tracking Details */
         if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, 'remarks' => $post_data['remarks'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $post_data['remarks'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         if ($response) {
@@ -6479,30 +6477,31 @@ class Service_centers extends CI_Controller {
             $sendUrl = base_url() . 'employee/invoice/generate_micro_reverse_sale_invoice/' . $spare_id;
             $this->asynchronous_lib->do_background_process($sendUrl, array());
 
-            $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('" . _247AROUND_CANCELLED . "', '" . _247AROUND_COMPLETED
-                . "', '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') " => NULL));
-
+            $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status NOT IN  ('" . _247AROUND_CANCELLED . "', '" . _247AROUND_COMPLETED
+                . "', '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "') " => NULL));
 
             $actor = $next_action = 'not_define';
             if (empty($is_exist)) {
-                // "Warehouse Received Defective Spare Parts"
-
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
-                
-                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                    $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
-                    if (!empty($partner_status)) {
-                        $booking['partner_current_status'] = $partner_status[0];
-                        $booking['partner_internal_status'] = $partner_status[1];
-                        $actor = $booking['actor'] = $partner_status[2];
-                        $next_action = $booking['next_action'] = $partner_status[3];
-                    }
-                    $this->booking_model->update_booking($booking_id, $booking);
-                }
+                $booking_internal_status = $spare_status;
             } else {
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
+                $booking_internal_status = $is_exist[0]['status'];
             }
+            
+            // Change booking internal status if booking is completed.
+            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $booking['internal_status'] = $spare_status;
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->booking_model->update_booking($booking_id, $booking);
+            }
+
+            // "Warehouse Received Defective Spare Parts"
+            $this->insert_details_in_state_change($booking_id, $spare_status, $post_data['remarks'], $actor, $next_action, $is_cron, $spare_id);
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
                 'booking_unit_details_id IS NOT NULL' => NULL,
@@ -6621,9 +6620,21 @@ class Service_centers extends CI_Controller {
 
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        // feth record from spare parts details of $spare_id.
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        
+        $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+        if(!empty($spare_part_detail['consumed_part_status_id'])) {
+            $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+            if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+            } else {
+                $spare_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+            }
+        }
         
         $data = array(
-            'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,
+            'status' => $spare_status,
             'remarks_defective_part_by_wh' => $rejection_reason,
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
@@ -6634,7 +6645,7 @@ class Service_centers extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $data);
         /* Insert Spare Tracking Details */
         if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->input->post("service_center_id"), 'entity_type' => _247AROUND_SF_STRING );
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->input->post("service_center_id"), 'entity_type' => _247AROUND_SF_STRING );
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         if ($response) {
@@ -6643,7 +6654,7 @@ class Service_centers extends CI_Controller {
 
             
             if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                $booking['internal_status'] = $spare_status;
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
                 $actor = $next_action = 'not_define';
@@ -6654,9 +6665,11 @@ class Service_centers extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
-                //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
-                $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             }
+
+            //DEFECTIVE/OK_PARTS_REJECTED_BY_WAREHOUSE
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
+            
             echo 'Defective Parts Rejected To SF';
             exit;
 //            $userSession = array('success' => 'Defective Parts Rejected To SF');
