@@ -3566,6 +3566,7 @@ class engineerApi extends CI_Controller {
             }else{
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
             }
+
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
@@ -4192,6 +4193,7 @@ function submitPreviousPartsConsumptionData(){
         if(!empty($spares_data)){
             $updated = FALSE;
             foreach ($spares_data as $spare){
+
                 $data_update =array(
                     'consumed_part_status_id'=>$spare['consumed_spare_status_id'], /// Key Acc to umesh so that he has not change format of data sending //
                     'consumption_remarks'=>$spare['remarks']
@@ -4210,10 +4212,10 @@ function submitPreviousPartsConsumptionData(){
             if($updated){
               $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
             }else{
-              $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED,API_PREV_CONSUME_NOT_UPDATED_MSG));
+              $this->sendJsonResponse(array('0079','Some Spares were not updated. Try Again! After some time.'));
             }
         }else{
-        $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED, API_PREV_CONSUME_NOT_UPDATED_KEY_MISS_MSG));  // Managing Error msgs with Same error key ///
+        $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));  // Managing Error msgs with Same error key ///
         }
         
 
