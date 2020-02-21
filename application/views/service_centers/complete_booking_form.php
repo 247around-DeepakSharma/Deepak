@@ -538,7 +538,7 @@
                                                         if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
                                                            echo "selected"; 
                                                         }
-                                                    } ?>
+                                                    } /*if(!empty($spare_part_detail['consumed_part_status_id']) && $spare_part_detail['consumed_part_status_id'] == $status['id']) { echo "selected"; } */ ?>
                                                     ><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
