@@ -356,7 +356,7 @@
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Age</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -482,7 +482,7 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Rejected Image</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -525,7 +525,7 @@
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">Parts Shipped</th>
