@@ -2693,8 +2693,8 @@ class Service_centers extends CI_Controller {
                 $in['agent_id'] = $this->session->userdata('service_center_id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
             } else if ($this->session->userdata('userType') == 'partner') { ///// handle partner session /// abhishek///
-                $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
-                $in['agent_type'] = _247AROUND_SF_STRING;
+                $in['agent_id'] = $this->session->userdata('id');  /// Partner Agent Id ///
+                $in['agent_type'] = _247AROUND_PARTNER_STRING;
             } else {
                 $in['agent_id'] = $this->session->userdata('agent_id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
