@@ -1178,19 +1178,9 @@ class Inventory extends CI_Controller {
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
-                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                        $b['internal_status'] = "Courier Invoice Rejected By Admin";
-                    }
-                    /* Insert Spare Tracking Details */
-                    if (!empty($id)) {
-                        $tracking_details = array('spare_id' => $id, 'action' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                    }
-
                     break;
                 case 'APPROVE_COURIER_INVOICE':
 
-                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
                     $courier_charge = $this->input->post("courier_charge");
                     if (!empty($courier_charge)) {
@@ -1199,21 +1189,10 @@ class Inventory extends CI_Controller {
                         $data['courier_charges_by_sf'] = 0;
                     }
 
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
-                    if (empty($defective_part_pending_details)) {
-                        $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $where = array("id" => $booking_id);
-                        $this->service_centers_model->update_spare_parts($where, $spare_data);
-                    }
-
                     $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
                     
                     $track_status = $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
-
-                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
-                        $b['internal_status'] = "Courier Invoice Approved By Admin";
-                    }
                     $flag = FALSE;
                     break;
 
