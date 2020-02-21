@@ -407,7 +407,7 @@ class Invoice extends CI_Controller {
                     $where['is_cp'] = 1;
                 } else if($type == MICRO_WAREHOUSE_CHARGES_TYPE){
                      $where['is_micro_wh'] = 1;
-                } else if($type ==SECURITY){
+                } else if(($type ==SECURITY) || ($type ==FNF)){
                      $where['is_sf'] = 1;
                 }
             }
@@ -3386,7 +3386,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
@@ -3406,7 +3406,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN, FNF); // To be check whether FNF comes here or not
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -3795,6 +3795,13 @@ exit();
                         $data['sub_category'] = SECURITY;
                         $data['accounting'] = 0;
                         break;
+                    case FNF:
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['category'] = ADVANCE;
+                        $data['sub_category'] = FNF;
+                        $data['accounting'] = 0;
+                        break;
                     default :
                         $data['type'] = VENDOR_VOUCHER;
                         $data['vertical'] =SERVICE;
@@ -3819,7 +3826,7 @@ exit();
                     $data['amount_collected_paid'] = $amount_collected_paid;
                     $data['vertical'] =SERVICE;
                     $data['category'] = ADVANCE;
-                    $data['sub_category'] = CASH;
+                    $data['sub_category'] = (($advance_type == FNF) ? FNF : CASH);//CASH;
                     $data['accounting'] = 0;
                 }
             } else {
