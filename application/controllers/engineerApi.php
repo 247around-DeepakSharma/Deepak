@@ -4222,7 +4222,7 @@ function submitPreviousPartsConsumptionData(){
               $this->sendJsonResponse(array('0079','Some Spares were not updated. Try Again! After some time.'));
             }
         }else{
-        $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED, API_PREV_CONSUME_NOT_UPDATED_KEY_MISS_MSG));  // Managing Error msgs with Same error key ///
+        $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));  // Managing Error msgs with Same error key ///
         }
         
 
