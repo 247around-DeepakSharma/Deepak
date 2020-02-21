@@ -2236,8 +2236,8 @@ class engineerApi extends CI_Controller {
                     $pdf['document_type'] = $value['document_type'];
                     $pdf['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $pdf['brand'] = $value['document_description'];
-                    $pdf['request_type'] = $value['document_description'];
+                    $pdf['brand'] = $value['brand'];
+                    $pdf['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $pdf['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
@@ -2248,8 +2248,8 @@ class engineerApi extends CI_Controller {
                     $video['document_type'] = $value['document_type'];
                     $video['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $video['brand'] = $value['document_description'];
-                    $video['request_type'] = $value['document_description'];
+                    $video['brand'] = $value['brand'];
+                    $video['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $video['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
@@ -2260,8 +2260,8 @@ class engineerApi extends CI_Controller {
                     $others['document_type'] = $value['document_type'];
                     $others['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $others['brand'] = $value['document_description'];
-                    $others['request_type'] = $value['document_description'];
+                    $others['brand'] = $value['brand'];
+                    $others['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $others['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
