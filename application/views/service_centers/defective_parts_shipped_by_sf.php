@@ -39,7 +39,7 @@
     <div class="x_panel">
         <div class="x_title">
             <button class="btn btn-success pull-right" id="revieve_multiple_parts_btn">Receive Multiple Parts</button>
-            <h2>Defective Parts Shipped By SF</h2>
+            <h2>Defective/Ok Parts Shipped By SF</h2>
             <div class="clearfix"></div>
 
             
