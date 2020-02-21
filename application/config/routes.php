@@ -304,5 +304,7 @@ $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engi
 $route['engineer/configurations'] = 'employee/engineer/configurations';
 $route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
 $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_plan_details/$1';
+
+$route['employee/invoice/reverse_sale_for_part_lost/(:any)'] = 'employee/invoice/reverse_sale_for_part_lost/$1';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

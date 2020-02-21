@@ -204,21 +204,21 @@
             document.getElementById("btn"+row_index).disabled = true;
             document.getElementById("btn"+row_index).innerHTML = "Generating...";
             var temp = sold_spare_parts_table.row(row_index).data();
-            var url = '<?php echo base_url(); ?>employee/invoice/reverse_spare_sale';
+            var url = '<?php echo base_url(); ?>employee/invoice/reverse_sale_for_part_lost/'+id;
             var success_msg = "Reverse spare sale invoice created successfully!";
             var error_msg = "Something went wrong while creating reverse spare sale invoice!";
 
             $.ajax({
-            type: 'POST',
+            type: 'GET',
             url: url,
-            data: {sale_invoice_id : id}
+            data: {}
           })
           .done (function(data) {
              // success case
               if(data){
                   // success response
-                  //change datatable - replace 'Reverse Sale Invoice' button with created reverse invoice id
-                  temp[9] = data;
+                  //change datatable - replace 'Reverse Sale Invoice' button with created reverse invoice id pdf link
+                  temp[9] = "<?php echo "<a href='" . 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" ?>" + data + "<?php echo ".pdf' target='_blank' title='Click to view generated reverse sale invoice'>" ?>" + data + "<?php echo "</a>"; ?>";
                   sold_spare_parts_table.row(row_index).data(temp).invalidate();
                   alert(success_msg);
               }
