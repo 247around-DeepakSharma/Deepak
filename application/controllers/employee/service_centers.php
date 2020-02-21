@@ -505,7 +505,7 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
 
-        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -2252,14 +2252,9 @@ class Service_centers extends CI_Controller {
                 // fetch record of $spare_id from table spare_parts_details. 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
-                // set Ok part return in case of wrong & Ok part.
-                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
+                // set Ok part return in case of wrong & damage/broken part.
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $update_data['status'] = OK_PART_TO_BE_SHIPPED;
-                    $update_data['defective_part_required'] = 1;
-                }
-                // if damage/broken set status damage part to be shipped.
-                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-                    $update_data['status'] = DAMAGE_PART_TO_BE_SHIPPED;
                     $update_data['defective_part_required'] = 1;
                 }
                 // in case of courier lost .
@@ -6436,7 +6431,7 @@ class Service_centers extends CI_Controller {
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-        if ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
+        if (!empty($post_data['spare_consumption_status'][$spare_id]) && ($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id'])) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
         }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
@@ -6646,10 +6641,8 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
 
-            //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             
-            if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+            if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
@@ -6661,6 +6654,8 @@ class Service_centers extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
+                //DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE
+                $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor, $next_action, "", $spare_id);
             }
             echo 'Defective Parts Rejected To SF';
             exit;
@@ -7056,7 +7051,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "') AND spare_parts_details.consumed_part_status_id = ".PART_CONSUMED_STATUS_ID;
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "') AND spare_parts_details.consumed_part_status_id <> 2";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
         } else {
@@ -8263,6 +8258,9 @@ class Service_centers extends CI_Controller {
             if (($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))) {
                 $is_spare_requested = $this->is_spare_requested($booking);
                 $booking['booking_history']['is_spare_requested'] = $is_spare_requested;
+                // Check if any line item against booking is invoiced to partner or not
+                $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+                $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);                                       
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/update_booking', $booking);
             } else {
@@ -8334,9 +8332,15 @@ class Service_centers extends CI_Controller {
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
             $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
-            $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            if(!empty($from_details))
+            {
+                $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            }
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-            $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            if(!empty($to_details))
+            {
+                $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
                 $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
                 redirect(base_url() . 'service_center/delivered_spare_transfer');

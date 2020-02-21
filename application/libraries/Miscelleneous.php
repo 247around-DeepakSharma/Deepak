@@ -4891,7 +4891,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    $status = OK_PART_TO_BE_SHIPPED;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }

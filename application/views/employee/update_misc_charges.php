@@ -120,7 +120,7 @@
                                                 $image_src1 = $src1;
                                                 if (!empty($value['purchase_invoice_file'])) {
                                                     //Path to be changed
-                                                    $src1 = S3_WEBSITE_URL."misc-images/" . $value['purchase_invoice_file'];
+                                                    $src1 = S3_WEBSITE_URL."purchase-invoices/" . $value['purchase_invoice_file'];
                                                     $image_src1 = base_url().'images/view_image.png';
                                                 }
                                                 ?>

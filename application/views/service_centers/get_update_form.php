@@ -768,7 +768,7 @@ function alpha(e) {
         var reason = $("input[name='reason']:checked"). val();
         if(reason == "<?php echo SPARE_PARTS_REQUIRED; ?>" || reason == "<?php echo SPARE_OOW_EST_REQUESTED; ?>") {
             if(checkReason == null || checkReason == '') {
-                alert('Please provide consumption reason of previously requested parts.');
+                alert('Please let us know the status of the previously requested parts.');
                 checkbox_value = 0;
                 return false;
             }
