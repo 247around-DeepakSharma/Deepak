@@ -4207,7 +4207,7 @@ function submitPreviousPartsConsumptionData(){
 /*  Update Consumption consitionally */
                 $update_data = $this->update_part_consumption($spare['consumed_spare_status_id'],$spare['remarks'],$spare['spare_id']);
 
-                if($affected_row){
+                if($update_data){
                     $updated = TRUE;
                 }else{
                     $updated = FALSE;
@@ -4216,7 +4216,7 @@ function submitPreviousPartsConsumptionData(){
             if($updated){
               $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
             }else{
-              $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED,API_PREV_CONSUME_NOT_UPDATED_MSG));
+              $this->sendJsonResponse(array('0079','Some Spares were not updated. Try Again! After some time.'));
             }
         }else{
         $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED, API_PREV_CONSUME_NOT_UPDATED_KEY_MISS_MSG));  // Managing Error msgs with Same error key ///
