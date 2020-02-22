@@ -703,9 +703,9 @@ define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
 define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
 define('_247AROUND_ENGINEER_NOTIFICATIONS', 'engg_notify');
 define( 'API_ACCESS_KEY_FIREBASE', 'AAAA4jTNT0A:APA91bFeqC-QN3TTsbzJc5W-Bk0NIzm0px_z8IOYXlNIaXByGgvg34_igzLCFKiF8VdCtkCod7xkBTIVlymGI2Cb5XijOBFDzwvE6jMC1Inx0of3G5S8lqVmh37bHjZAcQ4GOnpz75rC');
-define( 'API_KARIX_USER_ID', 'ebb22edc-e76e-4df9-ab6d-7842099e2e24');
-define( 'API_KARIX_PASSWORD','15ac0df1-cd00-4d75-b792-78ea27c8023a');
-define( 'API_KARIX_SOURCE','+13253077759');
+define( 'API_KARIX_USER_ID', 'ff694209-b961-4f7d-adb9-9be500316378');
+define( 'API_KARIX_PASSWORD','d15c65f8-722f-4c08-81d9-129e0e3dd12b');
+define( 'API_KARIX_SOURCE','+917428747247');
 define( 'API_KARIX_CHANNEL','whatsapp');  // Use "sms" or "whatsapp"
 
 define( 'MSG_PARTNER_INVOICED','*Booking already invoiced to Partner, selected services can not be un-checked.'); 
