@@ -2782,8 +2782,27 @@ class Partner extends CI_Controller {
         if (empty($is_cron)) {
             $this->checkUserSession();
         }
-
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED, 'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        /**
+         * @modifiedBy Ankit Rajvanshi
+         */
+        // Fetch spare details of $spare_id.
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+        // If part consumed status should defective part received by partner other ok part received by partner.
+        $spare_status = DEFECTIVE_PARTS_RECEIVED;
+        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+            $spare_status = DEFECTIVE_PARTS_RECEIVED;
+        } else {
+            $spare_status = Ok_PARTS_RECEIVED;
+        }
+        
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => $spare_status, 'received_defective_part_date' => date("Y-m-d H:i:s")));
+        /* Insert Spare Tracking Details */
+        if (!empty($spare_id)) {
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $spare_status, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }
         
         if($response){
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
@@ -2800,7 +2819,8 @@ class Partner extends CI_Controller {
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
 
-            $this->notify->insert_state_change($booking_id, PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, "", PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH, $agent_id, $agent_name, $actor, $next_action, $partner_id);
+            $this->notify->insert_state_change($booking_id, $spare_status, "", $spare_status, $agent_id, $agent_name, $actor, $next_action, $partner_id, "", $spare_id);
+
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2808,7 +2828,7 @@ class Partner extends CI_Controller {
         }
     }
     /**
-     * @desc: Partner rejected Defective Parts with reason (Part sent By warehouse).
+     * @desc: Partner rejected Defective/Ok Parts with reason (Part sent By warehouse).
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
@@ -2816,16 +2836,37 @@ class Partner extends CI_Controller {
         log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
+        
+        /**
+         * @modifiedBy Ankit Rajvanshi
+         */
+        // Fetch spare details of $spare_id.
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+        // If part consumed status should defective part received by partner other ok part received by partner.
+        $spare_status = DEFECTIVE_PARTS_REJECTED;
+        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+            $spare_status = DEFECTIVE_PARTS_REJECTED;
+        } else {
+            $spare_status = OK_PARTS_REJECTED;
+        }
+        
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         
         if ($response) {
-           
+            
+            /* Insert Spare Tracking Details */
+            if (!empty($spare_id)) {
+                $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
