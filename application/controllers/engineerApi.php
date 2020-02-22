@@ -1366,7 +1366,7 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-       //     $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  As of now not sending whatsapp msg
+            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  // As of now not sending whatsapp msg
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1440,14 +1440,14 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-       // $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
         $message->setDestination([$phone_number]);
         $message->setSource(API_KARIX_SOURCE);
         $message->setContent([
-            "text" => "Reschedule request received for AC(Installation) to 21/Dec. If reschedule is fake, give missed call @ 01140849136.",
+            "text" => $text,
         ]);
 
         try {
