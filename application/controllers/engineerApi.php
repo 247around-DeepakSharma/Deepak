@@ -4197,7 +4197,7 @@ function submitPreviousPartsConsumptionData(){
         if(!empty($spares_data)){
             $updated = FALSE;
             foreach ($spares_data as $spare){
-                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $remark,$spare['spare_id']); /// updating consumption 
+                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $spare['remarks'],$spare['spare_id']); /// updating consumption 
                 if($affected_row){
                     $updated = TRUE;
                 }else{
