@@ -117,7 +117,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type= "submit"  onclick="return form_submit()" class="btn btn-primary" value ="Save" style="background-color:#2C9D9C; border-color:#2C9D9C;">
+                            <center><input type= "submit"  onclick="return form_submit()" class="btn btn-primary" value ="Save" style="background-color:#2C9D9C; border-color:#2C9D9C;">
+                            </center>
                         </div>
                     </form>
                 </div>

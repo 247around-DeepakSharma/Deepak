@@ -1940,3 +1940,19 @@ update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
 --Gorakh 24-02-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('Partner', 'Search WH Stock By Part Number', NULL, 'partner/inventory/inventory_stocks_on_warhouse', '2', '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', '1', '2018-06-21 12:28:29');
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search WH Stock By Part Number', NULL, 'employee/inventory/search_inventory_stock_by_part_number_on_wh', '0', '89', 'accountmanager,admin,closure,developer,inventory_manager,regionalmanager', 'main_nav', '1', '2018-06-05 11:00:43');
+
+ -- ghanshyam 24-02-2020----------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_center_id` int(11) DEFAULT NULL,
+  `payment_hold_reason` text NOT NULL,
+  `agent_id` int(10) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+  
+ALTER TABLE `sf_payment_hold_reason`
+  ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
