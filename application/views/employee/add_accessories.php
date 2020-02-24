@@ -172,6 +172,7 @@ $("#hsn_code").on('change',function(){
 		},
 		success: function(datastring)
 		{
+                        datastring=datastring.trim();
 			$("#tax_loading_form").html("<img src='' style='width:15px'>");
 			$('#tax_rate').val(datastring);
 			$("#submitform").prop('disabled',false);

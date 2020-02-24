@@ -1937,3 +1937,21 @@ ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NUL
 
 --Ankit Bhatt 2020-02-20
 update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
+
+ -- ghanshyam 24-02-2020----------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_center_id` int(11) DEFAULT NULL,
+  `payment_hold_reason` text NOT NULL,
+  `agent_id` int(10) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+  
+ALTER TABLE `sf_payment_hold_reason`
+  ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
+
+---------------------------------------------
