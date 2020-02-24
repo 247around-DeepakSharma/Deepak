@@ -3298,7 +3298,7 @@ class engineerApi extends CI_Controller {
                 }
             }
         }
-        return false;
+        //  return false;  no need to return
     }
 
     /*
@@ -3352,7 +3352,7 @@ class engineerApi extends CI_Controller {
                 $warranty_checker = true;
             } else {
                 $is_spare_requested = $this->is_spare_requested($booking_details);
-                if (!$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
+                if (!empty($is_spare_requested) && !$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
                     $edit_call_type = false;
                     $warranty_checker = false;
                     $warranty_status = false;
