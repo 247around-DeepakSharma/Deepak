@@ -217,6 +217,7 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 $route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+$route['partner/inventory/inventory_stocks_on_warhouse'] = 'employee/partner/warehouse_inventory_stock';
 $route['partner/inventory/alternate_parts_list'] = 'employee/partner/alternate_parts_list';
 $route['partner/inventory/alternate_inventory_list/(:any)'] = 'employee/partner/alternate_inventory_stock_list/$1/$2/$3';
 $route['partner/reports'] = 'employee/partner/get_reports';
