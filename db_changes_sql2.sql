@@ -1982,7 +1982,13 @@ ALTER TABLE `sf_payment_hold_reason`
 
 ---------------------------------------------
 
-
 --Ankit Bhatt 2020-02-20
 update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
+
+
+-- ghanshyam 24-02-2020----------------------------------------
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+(271, '247Around', 'Add Accessories', NULL, 'employee/accessories/add_accessories', 2, '190', 'accountant,admin,developer,regionalmanager', 'main_nav', 1, '2020-02-24 05:47:27'),
+(270, '247Around', 'Add Payment Hold Reason', NULL, 'employee/invoice/sf_payment_hold_reason', 3, '69', 'accountant,admin,developer,regionalmanager', 'main_nav', 1, '2020-02-24 05:44:21');
 
