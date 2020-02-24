@@ -1068,7 +1068,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         if(!empty($booking_id)){
             $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
-            $booking_data = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL));
+            $booking_data = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'"' => NULL));
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'booking_data' => $booking_data));
         }
