@@ -4336,7 +4336,7 @@ class Booking extends CI_Controller {
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $str_reassign_disabled = "";
-        if(!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)
+        if(!empty($order_list->service_center_closed_date) && $order_list->internal_status != SF_BOOKING_CANCELLED_STATUS)
         {
             $str_reassign_disabled = "disabled";
         }
