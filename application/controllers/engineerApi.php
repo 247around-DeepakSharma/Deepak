@@ -4231,7 +4231,7 @@ function submitPreviousPartsConsumptionData(){
                 $courier_lost_spare = [];
                 $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
                 // fetch record of $consumed_status_id from table spare_consumption_status. 
-                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consumed_status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consume_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
                 // fetch record of $spare_id from table spare_parts_details. 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
 
