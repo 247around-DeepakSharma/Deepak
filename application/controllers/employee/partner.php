@@ -5360,6 +5360,22 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     
+    
+    /**
+     *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
+     *  @param : void
+     *  @return : void
+     */
+    function warehouse_inventory_stock(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
+        $this->load->view('partner/warehouse_inventory_stock_list');
+        $this->load->view('partner/partner_footer');
+    }
+    
+    
+    
      /**
      *  @desc : This function is used to show the current alternate spare parts stock of partner inventory in 247around warehouse.
      *  @param : void
