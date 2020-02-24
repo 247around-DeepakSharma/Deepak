@@ -5584,6 +5584,7 @@ class Partner extends CI_Controller {
             "Initial Booking Date",
             "Current Booking Date",
             "Booking Completion Date",
+            "Booking Final Closing Date",
             "Product",
             "Booking Request Type",
             "Part Warranty Status",
@@ -5629,10 +5630,11 @@ class Partner extends CI_Controller {
         foreach($data as $sparePartBookings){
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
-            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-m-Y",strtotime($sparePartBookings['create_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-m-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-m-Y",strtotime($sparePartBookings['booking_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-m-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-M-Y",strtotime($sparePartBookings['create_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-M-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-M-Y",strtotime($sparePartBookings['booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-M-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-M-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
             $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
