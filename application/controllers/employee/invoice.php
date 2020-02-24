@@ -1962,6 +1962,9 @@ exit();
 
         $data['vendor_partner_id'] = $vendor_partner_id;
         $data['vendor_partner'] = $vendor_partner;
+        if ($vendor_partner == 'vendor') {
+        $data['service_center_payment_hold_reason'] = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $vendor_partner_id, 'sf_payment_hold_reason.status' =>1));
+         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoices_details', $data);
     }
@@ -3223,6 +3226,14 @@ exit();
                 $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
                 $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                  
+                $payment_hold_reason = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $service_center_id, 'sf_payment_hold_reason.status' =>1));
+                if(!empty($payment_hold_reason)){
+                   $sc_details['payment_hold_reason'] = implode(',', array_map(function($el){ return $el['payment_hold_reason']; }, $payment_hold_reason)); 
+                }
+                else{
+                   $sc_details['payment_hold_reason'] = ''; 
+                }
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3420,6 +3431,7 @@ exit();
         $sc_details['active'] = "Active";
         $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
+        $sc_details['payment_hold_reason'] = "Payment Hold Reason";
 
         return $sc_details;
     }
@@ -6036,4 +6048,82 @@ exit();
             echo false;
         }
     }
+
+    
+    /**
+     * @Desc: This function is to show form for service center payment hold reason
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+    */
+	function sf_payment_hold_reason() {
+        $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/sf_payment_hold_reason', $data);
+    }
+
+    /**
+     * @Desc: This function is to show list of service center payment hold reason (ajax request)
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_list() {
+        $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
+        $data['payment_hold_reason_list'] = $this->invoices_model->payment_hold_reason_list();
+        $this->load->view('employee/sf_payment_hold_reason_list', $data);
+    }
+
+    /**
+     * @Desc: This function is to submit service center payment hold reason
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function process_submit_sf_payment_hold_reason() {
+        if (!empty($this->input->post('service_center'))) {
+            $data = array(
+                'service_center_id' => $this->input->post('service_center'),
+                'payment_hold_reason' => $this->input->post('reason'),
+                'agent_id' => $this->session->userdata('id'),
+            );
+            $this->form_validation->set_rules('service_center', 'Service Center ID', 'required');
+            $this->form_validation->set_rules('reason', 'Payment hold reason', "required");
+
+            ###############################validate all input fields######################################3
+            if ($this->form_validation->run() == FALSE) {
+                $array['status'] = 'error';
+                $array['msg'] = validation_errors();
+                ;
+                echo json_encode($array);
+            } else {
+
+                $this->invoices_model->insert_sf_payment_hold_reason($data);
+                $array['status'] = 'success';
+                $array['msg'] = 'Payment hold reason added successfully.';
+                echo json_encode($array);
+            }
+        }
+    }
+
+    /**
+     * @Desc: This function is to update status 0 to delete record
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_delete() {
+        if (!empty($this->input->post('idtodelete'))) {
+            $where['id'] = $this->input->post('idtodelete');
+            $Update['update_date'] = date('Y-m-d H:i:s');
+            $Update['status'] = 0;
+            $this->invoices_model->sf_payment_hold_reason_delete($Update, $where);
+        }
+    }
+
+
 }

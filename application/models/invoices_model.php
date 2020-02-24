@@ -3249,66 +3249,62 @@ class invoices_model extends CI_Model {
         $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
-    }
-    
-     /**
-     *  @desc : This function is used to update lost part status, defective part shipped status, and return reverse sale invoice id
-     *  @param : $sale_invoice_id
-     *  @return: Array()
-     */
-    function update_spare_parts_details($sale_invoice_id){
-        $this->db->select("reverse_sale_invoice_id, defective_part_shipped, consumed_part_status_id");
-        $this->db->from('spare_parts_details');
-        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
-        $query = $this->db->get();
-        $result =  $query->result_array();
-        $defective_part_shipped_status = $this->get_spare_part_status($result[0]['defective_part_shipped'], $result[0]['consumed_part_status_id']);
-        
-        $data = array("spare_lost" => 0, "status" => $defective_part_shipped_status);
-        $this->db->where(array('sell_invoice_id' => $sale_invoice_id));
-        $this->db->update('spare_parts_details', $data);
-        return $result[0]['reverse_sale_invoice_id'];
-    }
-    
-    
+    }   
+
     /**
-     *  @desc : This function is used to get status for spare part on basis of defective_part_shipped and consumed_part_status_id
-     *  @param : $defective_part_shipped, $consumed_part_status_id
-     *  @return: string
+     * @Desc: This function is to insert data in table
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
      */
-    function get_spare_part_status($defective_part_shipped, $consumed_part_status_id){
-        $status = "";
-        if($consumed_part_status_id == 1){
-            if(empty($defective_part_shipped)){
-                $status = "Defective part to be shipped by SF";
-            }
-            else{
-                $status = "Defective part shipped by SF";
-            }
+    function insert_sf_payment_hold_reason($data) {
+        if (is_array($data) && count($data) > 0) {
+            $this->db->insert('sf_payment_hold_reason', $data);
+            return true;
+        } else {
+            return false;
         }
-        else if($consumed_part_status_id == 2){
-            $status = "Courier lost";
-        }
-        else if($consumed_part_status_id == 3){
-            if(empty($defective_part_shipped)){
-                $status = "Damaged part to be shipped by SF";
-            }
-            else{
-                $status = "Damaged part shipped by SF";
-            }
-        }
-        else if($consumed_part_status_id == 4 || $consumed_part_status_id == 5){
-            if(empty($defective_part_shipped)){
-                $status = "OK part to be shipped by SF";
-            }
-            else{
-                $status = "OK part shipped by SF";
-            }
-        }
-        else{
-            //case - if $consumed_part_status_id is null
-            $status = "Defective part to be shipped by SF";
-        }
-        return $status;
     }
+
+    /**
+     * @Desc: This function is to show list of payment hold reson for service center
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function payment_hold_reason_list($where = array()) {
+        $this->db->select('sf_payment_hold_reason.*,service_centres.name');
+        $this->db->from('sf_payment_hold_reason');
+        $this->db->join('service_centres', 'sf_payment_hold_reason.service_center_id=service_centres.id');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $this->db->order_by("sf_payment_hold_reason.status", "desc");
+        $this->db->order_by("sf_payment_hold_reason.id", "desc");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    /**
+     * @Desc: This function is to update status(delete) of record
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_delete($Update, $where) {
+        if (is_array($where) && count($where) > 0 && is_array($Update) && count($Update) > 0) {
+            $this->db->set($Update);
+            $this->db->where($where);
+            $this->db->update('sf_payment_hold_reason');
+            echo $this->db->last_query();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 }

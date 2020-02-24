@@ -1960,3 +1960,24 @@ ALTER TABLE accessories_product_description Change created_by agent_id int(10);
 ALTER TABLE accessories_product_description Change appliance service_id int(10);
 ALTER TABLE accessories_product_description Change created_date create_date timestamp NOT NULL DEFAULT current_timestamp();
 ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NULL AFTER create_date;
+
+
+
+ -- ghanshyam 24-02-2020----------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_center_id` int(11) DEFAULT NULL,
+  `payment_hold_reason` text NOT NULL,
+  `agent_id` int(10) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+  
+ALTER TABLE `sf_payment_hold_reason`
+  ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
+
+---------------------------------------------
+
