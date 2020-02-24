@@ -3049,7 +3049,11 @@ class Inventory extends CI_Controller {
             $this->load->view('partner/partner_footer');
         }
     }
-
+    
+    /** @desc: This function is used to get the inventory list with stock details.
+     * @param: void
+     * @return void
+     */
     function get_inventory_stocks_details() {
         $post = $this->get_post_data();
         if (($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))) {
@@ -3064,7 +3068,6 @@ class Inventory extends CI_Controller {
             }
             if ($this->input->post('sender_entity_id') && $this->input->post('sender_entity_type')) {
                 $post['where']['inventory_master_list.entity_id'] = trim($this->input->post('sender_entity_id'));
-                $post['where']['inventory_master_list.entity_type'] = trim($this->input->post('sender_entity_type'));
                 $post['where']['inventory_master_list.entity_type'] = trim($this->input->post('sender_entity_type'));
             }
             if ($this->input->post('is_show_all')) {
@@ -3159,6 +3162,208 @@ class Inventory extends CI_Controller {
         }
         return $res;
     }
+    
+     
+     /** 
+     * @desc: This function is used to search inventory stock on warehouse using part number.
+     * @param: void
+     * @return:Json
+     */
+    function search_inventory_stock_available_warehouse() {
+        
+        $post = $this->get_post_data();
+        if (($this->input->post('sender_entity_id') && $this->input->post('part_number'))) {
+            $post[''] = array();
+            $post['column_order'] = array();
+            $post['column_search'] = array('part_name', 'part_number', 'type', 'services.services');
+            $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
+
+            if ($this->input->post('sender_entity_id') && $this->input->post('sender_entity_type')) {
+                $post['where']['inventory_master_list.entity_id'] = trim($this->input->post('sender_entity_id'));
+                $post['where']['inventory_master_list.entity_type'] = trim($this->input->post('sender_entity_type'));
+            }
+            
+            if ( !empty($this->input->post('part_number'))) {
+                $post['where']['inventory_master_list.part_number'] = trim($this->input->post('part_number'));
+            }
+            
+            if ($this->input->post('stock_is')) {
+                unset($post['where']['inventory_stocks.stock <> 0']);
+            }
+            
+            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,service_centres.company_name as wh_name, service_centres.is_micro_wh";
+
+            $list = $this->inventory_model->get_inventory_stock_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            $rowSums = array(
+                "colCount" => 0,
+                "colData" => array(
+                    0 => 'Total',
+                    7 => 0, //stock total occurs in col 7 in datatable
+                    11 => 0.00, //total occurs in col 11 in datatable
+                    12 => 0.00  //customer total in col 12
+                )
+            );
+            foreach ($list as $inventory_list) {
+                $no++;
+                $row = $this->get_inventory_warehouse_stock_details_table($inventory_list, $no);
+                $data[] = $row;
+
+                $tSum = $this->get_inventory_warehouse_stock_total($inventory_list);
+                $rowSums['colData'][7] += $tSum['stocks'];
+                $rowSums['colData'][11] += $tSum['total'];
+                $rowSums['colData'][12] += $tSum['customerTotal'];
+                $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
+            }
+            if (count($data) > 0) {
+                $data[] = $this->draw_table_warehouse_footer($rowSums);
+            }
+            $post['length'] = -1;
+            $countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
+
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_inventory_stocks($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_inventory_stocks($post),
+                'stock' => $countlist[0]->stock,
+                "data" => $data,
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                'stock' => 0,
+                "data" => array(),
+            );
+        }
+        echo json_encode($output);
+    }
+
+    /** 
+     * @desc: This function is used to draw the footer of table.
+     * @param: rowData
+     * @return: Array
+     */
+    private function draw_table_warehouse_footer($rowData) {
+        $res = array();
+        for ($i = 0; $i < $rowData['colCount']; $i++) {
+            $res[$i] = '';
+            if (isset($rowData['colData'])) {
+                if (isset($rowData['colData'][$i])) {
+                    $res[$i] = (is_float($rowData['colData'][$i])) ? number_format($rowData['colData'][$i], 2) : $rowData['colData'][$i];
+                }
+            }
+        }
+        return $res;
+    }
+    
+    /** 
+     * @desc: This function is used to create table body to table.
+     * @param: Array
+     * @return: Array
+     */
+    
+    private function get_inventory_warehouse_stock_total($inventory) {
+        $res = array();
+        $res['stocks'] = (isset($inventory->stock)) ? $inventory->stock : 0;
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+            $repair_oow_around_percentage_vendor = $inventory->oow_around_margin / 100;
+            $res['total'] = (float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory->gst_rate / 100)));
+        } else {
+            $res['total'] = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+        }
+        if ($this->session->userdata('userType') == 'service_center') {
+            $repair_oow_around_percentage_vendor1 = $inventory->oow_vendor_margin / 100;
+            $totalpriceforsf = number_format((float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory->gst_rate / 100))), 2, '.', '');
+            $res['customerTotal'] = number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
+        } else {
+            $totalpricepartner = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+            $repair_oow_around_percentage_vendor2 = $inventory->oow_vendor_margin + $inventory->oow_around_margin;
+            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
+            $res['customerTotal'] = (float) ($totpartner);
+        }
+        return $res;
+    }
+    
+    /** 
+     * @desc: This function is used to create table body to table.
+     * @param: Array
+     * @return: Array
+     */
+    
+    private function get_inventory_warehouse_stock_details_table($inventory_list, $sn) {
+        $row = array();
+
+        $row[] = $sn;
+        
+        if($inventory_list->is_micro_wh == 1){
+          $row[] =  $inventory_list->wh_name."(Micro-Warehouse)" ;  
+        }else{
+           $row[] =  $inventory_list->wh_name ; 
+        }
+        $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
+        $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
+        $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
+        $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
+        $row[] = $inventory_list->description;
+        $row[] = $inventory_list->stock;
+        $row[] = $inventory_list->pending_request_count;
+
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
+        if ($inventory_list->oow_around_margin > 0) {
+            $repair_oow_around_percentage = $inventory_list->oow_around_margin / 100;
+        }
+
+        $repair_oow_around_percentage_vendor = 0;
+        $sfbaseprice = 0;
+        $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
+
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
+        } else {
+
+            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
+        }
+
+        $row[] = '<span id="gst_rate_' . $inventory_list->inventory_id . '">' . $inventory_list->gst_rate . '</span>';
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+
+            $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
+
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+        } else {
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+        }
+
+        if ($this->session->userdata('userType') == 'service_center') {
+
+            $repair_oow_around_percentage_vendor1 = $inventory_list->oow_vendor_margin / 100;
+
+            $totalpriceforsf = number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '');
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '') . "</span>";
+        } else {
+
+            $totalpricepartner = number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '');
+            $repair_oow_around_percentage_vendor2 = $inventory_list->oow_vendor_margin + $inventory_list->oow_around_margin;
+            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
+
+            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($totpartner), 2, '.', '') . "</span>";
+        }
+
+        return $row;
+    }
+    
+    
 
     function inventory_stock_list() {
         $this->load->view('employee/header');
@@ -6580,6 +6785,17 @@ class Inventory extends CI_Controller {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wh_inventory_stock_list', $data);
+    }
+      
+     /*
+     *  @desc : This function is used to display search warehouse stock using part number 
+     *  @param : void
+     *  @return : void
+     */
+    function search_inventory_stock_by_part_number_on_wh() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/wareouse_inventory_stock_list');
     }
 
     /**
