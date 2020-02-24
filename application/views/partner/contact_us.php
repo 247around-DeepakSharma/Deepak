@@ -168,19 +168,17 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>247around Invoices Related</h2>
+                   <h2>CRM Training & Invoice Helpline Number</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
                     <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
-                        <div class="well profile_view" style="width:100%!important;">
-                            <div class="left col-xs-12">
-                                <h2><b>Mr. Sonu Yadav</b></h2>
-                                <p><strong>About: </strong> Accountant </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fa fa-phone"></i> Phone: 9717165247</li>
-                                    <li><i class="fa fa-envelope"></i> Email: sonuy@247around.com </li>
-                                </ul>
+                        <div class="well profile_view" style="width:100%!important;  height: 120px;">
+                            <div class="left col-xs-12">                                
+                                    <ul class="list-unstyled">
+                                    <li><i class="fa fa-phone"></i> Phone: 7428532447</li>
+                                    <li><i class="fa fa-phone"></i> Phone: 9650702247</li>
+                                 </ul>
                             </div>
                         </div>
                     </div>
