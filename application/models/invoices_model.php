@@ -3268,5 +3268,60 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
-   
+    
+    /**
+     * @Desc: This function is to insert data in table
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function insert_sf_payment_hold_reason($data) {
+        if (is_array($data) && count($data) > 0) {
+            $this->db->insert('sf_payment_hold_reason', $data);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @Desc: This function is to show list of payment hold reson for service center
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function payment_hold_reason_list($where = array()) {
+        $this->db->select('sf_payment_hold_reason.*,service_centres.name');
+        $this->db->from('sf_payment_hold_reason');
+        $this->db->join('service_centres', 'sf_payment_hold_reason.service_center_id=service_centres.id');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $this->db->order_by("sf_payment_hold_reason.status", "desc");
+        $this->db->order_by("sf_payment_hold_reason.id", "desc");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    /**
+     * @Desc: This function is to update status(delete) of record
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_delete($Update, $where) {
+        if (is_array($where) && count($where) > 0 && is_array($Update) && count($Update) > 0) {
+            $this->db->set($Update);
+            $this->db->where($where);
+            $this->db->update('sf_payment_hold_reason');
+            echo $this->db->last_query();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
