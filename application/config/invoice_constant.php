@@ -21,6 +21,7 @@ define('GST_DEBIT_NOTE', 'GST Debit Note');
 define('MSL_DEFECTIVE_RETURN', 'MSL Defective Return');
 define('MSL_NEW_PART_RETURN', 'MSL New Part Return');
 define('OOW_NEW_PART_RETURN', 'OOW New Part Return');
+define('SPARE_LOST_PART_RETURN', 'Spare Lost Part Return');
 define('OUT_OF_WARRANTY', 'Out-of-Warranty');
 define('IN_WARRANTY', 'In-Warranty');
 define('CUSTOMER_PAYMENT', 'Customer Payment');

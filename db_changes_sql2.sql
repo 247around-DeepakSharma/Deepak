@@ -1963,6 +1963,7 @@ ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NUL
 
 
 
+
  -- ghanshyam 24-02-2020----------------------------------------
 
 CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
@@ -1980,4 +1981,8 @@ ALTER TABLE `sf_payment_hold_reason`
   ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
 
 ---------------------------------------------
+
+
+--Ankit Bhatt 2020-02-20
+update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
 
