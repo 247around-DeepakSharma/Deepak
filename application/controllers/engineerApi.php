@@ -45,6 +45,7 @@ class engineerApi extends CI_Controller {
         $this->load->library('validate_serial_no');
         $this->load->library('warranty_utilities');
         $this->load->library('booking_creation_lib');
+        $this->load->library('invoice_lib');
     }
 
     /**
@@ -3564,7 +3565,7 @@ class engineerApi extends CI_Controller {
             if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
             }else{
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);    /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
             }
 
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
@@ -4193,16 +4194,7 @@ function submitPreviousPartsConsumptionData(){
         if(!empty($spares_data)){
             $updated = FALSE;
             foreach ($spares_data as $spare){
-
-                $data_update =array(
-                    'consumed_part_status_id'=>$spare['consumed_spare_status_id'], /// Key Acc to umesh so that he has not change format of data sending //
-                    'consumption_remarks'=>$spare['remarks']
-                );
-                /// Key Acc to umesh so that he has not change format of data sending //
-                $where = array(
-                   'id'=>$spare['spare_id']
-                );
-                $affected_row = $this->service_centers_model->update_spare_parts($where, $data_update);
+                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $remark,$spare['spare_id']); /// updating consumption 
                 if($affected_row){
                     $updated = TRUE;
                 }else{
@@ -4220,6 +4212,68 @@ function submitPreviousPartsConsumptionData(){
         
 
 }
+
+
+
+
+   /**
+     * Update consumption at the time of spare part request.
+     * @param type $post
+     * @author Abhishek Awasthi
+     */
+    function update_part_consumption($consume_id, $remark,$spare_id) {
+        if(!empty($consume_id)) { 
+          //  foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
+                $update_data = [];
+                $courier_lost_spare = [];
+                $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
+                // fetch record of $consumed_status_id from table spare_consumption_status. 
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consumed_status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                // fetch record of $spare_id from table spare_parts_details. 
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+
+               $service_center_id = $spare_part_detail['service_center_id'];
+               
+                // set Ok part return in case of wrong & damage/broken part.
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
+                    $update_data['status'] = OK_PART_TO_BE_SHIPPED;
+                    $update_data['defective_part_required'] = 1;
+                }
+                // in case of courier lost .
+                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                    $courier_lost_spare[] = $spare_part_detail;
+                    $update_data['status'] = COURIER_LOST;
+                }
+                // set defective part return for part consumed.
+                if($consumption_status_tag == PART_CONSUMED_TAG) {
+                   $update_data['status'] = _247AROUND_COMPLETED;
+                    if($spare_part_detail['defective_part_required'] == 1) {
+                        $update_data['status'] = DEFECTIVE_PARTS_PENDING;
+                    } 
+                }
+                // set remarks if remarks not empty.
+                if(!empty($remark)) {
+                    $update_data['spare_parts_details.consumption_remarks'] = $remark;
+               }
+               // update spare parts details.
+                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+               
+               // generate challan.
+               if (!empty($service_center_id)) 
+                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                    $this->invoice_lib->generate_challan_file($spare_id, $service_center_id);
+                }
+         //  }
+           // send mail in case of courier lost.
+           if (!empty($courier_lost_spare)) {
+                $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 
