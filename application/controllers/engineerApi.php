@@ -3568,7 +3568,11 @@ class engineerApi extends CI_Controller {
             if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
             }else{
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);    /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
+            // $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'(consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+/*  New  select with where clause */
+             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+
+             /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
             }
 
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
