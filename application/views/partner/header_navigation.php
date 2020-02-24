@@ -174,6 +174,10 @@
             ul.bar_tabs{
                 background: transparent;
             }
+            #sidebar-menu .menu_section .nav.side-menu .nav.child_menu{
+                overflow-y: auto;
+                max-height: 200px;
+            }
             @media (max-width: 768px) {
                 .navbar-fixed-top {
                   position: static;
