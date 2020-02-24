@@ -153,7 +153,7 @@
                                     ?>.
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control" value= "<?php echo $booking_id; ?>" name="booking_id" placeholder="Please Enter Booking Id Here.." required="" >
+                                    <input type="text" class="form-control" value= "<?php echo $booking_id; ?>" name="booking_id" placeholder="Please Enter Booking Id Here.." required="" readonly>
                                 </td>
                                 <td>
                                     <select class="form-control" id="service_center" name="service" required="">
