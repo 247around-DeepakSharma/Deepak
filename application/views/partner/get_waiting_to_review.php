@@ -141,7 +141,7 @@
                 alert(data);
                 $('.modal').modal('hide') // closes all active pop ups.
                 if($("button_reject_" +bookingID).length != 0) {
-                $("#button_reject_"+bookingID).prop('disabled','true'); 
+                $("#button_reject_"+bookingID).prop('disabled','true');
                 }
                 document.getElementById("row_"+bookingID).style.background = "rgb(255, 227, 147)";
             });
