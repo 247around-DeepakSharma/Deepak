@@ -462,11 +462,12 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "employee.full_name,entity_login_table.agent_name,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh,spare_parts_details.spare_approval_date,spare_parts_details.approval_entity_type, status, inventory_master_list.part_number ";
-        if($post['approved']){
-        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_request', NULL, NULL, NULL);
-
-        }else{
-            $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,'age_of_request', NULL, NULL, NULL);
+        if (isset($post['approved'])) {
+            $post['approved'] = 1;
+            $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
+        } else {
+             $post['approved'] = 0;
+            $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
         }
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
@@ -1537,7 +1538,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $part_status_text;
         /* Approval Date and agent name */
         if($approved){
-        $row[] = (empty($spare_list->spare_approval_date)) ? 'NA' : date_format(date_create($spare_list->spare_approval_date),'d-m-Y');
+        $row[] = (empty($spare_list->spare_approval_date) || $spare_list->spare_approval_date=='0000-00-00') ? 'NA' : date_format(date_create($spare_list->spare_approval_date),'d-m-Y');
         if($spare_list->approval_entity_type == _247AROUND_EMPLOYEE_STRING){
             $row[] = (empty($spare_list->full_name)) ? 'NA' : $spare_list->full_name;
         }else{
