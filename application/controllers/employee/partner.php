@@ -7330,7 +7330,7 @@ class Partner extends CI_Controller {
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
                                       <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
                                       <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
-                 $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                 $tempArray[] = '<button style="min-width: 59px;" id="button_reject_'.$row['booking_id'].'" type="button" class="btn btn-primary btn-sm open-adminremarks" 
                                                                                data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
                 $finalArray[] = $tempArray;
              }
