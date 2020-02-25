@@ -86,15 +86,15 @@
                             <div class="row">
                                 <div class="form-inline">
                                     <div class="form-group col-md-2">
+                                        <select class="form-control" id="partner_id">
+                                            <option value="" disabled="" selected="">Select Partner</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
                                         <select class="form-control" id="stock_is">
                                             <option value="" disabled="" selected="">Select Stock Status</option>
                                             <option value="1">All  Stocks </option>
                                             <option value="0">Available Stocks </option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-2">
-                                        <select class="form-control" id="partner_id">
-                                            <option value="" disabled="" selected="">Select Partner</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-4">
