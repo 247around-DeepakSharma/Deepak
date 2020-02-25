@@ -351,8 +351,8 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
-/*  get Agent id for approval spare */
-        if($post['approval_date_and_id']){
+/*  get Agent id for approval spare  check for isset*/
+        if(isset($post['approval_date_and_id'])){
          $this->db->join('employee','employee.id = spare_parts_details.approval_agent_id', "left");
          $this->db->join('entity_login_table','entity_login_table.agent_id = spare_parts_details.approval_agent_id', "left");
         }
