@@ -2752,7 +2752,8 @@ class engineerApi extends CI_Controller {
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL));
+            /*  This is to get consumtption required or not */        
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL));
 
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];

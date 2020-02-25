@@ -1956,3 +1956,6 @@ CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
   
 ALTER TABLE `sf_payment_hold_reason`
   ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
+
+-- Kajal 25-02-2020
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
