@@ -177,11 +177,20 @@ class User_invoice extends CI_Controller {
                     if(file_exists(TMP_FOLDER.$response['meta']['invoice_id'] . '.xlsx')){
                         unlink(TMP_FOLDER.$response['meta']['invoice_id']. '.xlsx');
                     }
+                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
+                        unlink(TMP_FOLDER.$convert['copy_file']);
+                    }
+                    if(file_exists(TMP_FOLDER . 'triplicate_' . $response['meta']['invoice_id'] . '.xlsx')){
+                        unlink(TMP_FOLDER . 'triplicate_' . $response['meta']['invoice_id'] . '.xlsx');
+                    }
                     if(file_exists(TMP_FOLDER.$convert['triplicate_file'])){
                         unlink(TMP_FOLDER.$convert['triplicate_file']);
                     }
-                    if(file_exists(TMP_FOLDER.$convert['copy_file'])){
-                        unlink(TMP_FOLDER.$convert['copy_file']);
+                    if(file_exists(TMP_FOLDER . 'copy_' . $response['meta']['invoice_id'] . '.xlsx')){
+                        unlink(TMP_FOLDER . 'copy_' . $response['meta']['invoice_id'] . '.xlsx');
+                    }
+                    if(file_exists(TMP_FOLDER.$convert['main_pdf_file_name'])){
+                        unlink(TMP_FOLDER.$convert['main_pdf_file_name']);
                     }
                     echo json_encode(array(
                         'status' => true,

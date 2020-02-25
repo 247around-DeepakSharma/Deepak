@@ -260,6 +260,11 @@ class Spare_parts extends CI_Controller {
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
             'users.name', 'users.phone_number', 'defective_part_shipped', 'booking_details.request_type', 'remarks_defective_part_by_sf', 'remarks_defective_part_by_partner');
         
+        if(!empty($post['where']) && !empty($post['where']['status'])) {
+            unset($post['where']['status']);
+            $post['where']['status in ("'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'", "'.OK_PARTS_REJECTED_BY_WAREHOUSE.'")'] = NULL;
+        }
+        
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();

@@ -210,7 +210,8 @@
                 <div class="col-md-6">
                     <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="advance_type" value = "<?php echo BUYBACKTYPE;?>">   Buyback &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="advance_type" value = "<?php echo MICRO_WAREHOUSE_CHARGES_TYPE;?>" >    Micro Warehouse &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);" name="advance_type" value = "<?php echo SECURITY; ?>">   Security &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);" name="advance_type" value = "<?php echo SECURITY; ?>">   Advance Security &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="radio"  onclick="partner_vendor1(<?php echo $id; ?>);" name="advance_type" value = "<?php echo FNF; ?>">   FNF Security &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
                 <span id="errmsg1"></span>
             </div>

@@ -407,7 +407,7 @@ class Invoice extends CI_Controller {
                     $where['is_cp'] = 1;
                 } else if($type == MICRO_WAREHOUSE_CHARGES_TYPE){
                      $where['is_micro_wh'] = 1;
-                } else if($type ==SECURITY){
+                } else if(($type ==SECURITY) || ($type ==FNF)){
                      $where['is_sf'] = 1;
                 }
             }
@@ -1960,6 +1960,9 @@ exit();
 
         $data['vendor_partner_id'] = $vendor_partner_id;
         $data['vendor_partner'] = $vendor_partner;
+        if ($vendor_partner == 'vendor') {
+        $data['service_center_payment_hold_reason'] = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $vendor_partner_id, 'sf_payment_hold_reason.status' =>1));
+         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/invoices_details', $data);
     }
@@ -3221,6 +3224,14 @@ exit();
                 $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
                 $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
+                  
+                $payment_hold_reason = $this->invoices_model->payment_hold_reason_list(array('sf_payment_hold_reason.service_center_id' => $service_center_id, 'sf_payment_hold_reason.status' =>1));
+                if(!empty($payment_hold_reason)){
+                   $sc_details['payment_hold_reason'] = implode(',', array_map(function($el){ return $el['payment_hold_reason']; }, $payment_hold_reason)); 
+                }
+                else{
+                   $sc_details['payment_hold_reason'] = ''; 
+                }
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3331,7 +3342,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
@@ -3351,7 +3362,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN, FNF); // To be check whether FNF comes here or not
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -3418,6 +3429,7 @@ exit();
         $sc_details['active'] = "Active";
         $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
+        $sc_details['payment_hold_reason'] = "Payment Hold Reason";
 
         return $sc_details;
     }
@@ -3737,6 +3749,13 @@ exit();
                         $data['sub_category'] = SECURITY;
                         $data['accounting'] = 0;
                         break;
+                    case FNF:
+                        $data['type'] = VENDOR_VOUCHER;
+                        $data['vertical'] =SERVICE;
+                        $data['category'] = ADVANCE;
+                        $data['sub_category'] = FNF;
+                        $data['accounting'] = 0;
+                        break;
                     default :
                         $data['type'] = VENDOR_VOUCHER;
                         $data['vertical'] =SERVICE;
@@ -3761,7 +3780,7 @@ exit();
                     $data['amount_collected_paid'] = $amount_collected_paid;
                     $data['vertical'] =SERVICE;
                     $data['category'] = ADVANCE;
-                    $data['sub_category'] = CASH;
+                    $data['sub_category'] = (($advance_type == FNF) ? FNF : CASH);//CASH;
                     $data['accounting'] = 0;
                 }
             } else {
@@ -5906,7 +5925,7 @@ exit();
         $i = 0;
         $post['where'] = $where;
 
-        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price";
+        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price, spd.id";
         $list = $this->invoices_model->get_spare_sale_list($post, $select);
         $data = array();
         $no = $post['start'];
@@ -5941,7 +5960,7 @@ exit();
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
         $row_number = $no - 1;
-        $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->sell_invoice_id."\",".$row_number.")'>Reverse Sale Invoice</button>";
+        $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;
     }
@@ -5954,6 +5973,7 @@ exit();
      */
     public function reverse_sale_for_part_lost($spare_id) {
         try {
+            log_message("info", __METHOD__." Spare Id: ".$spare_id);
             //check if spare_id was sent
             if (!empty($spare_id)) {
                 //getting spare part details and applying conditions
@@ -5971,22 +5991,23 @@ exit();
                     //checking if reverse sale invoice is already created or not and request for valid spare part is made  
                     foreach ($spare_lost_data as $value) {
                         if (!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])) {
-                            $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id'], 'spare_id' => $spare_id), $select = "*");
-                            $invoice_details[0]['booking_id'] = $value['booking_id'];
-
+                            $invoice_details = $this->invoices_model->get_unsettle_inventory_invoice("vendor_partner_invoices.vendor_partner_id, invoice_details.qty as parts_count, invoice_details.taxable_value as parts_cost, invoice_details.cgst_tax_rate, invoice_details.sgst_tax_rate, invoice_details.igst_tax_rate, invoice_details.invoice_id", array('invoice_details.invoice_id' => $value['sell_invoice_id'], 'invoice_details.spare_id' => $spare_id));
                             if (!empty($invoice_details)) {
                                 //invoice details found
+                                $invoice_details[0]['booking_id'] = $value['booking_id'];
                                 $reverse_sale_invoice_id = $this->generate_reverse_sale_invoice($invoice_details, $value, SPARE_LOST_PART_RETURN);
-                                if ($reverse_sale_invoice_id) {
+                                if (!empty($reverse_sale_invoice_id)) {
                                     //reverse sale invoice created successfully
                                     $spare_status = $this->get_spare_part_status($spare_lost_data[0]['defective_part_shipped'], $spare_lost_data[0]['consumed_part_status_id']);
-                                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status, 'spare_lost' => 0));
+                                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array('spare_parts_details.status' => $spare_status, 'spare_parts_details.spare_lost' => 0));
                                     //returning reverse_sale_invoice id so that we can display reverse sale invoice pdf link to user
-                                    echo "<a href='" . 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" . $reverse_sale_invoice_id . ".pdf' target='_blank' title='Click to view generated reverse sale invoice'>" . $reverse_invoice_id_details . "</a>";
+                                    echo $reverse_sale_invoice_id;
                                 } else {
                                     //failed to create reverse sale invoice
                                     echo false;
                                 }
+                            }else{
+                                echo false;
                             }
                         }
                     }
@@ -6009,9 +6030,10 @@ exit();
      *  @return: string
      */
     function get_spare_part_status($defective_part_shipped, $consumed_part_status_id){
+        log_message("info", __METHOD__." Defective Part Shipped: ".$defective_part_shipped." Consumed Part Status Id: ".$consumed_part_status_id);
         $status = "";
         
-        $c = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['id' => $consumed_part_status_id], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $c = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag, is_consumed',['id' => $consumed_part_status_id], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         if(!empty($c)){
             If($c[0]['is_consumed'] == 1){
                 // For defective Part
@@ -6031,6 +6053,81 @@ exit();
             }
         }
         return $status;
+    }
+    
+    /**
+     * @Desc: This function is to show form for service center payment hold reason
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+    */
+	function sf_payment_hold_reason() {
+        $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/sf_payment_hold_reason', $data);
+    }
+
+    /**
+     * @Desc: This function is to show list of service center payment hold reason (ajax request)
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_list() {
+        $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
+        $data['payment_hold_reason_list'] = $this->invoices_model->payment_hold_reason_list();
+        $this->load->view('employee/sf_payment_hold_reason_list', $data);
+    }
+
+    /**
+     * @Desc: This function is to submit service center payment hold reason
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function process_submit_sf_payment_hold_reason() {
+        if (!empty($this->input->post('service_center'))) {
+            $data = array(
+                'service_center_id' => $this->input->post('service_center'),
+                'payment_hold_reason' => $this->input->post('reason'),
+                'agent_id' => $this->session->userdata('id'),
+            );
+            $this->form_validation->set_rules('service_center', 'Service Center ID', 'required');
+            $this->form_validation->set_rules('reason', 'Payment hold reason', "required");
+
+            ###############################validate all input fields######################################3
+            if ($this->form_validation->run() == FALSE) {
+                $array['status'] = 'error';
+                $array['msg'] = validation_errors();
+                ;
+                echo json_encode($array);
+            } else {
+
+                $this->invoices_model->insert_sf_payment_hold_reason($data);
+                $array['status'] = 'success';
+                $array['msg'] = 'Payment hold reason added successfully.';
+                echo json_encode($array);
+            }
+        }
+    }
+
+    /**
+     * @Desc: This function is to update status 0 to delete record
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_delete() {
+        if (!empty($this->input->post('idtodelete'))) {
+            $where['id'] = $this->input->post('idtodelete');
+            $Update['update_date'] = date('Y-m-d H:i:s');
+            $Update['status'] = 0;
+            $this->invoices_model->sf_payment_hold_reason_delete($Update, $where);
+        }
     }
 
 }

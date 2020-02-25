@@ -45,6 +45,7 @@ class engineerApi extends CI_Controller {
         $this->load->library('validate_serial_no');
         $this->load->library('warranty_utilities');
         $this->load->library('booking_creation_lib');
+        $this->load->library('invoice_lib');
     }
 
     /**
@@ -1363,7 +1364,7 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-       //     $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  As of now not sending whatsapp msg
+            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  // As of now not sending whatsapp msg
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1437,7 +1438,7 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is : ".$whatsapp_array['amount_pay']."INR. Thank You for choosing 247Around.";
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
@@ -2226,15 +2227,15 @@ class engineerApi extends CI_Controller {
         $other_docs = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["booking_id"])) {
-            $documets = $this->service_centers_model->get_collateral_for_service_center_bookings($requestData["booking_id"]);
+            $documets = $this->service_centers_model->get_collateral_for_service_center_bookingsAPI($requestData["booking_id"]); /// Makeing seperate function for API
             $i = 0;
-            foreach ($documets as $key => $value) {
+            foreach ($documets[0] as $key => $value) { /// Undefined index solve
                 if ($value['document_type'] == "pdf") {
                     $pdf['document_type'] = $value['document_type'];
                     $pdf['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $pdf['brand'] = $value['document_description'];
-                    $pdf['request_type'] = $value['document_description'];
+                    $pdf['brand'] = $value['brand'];
+                    $pdf['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $pdf['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
@@ -2245,8 +2246,8 @@ class engineerApi extends CI_Controller {
                     $video['document_type'] = $value['document_type'];
                     $video['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $video['brand'] = $value['document_description'];
-                    $video['request_type'] = $value['document_description'];
+                    $video['brand'] = $value['brand'];
+                    $video['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $video['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
@@ -2257,8 +2258,8 @@ class engineerApi extends CI_Controller {
                     $others['document_type'] = $value['document_type'];
                     $others['document_description'] = $value['document_description'];
                     /*  consition according to ENV set to engineer_config constant */
-                    $others['brand'] = $value['document_description'];
-                    $others['request_type'] = $value['document_description'];
+                    $others['brand'] = $value['brand'];
+                    $others['request_type'] = $value['request_type'];
                     if(ENV=="test"){
                     $others['file'] = COLLATERAL_S3_PATH_TEST . $value['file'];
                     }else{
@@ -3294,7 +3295,7 @@ class engineerApi extends CI_Controller {
                 }
             }
         }
-        return false;
+        //  return false;  no need to return
     }
 
     /*
@@ -3348,7 +3349,7 @@ class engineerApi extends CI_Controller {
                 $warranty_checker = true;
             } else {
                 $is_spare_requested = $this->is_spare_requested($booking_details);
-                if (!$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
+                if (!empty($is_spare_requested) && !$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
                     $edit_call_type = false;
                     $warranty_checker = false;
                     $warranty_status = false;
@@ -3564,8 +3565,13 @@ class engineerApi extends CI_Controller {
             if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
             }else{
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+            // $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'(consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+/*  New  select with where clause */
+             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+
+             /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
             }
+
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
@@ -4192,15 +4198,7 @@ function submitPreviousPartsConsumptionData(){
         if(!empty($spares_data)){
             $updated = FALSE;
             foreach ($spares_data as $spare){
-                $data_update =array(
-                    'consumed_part_status_id'=>$spare['consumed_spare_status_id'], /// Key Acc to umesh so that he has not change format of data sending //
-                    'consumption_remarks'=>$spare['remarks']
-                );
-                /// Key Acc to umesh so that he has not change format of data sending //
-                $where = array(
-                   'id'=>$spare['spare_id']
-                );
-                $affected_row = $this->service_centers_model->update_spare_parts($where, $data_update);
+                $affected_row = $this->update_part_consumption($spare['consumed_spare_status_id'], $spare['remarks'],$spare['spare_id']); /// updating consumption 
                 if($affected_row){
                     $updated = TRUE;
                 }else{
@@ -4210,14 +4208,76 @@ function submitPreviousPartsConsumptionData(){
             if($updated){
               $this->sendJsonResponse(array('0000', 'Spare Conumptions Updated !'));
             }else{
-              $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED,API_PREV_CONSUME_NOT_UPDATED_MSG));
+              $this->sendJsonResponse(array('0079','Some Spares were not updated. Try Again! After some time.'));
             }
         }else{
-        $this->sendJsonResponse(array(API_PREV_CONSUME_NOT_UPDATED, API_PREV_CONSUME_NOT_UPDATED_KEY_MISS_MSG));  // Managing Error msgs with Same error key ///
+        $this->sendJsonResponse(array('0079', 'Some Spares were not updated. Try Again! After some time.'));  // Managing Error msgs with Same error key ///
         }
         
 
 }
+
+
+
+
+   /**
+     * Update consumption at the time of spare part request.
+     * @param type $post
+     * @author Abhishek Awasthi
+     */
+    function update_part_consumption($consume_id, $remark,$spare_id) {
+        if(!empty($consume_id)) { 
+          //  foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
+                $update_data = [];
+                $courier_lost_spare = [];
+                $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
+                // fetch record of $consumed_status_id from table spare_consumption_status. 
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consume_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                // fetch record of $spare_id from table spare_parts_details. 
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+
+               $service_center_id = $spare_part_detail['service_center_id'];
+               
+                // set Ok part return in case of wrong & damage/broken part.
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG || $consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
+                    $update_data['status'] = OK_PART_TO_BE_SHIPPED;
+                    $update_data['defective_part_required'] = 1;
+                }
+                // in case of courier lost .
+                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                    $courier_lost_spare[] = $spare_part_detail;
+                    $update_data['status'] = COURIER_LOST;
+                }
+                // set defective part return for part consumed.
+                if($consumption_status_tag == PART_CONSUMED_TAG) {
+                   $update_data['status'] = _247AROUND_COMPLETED;
+                    if($spare_part_detail['defective_part_required'] == 1) {
+                        $update_data['status'] = DEFECTIVE_PARTS_PENDING;
+                    } 
+                }
+                // set remarks if remarks not empty.
+                if(!empty($remark)) {
+                    $update_data['spare_parts_details.consumption_remarks'] = $remark;
+               }
+               // update spare parts details.
+                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+               
+               // generate challan.
+               if (!empty($service_center_id)
+                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                    $this->invoice_lib->generate_challan_file($spare_id, $service_center_id);
+                }
+         //  }
+           // send mail in case of courier lost.
+           if (!empty($courier_lost_spare)) {
+                $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 

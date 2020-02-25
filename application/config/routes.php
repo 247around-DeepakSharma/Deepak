@@ -217,6 +217,7 @@ $route['partner/serviceability_list'] = 'employee/partner/get_serviceability_by_
 $route['partner/banktransaction'] = 'employee/partner/get_bank_transaction';
 $route['partner/download_sf_declaration/(:any)'] = 'employee/partner/download_sf_declaration/$1';
 $route['partner/inventory/inventory_list'] = 'employee/partner/inventory_stock_list';
+$route['partner/inventory/inventory_stocks_on_warhouse'] = 'employee/partner/warehouse_inventory_stock';
 $route['partner/inventory/alternate_parts_list'] = 'employee/partner/alternate_parts_list';
 $route['partner/inventory/alternate_inventory_list/(:any)'] = 'employee/partner/alternate_inventory_stock_list/$1/$2/$3';
 $route['partner/reports'] = 'employee/partner/get_reports';
@@ -304,5 +305,7 @@ $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engi
 $route['engineer/configurations'] = 'employee/engineer/configurations';
 $route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
 $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_plan_details/$1';
+
+$route['employee/invoice/reverse_sale_for_part_lost/(:any)'] = 'employee/invoice/reverse_sale_for_part_lost/$1';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

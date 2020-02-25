@@ -292,7 +292,7 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
                 $w = "";
@@ -724,7 +724,7 @@ class invoices_model extends CI_Model {
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
-                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'misc-images/",purchase_invoice_file) as purchase_invoice_file';
+                . 'CONCAT("' . S3_WEBSITE_URL . 'misc-images/",approval_file) as approval_file, CONCAT("' . S3_WEBSITE_URL . 'purchase-invoices/",purchase_invoice_file) as purchase_invoice_file';
 
         $misc = $this->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", $from_date, $to_date, "booking_details.partner_id", $partner_id, "partner_charge", _247AROUND_COMPLETED);
         $result['upcountry'] = array();
@@ -3214,6 +3214,7 @@ class invoices_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('spare_parts_details as spd');
         $this->db->join('service_centres as sc', 'spd.service_center_id = sc.id');
+        $this->db->join('invoice_details as id', 'spd.sell_invoice_id  = id.invoice_id ');
         $this->db->where('sell_invoice_id is NOT NULL', NULL, FALSE);
         $this->db->where('sell_price > 0', NULL, FALSE);
         $this->db->where('reverse_sale_invoice_id is NULL', NULL, FALSE);
@@ -3237,6 +3238,7 @@ class invoices_model extends CI_Model {
 
             $this->db->where($like, null, false);
         }
+        $this->db->group_by("spd.id");
 
         if (!empty($post['order'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
@@ -3266,5 +3268,60 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
-   
+    
+    /**
+     * @Desc: This function is to insert data in table
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function insert_sf_payment_hold_reason($data) {
+        if (is_array($data) && count($data) > 0) {
+            $this->db->insert('sf_payment_hold_reason', $data);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @Desc: This function is to show list of payment hold reson for service center
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function payment_hold_reason_list($where = array()) {
+        $this->db->select('sf_payment_hold_reason.*,service_centres.name');
+        $this->db->from('sf_payment_hold_reason');
+        $this->db->join('service_centres', 'sf_payment_hold_reason.service_center_id=service_centres.id');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $this->db->order_by("sf_payment_hold_reason.status", "desc");
+        $this->db->order_by("sf_payment_hold_reason.id", "desc");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    /**
+     * @Desc: This function is to update status(delete) of record
+     * @params: array(where sholud be an array)
+     * @return: array
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_payment_hold_reason_delete($Update, $where) {
+        if (is_array($where) && count($where) > 0 && is_array($Update) && count($Update) > 0) {
+            $this->db->set($Update);
+            $this->db->where($where);
+            $this->db->update('sf_payment_hold_reason');
+            echo $this->db->last_query();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

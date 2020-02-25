@@ -1,6 +1,6 @@
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+$str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:none;background:#eee;" : "";
 ?>
 <style>
     .col-md-3{
@@ -395,6 +395,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                             <p id="error_not_visible" style="color: red"></p>
                         </center>
                     </div>
+                    <?php if($is_partner_invoiced) { echo "<b><center><span class='text-danger'>".MSG_PARTNER_INVOICED.".</span></center></b>"; } ?>                                                                        
                 </div>
             </div>
         </div>
@@ -831,7 +832,9 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
         postData['is_repeat'] = '<?php echo $is_repeat;?>';
         postData['partner_type'] = '<?php echo $partner_type;?>';
         postData['contact'] = '<?php echo $booking_history[0]['booking_primary_contact_no']; ?>';
-        postData['str_disabled'] = '<?php echo $str_disabled; ?>';
+        postData['str_disabled'] = '<?php echo $is_spare_requested; ?>';
+        // flag to check if any line item is invoiced to partner ?
+        postData['is_partner_invoiced'] = '<?php echo $is_partner_invoiced; ?>';
         if( postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
            

@@ -162,7 +162,7 @@ define('PART_CANCELLED_STATUS_TAG', 'part_cancelled');
 define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 define('PART_NOT_RECEIVED_TAG', 'part_not_received');
 
-define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
+define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped By SF');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
 define('OK_PARTS_SHIPPED','Ok Part Shipped By SF');
@@ -174,3 +174,11 @@ define('COURIER_LOST_APPROVED_STATUS', 'Courier Lost Approved');
 define('PART_CONSUMED_STATUS_ID', '1');
 /* Alternate spare part Picked */
 define('ALTERNATE_PART_PICKED', 'Alternate Part Picked');
+// Ok Parts Received by Warehouse
+define('Ok_PARTS_RECEIVED_BY_WAREHOUSE','Ok Part Received By Warehouse');
+// Ok Parts Received by Partner
+define('Ok_PARTS_RECEIVED','Ok Part Received By Partner');
+// Ok Parts Rejected by Partner
+define('OK_PARTS_REJECTED','Ok Part Rejected By Partner');
+// Ok Parts Rejected by Warehouse
+define('OK_PARTS_REJECTED_BY_WAREHOUSE','Ok Part Rejected By Warehouse');

@@ -1,4 +1,5 @@
 <form id="change-consumption-form" method="post" action="#" enctype="multipart/form-data">
+    <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
     <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value=''>
     <div class="row form-group" style="padding: 10px;"> 
         <div class="col-md-2"> 
@@ -51,7 +52,7 @@
     </div>
     <div class="row form-group"> 
         <div class="col-md-12" style="text-align: center; padding: 5px;"> 
-        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption" value="Submit" class="btn btn-primary">
+            <input type="submit" name="change-consumption" id="received_button" class="btn btn-primary change-consumption" value="Submit">
         </div>
     </div>
 </form>
@@ -141,7 +142,8 @@
             }
             e.preventDefault();
             var formData = new FormData(this);
-
+            $("#loader_gif").css('display','block');
+            $("#received_button").attr('disabled', 'disabled');
             $.ajax({
                 type:'POST',
                 url: "<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
@@ -151,6 +153,8 @@
                 processData: false,
                 success:function(data){
                     alert(data);
+                    $("#loader_gif").css('display','none');
+                    $('#received_button').removeAttr("disabled");
                     $('#SpareConsumptionModal').modal('hide');
                     inventory_spare_table.ajax.reload();
                 },

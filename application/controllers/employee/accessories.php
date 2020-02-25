@@ -1,8 +1,4 @@
-<?php
-
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+<?php if (!defined('BASEPATH')) { exit('No direct script access allowed'); }
 
 class Accessories extends CI_Controller {
 
@@ -10,23 +6,15 @@ class Accessories extends CI_Controller {
      * load list modal and helpers
      */
     function __Construct() {
-        parent::__Construct();
-		 $this->load->model('accessories_model');
-        $this->load->model('user_model');
-        $this->load->model('employee_model');
-        $this->load->model('service_centers_model');
-        $this->load->model('booking_model');
-        $this->load->model('partner_model');
+         parent::__Construct();
+        $this->load->model('accessories_model');
         $this->load->model('vendor_model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
-        $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('miscelleneous');
-        $this->load->library('notify');
-        $this->load->library('booking_utilities');
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
@@ -40,103 +28,112 @@ class Accessories extends CI_Controller {
      * @author Ghanshyam
      * @date : 17-02-2020
     */
-	public function add_accessories()
-	{
-		
-		$data['services_detail']=$this->vendor_model->selectservice();
-		$data['hsn_code_detail']=$this->accessories_model->fetch_accessories_data('hsn_code_details');
-		$this->miscelleneous->load_nav_header();
-		$this->load->view('employee/add_accessories',$data);
-	}
-	
-	/**
+   public function add_accessories() {
+
+        $data['services_detail'] = $this->vendor_model->selectservice();
+        $data['hsn_code_detail'] = $this->accessories_model->fetch_table_data('hsn_code_details');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_accessories', $data);
+    }
+
+     /**
      * @Desc: This function is to submit add product form
      * @params: void
      * @return: NULL
      * @author Ghanshyam
      * @date : 17-02-2020
-    */
-	public function process_submit_add_product()
-	{
-		if(!empty($this->input->post('appliance_id')))
-		{
-			$data=array(
-			'appliance' =>		$this->input->post('appliance_id'),
-			'product_name' =>	$this->input->post('product_name'),
-			'description' =>	$this->input->post('description'),
-			'basic_charge' =>	$this->input->post('basic_charge'),
-			'hsn_code' =>		$this->input->post('hsn_code'),
-			'tax_rate' =>		$this->input->post('tax_rate'),
-			'created_by' =>		$this->session->userdata('id'),
-			);
-			
-			
-			$this->form_validation->set_rules('appliance_id', 'Appliance id', 'required');
-			$this->form_validation->set_rules('product_name', 'Product name', "required");
-			$this->form_validation->set_rules('description', 'Description', 'required');
-			$this->form_validation->set_rules('basic_charge', 'Basic charge', 'required|numeric');
-			$this->form_validation->set_rules('hsn_code', 'Hsn Code', 'required');
-			$this->form_validation->set_rules('tax_rate', 'Tax rate', 'required|numeric');
-			
-			###############################validate all input fields######################################3
-			if ($this->form_validation->run() == FALSE)
-			{
-				$array['status']='error';
-				$array['msg']=validation_errors();;
-				echo json_encode($array);
-			}
-			else
-			{
+     */
+     public function process_submit_add_product() {
+        if (!empty($this->input->post('appliance_id'))) {
+            $data = array(
+                'service_id' => $this->input->post('appliance_id'),
+                'product_name' => $this->input->post('product_name'),
+                'description' => $this->input->post('description'),
+                'basic_charge' => $this->input->post('basic_charge'),
+                'hsn_code' => $this->input->post('hsn_code'),
+                'tax_rate' => $this->input->post('tax_rate'),
+                'agent_id' => $this->session->userdata('id'),
+            );
 
-				$this->accessories_model->insert_product_data('accessories_product_description',$data);
 
-				$array['status']='success';
-				$array['msg']='Product added successfully.';
-				echo json_encode($array);
-			}
-		}
-	}
-	
-	/**
+            $this->form_validation->set_rules('appliance_id', 'Appliance id', 'required');
+            $this->form_validation->set_rules('product_name', 'Product name', "required");
+            $this->form_validation->set_rules('description', 'Description', 'required');
+            $this->form_validation->set_rules('basic_charge', 'Basic charge', 'required|numeric');
+            $this->form_validation->set_rules('hsn_code', 'Hsn Code', 'required');
+            $this->form_validation->set_rules('tax_rate', 'Tax rate', 'required|numeric');
+
+            //validate all input fields
+            if ($this->form_validation->run() == FALSE) {
+                $array['status'] = 'error';
+                $array['msg'] = validation_errors();
+                echo json_encode($array);
+            } else {
+                $product = $this->accessories_model->show_accessories_list(array('accessories_product_description.service_id' => $this->input->post('appliance_id'), 'accessories_product_description.product_name' => $this->input->post('product_name')));
+                if (count($product) > 0) {
+                    $status = $product[0]['status'];
+                    if ($status == 0) {
+                        $statusText = 'Inactive';
+                    } else {
+                        $statusText = 'Active';
+                    }
+                    $array['status'] = 'error';
+                    $array['msg'] = 'Product already added with  ' . $statusText . ' status.';
+                    echo json_encode($array);
+                } else {
+                    $this->accessories_model->insert_product_data('accessories_product_description', $data);
+                    $array['status'] = 'success';
+                    $array['msg'] = 'Product added successfully.';
+                    echo json_encode($array);
+                }
+            }
+        }
+    }
+
+    /**
      * @Desc: This function is to used to calculate tax based on hsn code
      * @params: void
      * @return: NULL
      * @author Ghanshyam
      * @date : 17-02-2020
-    */
-	function calculate_tax()
-    {
-        $hsncode=$this->input->post('hsncode');
-		if(!empty($hsncode))
-		{
-			$where=array('id'=>$hsncode);
-			$hsn_detail=$this->accessories_model->fetch_accessories_data('hsn_code_details',$where);
-			echo $hsn_detail[0]['gst_rate'];
-		}
+     */
+    function calculate_tax() {
+        $hsncode = $this->input->post('hsncode');
+        if (!empty($hsncode)) {
+            $where = array('hsn_code' => $hsncode);
+            $hsn_detail = $this->accessories_model->fetch_table_data('hsn_code_details', $where);
+            echo $hsn_detail[0]['gst_rate'];
+        }
     }
 
-	 function sf_accessories_invoice(){
-        $data['sf_list']=$this->vendor_model->viewvendor('',1);
-		$data['services_name']=$this->accessories_model->show_accessories_list();
-		$data['quantity_list']=range(1,30);
+    /**
+     * @Desc: This function is to used to show generate invoice view
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function sf_accessories_invoice() {
+        $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
+        $data['services_name'] = $this->accessories_model->show_accessories_list();
+        $data['quantity_list'] = range(1, 30);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_accessories_invoice', $data);
     }
 
-	/**
+    /**
      * @Desc: This function is to used to show product list
      * @params: void
      * @return: NULL
      * @author Ghanshyam
      * @date : 17-02-2020
-    */
-	function show_accessories_list(){
-		
-        $data['product_list']=$this->accessories_model->show_accessories_list();
+     */
+    function show_accessories_list() {
+        $data['product_list'] = $this->accessories_model->show_accessories_list();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_accessories_list', $data);
     }
-    
+
     /**
      * @desc: This method is used to generate SF accessories invoices.
      * This method is used to get data from Form.
@@ -250,6 +247,99 @@ class Accessories extends CI_Controller {
         else{
             $this->session->set_userdata(array('error' => "Select Service Center"));
             redirect(base_url()."employee/accessories/sf_accessories_invoice");
+        }
+    }
+    
+     /**
+     * @Desc: This function is to used update status of accessories (make product active inactive), and update existing accessories
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 17-02-2020
+     */
+    function update_accessories_status() {
+        if (!empty($this->input->post('idtodelete'))) {
+
+            $idtodelete = $this->input->post('idtodelete');
+            $status = $this->input->post('status');
+            $where = array('id' => $idtodelete);
+            $columnUpdate = array('status' => $status, 'update_date' => date('Y-m-d H:i:s'));
+            $this->accessories_model->update_accessories_data($columnUpdate, $where);
+        }
+    }
+    
+    /**
+     * @Desc: This function is to used to edit accessories view page
+     * @params: void
+     * @return: NULL
+     * @author Raman
+     * @date : 17-02-2020
+     */
+    public function edit_accessories($id = '') {
+        if (!empty($id)) {
+            $data['id'] = $id;
+            $data['services_detail'] = $this->vendor_model->selectservice();
+            $data['hsn_code_detail'] = $this->accessories_model->fetch_table_data('hsn_code_details');
+            $data['accessories_detail'] = $this->accessories_model->fetch_table_data('accessories_product_description', array('id' => $id));
+            if (!empty($data['accessories_detail'])) {
+                $this->miscelleneous->load_nav_header();
+                $this->load->view('employee/edit_accessories', $data);
+            } else {
+                redirect(base_url() . "employee/accessories/show_accessories_list");
+            }
+        } else {
+            redirect(base_url() . "employee/accessories/show_accessories_list");
+        }
+    }
+
+    public function process_submit_edit_product() {
+        if (!empty($this->input->post('appliance_id'))) {
+            $data = array(
+                'service_id' => $this->input->post('appliance_id'),
+                'product_name' => $this->input->post('product_name'),
+                'description' => $this->input->post('description'),
+                'basic_charge' => $this->input->post('basic_charge'),
+                'hsn_code' => $this->input->post('hsn_code'),
+                'tax_rate' => $this->input->post('tax_rate'),
+                'update_date' => date('Y-m-d H:i:s')
+            );
+
+            $idtoedit = $this->input->post('idtoedit');
+
+
+            $this->form_validation->set_rules('appliance_id', 'Appliance id', 'required');
+            $this->form_validation->set_rules('product_name', 'Product name', "required");
+            $this->form_validation->set_rules('description', 'Description', 'required');
+            $this->form_validation->set_rules('basic_charge', 'Basic charge', 'required|numeric');
+            $this->form_validation->set_rules('hsn_code', 'Hsn Code', 'required');
+            $this->form_validation->set_rules('tax_rate', 'Tax rate', 'required|numeric');
+
+            //validate all input fields
+            if ($this->form_validation->run() == FALSE) {
+                $array['status'] = 'error';
+                $array['msg'] = validation_errors();
+                ;
+                echo json_encode($array);
+            } else {
+                $product = $this->accessories_model->show_accessories_list(array('accessories_product_description.service_id' => $this->input->post('appliance_id'), 'accessories_product_description.product_name' => $this->input->post('product_name')), $this->input->post('idtoedit'));
+                if (count($product) > 0) {
+                    $status = $product[0]['status'];
+                    if ($status == 0) {
+                        $statusText = 'Inactive';
+                    } else {
+                        $statusText = 'Active';
+                    }
+                    $array['status'] = 'error';
+                    $array['msg'] = 'Product already added with  ' . $statusText . ' status.';
+                    echo json_encode($array);
+                } else {
+                    $where = array('id' => $idtoedit);
+                    $this->accessories_model->update_accessories_data($data, $where);
+                    $array['status'] = 'success';
+                    $array['msg'] = 'Product updated successfully.';
+                    echo json_encode($array);
+                }
+            }
         }
     }
      
