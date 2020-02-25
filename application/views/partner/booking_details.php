@@ -841,7 +841,7 @@
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
                                 <td><?php if(isset($booking_history[0]['sc_district'])){ echo $booking_history[0]['sc_district'];}?></td>
-                                <td><?php if(isset($booking_history[0]['pincode'])){ echo $booking_history[0]['pincode'];}?></td>
+                                <td><?php if(isset($booking_history[0]['pincode']) && isset($booking_history[0]['sc_district'])){ echo $booking_history[0]['pincode'];}?></td>
                                 <td> <?php if(isset($dhq[0]['original_district'])){echo $dhq[0]['original_district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
                                 <td><?php if(isset($booking_history[0]['district'])){ echo $booking_history[0]['district'];}?></td>
