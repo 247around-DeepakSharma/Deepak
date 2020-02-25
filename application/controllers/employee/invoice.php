@@ -1031,7 +1031,7 @@ class Invoice extends CI_Controller {
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],
                 //Mail has not 
-                'mail_sent' => $mail_ret,
+                'mail_sent' => 1,
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
@@ -1334,7 +1334,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $invoice_data['meta']['t_vp_w_tds']),
                     //Mail has not sent
-                    'mail_sent' => $mail_ret,
+                    'mail_sent' => 1,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
                     //SMS has been sent or not
                     'sms_sent' => 1,
@@ -2053,7 +2053,7 @@ exit();
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
                         'mail_sent' => 1,
-                        'sms_sent' => $send_mail,
+                        'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d"),
                         'agent_id' => $details['agent_id'],
