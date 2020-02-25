@@ -855,7 +855,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_OOW_EST_GIVEN; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '0', status: '<?php echo SPARE_OOW_EST_GIVEN; ?>', partner_id: '<?php echo $partner_id; ?>',approved : '0'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -896,7 +896,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_OOW_EST_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '0', status: '<?php echo SPARE_OOW_EST_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>',approved : '0';  }
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1067,7 +1067,8 @@
                 data:function(d){
                     d.type =  '0';     
                     d.status =  '<?php echo SPARE_PARTS_REQUESTED; ?>';        
-                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_id =  '<?php echo $partner_id; ?>'; 
+                    d.approved =  '1';       
                     d.partner_wise_parts_requested =  $('#partner_wise_parts_requested2').val();     
                     d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested2').val(); 
                 },
