@@ -424,7 +424,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
-        print_r($this->db->last_query());
+// Remove Print //
         return $query->result();
     }
     
