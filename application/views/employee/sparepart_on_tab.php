@@ -889,7 +889,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_OOW_EST_GIVEN; ?>', partner_id: '<?php echo $partner_id; ?>',approved : '0'}
+                data: {type: '0', status: '<?php echo SPARE_OOW_EST_GIVEN; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -930,7 +930,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_OOW_EST_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>',approved : '0'  }
+                data: {type: '0', status: '<?php echo SPARE_OOW_EST_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
