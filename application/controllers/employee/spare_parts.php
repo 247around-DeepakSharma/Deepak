@@ -545,12 +545,13 @@ class Spare_parts extends CI_Controller {
      */
     function get_spare_requested_tab($post) {
         log_message('info', __METHOD__);
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "employee.full_name,entity_login_table.agent_name,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
-                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
-        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh,spare_parts_details.spare_approval_date,spare_parts_details.approval_entity_type, status, inventory_master_list.part_number ";
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_request', NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
+        $post['approval_date_and_id'] = TRUE;  
         $list = $this->inventory_model->get_spare_parts_query($post);
 
         $no = $post['start'];
@@ -1648,6 +1649,14 @@ class Spare_parts extends CI_Controller {
             $part_status_text = REPAIR_IN_WARRANTY_TAG;
         }
         $row[] = $part_status_text;
+        /* Approval Date and agent name */
+        $row[] = (empty($spare_list->spare_approval_date)) ? 'NA' : date_format(date_create($spare_list->spare_approval_date),'d-m-Y');
+        if($spare_list->approval_entity_type == _247AROUND_EMPLOYEE_STRING){
+            $row[] = (empty($spare_list->full_name)) ? 'NA' : $spare_list->full_name;
+        }else{
+            $row[] = (empty($spare_list->agent_name)) ? 'NA' : $spare_list->agent_name;
+        }
+ 
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
 
 
