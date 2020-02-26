@@ -456,22 +456,31 @@ class Spare_parts extends CI_Controller {
      * Parts requested by Sf
      * @param Array $post
      */
-    function get_spare_requested_tab($post){
-        log_message('info', __METHOD__);       
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
 
-        . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
-        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request',NULL,NULL, NULL);
-        $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
+    function get_spare_requested_tab($post) {
+        log_message('info', __METHOD__);
+        $post['select'] = "employee.full_name,entity_login_table.agent_name,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh,spare_parts_details.spare_approval_date,spare_parts_details.approval_entity_type, status, inventory_master_list.part_number ";
+        if (isset($post['approved'])) {
+            $post['approved'] = 1;
+            $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
+        } else {
+             $post['approved'] = 0;
+            $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
+        }
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
+        $post['approval_date_and_id'] = TRUE;  
         $list = $this->inventory_model->get_spare_parts_query($post);
 
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
             $no++;
-            $row =  $this->spare_parts_requested_table_data($spare_list, $no, $post['request_type']);
+ 
+            $row = $this->spare_parts_requested_table_data($spare_list, $no, $post['request_type'],$post['approved']);
             $data[] = $row;
         }
         
@@ -1491,8 +1500,8 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function spare_parts_requested_table_data($spare_list, $no, $request_type){
-                
+ 
+    function spare_parts_requested_table_data($spare_list, $no, $request_type,$approved) {
         $row = array();
         $row[] = $no;
         $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
@@ -1520,8 +1529,23 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->parts_requested_type ."</spare>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->request_type;
-        if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
-        $row[] =  $part_status_text;    
+
+        if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $part_status_text = REPAIR_OOW_TAG;
+        } else {
+            $part_status_text = REPAIR_IN_WARRANTY_TAG;
+        }
+        $row[] = $part_status_text;
+        /* Approval Date and agent name */
+        if($approved){
+        $row[] = (empty($spare_list->spare_approval_date) || $spare_list->spare_approval_date=='0000-00-00') ? 'NA' : date_format(date_create($spare_list->spare_approval_date),'d-m-Y');
+        if($spare_list->approval_entity_type == _247AROUND_EMPLOYEE_STRING){
+            $row[] = (empty($spare_list->full_name)) ? 'NA' : $spare_list->full_name;
+        }else{
+            $row[] = (empty($spare_list->agent_name)) ? 'NA' : $spare_list->agent_name;
+        }
+        }
+
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
 
 
@@ -1600,10 +1624,21 @@ class Spare_parts extends CI_Controller {
         if(!empty($this->input->post('partner_wise_parts_requested'))){
             $post['where']['booking_details.partner_id'] = $this->input->post('partner_wise_parts_requested');
         }
-        
-        if(!empty($this->input->post('appliance_wise_parts_requested'))){
+
+        if (!empty($this->input->post('appliance_wise_parts_requested'))) {
             $post['where']['booking_details.service_id'] = $this->input->post('appliance_wise_parts_requested');
-        }   
+        }
+        /*@desc:  Where Clause To Return Defective part From WH To Partner */
+        if (!empty($this->input->post('awb_by_wh'))) {
+            unset($post['where']['status']);
+            unset($post['request_type']);
+            $post['where']['spare_parts_details.awb_by_wh '.$this->input->post('awb_by_wh').' AND spare_parts_details.defective_parts_shippped_date_by_wh '.$this->input->post('defective_parts_shippped_date_by_wh').''] = NULL ;
+        }
+/*  Set for approved tab */
+        if(!empty($this->input->post('approved'))){
+            $post['approved'] = $this->input->post('approved'); 
+        }
+           
         return $post;
     }
     

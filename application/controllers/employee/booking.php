@@ -3483,10 +3483,13 @@ class Booking extends CI_Controller {
         else {
             $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         }
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $vendorWhere['employee_relation.agent_id'] = $rm_id;
-            $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
+            $vendorWhere['service_centres.rm_id'] = $rm_id;
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $vendorWhere['service_centres.asm_id'] = $asm_id;
         }
         $request_type=array('Repair','Installation');
         $data['request_type']=$request_type;
@@ -3517,9 +3520,15 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("asm_id"=>$asm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -3698,8 +3707,7 @@ class Booking extends CI_Controller {
              $post['where']['booking_details.actor'] =  $actor;
         }
         if(!empty($rm_id)){
-             $post['where']['employee_relation.agent_id'] =  $rm_id;
-             $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
+             $post['where']['service_centres.rm_id'] =  $rm_id;             
         }
         if(!empty($am_id)){
              $post['where']["agent_filters.agent_id"] = $am_id;
@@ -4335,12 +4343,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $str_reassign_disabled = "";
-        if(!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)
-        {
-            $str_reassign_disabled = "disabled";
-        }
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color $str_reassign_disabled' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5282,9 +5285,15 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("service_centres","group_concat(service_centres.id) as service_centres_id",array("rm_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("service_centres","group_concat(service_centres.id) as service_centres_id",array("asm_id"=>$asm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }

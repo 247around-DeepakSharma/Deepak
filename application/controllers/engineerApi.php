@@ -1441,7 +1441,7 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is : ".$whatsapp_array['amount_pay']."INR. Thank You for choosing 247Around.";
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
@@ -2755,7 +2755,8 @@ class engineerApi extends CI_Controller {
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL));
+            /*  This is to get consumtption required or not */        
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL));
 
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
@@ -3298,7 +3299,7 @@ class engineerApi extends CI_Controller {
                 }
             }
         }
-        return false;
+        //  return false;  no need to return
     }
 
     /*
@@ -3352,7 +3353,7 @@ class engineerApi extends CI_Controller {
                 $warranty_checker = true;
             } else {
                 $is_spare_requested = $this->is_spare_requested($booking_details);
-                if (!$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
+                if (!empty($is_spare_requested) && !$is_spare_requested) { ////  If spare is not cancelled the allow to complete booking // Abhishek
                     $edit_call_type = false;
                     $warranty_checker = false;
                     $warranty_status = false;
@@ -3568,7 +3569,11 @@ class engineerApi extends CI_Controller {
             if(isset($requestData["pre_consume_req"]) && $requestData["pre_consume_req"]){
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);  // Remove hardcode test booking
             }else{
-            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);    /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
+            // $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL,'(consumed_part_status_id is null or spare_parts_details.consumed_part_status_id ="' . OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID . ')"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);   
+/*  New  select with where clause */
+             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+
+             /// Consumption Except OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID 
             }
 
             $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
@@ -4231,7 +4236,7 @@ function submitPreviousPartsConsumptionData(){
                 $courier_lost_spare = [];
                 $update_data['spare_parts_details.consumed_part_status_id'] = $consume_id;
                 // fetch record of $consumed_status_id from table spare_consumption_status. 
-                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consumed_status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $consume_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
                 // fetch record of $spare_id from table spare_parts_details. 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
 

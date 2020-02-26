@@ -351,6 +351,12 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
+/*  get Agent id for approval spare  check for isset*/
+        if(isset($post['approval_date_and_id'])){
+         $this->db->join('employee','employee.id = spare_parts_details.approval_agent_id', "left");
+         $this->db->join('entity_login_table','entity_login_table.agent_id = spare_parts_details.approval_agent_id', "left");
+        }
+        
         //$this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
         if(isset($post['is_inventory'])){
             
@@ -417,6 +423,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
+// Remove Print //
         return $query->result();
     }
     
@@ -3378,5 +3385,33 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-
+    
+    /**
+     * Function checks whether the inventory of partner is handled by 247 or not.
+     * @param type $booking_details
+     * @param type $spare_part_detail
+     * @author Ankit Rajvanshi
+     */
+    function check_stock_handled_by_central_wh($booking_details, $spare_part_detail) 
+    {
+        if(!empty($booking_details) && !empty($spare_part_detail))
+        {
+            // check entity type is vendor or not.
+            if($spare_part_detail['entity_type'] == _247AROUND_SF_STRING)
+            {
+                // check partner stock is handled by central warehouse
+                $is_wh = $this->reusable_model->get_search_result_data('partners', 'is_wh', ['id' => $booking_details['partner_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_wh'];
+                if(!empty($is_wh) && $is_wh == 1)
+                {
+                    return true;
+                }
+                return false;
+            } 
+            return false;
+        } 
+        else 
+        {
+            return false;
+        }
+    }
 }
