@@ -214,7 +214,12 @@
                <?php }
                 else
                 { ?>
-                   <a id='edit' class='btn btn-small btn-primary' href="<?php echo base_url() ?>employee/vendor/vendor_activate_deactivate/<?php echo $row['id']?>/1">Activate</a>        
+                    <!--Do not allow SF Activation if PAN details not found for SF-->                                    
+                    <?php if(empty($row['pan_no']) || empty($row['pan_file'])){ ?>
+                        <a class="btn btn-small btn-primary" onclick="alert('Please Enter PAN Details of Vendor to allow Activation');" title="Save PAN Details of Vendor to allow Activation">Activate</a><?php               
+                    } else { ?>
+                        <a id='edit' class='btn btn-small btn-primary' href="<?php echo base_url() ?>employee/vendor/vendor_activate_deactivate/<?php echo $row['id']?>/1">Activate</a>  <?php        
+                    } ?>                   
               <?php  }
               ?>
             </td>
