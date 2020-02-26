@@ -114,6 +114,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
+                $vendor_data['active'] = 0;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
