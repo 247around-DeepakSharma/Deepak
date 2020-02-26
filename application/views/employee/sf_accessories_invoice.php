@@ -48,7 +48,7 @@
                                     <?php echo form_error('service_center'); ?>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-success col-md-1" onclick="showAccessoriesRow()">Search</button>
+                            <button type="button" id="search" class="btn btn-success col-md-1" onclick="showAccessoriesRow()">Search</button>
                         </div>
                     </div>
                 </div>
@@ -201,6 +201,9 @@
     }
     
     function process_sf_accessories_invoice_validations (){
+        $('#search').attr('disabled',true);
+        $('#submit').val('Processing..');
+        $('#submit').attr('disabled',true);
         $('.quantity').each(function() {
             var id = (this.id).split("_")[1];
             var quantity = $("#quantity_"+id).val();
@@ -210,6 +213,9 @@
             }
             else{
                 alert('Please add all mandatory fields!!');
+                $('#search').removeAttr('disabled');
+                $('#submit').val('Submit');
+                $('#submit').removeAttr('disabled');
                 return false;
             }
         });
