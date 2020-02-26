@@ -140,7 +140,8 @@
             sendAjaxRequest(postData, partner_remarksUrl).done(function (data) {
                 alert(data);
                 $('.modal').modal('hide') // closes all active pop ups.
-                if($("button_reject_" +bookingID).length != 0) {
+                if($("#button_reject_" +bookingID).length != 0) {
+                $("#button_reject_"+bookingID).hide();
                 $("#button_reject_"+bookingID).prop('disabled','true');
                 }
                 document.getElementById("row_"+bookingID).style.background = "rgb(255, 227, 147)";

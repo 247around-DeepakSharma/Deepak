@@ -114,6 +114,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
+                $vendor_data['active'] = 0;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -1067,10 +1068,31 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id) {
         $this->checkUserSession();
         if(!empty($booking_id)){
+            // initialize validation array
+            $arr_validation_checks = [];
             $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
-            $booking_data = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL));
+            // check if spare is involved and part_warranty_status = 2 AND part_shipped date not null 
+            $ow_shipped_part = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "part_warranty_status" => SPARE_PART_IN_OUT_OF_WARRANTY_STATUS, "shipped_date IS NOT NULL" => NULL));
+            if(!empty($ow_shipped_part)){
+                $arr_validation_checks[] = 'Part already shipped in Out-Warranty, Booking can not be re-assigned.';
+            }
+            // check if spare is involved and is_micro = 1 AND part_shipped date not null 
+            $is_micro_wh = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "is_micro_wh" => 1, "shipped_date IS NOT NULL" => NULL));
+            if(!empty($is_micro_wh)){
+                $arr_validation_checks[] = 'Micro Warehouse Involved, Booking can not be re-assigned.';
+            }
+            // check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
+            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL), false, false, false, false, false, false, false, false, false, true);
+            if(!empty($part_shipped_and_booking_closed)){
+                $arr_validation_checks[] = 'Part already shipped, Booking can not be re-assigned.';
+            }
+            // check if booking already completed by SF
+            $booking_completed_by_sf = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status = "'.SF_BOOKING_COMPLETE_STATUS.'"' => NULL));            
+            if(!empty($booking_completed_by_sf)){
+                $arr_validation_checks[] = 'Booking already completed by SF, hence can not be re-assigned.';
+            }
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'booking_data' => $booking_data));
+            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks));
         }
     }
 

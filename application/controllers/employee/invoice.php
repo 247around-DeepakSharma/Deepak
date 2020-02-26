@@ -1031,7 +1031,7 @@ class Invoice extends CI_Controller {
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],
                 //Mail has not 
-                'mail_sent' => $mail_ret,
+                'mail_sent' => 1,
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
@@ -1334,7 +1334,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $invoice_data['meta']['t_vp_w_tds']),
                     //Mail has not sent
-                    'mail_sent' => $mail_ret,
+                    'mail_sent' => 1,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
                     //SMS has been sent or not
                     'sms_sent' => 1,
@@ -2056,7 +2056,7 @@ exit();
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
                         'mail_sent' => 1,
-                        'sms_sent' => $send_mail,
+                        'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d"),
                         'agent_id' => $details['agent_id'],
@@ -5023,8 +5023,8 @@ exit();
             $reference_number = $this->input->post('reference_numner');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
-            $sd = $custom_date[0];
-            $ed = $custom_date[1];
+            $sd = trim($custom_date[0]);
+            $ed = trim($custom_date[1]);
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
@@ -5108,10 +5108,10 @@ exit();
                         $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
                         $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
                         $data['from_date'] = date("Y-m-d", strtotime($sd));
-                        $data['to_date'] = date("Y-m-d", strtotime($sd));
-                        $data['due_date'] = date("Y-m-d", strtotime($sd));
+                        $data['to_date'] = date("Y-m-d", strtotime($ed));
+                        $data['due_date'] = date("Y-m-d", strtotime($ed));
                         $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                        $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                        $data['invoice_date'] = date("Y-m-d");
                         if ($data['type'] == "CreditNote") {
                             $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
                         } else {

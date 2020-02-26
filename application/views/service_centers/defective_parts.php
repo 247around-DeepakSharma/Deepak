@@ -49,36 +49,36 @@
                                 </thead>
                                 <tbody>
                                 <tbody>
-<?php foreach ($spare_parts as $key => $row) { ?>
+                                    <?php foreach ($spare_parts as $key => $row) { ?>
                                         <tr style="text-align: center;<?php if (!is_null($row['remarks_defective_part_by_wh'])) {
-        echo "color:red";
-    } ?>">
+                                            echo "color:red";
+                                        } ?>">
                                             <td>
-    <?php echo $sn_no; ?>
+                                                <?php echo $sn_no; ?>
                                             </td>
                                             <td>
                                                 <a  href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])); ?>"  title='View'><?php echo $row['booking_id']; ?></a>
                                             </td>
                                             <td>
-    <?php echo $row['name']; ?>
+                                                <?php echo $row['name']; ?>
                                             </td>
                                             <td>
-    <?php if (!is_null($row['service_center_closed_date'])) {
-        $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
-        echo $age_shipped->days . " Days";
-    } ?>
+                                                <?php if (!is_null($row['service_center_closed_date'])) {
+                                                    $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
+                                                    echo $age_shipped->days . " Days";
+                                                } ?>
                                             </td>
                                             <td style="word-break: break-all;">
-    <?php echo $row['parts_shipped']; ?>
+                                                <?php echo $row['parts_shipped']; ?>
                                             </td>
                                             <td style="word-break: break-all;">
                                                 <?php echo $row['part_number']; ?>
                                             </td>
                                             <td style="word-break: break-all;">
-    <?php echo $row['shipped_quantity']; ?>
+                                                <?php echo $row['shipped_quantity']; ?>
                                             </td>
                                             <td>
-    <?php echo $row['challan_approx_value']; ?>
+                                                <?php echo $row['challan_approx_value']; ?>
                                             </td>
 
                                             <td>
@@ -101,11 +101,11 @@
 
                                         <?php if (!$partner_on_saas) { ?>
                                                     <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" />
-    <?php } else { ?>
+                                        <?php } else { ?>
 
                                                     <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]"  value="<?php echo $row['id'] ?>" />
 
-    <?php } ?>
+                                        <?php } ?>
 
                                             </td>  
 
@@ -118,8 +118,8 @@
                                             </td>
 
                                         </tr>
-    <?php $sn_no++;
-} ?>
+                                    <?php $sn_no++;
+                                } ?>
                                 </tbody>
                             </table>
 
@@ -163,6 +163,7 @@
                                 <div class="col-md-6">
 
                                     <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value="<?php
+
 if ((set_value("courier_charges_by_sf"))) {
     echo set_value("courier_charges_by_sf");
 }
@@ -238,8 +239,10 @@ if ((set_value("courier_charges_by_sf"))) {
                     <input type="hidden" name="sp_ids" id="spareids" value="">
                 </div>
                 <div class="modal-footer">
+                <center>
                     <button type="submit" class="btn btn-success">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                </center>
                 </div>
             </div>
         </form>
@@ -663,7 +666,9 @@ if ((set_value("courier_charges_by_sf"))) {
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
 
+
                         // $("#same_awb").css({"color": "green", "font-weight": "900"});
+
                         //  $("#same_awb").css("font-wight",900);
                         //alert("This AWB already used same price will be added");
                         //$("#same_awb").css("display", "block");
@@ -682,7 +687,7 @@ if ((set_value("courier_charges_by_sf"))) {
                         if (data.message[0].courier_charge > 0) {
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
                             $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
-                            //$("#courier_charges_by_sf").attr('readonly', "readonly");
+                           // $("#courier_charges_by_sf").attr('readonly', "readonly");
                         }
 
 
