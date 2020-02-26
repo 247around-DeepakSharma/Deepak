@@ -59,7 +59,7 @@
                                         <label for="product_name" >Product Name <sup class='mandatory'>*</sup></label>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" name="product_name" class="form-control" placeholder="Enter Product Name" id='product_name' value=<?php echo $accessories_detail[0]['product_name']; ?> >
+                                        <input type="text" name="product_name" class="form-control" placeholder="Enter Product Name" id='product_name' value='<?php echo $accessories_detail[0]['product_name']; ?>'>
                                     </div>
                                 </div>
                             </div>

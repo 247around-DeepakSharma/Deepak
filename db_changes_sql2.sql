@@ -1937,6 +1937,9 @@ ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NUL
 
 --Ankit Bhatt 2020-02-20
 update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
+--Gorakh 24-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('Partner', 'Search WH Stock By Part Number', NULL, 'partner/inventory/inventory_stocks_on_warhouse', '2', '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', '1', '2018-06-21 12:28:29');
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search WH Stock By Part Number', NULL, 'employee/inventory/search_inventory_stock_by_part_number_on_wh', '0', '89', 'accountmanager,admin,closure,developer,inventory_manager,regionalmanager', 'main_nav', '1', '2018-06-05 11:00:43');
 
  -- ghanshyam 24-02-2020----------------------------------------
 
@@ -1954,4 +1957,5 @@ CREATE TABLE IF NOT EXISTS `sf_payment_hold_reason` (
 ALTER TABLE `sf_payment_hold_reason`
   ADD CONSTRAINT `FK_Service_center_id` FOREIGN KEY (`service_center_id`) REFERENCES `service_centres` (`id`);
 
----------------------------------------------
+-- Kajal 25-02-2020
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

@@ -247,6 +247,8 @@
                                     <th class="text-center" data-orderable="false">Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
+                                     <th class="text-center" data-orderable="false">Approval Date</th>
+                                    <th class="text-center" data-orderable="false">Approval Agent</th>
                                     <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
@@ -1083,7 +1085,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15,16 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -1099,7 +1101,8 @@
                 data:function(d){
                     d.type =  '0';     
                     d.status =  '<?php echo SPARE_PARTS_REQUESTED; ?>';        
-                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_id =  '<?php echo $partner_id; ?>'; 
+                    d.approved =  '1';       
                     d.partner_wise_parts_requested =  $('#partner_wise_parts_requested2').val();     
                     d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested2').val(); 
                 },
@@ -1107,11 +1110,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [14], //first column / numbering column
+                    "targets": [16], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
