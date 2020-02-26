@@ -9057,6 +9057,67 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         return $row;
     }
+    
+    /*
+     *  @desc : This function is used to open the download courier invoice page 
+     *  @param : void
+     *  @return : void
+     */
+    function download_courier_invoice() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/courier_invoice_list");
+    }
+    
+    /*
+     *  @desc : This function is used to download the courier invoice data
+     *  @param : void
+     *  @return : void
+     */
+    function download_courier_invoice_data(){
+
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $download_request_type = $this->input->post('invoice_type');
+                
+        if (!empty($download_request_type)) {
+            $where = array();
+            if ($download_request_type == 'msl') {
+                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',courier_details.booking_id as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', (CHAR_LENGTH(courier_details.booking_id) - CHAR_LENGTH(REPLACE(courier_details.booking_id,',', '')) + 1) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            } else {
+                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',GROUP_CONCAT(spare_parts_details.booking_id) as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', COUNT(spare_parts_details.booking_id) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            
+                $where = array("$download_request_type  IS NOT NULL "=> NULL);
+            }
+            
+            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where , $download_request_type);
+            
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'courier_invoice_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($courier_invoice_details, $delimiter, $newline);
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        } else {
+            $res['msg'] = 'Please Select Courier Invoice';
+        }
+
+        echo json_encode($res);
+    }
 
 }
 
