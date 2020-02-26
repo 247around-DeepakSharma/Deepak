@@ -3432,4 +3432,51 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
+    
+    /*
+     * @desc: This function is used to get the courier invoice details.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+
+    function get_courier_invoice_data($select, $where, $group_by = '') {
+        $this->db->distinct();
+        $this->db->select($select);
+        if ($group_by == 'msl') {
+            $this->db->_protect_identifiers = FALSE;
+            $this->db->from('courier_details');
+            $this->db->join('courier_company_invoice_details', 'courier_company_invoice_details.awb_number = courier_details.AWB_no');
+            $this->db->join('partners', 'courier_company_invoice_details.partner_id = partners.id', 'left');
+        } else {
+
+            $this->db->from('spare_parts_details');
+            $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id');
+            $this->db->join('partners', 'booking_details.partner_id = partners.id', 'left');
+            if ($group_by == 'awb_by_partner') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_partner = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if ($group_by == 'awb_by_sf') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_sf = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if ($group_by == 'awb_by_wh') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_wh = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if (!empty($where)) {
+                $this->db->where($where, false);
+            }
+
+            if (!empty($group_by)) {
+                $this->db->group_by($group_by, false);
+            }
+        }
+
+        $query = $this->db->get();
+
+        return $query;
+    }
+
 }
