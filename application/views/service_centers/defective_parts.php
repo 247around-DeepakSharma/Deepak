@@ -239,8 +239,10 @@ if ((set_value("courier_charges_by_sf"))) {
                     <input type="hidden" name="sp_ids" id="spareids" value="">
                 </div>
                 <div class="modal-footer">
+                <center>
                     <button type="submit" class="btn btn-success">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                </center>
                 </div>
             </div>
         </form>
