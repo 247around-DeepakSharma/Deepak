@@ -167,7 +167,12 @@ if ($this->session->userdata('error')) {
                         <td><?php if ($row['is_active'] == 1) { ?>
                                 <a class="btn btn-sm btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
                             <?php } else { ?>
-                                <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a>                
+                                <!--Do not allow Partner Activation if PAN details not found for partner-->                                    
+                                <?php if(empty($row['pan']) || empty($row['pan_file'])){ ?>
+                                    <a class="btn btn-sm btn-danger" onclick="alert('Please Enter PAN Details of Partner to allow Activation');" title="Save PAN Details of Partner to allow Activation"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
+                                } else { ?>
+                                    <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
+                                } ?>                                
                             <?php } ?>
                         </td>
                         <td>
