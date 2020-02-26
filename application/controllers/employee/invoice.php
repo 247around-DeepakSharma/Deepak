@@ -4991,8 +4991,8 @@ exit();
             $reference_number = $this->input->post('reference_numner');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
-            $sd = $custom_date[0];
-            $ed = $custom_date[1];
+            $sd = trim($custom_date[0]);
+            $ed = trim($custom_date[1]);
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
@@ -5076,10 +5076,10 @@ exit();
                         $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
                         $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
                         $data['from_date'] = date("Y-m-d", strtotime($sd));
-                        $data['to_date'] = date("Y-m-d", strtotime($sd));
-                        $data['due_date'] = date("Y-m-d", strtotime($sd));
+                        $data['to_date'] = date("Y-m-d", strtotime($ed));
+                        $data['due_date'] = date("Y-m-d", strtotime($ed));
                         $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                        $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                        $data['invoice_date'] = date("Y-m-d");
                         if ($data['type'] == "CreditNote") {
                             $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
                         } else {
