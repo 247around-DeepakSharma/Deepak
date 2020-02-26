@@ -2203,8 +2203,8 @@ class Partner extends CI_Controller {
                       $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                       } */
 
-                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $data['status'] = SPARE_OOW_SHIPPED;
+                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
                         $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                     }
