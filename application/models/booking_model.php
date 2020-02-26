@@ -128,6 +128,8 @@ class Booking_model extends CI_Model {
             $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, ROUND(customer_net_payable, 0) as customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges, partner_invoice_id', FALSE);
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
+            // Added condition to not select Cancelled line Items 
+            $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
             $this->db->order_by("price_tags","asc");
             $query2 = $this->db->get('booking_unit_details');
 
