@@ -143,3 +143,4 @@ define('COURIER_LOST_SPARE_PARTS', 'courier_lost_spare_parts');
 define('INSUFFICIENT_BALANCE_PAYTM_WALLET', 'insufficient_balance_paytm_wallet');
 define('WAREHOUSE_RECEIVE_PART_FROM_SF', 'parts_received_by_warehouse');
 define('PARTNER_COURIER_INVOICE_EMAIL_TAG','partner_courier_invoice_detailed');
+define('SF_ACCESSORIES_INVOICE', 'sf_accessories_invoice');
