@@ -1067,7 +1067,8 @@
                 data:function(d){
                     d.type =  '0';     
                     d.status =  '<?php echo SPARE_PARTS_REQUESTED; ?>';        
-                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_id =  '<?php echo $partner_id; ?>'; 
+                    d.approved =  '1';       
                     d.partner_wise_parts_requested =  $('#partner_wise_parts_requested2').val();     
                     d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested2').val(); 
                 },

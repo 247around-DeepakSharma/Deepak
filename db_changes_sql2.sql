@@ -1984,3 +1984,6 @@ update `account_holders_bank_details` set ifsc_code = upper(ifsc_code);
 --Gorakh 24-02-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('Partner', 'Search WH Stock By Part Number', NULL, 'partner/inventory/inventory_stocks_on_warhouse', '2', '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', '1', '2018-06-21 12:28:29');
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Search WH Stock By Part Number', NULL, 'employee/inventory/search_inventory_stock_by_part_number_on_wh', '0', '89', 'accountmanager,admin,closure,developer,inventory_manager,regionalmanager', 'main_nav', '1', '2018-06-05 11:00:43');
+
+-- Kajal 25-02-2020
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);

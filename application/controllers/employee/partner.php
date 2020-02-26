@@ -2244,7 +2244,7 @@ class Partner extends CI_Controller {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
-                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                         if (!empty($spare_id)) {
                             $invoide_data = array("invoice_id" => $value['invoice_id'],
@@ -2282,7 +2282,7 @@ class Partner extends CI_Controller {
                
                  /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
-                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($remarks_by_partner), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
@@ -7327,7 +7327,7 @@ class Partner extends CI_Controller {
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
                                       <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
                                       <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
-                 $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                 $tempArray[] = '<button style="min-width: 59px;" id="button_reject_'.$row['booking_id'].'" type="button" class="btn btn-primary btn-sm open-adminremarks" 
                                                                                data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
                 $finalArray[] = $tempArray;
              }
