@@ -1959,3 +1959,5 @@ ALTER TABLE `sf_payment_hold_reason`
 
 -- Kajal 25-02-2020
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+--- Whatsapp Seeting --
+INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'send_whatsapp', '1', 'This is set 1 if want to send whatsaap', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
