@@ -4114,8 +4114,9 @@ function getPartnerAppliancesModelsPartTypesInventory(){
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
 
-            //  Price with customer total ///
-             $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(`price`,2) as price,`oow_vendor_margin`,`oow_around_margin`,`gst_rate` , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*`oow_around_margin`/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(`oow_vendor_margin`+`oow_around_margin`)/100),2) as customer_price';
+            //  Price with customer total apply protected identifiers ///
+             $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(price,2) as price,oow_vendor_margin,oow_around_margin,gst_rate , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*oow_around_margin/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(oow_vendor_margin+oow_around_margin)/100),2) as customer_price';
+
             $where =array(
                 'inventory_master_list.service_id'=>$requestData['service_id'],
                 'inventory_master_list.entity_id'=>$requestData['partner_id'],

@@ -588,7 +588,7 @@ class Engineer_model extends CI_Model {
 
 
    function getPartner_appliancesInventoryData($select,$where){
-
+        $this->db->_protect_identifiers = FALSE; /// Apply protected identifiers //
          $this->db->distinct();
          $this->db->select($select); 
          $this->db->where($where);
