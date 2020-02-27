@@ -4219,7 +4219,8 @@ class vendor extends CI_Controller {
             if (!empty($template)) {
                 $am_emails = implode(",", array_unique($am_email));
                 $to = $am_emails;
-                $cc = DEVELOPER_EMAIL;
+//                $cc = DEVELOPER_EMAIL;
+                $cc = "";
                 $subject = $template[4];
                 $emailBody = vsprintf($template[0],$this->table->generate());
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $emailBody, "", UPCOUNTRY_BOOKING_NOT_MARKED);
