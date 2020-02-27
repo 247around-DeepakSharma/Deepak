@@ -1172,11 +1172,25 @@ class Inventory extends CI_Controller {
                     break;
 
                 case 'REJECT_COURIER_INVOICE':
+                    /**
+                     * handle defective/ok part.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
                     $where = array('id' => $id);
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
-                    $new_state = "Courier Invoice Rejected By Admin";
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
-
+                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                        $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                        $old_state = DEFECTIVE_PARTS_SHIPPED;
+                    } else {
+                        $spare_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                        $old_state = OK_PARTS_SHIPPED;
+                    }                    
+                    
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'remarks_defective_part_by_sf' => $remarks);
+                    $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
 
