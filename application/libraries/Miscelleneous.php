@@ -536,7 +536,7 @@ class Miscelleneous {
 
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
                 $to = "sales@247around.com , ". $rm_email;
-                $cc = "abhaya@247around.com";
+                $cc = "";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
 
