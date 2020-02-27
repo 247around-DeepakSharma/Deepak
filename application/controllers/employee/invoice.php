@@ -589,7 +589,7 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['final_courier'])){
                 foreach ($misc_data['final_courier'] as $spare_array) {
                    
-                    $this->inventory_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
+                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
                         "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
                 }
             }
