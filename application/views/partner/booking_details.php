@@ -854,7 +854,8 @@
                         <thead>
                         <tbody>
                             <tr>
-                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){  ?>
+                                <!--  Checking if booking is upcountry and SF details found  -->
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1 && isset($booking_history[0]['primary_contact_name'])){  ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
