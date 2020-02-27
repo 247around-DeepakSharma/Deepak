@@ -399,7 +399,7 @@
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
-                                        <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                        <!--<th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                         <th class="text-center" data-orderable="false">Reject Courier</th>
                                         <th class="text-center" data-orderable="false">Approve Courier</th>
                                     </tr>
