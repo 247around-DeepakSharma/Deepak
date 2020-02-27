@@ -90,7 +90,7 @@ class Warranty_utilities {
      * @return type
      */
     function map_warranty_period_to_booking($arrBooking, $arrWarrantyData){
-        $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 12;
+        $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 0;
         $arrBooking['extended_warranty_period'] = !empty($arrBooking['extended_warranty_period']) ? $arrBooking['extended_warranty_period'] : 0;
         foreach($arrWarrantyData as $recWarrantyData)
         {
@@ -105,6 +105,8 @@ class Warranty_utilities {
                 }
             }
         }
+        // If no In-warranty Plan found, set default In-warranty to 12 Months
+        $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 12;
         return $arrBooking;
     }
     
@@ -215,7 +217,7 @@ class Warranty_utilities {
         }
         $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
         $booking_id = $arrBookings[0]['booking_id'];
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit'], 'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit']];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit'], 'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit']];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
         // If no data found against warranty, consider booking as of Out Warranty
