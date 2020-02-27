@@ -2499,6 +2499,13 @@ class Booking extends CI_Controller {
         $booking['booking_id'] = $booking_id;
         $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
 
+        // check spares are pending or shipped for current booking.
+        // @modifiedBy Ankit Rajvanshi
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id], false, FALSE, false, array(), false, false, false, false, false, false);
+        if(!empty($spare_parts_details)) {
+            $booking['internal_status'] = $spare_parts_details[0]['status'];
+            
+        }
         // check partner status
         $actor = $next_action = 'NULL';
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $partner_id, $booking_id);
