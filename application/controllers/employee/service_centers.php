@@ -3159,7 +3159,7 @@ class Service_centers extends CI_Controller {
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $sp_id . "' AND spare_parts_details.defective_part_required = 1 "
-                    . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "') ";
+                    . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "', '" . COURIER_LOST . "') ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
             //     $data['courier_info'] = $this->inventory_model->getCourierInfo();
@@ -3201,7 +3201,7 @@ class Service_centers extends CI_Controller {
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $value . "' AND spare_parts_details.defective_part_required = 1 "
-                    . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "') ";
+                    . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "') ";
 
             $spare_part = $this->partner_model->get_spare_parts_booking($where);
             if (!empty($spare_part)) {
@@ -3287,12 +3287,18 @@ class Service_centers extends CI_Controller {
                     $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                     $data['defective_courier_receipt'] = $defective_courier_receipt;
 
-                    if ($spare_part_detail['status'] == OK_PART_TO_BE_SHIPPED) {
-                        $data['status'] = OK_PARTS_SHIPPED;
-                    } else {
+                    /**
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    // Fetch spare details of $spare_id.
+                    $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $spare_status = DEFECTIVE_PARTS_SHIPPED;
+                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                    }
-
+                    } else {
+                        $data['status'] = OK_PARTS_SHIPPED;
+                    }                    
+                    
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
                     $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
@@ -8696,7 +8702,7 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $post_data['booking_id'];
         $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
         $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag', ['active' => 1], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag', ['active' => 1, 'tag <> "'.PART_NOT_RECEIVED_COURIER_LOST_TAG.'"' => NULL], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/change_consumption', $data);
     }
 
