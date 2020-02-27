@@ -640,4 +640,24 @@ class Engineer_model extends CI_Model {
 
 
 
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to get all incentives of a engineer
+     *@param -  
+     *@return - Array
+*/
+
+   function get_engineer_incentives($select,$where){
+
+    $this->db->select($select);
+    $this->db->where($where);
+    $this->db->from('booking_details');
+    $this->db->join('engineer_incentive_details','booking_details.id=engineer_incentive_details.booking_details_id');
+    $this->db->order_by('engineer_incentive_details.create_date','DESC');
+    $query = $this->db->get();
+    return $query->result();
+
+
+   }
+
+
 }
