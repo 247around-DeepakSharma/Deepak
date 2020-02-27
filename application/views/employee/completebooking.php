@@ -58,7 +58,7 @@
                                 }
                                 break;
                                 case DEFECTIVE_PARTS_SHIPPED:
-                                    $is_spare_pending_for_acknowledge = true;
+                                    $is_spare_pending_for_acknowledge = false;
                                 break;    
                             }
                               
