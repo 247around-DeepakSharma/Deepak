@@ -3313,12 +3313,18 @@ class Service_centers extends CI_Controller {
                     $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                     $data['defective_courier_receipt'] = $defective_courier_receipt;
 
-                    if ($spare_part_detail['status'] == OK_PART_TO_BE_SHIPPED) {
-                        $data['status'] = OK_PARTS_SHIPPED;
-                    } else {
+                    /**
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    // Fetch spare details of $spare_id.
+                    $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $spare_status = DEFECTIVE_PARTS_SHIPPED;
+                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                    }
-
+                    } else {
+                        $data['status'] = OK_PARTS_SHIPPED;
+                    }                    
+                    
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
                     $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
