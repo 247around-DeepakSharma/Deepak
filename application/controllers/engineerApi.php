@@ -471,6 +471,11 @@ class engineerApi extends CI_Controller {
                 $this->submitPreviousPartsConsumptionData();  ////Submit Request for Previous consume data
                 break;
 
+/*   this API used to get incentive  data of engineer */
+            case 'getEngineerIncentives':  
+                $this->get_engineer_incentives();  //// Getting engineer Incentives
+                break;
+
             default:
                 break;
         }
@@ -4280,8 +4285,33 @@ function submitPreviousPartsConsumptionData(){
         }
     }
 
+   /**
+     * Get All transactions according to booking ID .
+     * @param type $post
+     * @author Abhishek Awasthi
+     */
+   function get_engineer_incentives(){
 
+        log_message("info", __METHOD__ . " Entering..in incentives");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("engineer_id"), $requestData);
+        if ($validation['status']) { 
+                // get engineer incentives data //
+                $select = "booking_details.booking_id,booking_details.district,engineer_incentive_details.*";
+                $where = array(
+                    'booking_details.assigned_engineer_id'=>$requestData['engineer_id']
+                ); 
+                $response = $this->engineer_model->get_engineer_incentives($select,$where); 
+                $this->jsonResponseString['response'] =  $response; // All Data in response//
+                $this->sendJsonResponse(array('0000', 'success')); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
+            $this->sendJsonResponse(array("9998",'No Incentives Found'));
+        }    
 
+   }
 
 
 }
