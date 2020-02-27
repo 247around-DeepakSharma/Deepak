@@ -4,6 +4,7 @@
 define("ENV","test");
 define("APP_VERSION", "2.19");
 define("FORCE_UPGRADE", "force_upgrade");
+define("SEND_WHATSAPP", "send_whatsapp");
 define("ACCESS_FROM_SPLASH_SCREEN","This Request Come From Splash Screen Without Permissions");
 /*  NEw constants for S3 URL */
 define("COLLATERAL_S3_PATH_LIVE","https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/");

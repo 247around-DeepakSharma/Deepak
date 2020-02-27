@@ -1372,7 +1372,13 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  // As of now not sending whatsapp msg
+            /*  Decide from DB to send or not   */
+            $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+            if($whatsapp[0]->config_value){
+             $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
+            }
+
+            /*   */
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
