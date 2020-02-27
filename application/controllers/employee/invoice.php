@@ -515,7 +515,7 @@ class Invoice extends CI_Controller {
                 'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $output_pdf_file_name,
                 'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_pdf_file_name),
+                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_file_excel),
                 'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($t_date)),
                 'num_bookings' => $meta['service_count'],
