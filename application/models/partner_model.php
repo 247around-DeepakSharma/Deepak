@@ -1537,7 +1537,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1593,6 +1593,11 @@ function get_data_for_partner_callback($booking_id) {
         if (!empty($wh_shipped_courier_flag)) {
             $this->db->join('courier_company_invoice_details AS cc_invoice_details', 'spare_parts_details.awb_by_wh = cc_invoice_details.awb_number', 'left');
         }
+        
+        /* JOIN with service_center_booking_action to check the booking_status at service_center end */ 
+        if (!empty($ssba_flag)) {
+            $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
+        }        
 
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
@@ -2274,9 +2279,9 @@ function get_data_for_partner_callback($booking_id) {
      * @desc: This function is used to get partner activation/deactivation history 
      */
     function get_activation_deactivation_history($partner_id) {
-        $sql = "SELECT is_active as status,update_date as date from trigger_partners where id=".$partner_id." and is_active<>'' and update_date<>'0000-00-00 00:00:00' "
+        $sql = "SELECT is_active as status,update_date as date from trigger_partners where id=".$partner_id." and is_active IS NOT NULL and update_date<>'0000-00-00 00:00:00' "
              . " UNION "
-             . "SELECT is_active as status,update_date as date from partners where id=".$partner_id." and is_active<>'' order by date";
+             . "SELECT is_active as status,update_date as date from partners where id=".$partner_id." and is_active IS NOT NULL order by date";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

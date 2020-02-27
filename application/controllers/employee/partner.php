@@ -698,7 +698,7 @@ class Partner extends CI_Controller {
             } else { 
                 //If Partner not present, Partner is being added
                 $return_data['partner'] = $this->get_partner_form_data();
-                $return_data['partner']['is_active'] = '1';
+                $return_data['partner']['is_active'] = '0';
                 $return_data['partner']['is_verified'] = '1';
                 //Temporary value
                 $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
@@ -998,13 +998,19 @@ class Partner extends CI_Controller {
      */
     function activate($id) {
 
-        //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
-        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email,partners.pan,partners.pan_file", 
                         array('partners.id' => $id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
-            //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+        
+        // Before Activating partner check if PAN exists for Partner
+        // If not Present Partner can not be activated
+        if(empty($get_partner_details[0]['pan']) || empty($get_partner_details[0]['pan_file']))
+        {
+            $this->session->set_userdata(array('error' => 'PAN Number and PAN Image not exists for Partner, Partner can not be activated.'));
+            redirect(base_url() . 'employee/partner/viewpartner');
         }
         
         $data = array('is_active' => 1,
@@ -2195,7 +2201,7 @@ class Partner extends CI_Controller {
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
 
-                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
                         $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -8600,20 +8606,20 @@ class Partner extends CI_Controller {
     function get_activation_deactivation_history(){
         $this->partner_id = trim($this->input->post('partner_id'));
         if(!empty($this->partner_id)){
-            $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);
-            
-            $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-M-Y H:i:s', strtotime($data[0]['date'])));
-            $status = $data[0]['status'];
-            
-            foreach($data as $value) {
-                if($value['status'] !== $status)
-                {
-                    $arr[] = array('status'=>$value['status'], 'date'=>date('d-M-Y H:i:s', strtotime($value['date'])));
-                    $status = $value['status'];
-                }
-            }
-            
+            $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);    
+           
             if(!empty($data)){
+                $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-M-Y H:i:s', strtotime($data[0]['date'])));
+                $status = $data[0]['status'];
+
+                foreach($data as $value) {
+                    if($value['status'] !== $status)
+                    {
+                        $arr[] = array('status'=>$value['status'], 'date'=>date('d-M-Y H:i:s', strtotime($value['date'])));
+                        $status = $value['status'];
+                    }
+                }
+            
                 $res['msg'] = 'success';
                 $res['data'] = $arr;
             }else{
