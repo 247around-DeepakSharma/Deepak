@@ -917,9 +917,11 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th> Spare Id </th>
                                         <th>Part Shipped By Partner/Warehouse</th>
                                         <th>Shipped Parts </th>
                                         <th>Shipped  Parts Number</th>
+                                        <th>Part Type</th>
                                         <th>Shipped Quantity</th>
                                         <th>Pickup Request </th>
                                         <th>Pickup Schedule</th>
@@ -942,10 +944,14 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
+                                        <td>
+                                            <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                        </td>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo _247AROUND_PARTNER_STRING;} else { echo "Warehouse";} ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td> 
                                         <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td> 
-                                        <td><?php echo $sp['shipped_quantity'];  ?></td>  
+                                       <td style=" word-break: break-all;"><?php echo $sp['shipped_parts_type'];  ?></td>
+                                       <td><?php echo $sp['shipped_quantity'];  ?></td>
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
@@ -1017,6 +1023,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th> Spare Id </th>
                                         <th>SF Dispatch Defective Part To Warehouse/Partner</th>
                                         <th>Shipped Parts </th>
                                         <th>Shipped Parts Number</th>
@@ -1040,6 +1047,9 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
+                                        <td>
+                                            <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                        </td>
                                         <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } else { echo ucfirst(_247AROUND_PARTNER_STRING); }?></td>   
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
@@ -1111,6 +1121,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th> Spare Id </th>
                                         <th>Shipped Parts </th>
                                         <th>Shipped Parts Number</th>
                                         <th>Shipped Quantity</th>
@@ -1128,6 +1139,9 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
+                                        <td>
+                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                        </td>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -1175,6 +1189,7 @@
                 <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
                 <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
+                
                 <div class="row">
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Invoice Id Details</h1>
@@ -1182,11 +1197,12 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th> Model Number </th>
-                                        <th> Requested Parts </th>
-                                        <th> Requested Parts Number</th>
+                                        <th> Spare Id </th>
+                                        <th>Model Number </th>
+                                        <th>Shipped Parts </th>
+                                        <th>Shipped Parts Number</th>
                                         <th>Parts Type</th>
-                                        <th> Purchase Invoice Id </th>
+                                        <th>Purchase Invoice Id </th>
                                         <th>Sale Invoice Id</th>
                                         <th>Reverse Purchase Invoice Id</th>
                                         <th>Reverse Sale Invoice Id </th>
@@ -1199,13 +1215,16 @@
                                     <?php 
                                     
                                     if(!empty($booking_history['spare_parts'])){
-                                    foreach ($booking_history['spare_parts'] as $sp) {
+                                    foreach ($booking_history['spare_parts'] as $sp ) {
                                      ?>
                                     <tr>
-                                        <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
-                                        <td style=" word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td>
+                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                        </td>
+                                        <td><?php echo $sp['model_number_shipped']; ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td> 
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td> 
+                                       <td style=" word-break: break-all;"><?php echo $sp['shipped_parts_type'];  ?></td>  
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
                                         <td><?php echo $sp['reverse_purchase_invoice_id']; ?></td>  
@@ -1220,6 +1239,7 @@
                         </div>
                     </div>
                 </div>
+                 
                 <?php if( ($booking_history[0]['request_type'] == REPAIR_OOW_TAG) ||($spare_request_type == REPAIR_OOW_TAG) ){ ?>
                 <div class="row">
                     <div class="col-md-12">
@@ -1228,9 +1248,10 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th> Spare Id </th>
                                         <th> Model Number </th>
-                                        <th> Requested Parts </th>
-                                        <th> Requested Parts Number</th>
+                                        <th> Shipped Parts </th>
+                                        <th> Shipped Parts Number</th>
                                         <th> Parts Type </th>
                                         <th> Incoming Invoice Id </th>
                                         <th> Incoming Invoice Amount </th>
@@ -1244,10 +1265,13 @@
                                         foreach ($booking_history['spare_parts'] as $sp) {
                                      ?>
                                     <tr>
-                                        <td><?php echo $sp['model_number']; ?></td>
-                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
-                                        <td style="word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
-                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td>
+                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                        </td>
+                                        <td><?php echo $sp['model_number_shipped']; ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['shipped_parts_type']; ?></td> 
                                         <td><?php echo $sp['oow_invoice_id']; ?></td>
                                         <td><?php echo $sp['oow_incoming_invoice_amount']; ?></td>
                                         <td>
