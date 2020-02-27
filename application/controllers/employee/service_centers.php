@@ -6657,12 +6657,11 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
 
-            
+            $actor = $next_action = 'not_define';
             if ($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $booking['internal_status'] = $spare_status;
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $decode_partner_id, $booking_id);
-                $actor = $next_action = 'not_define';
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
@@ -6986,7 +6985,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING,
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.is_micro_wh IN (0)" => NULL,
-            "status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "') " => NULL
+            "status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "','".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL
         );
 //  For rejected also partner should come //
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
