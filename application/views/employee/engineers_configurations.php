@@ -9,7 +9,7 @@
  
 <ul class="nav nav-tabs">
     <li class="active"><a data-toggle="tab" href="#home">App Updates</a></li>
-    <li class="hide"><a data-toggle="tab" href="#menu1">Menu 1</a></li>
+    <li class=""><a data-toggle="tab" href="#menu1">WhatsApp Settings</a></li>
     <li class="hide"><a data-toggle="tab" href="#menu2">Menu 2</a></li>
     <li class="hide"><a data-toggle="tab" href="#menu3">Menu 3</a></li>
   </ul>
@@ -43,8 +43,35 @@
       </div>
     </div>
     <div id="menu1" class="tab-pane fade">
-      <h3>Menu 1</h3>
-      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+  
+
+            <div class="row">
+
+        <div class="col-md-2">
+    
+    <div class="alert alert-success alert-dismissible hide" id="alertmsg2" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>Updated !</strong>
+     </div>
+
+      <div class="form-group">
+        <br>
+      <label  >Send WhatsApp:</label>
+     <label class="switch">  
+  <input id="send_whatsapp" type="checkbox"  <?php if($whatsapp[0]->config_value){ echo 'checked';} ?> value="<?php  echo $whatsapp[0]->config_value; ?>" data-config_type="<?php  echo $whatsapp[0]->configuration_type; ?>" >
+  <span class="slider round"></span>
+</label>
+  </div>
+
+        </div>
+
+ 
+      </div>
+
+
+
     </div>
 
     
@@ -135,6 +162,33 @@ var config_type = $(this).attr("data-config_type");
                if(data1.response){
                 $("#alertmsg").removeClass("hide");
                  setTimeout(function(){  $("#alertmsg").addClass("hide"); }, 2000);
+               } // show response from the php script.
+           }
+         });
+
+});
+
+
+$("#send_whatsapp").click(function(){
+
+var checked =0;
+var config_type = $(this).attr("data-config_type");
+  if ($('#send_whatsapp').is(':checked')) {
+    checked = 1;
+  }else{
+    checked = 0;
+  }
+
+          $.ajax({
+           type: "POST",
+           url: "<?php echo base_url();  ?>employee/engineer/update_config",
+           data: { config_value: checked , config_type: config_type  },  
+           success: function(data)
+           {
+              var data1  =  JSON.parse(data);
+               if(data1.response){
+                $("#alertmsg2").removeClass("hide");
+                 setTimeout(function(){  $("#alertmsg2").addClass("hide"); }, 2000);
                } // show response from the php script.
            }
          });

@@ -719,6 +719,7 @@ class Engineer extends CI_Controller {
 
         $this->miscelleneous->load_nav_header();
         $data['force_upgrade'] = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
         $this->load->view('employee/engineers_configurations',$data);
     }
 
