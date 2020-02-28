@@ -7029,7 +7029,7 @@ class Partner extends CI_Controller {
             . '('
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
-            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
+            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
