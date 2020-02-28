@@ -698,7 +698,7 @@ class Partner extends CI_Controller {
             } else { 
                 //If Partner not present, Partner is being added
                 $return_data['partner'] = $this->get_partner_form_data();
-                $return_data['partner']['is_active'] = '1';
+                $return_data['partner']['is_active'] = '0';
                 $return_data['partner']['is_verified'] = '1';
                 //Temporary value
                 $return_data['partner']['auth_token'] = substr(md5($return_data['partner']['public_name'] . rand(1, 100)), 0, 16);
@@ -998,13 +998,19 @@ class Partner extends CI_Controller {
      */
     function activate($id) {
 
-        //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
-        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+        $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email,partners.pan,partners.pan_file", 
                         array('partners.id' => $id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
-            //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
             $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+        }
+        
+        // Before Activating partner check if PAN exists for Partner
+        // If not Present Partner can not be activated
+        if(empty($get_partner_details[0]['pan']) || empty($get_partner_details[0]['pan_file']))
+        {
+            $this->session->set_userdata(array('error' => 'PAN Number and PAN Image not exists for Partner, Partner can not be activated.'));
+            redirect(base_url() . 'employee/partner/viewpartner');
         }
         
         $data = array('is_active' => 1,
@@ -2195,7 +2201,7 @@ class Partner extends CI_Controller {
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
 
-                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
                         $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -5188,12 +5194,12 @@ class Partner extends CI_Controller {
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
-                . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
+                . "owner_name,owner_email,owner_alternate_email,owner_phone_1,gst_number,pan,"
                 . "customer_care_contact as customer_care_num,address,GROUP_CONCAT(DISTINCT employee.full_name) as am_name,GROUP_CONCAT(DISTINCT employee.official_email) as am_email, agreement_start_date, agreement_end_date,"
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
-                . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period";
+                . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
         $where = array('partners.is_active' => 1);
         $group_by = "partners.id";
 
@@ -7679,7 +7685,7 @@ class Partner extends CI_Controller {
                 'bank_name' => $this->input->post('bank_name'),
                 'account_type' => $this->input->post('account_type'),
                 'bank_account' => $this->input->post('account_number'),
-                'ifsc_code' => $this->input->post('ifsc_code'),
+                'ifsc_code' => strtoupper($this->input->post('ifsc_code')),
                 'cancelled_cheque_file' => $check_file,
                 'beneficiary_name' => $this->input->post('beneficiary_name'),
                 'ifsc_code_api_response' => $this->input->post('ifsc_validation'),
@@ -8600,20 +8606,20 @@ class Partner extends CI_Controller {
     function get_activation_deactivation_history(){
         $this->partner_id = trim($this->input->post('partner_id'));
         if(!empty($this->partner_id)){
-            $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);
-            
-            $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-M-Y H:i:s', strtotime($data[0]['date'])));
-            $status = $data[0]['status'];
-            
-            foreach($data as $value) {
-                if($value['status'] !== $status)
-                {
-                    $arr[] = array('status'=>$value['status'], 'date'=>date('d-M-Y H:i:s', strtotime($value['date'])));
-                    $status = $value['status'];
-                }
-            }
-            
+            $data = $this->partner_model->get_activation_deactivation_history($this->partner_id);    
+           
             if(!empty($data)){
+                $arr[] = array('status'=>$data[0]['status'], 'date'=>date('d-M-Y H:i:s', strtotime($data[0]['date'])));
+                $status = $data[0]['status'];
+
+                foreach($data as $value) {
+                    if($value['status'] !== $status)
+                    {
+                        $arr[] = array('status'=>$value['status'], 'date'=>date('d-M-Y H:i:s', strtotime($value['date'])));
+                        $status = $value['status'];
+                    }
+                }
+            
                 $res['msg'] = 'success';
                 $res['data'] = $arr;
             }else{

@@ -471,6 +471,11 @@ class engineerApi extends CI_Controller {
                 $this->submitPreviousPartsConsumptionData();  ////Submit Request for Previous consume data
                 break;
 
+/*   this API used to get incentive  data of engineer */
+            case 'getEngineerIncentives':  
+                $this->get_engineer_incentives();  //// Getting engineer Incentives
+                break;
+
             default:
                 break;
         }
@@ -1364,7 +1369,13 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  // As of now not sending whatsapp msg
+            /*  Decide from DB to send or not   */
+            $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+            if($whatsapp[0]->config_value){
+             $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
+            }
+
+            /*   */
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -4105,7 +4116,10 @@ function getPartnerAppliancesModelsPartTypesInventory(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
-             $select = 'inventory_master_list.type,part_number,part_name,price,oow_vendor_margin,oow_around_margin,hsn_code,gst_rate';
+
+            //  Price with customer total apply protected identifiers ///
+             $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(price,2) as price,oow_vendor_margin,oow_around_margin,gst_rate , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*oow_around_margin/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(oow_vendor_margin+oow_around_margin)/100),2) as customer_price';
+
             $where =array(
                 'inventory_master_list.service_id'=>$requestData['service_id'],
                 'inventory_master_list.entity_id'=>$requestData['partner_id'],
@@ -4280,8 +4294,33 @@ function submitPreviousPartsConsumptionData(){
         }
     }
 
+   /**
+     * Get All transactions according to booking ID .
+     * @param type $post
+     * @author Abhishek Awasthi
+     */
+   function get_engineer_incentives(){
 
+        log_message("info", __METHOD__ . " Entering..in incentives");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("engineer_id"), $requestData);
+        if ($validation['status']) { 
+                // get engineer incentives data //
+                $select = "booking_details.booking_id,booking_details.district,engineer_incentive_details.*";
+                $where = array(
+                    'booking_details.assigned_engineer_id'=>$requestData['engineer_id']
+                ); 
+                $response = $this->engineer_model->get_engineer_incentives($select,$where); 
+                $this->jsonResponseString['response'] =  $response; // All Data in response//
+                $this->sendJsonResponse(array('0000', 'success')); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
+            $this->sendJsonResponse(array("9998",'No Incentives Found'));
+        }    
 
+   }
 
 
 }

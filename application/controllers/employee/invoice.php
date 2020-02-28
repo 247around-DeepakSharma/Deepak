@@ -515,7 +515,7 @@ class Invoice extends CI_Controller {
                 'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $output_pdf_file_name,
                 'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_pdf_file_name),
+                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_file_excel),
                 'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($t_date)),
                 'num_bookings' => $meta['service_count'],
@@ -589,7 +589,7 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['final_courier'])){
                 foreach ($misc_data['final_courier'] as $spare_array) {
                    
-                    $this->inventory_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
+                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
                         "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
                 }
             }
@@ -3233,6 +3233,10 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
+                //calling method to get last payment details for SF
+                $last_payment_details = $this->invoices_model->get_last_payment_details($service_center_id, "vendor");
+                $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
+                $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3431,6 +3435,8 @@ exit();
         $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
+        $sc_details['last_payment_date'] = "Last Payment Date";
+        $sc_details['last_payment_amount'] = "Last Payment Amount";
 
         return $sc_details;
     }
@@ -5023,8 +5029,8 @@ exit();
             $reference_number = $this->input->post('reference_numner');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
-            $sd = $custom_date[0];
-            $ed = $custom_date[1];
+            $sd = trim($custom_date[0]);
+            $ed = trim($custom_date[1]);
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
@@ -5108,10 +5114,10 @@ exit();
                         $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
                         $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
                         $data['from_date'] = date("Y-m-d", strtotime($sd));
-                        $data['to_date'] = date("Y-m-d", strtotime($sd));
-                        $data['due_date'] = date("Y-m-d", strtotime($sd));
+                        $data['to_date'] = date("Y-m-d", strtotime($ed));
+                        $data['due_date'] = date("Y-m-d", strtotime($ed));
                         $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                        $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                        $data['invoice_date'] = date("Y-m-d");
                         if ($data['type'] == "CreditNote") {
                             $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
                         } else {

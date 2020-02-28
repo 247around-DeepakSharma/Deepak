@@ -1171,10 +1171,25 @@ class Inventory extends CI_Controller {
                     break;
 
                 case 'REJECT_COURIER_INVOICE':
+                    /**
+                     * handle defective/ok part.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
                     $where = array('id' => $id);
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
-                    $track_status = $new_state = "Courier Invoice Rejected By Admin";
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
+                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                        $spare_status = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
+                        $old_state = DEFECTIVE_PARTS_SHIPPED;
+                    } else {
+                        $spare_status = OK_PARTS_REJECTED_BY_WAREHOUSE;
+                        $old_state = OK_PARTS_SHIPPED;
+                    }                    
+                    
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'remarks_defective_part_by_sf' => $remarks);
+                    $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
 
@@ -8936,6 +8951,67 @@ class Inventory extends CI_Controller {
         $row[] = $action;
 
         return $row;
+    }
+    
+    /*
+     *  @desc : This function is used to open the download courier invoice page 
+     *  @param : void
+     *  @return : void
+     */
+    function download_courier_invoice() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/courier_invoice_list");
+    }
+    
+    /*
+     *  @desc : This function is used to download the courier invoice data
+     *  @param : void
+     *  @return : void
+     */
+    function download_courier_invoice_data(){
+
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $download_request_type = $this->input->post('invoice_type');
+                
+        if (!empty($download_request_type)) {
+            $where = array();
+            if ($download_request_type == 'msl') {
+                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',courier_details.booking_id as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', (CHAR_LENGTH(courier_details.booking_id) - CHAR_LENGTH(REPLACE(courier_details.booking_id,',', '')) + 1) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            } else {
+                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',GROUP_CONCAT(spare_parts_details.booking_id) as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', COUNT(spare_parts_details.booking_id) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            
+                $where = array("$download_request_type  IS NOT NULL "=> NULL);
+            }
+            
+            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where , $download_request_type);
+            
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'courier_invoice_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($courier_invoice_details, $delimiter, $newline);
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        } else {
+            $res['msg'] = 'Please Select Courier Invoice';
+        }
+
+        echo json_encode($res);
     }
 
 }
