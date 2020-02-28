@@ -660,4 +660,22 @@ class Engineer_model extends CI_Model {
    }
 
 
+   /* @author Abhishek Awasthi
+     *@Desc - This function is used to get all  engineers which are active
+     *@param -  
+     *@return - Array
+*/
+
+   function get_active_engineers($select,$where){
+
+    $this->db->select($select);
+    $this->db->where($where);
+    $this->db->from('engineer_details');
+    $query = $this->db->get();
+    return $query->result();
+
+
+   }
+
+
 }
