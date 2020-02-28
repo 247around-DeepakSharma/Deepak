@@ -1959,6 +1959,31 @@ ALTER TABLE `sf_payment_hold_reason`
 
 -- Kajal 25-02-2020
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Ankit Bhatt 2020-02-24
+INSERT INTO `variable_charges_type` (`type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES ('opencell-ledbar-charges-fixed', 'Open Cell & Led Bar Charges', '998715', '18', '0', '2018-12-03 00:00:00', '2018-12-03 00:00:00');
+
+insert into vendor_partner_variable_charges(entity_type, entity_id, charges_type, fixed_charges, percentage_charge, validity_in_month, status, create_date, update_date) values('partner', 247130, 4, 10, 0, 0, 1, now(), now());
+
+
+--Ankit Bhatt 2020-02-28
+CREATE TABLE IF NOT EXISTS `bill_to_partner_opencell` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `spare_id` int(11) NOT NULL,
+  `invoice_id` varchar(128) NOT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price` decimal(10,2),
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
+		
+		
+ALTER TABLE bill_to_partner_opencell
+ADD CONSTRAINT unique_open_cell UNIQUE (spare_id,invoice_id);
+
 --- Whatsapp Seeting --
 INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'send_whatsapp', '1', 'This is set 1 if want to send whatsaap', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_complete_whatsapp_number_tag', 'Your %s %s completed (%s). Enjoyed Service? Yes, miss call on 01140849145. If not, 01140849146. 247Around, %s Service Partner', NULL, '1', '1', '2019-04-02 04:51:44');
+ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
+
