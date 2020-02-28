@@ -3999,9 +3999,14 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
+                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            }
+
             foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
+                if (file_exists(TMP_FOLDER . $value_unlink)) {
+                    unlink(TMP_FOLDER . $value_unlink);
+                }
             }
         }
     }
