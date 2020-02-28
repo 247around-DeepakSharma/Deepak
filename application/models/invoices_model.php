@@ -712,6 +712,23 @@ class invoices_model extends CI_Model {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
         
+        $spare_parts_open_cell_led_bar_data = array();
+        $open_cell_led_bar_charges = array();
+        //checking if selected partner is Videocon because we want open cell and led bar spare parts invoice for Videocon only
+        if($partner_id == VIDEOCON_ID){
+            //finding fixed charges for open cell and led bar spare parts
+            $open_cell_led_bar_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
+            if (!empty($open_cell_led_bar_charges)){
+                //calling function to get total Open cell and LED bar spare parts used in partner bookings
+                $spare_parts_select = "SELECT bd.order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
+                                       ."FROM spare_parts_details as spd inner join booking_details as bd "
+                                       ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
+				       ."WHERE spd.parts_requested_type in (?) and bd.current_status='Completed' and spd.status != 'Cancelled' and spd.shipped_date is not null and spd.partner_id = ? and bd.closed_date >= ? and bd.closed_date < ? and btpo.invoice_id is null;";
+                $spare_parts_open_cell_led_bar_data = execute_paramaterised_query($spare_parts_select, array("'LED BAR', 'OPEN CELL'", $partner_id, $from_date, $to_date));
+            }
+        }
+
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
@@ -731,6 +748,7 @@ class invoices_model extends CI_Model {
         $result['micro_warehouse_list'] = array();
         $result['packaging_data'] = array();
         $result['spare_requested_data'] = $spare_requested_data;
+        $result['open_cell'] = array();
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -780,6 +798,29 @@ class invoices_model extends CI_Model {
             $m[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($misc, 'partner_charge'))));
             $result['result'] = array_merge($result['result'], $m);
             $result['misc'] = $misc;
+        }
+
+    
+        if (!empty($spare_parts_open_cell_led_bar_data)) {
+            if (!empty($open_cell_led_bar_charges)){
+                //get total open cell parts quantity
+                $total_open_cell_quantity = (array_sum(array_column($spare_parts_open_cell_led_bar_data, 'shipped_quantity')));
+                //get total open cell parts price
+                $total_open_cell_price = $total_open_cell_quantity * $open_cell_led_bar_charges[0]['fixed_charges'];
+                $spare_parts_data = array();
+                $spare_parts_data[0]['description'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['hsn_code'] = '';
+                $spare_parts_data[0]['qty'] = $total_open_cell_quantity;
+                $spare_parts_data[0]['rate'] = $open_cell_led_bar_charges[0]['fixed_charges'];
+                $spare_parts_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $spare_parts_data[0]['product_or_services'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_open_cell_price);
+                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_price'] = $total_open_cell_price;
+                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_quantity'] = $total_open_cell_quantity;
+                $result['result'] = array_merge($result['result'], $spare_parts_data);
+                $result['open_cell'] = $spare_parts_open_cell_led_bar_data;
+            }
+            
         }
 
         if (!empty($result['result'])) {
@@ -1000,6 +1041,7 @@ class invoices_model extends CI_Model {
             $data['penalty_booking_data'] = (!empty($penalty_data['penalty_booking_data']) ? $penalty_data['penalty_booking_data'] : array());
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];
+            $data['open_cell'] = $result_data['open_cell'];
           
             return $data;
         } else {
