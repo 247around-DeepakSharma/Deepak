@@ -1271,7 +1271,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
 
         $.ajax({
           type: 'POST',
-          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo $booking_history[0]['assigned_vendor_id'];?>/<?php echo $booking_history[0]['amount_due'];?>/<?php echo $booking_history[0]['flat_upcountry'];?>',
+          url: '<?php echo base_url(); ?>employee/service_centers/get_sf_payout/<?php echo $booking_history[0]['booking_id']; ?>/<?php echo ((!empty($booking_history[0]['assigned_vendor_id']))?$booking_history[0]['assigned_vendor_id']:'0');?>/<?php echo ((!empty($booking_history[0]['amount_due']))?$booking_history[0]['amount_due']:'0');?>/<?php echo ((!empty($booking_history[0]['flat_upcountry']))?$booking_history[0]['flat_upcountry']:'0');?>',
           success: function (data) {
              console.log(data);
              $("#sf_payout").html(data);
