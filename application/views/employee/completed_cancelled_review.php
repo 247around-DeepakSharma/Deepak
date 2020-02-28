@@ -148,7 +148,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                             <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               <?php $offset++ ;?>
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?>
-                                <?php if ($value['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                <?php if ($value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
                               </td>
                               
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
