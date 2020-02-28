@@ -5403,9 +5403,22 @@ class Inventory extends CI_Controller {
                                 log_message("info", "Booking State change inserted");
                             }
 
-                            foreach ($invoice['spare_id_array'] as $spare_id) {            
-                                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'), 
-                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh, 
+                            foreach ($invoice['spare_id_array'] as $spare_id) {
+                                /**
+                                 * @modifiedBy Ankit Rajvanshi
+                                 */
+                                // Fetch spare details of $spare_id.
+                                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                                $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                                $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+                                if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                                    $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+                                } else {
+                                    $spare_status = OK_PARTS_SEND_TO_PARTNER_BY_WH;
+                                }                                  
+                                
+                                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),
+                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh,
                                     'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'], 'reverse_purchase_invoice_id' => $invoice['invoice'][0]));
                             }
                             
@@ -5545,6 +5558,19 @@ class Inventory extends CI_Controller {
 
             foreach ($postData as $key => $val) {
                 if (!empty($val['spare_id'])) {
+                    /**
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    // Fetch spare details of $spare_id.
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $val['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
+                    $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+                    if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                        $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+                    } else {
+                        $data['status'] = OK_PARTS_SEND_TO_PARTNER_BY_WH;
+                    }  
+                    
                     $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                     $agent_id = $this->session->userdata('service_center_agent_id');
@@ -5552,7 +5578,7 @@ class Inventory extends CI_Controller {
                     $service_center_id = $this->session->userdata('service_center_id');
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;
-                    $this->notify->insert_state_change($val['booking_id'], DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                    $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id, $val['spare_id']);
                     log_message("info", "Booking State change inserted");
                 }
             }
