@@ -1378,8 +1378,9 @@ class engineerApi extends CI_Controller {
               'partner'=> $partner_data[0]['public_name']
             );
             /*  Decide from DB to send or not   */
-            $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
-            if($whatsapp[0]->config_value){
+            // Variable defined to get whatsapp config //
+            $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+            if($data['whatsapp']->config_value){
              $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
             }
 
