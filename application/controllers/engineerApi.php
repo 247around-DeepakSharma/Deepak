@@ -4300,7 +4300,7 @@ function submitPreviousPartsConsumptionData(){
          //  }
            // send mail in case of courier lost.
            if (!empty($courier_lost_spare)) {
-                $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+                $this->service_centers_model->get_courier_lost_email_template($spare_part_detail['booking_id'], $courier_lost_spare); ///  Solve undefined variable
             }
             return true;
         } else {
