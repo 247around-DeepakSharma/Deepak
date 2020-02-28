@@ -1234,6 +1234,7 @@ class engineerApi extends CI_Controller {
     }
 /*  This function is used to process complete the booking  Comment : Abhishek */
     function processCompleteBookingByEngineer() {
+
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['completeBookingByEngineer'], true);
         $unitDetails = $requestData["unit_array"];
@@ -1362,15 +1363,20 @@ class engineerApi extends CI_Controller {
             $en["signature"] = $sign_pic_url;
             $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
+            $partner_data = $this->partner_model->getpartner($bookinghistory[0]['partner_id']);
             /*   Whatsapp sms sending  Abhishek */
             $customer_phone = $bookinghistory[0]['phone_number'];
             $whatsapp_array = array(
               'booking_id'=>$booking_id,
               'name'=>$bookinghistory[0]['name'],
-              'amount_pay'=>$data['amount_paid']
+              'amount_pay'=>$data['amount_paid'],
+              'appliance' => $bookinghistory[0]['services'],
+              'request'=> $bookinghistory[0]['request_type'],
+              'partner'=> $partner_data[0]['public_name']
             );
             /*  Decide from DB to send or not   */
-            $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+            // Variable defined to get whatsapp config //
+            $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
             if($whatsapp[0]->config_value){
              $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
             }
@@ -1449,14 +1455,22 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is : ".$whatsapp_array['amount_pay']."INR. Thank You for choosing 247Around.";
+
+/*  Making templet for sending message */
+            $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
+            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
+            $sms['smsData']['request_type'] = $whatsapp_array['request'];
+            $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
+            $sms['smsData']['partner'] = $whatsapp_array['partner'];
+            $smsBody = vsprintf($template, $sms['smsData']);
+
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
         $message->setDestination([$phone_number]);
         $message->setSource(API_KARIX_SOURCE);
         $message->setContent([
-            "text" => $text,
+            "text" => $smsBody,
         ]);
 
         try {
@@ -4286,7 +4300,7 @@ function submitPreviousPartsConsumptionData(){
          //  }
            // send mail in case of courier lost.
            if (!empty($courier_lost_spare)) {
-                $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+                $this->service_centers_model->get_courier_lost_email_template($spare_part_detail['booking_id'], $courier_lost_spare); ///  Solve undefined variable
             }
             return true;
         } else {
