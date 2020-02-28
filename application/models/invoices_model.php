@@ -3369,4 +3369,15 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is to insert open cell spare parts data in bill_to_partner_opencell table
+     * @params : Array $data
+     * @return: void
+     * @author Ankit Bhatt
+     * @date : 28-02-2020
+     */
+    function insert_open_cell_date($data){
+        $this->db->insert('bill_to_partner_opencell', $data);
+    }
 }
