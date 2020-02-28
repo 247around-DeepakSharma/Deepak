@@ -3233,6 +3233,10 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
+                //calling method to get last payment details for SF
+                $last_payment_details = $this->invoices_model->get_last_payment_details($service_center_id, "vendor");
+                $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
+                $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3431,6 +3435,8 @@ exit();
         $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
+        $sc_details['last_payment_date'] = "Last Payment Date";
+        $sc_details['last_payment_amount'] = "Last Payment Amount";
 
         return $sc_details;
     }
