@@ -1491,9 +1491,11 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/completed_booking', $data);
     }
 
-    function get_sf_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry) {
+    function get_sf_payout($booking_id, $service_center_id=0, $amount_due=0, $flat_upcountry=0) {
         $res = $this->miscelleneous->get_SF_payout($booking_id, $service_center_id, $amount_due, $flat_upcountry);
-        echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>" . $res['sf_earned'] . "</b>";
+        if(isset($res['sf_earned'])) {
+            echo "Total SF Payout &nbsp;&nbsp;<i class='fa fa-inr'></i> <b>" . $res['sf_earned'] . "</b>";
+        }
     }
 
     /**
