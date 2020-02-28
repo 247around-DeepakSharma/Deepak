@@ -3246,6 +3246,7 @@ class vendor extends CI_Controller {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
             readfile($output_file_excel);
+            unlink($output_file_excel);
             exit;
         }
 
@@ -5527,6 +5528,10 @@ class vendor extends CI_Controller {
                     
                     echo $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
                     
+                    $filePath = TMP_FOLDER.$cancelled_cheque_file;
+                    if (file_exists($filePath)){
+                        unlink($filePath);
+                    }
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
                 }
