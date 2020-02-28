@@ -7092,11 +7092,11 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN ("'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'") ) OR '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
-            . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
+            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -7161,7 +7161,7 @@ class Partner extends CI_Controller {
                              $tempString5 = 'disabled="disabled"';
                             }
                             
-                        if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
+                        if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH || $row['status'] ==  OK_PARTS_SEND_TO_PARTNER_BY_WH){
                             $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
@@ -7175,7 +7175,7 @@ class Partner extends CI_Controller {
                      $tempArray[] = $tempString4;
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
-                                if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
+                                if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH || $row['status'] ==  OK_PARTS_SEND_TO_PARTNER_BY_WH){
                                   $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                                 } else {
