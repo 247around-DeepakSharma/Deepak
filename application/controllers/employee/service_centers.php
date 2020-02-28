@@ -3318,7 +3318,7 @@ class Service_centers extends CI_Controller {
                      */
                     // Fetch spare details of $spare_id.
                     $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                    $spare_status = DEFECTIVE_PARTS_SHIPPED;
+                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     } else {
@@ -3464,7 +3464,7 @@ class Service_centers extends CI_Controller {
                     }
                     
                     //insert details into state change table   
-                    $this->insert_details_in_state_change($booking_id, $booking_internal_status, $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
+                    $this->insert_details_in_state_change($booking_id, $data['status'], $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
 
                     if (!empty($this->input->post("shipped_inventory_id"))) {
                         $ledger_data = array(
