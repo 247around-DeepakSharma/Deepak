@@ -1369,7 +1369,13 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  // As of now not sending whatsapp msg
+            /*  Decide from DB to send or not   */
+            $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+            if($whatsapp[0]->config_value){
+             $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
+            }
+
+            /*   */
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -4110,7 +4116,10 @@ function getPartnerAppliancesModelsPartTypesInventory(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("partner_id"), $requestData);
         if ($validation['status']) {
-             $select = 'inventory_master_list.type,part_number,part_name,price,oow_vendor_margin,oow_around_margin,hsn_code,gst_rate';
+
+            //  Price with customer total apply protected identifiers ///
+             $select = 'inventory_master_list.type,part_number,part_name,entity_id, ROUND(price,2) as price,oow_vendor_margin,oow_around_margin,gst_rate , ROUND(price+(price*gst_rate/100),2) as gst_price , ROUND((SELECT gst_price)+ ((SELECT gst_price)*oow_around_margin/100),2) AS vendor_price, ROUND((SELECT gst_price)+ ((SELECT gst_price)*(oow_vendor_margin+oow_around_margin)/100),2) as customer_price';
+
             $where =array(
                 'inventory_master_list.service_id'=>$requestData['service_id'],
                 'inventory_master_list.entity_id'=>$requestData['partner_id'],

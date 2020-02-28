@@ -536,9 +536,11 @@
                                                 <div class="">
                                                     <table class="table  table-striped table-bordered" >
                                                         <thead>
-                                                            <tr>
+                                                            <tr> 
+                                                                <th> Spare Id </th>
                                                                 <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
+                                                                <th >Part Type </th>
                                                                 <th >Shipped Quantity </th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
@@ -551,8 +553,12 @@
                                                         <tbody>
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){?>
                                                                 <tr>
+                                                                    <td>
+                                                                    <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                                                    </td>
                                                                     <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
+                                                                    <td><?php echo $sp['shipped_parts_type']; ?></td>
                                                                     <th ><?php echo $sp['shipped_quantity']; ?></th>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
@@ -583,6 +589,7 @@
                                                     <table class="table  table-striped table-bordered" >
                                                         <thead>
                                                             <tr>
+                                                                <th> Spare Id </th>
                                                                  <th>SF Dispatch Defective Part To Warehouse/Partner</th>
                                                                 <th >Shipped Parts </th>
                                                                 <th >Shipped Quantity </th>
@@ -603,6 +610,9 @@
                                                         <tbody>
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                                 <tr>
+                                                                    <td>
+                                                                    <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                                                    </td>
                                                                     <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } else { echo ucfirst(_247AROUND_PARTNER_STRING); }?></td>   
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
                                                                     <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -675,6 +685,7 @@
                                             <table class="table  table-striped table-bordered" >
                                                 <thead>
                                                     <tr>
+                                                        <th> Spare Id </th>
                                                         <th>Shipped Parts </th>
                                                         <th>Shipped Parts Number</th>
                                                         <th>Shipped Quantity</th>
@@ -692,6 +703,9 @@
                                                 <tbody>
                                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                     <tr>
+                                                        <td>
+                                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                                        </td>
                                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                                         <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -746,9 +760,10 @@
                                                     <table class="table  table-striped table-bordered" >
                                                         <thead>
                                                             <tr>
+                                                                <th> Spare Id </th>
                                                                 <th> Model Number </th>
-                                                                <th> Requested Parts </th>
-                                                                <th> Requested Parts Number</th>
+                                                                <th> Shipped Parts </th>
+                                                                <th> Shipped Parts Number</th>
                                                                 <th> Parts Type </th>
                                                                 <th> Incoming Invoice Id </th>
                                                                 <th> Incoming Invoice Amount </th>
@@ -762,14 +777,17 @@
                                                                 foreach ($booking_history['spare_parts'] as $sp) {
                                                                     ?>
                                                                     <tr>
-                                                                        <td><?php echo $sp['model_number']; ?></td>
-                                                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
-                                                                        <td style="word-break: break-all;"><?php if (!empty($sp['part_number'])) {
-                                                            echo $sp['part_number'];
+                                                                        <td>
+                                                                        <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
+                                                                        </td>
+                                                                        <td><?php echo $sp['model_number_shipped']; ?></td>
+                                                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>
+                                                                        <td style="word-break: break-all;"><?php if (!empty($sp['shipped_part_number'])) {
+                                                            echo $sp['shipped_part_number'];
                                                         } else {
                                                             echo 'Not Available';
                                                         } ?></td>
-                                                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                                                        <td style="word-break: break-all;"><?php echo $sp['shipped_parts_type']; ?></td> 
                                                                         <td><?php echo $sp['oow_invoice_id']; ?></td>
                                                                         <td><?php echo $sp['oow_incoming_invoice_amount']; ?></td>
                                                                         <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf']; ?>">
@@ -830,7 +848,8 @@
                         <thead>
                         <tbody>
                             <tr>
-                                <td> <?php if($booking_history[0]['is_upcountry'] == 1){  ?>
+                                <!--  Checking if booking is upcountry and SF details found  -->
+                                <td> <?php if($booking_history[0]['is_upcountry'] == 1 && isset($booking_history[0]['primary_contact_name'])){  ?>
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
