@@ -7025,8 +7025,8 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN ("'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'") ) OR '
-            . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
+            . '('
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
