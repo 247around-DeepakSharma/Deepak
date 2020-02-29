@@ -3294,7 +3294,7 @@ class Service_centers extends CI_Controller {
                      */
                     // Fetch spare details of $spare_id.
                     $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                    $spare_status = DEFECTIVE_PARTS_SHIPPED;
+                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     } else {
@@ -3469,7 +3469,7 @@ class Service_centers extends CI_Controller {
                     }
                     
                     //insert details into state change table   
-                    $this->insert_details_in_state_change($booking_id, $booking_internal_status, $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
+                    $this->insert_details_in_state_change($booking_id, $data['status'], $data['remarks_defective_part_by_sf'], "not_define", "not_define", $sp_id);
 
                     if (!empty($this->input->post("shipped_inventory_id"))) {
                         $ledger_data = array(
@@ -4027,9 +4027,14 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
+                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            }
+
             foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
+                if (file_exists(TMP_FOLDER . $value_unlink)) {
+                    unlink(TMP_FOLDER . $value_unlink);
+                }
             }
         }
     }
@@ -6992,7 +6997,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.entity_type" => _247AROUND_SF_STRING,
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.is_micro_wh IN (1,2)" => NULL,
-            "status IN ('" . _247AROUND_COMPLETED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') " => NULL);
+            "status IN ('" . _247AROUND_COMPLETED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if (!empty($partner_id)) {
@@ -7072,7 +7077,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
