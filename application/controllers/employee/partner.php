@@ -2157,6 +2157,14 @@ class Partner extends CI_Controller {
 
             $billable_weight = $kilo_gram . "." . $gram;
                     
+            $partner_details = $this->partner_model->getpartner($partner_id);
+            $from_city = $partner_details[0]['district'];
+            $from_state = $partner_details[0]['state'];
+            
+            $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post('assigned_vendor_id')));
+            $to_city = $vendor_details[0]['district'];
+            $to_state = $vendor_details[0]['state'];
+            
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $this->input->post('awb')), array());
             if (empty($exist_courier_details)) {
                 $awb_data = array(
@@ -2172,7 +2180,11 @@ class Partner extends CI_Controller {
                     'courier_invoice_file' => trim($challan_file),
                     'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                     'created_by' => 2,
-                    'is_exist' => 1
+                    'is_exist' => 1,
+                    'sender_city' => $from_city,
+                    'receiver_city' => $to_city,
+                    'sender_state' => $from_state,
+                    'receiver_state' => $to_state
                 );
 
                 $this->service_centers_model->insert_into_awb_details($awb_data);

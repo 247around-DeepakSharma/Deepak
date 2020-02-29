@@ -2019,7 +2019,7 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
 
 -- Kajal 27-02-2020
-ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;-- Prity 02-03-2020
+ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;
 
 -- Prity 02-03-2020
 update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');
