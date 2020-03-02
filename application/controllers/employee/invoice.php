@@ -676,6 +676,16 @@ class Invoice extends CI_Controller {
             $c_files_name1 = $this->generate_partner_penalty__tat_breakup_excel($misc_data['penalty_booking_data'], $meta['invoice_id']);
             array_push($files, $c_files_name1);
         }
+        
+        // Generate Open Cell and LED Bar Spare Parts Excel
+        if (!empty($misc_data['open_cell'])) {
+            $meta['total_open_cell_price'] = $misc_data['open_cell'][0]['total_open_cell_price'];
+            $meta['total_open_cell_quantity'] = $misc_data['open_cell'][0]['total_open_cell_quantity'];
+            $sp_files_name = $this->generate_partner_open_cell_excel($partner_id, $misc_data['open_cell'], $meta);
+            array_push($files, $sp_files_name);
+
+            log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
@@ -803,6 +813,19 @@ class Invoice extends CI_Controller {
                 exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx"));
                 if (file_exists(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx")) {
                     unlink(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx");
+                }
+            }
+            
+            //insert entry for Open cell & LED bar in bill_to_partner_opencell table so that their invoice do not get generated again
+            if (!empty($misc_data['open_cell'])) {
+                foreach ($misc_data['open_cell'] as $open_cell_booking_details) {
+                    $open_cell_data = array(
+                        'spare_id' => $open_cell_booking_details['spare_id'],
+                        'invoice_id' => $meta['invoice_id'],
+                        'quantity' => $open_cell_booking_details['shipped_quantity'],
+                        'price' => $open_cell_booking_details['partner_charge']
+                    );
+                    $this->invoices_model->insert_open_cell_data($open_cell_data);
                 }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
@@ -944,6 +967,21 @@ class Invoice extends CI_Controller {
         $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-tat-breakup-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, array(), $tat_breakup, $output_file_excel, true);
         return $output_file_excel;
+    }
+    
+     /**
+     * @desc This function is used to generate spare parts annexure file
+     * @param Integer $partner_id
+     * @param Array $data
+     * @param Array $meta
+     * @return string
+     */
+    function generate_partner_open_cell_excel($partner_id, $data, $meta) {
+        $template = 'Partner_invoice_detail_template-v2-open_cell.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-open-cell-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+
     }
 
     /**
@@ -4281,7 +4319,7 @@ exit();
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         '(approved_defective_parts_by_partner = 1 OR defective_part_received_by_wh = 1) ' => NULL,
-                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'") ' => NULL,
+                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'") ' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
 
