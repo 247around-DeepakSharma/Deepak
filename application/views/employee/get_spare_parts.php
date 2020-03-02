@@ -65,7 +65,7 @@
                    <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
                    <p id="service_centers_id_err"></p>
                </div> 
-               <div class="pull-left" style="margin-left: 20px;"><h2 class="panel-title">Consolidated Reports</h2> </div> 
+               <div class="pull-left" style="margin-left: 20px;"><h2 class="panel-title">Consolidated Report</h2> </div> 
            </div>
        </div>
        </br>
