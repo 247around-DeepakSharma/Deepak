@@ -184,5 +184,8 @@ define('Ok_PARTS_RECEIVED','Ok Part Received By Partner');
 define('OK_PARTS_REJECTED','Ok Part Rejected By Partner');
 // Ok Parts Rejected by Warehouse
 define('OK_PARTS_REJECTED_BY_WAREHOUSE','Ok Part Rejected By Warehouse');
+// Defective Parts pending OOT
+define('DEFECTIVE_PARTS_PENDING_OOT','Defective Part To Be Shipped By SF Out Of TAT');
 // Ok parts send by warehouse to partner
 define('OK_PARTS_SEND_TO_PARTNER_BY_WH','Ok parts send by warehouse to partner');
+
