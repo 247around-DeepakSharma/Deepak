@@ -3652,7 +3652,7 @@ class engineerApi extends CI_Controller {
             if (!empty($booking_data)) {
                 $response['booking_details'] = $booking_data;
                 if ($requestData['booking_status'] === _247AROUND_COMPLETED) {
-                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested, spare_parts_details.parts_requested,spare_parts_details.consumption_remarks, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested,spare_parts_details.consumed_part_status_id, spare_parts_details.parts_requested,spare_parts_details.consumption_remarks, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
                     foreach ($spare_parts_details as $key => $value) {
                         /* Consumption Update from consumption Table  */
                         $consumption_details = $this->engineer_model->get_consumption_status_spare( array("id" => $value['consumed_part_status_id']));
