@@ -3460,5 +3460,120 @@ class Inventory_model extends CI_Model {
 
         return $query;
     }
+    
+    
+     /*
+     * @desc: This function is used to get Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+    
+    function get_out_tat_spare_parts_list($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    /*
+     * @desc: This function is used to Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+    function _get_out_of_tat_pending_defective_part($post) {
+
+        $this->db->select($post['select'], false);
+        $this->db->from('booking_details');
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
+        $this->db->join('employee', "employee.id = agent_filters.agent_id", "left");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('inventory_master_list as iml', " iml.inventory_id = spare_parts_details.shipped_inventory_id", "left");
+        $this->db->join('service_centres sc', 'spare_parts_details.partner_id = sc.id', 'left');
+        $this->db->join('service_centres as wh', 'spare_parts_details.defective_return_to_entity_id = wh.id', 'left');
+        $this->db->join('services', 'services.id = booking_details.service_id', 'left');
+        $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
+        $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
+        $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
+        $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search']['value'])) {
+            $like = "";
+            if (array_key_exists("column_search", $post)) {
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            } else {
+                $like .= "(booking_details.booking_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    
+     /*
+     * @desc: This function is used to get total count of Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Total Count
+     */
+    
+    public function count_oot_spare_parts($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+
+    /*
+     * @desc: This function is used to get filter records of Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Count
+     */
+
+    function count_spare_oot_filtered($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+    
+     /**
+     * @desc: This function is used to Download OOT data
+     * @params: $post
+     * @return: Object
+     */
+   
+    function download_oot_pending_defective_part($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        $query = $this->db->get();
+        return $query;
+    }
 
 }

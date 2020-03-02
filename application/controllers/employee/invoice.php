@@ -825,7 +825,7 @@ class Invoice extends CI_Controller {
                         'quantity' => $open_cell_booking_details['shipped_quantity'],
                         'price' => $open_cell_booking_details['partner_charge']
                     );
-                    $this->invoices_model->insert_open_cell_date($open_cell_data);
+                    $this->invoices_model->insert_open_cell_data($open_cell_data);
                 }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
