@@ -57,14 +57,15 @@
                <div class="pull-right">
                    <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
                </div>                           
-               <div class="pull-right" style="margin-right: 100px;">
+               <div class="pull-right" style="margin-right: 80px;">
                    <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
                    <p id="partner_err"></p>
                </div>    
-               <div class="pull-right" style="margin-right: 100px;">
+               <div class="pull-right" style="margin-right: 80px;">
                    <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
                    <p id="service_centers_id_err"></p>
-               </div>    
+               </div> 
+               <div class="pull-left" style="margin-left: 20px;"><h2 class="panel-title">Consolidated Reports</h2> </div> 
            </div>
        </div>
        </br>
