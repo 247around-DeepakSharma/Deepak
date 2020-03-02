@@ -679,6 +679,22 @@ class Engineer_model extends CI_Model {
    }
 
 
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to get consumption status 
+     *@param -  
+     *@return - Array
+*/
+   function get_consumption_status_spare($where){
+
+    $this->db->select("*");
+    $this->db->where($where);
+    $this->db->from('spare_consumption_status');
+    $query = $this->db->get();
+    return $query->result();
+
+   }
+
+
 
 
 

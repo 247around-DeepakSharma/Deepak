@@ -2256,7 +2256,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count, 
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_sf 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_sf FROM spare_parts_details as s2 GROUP by s2.awb_by_sf) as p ON p.awb_by_sf = s1.awb_by_sf
@@ -2294,7 +2294,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count,
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
@@ -2562,7 +2562,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count,
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
@@ -2597,7 +2597,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count, 
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_wh 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_wh FROM spare_parts_details as s2 WHERE awb_by_wh IS NOT NULL GROUP by s2.awb_by_wh) as p ON p.awb_by_wh = s1.awb_by_wh
@@ -2651,7 +2651,7 @@ class invoices_model extends CI_Model {
                      (concat('".S3_WEBSITE_URL."vendor-partner-docs/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                 s1.quantity as count_of_booking, 
                 p.p_count, 
-                round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+                round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
              FROM `courier_details` as s1 
              JOIN courier_company_invoice_details as c ON c.awb_number = s1.AWB_no 
              JOIN (Select count(s2.id) as p_count, s2.AWB_no FROM courier_details as s2 GROUP by s2.AWB_no) as p ON p.AWB_no = c.awb_number
