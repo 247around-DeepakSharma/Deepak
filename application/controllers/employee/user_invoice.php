@@ -715,7 +715,7 @@ class User_invoice extends CI_Controller {
                     $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1, 'sell_price'=>$invoice_amount[$spare_id], 'status'=>$reason[$spare_id]));
                 }
                 
-                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'")' => NULL, 'spare_lost != 1' => NULL));
+                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
                 
                 if(count($check_lost_part) === 0) {
                     $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
@@ -1083,7 +1083,7 @@ class User_invoice extends CI_Controller {
                     
                     if($receiver_entity_type == _247AROUND_PARTNER_STRING) {
 //                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
-                        $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, public_name", array('partners.id' => $receiver_entity_id));
+                        $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, public_name, district, state", array('partners.id' => $receiver_entity_id));
                         $entity_gst_details = $this->inventory_model->get_entity_gst_data("gst_number, state_code.state as state, address, city as district, pincode", array("entity_gst_details.id" => $to_gst_id));
                     }
                     else {
@@ -1209,6 +1209,13 @@ class User_invoice extends CI_Controller {
 //                            $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], $return_data['shipped_date'], $return_data['courier_price']);
                             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $return_data['awb']), array());
                             if (empty($exist_courier_details)) {
+                                $sc_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $wh_id));
+                                $from_city = $sc_details[0]['district'];
+                                $from_state = $sc_details[0]['state'];
+                                
+                                $to_city = $entity_details[0]['district'];
+                                $to_state = $entity_details[0]['state'];
+
                                 $awb_data = array(
                                     'awb_number' => trim($return_data['awb']),
                                     'company_name' => trim($return_data['courier_name']),
@@ -1222,7 +1229,11 @@ class User_invoice extends CI_Controller {
                                     'courier_invoice_file' => trim($return_data['courier_image_file']),
                                     'shippment_date' => trim($return_data['shipped_date']),
                                     'created_by' => 1,
-                                    'is_exist' => 1
+                                    'is_exist' => 1,
+                                    'sender_city' => $from_city,
+                                    'receiver_city' => $to_city,
+                                    'sender_state' => $from_state,
+                                    'receiver_state' => $to_state
                                 );
 
                                 $courier_id = $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -1829,7 +1840,7 @@ class User_invoice extends CI_Controller {
                 );
                 $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
                 
-                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'")' => NULL, 'spare_lost != 1' => NULL));
+                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
                 
                 if(count($check_oow_lost_part) === 0) {
                     $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));

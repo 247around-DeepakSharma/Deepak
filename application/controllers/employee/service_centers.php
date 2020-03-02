@@ -3339,6 +3339,22 @@ class Service_centers extends CI_Controller {
                         $tracking_details = array('spare_id' => $sp_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_defective_part_by_sf']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
+
+                    $sc_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->session->userdata('service_center_id')));
+                    $from_city = $sc_details[0]['district'];
+                    $from_state = $sc_details[0]['state'];
+                    
+                    if(($this->input->post('defective_return_to_entity_type') == _247AROUND_PARTNER_STRING)) {
+                        $partner_details = $this->partner_model->getpartner($this->input->post("defective_return_to_entity_id"));
+                        $to_city = $partner_details[0]['district'];
+                        $to_state = $partner_details[0]['state'];
+                    }
+                    else {
+                        $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post("defective_return_to_entity_id")));
+                        $to_city = $vendor_details[0]['district'];
+                        $to_state = $vendor_details[0]['state'];
+                    }
+                    
                     if ($courier_boxes_weight_flag == 0) {
                         $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb), array());
                         if (empty($exist_courier_details)) {
@@ -3355,7 +3371,11 @@ class Service_centers extends CI_Controller {
                                 'courier_invoice_file' => trim($defective_courier_receipt),
                                 'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
                                 'created_by' => 2,
-                                'is_exist' => 0
+                                'is_exist' => 0,
+                                'sender_city' => $from_city,
+                                'receiver_city' => $to_city,
+                                'sender_state' => $from_state,
+                                'receiver_state' => $to_state
                             );
 
                             $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -3391,7 +3411,11 @@ class Service_centers extends CI_Controller {
                                 'courier_invoice_file' => trim($defective_courier_receipt),
                                 'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
                                 'created_by' => 2,
-                                'is_exist' => 0
+                                'is_exist' => 0,
+                                'sender_city' => $from_city,
+                                'receiver_city' => $to_city,
+                                'sender_state' => $from_state,
+                                'receiver_state' => $to_state
                             );
 
                             $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -4003,9 +4027,14 @@ class Service_centers extends CI_Controller {
         readfile(TMP_FOLDER . $challan_file . '.zip');
         if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
             unlink(TMP_FOLDER . $challan_file . '.zip');
-            unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
+                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
+            }
+
             foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
+                if (file_exists(TMP_FOLDER . $value_unlink)) {
+                    unlink(TMP_FOLDER . $value_unlink);
+                }
             }
         }
     }
@@ -6240,6 +6269,14 @@ class Service_centers extends CI_Controller {
                 if ($status) {
 
                     if (!empty($awb)) {
+                        $sc_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->session->userdata('service_center_id')));
+                        $from_city = $sc_details[0]['district'];
+                        $from_state = $sc_details[0]['state'];
+                        
+                        $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post('assigned_vendor_id')));
+                        $to_city = $vendor_details[0]['district'];
+                        $to_state = $vendor_details[0]['state'];
+                        
                         $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb), array());
                         if (empty($exist_courier_details[0])) {
                             $awb_data = array(
@@ -6255,7 +6292,11 @@ class Service_centers extends CI_Controller {
                                 'courier_invoice_file' => trim($courier_image['message']),
                                 'shippment_date' => trim($this->input->post('shipment_date')),
                                 'created_by' => 3,
-                                'is_exist' => 0
+                                'is_exist' => 0,
+                                'sender_city' => $from_city,
+                                'receiver_city' => $to_city,
+                                'sender_state' => $from_state,
+                                'receiver_state' => $to_state
                             );
 
                             $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -6956,7 +6997,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.entity_type" => _247AROUND_SF_STRING,
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.is_micro_wh IN (1,2)" => NULL,
-            "status IN ('" . _247AROUND_COMPLETED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') " => NULL);
+            "status IN ('" . _247AROUND_COMPLETED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if (!empty($partner_id)) {
@@ -7036,7 +7077,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
