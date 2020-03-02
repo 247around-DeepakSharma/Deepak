@@ -95,7 +95,7 @@
             </div>
         </div>
         <hr>
-                <div class="filter_box" style="<?php if(!empty($entity_id)){?> display:none <?php }?>">
+        <div class="filter_box" style="<?php if(!empty($entity_id)){?> display:none <?php }?>">
             <div class="row">
                 <div class="form-inline">
                     <div class="form-group col-md-3">
@@ -609,7 +609,16 @@
 //            
 //        }
 
-        get_services('service_id', $("#partner_id").val() );
+
+
+        if($("#entity_id").val() == '' || $("#entity_id").val() == null ){
+            var partner_id = $("#partner_id").val();
+        }else{
+            var partner_id = $("#entity_id").val();
+        }
+
+        get_services('service_id', partner_id);
+        
          if(form_data.service_id){
             $('#service_id option[value="'+form_data.service_id+'"]').attr('selected','selected'); 
         }
