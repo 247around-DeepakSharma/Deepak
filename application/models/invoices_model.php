@@ -3392,7 +3392,7 @@ class invoices_model extends CI_Model {
      * @author Ankit Bhatt
      * @date : 28-02-2020
      */
-    function insert_open_cell_date($data){
-        $this->db->insert('bill_to_partner_opencell', $data);
+    function insert_open_cell_data($data){
+        $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
     }
 }
