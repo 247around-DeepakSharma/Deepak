@@ -678,6 +678,21 @@ class Engineer_model extends CI_Model {
 
    }
 
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to get all  app installed engineers
+     *@param -  
+     *@return - Array
+*/
+   function getinstalls($where){
+
+    $this->db->select("*");
+    $this->db->where($where);
+    $this->db->from('engineer_details');
+    $query = $this->db->get();
+    return $query->result();
+
+   }
+
 
 /* @author Abhishek Awasthi
      *@Desc - This function is used to get consumption status 
