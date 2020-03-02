@@ -15,7 +15,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-                    <h2>Defective Parts Delivered to Partner</h2>
+                    <h2>Defective/Ok Parts Delivered to Partner</h2>
                     <div class="pull-right"><a style="background: #2a3f54; border-color: #2a3f54;" href="<?php echo base_url(); ?>partner/download_waiting_defective_parts"  class="btn btn-sm btn-primary">Download</a></div>
                     <div class="right_holder" style="float:right;margin-right:10px;">
                             <select class="form-control " id="state_search_waiting" style="border-radius:3px;" onchange="booking_search_waiting()">

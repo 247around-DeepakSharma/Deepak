@@ -2143,6 +2143,14 @@ class Partner extends CI_Controller {
 
             $billable_weight = $kilo_gram . "." . $gram;
                     
+            $partner_details = $this->partner_model->getpartner($partner_id);
+            $from_city = $partner_details[0]['district'];
+            $from_state = $partner_details[0]['state'];
+            
+            $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post('assigned_vendor_id')));
+            $to_city = $vendor_details[0]['district'];
+            $to_state = $vendor_details[0]['state'];
+            
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $this->input->post('awb')), array());
             if (empty($exist_courier_details)) {
                 $awb_data = array(
@@ -2158,7 +2166,11 @@ class Partner extends CI_Controller {
                     'courier_invoice_file' => trim($challan_file),
                     'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                     'created_by' => 2,
-                    'is_exist' => 1
+                    'is_exist' => 1,
+                    'sender_city' => $from_city,
+                    'receiver_city' => $to_city,
+                    'sender_state' => $from_state,
+                    'receiver_state' => $to_state
                 );
 
                 $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -2764,7 +2776,7 @@ class Partner extends CI_Controller {
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
-                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'")' => NULL,
+                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
                     true);
             if(!empty($is_oow_return)){
@@ -7102,7 +7114,7 @@ class Partner extends CI_Controller {
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
             . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
-            . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
+            . '('
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")))' => NULL
