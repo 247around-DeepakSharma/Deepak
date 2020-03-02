@@ -3661,7 +3661,7 @@ class engineerApi extends CI_Controller {
                             "spare_parts_requested" => $value['parts_requested'],
                             "spare_parts_requested_type" => $value['parts_requested_type'],
                             "spare_status" => $value['status'],
-                            "consumed_status" => $consumption_details[0]['consumed_status'],
+                            "consumed_status" => $consumption_details[0]->consumed_status,
                             "wrong_part_name" => $value['parts_requested'],
                             "wrong_part_remarks" => $value['consumption_remarks'],
                         );
