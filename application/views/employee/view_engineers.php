@@ -32,6 +32,8 @@
             <button type="button" class="btn btn-success pull-right">Installed <span class="badge"><?php echo count($installs); ?></span></button>
             <button type="button" class="btn btn-danger pull-right" style="margin-right: 17px;">UnInstalled <span class="badge"><?php echo count($uninstalls); ?></span></button>
 
+            <button type="button" class="btn btn-warning pull-right" style="margin-right: 17px;">Never Used <span class="badge"><?php echo count($neverinstalled); ?></span></button>
+
         </div>
         <?php if($this->session->userdata('update_success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -60,7 +62,7 @@
                 <th>Enable/Disable</th>  <!-- Change Column Name -->
                 <th>Edit</th>
                 <th>Status</th> <!-- Show Status Active/Inactive -->
-                <th>Install</th> <!-- Show  Install/Uninstall -->
+                <th>Install/UnInstall</th> <!-- Show  Install/Uninstall -->
             </tr>
             </thead>
             <tbody></tbody>
