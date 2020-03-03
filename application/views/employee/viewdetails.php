@@ -774,10 +774,13 @@
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
                                                     <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
                                                     <input type="hidden" name="warehouse_id" id="booking_state" value="<?php echo $sp['partner_id']; ?>"> 
+                                                    <!-- Quantity -->
+                                                    <input type="hidden" name="quantity" id="qty" value="<?php echo $sp['quantity']; ?>"> 
                                                     <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
 
                                                  </form>
                                             </td>
+
                                         <?php } else {?> 
                                            <td></td>   
                                          <?php } } ?>

@@ -4164,7 +4164,7 @@ class Inventory extends CI_Controller {
                             }
 
                             $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
-
+                            
                             if (!empty($insert_courier_details)) {
                                 log_message('info', 'Courier Details added successfully.');
 
@@ -4217,6 +4217,8 @@ class Inventory extends CI_Controller {
                                             $ledger_data['is_wh_ack'] = 0;
                                             $ledger_data['courier_id'] = $insert_courier_details;
                                             $ledger_data['is_wh_micro'] = $is_wh_micro;
+                                            $ledger_data['courier_id'] = $is_wh_micro;
+                                            $ledger_data['courier_id'] = $courier_company_details_id;
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                                             if (isset($value['request_type']) && !empty($value['request_type'])) {
                                                 $ledger_data['request_type'] = trim($value['request_type']);
@@ -7157,13 +7159,13 @@ class Inventory extends CI_Controller {
                         . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file";
                 $where = array();
 
-                if ($this->input->post('sf_id')) {
-                    $where['service_center_id'] = $this->input->post('sf_id');
-                }
-
-                if ($this->input->post('partner_id')) {
-                    $where['partner_id'] = $this->input->post('partner_id');
-                }
+//                if ($this->input->post('sf_id')) {
+//                    $where['service_center_id'] = $this->input->post('sf_id');
+//                }
+//
+//                if ($this->input->post('partner_id')) {
+//                    $where['partner_id'] = $this->input->post('partner_id');
+//                }
 
                 //if warehouse is selected then get data from courier details table else get data from spare part table
                 if ($search_by === 'wh') {

@@ -86,6 +86,8 @@ else
                     <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
                     <input type="hidden" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" id="dealer_name"/>
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
+                    <input type="hidden" name="serial_number" value="<?php if(isset($unit_details[0]['quantity'][0]['serial_number'])){echo $unit_details[0]['quantity'][0]['serial_number'];} ?>"/>
+                    <input type="hidden" name="serial_number_pic" value="<?php if(isset($unit_details[0]['quantity'][0]['serial_number_pic'])){echo $unit_details[0]['quantity'][0]['serial_number_pic'];} ?>"/>
                     <input type="hidden" value="<?php echo $redirect_url ?>" name="redirect_url" id="redirect_url">
                     <input type="hidden" value="<?php echo $str_disabled ?>" name="is_spare_requested" id="is_spare_requested">                    
                     <input type="hidden" value="<?php echo $allow_skip_validations ?>" name="is_sf_panel" id="is_sf_panel">                                       
@@ -902,7 +904,11 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
     <?php if(!empty($str_disabled)) { ?> 
-        $(".purchase_date").attr("tabindex",-1);   
+        $(".purchase_date").attr("tabindex",-1);  
+        $(".appliance_brand").attr("tabindex",-1);  
+        $(".select-model").attr("tabindex",-1);  
+        $(".appliance_category").attr("tabindex",-1);  
+        $(".appliance_capacity").attr("tabindex",-1);  
     <?php } ?>
 
 
