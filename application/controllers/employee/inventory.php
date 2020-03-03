@@ -4069,10 +4069,14 @@ class Inventory extends CI_Controller {
                                 $action_entity_id = $this->session->userdata('partner_id');
                                 $agent_type = _247AROUND_PARTNER_STRING;
                             }
-                            $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
+                            $entity_details = $this->partner_model->getpartner_details("district, state", array('partners.id' => $partner_id));
+                            $from_city = $entity_details[0]['district'];
+                            $from_state = $entity_details[0]['state'];
                             if (!empty($from_gst_number)) {
                                 $partner_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
                                 $partner_state_code = $partner_gst[0]['state'];
+                                $from_city = $partner_gst[0]['city'];
+                                $from_state = $this->invoices_model->get_state_code(array('state_code' => $partner_state_code))[0]['state'];
                             } else {
                                 $partner_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
                             }
@@ -4084,6 +4088,11 @@ class Inventory extends CI_Controller {
                             } else {
                                 $c_s_gst = false;
                             }
+
+                            $wh_details = $this->vendor_model->getVendorDetails("district, state, primary_contact_email as official_email", array('service_centres.id' => $wh_id));
+                            $to_city = $wh_details[0]['district'];
+                            $to_state = $wh_details[0]['state'];
+                                
                             //$c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
                             $booking_id_array = array_column($parts_details, 'booking_id');
                             $tqty = 0;
@@ -4124,6 +4133,12 @@ class Inventory extends CI_Controller {
                                 //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
                                 //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
                             } else {
+                                if ($transfered_by != MSL_TRANSFERED_BY_PARTNER) {
+                                    $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $sender_enity_id));
+                                    $from_city = $vendor_details[0]['district'];
+                                    $from_state = $vendor_details[0]['state'];
+                                }
+
                                 $awb_data = array(
                                     'awb_number' => trim($awb_number),
                                     'company_name' => trim($courier_name),
@@ -4138,7 +4153,11 @@ class Inventory extends CI_Controller {
                                     'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
                                     'created_by' => 1,
                                     'shippment_date' => $courier_data['shipment_date'],
-                                    'is_exist' => 1
+                                    'is_exist' => 1,
+                                    'sender_city' => $from_city,
+                                    'receiver_city' => $to_city,
+                                    'sender_state' => $from_state,
+                                    'receiver_state' => $to_state
                                 );
 
                                 $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -4253,7 +4272,7 @@ class Inventory extends CI_Controller {
 
                                     $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
                                     if (empty($email_details)) {
-                                        $email_details = $this->vendor_model->getVendorDetails('primary_contact_email as official_email', array('id' => $wh_id));
+                                        $email_details = $wh_details;
                                     }
                                     if (!empty($email_details) && !empty($email_template)) {
                                         //generate part details table                                        
@@ -5511,6 +5530,14 @@ class Inventory extends CI_Controller {
                         $courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
                         $courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
                     } else {
+                        $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $sender_entity_id));
+                        $from_city = $vendor_details[0]['district'];
+                        $from_state = $vendor_details[0]['state'];
+
+                        $partner_details = $this->partner_model->getpartner($this->input->post('receiver_partner_id'));
+                        $to_city = $partner_details[0]['district'];
+                        $to_state = $partner_details[0]['state'];
+                        
                         $awb_data = array(
                             'awb_number' => trim($awb_by_wh),
                             'company_name' => trim($courier_name_by_wh),
@@ -5523,7 +5550,12 @@ class Inventory extends CI_Controller {
                             'courier_invoice_file' => $courier_file['message'],
                             'shippment_date' => trim($defective_parts_shippped_date_by_wh), //defective_part_shipped_date
                             'created_by' => 3,
-                            'is_exist' => 1
+                            'is_exist' => 1,
+                            'sender_city' => $from_city,
+                            'receiver_city' => $to_city,
+                            'sender_state' => $from_state,
+                            'receiver_state' => $to_state
+                            
                         );
 
                         $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -5687,6 +5719,14 @@ class Inventory extends CI_Controller {
             } else {
                 $data['defective_parts_shippped_courier_pic_by_wh'] = trim($this->input->post("sp_parts"));
                 if (empty($exist_courier_details)) {
+                    $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post("sender_entity_id")));
+                    $from_city = $vendor_details[0]['district'];
+                    $from_state = $vendor_details[0]['state'];
+
+                    $partner_details = $this->partner_model->getpartner($this->input->post('receiver_partner_id'));
+                    $to_city = $partner_details[0]['district'];
+                    $to_state = $partner_details[0]['state'];
+                    
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
                         'company_name' => trim($courier_name_by_wh),
@@ -5700,7 +5740,11 @@ class Inventory extends CI_Controller {
                         'courier_invoice_file' => trim($this->input->post("sp_parts")),
                         'shippment_date' => trim($this->input->post('defective_parts_shippped_date_by_wh')), //defective_part_shipped_date
                         'created_by' => 3,
-                        'is_exist' => 1
+                        'is_exist' => 1,
+                        'sender_city' => $from_city,
+                        'receiver_city' => $to_city,
+                        'sender_state' => $from_state,
+                        'receiver_state' => $to_state
                     );
 
                     $this->service_centers_model->insert_into_awb_details($awb_data);

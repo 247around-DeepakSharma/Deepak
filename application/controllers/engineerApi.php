@@ -3639,7 +3639,7 @@ class engineerApi extends CI_Controller {
      * @response - json
      */
 
-    function getBookingDetails() {
+  function getBookingDetails() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $response = array();
@@ -3649,17 +3649,22 @@ class engineerApi extends CI_Controller {
             if (!empty($booking_data)) {
                 $response['booking_details'] = $booking_data;
                 if ($requestData['booking_status'] === _247AROUND_COMPLETED) {
-                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested,spare_parts_details.consumed_part_status_id, spare_parts_details.parts_requested,spare_parts_details.consumption_remarks, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]); ///Show details when consumption is filled 
                     foreach ($spare_parts_details as $key => $value) {
-                        $consumption_details = $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"], "spare_id" => $value['id']));
+                        /* Consumption Update from consumption Table  */
+                        $consumption_details = $this->engineer_model->get_consumption_status_spare( array("id" => $value['consumed_part_status_id']));
+                        $consume_status = "";
+                        if(isset($consumption_details[0]->consumed_status) && !empty($consumption_details[0]->consumed_status)){
+                            $consume_status = $consumption_details[0]->consumed_status;
+                        }
                         $consumption_data = array(
                             "spare_part_number" => $value['spare_part_name'],
                             "spare_parts_requested" => $value['parts_requested'],
                             "spare_parts_requested_type" => $value['parts_requested_type'],
                             "spare_status" => $value['status'],
-                            "consumed_status" => $consumption_details[0]['consumed_status'],
-                            "wrong_part_name" => $consumption_details[0]['part_name'],
-                            "wrong_part_remarks" => $consumption_details[0]['remarks'],
+                            "consumed_status" => $consume_status, //($var !== 1 || $var !== 2) ? '' : 'default'; // $consumption_details[0]->consumed_status
+                            "wrong_part_name" => $value['parts_requested'],
+                            "wrong_part_remarks" => $value['consumption_remarks'],
                         );
                         array_push($consumption, $consumption_data);
                     }
@@ -3676,6 +3681,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0060", "Booking id not found"));
         }
     }
+
 
     /*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number

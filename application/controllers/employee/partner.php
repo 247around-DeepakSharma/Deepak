@@ -771,11 +771,30 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+                         $sf_list = $this->vendor_model->viewvendor('', 1);
+                        $all_poc = implode(',', array_map(function ($entry) {
+                                    return $entry['primary_contact_email'];
+                                }, $sf_list));
+                        $all_poc_array = explode(',', $all_poc);
+                        $all_owner = implode(',', array_map(function ($entry) {
+                                    return $entry['owner_email'];
+                                }, $sf_list));
+                        $all_owner_array = explode(',', $all_owner);
+                        $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
 
+                        if (count($email_list) > 0) {
+                            $email_list = array_unique($email_list);
+                            $email_list = array_filter($email_list);
+                            $email_list_String = implode(',', $email_list);
+                            $bcc = $email_list_String;
+                            $bcc_array = explode(',', $bcc);
+                            $bcc_array = array_filter($bcc_array);
+                            $bcc = implode(',', $bcc_array);
+                        }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
                     }
                     
                     //Adding Partner code in Bookings_sources table
@@ -2143,6 +2162,14 @@ class Partner extends CI_Controller {
 
             $billable_weight = $kilo_gram . "." . $gram;
                     
+            $partner_details = $this->partner_model->getpartner($partner_id);
+            $from_city = $partner_details[0]['district'];
+            $from_state = $partner_details[0]['state'];
+            
+            $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post('assigned_vendor_id')));
+            $to_city = $vendor_details[0]['district'];
+            $to_state = $vendor_details[0]['state'];
+            
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $this->input->post('awb')), array());
             if (empty($exist_courier_details)) {
                 $awb_data = array(
@@ -2158,7 +2185,11 @@ class Partner extends CI_Controller {
                     'courier_invoice_file' => trim($challan_file),
                     'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                     'created_by' => 2,
-                    'is_exist' => 1
+                    'is_exist' => 1,
+                    'sender_city' => $from_city,
+                    'receiver_city' => $to_city,
+                    'sender_state' => $from_state,
+                    'receiver_state' => $to_state
                 );
 
                 $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -8842,7 +8873,8 @@ class Partner extends CI_Controller {
                      $tempArray[] =  '<a download  target="_blank" href='.S3_WEBSITE_URL.'nrn_approvals_files/'.$row['approval_file'].'  ><span style="color: #0ce10c;font-size:40px;"><i class="fa fa-download" aria-hidden="true"></i></span></a>';  
                     }
                     
-                    $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
+                    //$tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' title='NRN Approved' ><i class='fa fa-check' aria-hidden='true'></i></span>"."<span class='btn btn-danger' title='Reverse NRN' onclick=reverse_nrn_process('".$row['booking_id']."')><span id='reverse_nrn_process".$row['booking_id']."'>Reverse NRN</span></span>";
+                    $tempArray[] =  "<span class='btn btn-danger' title='Reverse NRN' onclick=reverse_nrn_process('".$row['booking_id']."')><span id='reverse_nrn_process".$row['booking_id']."'>Reverse NRN</span></span>";
                     
                     
                     $finalArray[] = $tempArray;
@@ -8888,12 +8920,15 @@ class Partner extends CI_Controller {
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
             
             $review_counter=0;
             $sc_action=array();
+            
+            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['tag' => PART_SHIPPED_BUT_NOT_USED_TAG], NULL, NULL, NULL, NULL, NULL)[0];
+            //fetch spare consumption reason for part shipped but not used
             foreach ($spare_inventory_update as  $update_pending) {
 
 
@@ -8901,7 +8936,9 @@ class Partner extends CI_Controller {
                    
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
-                    'nrn_approv_by_partner'=>1
+                    'nrn_approv_by_partner'=>1,
+                    'status' => OK_PART_TO_BE_SHIPPED,
+                    'consumed_part_status_id' => $spare_consumption_status_tag['id']
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
@@ -8930,7 +8967,11 @@ class Partner extends CI_Controller {
 
                 $review_counter++;
 
-                }else{
+                }
+                else if (strtoupper($update_pending['status']) == 'CANCELLED') {
+                    // Do nothing do not update nrn_approved_by_partner = 1;
+                } 
+                else{
 
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
@@ -8953,6 +8994,12 @@ class Partner extends CI_Controller {
                     
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
                 }
+                $booking_details_unit_id = $update_pending['booking_unit_details_id'];
+                    if ($booking_details_unit_id != '') {
+                        $data_booking_unit_detail['booking_status'] = _247AROUND_CANCELLED;
+                        $where_booking_unit_detail['id'] = $booking_details_unit_id;
+                        $this->booking_model->update_booking_unit_details_by_any($where_booking_unit_detail, $data_booking_unit_detail);
+                    }
                     
                 }
    
@@ -8981,47 +9028,7 @@ class Partner extends CI_Controller {
 
 
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
-               /// Move To Review Booking ///
-               if($review_counter==0){
-                $review_update_array=array(
-                    'current_status'=>'Pending',
-                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS,
-                    'actor'=>'247Around'
-                );
-               // $this->booking_model->update_booking($booking_id, $review_update_array);
-
-                if (!empty($sc_action['serial_number'])) {
-                    $serial_number = $sc_action['serial_number'];
-                }else{
-                    $serial_number = NULL;
-                }
-                if (!empty($sc_action['serial_number_pic'])) {
-                    $serial_number_pic = $sc_action['serial_number_pic'];
-                }else{
-                    $serial_number_pic = NULL;
-                }
-                if (!empty($sc_action['model_number'])) {
-                    $model_number = $sc_action['model_number'];
-                }else{
-                    $model_number = NULL;
-                }
-               $data_service_center_review=array(
-                        'current_status'=>'InProcess',
-                        'internal_status'=>'Completed',
-                        'serial_number'=>$serial_number,
-                        'model_number'=>$model_number,
-                        'serial_number_pic'=>$serial_number_pic
-                );
-
-                //$this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
-
-                }else{
-
-                $review_update_array=array(
-                    'actor'=>'Vendor'
-                );
-                $this->booking_model->update_booking($booking_id, $review_update_array);  
-                }
+              
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
                 foreach ($spare_inventory_update as $update_pending) {
@@ -9033,7 +9040,39 @@ class Partner extends CI_Controller {
         }
        
     }
-    
+
+    /**
+     * @Desc: This function is for reversal of approverd NRN booking(ajax request)
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 24-02-2020
+     */
+    function reverse_nrn_process() {
+        if ($this->input->post('booking_id')) {
+            $booking_id = trim($this->input->post('booking_id'));
+            $select = 'booking_details.id';
+            $partner_id = $this->session->userdata('partner_id');
+            $where = array('booking_id' => $booking_id, 'nrn_approved' => 1, 'partner_id' => $partner_id);
+            $data = $this->booking_model->get_bookings_count_by_any($select, $where);
+
+            if (count($data) > 0) {
+                $booking['nrn_approved'] = 0;
+                $this->booking_model->update_booking($booking_id, $booking);
+                $data_service_center = array(
+                    'current_status' => "InProcess",
+                    'internal_status' => "InProcess",
+                );
+                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+                echo 1;
+            } else {
+                echo 0;
+            }
+        } else {
+            echo 0;
+        }
+    }
+
     /**
      * 
      * @param type $partner_id
