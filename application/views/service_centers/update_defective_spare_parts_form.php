@@ -67,6 +67,42 @@
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="parts_requested[<?php echo $spare_parts[0]['id']; ?>]" value="<?php echo $spare_parts[0]['parts_requested']; ?>">
                 <div class="panel panel-default">
                     <div class="panel-heading">
+                        <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>Consumption Details</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group <?php if (form_error('consumed_part_status_id')) {
+                                    echo 'has-error';
+                                    } ?>">
+                                    <label for="consumed_part_status_id" class="col-md-4">Consumption Reason *</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="consumed_part_status_id" name="consumed_part_status_id" required>
+                                            <option selected="" disabled="" value="">Select Consumption Reason </option>
+                                            <?php foreach ($spare_consumed_status as $value1) { ?> 
+                                            <option <?php if (!empty($spare_parts[0]['consumed_part_status_id']) && $spare_parts[0]['consumed_part_status_id'] == $value1['id']) {
+                                                echo "selected";
+                                                } ?> value="<?php echo $value1['id']; ?>"><?php echo $value1['consumed_status']; ?>
+                                            </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <?php echo form_error('consumed_part_status_id'); ?>
+                                </div>                                
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="consumed_part_remarks" class="col-md-4">Remarks</label>
+                                    <div class="col-md-6">
+                                        <textarea name="consumed_part_remarks" rows="2" class="form-control"></textarea>
+                                    </div>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>   
+                <div class="panel panel-default">
+                    <div class="panel-heading">
                         <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Courier Details</h2>
                     </div>
                     <div class="panel-body">
@@ -236,6 +272,11 @@
         placeholder:'Select Courier Name',
         allowClear:true
     });
+    $('#consumed_part_status_id').select2({
+        placeholder:'Select Consumption Reason',
+        allowClear:true
+    });
+    
     
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
@@ -371,7 +412,8 @@
                                 awb_by_sf: "required",
                                 defective_part_shipped_date: "required",
                                 courier_charges_by_sf: "customNumber",
-                                defective_courier_receipt: "required"
+                                defective_courier_receipt: "required",
+                                consumed_part_status_id: "required",
                             },
                             messages: {
                                 remarks_defective_part: "Please Enter Remarks",
@@ -380,7 +422,7 @@
                                 defective_part_shipped_date: "Please Select Shipped Date",
                                 courier_charges_by_sf: "Please Enter Valid Courier Charges",
                                 defective_courier_receipt: "Please Select Courier Receipt"
-    
+                                consumed_part_status_id: "Please Select Consumption Reason",
                             },
                             submitHandler: function (form) {
                                 if( $("#courier_charges_by_sf_hidden").val()!=0)
