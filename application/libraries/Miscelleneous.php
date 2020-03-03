@@ -185,6 +185,10 @@ class Miscelleneous {
             $unit_details = $this->My_CI->booking_model->get_unit_details($where);
             foreach ($unit_details as $value) {
                 $sc_data['unit_details_id'] = $value['id'];
+                // update serial number and serial number image from booking_unit_details table
+                // added by Prity Sharma on 03-03-2020                                
+                $sc_data['serial_number'] = $value['serial_number'];
+                $sc_data['serial_number_pic'] = $value['serial_number_pic'];
                 $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
                 
                 if (!$sc_id) {
@@ -702,6 +706,10 @@ class Miscelleneous {
                                 $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
                                 $sc_data['booking_id'] = $booking_id;
                                 $sc_data['unit_details_id'] = $value['id'];
+                                // update serial number and serial number image from booking_unit_details table
+                                // added by Prity Sharma on 03-03-2020
+                                $sc_data['serial_number'] = $value['serial_number'];
+                                $sc_data['serial_number_pic'] = $value['serial_number_pic'];
                                 $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
                                 if (!$sc_id) {
                                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "

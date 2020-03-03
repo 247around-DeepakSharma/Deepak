@@ -1159,6 +1159,7 @@ class Spare_parts extends CI_Controller {
                 $cl = "btn-danger";
             }
             $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/COURIER_LOST" title="Mark Courier Lost" class="btn btn-sm btn-success courier_lost"><span class="glyphicon glyphicon-ok"></span></button>';
             $row[] = '<a href="' . base_url() . 'employee/spare_parts/defective_spare_invoice/' . $spare_list->booking_id . '" class="btn btn-sm btn-primary" style="margin-left:5px" target="_blank">Generate Invoice</a>';
         } else {
             $row[] = "";

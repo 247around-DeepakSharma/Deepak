@@ -3166,7 +3166,7 @@ class Service_centers extends CI_Controller {
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
             //     $data['courier_info'] = $this->inventory_model->getCourierInfo();
             $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-
+            $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
             if (!empty($data['spare_parts'])) {
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/update_defective_spare_parts_form', $data);
