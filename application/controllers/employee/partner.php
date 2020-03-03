@@ -771,11 +771,25 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-
+                        // Send Mail to all SF poc and owner Email
+                         $sf_list = $this->vendor_model->viewvendor('', 1);
+                        $all_poc = implode(',', array_map(function ($entry) {
+                                    return $entry['primary_contact_email'];
+                                }, $sf_list));
+                        $all_poc_array = explode(',', $all_poc);
+                        $all_owner = implode(',', array_map(function ($entry) {
+                                    return $entry['owner_email'];
+                                }, $sf_list));
+                        $all_owner_array = explode(',', $all_owner);
+                        $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
+                        $bcc = '';
+                        if (count($email_list) > 0) {
+                            $bcc = implode(',', $email_list);        
+                        }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
                     }
                     
                     //Adding Partner code in Bookings_sources table
