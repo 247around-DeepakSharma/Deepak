@@ -369,7 +369,11 @@
                               <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 > 0" class="btn btn-danger">
                                             <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
                                              </form></td>
-                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                           <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_Total_bookings}}">
+                              <input type="submit" value="{{x.Total_Pending}} ({{x.TAT_total_per}}%)" ng-if="x.Total_Pending > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.Total_Pending}} ({{x.TAT_total_per}}%)" ng-if="x.Total_Pending <= 0" class="btn btn-success">
+                                             </form></td>
                         </tr>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
                             <td>{{$index+1}}</td>
@@ -1905,22 +1909,23 @@
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
                 if(data[i].id === "00"){
                     html += "<td>"+ data[i].entity+ "</td>";
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)</td>';
                     total += data[i].TAT_0;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"</button></td>';                                 +'</form></td>';
+                    html += '<td>'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)</td>'; 
                     total += data[i].TAT_1;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)</td>';
                     total += data[i].TAT_2;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)</td>';
                     total += data[i].TAT_3;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)</td>';
                     total += data[i].TAT_4;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)</td>';
                     total += data[i].TAT_5;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)</td>';
                     total += data[i].TAT_8;
-                    html += '<td><button class="btn btn-success">"'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"</button></td>';
+                    html += '<td>'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)</td>';
                     total += data[i].TAT_16;
+                    html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";                
                 }else{
                     // Added entity_type (RM/ASM) to fetch their specific Bookings
                     var entity_type = "";
@@ -1969,8 +1974,11 @@
                                 +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
                                  +'</form></td>';
                     total += data[i].TAT_16;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_Total_bookings + '">'
+                                +'<input type="submit" value="'+ data[i].Total_Pending + ' ('+ data[i].TAT_total_per + '%)"  class="btn btn-'+ ((data[i].Total_Pending<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
                 }
-                html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
                 html += '</tr>';
             }
             html += "</tbody></table>";
