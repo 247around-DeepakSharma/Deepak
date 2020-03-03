@@ -2799,10 +2799,10 @@ class Partner extends CI_Controller {
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => $spare_status, 'received_defective_part_date' => date("Y-m-d H:i:s")));
         /* Insert Spare Tracking Details */
-        if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $spare_status, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
-            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        }
+        //if (!empty($spare_id)) {
+          //  $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $spare_status, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+          //  $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        //}
         
         if($response){
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
@@ -2859,10 +2859,10 @@ class Partner extends CI_Controller {
         if ($response) {
             
             /* Insert Spare Tracking Details */
-            if (!empty($spare_id)) {
-                $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
-                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-            }
+            //if (!empty($spare_id)) {
+              //  $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+              //  $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            //}
 
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
