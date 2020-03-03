@@ -4215,7 +4215,7 @@ class Inventory extends CI_Controller {
                                             $ledger_data['booking_id'] = trim($value['booking_id']);
                                             $ledger_data['invoice_id'] = $invoice_id;
                                             $ledger_data['is_wh_ack'] = 0;
-                                            $ledger_data['courier_id'] = $insert_courier_details;
+                                            $ledger_data['courier_id'] = $courier_company_details_id;
                                             $ledger_data['is_wh_micro'] = $is_wh_micro;
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                                             if (isset($value['request_type']) && !empty($value['request_type'])) {
