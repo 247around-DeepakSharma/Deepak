@@ -150,8 +150,8 @@
                                         if(isset($saas_module) && (!$saas_module)) { ?>
                                         <td style="vertical-align: middle;">
                                             <?php if ($row->nrn_approved==0) { ?>
-                                                
-                                            <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { ?>
+                                            <!--If SF already completed the booking or Admin completed the booking, do not allow SF to cancel booking-->                                                                                                   
+                                            <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?>
                                                 <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                             <?php }else{ ?>
                                                  <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
@@ -179,16 +179,14 @@
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <?php if ($row->nrn_approved == 0) { ?>
-                                                <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date))) { ?> 
+                                                <!--If engineer is not assigned, SF already completed the booking, Admin completed the booking do not allow SF to edit booking-->
+                                                <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?> 
                                                     <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>  
                                                  <?php } else { ?> 
                                                     <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id)); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                                 <?php } ?>
-
                                             <?php } else { ?>
-
                                                 <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>
-
                                             <?php } ?>
                                         </td>
                                         <?php } ?>
@@ -200,44 +198,43 @@
                                         <td style="vertical-align: middle;">
                                             <?php
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
-                                            ?>
-                                        <?php
-                                        $disabled_flag = false;
-                                        if ($row->nrn_approved==0) { ?>
-                                            <?php 
-                                            if($this->session->userdata('is_update') == 1){ ?> 
-                                                <?php  if($is_engineer_app == '1')  { 
-                                                    if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { 
-                                                        $disabled_flag = true;
-                                            ?>  
-                                             <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                                $disabled_flag = false;
+                                                if ($row->nrn_approved==0) { 
+                                                    if($this->session->userdata('is_update') == 1){ 
+                                                        if($is_engineer_app == '1')  { 
+                                                            if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { 
+                                                                $disabled_flag = true; ?>                                              
+                                                                    <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                                                  <?php
-                                                             }
-                                                         }
-                                                     }
-
-                                                     if ($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) && empty($disabled_flag) ) {
-                                                         $disabled_flag = true;
-                                                         ?>
-                                                <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
-                                               <?php } if(empty($disabled_flag)){ ?>
-                                               <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
-                                               <?php } }else{ ?>
-                                              <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1')  { if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { 
-                                            ?>  disabled <?php } } }  if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
-
-                                        <?php } ?>
+                                                            }
+                                                        }
+                                                    }
+                                                    //  If engineer is not assigned, SF already completed the booking, Admin completed the booking do not allow SF to complete booking                                               
+                                                    if (($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) && empty($disabled_flag)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) {
+                                                        $disabled_flag = true; ?>
+                                                        <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a> <?php
+                                                    } 
+                                                    if(empty($disabled_flag)){ ?>
+                                                        <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a> <?php
+                                                    }                                                
+                                                }
+                                                else
+                                                { ?>
+                                                    <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1')  { if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { ?>  disabled <?php } } }  if(($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a> <?php
+                                                } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                             <?php if ($row->nrn_approved==0) { ?>
-                                            <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { ?> 
-                                                <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
-                                            <?php }else{?> 
-                                                <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                            <?php 
+                                            if ($row->nrn_approved==0) { 
+                                                //  If SF already completed the booking or Admin completed the booking, do not allow SF to cancel booking                                                                                                   
+                                                if(($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?> 
+                                                    <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                                <?php } else {?> 
+                                                    <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                                                 <?php } ?>
-                                        <?php }else{ ?>
-                                             <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel' <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
-                                        <?php } ?>
+                                            <?php } else { ?>
+                                            <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel' <?php if(($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
+                                            <?php } ?>
                                         </td>                                        
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                     </tr>
