@@ -786,15 +786,15 @@ class Partner extends CI_Controller {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
                             $email_list_String = implode(',', $email_list);
-                            $to .= "," . $email_list_String;
-                            $to_array = explode(',', $to);
-                            $to_array = array_filter($to_array);
-                            $to = implode(',', $to_array);
+                            $bcc = $email_list_String;
+                            $bcc_array = explode(',', $bcc);
+                            $bcc_array = array_filter($bcc_array);
+                            $bcc = implode(',', $bcc_array);
                         }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
                     }
                     
                     //Adding Partner code in Bookings_sources table
