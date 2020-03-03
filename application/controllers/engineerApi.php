@@ -76,11 +76,11 @@ class engineerApi extends CI_Controller {
 
             $this->token = $requestData['token'];
 // temporary check for version update check for key also for older version apps///
-            if(!isset($requestData["app_version"])  || $requestData["app_version"]!='2.18' ){
-            log_message('info', "Force update error");
-            $this->sendJsonResponse(array('0001', 'Please update your app , then try again !'));
-            exit;
-            }
+            // if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
+            // log_message('info', "Force update error");
+            // $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
+            // exit;
+            // }
 
             //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
@@ -88,7 +88,13 @@ class engineerApi extends CI_Controller {
             }
 
             $this->requestId = $requestData['requestId'];
-            $this->deviceId = $requestData['deviceId'];
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+            if(isset($requestData['deviceId']) && !empty($requestData['deviceId'])){
+                $this->deviceId =   $requestData['deviceId'];
+            }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+            }
+
             $this->requestUrl = $requestData['requestUrl'];
 
             if ($this->requestUrl == "saveHandyMan") {
@@ -136,7 +142,14 @@ class engineerApi extends CI_Controller {
         $this->user = "";
         $this->user = $this->input->get('username');
         $this->token = $this->input->get('jwt');
-        $this->deviceId = $this->input->get('deviceId');
+        /*  Configure to skip device info in request from spalsh screen if device id come or not */
+        $deviceID =  $this->input->get('deviceId');
+        if(isset($deviceID) && !empty($deviceID)){
+                $this->deviceId =   $deviceID;
+        }else{
+                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+        }
+
         $this->requestId = $this->input->get('requestId');
         $this->requestUrl = $this->input->get('requestUrl');
 
@@ -2116,7 +2129,6 @@ class engineerApi extends CI_Controller {
     function getTommorowBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
- 
  ///and add alternate number
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
@@ -3309,7 +3321,7 @@ class engineerApi extends CI_Controller {
                 }
             }
         }
-        return false;
+        //  return false;  no need to return
     }
 
     /*
