@@ -3390,4 +3390,20 @@ class invoices_model extends CI_Model {
     function insert_open_cell_data($data){
         $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
     }
+    
+    
+    /**
+     * @Desc: This function is to check whether same type of transaction has already been done in past or not
+     * @params: String $select
+     * @params : Array $where
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 03-03-2020
+     */
+    function check_if_payment_already_done($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('bank_transactions');
+        return $query->result_array(); 
+    }
 }
