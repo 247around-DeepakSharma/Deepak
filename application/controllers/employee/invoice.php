@@ -691,7 +691,6 @@ class Invoice extends CI_Controller {
         array_push($files, $output_file_excel);
         //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
         $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
-        
         $output_pdf_file_name = $convert['main_pdf_file_name'];
 
         array_push($files, TMP_FOLDER . $convert['excel_file']);
@@ -864,7 +863,7 @@ class Invoice extends CI_Controller {
                 exec($cmd);
 
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
-                        . ' ' . $output_file_excel);               
+                        . ' ' . $output_file_excel);
             } else {
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
@@ -6138,6 +6137,52 @@ exit();
             $this->invoices_model->sf_payment_hold_reason_delete($Update, $where);
         }
     }
+    
+  
+     /**
+     * @Desc: This function is to get last 3 bank transactions of partner/vendor
+     * @params: Integer vendor_partner_id
+     * @params: Integer vendor_partner_type
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 27-02-2020
+     */
+    function get_vendor_partner_bank_transaction(){
+        $partner_vendor_id = $this->input->post('partner_vendor_id');
+        $partner_vendor_type = $this->input->post('partner_vendor');
+        if($partner_vendor_type == "vendor"){
+            //For vendor
+            $query = "SELECT service_centres.name, bank_transactions . * ".
+                      "FROM service_centres, bank_transactions ".
+                      "WHERE bank_transactions.partner_vendor_id = service_centres.id";
+        }else{
+            //For partner
+            $query = "SELECT partners.public_name as name, bank_transactions . * ".
+                      "FROM partners, bank_transactions ".
+                      "WHERE bank_transactions.partner_vendor_id = partners.id";
+        }
+        $where = " AND bank_transactions.partner_vendor = ? AND bank_transactions.partner_vendor_id = ? ORDER BY bank_transactions.transaction_date DESC limit 3";
+        $params = array($partner_vendor_type, $partner_vendor_id);
+        $list = $this->invoices_model->get_vendor_partner_bank_transaction($query.$where, $params);
+        $data = array();
+        $post = array();
+        $no = 0;
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_last_three_transaction_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($list),
+            "recordsFiltered" => count($list),
+            "data" => $data
+        );
+       echo json_encode($output);
+        
+    }
 
 
 
@@ -6175,4 +6220,28 @@ exit();
     }
 
 
+    
+    /**
+     *  @desc : This function is used to get rows for last three transaction table
+     *  @param : Array() $model_list
+     *  @param : Integer $no
+     *  @return : Array()
+     */
+     function get_last_three_transaction_table($model_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list['name'];
+        $row[] = $this->miscelleneous->get_formatted_date($model_list['transaction_date']);
+        $row[] = $model_list['description'];
+        $row[] = $model_list['credit_debit'];
+        if($model_list['credit_debit'] == 'Credit'){
+            $row[] = $model_list['credit_amount']; 
+        } else { 
+            $row[] = $model_list['debit_amount']; 
+        }
+        $row[] = $model_list['tds_amount'];
+        $row[] = $model_list['invoice_id'];
+        $row[] = $model_list['transaction_mode'];
+        return $row;
+    }
 }
