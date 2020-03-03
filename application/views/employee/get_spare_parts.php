@@ -175,6 +175,18 @@
        });
     }
     
+    $(document).on('click', ".courier_lost", function () {
+        if(confirm('Are you sure you want to mark this spare courier lost?')) 
+        {
+            $.ajax({
+                type : 'POST',
+                url : $(this).data('url')
+            }).done(function (data) {
+                alert('Data has been updated successfully.');
+            });
+        }    
+    });
+    
     $(document).on("click", ".open-adminremarks", function () {
         
         var booking_id = $(this).data('booking_id');

@@ -2707,8 +2707,36 @@ class Around_scheduler extends CI_Controller {
         }
 
     }
-
-
-
+    
+    /**
+     * @desc : This method is used to update status of those spare parts where defectives are not shipped for more than 45 days.
+     * @author Ankit Rajvanshi
+     */
+    function change_spares_status_pending_for_more_than_45_days() 
+    {
+        // fetch data from spare parts details.
+        $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
+        /**
+         * Check if data exists then
+         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
+         * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
+         */
+        if(!empty($spare_part_details))
+        {
+            foreach($spare_part_details as $spare_part_detail)
+            {
+                if(!empty($spare_part_detail['consumed_part_status_id']))
+                {
+                    $spare_status = OK_PART_TO_BE_SHIPPED;
+                } 
+                else
+                {
+                    $spare_status = DEFECTIVE_PARTS_PENDING;
+                }
+                // update spare parts.
+                $this->service_centers_model->update_spare_parts(['id' => $spare_part_detail['id']], ['status' => $spare_status]);
+            }
+        }
+    }
 
 }

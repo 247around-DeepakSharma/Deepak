@@ -498,4 +498,29 @@ class Around_scheduler_model extends CI_Model {
         return $query->result_array();
     }
 
+    /**
+     * @desc:This method is used to get all spare parts which are pending on service center to return for more than 45 days.
+     * @author Ankit Rajvanshi
+     * @return type Array
+     */
+    function get_spares_pending_for_more_than_45_days_after_shipment() 
+    {
+        $sql = "SELECT
+                    spare_parts_details.booking_id,
+                    spare_parts_details.id,
+                    spare_parts_details.consumed_part_status_id,
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) as days
+                FROM
+                    spare_parts_details
+                    JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
+                WHERE
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= 45 
+                    and spare_parts_details.shipped_date is not null
+                    and booking_details.service_center_closed_date is null 
+                    and spare_parts_details.defective_part_shipped_date is null
+                    and spare_parts_details.defective_part_required = 1
+                    and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = 5);";
+        
+        return $this->db->query($sql)->result_array();
+    }
 }
