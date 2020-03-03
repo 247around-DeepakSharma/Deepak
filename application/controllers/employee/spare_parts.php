@@ -1826,6 +1826,7 @@ class Spare_parts extends CI_Controller {
         $service_center_id = $this->input->post('service_center_id');
         $requested_inventory = $this->input->post('requested_spare_id');
         $warehouse_id = $this->input->post('warehouse_id');
+        $quantity = $this->input->post('quantity'); // // Quantity from DB
         $where = array('id' => $spare_parts_id);
         $row = "";
         if ($entity_type == _247AROUND_PARTNER_STRING) {
@@ -1835,6 +1836,7 @@ class Spare_parts extends CI_Controller {
             $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
             $data['defective_return_to_entity_id'] = $partner_id;
             $data['is_micro_wh'] = 0;
+            $data['quantity'] = $quantity; // Quantity
             //  $data['remarks'] = "Spare Transfer to Partner";
             $row = $this->service_centers_model->update_spare_parts($where, $data);
             if ($row) {
