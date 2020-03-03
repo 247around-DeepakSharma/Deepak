@@ -1,8 +1,8 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 ///  Making new constants for responses
 /* ENV = "test" for test and "production" for prod"  */
-define("ENV","test");
-define("APP_VERSION", "2.19");
+define("ENV","production");
+define("APP_VERSION", "2.21");
 define("FORCE_UPGRADE", "force_upgrade");
 define("SEND_WHATSAPP", "send_whatsapp");
 define("ACCESS_FROM_SPLASH_SCREEN","This Request Come From Splash Screen Without Permissions");
