@@ -1833,7 +1833,60 @@ delete FROM `taxpro_gstr2a_data` WHERE id >=1846 and id <=1854;
 delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
 
 ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
-values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+--Ankit Rajvanshi 05-02-2020
+INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
+ 
+---Abhishek 13-02-2020 --
+CREATE TABLE `247around`.`engineer_configs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `configuration_type` VARCHAR(255) NOT NULL ,  `config_value` VARCHAR(255) NULL ,  `description` VARCHAR(255) NULL DEFAULT NULL ,  `groups` VARCHAR(255) NULL DEFAULT NULL ,  `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `create_date` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL AFTER `description`;
+ 
+
+-- Kajal 13-02-2020
+ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
+
+
+-- Kajal 14-02-2020
+ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
+
+Add above Lines after this line :
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
+
+
+-- Prity 14-02-2020
+CREATE TABLE `agent_state_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `agent_id` int(11) NOT NULL,
+  `state_code` int(11) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_state_agent` (`agent_id`,`state_code`),
+  KEY `fk_agent_id` (`agent_id`),
+  KEY `fk_state_code` (`state_code`),
+  CONSTRAINT `agent_state_mapping_ibfk_1` FOREIGN KEY (`agent_id`) REFERENCES `employee` (`id`),
+  CONSTRAINT `agent_state_mapping_ibfk_2` FOREIGN KEY (`state_code`) REFERENCES `state_code` (`state_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (36,5),(36,6),(36,7),(36,8),(36,1),(36,2),(36,3),(36,4),(36,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (24,30),(24,27),(24,24),(24,22),(24,23);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10146,32),(10146,33),(10146,29),(10146,34),(10146,36),(10146,28);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (38,17),(38,21),(38,14),(38,12),(38,18),(38,16),(38,13),(38,15),(38,10),(38,20),(38,19);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10105,36);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10118,6),(10118,7);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10125,27);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10133,33),(10133,32);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10140,8);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10143,1),(10143,2),(10143,3),(10143,4);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10141,5),(10141,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10156,29);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10160,24);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10170,22),(10170,23);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10178,5),(10178,9);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,20);
+INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
  -- ghanshyam 17-02-2020----------------------------------------
  CREATE TABLE `accessories_product_description` (
@@ -1880,5 +1933,29 @@ ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT N
 --Ankit 15-01-2019
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 
---Ankit Rajvanshi 05-02-2020
-INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
+
+--Ankit Bhatt 2020-02-28
+CREATE TABLE IF NOT EXISTS `bill_to_partner_opencell` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `spare_id` int(11) NOT NULL,
+  `invoice_id` varchar(128) NOT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price` decimal(10,2),
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
+		
+		
+ALTER TABLE bill_to_partner_opencell
+ADD CONSTRAINT unique_open_cell UNIQUE (spare_id,invoice_id);
+
+--- Whatsapp Seeting --
+INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'send_whatsapp', '1', 'This is set 1 if want to send whatsaap', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_complete_whatsapp_number_tag', 'Your %s %s completed (%s). Enjoyed Service? Yes, miss call on 01140849145. If not, 01140849146. 247Around, %s Service Partner', NULL, '1', '1', '2019-04-02 04:51:44');
+ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
+-- Kajal 27-02-2020
+ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;-- Prity 02-03-2020
+
+-- Prity 02-03-2020
+update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');

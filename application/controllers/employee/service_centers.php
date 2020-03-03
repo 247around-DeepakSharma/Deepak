@@ -2558,7 +2558,7 @@ class Service_centers extends CI_Controller {
                     }
 
 
-                    /*  Abhishek Auto deliver //                 */
+                    /* 	Abhishek Auto deliver //				 */
                     foreach ($delivered_sp_all as $deliver_data) {
                         $this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
                     }
@@ -3068,8 +3068,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.defective_part_rejected_by_partner" => 0,
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
         );
@@ -8318,9 +8317,15 @@ class Service_centers extends CI_Controller {
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
             $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
-            $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            if(!empty($from_details))
+            {
+                $frominventory_req_id = $from_details[0]['requested_inventory_id'];
+            }
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-            $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            if(!empty($to_details))
+            {
+                $toinventory_req_id = $to_details[0]['requested_inventory_id'];
+            }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
                 $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
                 redirect(base_url() . 'service_center/delivered_spare_transfer');

@@ -226,8 +226,7 @@ class Engineer extends CI_Controller {
 
         $data = array();
         $no = $post['start'];
- 
-        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y') as create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
+        $list = $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name,engineer_details.installed, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, DATE_FORMAT(engineer_details.create_date,'%d-%b-%Y') as create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
             $service_id = $this->engineer_model->get_engineer_appliance(array("engineer_id" => $value->id, "is_active" => 1), "service_id");
@@ -256,6 +255,7 @@ class Engineer extends CI_Controller {
     function get_engineer_details_table($engineer_list, $no) {
         $row = array();
         $row_action = "";
+        $row_action1=""; // Extra  coloumn for excel export //
         $phone_call_button = $engineer_list->phone;
         $alternet_phone_call_button = $engineer_list->alternate_phone;
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
@@ -311,6 +311,23 @@ class Engineer extends CI_Controller {
         $row[] = $row_action;
         $row[] = "<a id='edit' class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/get_edit_engineer_form/" . $engineer_list->id . ">Edit</a>";
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";
+
+/*  Extra coloumn only for excel export show current status of engg */
+        if ($engineer_list->active == 0) {
+            $row_action1 .= "<span class='label label-danger'>InActive</span>"; // No action needed Show status only //
+        } else {
+            $row_action1 .= "<span class='label label-success'>Active</span>";
+        }
+
+        $row[] = $row_action1;
+
+
+        if($engineer_list->installed==1){
+            $row[] = "<span class='label label-success'>Installed</span>";
+        }else{
+            $row[] = "<span class='label label-danger'>UnInstalled</span>";
+        }
+
         return $row;
     }
 
@@ -700,5 +717,53 @@ class Engineer extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/engineers_list_for_notifications');
     }
+
+
+    /* @desc - This function is used to get list of enggineer and send them Firebase Notifications
+     */
+
+    function configurations() {
+
+        $this->miscelleneous->load_nav_header();
+        $data['force_upgrade'] = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        $data['whatsapp'] = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
+        $this->load->view('employee/engineers_configurations',$data);
+    }
+
+
+
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to update config
+     *@param -  
+     *@return - json
+     */
+
+
+   function update_config(){
+
+    $where = array(
+        'configuration_type'=>trim($_POST['config_type'])
+    );
+    $data=array(
+        'config_value'=>$_POST['config_value']
+    );
+    $response = $this->engineer_model->update_config_data($data,$where);
+
+    if($response){
+
+        echo json_encode(array('response'=>true));
+    }else{
+
+        echo json_encode(array('response'=>false));
+    }
+
+
+   }
+
+
+
+
+
 
 }

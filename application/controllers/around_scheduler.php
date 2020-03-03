@@ -2613,6 +2613,65 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
         }
     }
+
+
+     /**
+     * @desc This is used manage and update engg not using the APP
+     * @param 
+     * @return 
+     * Abhishek Awasthi
+     */
+    function check_app_uninstall() {
+        $select = "id,device_firebase_token";
+        $where = array('active'=>1);
+        $result = $this->engineer_model->get_active_engineers($select,$where);
+
+        foreach($result as $engineer){
+        $msg = array
+        (
+        'body'  => NULL,
+        );
+        $fields = array
+            (
+            'registration_ids' => array($engineer->device_firebase_token),
+            'notification' => $msg
+        );
+
+        $headers = array
+            (
+            'Authorization: key=' . API_ACCESS_KEY_FIREBASE,
+            'Content-Type: application/json'
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');  //https://fcm.googleapis.com/fcm
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $rowData['fire_base_response'] = $result;
+
+        $json_res = json_decode($result);
+        if ($json_res->success) {
+            // ENNG IS ACTIVE ON APP ///
+            $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>1));
+            echo "Installed";
+        } else {
+            // IF NOT  REGISTERED THEN IT MEANS HE HAS UNINSTALLED //
+            if(!empty($json_res->results[0]->error) && $json_res->results[0]->error='NotRegistered'){
+                $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>0));
+                echo "Uninstalled";
+            }
+           
+        }
+
+        }
+
+    }
     
 
 }

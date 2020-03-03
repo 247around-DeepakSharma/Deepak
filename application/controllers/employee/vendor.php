@@ -2192,14 +2192,19 @@ class vendor extends CI_Controller {
 
     function get_engineers(){
         
+        $data['installs'] = $this->engineer_model->getinstalls(array('installed'=>1)); 
+        $data['uninstalls'] = $this->engineer_model->getinstalls(array('installed'=>0)); 
+        // Show Engineer which never logged in //
+        $data['neverinstalled'] = $this->engineer_model->getinstalls(array('device_firebase_token IS NULL'=>NULL)); 
+        
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/view_engineers');
+            $this->load->view('service_centers/view_engineers',$data);
 
        } else {
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/view_engineers');
+            $this->load->view('employee/view_engineers',$data);
        }
 
     }

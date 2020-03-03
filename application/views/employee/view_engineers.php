@@ -28,6 +28,12 @@
         <br>
         <div style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_engineer"><input class="btn btn-primary" type="Button" value="Add Engineer"></a>
+             
+            <button type="button" class="btn btn-success pull-right">Installed <span class="badge"><?php echo count($installs); ?></span></button>
+            <button type="button" class="btn btn-danger pull-right" style="margin-right: 17px;">UnInstalled <span class="badge"><?php echo count($uninstalls); ?></span></button>
+
+            <button type="button" class="btn btn-warning pull-right" style="margin-right: 17px;">Never Used <span class="badge"><?php echo count($neverinstalled); ?></span></button>
+
         </div>
         <?php if($this->session->userdata('update_success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -38,23 +44,25 @@
                     </div>';
                     }
         ?>
+
         <table  class="table table-striped table-bordered" id="engineer_datatable">
             <thead>
             <tr>
-            <th>S.No</th>
+          	<th>S.No</th>
                 <th>Service Center Name</th>
                 <th>State</th>
                 <th>City</th>
-            <th>Engineer Name</th>
+          	<th>Engineer Name</th>
                 <th>Appliances</th>
-            <th>Mobile</th>
-            <th>Alternate Mobile Number</th>
-            <th>ID Proof</th>
+          	<th>Mobile</th>
+          	<th>Alternate Mobile Number</th>
+          	<th>ID Proof</th>
                 <th>Create Date</th>
                 <th>Verified</th> <!-- Remove duplicate coloumn -->
-                <th>Status</th>
+                <th>Enable/Disable</th>  <!-- Change Column Name -->
                 <th>Edit</th>
-                <!--<th>Delete</th>-->
+                <th>Status</th> <!-- Show Status Active/Inactive -->
+                <th>Install/UnInstall</th> <!-- Show  Install/Uninstall -->
             </tr>
             </thead>
             <tbody></tbody>
@@ -84,7 +92,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,9,10,11],
+                       columns: [1,2,3,4,5,6,7,9,10,13,14],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -103,7 +111,7 @@
         //Set column definition initialisation properties.
         columnDefs: [
             {
-                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12], //first column / numbering column disable sort in buttons
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12,13,14], //first column / numbering column disable sort in buttons
                 "orderable": false //set not orderable
             },
             {

@@ -344,6 +344,7 @@ class Inventory_model extends CI_Model {
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_parts_shippped_date_by_wh, '%Y-%m-%d')) AS age_defective_part_shipped_date_wh,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
@@ -351,6 +352,12 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
+/*  get Agent id for approval spare  check for isset*/
+        if(isset($post['approval_date_and_id'])){
+         $this->db->join('employee','employee.id = spare_parts_details.approval_agent_id', "left");
+         $this->db->join('entity_login_table','entity_login_table.agent_id = spare_parts_details.approval_agent_id', "left");
+        }
+        
         //$this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
         if(isset($post['is_inventory'])){
             
@@ -417,6 +424,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
+// Remove Print //
         return $query->result();
     }
     

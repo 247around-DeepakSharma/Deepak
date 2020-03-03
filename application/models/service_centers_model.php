@@ -923,7 +923,7 @@ class Service_centers_model extends CI_Model {
         return  $query->result_array();
     }
     /*
-     * This function is used to get collateral files against a booking id
+     * This function is used to get collateral files against a booking id with seperate function forCRM
     */
     function get_collateral_for_service_center_bookings($booking_id){
         $collateralData = array();
@@ -962,6 +962,69 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             }
         }
         return $collateralDataNew;
+    }
+
+
+
+ /*
+     * This function is used to get collateral files against a booking id Seperate function for API
+    */
+    function get_collateral_for_service_center_bookingsAPI($booking_id){
+        $collateralData = array();
+        $collatralDataReturn = array();
+       $bookingDataSql = "SELECT booking_details.booking_id,booking_details.partner_id,booking_details.service_id,appliance_brand,appliance_category,appliance_capacity,case when sf_model_number is not null then sf_model_number else model_number end as model_number,
+CASE WHEN booking_details.request_type like 'Repair%' THEN 'repair' WHEN booking_details.request_type like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
+FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = booking_unit_details.booking_id WHERE booking_details.booking_id='".$booking_id."' GROUP BY request_type";
+        $query = $this->db->query($bookingDataSql);
+        $data =  $query->result_array();
+        if(!empty($data)){
+            foreach($data as $bookingData){
+                $where['entity_id'] = $bookingData['partner_id'];
+                $where['appliance_id'] = $bookingData['service_id'];
+                $where['request_type'] = $bookingData['request_type'];
+                $where['brand'] = $bookingData['appliance_brand'];
+                $where['is_valid'] = 1;
+                if($bookingData['appliance_category']){
+                    $where['category'] = $bookingData['appliance_category'];
+                }
+                if($bookingData['appliance_capacity'] && $bookingData['model_number']){
+                    $where["(capacity = '".$bookingData['appliance_capacity']."' OR model = '".$bookingData['model_number']."')"] = NULL;
+                }
+                elseif ($bookingData['appliance_capacity']) {
+                    $where['capacity'] = $bookingData['appliance_capacity'];
+                }
+                elseif ($bookingData['model_number']) {
+                    $where['model'] = $bookingData['model_number'];
+                }
+
+
+            $collateralData = $this->get_collateral_by_condition($where);
+            if(empty($collateralData)){
+                unset($where['model']);
+                /*  Request type and partner /brand name */
+                $collateralDataNew = $this->get_collateral_by_condition($where);
+                if(!empty($collateralDataNew)){
+                $collateralDataNew[0]['brand'] = $bookingData['appliance_brand'];
+                $collateralDataNew[0]['request_type']  = $bookingData['request_type'];
+                }
+ 
+                array_push($collatralDataReturn,$collateralDataNew);
+            }
+            else{
+                /*  Request type and partner /brand name */
+                if(!empty($collateralData)){
+                $collateralData[0]['brand'] = $bookingData['appliance_brand'];
+                $collateralData[0]['request_type']  = $bookingData['request_type'];
+                }
+                array_push($collatralDataReturn,$collateralData);
+
+            }
+
+
+            }
+
+        }
+        return $collatralDataReturn;
     }
     
     function create_new_entry_in_spare_table($data,$id){
