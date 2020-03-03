@@ -711,7 +711,6 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        
         $spare_parts_open_cell_led_bar_data = array();
         $open_cell_led_bar_charges = array();
         //checking if selected partner is Videocon because we want open cell and led bar spare parts invoice for Videocon only
@@ -3350,7 +3349,6 @@ class invoices_model extends CI_Model {
             return false;
         }
     }
-
     
     /**
      * @Desc: This function is to get last payment details of vendor or partner
@@ -3368,6 +3366,18 @@ class invoices_model extends CI_Model {
         $this->db->limit(1);
         $query = $this->db->get();
         return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is to get last 3 bank transactions details of vendor or partner
+     * @params: String $query
+     * @params : Array $params
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 27-02-2020
+     */
+    function get_vendor_partner_bank_transaction($query, $params){
+        return execute_paramaterised_query($query, $params);
     }
     
     /**
