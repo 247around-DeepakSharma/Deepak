@@ -781,7 +781,7 @@ class Partner extends CI_Controller {
                                 }, $sf_list));
                         $all_owner_array = explode(',', $all_owner);
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
-
+                        $bcc = '';
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
