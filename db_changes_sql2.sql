@@ -1731,18 +1731,23 @@ CREATE TABLE `engineer_notification_detail` (
 --Ankit 15-01-2019
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 --Gorakh Nath 16-01-2020
-CREATE TABLE `spare_state_change_tracker` ( 
-    `id` INT(11) NOT NULL AUTO_INCREMENT , 
-    `spare_id` INT(11) NOT NULL,	
-    `action` VARCHAR(300) DEFAULT NULL , 
-    `remarks` VARCHAR(400) DEFAULT NULL , 
-    `agent_id` INT(11) NOT NULL,
-    `partner_id` INT(11) NOT NULL,
-    `service_center_id` INT(11) NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
+CREATE TABLE `spare_state_change_tracker` (
+  `id` int(11) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `action` varchar(300) DEFAULT NULL,
+  `remarks` varchar(400) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(35) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+ALTER TABLE `spare_state_change_tracker`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `spare_state_change_tracker`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `booking_state_change`  ADD `spare_id` INT(11) NULL DEFAULT NULL  AFTER `create_date`;
  
 --Ankit Bhatt 2020-01-21
  insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
