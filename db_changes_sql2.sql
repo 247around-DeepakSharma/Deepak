@@ -1956,6 +1956,19 @@ ALTER TABLE `accessories_product_description`
 
   ---------------------------------------------------------------
 
+-- Ankit Rajvanshi 17-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
+  
+-- Prity 18-02-2020
+ALTER table booking_details ADD column created_by_agent_id int NOT NULL;
+ALTER table booking_details ADD column created_source int NOT NULL;
+ALTER TABLE booking_details ADD COLUMN created_by_agent_type varchar(50) NULL DEFAULT NULL AFTER created_by_agent_id;
+
+--Ankit Bhatt 2020-02-18
+insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
+
 -- Kajal 18-02-2020
 INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Accessories', '1', 'SF Accessories Invoice', 'accessories');
 
