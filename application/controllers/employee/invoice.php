@@ -676,12 +676,21 @@ class Invoice extends CI_Controller {
             $c_files_name1 = $this->generate_partner_penalty__tat_breakup_excel($misc_data['penalty_booking_data'], $meta['invoice_id']);
             array_push($files, $c_files_name1);
         }
+        
+        // Generate Open Cell and LED Bar Spare Parts Excel
+        if (!empty($misc_data['open_cell'])) {
+            $meta['total_open_cell_price'] = $misc_data['open_cell'][0]['total_open_cell_price'];
+            $meta['total_open_cell_quantity'] = $misc_data['open_cell'][0]['total_open_cell_quantity'];
+            $sp_files_name = $this->generate_partner_open_cell_excel($partner_id, $misc_data['open_cell'], $meta);
+            array_push($files, $sp_files_name);
+
+            log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
         //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
         $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
-        
         $output_pdf_file_name = $convert['main_pdf_file_name'];
 
         array_push($files, TMP_FOLDER . $convert['excel_file']);
@@ -805,6 +814,19 @@ class Invoice extends CI_Controller {
                     unlink(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx");
                 }
             }
+            
+            //insert entry for Open cell & LED bar in bill_to_partner_opencell table so that their invoice do not get generated again
+            if (!empty($misc_data['open_cell'])) {
+                foreach ($misc_data['open_cell'] as $open_cell_booking_details) {
+                    $open_cell_data = array(
+                        'spare_id' => $open_cell_booking_details['spare_id'],
+                        'invoice_id' => $meta['invoice_id'],
+                        'quantity' => $open_cell_booking_details['shipped_quantity'],
+                        'price' => $open_cell_booking_details['partner_charge']
+                    );
+                    $this->invoices_model->insert_open_cell_data($open_cell_data);
+                }
+            }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
             if (file_exists(TMP_FOLDER . $meta['invoice_id'] . ".pdf")) {
                 unlink(TMP_FOLDER . $meta['invoice_id'] . ".pdf");
@@ -841,7 +863,7 @@ class Invoice extends CI_Controller {
                 exec($cmd);
 
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
-                        . ' ' . $output_file_excel);               
+                        . ' ' . $output_file_excel);
             } else {
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
@@ -900,7 +922,7 @@ class Invoice extends CI_Controller {
     function generate_partner_courier_excel($data, $meta){
         
         $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -944,6 +966,21 @@ class Invoice extends CI_Controller {
         $output_file_excel = TMP_FOLDER . $invoice_id . "-penalty-tat-breakup-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, array(), $tat_breakup, $output_file_excel, true);
         return $output_file_excel;
+    }
+    
+     /**
+     * @desc This function is used to generate spare parts annexure file
+     * @param Integer $partner_id
+     * @param Array $data
+     * @param Array $meta
+     * @return string
+     */
+    function generate_partner_open_cell_excel($partner_id, $data, $meta) {
+        $template = 'Partner_invoice_detail_template-v2-open_cell.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-open-cell-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+
     }
 
     /**
@@ -4281,7 +4318,7 @@ exit();
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         '(approved_defective_parts_by_partner = 1 OR defective_part_received_by_wh = 1) ' => NULL,
-                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'") ' => NULL,
+                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'") ' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
 
@@ -6136,5 +6173,101 @@ exit();
             $this->invoices_model->sf_payment_hold_reason_delete($Update, $where);
         }
     }
+    
+  
+     /**
+     * @Desc: This function is to get last 3 bank transactions of partner/vendor
+     * @params: Integer vendor_partner_id
+     * @params: Integer vendor_partner_type
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 27-02-2020
+     */
+    function get_vendor_partner_bank_transaction(){
+        $partner_vendor_id = $this->input->post('partner_vendor_id');
+        $partner_vendor_type = $this->input->post('partner_vendor');
+        if($partner_vendor_type == "vendor"){
+            //For vendor
+            $query = "SELECT service_centres.name, bank_transactions . * ".
+                      "FROM service_centres, bank_transactions ".
+                      "WHERE bank_transactions.partner_vendor_id = service_centres.id";
+        }else{
+            //For partner
+            $query = "SELECT partners.public_name as name, bank_transactions . * ".
+                      "FROM partners, bank_transactions ".
+                      "WHERE bank_transactions.partner_vendor_id = partners.id";
+        }
+        $where = " AND bank_transactions.partner_vendor = ? AND bank_transactions.partner_vendor_id = ? ORDER BY bank_transactions.transaction_date DESC limit 3";
+        $params = array($partner_vendor_type, $partner_vendor_id);
+        $list = $this->invoices_model->get_vendor_partner_bank_transaction($query.$where, $params);
+        $data = array();
+        $post = array();
+        $no = 0;
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_last_three_transaction_table($model_list, $no);
+            $data[] = $row;
+        }
 
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($list),
+            "recordsFiltered" => count($list),
+            "data" => $data
+        );
+       echo json_encode($output);
+        
+    }
+
+    
+    /**
+     *  @desc : This function is used to get rows for last three transaction table
+     *  @param : Array() $model_list
+     *  @param : Integer $no
+     *  @return : Array()
+     */
+     function get_last_three_transaction_table($model_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list['name'];
+        $row[] = $this->miscelleneous->get_formatted_date($model_list['transaction_date']);
+        $row[] = $model_list['description'];
+        $row[] = $model_list['credit_debit'];
+        if($model_list['credit_debit'] == 'Credit'){
+            $row[] = $model_list['credit_amount']; 
+        } else { 
+            $row[] = $model_list['debit_amount']; 
+        }
+        $row[] = $model_list['tds_amount'];
+        $row[] = $model_list['invoice_id'];
+        $row[] = $model_list['transaction_mode'];
+        return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to check whether this type of payment is already done or not
+     *  @param : Integer $amount
+     *  @param : Integer $vendor_partner_id
+     *  @param : Date $date
+     *  @return : Boolean 0 or 1
+     */
+    function check_if_payment_already_done(){
+        try{
+            $amount = $this->input->post('amount');
+            $vendor_partner_id = $this->input->post('vendor_partner_id');
+            $vendor_partner = $this->input->post('vendor_partner');
+            $date = date("Y-m-d", strtotime($this->input->post('date')));
+            $data = $this->invoices_model->check_if_payment_already_done("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
+            if(count($data) == 1){
+                //record found
+                echo '1';
+            }else{
+                //record not found
+                echo '0';
+            }
+        }catch (Exception $ex) {
+            echo '0';
+        }
+    }
 }

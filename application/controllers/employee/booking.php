@@ -198,6 +198,9 @@ class Booking extends CI_Controller {
             }
             // Do not un comment until serial input added in the form
             // $serial_number = $this->input->post('serial_number');
+            
+            $serial_number = !empty($this->input->post('serial_number')) ? $this->input->post('serial_number') : "";
+            $serial_number_pic = !empty($this->input->post('serial_number_pic')) ? $this->input->post('serial_number_pic') : "";
 
             $partner_net_payable = $this->input->post('partner_paid_basic_charges');
             $appliance_description = $this->input->post('appliance_description');
@@ -234,6 +237,9 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
                 $services_details['partner_id'] = $booking['partner_id'];
                 $services_details['sub_order_id'] = trim($order_item_id[$key]);
+                // save serial number and serial number pic in booking_unit_details and service_center_booking_action if request type is changed           
+                $services_details['serial_number'] = $serial_number;
+                $services_details['serial_number_pic'] = $serial_number_pic;
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance 
                  * details other wise insert appliance details and return appliance id
@@ -615,6 +621,13 @@ class Booking extends CI_Controller {
             switch ($booking_id) {
 
                 case INSERT_NEW_BOOKING:
+                    // Save Booking Creater Id and Source
+                    $created_by = !empty($this->session->userdata('id')) ? $this->session->userdata('id') : "";
+                    $created_source = !empty($this->session->userdata('user_source')) ? $this->session->userdata('user_source') : "";
+                    $created_by_agent_type = !empty($this->session->userdata('userType')) ? $this->session->userdata('userType') : "";
+                    $booking['created_by_agent_type'] = $created_by_agent_type;
+                    $booking['created_by_agent_id'] = $created_by;
+                    $booking['created_source'] = $created_source;
                     $booking['create_date'] = date("Y-m-d H:i:s");
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
@@ -2512,7 +2525,7 @@ class Booking extends CI_Controller {
 
         // check spares are pending or shipped for current booking.
         // @modifiedBy Ankit Rajvanshi
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id], false, FALSE, false, array(), false, false, false, false, false, false);
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
         if(!empty($spare_parts_details)) {
             $booking['internal_status'] = $spare_parts_details[0]['status'];
             

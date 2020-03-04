@@ -589,6 +589,12 @@ class Do_background_upload_excel extends CI_Controller {
                             $booking['sms_count'] = 1;
                         }
                     }
+                    
+                    // save booking created by source and agent Id
+                    $booking['created_by_agent_type'] = BOOKING_AGENT_EXCEL;
+                    $booking['created_by_agent_id'] = _247AROUND_LOGIN;
+                    $booking['created_source'] = BOOKING_SOURCE_Excel_File;
+                    
                     $booking_details_id = $this->booking_model->addbooking($booking);
 
                     if ($booking_details_id) {

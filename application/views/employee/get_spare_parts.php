@@ -57,14 +57,15 @@
                <div class="pull-right">
                    <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
                </div>                           
-               <div class="pull-right" style="margin-right: 100px;">
+               <div class="pull-right" style="margin-right: 80px;">
                    <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
                    <p id="partner_err"></p>
                </div>    
-               <div class="pull-right" style="margin-right: 100px;">
+               <div class="pull-right" style="margin-right: 80px;">
                    <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
                    <p id="service_centers_id_err"></p>
-               </div>    
+               </div> 
+               <div class="pull-left" style="margin-left: 20px;"><h2 class="panel-title">Consolidated Report</h2> </div> 
            </div>
        </div>
        </br>
@@ -98,7 +99,8 @@
                             <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
                             <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
                             <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost</a></li>
-                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Pending</a></li>
+                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part (All)</a></li>
+                            <li role="presentation"><a href="#defective_part_pending_oot" aria-controls="defective_part_pending_oot" id="defective_part_oot" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part (OOT)</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective/Ok Part Shipped By SF ( Courier Audit )</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Warehouse</a></li>
@@ -174,6 +176,18 @@
          }
        });
     }
+    
+    $(document).on('click', ".courier_lost", function () {
+        if(confirm('Are you sure you want to mark this spare courier lost?')) 
+        {
+            $.ajax({
+                type : 'POST',
+                url : $(this).data('url')
+            }).done(function (data) {
+                alert('Data has been updated successfully.');
+            });
+        }    
+    });
     
     $(document).on("click", ".open-adminremarks", function () {
         

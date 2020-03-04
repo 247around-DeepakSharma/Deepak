@@ -479,6 +479,7 @@
                                         <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Mark Courier Lost</th>
                                         <th class="text-center" data-orderable="false">Generate Invoice</th>
                                     </tr>
                                 </thead>
@@ -490,6 +491,53 @@
         </div>
     </div>
 </div>
+
+<div role="tabpanel" class="tab-pane" id="defective_part_pending_oot">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-1 pull-right" style="padding: 10px;">       
+                <a class="btn btn-success" id="download_spare_oot">Download</a><span class="badge" title="Download spare data"></span>     
+            </div> 
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="defective_part_oot_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" data-orderable="false">No.</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">SF Name</th>
+                                        <th class="text-center" data-orderable="false">SF Status</th>
+                                        <th class="text-center" data-orderable="false">Partner Name</th>
+                                        <th class="text-center" data-orderable="false">Spare Status</th>
+                                        <th class="text-center" data-orderable="false">Spare Warranty Status</th>
+                                        <th class="text-center" data-orderable="false">NRN Status</th>
+                                        <th class="text-center" data-orderable="false">Service Center Closed Date</th>
+                                        <th class="text-center" data-orderable="false">Booking Request Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Model Number</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Number</th>
+                                        <th class="text-center" data-orderable="false">Spare Part Shipped Date</th>
+                                        <th class="text-center" data-orderable="true">Spare Shipped Age</th>
+                                        <th class="text-center" data-orderable="false">TAT</th>
+                                        <th class="text-center" data-orderable="false">Partner AWB Number</th>
+                                        <th class="text-center" data-orderable="false">SF AWB Number</th>                                 
+                                        <th class="text-center" data-orderable="false">Parts Charge</th>
+                                        <th class="text-center" data-orderable="false">AWB Number Warehouse Dispatch Defective To Partner</th>
+                                        <th class="text-center" data-orderable="false">Spare Lost</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div role="tabpanel" class="tab-pane" id="defective_part_rejected_by_wh">
     <div class="container-fluid">
         <div class="row" >
@@ -817,6 +865,7 @@
     var partner_shipped_part_table;
     var sf_received_part_table;
     var defective_part_pending_table;
+    var defective_part_oot_table;
     var defective_part_rejected_by_partner_table;
     var estimate_cost_requested_table;
     var estimate_cost_given_table;
@@ -1482,6 +1531,50 @@
             }
         });
         
+        
+        /*
+        * @desc: Used to load the Defective/Ok Part (OOT) tab data
+        */
+          defective_part_oot_table = $('#defective_part_oot_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[15, "desc"]], 
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,20,21]
+                    },
+                    title: 'out_of_tat_defective_part_pending'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '15', status: '<?php echo DEFECTIVE_PARTS_PENDING_OOT; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                 {
+                  "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $(".dataTables_filter").addClass("pull-right");
+            }
+        });
+        
        
     });
      
@@ -1564,6 +1657,27 @@
         }
             
     }
+    
+    /*
+     * @desc: Download the OOT spare data. 
+     */
+     $("#download_spare_oot").click(function (){
+        $('#download_spare_oot').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/spare_parts/download_spare_oot_data',
+                data: { download_flag :true},
+                success: function (data) {
+                    $('#download_spare_oot').html("Download").attr('disabled',false);
+                    var obj = JSON.parse(data); 
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+     });
     
     function ArrayNoDuplicate(a) {
         var temp = {};

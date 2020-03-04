@@ -1483,7 +1483,7 @@
                                 <div class="form-group">
                                     <label for="Services">Select Appliance *</label>
                                     <p id="brand_mapping_holder" style="display:none;"><?php if(isset($results['brand_mapping'])){ echo json_encode($results['brand_mapping']); }?></p>
-                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(isset($results['partner_code'])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
+                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(isset($results['partner_code'][0])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
                                     </select>
                                 </div>
                                 <div class="form-group">
