@@ -1889,6 +1889,12 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,2
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
  -- ghanshyam 17-02-2020----------------------------------------
+=======
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+
+-- ghanshyam 17-02-2020----------------------------------------
+>>>>>>> CRM_Release_1.70.0.0
  CREATE TABLE `accessories_product_description` (
   `id` int(11) NOT NULL,
   `product_name` varchar(255) NOT NULL,
@@ -1959,3 +1965,5 @@ ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHAR
 
 -- Prity 02-03-2020
 update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');
+=======
+>>>>>>> CRM_Release_1.70.0.0

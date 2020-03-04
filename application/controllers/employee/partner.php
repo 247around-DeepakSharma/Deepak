@@ -771,11 +771,25 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-
+                        // Send Mail to all SF poc and owner Email
+                         $sf_list = $this->vendor_model->viewvendor('', 1);
+                        $all_poc = implode(',', array_map(function ($entry) {
+                                    return $entry['primary_contact_email'];
+                                }, $sf_list));
+                        $all_poc_array = explode(',', $all_poc);
+                        $all_owner = implode(',', array_map(function ($entry) {
+                                    return $entry['owner_email'];
+                                }, $sf_list));
+                        $all_owner_array = explode(',', $all_owner);
+                        $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
+                        $bcc = '';
+                        if (count($email_list) > 0) {
+                            $bcc = implode(',', $email_list);        
+                        }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
                     }
                     
                     //Adding Partner code in Bookings_sources table
@@ -5142,12 +5156,12 @@ class Partner extends CI_Controller {
         $partner_details = array();
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
-                . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
+                . "owner_name,owner_email,owner_alternate_email,owner_phone_1,gst_number,pan,"
                 . "customer_care_contact as customer_care_num,address,GROUP_CONCAT(DISTINCT employee.full_name) as am_name,GROUP_CONCAT(DISTINCT employee.official_email) as am_email, agreement_start_date, agreement_end_date,"
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
-                . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period";
+                . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period, summary_email_to,summary_email_cc,summary_email_bcc,spare_notification_email";
         $where = array('partners.is_active' => 1);
         $group_by = "partners.id";
 

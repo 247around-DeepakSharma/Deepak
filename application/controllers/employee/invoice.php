@@ -515,7 +515,7 @@ class Invoice extends CI_Controller {
                 'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $output_pdf_file_name,
                 'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_pdf_file_name),
+                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_file_excel),
                 'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($t_date)),
                 'num_bookings' => $meta['service_count'],
@@ -589,7 +589,7 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['final_courier'])){
                 foreach ($misc_data['final_courier'] as $spare_array) {
                    
-                    $this->inventory_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
+                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
                         "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
                 }
             }
@@ -1031,7 +1031,7 @@ class Invoice extends CI_Controller {
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],
                 //Mail has not 
-                'mail_sent' => $mail_ret,
+                'mail_sent' => 1,
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
@@ -1271,7 +1271,8 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['cr_total_penalty_amount'] = sprintf("%.2f",(array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_penalty_amount'] = -sprintf("%.2f",(array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_upcountry_price'] = sprintf("%.2f",$total_upcountry_price);
-            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));;
+            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));
+            $invoice_data['meta']['miscellaneous_charges'] = sprintf("%.2f",($total_misc_charges));
             
             $invoice_data['meta']['t_vp_w_tds'] = sprintf("%.2f", ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']));
             
@@ -1333,7 +1334,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $invoice_data['meta']['t_vp_w_tds']),
                     //Mail has not sent
-                    'mail_sent' => $mail_ret,
+                    'mail_sent' => 1,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
                     //SMS has been sent or not
                     'sms_sent' => 1,
@@ -2052,7 +2053,7 @@ exit();
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
                         'mail_sent' => 1,
-                        'sms_sent' => $send_mail,
+                        'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d"),
                         'agent_id' => $details['agent_id'],

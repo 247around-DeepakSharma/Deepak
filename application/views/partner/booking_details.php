@@ -822,10 +822,10 @@
                         <thead>
                             <th>One Way Distance </th>
                             <th>Upcountry Distance </th>
-                            <th>SF District </th>
-                            <th>SF Pincode </th>
-                            <th>Upcountry District </th>
-                            <th>Upcountry Pincode</th>
+                            <th>SF Base District </th>
+                            <th>SF Base Pincode </th>
+                            <th>SF Upcountry District </th>
+                            <th>SF Upcountry Pincode</th>
                             <th>Customer District </th>
                             <th>Customer Pincode </th>
                             <th>Get Route</th>

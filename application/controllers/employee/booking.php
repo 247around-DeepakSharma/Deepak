@@ -471,6 +471,8 @@ class Booking extends CI_Controller {
         $booking['repeat_reason'] = NULL;
         $actor = $next_action = NULL;
         $booking_update_flag = 0;
+        // Do not validate Order Id, if Request type is changed before Completion.
+        $is_sf_panel = !empty($this->input->post('is_sf_panel')) ? $this->input->post('is_sf_panel') : 0;
         switch ($booking_id) {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($booking['user_id'], $booking['source'], $booking['type'], $booking['booking_date']);
@@ -551,8 +553,7 @@ class Booking extends CI_Controller {
         
         
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
-      
-        if ($validate_order_id || !empty($this->session->userdata('service_center_id'))) {
+        if ($validate_order_id || !empty($is_sf_panel)) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
            
             if(!empty($is_dealer)){
