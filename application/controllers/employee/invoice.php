@@ -900,7 +900,7 @@ class Invoice extends CI_Controller {
     function generate_partner_courier_excel($data, $meta){
         
         $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
