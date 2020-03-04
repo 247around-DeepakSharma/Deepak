@@ -285,6 +285,7 @@ class Do_background_process extends CI_Controller {
 
                     $booking['current_status'] = $current_status;
                     $booking['internal_status'] = $current_status;
+                    
                     // check spares are pending or shipped for current booking.
                     // @modifiedBy Ankit Rajvanshi
                     $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
