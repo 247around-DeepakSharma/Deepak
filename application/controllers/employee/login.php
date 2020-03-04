@@ -163,7 +163,8 @@ class Login extends CI_Controller {
                 'user_group'=> $groups,
             'official_email'=>$official_email,
             'emp_name' => $emp_name,
-            'is_am' => $is_am
+            'is_am' => $is_am,
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
 //        if($this->db->login_partner_id){
@@ -292,7 +293,8 @@ class Login extends CI_Controller {
             'partners' => $partner_data,
             'sess_expiration' => 30000,
             'loggedIn' => TRUE,
-            'userType' => 'dealers'
+            'userType' => 'dealers',
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
          $this->session->set_userdata($userSession);
@@ -407,6 +409,7 @@ class Login extends CI_Controller {
             'is_filter_applicable' => $filter,
             'review' => $review,
             'emp_name' => $agentName,
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
         $this->session->set_userdata($userSession);
