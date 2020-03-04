@@ -5,7 +5,7 @@
     <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
-          <h2>Received Defective Parts</h2>
+          <h2>Received Defective/Ok Parts</h2>
          <div class="panel panel-default">            
             <div class="panel-body">
                 <div class="success_msg_div" style="display:none;">

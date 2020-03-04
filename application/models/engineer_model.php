@@ -589,7 +589,7 @@ class Engineer_model extends CI_Model {
 
 
    function getPartner_appliancesInventoryData($select,$where){
-
+        $this->db->_protect_identifiers = FALSE; /// Apply protected identifiers //
          $this->db->distinct();
          $this->db->select($select); 
          $this->db->where($where);
@@ -657,6 +657,55 @@ class Engineer_model extends CI_Model {
     $query = $this->db->get();
     return $query->result();
 
+
+   }
+
+
+   /* @author Abhishek Awasthi
+     *@Desc - This function is used to get all  engineers which are active
+     *@param -  
+     *@return - Array
+*/
+
+   function get_active_engineers($select,$where){
+
+    $this->db->select($select);
+    $this->db->where($where);
+    $this->db->from('engineer_details');
+    $query = $this->db->get();
+    return $query->result();
+
+
+   }
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to get all  app installed engineers
+     *@param -  
+     *@return - Array
+*/
+   function getinstalls($where){
+
+    $this->db->select("*");
+    $this->db->where($where);
+    $this->db->from('engineer_details');
+    $query = $this->db->get();
+    return $query->result();
+
+   }
+
+
+/* @author Abhishek Awasthi
+     *@Desc - This function is used to get consumption status 
+     *@param -  
+     *@return - Array
+*/
+   function get_consumption_status_spare($where){
+
+    $this->db->select("*");
+    $this->db->where($where);
+    $this->db->from('spare_consumption_status');
+    $query = $this->db->get();
+    return $query->result();
 
    }
 

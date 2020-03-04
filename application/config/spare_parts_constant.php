@@ -74,6 +74,8 @@ define('DEFACTIVE_PART_DELIVERED_DATE_BY_COURIER_API','defactive_part_received_d
 //Delivered Spare Status 
 define('DELIVERED_SPARE_STATUS','Delivered');
 define("MICRO_WAREHOUSE_CHARGES_TYPE", "micro-warehouse-charges");
+//open cell and led bar spare parts charge type
+define("OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE", "opencell-ledbar-charges-fixed");
 //Micro Warehouse Description
 define("MICRO_WAREHOUSE_CHARGES_DESCRIPTION", "Micro Warehouse");
 
@@ -182,3 +184,8 @@ define('Ok_PARTS_RECEIVED','Ok Part Received By Partner');
 define('OK_PARTS_REJECTED','Ok Part Rejected By Partner');
 // Ok Parts Rejected by Warehouse
 define('OK_PARTS_REJECTED_BY_WAREHOUSE','Ok Part Rejected By Warehouse');
+// Defective Parts pending OOT
+define('DEFECTIVE_PARTS_PENDING_OOT','Defective Part To Be Shipped By SF Out Of TAT');
+// Ok parts send by warehouse to partner
+define('OK_PARTS_SEND_TO_PARTNER_BY_WH','Ok parts send by warehouse to partner');
+

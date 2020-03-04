@@ -285,6 +285,14 @@ class Do_background_process extends CI_Controller {
 
                     $booking['current_status'] = $current_status;
                     $booking['internal_status'] = $current_status;
+                    // check spares are pending or shipped for current booking.
+                    // @modifiedBy Ankit Rajvanshi
+                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
+                    if(!empty($spare_parts_details)) {
+                        $booking['internal_status'] = $spare_parts_details[0]['status'];
+
+                    }
+                    
                     $booking['amount_paid'] = $data[0]['amount_paid'];
                     $booking['closing_remarks'] = $service_center['closing_remarks'];
                     $booking['cancellation_reason'] = NULL;
@@ -315,12 +323,6 @@ class Do_background_process extends CI_Controller {
                     $booking['is_in_process'] = 0;
                     $this->booking_model->update_booking($booking_id, $booking);
                     $this->miscelleneous->process_booking_tat_on_completion($booking_id);
-                    //Update Spare parts details table
-                    $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' => NULL), false);
-                    foreach ($spare as $sp) {
-                        //Update Spare parts details table
-                        $this->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('old_status' => $sp['status'], 'status' => $current_status));
-                    }
 
                     //Log this state change as well for this booking
                    $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);

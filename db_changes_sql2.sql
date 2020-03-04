@@ -1731,18 +1731,23 @@ CREATE TABLE `engineer_notification_detail` (
 --Ankit 15-01-2019
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 --Gorakh Nath 16-01-2020
-CREATE TABLE `spare_state_change_tracker` ( 
-    `id` INT(11) NOT NULL AUTO_INCREMENT , 
-    `spare_id` INT(11) NOT NULL,	
-    `action` VARCHAR(300) DEFAULT NULL , 
-    `remarks` VARCHAR(400) DEFAULT NULL , 
-    `agent_id` INT(11) NOT NULL,
-    `partner_id` INT(11) NOT NULL,
-    `service_center_id` INT(11) NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
+CREATE TABLE `spare_state_change_tracker` (
+  `id` int(11) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `action` varchar(300) DEFAULT NULL,
+  `remarks` varchar(400) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(35) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+ALTER TABLE `spare_state_change_tracker`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `spare_state_change_tracker`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `booking_state_change`  ADD `spare_id` INT(11) NULL DEFAULT NULL  AFTER `create_date`;
  
 --Ankit Bhatt 2020-01-21
  insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
@@ -1959,3 +1964,35 @@ ALTER TABLE `sf_payment_hold_reason`
 
 -- Kajal 25-02-2020
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,closure,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+--Ankit Bhatt 2020-02-24
+INSERT INTO `variable_charges_type` (`type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES ('opencell-ledbar-charges-fixed', 'Open Cell & Led Bar Charges', '998715', '18', '0', '2018-12-03 00:00:00', '2018-12-03 00:00:00');
+
+insert into vendor_partner_variable_charges(entity_type, entity_id, charges_type, fixed_charges, percentage_charge, validity_in_month, status, create_date, update_date) values('partner', 247130, 4, 10, 0, 0, 1, now(), now());
+
+
+--Ankit Bhatt 2020-02-28
+CREATE TABLE IF NOT EXISTS `bill_to_partner_opencell` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `spare_id` int(11) NOT NULL,
+  `invoice_id` varchar(128) NOT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `price` decimal(10,2),
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
+		
+		
+ALTER TABLE bill_to_partner_opencell
+ADD CONSTRAINT unique_open_cell UNIQUE (spare_id,invoice_id);
+
+--- Whatsapp Seeting --
+INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'send_whatsapp', '1', 'This is set 1 if want to send whatsaap', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_complete_whatsapp_number_tag', 'Your %s %s completed (%s). Enjoyed Service? Yes, miss call on 01140849145. If not, 01140849146. 247Around, %s Service Partner', NULL, '1', '1', '2019-04-02 04:51:44');
+ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
+-- Kajal 27-02-2020
+ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;-- Prity 02-03-2020
+
+-- Prity 02-03-2020
+update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');

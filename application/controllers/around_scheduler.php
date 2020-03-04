@@ -2647,4 +2647,96 @@ class Around_scheduler extends CI_Controller {
         }
     }
 
+
+
+
+     /**
+     * @desc This is used manage and update engg not using the APP
+     * @param 
+     * @return 
+     * Abhishek Awasthi
+     */
+    function check_app_uninstall() {
+        $select = "id,device_firebase_token";
+        $where = array('active'=>1);
+        $result = $this->engineer_model->get_active_engineers($select,$where);
+
+        foreach($result as $engineer){
+        $msg = array
+        (
+        'body'  => NULL,
+        );
+        $fields = array
+            (
+            'registration_ids' => array($engineer->device_firebase_token),
+            'notification' => $msg
+        );
+
+        $headers = array
+            (
+            'Authorization: key=' . API_ACCESS_KEY_FIREBASE,
+            'Content-Type: application/json'
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');  //https://fcm.googleapis.com/fcm
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $rowData['fire_base_response'] = $result;
+
+        $json_res = json_decode($result);
+        if ($json_res->success) {
+            // ENNG IS ACTIVE ON APP ///
+            $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>1));
+            echo "Installed";
+        } else {
+            // IF NOT  REGISTERED THEN IT MEANS HE HAS UNINSTALLED //
+            if(!empty($json_res->results[0]->error) && $json_res->results[0]->error='NotRegistered'){
+                $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>0));
+                echo "Uninstalled";
+            }
+           
+        }
+
+        }
+
+    }
+    
+    /**
+     * @desc : This method is used to update status of those spare parts where defectives are not shipped for more than 45 days.
+     * @author Ankit Rajvanshi
+     */
+    function change_spares_status_pending_for_more_than_45_days() 
+    {
+        // fetch data from spare parts details.
+        $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
+        /**
+         * Check if data exists then
+         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
+         * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
+         */
+        if(!empty($spare_part_details))
+        {
+            foreach($spare_part_details as $spare_part_detail)
+            {
+                if(!empty($spare_part_detail['consumed_part_status_id']))
+                {
+                    $spare_status = OK_PART_TO_BE_SHIPPED;
+                } 
+                else
+                {
+                    $spare_status = DEFECTIVE_PARTS_PENDING;
+                }
+                // update spare parts.
+                $this->service_centers_model->update_spare_parts(['id' => $spare_part_detail['id']], ['status' => $spare_status]);
+            }
+        }
+    }
+
 }

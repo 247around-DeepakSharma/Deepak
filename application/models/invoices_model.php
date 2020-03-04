@@ -720,7 +720,23 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        
+        $spare_parts_open_cell_led_bar_data = array();
+        $open_cell_led_bar_charges = array();
+        //checking if selected partner is Videocon because we want open cell and led bar spare parts invoice for Videocon only
+        if($partner_id == VIDEOCON_ID){
+            //finding fixed charges for open cell and led bar spare parts
+            $open_cell_led_bar_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
+            if (!empty($open_cell_led_bar_charges)){
+                //calling function to get total Open cell and LED bar spare parts used in partner bookings
+                $spare_parts_select = "SELECT bd.order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
+                                       ."FROM spare_parts_details as spd inner join booking_details as bd "
+                                       ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
+				       ."WHERE spd.parts_requested_type in (?) and bd.current_status='Completed' and spd.status != 'Cancelled' and spd.shipped_date is not null and spd.partner_id = ? and bd.closed_date >= ? and bd.closed_date < ? and btpo.invoice_id is null;";
+                $spare_parts_open_cell_led_bar_data = execute_paramaterised_query($spare_parts_select, array("'LED BAR', 'OPEN CELL'", $partner_id, $from_date, $to_date));
+            }
+        }
+
         $misc_select = 'CONCAT(\'\'\'\', booking_details.order_id) AS order_id, miscellaneous_charges.booking_id, '
                 . 'miscellaneous_charges.product_or_services, miscellaneous_charges.description, vendor_basic_charges,'
                 . 'miscellaneous_charges.partner_charge, miscellaneous_charges.id,'
@@ -740,6 +756,7 @@ class invoices_model extends CI_Model {
         $result['micro_warehouse_list'] = array();
         $result['packaging_data'] = array();
         $result['spare_requested_data'] = $spare_requested_data;
+        $result['open_cell'] = array();
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -789,6 +806,29 @@ class invoices_model extends CI_Model {
             $m[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($misc, 'partner_charge'))));
             $result['result'] = array_merge($result['result'], $m);
             $result['misc'] = $misc;
+        }
+
+    
+        if (!empty($spare_parts_open_cell_led_bar_data)) {
+            if (!empty($open_cell_led_bar_charges)){
+                //get total open cell parts quantity
+                $total_open_cell_quantity = (array_sum(array_column($spare_parts_open_cell_led_bar_data, 'shipped_quantity')));
+                //get total open cell parts price
+                $total_open_cell_price = $total_open_cell_quantity * $open_cell_led_bar_charges[0]['fixed_charges'];
+                $spare_parts_data = array();
+                $spare_parts_data[0]['description'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['hsn_code'] = '';
+                $spare_parts_data[0]['qty'] = $total_open_cell_quantity;
+                $spare_parts_data[0]['rate'] = $open_cell_led_bar_charges[0]['fixed_charges'];
+                $spare_parts_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $spare_parts_data[0]['product_or_services'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_open_cell_price);
+                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_price'] = $total_open_cell_price;
+                $spare_parts_open_cell_led_bar_data[0]['total_open_cell_quantity'] = $total_open_cell_quantity;
+                $result['result'] = array_merge($result['result'], $spare_parts_data);
+                $result['open_cell'] = $spare_parts_open_cell_led_bar_data;
+            }
+            
         }
 
         if (!empty($result['result'])) {
@@ -1010,6 +1050,7 @@ class invoices_model extends CI_Model {
             $data['penalty_booking_data'] = (!empty($penalty_data['penalty_booking_data']) ? $penalty_data['penalty_booking_data'] : array());
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];
+            $data['open_cell'] = $result_data['open_cell'];
           
             return $data;
         } else {
@@ -2178,7 +2219,7 @@ class invoices_model extends CI_Model {
                 WHERE 
                 bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."', '".Ok_PARTS_RECEIVED_BY_WAREHOUSE."', '".Ok_PARTS_RECEIVED."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
@@ -2214,7 +2255,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count, 
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_sf 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_sf FROM spare_parts_details as s2 GROUP by s2.awb_by_sf) as p ON p.awb_by_sf = s1.awb_by_sf
@@ -2252,7 +2293,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count,
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
@@ -2520,7 +2561,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count,
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf 
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_partner 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_partner FROM spare_parts_details as s2 GROUP by s2.awb_by_partner) as p ON p.awb_by_partner = s1.awb_by_partner
@@ -2555,7 +2596,7 @@ class invoices_model extends CI_Model {
                          (concat('".S3_WEBSITE_URL."misc-images/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                     count(s1.id) as count_of_booking, 
                     p.p_count, 
-                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+                    round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
                  FROM `spare_parts_details` as s1 join booking_details as bd ON bd.booking_id = s1.booking_id 
                  JOIN courier_company_invoice_details as c ON c.awb_number = s1.awb_by_wh 
                  JOIN (Select count(s2.id) as p_count, s2.awb_by_wh FROM spare_parts_details as s2 WHERE awb_by_wh IS NOT NULL GROUP by s2.awb_by_wh) as p ON p.awb_by_wh = s1.awb_by_wh
@@ -2609,7 +2650,7 @@ class invoices_model extends CI_Model {
                      (concat('".S3_WEBSITE_URL."vendor-partner-docs/',courier_invoice_file)) ELSE '' END AS courier_receipt_link,
                 s1.quantity as count_of_booking, 
                 p.p_count, 
-                round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf
+                round((c.courier_charge * count(s1.id))/p.p_count,2) as courier_charges_by_sf, c.sender_city, c.sender_state, c.receiver_city, c.receiver_state 
              FROM `courier_details` as s1 
              JOIN courier_company_invoice_details as c ON c.awb_number = s1.AWB_no 
              JOIN (Select count(s2.id) as p_count, s2.AWB_no FROM courier_details as s2 GROUP by s2.AWB_no) as p ON p.AWB_no = c.awb_number
@@ -3323,5 +3364,61 @@ class invoices_model extends CI_Model {
             return false;
         }
     }
-
+    
+    /**
+     * @Desc: This function is to get last payment details of vendor or partner
+     * @params: Integer $service_center_id
+     * @params : String - vendor or partner
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 26-02-2020
+     */
+    function get_last_payment_details($service_center_id, $vendor_partner){
+        $this->db->select('transaction_date, debit_amount');
+        $this->db->from('bank_transactions');
+        $this->db->where(array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $service_center_id, "credit_debit" => "debit"));
+        $this->db->order_by("transaction_date", "desc");
+        $this->db->limit(1);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is to get last 3 bank transactions details of vendor or partner
+     * @params: String $query
+     * @params : Array $params
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 27-02-2020
+     */
+    function get_vendor_partner_bank_transaction($query, $params){
+        return execute_paramaterised_query($query, $params);
+    }
+    
+    /**
+     * @Desc: This function is to insert open cell spare parts data in bill_to_partner_opencell table
+     * @params : Array $data
+     * @return: void
+     * @author Ankit Bhatt
+     * @date : 28-02-2020
+     */
+    function insert_open_cell_data($data){
+        $this->db->insert_ignore_duplicate_batch('bill_to_partner_opencell', $data);
+    }
+    
+    
+    /**
+     * @Desc: This function is to check whether same type of transaction has already been done in past or not
+     * @params: String $select
+     * @params : Array $where
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 03-03-2020
+     */
+    function check_if_payment_already_done($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('bank_transactions');
+        return $query->result_array(); 
+    }
 }
