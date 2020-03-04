@@ -263,7 +263,7 @@ class Engineer_model extends CI_Model {
         if(!empty($post_data['status'])) {
             $where .= " and engineer_booking_action.current_status = '".trim($post_data['status'])."'";
         } 
-        
+
         $sql = "SELECT 
                     booking_details.booking_id, booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
                     booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
@@ -282,6 +282,7 @@ class Engineer_model extends CI_Model {
                     1 {$where}";
                      
         $query = $this->db->query($sql);
+
         return $query->result_array();
         
     }  
@@ -318,7 +319,7 @@ class Engineer_model extends CI_Model {
         
         $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
             eb.`current_status`, eb.`internal_status`, partners.public_name as partner_name, bud.appliance_brand, eb.`cancellation_reason`, eb.`cancellation_remark`,
-            eb.`closing_remark`, bd.initial_booking_date, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            eb.`closing_remark`, Date_format(str_to_date(bd.initial_booking_date,"%d-%m-%Y"),"%d-%b-%Y") , DATE_FORMAT(eb.closed_date,"%d-%b-%Y") , if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
             FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
             JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
             JOIN booking_details as bd on bd.booking_id = eb.booking_id JOIN partners on partners.id = bd.partner_id
@@ -692,8 +693,6 @@ class Engineer_model extends CI_Model {
 
    }
 
-
-
 /* @author Abhishek Awasthi
      *@Desc - This function is used to get consumption status 
      *@param -  
@@ -708,7 +707,5 @@ class Engineer_model extends CI_Model {
     return $query->result();
 
    }
-
-
 
 }

@@ -1079,7 +1079,6 @@ class Inventory extends CI_Controller {
 
             // fetch record from booking details of $booking_id.
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
-
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1202,7 +1201,6 @@ class Inventory extends CI_Controller {
                     } else {
                         $data['courier_charges_by_sf'] = 0;
                     }
-
                     $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
                     
                     $track_status = $new_state = "Courier Invoice Approved By Admin";
@@ -1219,8 +1217,6 @@ class Inventory extends CI_Controller {
                     if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                         $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
-                    $track_status = $new_state = DEFECTIVE_PARTS_SHIPPED;
-
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS':

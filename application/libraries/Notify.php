@@ -47,13 +47,14 @@ class Notify {
 
                     $this->My_CI->email->from($from, '247around Team');
 
+                    $this->My_CI->email->from($from, '247around Team');
+
                     $this->My_CI->email->to($to);
                     $this->My_CI->email->bcc($bcc);
                     $this->My_CI->email->cc($cc);
 
                     $this->My_CI->email->subject($subject);
                     $this->My_CI->email->message($message);
-
                     if ($this->My_CI->email->send()) {
                         $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
                         return true;
@@ -61,13 +62,10 @@ class Notify {
                         log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
                         return false;
                     }
-                } else {
-                    log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
-                    return false;
                 }
 
-		break;
-	}
+    		break;
+    	}
     }
 
     /*
@@ -1095,5 +1093,59 @@ class Notify {
             return "9810594247";
         }
         
+    }
+    
+    /**
+     * @desc This function is used to send mail from send grid
+     * @param String $from
+     * @param String $to
+     * @param String $cc
+     * @param String $bcc
+     * @param String $subject
+     * @param String $message
+     * @param String $attachment
+     * @param String $template_tag
+     * @param String $attachment2
+     * @return boolean
+     */
+    function sendEmailFromSendGrid($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "") {
+	switch (ENVIRONMENT) {
+	    case 'production':
+		//Clear previous email
+                if(!empty($to)){
+                    $this->My_CI->email->smtp_host = SENDGRID_SMPTHOST;
+                    $this->My_CI->email->smtp_user = SENDGRID_SMPTUSER;
+                    $this->My_CI->email->smtp_pass = SENDGRID_SMPTPASSWORD;
+                    
+                    $this->My_CI->email->clear(TRUE);
+
+                    //Attach file with mail
+                    if (!empty($attachment)) {
+                        $this->My_CI->email->attach($attachment, 'attachment');
+                    }
+                    
+                    if(!empty($attachment2)){
+                        $this->My_CI->email->attach($attachment2, 'attachment');
+                    }
+
+                    $this->My_CI->email->from($from, '247around Team');
+
+                    $this->My_CI->email->to($to);
+                    $this->My_CI->email->bcc($bcc);
+                    $this->My_CI->email->cc($cc);
+
+                    $this->My_CI->email->subject($subject);
+                    $this->My_CI->email->message($message);
+                    if ($this->My_CI->email->send()) {
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, '');
+                        return true;
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                        return false;
+                    }
+                }
+
+		break;
+	}
     }
 }

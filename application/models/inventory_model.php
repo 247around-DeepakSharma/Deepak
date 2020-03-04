@@ -125,7 +125,7 @@ class Inventory_model extends CI_Model {
      */
     function update_brackets($data,$where){
         $this->db->where($where);
-	$this->db->update('brackets', $data);
+    $this->db->update('brackets', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
             return true;
@@ -344,6 +344,7 @@ class Inventory_model extends CI_Model {
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.defective_parts_shippped_date_by_wh, '%Y-%m-%d')) AS age_defective_part_shipped_date_wh,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given", FALSE);
 
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
@@ -1093,6 +1094,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+   
     /**
      * @desc This is used to insert details into inventory_master_list table in batch
      * @param Array $data
@@ -1132,7 +1134,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
+          $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1170,18 +1172,21 @@ class Inventory_model extends CI_Model {
     
     
     function get_spare_need_to_acknowledge($post, $select = "",$is_array = false){
+       
         $this->_get_spare_need_to_acknowledge($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
         
         $query = $this->db->get();
-        
         if($is_array){
             return $query->result_array();
+
         }else{
             return $query->result();
+
         }
+        
     }
     
     /**
@@ -1576,7 +1581,6 @@ class Inventory_model extends CI_Model {
         $this->db->from('inventory_ledger');
         $this->db->join('courier_details','inventory_ledger.courier_id = courier_details.id');
         $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
-        $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id','left');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2117,7 +2121,8 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
-    }
+    }    
+        
     /**
      * @desc This is used to get list of inventory stock count from inventory_stocks     
      * @table inventory_stocks 
@@ -2271,16 +2276,20 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_pending_spare_part_details($post, $where = array()) {
+    function get_pending_spare_part_details($post, $where=array()){
         $this->db->select($post['select'], FALSE);
-        $this->db->from('spare_parts_details');
+        $this->db->from('spare_parts_details');   
         $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
     }
-
-    /**
+    
+    
+    
+    
+    
+      /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
      * @params: $where array
@@ -2325,7 +2334,7 @@ class Inventory_model extends CI_Model {
      */
     function update_inventory_parts_type($data,$where){
         $this->db->where($where);
-	$this->db->update('inventory_parts_type', $data);
+    $this->db->update('inventory_parts_type', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Inventory Part Type  SQL ". $this->db->last_query());
             return true;
@@ -2344,7 +2353,7 @@ class Inventory_model extends CI_Model {
      */
     function update_alternate_inventory_set($data,$where){
         $this->db->where($where);
-	$this->db->update('alternate_inventory_set', $data);
+    $this->db->update('alternate_inventory_set', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Alternate Inventory Set SQL ". $this->db->last_query());
             return true;
@@ -2429,6 +2438,8 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
      /**
      * @Desc: This function is used to get data from the set_oow_part_type_margin table
      * @params: $select string
@@ -2486,7 +2497,7 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-     function get_generic_table_details($table, $select, $where, $where_in){
+    function get_generic_table_details($table, $select, $where, $where_in){
        
        $this->db->select($select);
        
@@ -2502,7 +2513,9 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();         
         return $query->result_array(); 
     }
-     /* @Desc: This function is used to get data from the spare_parts_details table
+       
+     /**
+     * @Desc: This function is used to get data from the spare_parts_details table
      * @params $table string 
      * @params: $select string
      * @params: $where array
@@ -2523,7 +2536,8 @@ class Inventory_model extends CI_Model {
         }
     }
 
-     /* @desc: This function is used to insert data in alternate_inventory_set table
+    /**
+     * @desc: This function is used to insert data in alternate_inventory_set table
      * @params: Array of data
      * return : boolean
      */
@@ -2545,7 +2559,7 @@ class Inventory_model extends CI_Model {
      */
     function update_group_wise_inventory_id($data,$where){
         $this->db->where($where);
-	$this->db->update('alternate_inventory_set', $data);
+    $this->db->update('alternate_inventory_set', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Inventory ID SQL ". $this->db->last_query());
             return true;
@@ -2691,6 +2705,7 @@ class Inventory_model extends CI_Model {
 
     }
     
+
     function get_entity_gst_data($select="entity_gst_details.*", $where){
         $this->db->select($select);
         $this->db->where($where);
@@ -2718,9 +2733,13 @@ class Inventory_model extends CI_Model {
             }
         }
         $this->db->from('inventory_model_mapping');
+
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+    
     
     /**
      * @Desc: This function is used to get Details of serviceable BOM
@@ -2743,7 +2762,6 @@ class Inventory_model extends CI_Model {
         return $query;        
        
     }
-   
 
     /**
      * @Desc: This function is used to get alternate parts
@@ -2963,7 +2981,7 @@ class Inventory_model extends CI_Model {
      */
     function update_inventory_model_mapping($data,$where){
         $this->db->where($where);
-	$this->db->update('inventory_model_mapping', $data);
+    $this->db->update('inventory_model_mapping', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> inventory_model_mapping Set SQL ". $this->db->last_query());
             return true;
@@ -3358,7 +3376,7 @@ class Inventory_model extends CI_Model {
      */
     function update_courier_services($data,$where){
         $this->db->where($where);
-	$this->db->update('courier_services', $data);
+    $this->db->update('courier_services', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{

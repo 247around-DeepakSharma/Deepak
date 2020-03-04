@@ -1431,8 +1431,7 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-
-    function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []){
+    function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []) {
         $row = array();
         $row[] = $no;
         $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';

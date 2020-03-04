@@ -2276,6 +2276,13 @@ class Service_centers extends CI_Controller {
                 }
                 // update spare parts details.
                 $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+                
+                // generate challan.
+                if (!empty($this->session->userdata('service_center_id')) 
+                    && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
+                    && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                    $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));
+                }
             }
             // send mail in case of courier lost.
             if (!empty($courier_lost_spare) && !empty($this->session->userdata('service_center_id'))) {
@@ -2561,7 +2568,7 @@ class Service_centers extends CI_Controller {
                     }
 
 
-                    /*  Abhishek Auto deliver //                 */
+                    /* 	Abhishek Auto deliver //				 */
                     foreach ($delivered_sp_all as $deliver_data) {
                         $this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
                     }
@@ -3460,7 +3467,6 @@ class Service_centers extends CI_Controller {
                                 unset($booking['next_action']);
                             }
                         }
-
                         $this->booking_model->update_booking($booking_id, $booking);
                     }
                     
@@ -6520,6 +6526,7 @@ class Service_centers extends CI_Controller {
             'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 
         /* Insert Spare Tracking Details */
+
         if (!empty($spare_id)) {
             $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $post_data['remarks'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);

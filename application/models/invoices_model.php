@@ -303,12 +303,15 @@ class invoices_model extends CI_Model {
 
 
             $data = $this->db->query($sql);
-            $result = $data->result_array();
+            $result1 = $data->result_array();
+            $result = array();
             if($vendor_partner ==  _247AROUND_SF_STRING){
+                $result[0]['amount_collected_paid'] = (array_sum(array_column($result1, 'amount_collected_paid')));
                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
             } else {
                  $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
+                 $result[0]['amount_collected_paid'] = $result1[0]['amount_collected_paid'];
+                 $result[0]['final_amount'] = sprintf("%.2f",($result1[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             }
             return $result;
     }
@@ -433,7 +436,8 @@ class invoices_model extends CI_Model {
                   AND users.user_id = booking_details.user_id
                   AND booking_unit_details.partner_net_payable > 0 
                   AND booking_unit_details.partner_id = partners.id
-                  AND partner_invoice_id IS NULL 
+                  AND partner_invoice_id IS NULL
+                  AND partner_refuse_to_pay = 0
                   
                   AND ( $completed_cond $pending_cond
                     ) 
@@ -664,6 +668,10 @@ class invoices_model extends CI_Model {
         
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
+                  
+                   WHEN (ud.`appliance_capacity` IS NULL) THEN
+                   concat(services,' ', price_tags )
+                
                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                    concat(services,' ', price_tags )
                     
@@ -686,8 +694,8 @@ class invoices_model extends CI_Model {
                 
                 END AS description, 
                 round(tax_rate,0) as gst_rate,
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
+                COUNT( ud.id ) AS qty, 
+                (partner_net_payable * COUNT( ud.id )) AS taxable_value,
                 `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state, partners.is_wh,
@@ -695,6 +703,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, partners
                 WHERE `partner_net_payable` >0
                 AND ud.service_id = services.id
+                AND partner_refuse_to_pay = 0
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
                 AND ( ( ud.partner_id =  '$partner_id'
@@ -1402,7 +1411,10 @@ class invoices_model extends CI_Model {
         }
         $sql = "SELECT DISTINCT round((`vendor_basic_charges`),2) AS rate,product_or_services,
                 sc.gst_no as gst_number, " . HSN_CODE . " AS hsn_code,
-               CASE 
+               CASE
+                WHEN (ud.`appliance_capacity` IS NULL) THEN
+                concat(services,' ', price_tags )
+                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                 concat(services,' ', price_tags )
                 
@@ -1424,8 +1436,8 @@ class invoices_model extends CI_Model {
                 
                 
                 END AS description, 
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
+                COUNT( ud.id ) AS qty, 
+                round((vendor_basic_charges * COUNT( ud.id)),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh,
@@ -1446,7 +1458,7 @@ class invoices_model extends CI_Model {
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
                 $is_invoice_null
-                GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags, product_or_services, tax_rate";
+                GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags, product_or_services, tax_rate,ud.appliance_capacity ";
 
         $query = $this->db->query($sql);
         $result['booking'] = $query->result_array();
