@@ -8083,7 +8083,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
      *  @return : $res array
      */
     function partner_wise_inventory_spare_parts_list() {
-
+        
         if (!empty($this->input->post("entity_id"))) {
             $where = array(
                 'inventory_master_list.entity_id' => $this->input->post("entity_id"),
@@ -8091,15 +8091,15 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 'inventory_master_list.service_id' => $this->input->post("service_id"),
                 'inventory_master_list.type' => $this->input->post("type")
             );
-            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_name', $where);
+            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_number', $where);
         }
 
-        $option = '<option selected disabled>Select Part Name</option>';
+        $option = '<option selected disabled>Select Part Number</option>';
 
         if (!empty($master_list)) {
             foreach ($master_list as $value) {
-                $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'>";
-                $option .= $value['part_name'] . "</option>";
+                $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_number'] . "'>";
+                $option .= $value['part_number'] . "</option>";
             }
         }
         echo $option;
