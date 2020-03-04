@@ -1918,7 +1918,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 -- Prity 18-02-2020
 ALTER table booking_details ADD column created_by_agent_id int NOT NULL;
 ALTER table booking_details ADD column created_source int NOT NULL;
-
+ALTER TABLE booking_details ADD COLUMN created_by_agent_type varchar(50) NULL DEFAULT NULL AFTER created_by_agent_id;
 
 --Ankit Bhatt 2020-02-18
 insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
