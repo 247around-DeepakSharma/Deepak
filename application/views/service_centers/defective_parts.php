@@ -776,7 +776,10 @@ if ((set_value("courier_charges_by_sf"))) {
                }
 
         }   
-
+        
+    $(".close").click(function(){
+        window.location.reload();
+    });
 
 </script>
 <style type="text/css">
@@ -796,3 +799,9 @@ if ((set_value("courier_charges_by_sf"))) {
         margin-bottom: 10px; 
     }
 </style>
+
+<?php
+    if ($this->session->userdata('success')) {
+        $this->session->unset_userdata('success');
+    }
+?>
