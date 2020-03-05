@@ -65,13 +65,13 @@
 </style>
 <div id="page-wrapper">
     <div class="row">
-    <?php
-    $current_tab=$this->session->flashdata('current_tab');
-    if($current_tab=='')
-    {
-        $current_tab=1;
-    }
-    ?>
+	<?php
+	$current_tab=$this->session->flashdata('current_tab');
+	if($current_tab=='')
+	{
+		$current_tab=1;
+	}
+	?>
         <div  class = "panel panel-info" style="margin:20px;" >
             <div class="panel-heading" style="font-size:130%;">
                 <?php if(isset($query)){?>
@@ -742,8 +742,7 @@
                                 echo 'has-error';
                                 }
                                 ?>">
-                               
-                                <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
+                                       <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
                                 <div class="col-md-7">
                                     <input type="file" class="form-control crop_image"  name="signature_file" id="signature_file" value = "<?php
                                     if (isset($query[0]['signature_file'])) {
@@ -794,7 +793,7 @@
                                                     <br />
                                                     <br/>
                                                       <div class="btn btn-success " id="crop_image">Crop & Upload Image</div>
-                                                 <?php //<div><input id="signature_base_image" ></div>?>
+                                                
                                                 </div>
                                             </div>
                                         </div>
@@ -841,7 +840,6 @@
                                   type: 'canvas',
                                   size: 'viewport'
                                 }).then(function(response){
-                                     //$("#signature_base_image").val(response); 
                                   $.ajax({
                                     url:"<?php  echo base_url(); ?>employee/vendor/signature_file",
                                     type: "POST",
@@ -860,78 +858,76 @@
                             });
                             });
                             </script>
-                            
-               
-                    <div class="col-md-6">
-                        <div class="form-group <?php
-                            if (form_error('address_proof_file')) {
-                                echo 'has-error';
-                            }
-                            ?>">
-                            <label for="address_proof_file" class="col-md-4 vertical-align" style="width: 25%;">Address Proof File</label>
-                            <div class="col-md-6" style="    width: 65%;">
-                                <input type="file" class="form-control"  name="address_proof_file" >
-                                <?php echo form_error('address_proof_file'); ?>
+                                 <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('address_proof_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="address_proof_file" class="col-md-3 vertical-align" style="width: 25%;">Address Proof File</label>
+                                        <div class="col-md-7" style="    width: 65%;">
+                                            <input type="file" class="form-control"  name="address_proof_file" >
+                                            <?php echo form_error('address_proof_file'); ?>
+                                        </div>
+                                        <div class="col-md-2" style="width: 9%;">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                            <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
-                    <div class="col-md-2" style="width: 9%;">
-                            <?php
-                                $src = base_url() . 'images/no_image.png';
-                                $image_src = $src;
-                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
-                                    //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['address_proof_file'];
-                                    $image_src = base_url().'images/view_image.png';
-                                }
-                                ?>
-                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
-                            <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
-                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                            <?php }?>
+                                    <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+                                 <div class="col-md-12">
+
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('contract_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="contract_file" class="col-md-3 vertical-align" style="width: 22%;">Contract File</label>
+                                        <div class="col-md-8" style="width: 59%;">
+                                            <input type="file" class="form-control"  name="contract_file" value = "<?php
+                                                if (isset($query[0]['contract_file'])) {
+                                                    echo $query[0]['contract_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('contract_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-
-               </div>
-                        <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
-                     <div class="col-md-12">
-
-                    <div class="col-md-6">
-                        <div class="form-group <?php
-                            if (form_error('contract_file')) {
-                                echo 'has-error';
-                            }
-                            ?>">
-                            <label  for="contract_file" class="col-md-3 vertical-align" style="width: 22%;">Contract File</label>
-                            <div class="col-md-8" style="width: 59%;">
-                                <input type="file" class="form-control"  name="contract_file" value = "<?php
-                                    if (isset($query[0]['contract_file'])) {
-                                        echo $query[0]['contract_file'];
-                                    }
-                                    ?>">
-                                <?php echo form_error('contract_file'); ?>
-                            </div>
-                            <div class="col-md-1">
-                                <?php
-                                    $src = base_url() . 'images/no_image.png';
-                                    $image_src = $src;
-                                    if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
-                                        //Path to be changed
-                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
-                                        $image_src = base_url().'images/view_image.png';
-                                    }
-                                    ?>
-                                <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                <?php if(isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])){?>
-                                <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                <?php }?>
-                            </div>
                         </div>
-                    </div>
-                </div>
             </div>
-            </div>
-    </div>
             <center><input type="Submit" onclick="return validate_documents()" value="<?php
                                     if (isset($selected_brands_list)) {
                                         echo "Update Documents";
@@ -2128,8 +2124,6 @@ function manageAccountNameField(value){
         }
 
     }
-
-
     $(document).ready(function(){
         var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
         var lastUrl = sessionStorage.getItem("last-url-s"+current_partner_id);
@@ -2139,7 +2133,6 @@ function manageAccountNameField(value){
         }
     });
 </script>
-
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
 <?php if($this->session->userdata('vendor_added')){$this->session->unset_userdata('vendor_added');}?>
