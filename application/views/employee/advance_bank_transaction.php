@@ -293,6 +293,11 @@
                                     if(data == 1){
                                         //this type of payment has already been done so we are asking user to confirm
                                         confirm_payment = confirm(amount + " amount of transaction for this " + par_ven + " for date " + datepicker + " has already been added. Do you still want to continue?");
+                                    }else{
+                                        //set payment confirmation to true.For case when similar type of payment exists and popup appears and admin cancel it
+                                        //That time confirm_payment will set to false and if admin again tries to pay without refreshing, then confirm_payment will not change its value
+                                        // and payment will not be done if similar type of payment is not occuring.
+                                        confirm_payment = true;
                                     }
                                     //user confirmed for the payment
                                     if(confirm_payment === true){
