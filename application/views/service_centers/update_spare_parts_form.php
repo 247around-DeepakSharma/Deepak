@@ -146,7 +146,7 @@
                                         <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                         <div class="col-md-6">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $skey;?>')" id="<?php echo "shippedmodelnumberid_".$skey;?>" name="part[<?php echo $skey;?>][shipped_model_number_id]">
-                                                <option value="" disabled="" selected="">Select Model Number</option>
+                                                <option value="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option value="<?php echo $value['id']; ?>" <?php if($value['model_number'] == $sp->model_number){ echo "selected";} ?>><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
@@ -874,8 +874,12 @@
                             $('body').loadingModal('destroy');
                             $("#courier_image").css("display","block");
                             $("#courier_price_by_partner").css("display","block");
+                            $("#courier_price_by_partner").val('');
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+                            $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
+                            $("#shipped_spare_parts_weight_in_gram").val('').removeAttr("readonly");
+                            $('#shipped_spare_parts_boxes_count').val('').trigger('change');
                         }
     
                     }
