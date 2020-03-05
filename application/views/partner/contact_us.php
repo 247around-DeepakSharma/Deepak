@@ -133,19 +133,7 @@
                                 </div>
                              </div>
                         </div>
-                        <div class="col-md-4 col-sm-4 col-xs-12">
-                             <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
-                                <div class="left col-xs-12">
-                                    <h2><b>Mr. Chandan Singh</b></h2>
-                                    <p><strong>About: </strong> Escalation </p>
-                                    <ul class="list-unstyled">
-                                       <li><i class="fa fa-envelope"></i> Email: warehouse@247around.com </li>
-                                    </ul>
-                                </div>
-                             </div>
-                         </div>
-                    </div>
-                    <div class="row">
+                   
                         <div class="col-md-4 col-sm-4 col-xs-12">
                              <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
                                 <div class="left col-xs-12">
