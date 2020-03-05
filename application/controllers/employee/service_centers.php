@@ -6618,6 +6618,7 @@ class Service_centers extends CI_Controller {
             'remarks_defective_part_by_wh' => $rejection_reason,
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
+            'approved_defective_parts_by_admin' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh')
         );
 
