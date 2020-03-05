@@ -7214,19 +7214,18 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
 
-        $select = "count(spare_parts_details.booking_id) as count";
-        $where = array(
-            "spare_parts_details.defective_part_required" => 1,
+        $select = "spare_parts_details.booking_id";
+               $where = array(
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
-            "spare_parts_details.defective_part_rejected_by_wh" => 0,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
         );
         
-        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
         $group_by = "spare_parts_details.id";
+        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
         $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         if (!empty($total_rows)) {
-            echo json_encode(array("count" => $total_rows[0]['count']), true);
+            echo json_encode(array("count" => count($total_rows), true));
         } else {
             echo json_encode(array("count" => 0), true);
         }
