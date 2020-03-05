@@ -4215,7 +4215,7 @@ class Inventory extends CI_Controller {
                                             $ledger_data['booking_id'] = trim($value['booking_id']);
                                             $ledger_data['invoice_id'] = $invoice_id;
                                             $ledger_data['is_wh_ack'] = 0;
-                                            $ledger_data['courier_id'] = $insert_courier_details;
+                                            $ledger_data['courier_id'] = $courier_company_details_id;
                                             $ledger_data['is_wh_micro'] = $is_wh_micro;
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                                             if (isset($value['request_type']) && !empty($value['request_type'])) {
@@ -5609,6 +5609,8 @@ class Inventory extends CI_Controller {
                                  */
                                 // Fetch spare details of $spare_id.
                                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                                $booking_id = $spare_part_detail['booking_id'];
+                                $partner_id = $spare_part_detail['partner_id'];
                                 $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                                 $spare_status = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
                                 if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
@@ -5620,6 +5622,32 @@ class Inventory extends CI_Controller {
                                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),
                                     'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh,
                                     'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'], 'reverse_purchase_invoice_id' => $invoice['invoice'][0]));
+
+                                // fetch record from booking details of $booking_id.
+                                $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+                                
+                                $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
+                                                '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."') " => NULL));
+
+                                $actor = $next_action = 'not_define';
+                                if (empty($is_exist)) {
+                                    $booking_internal_status = $spare_status;
+                                } else {
+                                    $booking_internal_status = $is_exist[0]['status'];
+                                }
+
+                                // Change booking internal status if booking is completed.
+                                if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                                    $booking['internal_status'] = $booking_internal_status;
+                                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
+                                    if (!empty($partner_status)) {
+                                        $booking['partner_current_status'] = $partner_status[0];
+                                        $booking['partner_internal_status'] = $partner_status[1];
+                                        $actor = $booking['actor'] = $partner_status[2];
+                                        $next_action = $booking['next_action'] = $partner_status[3];
+                                    }
+                                    $this->booking_model->update_booking($booking_id, $booking);
+                                }
                             }
 
                             if (empty($invoice['not_update_booking_id'])) {
@@ -5793,6 +5821,35 @@ class Inventory extends CI_Controller {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;
+                    
+                    // fetch record from booking details of $booking_id.
+                    $booking_id = $spare_part_detail['booking_id'];
+                    $partner_id = $spare_part_detail['partner_id'];
+                    $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+
+                    $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status", array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1, "status IN  (
+                                    '" . DEFECTIVE_PARTS_RECEIVED . "', '" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "', '" .Ok_PARTS_RECEIVED_BY_WAREHOUSE . "', '" . Ok_PARTS_RECEIVED . "', '".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."') " => NULL));
+
+                    $actor = $next_action = 'not_define';
+                    if (empty($is_exist)) {
+                        $booking_internal_status = $data['status'];
+                    } else {
+                        $booking_internal_status = $is_exist[0]['status'];
+                    }
+
+                    // Change booking internal status if booking is completed.
+                    if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        $booking['internal_status'] = $booking_internal_status;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                        }
+                        $this->booking_model->update_booking($booking_id, $booking);
+                    }
+                    
                     $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id, $val['spare_id']);
                     log_message("info", "Booking State change inserted");
                 }
@@ -7969,7 +8026,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array
      */
     function partner_wise_inventory_spare_parts_list() {
-
+        
         if (!empty($this->input->post("entity_id"))) {
             $where = array(
                 'inventory_master_list.entity_id' => $this->input->post("entity_id"),
@@ -7977,15 +8034,15 @@ class Inventory extends CI_Controller {
                 'inventory_master_list.service_id' => $this->input->post("service_id"),
                 'inventory_master_list.type' => $this->input->post("type")
             );
-            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_name', $where);
+            $master_list = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.inventory_id,inventory_master_list.part_number', $where);
         }
 
-        $option = '<option selected disabled>Select Part Name</option>';
+        $option = '<option selected disabled>Select Part Number</option>';
 
         if (!empty($master_list)) {
             foreach ($master_list as $value) {
-                $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'>";
-                $option .= $value['part_name'] . "</option>";
+                $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_number'] . "'>";
+                $option .= $value['part_number'] . "</option>";
             }
         }
         echo $option;

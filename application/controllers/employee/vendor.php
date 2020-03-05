@@ -2215,9 +2215,9 @@ class vendor extends CI_Controller {
     function get_engineers(){
         
         $data['installs'] = $this->engineer_model->getinstalls(array('installed'=>1)); 
-        $data['uninstalls'] = $this->engineer_model->getinstalls(array('installed'=>0)); 
+        $data['uninstalls'] = $this->engineer_model->getinstalls(array('installed'=>0,'device_firebase_token IS NOT NULL'=>NULL,'active'=>1));  // active but not using //
         // Show Engineer which never logged in //
-        $data['neverinstalled'] = $this->engineer_model->getinstalls(array('device_firebase_token IS NULL'=>NULL)); 
+        $data['neverinstalled'] = $this->engineer_model->getinstalls(array('device_firebase_token IS NULL'=>NULL,'active'=>1));  // active but not used till now //
         
        if($this->session->userdata('userType') == 'service_center'){
 
@@ -4337,26 +4337,31 @@ class vendor extends CI_Controller {
     }
 
     function upload_signature_file() {
+ 
+
         //Start Processing signature File Upload
-        if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+    //    if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
+            if (isset($_POST['cropped_image']) && !empty($_POST['cropped_image'])) {
             //Adding file validation
             //$checkfilevalidation = $this->file_input_validation('signature_file');
             $checkfilevalidation = 1;
             if ($checkfilevalidation) {
                 
                 //Making process for file upload
-                $tmpFile = $_FILES['signature_file']['tmp_name'];
-                $signature_file = preg_replace('/\s+/', '', $this->input->post('name')) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
-                move_uploaded_file($tmpFile, TMP_FOLDER . $signature_file);
+                // $tmpFile = $_FILES['signature_file']['tmp_name'];
+                // $signature_file = preg_replace('/\s+/', '', $this->input->post('name')) . '_signature_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['signature_file']['name'])[1];
+                // move_uploaded_file($tmpFile, TMP_FOLDER . $signature_file);
 
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
+                $signature_file = trim($_POST['cropped_image']);
                 $directory_xls = "vendor-partner-docs/" . $signature_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                $_POST['signature_file'] = $signature_file;
+              //  $_POST['signature_file'] = $signature_file;
 
-                $attachment_signature = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $signature_file;
-                unlink(TMP_FOLDER . $signature_file);
+                $attachment_signature =$signature_file;
+
+              //  unlink(TMP_FOLDER . $signature_file);
 
                 //Logging success for file uppload
                 log_message('info', __CLASS__ . ' signature file is being uploaded sucessfully.');
@@ -5251,6 +5256,7 @@ class vendor extends CI_Controller {
         }
     }
         function save_vendor_documents(){
+
             $this->checkUserSession();
             $vendor = [];
             $data = $this->input->post();
@@ -5363,7 +5369,8 @@ class vendor extends CI_Controller {
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
                // print_r($attachment_signature);
-                if($attachment_signature){} else {
+                if($attachment_signature){
+                } else {
                     //return FALSE;
                 }
             }
@@ -5399,9 +5406,9 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('pan_file'))){
                     $vendor_data['pan_file'] = $this->input->post('pan_file');
                 }  
-                if(!empty($this->input->post('signature_file'))){
-                    $vendor_data['signature_file'] = $this->input->post('signature_file');
-                }  
+                // if(!empty($this->input->post('signature_file'))){
+                    $vendor_data['signature_file'] = $attachment_signature;
+             //   }  
                 if(!empty($this->input->post('gst_file'))){
                      $vendor_data['gst_file'] = $this->input->post('gst_file');
                 }
@@ -5412,11 +5419,13 @@ class vendor extends CI_Controller {
                      $vendor_data['contract_file'] = $this->input->post('contract_file');
                 }
                 $vendor_data['agent_id'] = $agentID;
+                ///print_r($vendor_data);  exit;
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                $this->session->set_flashdata('vendor_added', "Vendor Documents Has been updated Successfully , Please Fill other details");
-				$this->session->set_flashdata('current_tab', 2);
+               
+                $this->session->set_userdata('vendor_added', 'Vendor Documents Has been updated Successfully , Please Fill other details');
+                $this->session->set_flashdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
     }
@@ -6071,4 +6080,17 @@ class vendor extends CI_Controller {
         $this->vendor_model->update_engineer($where, $data);
         echo true;
     }
+
+     function signature_file(){
+         //   if (!empty($_POST["image"])){
+            $signature_file = $_POST["image"];
+            $image_array_1 = explode(";", $signature_file);
+            $image_array_2 = explode(",", $image_array_1[1]);
+            $signature_file = base64_decode($image_array_2[1]);
+            $filename='signature'.time().'.png';
+            $imageName = TMP_FOLDER.$filename;
+            file_put_contents($imageName, $signature_file);
+            echo json_encode(array('filename' => $filename));          
+         // }
+        }
 }

@@ -6543,6 +6543,7 @@ class Service_centers extends CI_Controller {
             
             // Change booking internal status if booking is completed.
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                $booking = [];
                 $booking['internal_status'] = $spare_status;
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, $booking['internal_status'], $partner_id, $booking_id);
                 if (!empty($partner_status)) {

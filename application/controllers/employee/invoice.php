@@ -922,7 +922,7 @@ class Invoice extends CI_Controller {
     function generate_partner_courier_excel($data, $meta){
         
         $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -6243,5 +6243,31 @@ exit();
         $row[] = $model_list['invoice_id'];
         $row[] = $model_list['transaction_mode'];
         return $row;
+    }
+    
+    /**
+     *  @desc : This function is used to check whether this type of payment is already done or not
+     *  @param : Integer $amount
+     *  @param : Integer $vendor_partner_id
+     *  @param : Date $date
+     *  @return : Boolean 0 or 1
+     */
+    function check_if_payment_already_done(){
+        try{
+            $amount = $this->input->post('amount');
+            $vendor_partner_id = $this->input->post('vendor_partner_id');
+            $vendor_partner = $this->input->post('vendor_partner');
+            $date = date("Y-m-d", strtotime($this->input->post('date')));
+            $data = $this->invoices_model->check_if_payment_already_done("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
+            if(count($data) == 1){
+                //record found
+                echo '1';
+            }else{
+                //record not found
+                echo '0';
+            }
+        }catch (Exception $ex) {
+            echo '0';
+        }
     }
 }
