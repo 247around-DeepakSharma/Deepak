@@ -5400,7 +5400,9 @@ class Partner extends CI_Controller {
             $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
         }
         $data['services'] = $this->booking_model->selectservice();
-        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID,'report_type' => 'partner_custom_summary_report'),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        $data['detailedSummaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID,'report_type' => 'partner_detailed_summary_report'),NULL,array("length"=>50,"start"=>""),
                 array('id'=>'DESC'),NULL,NULL,array());
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/report',$data);
@@ -9015,4 +9017,113 @@ class Partner extends CI_Controller {
         $html = $data['html'];
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
     }
+    
+    /**
+     * Method Generate CSV file partner detailed summary report.
+     * @param type $partnerID
+     * @param type $postArray
+     * @return string
+     * @author Ankit Rajvanshi
+     */
+    private function create_detailed_summary_report_file($partnerID,$postArray){
+        $where = array();
+        if(!empty($postArray['Date_Range'])) {
+            $dateArray  = explode(" - ",$postArray['Date_Range']);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+        }
+        
+        $status = $postArray['Status'];
+        if($postArray['State']){
+            $state = explode(",",$postArray['State']);
+        }
+        else{
+            $state =array('All');
+        }
+        
+        if(!empty($postArray['Completion_Date_Range'])) {
+            $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
+            $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            
+            $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
+        }
+        
+        $newCSVFileName = "Booking_detailed_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        
+        if($status != 'All'){
+            if($status == _247AROUND_PENDING){
+                $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
+                $where[] = "booking_details.service_center_closed_date IS NULL";
+            }
+            else if($status == _247AROUND_COMPLETED){
+                    $where[] = "!(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                    $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
+            else{
+                $where[] = "(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
+            }
+            if(!in_array('All',$state)){
+                $where[] = "booking_details.state IN ('".implode("','",$state)."')";
+            }            
+           log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+           
+           if(!empty($this->session->userdata('service_center_id'))) {
+              $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
+           }
+        $report =  $this->partner_model->get_detailed_summary_report_query($partnerID,implode(' AND ',$where));
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        write_file($csv, $new_report);
+        return $newCSVFileName;
+    }
+
+    /*
+     * This function is use to create and  save partner's detailed summary report 
+     * @author Ankit Rajvanshi
+     */
+    function create_and_save_partner_detailed_summary_report($partnerID){
+            log_message('info', __FUNCTION__ . "Function Start For ".print_r($this->input->post(),true)." Partner ID : ".$partnerID);
+            $postArray = $this->input->post();
+            //Create Summary Report
+            $newCSVFileName = $this->create_detailed_summary_report_file($partnerID,$postArray);
+             //Save File on AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "summary-excels/" . $newCSVFileName;
+            $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            unlink(TMP_FOLDER . $newCSVFileName);
+            if($is_upload == 1){
+                //Save File log in report log table
+                if(!empty($partnerID)) {
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                } else {
+                    $data['entity_type'] = _247AROUND_SF_STRING;
+                }
+                if(!empty($partnerID)) {
+                    $data['entity_id'] = $partnerID;
+                } else {
+                    $data['entity_id'] = $this->session->userdata('service_center_id');
+                }
+                
+                $data['report_type'] = "partner_detailed_summary_report";
+                $data['filters'] = json_encode($postArray);
+                $data['url'] =$directory_xls;
+                $data['agent_id'] =$this->session->userdata('agent_id');
+                $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
+                if($is_save){
+                   $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
+                   echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
+                }
+                else{
+                    echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
+                }
+            }
+    }
+
 }

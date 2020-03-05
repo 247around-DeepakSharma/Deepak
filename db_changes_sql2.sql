@@ -1847,7 +1847,6 @@ ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL A
 ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 
-
 -- Kajal 14-02-2020
 ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
 
@@ -1889,12 +1888,10 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,2
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
  -- ghanshyam 17-02-2020----------------------------------------
-=======
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
 
 
 -- ghanshyam 17-02-2020----------------------------------------
->>>>>>> CRM_Release_1.70.0.0
  CREATE TABLE `accessories_product_description` (
   `id` int(11) NOT NULL,
   `product_name` varchar(255) NOT NULL,
@@ -1965,5 +1962,10 @@ ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHAR
 
 -- Prity 02-03-2020
 update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');
-=======
->>>>>>> CRM_Release_1.70.0.0
+
+
+-- Ankit Rajvanshi 17-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
+  
+
