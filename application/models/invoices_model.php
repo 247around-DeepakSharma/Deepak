@@ -131,13 +131,16 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_bank_transactions_details($select,$data, $join = '') {
+    function get_bank_transactions_details($select,$data, $join = '', $limit = 0) {
         $this->db->select($select);
         $this->db->where($data);
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
         $this->db->order_by('transaction_date DESC');
+        if($limit != 0){
+            $this->db->limit($limit);
+        }
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
     }
