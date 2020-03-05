@@ -1014,7 +1014,7 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close repeat-close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
