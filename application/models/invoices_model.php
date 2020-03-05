@@ -3366,24 +3366,6 @@ class invoices_model extends CI_Model {
     }
     
     /**
-     * @Desc: This function is to get last payment details of vendor or partner
-     * @params: Integer $service_center_id
-     * @params : String - vendor or partner
-     * @return: Array()
-     * @author Ankit Bhatt
-     * @date : 26-02-2020
-     */
-    function get_last_payment_details($service_center_id, $vendor_partner){
-        $this->db->select('transaction_date, debit_amount');
-        $this->db->from('bank_transactions');
-        $this->db->where(array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $service_center_id, "credit_debit" => "debit"));
-        $this->db->order_by("transaction_date", "desc");
-        $this->db->limit(1);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
-    /**
      * @Desc: This function is to get last 3 bank transactions details of vendor or partner
      * @params: String $query
      * @params : Array $params
