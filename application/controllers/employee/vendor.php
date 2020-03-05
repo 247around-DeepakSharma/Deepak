@@ -2215,9 +2215,9 @@ class vendor extends CI_Controller {
     function get_engineers(){
         
         $data['installs'] = $this->engineer_model->getinstalls(array('installed'=>1)); 
-        $data['uninstalls'] = $this->engineer_model->getinstalls(array('installed'=>0)); 
+        $data['uninstalls'] = $this->engineer_model->getinstalls(array('installed'=>0,'device_firebase_token IS NOT NULL'=>NULL,'active'=>1));  // active but not using //
         // Show Engineer which never logged in //
-        $data['neverinstalled'] = $this->engineer_model->getinstalls(array('device_firebase_token IS NULL'=>NULL)); 
+        $data['neverinstalled'] = $this->engineer_model->getinstalls(array('device_firebase_token IS NULL'=>NULL,'active'=>1));  // active but not used till now //
         
        if($this->session->userdata('userType') == 'service_center'){
 
