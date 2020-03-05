@@ -540,9 +540,15 @@
             
            }
         
-    }    
+    } 
+    
+    $(".close").click(function(){
+        window.location.reload();
+    });
+    
 </script>
 <?php
     if ($this->session->userdata('success')) {
         $this->session->unset_userdata('success');
-    }?>
+    }
+?>
