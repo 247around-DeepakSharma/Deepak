@@ -621,6 +621,13 @@ class Booking extends CI_Controller {
             switch ($booking_id) {
 
                 case INSERT_NEW_BOOKING:
+                    // Save Booking Creater Id and Source
+                    $created_by = !empty($this->session->userdata('id')) ? $this->session->userdata('id') : "";
+                    $created_source = !empty($this->session->userdata('user_source')) ? $this->session->userdata('user_source') : "";
+                    $created_by_agent_type = !empty($this->session->userdata('userType')) ? $this->session->userdata('userType') : "";
+                    $booking['created_by_agent_type'] = $created_by_agent_type;
+                    $booking['created_by_agent_id'] = $created_by;
+                    $booking['created_source'] = $created_source;
                     $booking['create_date'] = date("Y-m-d H:i:s");
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
@@ -2518,7 +2525,7 @@ class Booking extends CI_Controller {
 
         // check spares are pending or shipped for current booking.
         // @modifiedBy Ankit Rajvanshi
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id], false, FALSE, false, array(), false, false, false, false, false, false);
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
         if(!empty($spare_parts_details)) {
             $booking['internal_status'] = $spare_parts_details[0]['status'];
             

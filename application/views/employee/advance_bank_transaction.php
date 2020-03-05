@@ -218,6 +218,7 @@
         
     }
     
+    var confirm_payment  = true;
           (function($,W,D)
     {
       var JQUERY4U = {};
@@ -237,14 +238,16 @@
                           minlength:1
                           },
                       tdate: "required",
-                      tds_amount: "required"
+                      tds_amount: "required",
+                      description: "required"
                   },
                   messages: {
                      // partner_vendor: "Please select Partner/Vendor",
                       credit_debit: "Please select credit/debit.",
                       amount: "Please enter credit/debit amount.",
                       tdate: "Please enter transaction date",
-                      tds_amount: "Please enter TDS"
+                      tds_amount: "Please enter TDS",
+                      description: "Please enter description"
                   },
                   submitHandler: function(form) {
                        $('#submitform').val("Please wait.....");
@@ -280,9 +283,29 @@
                             return false;
                         }
 
-                        form.submit();
-                      
-                      
+                        var name = $("#name").val();
+                        var datepicker = $("#datepicker").val();
+                        $.ajax({
+                                type: 'POST',
+                                url: '<?php echo base_url(); ?>employee/invoice/check_if_payment_already_done',
+                                data: {amount : amount, vendor_partner_id : name, vendor_partner : par_ven, date : datepicker},
+                                success: function (data) {
+                                    if(data == 1){
+                                        //this type of payment has already been done so we are asking user to confirm
+                                        confirm_payment = confirm(amount + " amount of transaction for this " + par_ven + " for date " + datepicker + " has already been added. Do you still want to continue?");
+                                    }
+                                    //user confirmed for the payment
+                                    if(confirm_payment === true){
+                                        form.submit();
+                                    }
+                                    else{
+                                        //user denied for the payment
+                                        document.getElementById('submitform').disabled=false;
+                                        $('#submitform').val("Save");
+                                    }
+                            }
+                          });
+
                   }
     
               });
@@ -477,9 +500,10 @@
                 <div class="col-md-6">
                     <span id="errms5"></span>
                     <div class="form-group">
-                        <label for="name" class="col-md-4">Description</label>
+                        <label for="name" class="col-md-4">Description<span class="red">*</span></label>
                         <div class="col-md-6">
-                            <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
+                            <textarea class="form-control" id="description" name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
+                            <label for="description" generated="true" class="error"></label>
                         </div>
                     </div>
                 </div>
