@@ -1149,6 +1149,10 @@ function set_upcountry() {
             }
         });
     
+        $(".repeat-close").click(function(){
+            alert("Repeat booking can not be created without Parent Booking");
+            $(".repeat_Service").prop("checked", false);
+        });
 });
 
 function dealer_setup(partner_id,search_term,search_filed){
