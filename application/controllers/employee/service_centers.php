@@ -7221,8 +7221,10 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.defective_part_rejected_by_wh" => 0,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
         );
-        $group_by = "spare_parts_details.service_center_id";
-        $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);
+        
+        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
+        $group_by = "spare_parts_details.id";
+        $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         if (!empty($total_rows)) {
             echo json_encode(array("count" => $total_rows[0]['count']), true);
         } else {
