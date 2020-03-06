@@ -586,6 +586,14 @@ function addBookingDialog(chanel = '') {
         return false;
     }
 
+    // Make remarks mandatory 
+    if(!is_sf_panel && ($('#query_remarks').length > 0) && ($('#query_remarks').val() == ""))
+    {
+        alert('Please Enter Remarks');
+        $('#query_remarks').focus();
+        return false;
+    }
+
     if (count_number > 1) {
 
         $('.clone_m').html("");

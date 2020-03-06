@@ -2775,9 +2775,7 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
-
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
                 if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                     $this->booking_model->update_booking($booking_id, $booking);
                 }

@@ -1630,6 +1630,15 @@ class Partner extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
+                    
+                    // set created_by, created_source and agent_type from session in booking_details Table
+                    $created_by = !empty($this->session->userdata('agent_id')) ? $this->session->userdata('agent_id') : "";
+                    $created_source = !empty($this->session->userdata('user_source')) ? $this->session->userdata('user_source') : "";
+                    $created_by_agent_type = !empty($this->session->userdata('userType')) ? $this->session->userdata('userType') : "";
+                    $booking['created_by_agent_type'] = $created_by_agent_type;
+                    $booking['created_by_agent_id'] = $created_by;
+                    $booking['created_source'] = $created_source;
+                    
                     $return_id = $this->booking_model->addbooking($booking);
                     if($requestData['booking_request_symptom']) {
                         $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);

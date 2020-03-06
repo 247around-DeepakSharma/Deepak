@@ -75,9 +75,7 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
- 
 // temporary check for version update check for key also for older version apps///
- 
             // if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
             // log_message('info', "Force update error");
             // $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
@@ -85,7 +83,6 @@ class engineerApi extends CI_Controller {
             // }
 
             //username is user email address, not her name
- 
             if (array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
             }
@@ -2132,7 +2129,7 @@ class engineerApi extends CI_Controller {
     function getTommorowBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        //and add alternate number
+ ///and add alternate number
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
@@ -3642,7 +3639,7 @@ class engineerApi extends CI_Controller {
      * @response - json
      */
 
-    function getBookingDetails() {
+  function getBookingDetails() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $response = array();
@@ -3684,6 +3681,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0060", "Booking id not found"));
         }
     }
+
 
     /*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number

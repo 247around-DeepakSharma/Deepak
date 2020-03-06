@@ -1,5 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <!--<script src="<?php echo base_url() ?>js/custom_js.js"></script>-->
+<script src="<?php echo base_url()?>js/croppie.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo base_url()?>css/croppie.css">
 <style type="text/css">
     .btn-group-sm>.btn, .btn-sm {padding:1px 5px !important}
     #tabs ul{
@@ -125,7 +127,7 @@
                     <div id="tabs" style=""  class="col-md-12 panel-title"style="padding: 10px 8px 0px;">
                         <ul>
                             <li><a href="#" id="1" class="btn nav nav-pills panel-title" style="background-color:#fff">Basic Details</a></li>
-                            <li><a href="#tab-2"  id="2" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a</li>
+                            <li><a href="#tab-2"  id="2" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a></li>
                             <li><a href="#tab-3"  id="3" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Products and Brands</a></li>
                             <li><a href="#tab-4"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Contact Person</a></li>
                              <li><a href="#tab-5"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Bank Details</a></li>
@@ -731,41 +733,131 @@
                                 <?php } ?>
                                         </div>
                             </div>
-                                    <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
-                            <div class="col-md-12">
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('signature_file')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
-                                        <div class="col-md-7">
-                                            <input type="file" class="form-control"  name="signature_file" id="signature_file" value = "<?php
-                                                if (isset($query[0]['signature_file'])) {
-                                                    echo $query[0]['signature_file'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('signature_file'); ?>
+
+                                <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
+            <div class="col-md-12">
+                    <div class="col-md-6">
+                         <div class="form-group <?php
+                                if (form_error('signature_file')) {
+                                echo 'has-error';
+                                }
+                                ?>">
+                               
+                                <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
+                                <div class="col-md-7">
+                                    <input type="file" class="form-control crop_image"  name="signature_file" id="signature_file" value = "<?php
+                                    if (isset($query[0]['signature_file'])) {
+                                        echo $query[0]['signature_file'];
+                                    }
+                                    ?>">
+                                   
+                                    
+                                 </div> 
+
+
+                                  <div class="col-md-2">
+                            <?php
+                            $src = base_url() . 'images/no_image.png';
+                            $image_src = $src;
+                            if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                //Path to be changed
+                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['signature_file'];
+                                $image_src = base_url() . 'images/view_image.png';
+                            }
+                            ?>
+                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                            <?php if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) { ?>
+                                <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['signature_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                            <?php } ?>
+                            <input type="hidden" id="cropped_image_file" name="cropped_image">
+
+                        </div>  
+                            </div>  
+                            <?php echo form_error('signature_file'); ?>
+                    </div>
+                    
+                            <div id="uploadimageModal" class="modal" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Upload & Crop Image</h4>
                                         </div>
-                                        <div class="col-md-2">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';                                                $image_src = $src;
-                                                if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['signature_file'];
-                                                    $image_src = base_url().'images/view_image.png';
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                            <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
-                                          
-                                        </div>  
-                                    </div>   
-                           
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-8 text-center">
+                                                      <div id="image_demo" style="width:350px; margin-top:30px"></div>
+                                                </div>
+                                                <div class="col-md-4" style="padding-top:30px;">
+                                                    <br />
+                                                    <br />
+                                                    <br/>
+                                                      <div class="btn btn-success " id="crop_image">Crop & Upload Image</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+
+
+                            <script>  
+                            $(document).ready(function(){
+
+                                $image_crop = $('#image_demo').croppie({
+                                enableExif: true,
+                                viewport: {
+                                  width:250,
+                                  height:100,
+                                  type:'square' 
+                                },
+                                boundary:{
+                                  width:300,
+                                  height:300
+                                }
+                              });
+
+                              $('#signature_file').on('change', function(){
+                                var reader = new FileReader();
+                                reader.onload = function (event) {
+                                  $image_crop.croppie('bind', {
+                                    url: event.target.result
+                                  }).then(function(){
+                                    console.log('jQuery bind complete');
+                                  });
+                                }
+                                reader.readAsDataURL(this.files[0]);
+                                $('#uploadimageModal').modal('show');
+                              });
+
+                    
+                             $('#crop_image').click(function(event){
+                                  $image_crop.croppie('result', {
+                                  type: 'canvas',
+                                  size: 'viewport'
+                                }).then(function(response){
+                                  $.ajax({
+                                    url:"<?php  echo base_url(); ?>employee/vendor/signature_file",
+                                    type: "POST",
+                                    data:{"image": response},
+                                    success:function(data)
+                                    {   
+                                        var tmp  = "<?php  echo TMP_FOLDER; ?>";
+                                        var data = JSON.parse(data);
+                                        console.log(data.filename);
+                                        $("#cropped_image_file").val(data.filename);
+                                         
+                                      $('#uploadimageModal').modal('hide');
+                                   }
+                                });
+                              });
+                            });
+                            });
+                            </script>
                                  <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('address_proof_file')) {
@@ -1376,8 +1468,7 @@
 </div>
 </div>
 </div>
-<!--Validations here-->
-<?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
+
 <!--Validation for page1-->
 <script type="text/javascript">
 
@@ -2044,3 +2135,6 @@ function manageAccountNameField(value){
         }
     });
 </script>
+<!--Validations here-->
+<?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
+<?php if($this->session->userdata('vendor_added')){$this->session->unset_userdata('vendor_added');}?>

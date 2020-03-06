@@ -1716,7 +1716,6 @@ ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT 
 
 
 ---Abhishek 10-01-2019
-
 ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
 CREATE TABLE `engineer_notification_detail` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1741,18 +1740,27 @@ ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
 
 --Gorakh Nath 16-01-2020
-CREATE TABLE `spare_state_change_tracker` ( 
-    `id` INT(11) NOT NULL AUTO_INCREMENT , 
-    `spare_id` INT(11) NOT NULL,	
-    `action` VARCHAR(300) DEFAULT NULL , 
-    `remarks` VARCHAR(400) DEFAULT NULL , 
-    `agent_id` INT(11) NOT NULL,
-    `partner_id` INT(11) NOT NULL,
-    `service_center_id` INT(11) NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
+CREATE TABLE `spare_state_change_tracker` (
+  `id` int(11) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `action` varchar(300) DEFAULT NULL,
+  `remarks` varchar(400) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `entity_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(35) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+ALTER TABLE `spare_state_change_tracker`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `spare_state_change_tracker`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `booking_state_change`  ADD `spare_id` INT(11) NULL DEFAULT NULL  AFTER `create_date`;
+ 
+--Ankit Bhatt 2020-01-21
+ insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
 
 
 --Ankit Bhatt 2020-01-22
@@ -1871,24 +1879,26 @@ delete FROM `taxpro_gstr2a_data` WHERE id >=1885 and id <=1891;
 ALTER TABLE `taxpro_gstr2a_data` ADD UNIQUE( checksum(255),gst_no, invoice_number, invoice_amount, gst_rate, taxable_value, invoice_date);
 
 
-
 --Ankit Bhatt 2020-02-18
 insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
+--Ankit Rajvanshi 05-02-2020
+INSERT INTO `spare_consumption_status` (`tag`, `consumed_status`, `reason_text`, `status_description`, `is_consumed`, `create_date`, `update_date`, `active`) VALUES ('part_not_received', 'Part not Received', 'Part not Received', 'For any reason part not received to you', '0', '2019-08-29 11:43:40', '2019-08-29 11:43:40', '1');
+ 
+---Abhishek 13-02-2020 --
+CREATE TABLE `247around`.`engineer_configs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `configuration_type` VARCHAR(255) NOT NULL ,  `config_value` VARCHAR(255) NULL ,  `description` VARCHAR(255) NULL DEFAULT NULL ,  `groups` VARCHAR(255) NULL DEFAULT NULL ,  `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `create_date` DATETIME NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `engineer_configs` ADD `app_version` VARCHAR(10) NULL DEFAULT NULL AFTER `description`;
 
 -- Kajal 13-02-2020
 ALTER TABLE `booking_details` MODIFY `sf_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
 ALTER TABLE `booking_details` MODIFY `partner_upcountry_rate` DECIMAL(10,2) NULL DEFAULT NULL;
-
-
 
 -- Kajal 14-02-2020
 ALTER TABLE `miscellaneous_charges` ADD `purchase_invoice_file` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `approval_file`;
 
 Add above Lines after this line :
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
-
-
 
 -- Prity 14-02-2020
 CREATE TABLE `agent_state_mapping` (
@@ -1924,6 +1934,12 @@ INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10181,10),(10181,2
 INSERT INTO agent_state_mapping (agent_id,state_code) VALUES (10186,28);
 
  -- ghanshyam 17-02-2020----------------------------------------
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+
+-- ghanshyam 17-02-2020----------------------------------------
+>>>>>>> CRM_Release_1.70.0.0
+>>>>>>> CRM_Release_1.70.0.1
  CREATE TABLE `accessories_product_description` (
   `id` int(11) NOT NULL,
   `product_name` varchar(255) NOT NULL,
@@ -1945,14 +1961,25 @@ ALTER TABLE `accessories_product_description`
   ALTER TABLE `accessories_product_description`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
-  ---------------------------------------------------------------
+
+-- Ankit Rajvanshi 17-02-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
+  
+-- Prity 18-02-2020
+ALTER table booking_details ADD column created_by_agent_id int NOT NULL;
+ALTER table booking_details ADD column created_source int NOT NULL;
+ALTER TABLE booking_details ADD COLUMN created_by_agent_type varchar(50) NULL DEFAULT NULL AFTER created_by_agent_id;
+
+--Ankit Bhatt 2020-02-18
+insert into header_navigation(entity_type, title, title_icon, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Part Sold Reverse Spare Sale Invoice ', null, 'employee/invoice/spare_sale_invoice_list', 3, 57, 'admin,developer', 'main_nav', 1, now());
 
 -- Kajal 18-02-2020
 INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Accessories', '1', 'SF Accessories Invoice', 'accessories');
 
 -- Kajal 19-02-2020
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_accessories_invoice', 'SF Accessories Invoice', 'Dear SF, <br/><br/> Please find Accessories Invoice attached for your reference.  <br/><br/> With Regards, <br>247around Team', 'billing@247around.com', '', '', '', '1', CURRENT_TIMESTAMP);
-
 
 -- Ghanshyam 20_02_2020
 
@@ -1996,6 +2023,14 @@ ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER
 INSERT INTO `variable_charges_type` (`type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES ('opencell-ledbar-charges-fixed', 'Open Cell & Led Bar Charges', '998715', '18', '0', '2018-12-03 00:00:00', '2018-12-03 00:00:00');
 
 insert into vendor_partner_variable_charges(entity_type, entity_id, charges_type, fixed_charges, percentage_charge, validity_in_month, status, create_date, update_date) values('partner', 247130, 4, 10, 0, 0, 1, now(), now());
+=======
+-- Kajal 25-02-2020
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
+
+--Ankit 15-01-2019
+ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 
 
 --Ankit Bhatt 2020-02-28
@@ -2020,6 +2055,10 @@ ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER
 
 -- Kajal 27-02-2020
 ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;
+
+-- Prity 02-03-2020
+update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');
+ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `courier_charge`, ADD `sender_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_state`, ADD `receiver_state` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `receiver_city`;-- Prity 02-03-2020
 
 -- Prity 02-03-2020
 update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');

@@ -131,13 +131,16 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_bank_transactions_details($select,$data, $join = '') {
+    function get_bank_transactions_details($select,$data, $join = '', $limit = 0) {
         $this->db->select($select);
         $this->db->where($data);
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
         $this->db->order_by('transaction_date DESC');
+        if($limit != 0){
+            $this->db->limit($limit);
+        }
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
     }
@@ -157,14 +160,16 @@ class invoices_model extends CI_Model {
      * @param: party type (vendor, partner, all)
      */
 
-    function get_all_bank_transactions($type) {
+    function get_all_bank_transactions($type, $where = "") {
+        if($where == ""){
+            $where = " ORDER BY bank_transactions.transaction_date DESC";
+        }
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
             FROM service_centres, bank_transactions
             WHERE bank_transactions.partner_vendor =  'vendor'
-            AND bank_transactions.partner_vendor_id = service_centres.id
-            ORDER BY bank_transactions.transaction_date DESC";
+            AND bank_transactions.partner_vendor_id = service_centres.id".$where;
                 $query = $this->db->query($sql);
                 break;
 
@@ -172,8 +177,7 @@ class invoices_model extends CI_Model {
                 $sql = "SELECT partners.public_name as name, bank_transactions . *
             FROM partners, bank_transactions
             WHERE bank_transactions.partner_vendor =  'partner'
-            AND bank_transactions.partner_vendor_id = partners.id
-            ORDER BY bank_transactions.transaction_date DESC";
+            AND bank_transactions.partner_vendor_id = partners.id".$where;
                 $query = $this->db->query($sql);
                 break;
 
@@ -303,12 +307,15 @@ class invoices_model extends CI_Model {
 
 
             $data = $this->db->query($sql);
-            $result = $data->result_array();
+            $result1 = $data->result_array();
+            $result = array();
             if($vendor_partner ==  _247AROUND_SF_STRING){
+                $result[0]['amount_collected_paid'] = (array_sum(array_column($result1, 'amount_collected_paid')));
                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
             } else {
                  $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
+                 $result[0]['amount_collected_paid'] = $result1[0]['amount_collected_paid'];
+                 $result[0]['final_amount'] = sprintf("%.2f",($result1[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             }
             return $result;
     }
@@ -433,7 +440,8 @@ class invoices_model extends CI_Model {
                   AND users.user_id = booking_details.user_id
                   AND booking_unit_details.partner_net_payable > 0 
                   AND booking_unit_details.partner_id = partners.id
-                  AND partner_invoice_id IS NULL 
+                  AND partner_invoice_id IS NULL
+                  AND partner_refuse_to_pay = 0
                   
                   AND ( $completed_cond $pending_cond
                     ) 
@@ -664,6 +672,10 @@ class invoices_model extends CI_Model {
         
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
+                  
+                   WHEN (ud.`appliance_capacity` IS NULL) THEN
+                   concat(services,' ', price_tags )
+                
                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                    concat(services,' ', price_tags )
                     
@@ -686,8 +698,8 @@ class invoices_model extends CI_Model {
                 
                 END AS description, 
                 round(tax_rate,0) as gst_rate,
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
+                COUNT( ud.id ) AS qty, 
+                (partner_net_payable * COUNT( ud.id )) AS taxable_value,
                 `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state, partners.is_wh,
@@ -695,6 +707,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, partners
                 WHERE `partner_net_payable` >0
                 AND ud.service_id = services.id
+                AND partner_refuse_to_pay = 0
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
                 AND ( ( ud.partner_id =  '$partner_id'
@@ -1402,7 +1415,10 @@ class invoices_model extends CI_Model {
         }
         $sql = "SELECT DISTINCT round((`vendor_basic_charges`),2) AS rate,product_or_services,
                 sc.gst_no as gst_number, " . HSN_CODE . " AS hsn_code,
-               CASE 
+               CASE
+                WHEN (ud.`appliance_capacity` IS NULL) THEN
+                concat(services,' ', price_tags )
+                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
                 concat(services,' ', price_tags )
                 
@@ -1424,8 +1440,8 @@ class invoices_model extends CI_Model {
                 
                 
                 END AS description, 
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                round((vendor_basic_charges * COUNT( ud.`appliance_capacity` )),2) AS  taxable_value,
+                COUNT( ud.id ) AS qty, 
+                round((vendor_basic_charges * COUNT( ud.id)),2) AS  taxable_value,
                 sc.state, sc.company_name,sc.address as company_address, sc_code,
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type,
                 sc.pan_no, contract_file, company_type, signature_file, sc.owner_phone_1, sc.district, sc.pincode, is_wh,
@@ -1446,7 +1462,7 @@ class invoices_model extends CI_Model {
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
                 $is_invoice_null
-                GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags, product_or_services, tax_rate";
+                GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags, product_or_services, tax_rate,ud.appliance_capacity ";
 
         $query = $this->db->query($sql);
         $result['booking'] = $query->result_array();
@@ -3348,24 +3364,6 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
-    }
-    
-    /**
-     * @Desc: This function is to get last payment details of vendor or partner
-     * @params: Integer $service_center_id
-     * @params : String - vendor or partner
-     * @return: Array()
-     * @author Ankit Bhatt
-     * @date : 26-02-2020
-     */
-    function get_last_payment_details($service_center_id, $vendor_partner){
-        $this->db->select('transaction_date, debit_amount');
-        $this->db->from('bank_transactions');
-        $this->db->where(array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $service_center_id, "credit_debit" => "debit"));
-        $this->db->order_by("transaction_date", "desc");
-        $this->db->limit(1);
-        $query = $this->db->get();
-        return $query->result_array();
     }
     
     /**

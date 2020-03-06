@@ -21,8 +21,7 @@
                 if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
                     if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
                         if(!empty($value['parts_shipped'])){
-                            $flag = 1; 
-                            //array_push($required_sp_id, $value['id']);   
+                            $flag = 1;                             
                         }
                     }
                 }
@@ -194,7 +193,7 @@
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
-                                                if(isset($unit_details['sf_purchase_date'])){ echo date("d-m-Y", strtotime($unit_details['sf_purchase_date'])); } 
+                                                if(isset($unit_details['sf_purchase_date'])){ echo date("d-M-Y", strtotime($unit_details['sf_purchase_date'])); } 
                                                 ?>" style="background: #eee">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
@@ -499,7 +498,7 @@
                         <div class="panel panel-info">
                             <div class="panel-heading">Spare Parts Detail</div>
                             <div class="panel-body">
-                            <div class="col-md-12" style="padding-left:0px;">
+<div class="col-md-12" style="padding-left:0px;">
                             <table class="table table-bordered table-condensed">
                                 <thead>
                                     <th width="3%">S.No.</th>
@@ -553,7 +552,7 @@
                         </div>
                         
                     <?php } ?>
-                     
+                    
                     <div class="row">
                         <div class ="col-md-12">
                             <div class="form-group col-md-6" style=" margin-left:-29px;">

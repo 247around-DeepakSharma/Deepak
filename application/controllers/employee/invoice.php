@@ -515,7 +515,7 @@ class Invoice extends CI_Controller {
                 'vendor_partner_id' => $partner_id,
                 'invoice_file_main' => $output_pdf_file_name,
                 'invoice_file_excel' => $meta['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_pdf_file_name),
+                'invoice_detailed_excel' => str_replace(TMP_FOLDER, "", $output_file_excel),
                 'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($t_date)),
                 'num_bookings' => $meta['service_count'],
@@ -589,7 +589,7 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['final_courier'])){
                 foreach ($misc_data['final_courier'] as $spare_array) {
                    
-                    $this->inventory_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
+                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
                         "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
                 }
             }
@@ -922,7 +922,7 @@ class Invoice extends CI_Controller {
     function generate_partner_courier_excel($data, $meta){
         
         $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-courier-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -1068,7 +1068,7 @@ class Invoice extends CI_Controller {
                 //Amount needs to be collected from Vendor
                 'amount_collected_paid' =>$meta['sub_total_amount'],
                 //Mail has not 
-                'mail_sent' => $mail_ret,
+                'mail_sent' => 1,
                 //SMS has been sent or not
                 'sms_sent' => 1,
                 //Add 1 month to end date to calculate due date
@@ -1276,9 +1276,7 @@ class Invoice extends CI_Controller {
                 if(!empty($invoice_details[$j]['rating_stars'])){
                     $rating += $invoice_details[$j]['rating_stars'];
                     $rating_count++;
-                } else {
-                    $rating += 1;
-                }
+                } 
             }
             if($rating_count == 0){
                 $rating_count = 1;
@@ -1310,7 +1308,8 @@ class Invoice extends CI_Controller {
             $invoice_data['meta']['cr_total_penalty_amount'] = sprintf("%.2f",(array_sum(array_column($invoice_data['c_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_penalty_amount'] = -sprintf("%.2f",(array_sum(array_column($invoice_data['d_penalty'], 'p_amount'))));
             $invoice_data['meta']['total_upcountry_price'] = sprintf("%.2f",$total_upcountry_price);
-            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));;
+            $invoice_data['meta']['total_courier_charges'] = sprintf("%.2f",(array_sum(array_column($invoice_data['courier'], 'courier_charges_by_sf'))));
+            $invoice_data['meta']['miscellaneous_charges'] = sprintf("%.2f",($total_misc_charges));
             
             $invoice_data['meta']['t_vp_w_tds'] = sprintf("%.2f", ($invoice_data['meta']['sub_total_amount'] - $invoice_data['meta']['tds']));
             
@@ -1372,7 +1371,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $invoice_data['meta']['t_vp_w_tds']),
                     //Mail has not sent
-                    'mail_sent' => $mail_ret,
+                    'mail_sent' => 1,
                     'tds_rate' => $invoice_data['meta']['tds_tax_rate'],
                     //SMS has been sent or not
                     'sms_sent' => 1,
@@ -2094,7 +2093,7 @@ exit();
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
                         'mail_sent' => 1,
-                        'sms_sent' => $send_mail,
+                        'sms_sent' => 1,
                         //Add 1 month to end date to calculate due date
                         'due_date' => date("Y-m-d"),
                         'agent_id' => $details['agent_id'],
@@ -3271,10 +3270,19 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
+                $where = array("partner_vendor" => "vendor", "partner_vendor_id" => $service_center_id);
                 //calling method to get last payment details for SF
-                $last_payment_details = $this->invoices_model->get_last_payment_details($service_center_id, "vendor");
+                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1);
                 $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
-                $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                if($last_payment_details[0]['credit_debit'] == "Credit"){
+                    //Last payment type was Credit
+                    $sc_details['last_payment_amount'] = $last_payment_details[0]['credit_amount']; 
+                }else{
+                    //Last payment type was Debit
+                    $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                }
+                $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
+                
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3475,6 +3483,7 @@ exit();
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
+        $sc_details['last_payment_type'] = "Last Payment TYpe";
 
         return $sc_details;
     }
@@ -5067,8 +5076,8 @@ exit();
             $reference_number = $this->input->post('reference_numner');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
-            $sd = $custom_date[0];
-            $ed = $custom_date[1];
+            $sd = trim($custom_date[0]);
+            $ed = trim($custom_date[1]);
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
@@ -5152,10 +5161,10 @@ exit();
                         $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
                         $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
                         $data['from_date'] = date("Y-m-d", strtotime($sd));
-                        $data['to_date'] = date("Y-m-d", strtotime($sd));
-                        $data['due_date'] = date("Y-m-d", strtotime($sd));
+                        $data['to_date'] = date("Y-m-d", strtotime($ed));
+                        $data['due_date'] = date("Y-m-d", strtotime($ed));
                         $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
-                        $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                        $data['invoice_date'] = date("Y-m-d");
                         if ($data['type'] == "CreditNote") {
                             $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
                         } else {
@@ -6157,22 +6166,9 @@ exit();
     function get_vendor_partner_bank_transaction(){
         $partner_vendor_id = $this->input->post('partner_vendor_id');
         $partner_vendor_type = $this->input->post('partner_vendor');
-        if($partner_vendor_type == "vendor"){
-            //For vendor
-            $query = "SELECT service_centres.name, bank_transactions . * ".
-                      "FROM service_centres, bank_transactions ".
-                      "WHERE bank_transactions.partner_vendor_id = service_centres.id";
-        }else{
-            //For partner
-            $query = "SELECT partners.public_name as name, bank_transactions . * ".
-                      "FROM partners, bank_transactions ".
-                      "WHERE bank_transactions.partner_vendor_id = partners.id";
-        }
-        $where = " AND bank_transactions.partner_vendor = ? AND bank_transactions.partner_vendor_id = ? ORDER BY bank_transactions.transaction_date DESC limit 3";
-        $params = array($partner_vendor_type, $partner_vendor_id);
-        $list = $this->invoices_model->get_vendor_partner_bank_transaction($query.$where, $params);
+        $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."' ORDER BY bank_transactions.transaction_date DESC limit 3";
+        $list = $this->invoices_model->get_all_bank_transactions($partner_vendor_type, $where);
         $data = array();
-        $post = array();
         $no = 0;
         //create table data for each row
         foreach ($list as $model_list) {
@@ -6265,8 +6261,8 @@ exit();
             $vendor_partner_id = $this->input->post('vendor_partner_id');
             $vendor_partner = $this->input->post('vendor_partner');
             $date = date("Y-m-d", strtotime($this->input->post('date')));
-            $data = $this->invoices_model->check_if_payment_already_done("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
-            if(count($data) == 1){
+            $data = $this->invoices_model->get_bank_transactions_details("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
+            if(count($data) >= 1){
                 //record found
                 echo '1';
             }else{
