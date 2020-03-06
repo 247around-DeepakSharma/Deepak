@@ -97,7 +97,7 @@
         }).done(function (data) {
             location.reload();
         });
-        alert('File validation is in progress, please wait....');
+        /*   alert('File validation is in progress, please wait....');  Asked by prateek */ 
         return false;
     }
     

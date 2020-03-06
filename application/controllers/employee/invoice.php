@@ -3270,10 +3270,19 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
+                $where = array("partner_vendor" => "vendor", "partner_vendor_id" => $service_center_id);
                 //calling method to get last payment details for SF
-                $last_payment_details = $this->invoices_model->get_last_payment_details($service_center_id, "vendor");
+                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1);
                 $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
-                $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                if($last_payment_details[0]['credit_debit'] == "Credit"){
+                    //Last payment type was Credit
+                    $sc_details['last_payment_amount'] = $last_payment_details[0]['credit_amount']; 
+                }else{
+                    //Last payment type was Debit
+                    $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                }
+                $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
+                
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3474,6 +3483,7 @@ exit();
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
+        $sc_details['last_payment_type'] = "Last Payment TYpe";
 
         return $sc_details;
     }
@@ -6186,22 +6196,9 @@ exit();
     function get_vendor_partner_bank_transaction(){
         $partner_vendor_id = $this->input->post('partner_vendor_id');
         $partner_vendor_type = $this->input->post('partner_vendor');
-        if($partner_vendor_type == "vendor"){
-            //For vendor
-            $query = "SELECT service_centres.name, bank_transactions . * ".
-                      "FROM service_centres, bank_transactions ".
-                      "WHERE bank_transactions.partner_vendor_id = service_centres.id";
-        }else{
-            //For partner
-            $query = "SELECT partners.public_name as name, bank_transactions . * ".
-                      "FROM partners, bank_transactions ".
-                      "WHERE bank_transactions.partner_vendor_id = partners.id";
-        }
-        $where = " AND bank_transactions.partner_vendor = ? AND bank_transactions.partner_vendor_id = ? ORDER BY bank_transactions.transaction_date DESC limit 3";
-        $params = array($partner_vendor_type, $partner_vendor_id);
-        $list = $this->invoices_model->get_vendor_partner_bank_transaction($query.$where, $params);
+        $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."' ORDER BY bank_transactions.transaction_date DESC limit 3";
+        $list = $this->invoices_model->get_all_bank_transactions($partner_vendor_type, $where);
         $data = array();
-        $post = array();
         $no = 0;
         //create table data for each row
         foreach ($list as $model_list) {
@@ -6258,8 +6255,8 @@ exit();
             $vendor_partner_id = $this->input->post('vendor_partner_id');
             $vendor_partner = $this->input->post('vendor_partner');
             $date = date("Y-m-d", strtotime($this->input->post('date')));
-            $data = $this->invoices_model->check_if_payment_already_done("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
-            if(count($data) == 1){
+            $data = $this->invoices_model->get_bank_transactions_details("id", array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $vendor_partner_id, "transaction_date" => $date, "(credit_amount = ".$amount." or debit_amount = ".$amount.")" => NULL));
+            if(count($data) >= 1){
                 //record found
                 echo '1';
             }else{
