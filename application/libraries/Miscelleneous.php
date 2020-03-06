@@ -3235,7 +3235,7 @@ function generate_image($base64, $image_name,$directory){
             $JoinTypeTableArray['service_centres'] = 'left';
             $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
             
-            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
+            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,service_centres.owner_email as service_center_owner_email,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["agent_filters"] = "agent_filters.entity_id=booking_details.partner_id";
             $join["employee"] = "employee.id=service_centres.rm_id";
@@ -3255,13 +3255,20 @@ function generate_image($base64, $image_name,$directory){
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
-            $to = $template[1];  
+            //$to = $template[1];
+            $to = $bookingData[0]['service_center_owner_email'];
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             
             if(!empty($managerData)) {
                 $cc .= ",".$managerData[0]['official_email'];
             }
             
+            $assigned_vendorId = $bookingData[0]['assigned_vendor_id'];
+            $asm_details = $this->My_CI->vendor_model->get_asm_contact_details_by_sf_id($assigned_vendorId);
+            if(isset($asm_details[0]['official_email']) && !empty($asm_details[0]['official_email']))
+            {
+                $cc .= ",".$asm_details[0]['official_email'];
+            }
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
