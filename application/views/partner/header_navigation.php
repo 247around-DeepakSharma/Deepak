@@ -176,7 +176,7 @@
             }
             #sidebar-menu .menu_section .nav.side-menu .nav.child_menu{
                 overflow-y: auto;
-                max-height: 200px;
+                max-height: 300px;
             }
             @media (max-width: 768px) {
                 .navbar-fixed-top {
