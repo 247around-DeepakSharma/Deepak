@@ -2606,7 +2606,8 @@ class Service_centers extends CI_Controller {
                 $booking_id = urlencode(base64_encode($this->input->post('booking_id')));
                 $userSession = array('error' => $is_same_parts_type['parts_requested_type'] . " already requested.");
                 $this->session->set_userdata($userSession);
-                $this->update_booking_status($booking_id);
+                redirect(base_url() . "service_center/update_booking_status/$booking_id");
+                //$this->update_booking_status($booking_id);
             } else {
                 $returnData['status'] = false;
                 $returnData['message'] = $is_same_parts_type['parts_requested_type'] . " already requested.";
