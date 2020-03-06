@@ -2271,8 +2271,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_sf
-                 HAVING courier_charges_by_sf > 10
-               ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2311,8 +2310,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date < '$to_date'
                     AND `around_pickup_from_partner` = 1
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10 
-                ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2578,7 +2576,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2612,7 +2610,7 @@ class invoices_model extends CI_Model {
                     AND c.shippment_date >= '$from_date'
                     AND c.shippment_date < '$to_date'
                  GROUP by s1.awb_by_wh
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2668,7 +2666,7 @@ class invoices_model extends CI_Model {
                 AND c.shippment_date >= '$from_date'
                 AND c.shippment_date < '$to_date'
              GROUP by c.awb_number
-             HAVING courier_charges_by_sf > 10";
+             HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         
         $query = $this->db->query($sql);
         return $query->result_array();
