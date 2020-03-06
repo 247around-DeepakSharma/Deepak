@@ -1390,6 +1390,7 @@ class service_centre_charges extends CI_Controller {
     }
     
     function process_add_misc_charges(){
+        $this->form_validation->set_rules('misc', 'Miscellaneous', 'callback_validate_form_data');
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
@@ -1481,7 +1482,7 @@ class service_centre_charges extends CI_Controller {
                     redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
                 }
             } else {
-                $this->session->set_userdata(array('error' => "Booking ID is not Exist"));
+                $this->session->set_userdata(array('error' => "Booking ID does not Exist"));
                 redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
             }
             
@@ -1500,11 +1501,11 @@ class service_centre_charges extends CI_Controller {
                 $this->miscelleneous->load_nav_header();
                 $this->load->view('employee/update_misc_charges', $data);
             } else {
-                $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                $this->session->set_userdata(array('error' => "Booking ID does not exist"));
                 redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
             }
         } else {
-            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            $this->session->set_userdata(array('error' => "Booking ID does not exist"));
             redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
         }
     }
@@ -1567,6 +1568,7 @@ class service_centre_charges extends CI_Controller {
     function process_upload_misc_charges($booking_id) {
         if (!empty($booking_id)) {
             $this->form_validation->set_rules('misc', 'Miscellaneous', 'callback_validate_form_data');
+            $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
             $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
             $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
             $this->form_validation->set_rules('validate_purchase_invoice_file', 'Purchase Invoice File', 'callback_validate_purchase_invoice_file');
@@ -1626,7 +1628,7 @@ class service_centre_charges extends CI_Controller {
                         redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
                     }
                 } else {
-                    $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                    $this->session->set_userdata(array('error' => "Booking ID does not exist"));
                      redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
                 }
             } else {
@@ -1635,7 +1637,7 @@ class service_centre_charges extends CI_Controller {
                  redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
             }
         } else {
-            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            $this->session->set_userdata(array('error' => "Booking ID does not exist"));
             redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
         }
     }
@@ -1647,24 +1649,19 @@ class service_centre_charges extends CI_Controller {
         foreach ($data as $key => $value) {
            
             if(empty($value['product_or_services'])){
-                array_push($m,"Product Or Sevice");
+                array_push($m,"Product Or Service");
                 $is_validate = true;
             }
             if(empty($value['description'])){
                 $is_validate = true;
-                if(empty($m)){
-                     array_push($m,"Description");
-                } else {
-                    array_push($m,"/Description");
-                }
-               
+                array_push($m,"Description");
                 break;
             }
             
         }
-      
+        $m= array_unique($m);
         if($is_validate){
-             $this->form_validation->set_message('validate_form_data', implode(",", $m). ", All are mandatory");
+             $this->form_validation->set_message('validate_form_data', implode("/", $m). " is mandatory");
              return false;
         } else {
            return true;
