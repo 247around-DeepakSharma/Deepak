@@ -4182,24 +4182,6 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * if pincode exist in the india pincode table the echo success other wise Not Exist
-     * @param String $pincode
-     */
-    function getCityfrompincode($pincode = "") {
-        $city = $this->vendor_model->getDistrict_from_india_pincode("", $pincode);
-        $data = array();
-        $data['citylist'] = '';
-        if (!empty($city)) {
-            $selectoptionstring = "<option value='' disabled>Select City</option>";
-            foreach ($city as $key => $value) {
-                $selectoptionstring .= "<option value='" . $value['district'] . "'>" . $value['district'] . "</option>";
-            }
-            $data['citylist'] = $selectoptionstring;
-        }
-        echo json_encode($city);
-    }
-
-    /**
      * @desc This is used to check upcountry for those booking who have not marked upcountry
      * This called from CRON
      */
