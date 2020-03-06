@@ -429,6 +429,7 @@ class User extends CI_Controller {
         $data = $this->input->post();
         if ($data) {
             $isRM = count($this->employee_model->isRManager($data["rm_asm"])) > 0 ? true : false;
+
             $Submit = true;
             $statusFlg = true;
 
@@ -669,11 +670,36 @@ class User extends CI_Controller {
         
         //add a blank row in employee_relation only when user is regional manager
         //code updated dt: 8/21/2019 by PB
-        if(($data1['groups'] == _247AROUND_RM) || ($data1['groups'] == _247AROUND_ASM)){
-           
-           //If the new added is RM and has subordinates it will update their mapping onto his
-           $res=$this->employee_model->update_new_rm_mapping($id);
-           
+        if (($data1['groups'] == _247AROUND_RM)) {
+            //If the new added is RM and has subordinates it will update their mapping onto his
+            $res = $this->employee_model->update_new_rm_mapping($id);
+            if (!empty($data['subordinate'])) {
+                $subOrdinate = $data['subordinate'];
+                $arrayState = array();
+                foreach ($subOrdinate as $key => $asmID) {
+                    $currentState = $this->employee_model->get_rm_mapped_state($asmID);
+                    $arrayState = array_merge($arrayState, $currentState);
+                }
+                if (!empty($arrayState)) {
+                    $arrayStateStr = array_map(function($element) {
+                        return $element['state'];
+                    }, $arrayState);
+                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $data['id']);
+                    $resultArray = array();
+                    if (!empty($result)) {
+                        $resultArray = array_map(function($element) {
+                            return $element['state'];
+                        }, $result);
+                    }
+                    foreach ($arrayState as $key => $value) {
+                        $state = $value['state'];
+                        if (!in_array($state, $resultArray)) {
+                            $this->employee_model->insert_agent_state_mapping($id, $state, $this->session->userdata('id'));
+                            $this->service_centers_model->update_service_centers_by_state(array('rm_id' => $id), array('state' => $state));
+                        }
+                    }
+                }
+            }
         }
         //*********END
         
@@ -831,6 +857,48 @@ class User extends CI_Controller {
             $this->employee_model->insertManagerData($data2);
         }
         
+        if (($data1['groups'] == _247AROUND_RM)) {
+
+            //If the  is RM and has subordinates it will update their mapping onto his
+            if (!empty($data['subordinate'])) {
+                $subOrdinate = $data['subordinate'];
+                $arrayState = array();
+                foreach ($subOrdinate as $key => $asmID) {
+                    $currentState = $this->employee_model->get_rm_mapped_state($asmID);
+                    $arrayState = array_merge($arrayState, $currentState);
+                }
+                $currentStateOfRm = $this->employee_model->get_rm_mapped_state($data['id']);
+                if (!empty($currentStateOfRm)) {
+                    $currentStateOfRm = array_map(function($element) {
+                        return $element['state'];
+                    },
+                            $currentStateOfRm
+                    );
+                }
+
+                if (!empty($arrayState)) {
+                    $arrayStateStr = array_map(function($element) {
+                        return $element['state'];
+                    }, $arrayState);
+                    //$arrayStateStr ="'".$arrayStateStr."'";
+                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $data['id']);
+                    $resultArray = array();
+                    if (!empty($result)) {
+                        $resultArray = array_map(function($element) {
+                            return $element['state'];
+                        }, $result);
+                    }
+                    foreach ($arrayState as $key => $value) {
+                        $state = $value['state'];
+                        if (!in_array($state, $currentStateOfRm) && !in_array($state, $resultArray)) {
+                            $this->employee_model->insert_agent_state_mapping($data['id'], $state, $this->session->userdata('id'));
+                            $this->service_centers_model->update_service_centers_by_state(array('rm_id' => $data['id']), array('state' => $state));
+                        }
+                    }
+                }
+            }
+        }
+
         $this->session->set_userdata('success','Employee Updated Successfully.');
         
         redirect(base_url() . "employee/user/show_employee_list");
@@ -853,6 +921,15 @@ class User extends CI_Controller {
         }
         $data = array("active"=>0);
         $this->employee_model->update($id,$data);
+        // remove state mapping from employee
+        $currentState = $this->employee_model->get_rm_mapped_state($id);
+        if (!empty($currentState)) {
+            foreach ($currentState as $key => $value) {
+                $state = $value['state'];
+                $deleteResult = $this->employee_model->delete_agent_state_mapping($id, $state);
+            }
+        }
+
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
         redirect(base_url() . "employee/user/show_employee_list");
     }
