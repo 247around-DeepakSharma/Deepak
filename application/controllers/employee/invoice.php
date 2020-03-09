@@ -3413,7 +3413,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN, FNF); // To be check whether FNF comes here or not
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
