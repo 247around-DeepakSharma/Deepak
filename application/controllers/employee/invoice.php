@@ -3270,9 +3270,9 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
-                $where = array("partner_vendor" => "vendor", "partner_vendor_id" => $service_center_id);
+                $where = array("bank_transactions.partner_vendor" => "vendor", "bank_transactions.partner_vendor_id" => $service_center_id, "vendor_partner_invoices.sub_category != '".FNF."'" => null);
                 //calling method to get last payment details for SF
-                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1);
+                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1, true);
                 $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
                 if($last_payment_details[0]['credit_debit'] == "Credit"){
                     //Last payment type was Credit
@@ -3483,7 +3483,7 @@ exit();
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
-        $sc_details['last_payment_type'] = "Last Payment TYpe";
+        $sc_details['last_payment_type'] = "Last Payment Type";
 
         return $sc_details;
     }
