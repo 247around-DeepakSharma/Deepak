@@ -3179,11 +3179,12 @@ class Spare_parts extends CI_Controller {
         $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
         $data = array();
         $spare_data = array();
+        $courier_detail = array();
         if ($this->form_validation->run()) {
             $invoice_ids = trim($this->input->post('invoice_ids'));
-            $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
-            $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
-            $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $courier_detail['AWB_no'] = $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
+            $courier_detail['courier_name'] = $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
+            $courier_detail['shipment_date'] = $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
             $exist_courier_image = $this->input->post('exist_courier_image');
             $bulk_courier_price = $this->input->post('courier_price_by_wh');
 
@@ -3204,7 +3205,7 @@ class Spare_parts extends CI_Controller {
             $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
             foreach ($invoice_ids_arr as $kay => $val) {
-                $where = array('inventory_ledger.invoice_id' => $val);
+                $where = array("inventory_ledger.invoice_id ='".$val."' OR inventory_ledger.micro_invoice_id ='".$val."'" => NULL);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
                     $courier_id_arr[] = array('courier_id'=> $inventory_ledger[0]['courier_id'], 'invoice_id' => $val) ;
@@ -3228,9 +3229,9 @@ class Spare_parts extends CI_Controller {
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
-                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                   $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
                 } else {
-                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
+                    $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
                 }
 
                 if (!empty($exist_courier_image)) {
@@ -3239,11 +3240,19 @@ class Spare_parts extends CI_Controller {
                     $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
                 }
 
-                $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
+                $courier_detail['courier_file'] = $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
               
                 foreach ($courier_id_arr as $val) {
                     
+                    $courier_company_invoice = $this->inventory_model->get_courier_company_invoice_details("courier_company_invoice_details.id, courier_company_invoice_details.awb_number", array('courier_company_invoice_details.id' => $val['courier_id']), '');
+                    
+                    if (!empty($courier_company_invoice)) {
+
+                        $this->inventory_model->update_courier_detail(array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), $courier_detail);
+                    }
+
                     $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
+                    
                     if ($affected_id) {
                         $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $val['invoice_id']), $spare_data);
                     }

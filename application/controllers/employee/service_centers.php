@@ -2370,7 +2370,7 @@ class Service_centers extends CI_Controller {
                 //$price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');
-                $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh", array('partners.id' => $partner_id));
+                $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh, partners.spare_approval_by_partner", array('partners.id' => $partner_id));
 
                 $status = SPARE_PART_ON_APPROVAL;
 
@@ -2558,7 +2558,24 @@ class Service_centers extends CI_Controller {
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                    $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
+                    /**
+                     * update booking internal status.
+                     * @modifiedBy Ankit Rajvanshi
+                     */ 
+                    $booking['internal_status'] = $status;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        // if spare approval by partner is true then actor should be Partner.
+                        if($partner_details[0]['spare_approval_by_partner'] == 1) {
+                            $booking['actor'] = ucwords(_247AROUND_PARTNER_STRING);
+                        } else {
+                            $booking['actor'] = $partner_status[2];
+                        }
+                        $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->booking_model->update_booking($booking_id, $booking);                    
 
                     if (!empty($approval_array)) {
                         foreach ($approval_array as $ap) {
@@ -3083,12 +3100,23 @@ class Service_centers extends CI_Controller {
     function get_defective_parts_booking($offset = 0) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+
+        $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/defective_parts', $data);
+    }
+
+    function get_defective_parts_pending_bookings($offset = 0) {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
             "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
+            "spare_parts_details.consumed_part_status_id is not null" => NULL
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
@@ -3116,10 +3144,55 @@ class Service_centers extends CI_Controller {
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
         $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $this->load->view('service_centers/header');
-        $this->load->view('service_centers/defective_parts', $data);
+        //$this->load->view('service_centers/header');
+        $this->load->view('service_centers/defective_ok_part_to_be_shipped', $data);
+        
     }
 
+    function update_defective_parts_pending_bookings($offset = 0) {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
+            "spare_parts_details.consumed_part_status_id is null" => NULL
+        );
+
+        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
+                . " spare_parts_details.booking_id,booking_details.partner_id as booking_partner_id, users.name, "
+                . " sf_challan_file as challan_file, "
+                . " remarks_defective_part_by_partner, "
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+
+        $group_by = "spare_parts_details.id";
+        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
+
+
+        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+
+        //$this->load->view('service_centers/header');
+        $this->load->view('service_centers/update_defective_ok_part_to_be_shipped', $data);
+        
+    }
+    
     /**
      * @desc: This method is used to display list of booking which received by Partner
      * @param Integer $offset
@@ -8821,5 +8894,22 @@ class Service_centers extends CI_Controller {
         $data = array();
         $this->load->view('service_centers/rejected_spares_send_by_partner', $data);
     }
-
+    
+    /**
+     * @desc : this method is use to updated consumption from defective/ok to be shipped spare parts page.
+     * @author Ankit Rajvanshi
+     */
+    function update_spare_consumption_reason() {
+        //return true;
+        $post_data = $this->input->post();
+        if(!empty($post_data)) {
+            $data = [];
+            $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['consumption_reason'];
+            $data['consumption_remarks'][$post_data['spare_id']] = $post_data['consumption_remarks'];
+            $this->miscelleneous->update_spare_consumption_status($data, $post_data['booking_id']);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
