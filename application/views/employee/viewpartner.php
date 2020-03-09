@@ -110,8 +110,8 @@ if ($this->session->userdata('error')) {
 <?php if ($this->session->userdata('user_group') != 'closure') { ?>
                 <?php } ?>
 
-            <table class="table table-striped table-bordered">
-
+            <table class="table table-striped table-bordered" id="partner_details">
+                <thead>
                 <tr>
                     <th class='jumbotron'>ID</th>
                     <th class='jumbotron' style="text-align: center">Company Name</th>
@@ -129,8 +129,8 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
                     <th class='jumbotron' style="text-align: center">Activation / Deactivation<br>History</th>
                 </tr>
-
-
+		</thead>
+		<tbody>
                         <?php foreach ($query as $key => $row) { ?>
                     <tr>
                         <td><?= ($key + 1) . '.'; ?></td>
@@ -210,9 +210,10 @@ if ($this->session->userdata('error')) {
                         </td>
                     </tr>
 <?php } ?>
+                </tbody>
             </table>
 
-
+		
 
         </div>
     </div>
@@ -264,6 +265,17 @@ if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
 <script>
+	var partner_details;
+		partner_details = $("#partner_details").DataTable(
+		{  
+		order:[[ 2, "desc" ]],
+		pageLength: 50,
+		"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-left"ip>>>'
+
+		});
+		partner_details.draw(false);
+
+
     $(document).ready(function () {
         $("#partner_sc").select2();
         $(".select2-container--default").css("width", "auto");
