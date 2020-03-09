@@ -2370,7 +2370,7 @@ class Service_centers extends CI_Controller {
                 //$price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');
-                $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh", array('partners.id' => $partner_id));
+                $partner_details = $this->partner_model->getpartner_details("partners.is_def_spare_required,partners.is_wh, partners.is_micro_wh, partners.is_defective_part_return_wh, partners.spare_approval_by_partner", array('partners.id' => $partner_id));
 
                 $status = SPARE_PART_ON_APPROVAL;
 
@@ -2559,7 +2559,24 @@ class Service_centers extends CI_Controller {
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                    $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
+                    /**
+                     * update booking internal status.
+                     * @modifiedBy Ankit Rajvanshi
+                     */ 
+                    $booking['internal_status'] = $status;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        // if spare approval by partner is true then actor should be Partner.
+                        if($partner_details[0]['spare_approval_by_partner'] == 1) {
+                            $booking['actor'] = ucwords(_247AROUND_PARTNER_STRING);
+                        } else {
+                            $booking['actor'] = $partner_status[2];
+                        }
+                        $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->booking_model->update_booking($booking_id, $booking);                    
 
                     if (!empty($approval_array)) {
                         foreach ($approval_array as $ap) {
