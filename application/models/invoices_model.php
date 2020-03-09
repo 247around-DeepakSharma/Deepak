@@ -163,15 +163,15 @@ class invoices_model extends CI_Model {
      * @param: party type (vendor, partner, all)
      */
 
-    function get_all_bank_transactions($type, $where = "") {
+    function get_all_bank_transactions($type, $where = "", $join = "") {
         if($where == ""){
             $where = " ORDER BY bank_transactions.transaction_date DESC";
         }
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
-            FROM service_centres, bank_transactions
-            WHERE bank_transactions.partner_vendor =  'vendor'
+            FROM service_centres, bank_transactions ".$join.
+            " WHERE bank_transactions.partner_vendor =  'vendor'
             AND bank_transactions.partner_vendor_id = service_centres.id".$where;
                 $query = $this->db->query($sql);
                 break;
