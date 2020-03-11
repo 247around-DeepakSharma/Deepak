@@ -1259,13 +1259,16 @@ class Inventory extends CI_Controller {
                 
                 CASE 'COURIER_LOST':
                     /**
+                     * Admin mark courier lost.
                      * @modifiedBy Ankit Rajvanshi
                      */
                     $where = array('id' => $id);
                     $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                    $data['status'] = COURIER_LOST;
-                    $track_status = $new_state = COURIER_LOST;
-                    $remarks = 'Courier Lost By Admin';
+                    $data['status'] = InProcess_Courier_Lost;
+                    $data['old_status'] = $spare_part_detail['status'];
+                    $data['consumed_part_status_id'] = 2;
+                    $track_status = $new_state = InProcess_Courier_Lost;
+                    $remarks = "Courier lost marked by admin";
                     $old_state = $spare_part_detail['status'];
                     break;
             }
