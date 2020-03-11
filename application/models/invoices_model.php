@@ -3299,9 +3299,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_spare_sale_list($post) {
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
       /**
@@ -3310,9 +3310,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_spare_sale_list($post){
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
     /**
