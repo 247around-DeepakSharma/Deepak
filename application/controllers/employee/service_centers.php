@@ -49,6 +49,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("validate_serial_no");
         $this->load->library("invoice_lib");
         $this->load->library("booking_creation_lib");
+        $this->load->helper('url'); 
     }
 
     /**
@@ -8911,5 +8912,69 @@ class Service_centers extends CI_Controller {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * @desc : This method is use to show list of spare parts delivered to sf.
+     * @author Ankit Rajvanshi
+     */
+    function parts_delivered_to_sf($offset = '') {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array (
+            "status IN ('" . SPARE_DELIVERED_TO_SF . "')  " => NULL,
+        );
+
+        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
+                . " spare_parts_details.booking_id,booking_details.partner_id as booking_partner_id, users.name, "
+                . " sf_challan_file as challan_file, "
+                . " remarks_defective_part_by_partner, "
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, spare_parts_details.acknowledge_date, spare_parts_details.auto_acknowledeged";
+
+        $group_by = "spare_parts_details.id";
+        $order_by = "spare_parts_details.booking_id ASC";
+
+
+        $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/delivered_parts', $data);
+    }
+    
+    /**
+     * @param type $spare_id
+     * @author Ankit Rajvanshi
+     */
+    function update_courier_lost($spare_id) {
+
+        /* Fetch spare part detail of $spare_id. */
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status', ['spare_parts_details.id' => $spare_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
+        /* update spare status. */
+        $this->service_centers_model->update_spare_parts(['id' => $spare_id], ['consumed_part_status_id' => '2', 'status' => InProcess_Courier_Lost, 'old_status' => $spare_parts_details['status']]);
+        /* Insert Spare Tracking Details */
+        if (!empty($spare_id)) {
+            $tracking_details = array('spare_id' => $spare_id, 'action' => InProcess_Courier_Lost, 'remarks' =>  "Spare part is marked courier lost by service center",  'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }        
+        /* Log this in state change table. */
+        $this->insert_details_in_state_change($spare_parts_details['booking_id'], InProcess_Courier_Lost, InProcess_Courier_Lost, "247Around", "Review Courier Lost Parts", "", $spare_id);
+
+        
+        redirect(base_url().'service_center/parts_delivered_to_sf'); 
     }
 }
