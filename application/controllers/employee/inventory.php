@@ -6952,11 +6952,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
                                     return "'" . trim($val) . "'";
                                 }, $docket_number_arr));
 
-                        $where["AWB_no IN ($docket_number_arr_str)"] = NULL;
+                        $where["courier_company_invoice_details.awb_number IN ($docket_number_arr_str)"] = NULL;
                     }
 
                     if (!empty($from_date) && !empty($to_date)) {
-                        $where["courier_details.shipment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_details.shipment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                     }
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
