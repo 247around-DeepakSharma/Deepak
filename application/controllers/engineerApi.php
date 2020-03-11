@@ -3746,6 +3746,9 @@ class engineerApi extends CI_Controller {
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
+                        /*  NO Action  Flag */
+                        $cancel_flag = $this->checkBookingActionrequired($value['booking_id']);
+                        $data['Bookings'][$key]['action_flag'] =  $cancel_flag;
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
@@ -3770,6 +3773,23 @@ class engineerApi extends CI_Controller {
     }
 
 
+
+      /*
+     * @Desc - This function used to check booking is billed to partner or not     
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
+    
+    function checkBookingActionrequired($booking_id){
+
+       $where = array('booking_id'=>$booking_id);
+       $select = 'partner_invoice_id';
+       $unit_array =  $this->booking_model->get_unit_details($where, FALSE, $select);
+       return $this->booking_utilities->is_partner_invoiced($unit_array);  
+
+
+    }
 
 
       /*
