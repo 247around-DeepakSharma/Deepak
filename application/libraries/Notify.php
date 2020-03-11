@@ -18,10 +18,11 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
-        $this->My_CI->load->library('miscelleneous');
-        $this->My_CI->load->model('partner_model');
+    $this->My_CI->load->library('miscelleneous');
+    $this->My_CI->load->model('partner_model');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
+    $this->My_CI->load->model('engineer_model');
     }
 
     /**
@@ -1143,4 +1144,55 @@ class Notify {
 		break;
 	}
     }
+
+/*  Sending Notification to Engineer on assignment */
+
+    function send_push_notification($data){
+
+
+        $msg = array
+            (
+            'body' => $data['message'],
+            'title' => 'Message from 247Around',
+            //'subtitle'  => 'This is a subtitle. subtitle',
+            //'tickerText'    => 'Ticker text here...Ticker text here...Ticker text here',
+            'vibrate' => 1,
+            'sound' => 1,
+            'largeIcon' => 'large_icon',
+            'smallIcon' => 'small_icon'
+        );
+        $fields = array
+            (
+            'registration_ids' => array($data['firebase_token']), /*  Changing key */
+            'notification' => $msg
+        );
+
+        $headers = array
+            (
+            'Authorization: key=' . API_ACCESS_KEY_FIREBASE,
+            'Content-Type: application/json'
+        );
+/*  Calling FCM API for notification */
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');  //https://fcm.googleapis.com/fcm
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $rowData['fire_base_response'] = $result;
+        $rowData['phone'] = $data['phone']; // Getting Details from controller and saving in DB Table //
+        $rowData['message'] = $data['message'];
+        $insert_id = $this->My_CI->engineer_model->insert_engg_notification_data($rowData);
+        $json_res = json_decode($result);
+           
+        }
+
+ 
+
+
+
 }

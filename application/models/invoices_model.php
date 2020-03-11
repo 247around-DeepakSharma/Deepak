@@ -131,14 +131,11 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_bank_transactions_details($select,$data, $join = '', $limit = 0, $join_vendor_partner_invoices = false) {
+    function get_bank_transactions_details($select,$data, $join = '', $limit = 0) {
         $this->db->select($select);
         $this->db->where($data);
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
-        }
-        if($join_vendor_partner_invoices){
-            $this->db->join('vendor_partner_invoices','vendor_partner_invoices.invoice_id = bank_transactions.invoice_id');
         }
         $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
         if($limit != 0){
@@ -163,15 +160,15 @@ class invoices_model extends CI_Model {
      * @param: party type (vendor, partner, all)
      */
 
-    function get_all_bank_transactions($type, $where = "", $join = "") {
+    function get_all_bank_transactions($type, $where = "") {
         if($where == ""){
             $where = " ORDER BY bank_transactions.transaction_date DESC";
         }
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
-            FROM service_centres, bank_transactions ".$join.
-            " WHERE bank_transactions.partner_vendor =  'vendor'
+            FROM service_centres, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'vendor'
             AND bank_transactions.partner_vendor_id = service_centres.id".$where;
                 $query = $this->db->query($sql);
                 break;
@@ -3299,9 +3296,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_spare_sale_list($post) {
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
       /**
@@ -3310,9 +3307,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_spare_sale_list($post){
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
     /**
