@@ -716,7 +716,7 @@ class invoices_model extends CI_Model {
                         AND ud.ud_closed_date < '$to_date'
                     ) $s
                   )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
