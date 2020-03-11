@@ -940,7 +940,7 @@
                                         <th>Challan File</th>
                                         <th>Courier File</th>
                                         <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
-                                        <th>IS Defective Parts Required</th>
+                                        <th>Is Defective/Ok Parts Required</th>
                                         <?php } ?>
                                     </tr>
                                 </thead>
