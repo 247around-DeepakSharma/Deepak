@@ -1609,6 +1609,17 @@ class Service_centers extends CI_Controller {
                         }
                     }
 
+/*  Sending Notification to Engineer on assignment */
+                   $select = "id,device_firebase_token";
+                   $where = array('active'=>1,'id'=>1);
+                   $result = $this->engineer_model->get_active_engineers($select,$where);
+                   $data['firebase_token'] = $result[0]->device_firebase_token;
+                   $template = $this->vendor_model->getVendorSmsTemplate(ASSIGN_ENGG_NOTIFICATION); // getting templet 
+                   $sms['smsData']['booking_id'] = $booking_id;
+                   $smsBody = vsprintf($template, $sms['smsData']);
+                   $data['message'] = $smsBody; 
+                   $this->notify->send_push_notification($data); /// Sending push notification on app //
+
                     if ($inserted_id) {
                         $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id, "not_define", "not_define");
                     } else { // if ($inserted_id) {
