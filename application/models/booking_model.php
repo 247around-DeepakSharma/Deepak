@@ -342,8 +342,12 @@ class Booking_model extends CI_Model {
      */
     function addappliance($appliance_detail){
         //log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail, true));
-        $this->db->insert('appliance_details', $appliance_detail);
-
+        if(!$this->db->insert('appliance_details', $appliance_detail))
+        {
+            $to = DEV_BOOKINGS_MAIL;
+            $message = json_encode($appliance_detail)."<br/>".$this->db->last_query();
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "");            
+        }
         return $this->db->insert_id();
     }
 
