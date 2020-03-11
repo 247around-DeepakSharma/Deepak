@@ -1969,3 +1969,8 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'Detailed Summary Report', NULL, 'employee/booking/get_detailed_summary_report', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2019-08-02 05:42:02');
   
 
+  --- Abhishek -- 11-03-2020
+  INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_notification_on_engg_assign', ' Hi %S, is assigned to you . ', 'This is used to send to notification to engg when booking is assigned to him', '1', '0', '2019-08-06 15:14:24');
+---Gorakh 11-03-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Download Courier Invoice', NULL, 'employee/inventory/download_courier_invoice', 2, '249', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2019-08-06 12:57:33');
