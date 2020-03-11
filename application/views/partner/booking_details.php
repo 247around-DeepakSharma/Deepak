@@ -21,6 +21,7 @@
                         </ul>
                         <div id="myTabContent2" class="tab-content">
                             <div role="tabpanel" class="tab-pane fade active in" id="tab_content1">
+                                <div class="table-responsive">
                                 <table class="table  table-striped table-bordered" >
                                     <tr>
                                         <th >Name: </th>
@@ -134,6 +135,7 @@
                                         <td colspan="2">&nbsp;</td>
                                     </tr>
                                 </table>
+                            </div>
                                 <?php if(isset($booking_files) && !empty($booking_files)) { ?>
                                 <table class="table  table-striped table-bordered" >
                                     <tr>
@@ -739,9 +741,11 @@
                                     </div>
                                 </div>
                                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
-                                    <div class="text-danger">Spare Part Not Requested</div>
-                                <?php } ?>
+                              
                                     
+                                <?php } ?>
+                                <div class="text-danger">Spare Part Not Requested</div>
+                                      <div style="overflow-x:auto;">
                                     <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
                                             <div class="col-md-12">
@@ -782,7 +786,7 @@
                                                                         </td> 
                                                                         <td><?php echo $sp['oow_invoice_date']; ?></td>  
                                                                     </tr>
-                                                                 <?php }
+                                                                   <?php }
                                                                         }
                                                                         ?>
                                                         </tbody>
@@ -791,6 +795,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     <?php } ?>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
@@ -800,6 +805,7 @@
                             <div role="tabpanel" class="tab-pane fade" id="tab_content5">
 
                                    <?php if(isset($booking_history[0]['primary_contact_name'])){ ?>
+                                    <div class="table-responsive">
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
@@ -820,9 +826,10 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
                                 <?php  }?>
-                   
-                    <table class="table  table-striped table-bordered">
+                   <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
                         <thead>
                             <th>One Way Distance </th>
                             <th>Upcountry Distance </th>
@@ -833,7 +840,7 @@
                             <th>Customer District </th>
                             <th>Customer Pincode </th>
                             <th>Get Route</th>
-                        <thead>
+                        </thead>
                         <tbody>
                             <tr>
                                 <td> <?php if($booking_history[0]['is_upcountry'] == 1){  ?>
@@ -865,13 +872,14 @@
                                         <br/>
                                         <div id="dvMap" style=" height: 200px">
                                         </div>
-                                        </div
+                                        </div>
                                 </td>
                             </tr>
                             <?php } ?>
                             </tr>
                         </tbody>
-                    </table>   
+                    </table>
+                    </div>   
                             </div>
                         </div>
                     </div>
