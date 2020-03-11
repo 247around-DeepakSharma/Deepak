@@ -3270,18 +3270,27 @@ exit();
                 else{
                    $sc_details['payment_hold_reason'] = ''; 
                 }
-                $where = array("bank_transactions.partner_vendor" => "vendor", "bank_transactions.partner_vendor_id" => $service_center_id, "vendor_partner_invoices.sub_category != '".FNF."'" => null);
+                $where = array("partner_vendor" => "vendor", "partner_vendor_id" => $service_center_id);
                 //calling method to get last payment details for SF
-                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1, true);
-                $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
-                if($last_payment_details[0]['credit_debit'] == "Credit"){
-                    //Last payment type was Credit
-                    $sc_details['last_payment_amount'] = $last_payment_details[0]['credit_amount']; 
+                $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1);
+                if(count($last_payment_details)>0){
+                    //Last payment found
+                    $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
+                    if($last_payment_details[0]['credit_debit'] == "Credit"){
+                        //Last payment type was Credit
+                        $sc_details['last_payment_amount'] = $last_payment_details[0]['credit_amount']; 
+                    }else{
+                        //Last payment type was Debit
+                        $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                    }
+                    $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
                 }else{
-                    //Last payment type was Debit
-                    $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                    //Last payment not found
+                    $sc_details['last_payment_date'] = "";
+                    $sc_details['last_payment_amount'] = "";
+                    $sc_details['last_payment_type'] = "";
                 }
-                $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
+                
                 
                 array_push($payment_data, $sc_details);
                 
