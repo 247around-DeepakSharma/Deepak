@@ -1184,8 +1184,8 @@ class Notify {
         curl_close($ch);
 
         $rowData['fire_base_response'] = $result;
-        $rowData['phone'] = $phone;
-        $rowData['message'] = $text;
+        $rowData['phone'] = $data['phone']; // Getting Details from controller and saving in DB Table //
+        $rowData['message'] = $data['message'];
         $insert_id = $this->My_CI->engineer_model->insert_engg_notification_data($rowData);
         $json_res = json_decode($result);
            
