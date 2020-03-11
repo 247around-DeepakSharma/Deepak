@@ -6244,4 +6244,44 @@ class Booking extends CI_Controller {
         echo json_encode($data);
     }
 
+    /**
+     * @desc : This method is use to show list of spare parts delivered to sf.
+     * @author Ankit Rajvanshi
+     */
+    function courier_lost_parts($offset = '') {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array (
+            "spare_parts_details.status IN ('" . _247AROUND_COMPLETED . "')  " => NULL,
+            "spare_parts_details.consumed_part_status_id" => 2,
+            "spare_parts_details.spare_lost" => 1,
+            "spare_parts_details.defective_part_required" => 0
+        );
+
+        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
+                . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
+
+        $group_by = "spare_parts_details.id";
+        $order_by = "spare_parts_details.booking_id ASC";
+
+
+        $config['base_url'] = base_url() . 'employee/booking/courier_lost_parts';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/courier_lost_parts', $data);
+    }
+    
 }
