@@ -3235,7 +3235,7 @@ function generate_image($base64, $image_name,$directory){
             $JoinTypeTableArray['service_centres'] = 'left';
             $booking_state = $this->My_CI->reusable_model->get_search_query('booking_details','service_centres.state',array('booking_details.booking_id' => $bookingID),$join,NULL,NULL,NULL,$JoinTypeTableArray)->result_array();
             
-            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,services.services,service_centres.primary_contact_email as sf_email";
+            $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,service_centres.owner_email as service_center_owner_email,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["agent_filters"] = "agent_filters.entity_id=booking_details.partner_id";
             $join["employee"] = "employee.id=service_centres.rm_id";
@@ -3255,13 +3255,20 @@ function generate_image($base64, $image_name,$directory){
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
             $subject = vsprintf($template[4], array($rating,$bookingID));
             $message = vsprintf($template[0], array($bookingData[0]['name'],$bookingData[0]['rating_comments'],$bookingData[0]['request_type'],$bookingData[0]['services']));
-            $to = $template[1];  
+            //$to = $template[1];
+            $to = $bookingData[0]['service_center_owner_email'];
             $cc = $bookingData[0]['official_email'].",".$amEmail[0]['official_email'].",".$this->My_CI->session->userdata("official_email").",".$bookingData[0]['sf_email'];
             
             if(!empty($managerData)) {
                 $cc .= ",".$managerData[0]['official_email'];
             }
             
+            $assigned_vendorId = $bookingData[0]['assigned_vendor_id'];
+            $asm_details = $this->My_CI->vendor_model->get_asm_contact_details_by_sf_id($assigned_vendorId);
+            if(isset($asm_details[0]['official_email']) && !empty($asm_details[0]['official_email']))
+            {
+                $cc .= ",".$asm_details[0]['official_email'];
+            }
             $bcc = "";
             $from = $template[2];
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "",BAD_RATING);
@@ -4891,11 +4898,13 @@ function generate_image($base64, $image_name,$directory){
                     }
                 }
 
-                if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
+                if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
 
-                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
-                    $this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                    if(!empty($post_data['wrong_part'])) {
+                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                        $this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                    }
                 }
 
                 if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
@@ -4929,6 +4938,11 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                // set remarks if remarks not empty.
+                if(!empty($post_data['consumption_remarks']) && !empty($post_data['consumption_remarks'][$spare_id])) {
+                    $up['consumption_remarks'] = $post_data['consumption_remarks'][$spare_id];
+                }
+                
                 //update spare acknowledge date if empty.
                 if(!empty($spare_part_detail['awb_by_partner']) && empty($spare_part_detail['acknowledge_date'])) {
                     $up['acknowledge_date'] = date('Y-m-d');

@@ -131,13 +131,19 @@ class invoices_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function get_bank_transactions_details($select,$data, $join = '') {
+    function get_bank_transactions_details($select,$data, $join = '', $limit = 0, $join_vendor_partner_invoices = false) {
         $this->db->select($select);
         $this->db->where($data);
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
-        $this->db->order_by('transaction_date DESC');
+        if($join_vendor_partner_invoices){
+            $this->db->join('vendor_partner_invoices','vendor_partner_invoices.invoice_id = bank_transactions.invoice_id');
+        }
+        $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
+        if($limit != 0){
+            $this->db->limit($limit);
+        }
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
     }
@@ -157,14 +163,16 @@ class invoices_model extends CI_Model {
      * @param: party type (vendor, partner, all)
      */
 
-    function get_all_bank_transactions($type) {
+    function get_all_bank_transactions($type, $where = "", $join = "") {
+        if($where == ""){
+            $where = " ORDER BY bank_transactions.transaction_date DESC";
+        }
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
-            FROM service_centres, bank_transactions
-            WHERE bank_transactions.partner_vendor =  'vendor'
-            AND bank_transactions.partner_vendor_id = service_centres.id
-            ORDER BY bank_transactions.transaction_date DESC";
+            FROM service_centres, bank_transactions ".$join.
+            " WHERE bank_transactions.partner_vendor =  'vendor'
+            AND bank_transactions.partner_vendor_id = service_centres.id".$where;
                 $query = $this->db->query($sql);
                 break;
 
@@ -172,8 +180,7 @@ class invoices_model extends CI_Model {
                 $sql = "SELECT partners.public_name as name, bank_transactions . *
             FROM partners, bank_transactions
             WHERE bank_transactions.partner_vendor =  'partner'
-            AND bank_transactions.partner_vendor_id = partners.id
-            ORDER BY bank_transactions.transaction_date DESC";
+            AND bank_transactions.partner_vendor_id = partners.id".$where;
                 $query = $this->db->query($sql);
                 break;
 
@@ -2267,8 +2274,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_sf
-                 HAVING courier_charges_by_sf > 10
-               ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2307,8 +2313,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date < '$to_date'
                     AND `around_pickup_from_partner` = 1
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10 
-                ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2574,7 +2579,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2608,7 +2613,7 @@ class invoices_model extends CI_Model {
                     AND c.shippment_date >= '$from_date'
                     AND c.shippment_date < '$to_date'
                  GROUP by s1.awb_by_wh
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2664,7 +2669,7 @@ class invoices_model extends CI_Model {
                 AND c.shippment_date >= '$from_date'
                 AND c.shippment_date < '$to_date'
              GROUP by c.awb_number
-             HAVING courier_charges_by_sf > 10";
+             HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -3363,24 +3368,6 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
-    }
-    
-    /**
-     * @Desc: This function is to get last payment details of vendor or partner
-     * @params: Integer $service_center_id
-     * @params : String - vendor or partner
-     * @return: Array()
-     * @author Ankit Bhatt
-     * @date : 26-02-2020
-     */
-    function get_last_payment_details($service_center_id, $vendor_partner){
-        $this->db->select('transaction_date, debit_amount');
-        $this->db->from('bank_transactions');
-        $this->db->where(array("partner_vendor" => $vendor_partner, "partner_vendor_id" => $service_center_id, "credit_debit" => "debit"));
-        $this->db->order_by("transaction_date", "desc");
-        $this->db->limit(1);
-        $query = $this->db->get();
-        return $query->result_array();
     }
     
     /**

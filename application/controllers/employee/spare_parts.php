@@ -3179,11 +3179,12 @@ class Spare_parts extends CI_Controller {
         $this->form_validation->set_rules('invoice_ids', 'Enter Invoice Ids', 'required');
         $data = array();
         $spare_data = array();
+        $courier_detail = array();
         if ($this->form_validation->run()) {
             $invoice_ids = trim($this->input->post('invoice_ids'));
-            $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
-            $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
-            $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $courier_detail['AWB_no'] = $spare_data['awb_by_wh'] = $data['awb_number'] = $this->input->post('awb_by_wh');
+            $courier_detail['courier_name'] = $spare_data['courier_name_by_wh'] = $data['company_name'] = $this->input->post('courier_name_by_wh');
+            $courier_detail['shipment_date'] = $spare_data['defective_parts_shippped_date_by_wh'] = $data['shippment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
             $exist_courier_image = $this->input->post('exist_courier_image');
             $bulk_courier_price = $this->input->post('courier_price_by_wh');
 
@@ -3204,7 +3205,7 @@ class Spare_parts extends CI_Controller {
             $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
             foreach ($invoice_ids_arr as $kay => $val) {
-                $where = array('inventory_ledger.invoice_id' => $val);
+                $where = array("inventory_ledger.invoice_id ='".$val."' OR inventory_ledger.micro_invoice_id ='".$val."'" => NULL);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
                     $courier_id_arr[] = array('courier_id'=> $inventory_ledger[0]['courier_id'], 'invoice_id' => $val) ;
@@ -3228,9 +3229,9 @@ class Spare_parts extends CI_Controller {
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
-                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                   $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
                 } else {
-                    $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
+                    $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
                 }
 
                 if (!empty($exist_courier_image)) {
@@ -3239,11 +3240,19 @@ class Spare_parts extends CI_Controller {
                     $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
                 }
 
-                $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
+                $courier_detail['courier_file'] = $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
               
                 foreach ($courier_id_arr as $val) {
                     
+                    $courier_company_invoice = $this->inventory_model->get_courier_company_invoice_details("courier_company_invoice_details.id, courier_company_invoice_details.awb_number", array('courier_company_invoice_details.id' => $val['courier_id']), '');
+                    
+                    if (!empty($courier_company_invoice)) {
+
+                        $this->inventory_model->update_courier_detail(array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), $courier_detail);
+                    }
+
                     $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
+                    
                     if ($affected_id) {
                         $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $val['invoice_id']), $spare_data);
                     }
@@ -4259,31 +4268,15 @@ class Spare_parts extends CI_Controller {
      * Part defective part pending that are Out Of TAT
      * @param: Array $post
      */
-    function get_defective_part_out_of_tat_pending($post) {
-                   
-            $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  booking_details.booking_id ,  booking_details.assigned_vendor_id , emply.full_name as rm_name, empl.full_name as asm_name, service_centres.name as sf_name, service_centres.district as sf_city, service_centres.state as sf_state, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name,employee.full_name as account_manager_name, booking_details.current_status as booking_status, booking_details.partner_current_status as partner_status_level_first, booking_details.partner_internal_status as partner_status_level_second,"
-                . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date, DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as final_closing_date, DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y') as spare_part_cancellation_date, bcr.reason as spare_cancellation_reason, booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
-                . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as requested_on_partner_warehouse,"
-                . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, iml.part_number as shipped_part_number,"
-                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age, spare_parts_details.awb_by_partner,"
-                . "spare_parts_details.courier_name_by_partner as partner_courier_name, spare_parts_details.courier_price_by_partner as partner_courier_price,"
-                . "partner_challan_number AS partner_challan_number, spare_parts_details.awb_by_sf, spare_parts_details.courier_name_by_sf as sf_courier_name, spare_parts_details.courier_charges_by_sf as sf_courier_price, sf_challan_number as sf_challan_number,IF(wh.name !='' , wh.name, 'Partner') as sf_dispatch_defective_part_to_wh_partner,"
-                . "DATE_FORMAT(spare_parts_details.acknowledge_date,'%d-%b-%Y') as spare_received_date, spare_parts_details.auto_acknowledeged as is_spare_auto_acknowledge,"
-                . "spare_parts_details.defective_part_shipped as part_shipped_by_sf, challan_approx_value As parts_charge, "
-                . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS defective_part_required, cci.billable_weight , cci.box_count,"
-                . "remarks_defective_part_by_sf as defective_parts_remarks_by_sf, DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as defective_parts_shipped_date, DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as partner_received_defective_parts_date, "
-                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as consumption, spare_consumption_status.consumed_status as consumption_reason, spare_parts_details.awb_by_wh, spare_parts_details.courier_name_by_wh, spare_parts_details.courier_price_by_wh, spare_parts_details.wh_challan_number, DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as wh_to_partner_defective_shipped_date, "
-                . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as reverse_sale_invoice, "
-                . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as reverse_purchased_invoice, "
-                . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as purchase_invoice, "
-                . "if(spare_parts_details.sell_invoice_id is null,'',spare_parts_details.sell_invoice_id) as sale_invoice, "
-                . "if(spare_parts_details.warehouse_courier_invoice_id is null,'',spare_parts_details.warehouse_courier_invoice_id) as warehouse_courier_invoice, "
-                . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as partner_warehouse_courier_invoice,"
-                . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as partner_courier_invoice, "
-                . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as sf_courier_invoice, "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as partner_warehouse_packaging_courier_invoice, (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS spare_lost";
+     function get_defective_part_out_of_tat_pending($post) {
 
-        
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  booking_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
+                . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status,  booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
+                . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"
+                . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.awb_by_wh,"
+                . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS spare_lost";
+
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
@@ -4294,10 +4287,10 @@ class Spare_parts extends CI_Controller {
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
         $post['where']['defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['defective_part_required'] = 1;
-
+        $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
-        
+
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
@@ -4314,8 +4307,8 @@ class Spare_parts extends CI_Controller {
 
         echo json_encode($output);
     }
-    
-      /**
+
+    /**
      * @desc: This function is used to create table row data for pending Out of TAT spare parts
      * @param: Array $spare_list
      * @param: int $no
@@ -4356,7 +4349,7 @@ class Spare_parts extends CI_Controller {
     }
 
     /*
-     * @desc: This Function is used to download the consolidated report
+     * @desc: This Function is used to download the OOT report
      * @param: void
      * @return : Download link
      */

@@ -975,7 +975,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_alternate_inventory_master_list($post) {
-        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(inventory_master_list.inventory_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -986,7 +986,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_alternate_inventory_master_list($post){
-        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(inventory_master_list.inventory_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -3506,22 +3506,19 @@ class Inventory_model extends CI_Model {
     function _get_out_of_tat_pending_defective_part($post) {
 
         $this->db->select($post['select'], false);
-        $this->db->from('booking_details');
-        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('partners', 'booking_details.partner_id = partners.id');
-        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
-        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
-        $this->db->join('employee', "employee.id = agent_filters.agent_id", "left");
-        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
-        $this->db->join('inventory_master_list as iml', " iml.inventory_id = spare_parts_details.shipped_inventory_id", "left");
-        $this->db->join('service_centres sc', 'spare_parts_details.partner_id = sc.id', 'left');
-        $this->db->join('service_centres as wh', 'spare_parts_details.defective_return_to_entity_id = wh.id', 'left');
-        $this->db->join('services', 'services.id = booking_details.service_id', 'left');
-        $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
-        $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
-        $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
-        $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
+        $this->db->from('spare_parts_details');
+        $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id', "left");
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
+        $this->db->join('partners', 'partners.id = booking_details.partner_id', "left");
+        $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id', "left");
+        $this->db->join('users', 'users.user_id = booking_details.user_id', "left");
+
+        if (isset($post['is_inventory'])) {
+            $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as i', 'i.inventory_id = spare_parts_details.shipped_inventory_id', "left");
+        }
+
+        $this->db->join('services', 'booking_details.service_id = services.id', 'left');
 
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
@@ -3553,9 +3550,8 @@ class Inventory_model extends CI_Model {
             $this->db->group_by($post['group_by']);
         }
     }
-    
-    
-     /*
+
+    /*
      * @desc: This function is used to get total count of Out of TAT list.
      * @params: $select
      * @params: Array $where

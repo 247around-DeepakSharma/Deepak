@@ -179,6 +179,7 @@
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content2">
                                 <?php if (!empty($unit_details)) { ?>
+                                    <div class="table-responsive">
                                     <table class="table  table-striped table-bordered">
                                         <tr>
                                             <th>Brand</th>
@@ -275,6 +276,7 @@
                                             <?php } ?>
                                         </tbody>
                                     </table>
+                                </div>
                                 <div class="row">
                                     <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
                                      <div class="col-md-12" id="misc_charge_div" >
@@ -755,8 +757,9 @@
                                     <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <h1 style='font-size:24px;'> Out Of Warranty Invoice Details ( Uploaded By Partner )</h1>
+                                                <h1 style='font-size:24px;'> Out Of Warranty Invoice Details ( Uploaded By partner )</h1>
                                                 <div class="col-md-12" style="padding-left:1px;">
+                                                    <div class="table-responsive">
                                                     <table class="table  table-striped table-bordered" >
                                                         <thead>
                                                             <tr>
@@ -800,6 +803,7 @@
                                                                         ?>
                                                         </tbody>
                                                     </table>
+                                                </div>
                                                 </div>
                                             </div>
                                         </div>

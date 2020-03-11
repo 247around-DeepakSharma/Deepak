@@ -36,7 +36,7 @@
                             <div class="static-form-box">
                                 <div class="col-md-3" >
                                     <div class="form-group col-md-12  ">
-                                        <label for="product serices">Product/Service </label>
+                                        <label for="product serices">Product/Service * </label>
                                         <select name="misc[0][product_or_services]" class="form-control" id="product_or_services_0" required>
                                             <option value="Service">Service</option>
                                             <option value="Product">Product</option>
@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="col-md-5" >
                                     <div class="form-group col-md-12  ">
-                                        <label for="Service Description">Description </label>
+                                        <label for="Service Description">Description * </label>
                                         <input type="text" class="form-control" id="description_0" placeholder="Enter Description" name="misc[0][description]" value = "" required>
                                     </div>
                                 </div>
@@ -72,7 +72,7 @@
                                 <div class="clone">
                                     <div class="col-md-3" >
                                     <div class="form-group col-md-12  ">
-                                        <label for="product serices">Product/Service </label>
+                                        <label for="product serices">Product/Service * </label>
                                         <select class="form-control" id="product_or_services" >
                                             <option value="Service">Service</option>
                                             <option value="Product">Product</option>
@@ -82,7 +82,7 @@
                                 </div>
                                     <div class="col-md-5" >
                                         <div class="form-group col-md-12  ">
-                                            <label for="Service Description">Description </label>
+                                            <label for="Service Description">Description * </label>
                                             <input type="text" class="form-control" id="description" placeholder="Enter Description"  value = "">
                                         </div>
                                     </div>
@@ -113,13 +113,13 @@
                                 </div>
                             <div class="col-md-5 ">
                                 <div class="form-group col-md-12  ">
-                                    <label for="remarks">Remarks *</label>
+                                    <label for="remarks">Remarks * </label>
                                     <input type="text" class="form-control" id="remarks" placeholder="Enter Remarks" name="remarks" value = "" required>
                                 </div>
                             </div>
                             <div class="col-md-12 ">
                                 <div class="form-group col-md-11  ">
-                                    <label for="Approval Email File">Approval/Email File *</label>
+                                    <label for="Approval Email File">Approval/Email File * </label>
                                     <input type="file" class="form-control" id="approval_misc_charges_file" name="approval_misc_charges_file" required>
                                     <input type="hidden" name="file_required" value="1" >
                                 </div>
@@ -156,8 +156,8 @@
     
            // Update the name attributes
            $clone
-               .find('[id="product_or_services"]').attr('name', 'misc[' + partIndex + '][product_or_services]').attr('id','product_or_services'+partIndex).end()
-               .find('[id="description"]').attr('name', 'misc[' + partIndex + '][description]').attr('id','description_'+partIndex).end()
+               .find('[id="product_or_services"]').attr('name', 'misc[' + partIndex + '][product_or_services]').attr('id','product_or_services'+partIndex).attr('required','').end()
+               .find('[id="description"]').attr('name', 'misc[' + partIndex + '][description]').attr('id','description_'+partIndex).attr('required','').end()
                .find('[id="vendor_charge"]').attr('name', 'misc[' + partIndex + '][vendor_charge]').attr('id','vendor_charge_'+partIndex).end()
                .find('[id="partner_charge"]').attr('name', 'misc[' + partIndex + '][partner_charge]').attr('id','partner_charge_'+partIndex).end();
     
