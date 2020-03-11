@@ -3747,8 +3747,9 @@ class engineerApi extends CI_Controller {
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
                         /*  NO Action  Flag */
-                        $cancel_flag = $this->checkBookingActionrequired($value['booking_id']);
-                        $data['Bookings'][$key]['action_flag'] =  $cancel_flag;
+                        $action_flag = $this->checkBookingActionrequired($value['booking_id']);
+                        $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
+                        $data['Bookings'][$key]['action_flag']['message'] =  $action_flag['message'];
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
@@ -3786,7 +3787,19 @@ class engineerApi extends CI_Controller {
        $where = array('booking_id'=>$booking_id);
        $select = 'partner_invoice_id';
        $unit_array =  $this->booking_model->get_unit_details($where, FALSE, $select);
-       return $this->booking_utilities->is_partner_invoiced($unit_array);  
+       $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
+       // Response with messsgae // 
+       if($response){
+        $return_res['action_flag'] = TRUE;
+        $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+        return $return_res;
+
+       }else{
+        $return_res['action_flag'] = FALSE;
+        $return_res['message'] = '';
+        return $return_res;
+
+       }
 
 
     }
