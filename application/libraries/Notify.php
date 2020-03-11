@@ -1163,7 +1163,7 @@ class Notify {
         );
         $fields = array
             (
-            'registration_ids' => array($data['device_firebase_token']),
+            'registration_ids' => array($data['firebase_token']), /*  Changing key */
             'notification' => $msg
         );
 
