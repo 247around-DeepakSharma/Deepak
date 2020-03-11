@@ -6205,16 +6205,8 @@ exit();
     function get_vendor_partner_bank_transaction(){
         $partner_vendor_id = $this->input->post('partner_vendor_id');
         $partner_vendor_type = $this->input->post('partner_vendor');
-        $join = "";
-        $condition="";
-        if($partner_vendor_type == "vendor"){
-            //If vendor is selected, then we don't have to show FNF payment
-            $join = " inner join vendor_partner_invoices on vendor_partner_invoices.invoice_id = bank_transactions.invoice_id";
-            $condition = " and vendor_partner_invoices.sub_category != '".FNF."'";
-        }
-        
-        $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."'".$condition." ORDER BY bank_transactions.transaction_date DESC, bank_transactions.id desc limit 3";
-        $list = $this->invoices_model->get_all_bank_transactions($partner_vendor_type, $where, $join);
+        $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."' ORDER BY bank_transactions.transaction_date DESC, bank_transactions.id desc limit 3";
+        $list = $this->invoices_model->get_all_bank_transactions($partner_vendor_type, $where);
         $data = array();
         $no = 0;
         //create table data for each row
