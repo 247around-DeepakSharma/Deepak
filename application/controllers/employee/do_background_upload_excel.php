@@ -974,118 +974,126 @@ class Do_background_upload_excel extends CI_Controller {
 
             $prod = trim($value['product']);
 
-            if (!empty($value['brand'])) {
-                $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type'])),
-                    'brand' => $value['brand']);
-            } else {
-                $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type'])));
+            if (!empty($data['valid_data']['model'])) {
+                $model_number = $this->partner_model->get_model_number("*", array('appliance_model_details.model_number' => 
+                    $data['valid_data']['model'], "appliance_model_details.active" => 1,
+                    "partner_appliance_details.active" => 1));
+                if (!empty($model_number)) {
+                    $data['valid_data'][$key]['service_id'] = $model_number[0]['service_id'];
+                    $data['valid_data'][$key]['appliance'] = $model_number[0]['services'];
+                    $data['valid_data'][$key]['service_appliance_data']['category'] = $model_number[0]['category'];
+                    $data['valid_data'][$key]['service_appliance_data']['capacity'] = $model_number[0]['capacity'];
+                    $data['valid_data'][$key]['service_appliance_data']['brand'] = $model_number[0]['brand'];
+                }
             }
 
-            //check if service_id already exist or not by using product description
-            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($where);
-
-            if (!empty($service_appliance_data)) {
-                log_message('info', __FUNCTION__ . "=> Dsecription found");
-                $data['valid_data'][$key]['service_id'] = $service_appliance_data[0]['service_id'];
-                $data['valid_data'][$key]['service_appliance_data'] = $service_appliance_data[0];
-                $data['valid_data'][$key]['appliance'] = $service_appliance_data[0]['services'];
-            } else {
-                log_message('info', __FUNCTION__ . "=> Dsecription not found");
-                $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-                if(!$saas_flag){
-                    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                        $data['valid_data'][$key]['appliance'] = 'Washing Machine';
-                    }
-                    if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
-                        $data['valid_data'][$key]['appliance'] = 'Television';
-                    }
-                    //remove AC beacuse when description contain active then it mapped other appliance booking into ac
-                    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                        $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
-                    }
-                    if (stristr($prod, "Refrigerator")) {
-                        $data['valid_data'][$key]['appliance'] = 'Refrigerator';
-                    }
-                    if (stristr($prod, "Microwave")) {
-                        $data['valid_data'][$key]['appliance'] = 'Microwave';
-                    }
-                    if (stristr($prod, "Purifier")) {
-                        $data['valid_data'][$key]['appliance'] = 'Water Purifier';
-                    }
-                    if (stristr($prod, "Chimney")) {
-                        $data['valid_data'][$key]['appliance'] = 'Chimney';
-                    }
-                    if (stristr($prod, "Geyser")) {
-                        $data['valid_data'][$key]['appliance'] = 'Geyser';
-                    }
-                    if (stristr($prod, "Smart Speaker")) {
-                        $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
-                    }
-                    if (stristr($prod, "Cooler")) {
-                        $data['valid_data'][$key]['appliance'] = 'Air Cooler';
-                    }
-                    if (stristr($prod, "Air Purifier")) {
-                        $data['valid_data'][$key]['appliance'] = 'Air Purifier';
-                    }
-                    if (stristr($prod, "Stove")) {
-                        $data['valid_data'][$key]['appliance'] = 'Gas Stove';
-                    }
-                    if (stristr($prod, "Mixer Grinder") || stristr($prod, "Mixer-Grinder") || stristr($prod, "SHA") 
-                            || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") 
-                            || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") 
-                            || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") 
-                            || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") 
-                            || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") 
-                            || stristr($prod, "Vaccum Cleaner")) {
-
-                        $data['valid_data'][$key]['appliance'] = 'SHA';
-                    }
-                    if (stristr($prod, "Mosquito Racquet")) {
-                        $data['valid_data'][$key]['appliance'] = 'Mosquito Racquet';
-                    }
-                    if (stristr($prod, "Treadmill")) {
-                        $data['valid_data'][$key]['appliance'] = 'Treadmill';
-                    }
-                    if(!isset($data['valid_data'][$key]['appliance'])){ 
-                         $data['valid_data'][$key]['appliance'] = $prod;
-                    }
-                }
-                else{
-                     $data['valid_data'][$key]['appliance'] = $prod;
-                }
-
-                // Block Microvare cooking. If its exist in the Excel file
-                if (stristr($prod, "microwave cooking")) {
-                    $flag = 1;
-                    unset($data['valid_data'][$key]);
-                    array_push($invalid_data, $value);
-                }
-                // Block Tds Meter. If its exist in the Excel file
-                if (stristr($prod, "Tds Meter")) {
-                    $flag = 1;
-                    unset($data['valid_data'][$key]);
-                    array_push($invalid_data, $value);
-                }
-                // Block Accessories. If its exist in the Excel file
-                if (stristr($prod, "Accessories")) {
-                    $flag = 1;
-                    unset($data['valid_data'][$key]);
-                    array_push($invalid_data, $value);
-                }
-                
-                if(isset($data['valid_data'][$key]['appliance'])){
-                    if ($flag == 0) {
-                        $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
-                        if ($service_id) {
-                            $data['valid_data'][$key]['service_id'] = $service_id;
-                        } else {
-                            unset($data['valid_data'][$key]);
-                            array_push($invalid_data, $value);
-                        }
-                    }
+            if (!isset($data['valid_data'][$key]['service_appliance_data']['brand'])) {
+                if (!empty($value['brand'])) {
+                    $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type'])),
+                        'brand' => $value['brand']);
                 } else {
-                    unset($data['valid_data'][$key]);
-                    array_push($invalid_data, $value);
+                    $where = array('product_description' => trim(preg_replace('/[^(\x20-\x7F)]*/', '', $value['product_type'])));
+                }
+
+                //check if service_id already exist or not by using product description
+                $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($where);
+
+                if (!empty($service_appliance_data)) {
+                    log_message('info', __FUNCTION__ . "=> Dsecription found");
+                    $data['valid_data'][$key]['service_id'] = $service_appliance_data[0]['service_id'];
+                    $data['valid_data'][$key]['service_appliance_data'] = $service_appliance_data[0];
+                    $data['valid_data'][$key]['appliance'] = $service_appliance_data[0]['services'];
+                } else {
+                    log_message('info', __FUNCTION__ . "=> Dsecription not found");
+                    $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                    if (!$saas_flag) {
+                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                            $data['valid_data'][$key]['appliance'] = 'Washing Machine';
+                        }
+                        if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
+                            $data['valid_data'][$key]['appliance'] = 'Television';
+                        }
+                        //remove AC beacuse when description contain active then it mapped other appliance booking into ac
+                        if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                            $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+                        }
+                        if (stristr($prod, "Refrigerator")) {
+                            $data['valid_data'][$key]['appliance'] = 'Refrigerator';
+                        }
+                        if (stristr($prod, "Microwave")) {
+                            $data['valid_data'][$key]['appliance'] = 'Microwave';
+                        }
+                        if (stristr($prod, "Purifier")) {
+                            $data['valid_data'][$key]['appliance'] = 'Water Purifier';
+                        }
+                        if (stristr($prod, "Chimney")) {
+                            $data['valid_data'][$key]['appliance'] = 'Chimney';
+                        }
+                        if (stristr($prod, "Geyser")) {
+                            $data['valid_data'][$key]['appliance'] = 'Geyser';
+                        }
+                        if (stristr($prod, "Smart Speaker")) {
+                            $data['valid_data'][$key]['appliance'] = 'Smart Speaker';
+                        }
+                        if (stristr($prod, "Cooler")) {
+                            $data['valid_data'][$key]['appliance'] = 'Air Cooler';
+                        }
+                        if (stristr($prod, "Air Purifier")) {
+                            $data['valid_data'][$key]['appliance'] = 'Air Purifier';
+                        }
+                        if (stristr($prod, "Stove")) {
+                            $data['valid_data'][$key]['appliance'] = 'Gas Stove';
+                        }
+                        if (stristr($prod, "Mixer Grinder") || stristr($prod, "Mixer-Grinder") || stristr($prod, "SHA") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Juicer Mixer Grinder") || stristr($prod, "Air Fryer") || stristr($prod, "Cookware") || stristr($prod, "Gas Burner") || stristr($prod, "Hand Blender") || stristr($prod, "Kettle") || stristr($prod, "Massager") || stristr($prod, "Nutri Blender") || stristr($prod, "OTG") || stristr($prod, "Steamer") || stristr($prod, "Toaster") || stristr($prod, "Vaccum Cleaner")) {
+
+                            $data['valid_data'][$key]['appliance'] = 'SHA';
+                        }
+                        if (stristr($prod, "Mosquito Racquet")) {
+                            $data['valid_data'][$key]['appliance'] = 'Mosquito Racquet';
+                        }
+                        if (stristr($prod, "Treadmill")) {
+                            $data['valid_data'][$key]['appliance'] = 'Treadmill';
+                        }
+                        if (!isset($data['valid_data'][$key]['appliance'])) {
+                            $data['valid_data'][$key]['appliance'] = $prod;
+                        }
+                    } else {
+                        $data['valid_data'][$key]['appliance'] = $prod;
+                    }
+
+                    // Block Microvare cooking. If its exist in the Excel file
+                    if (stristr($prod, "microwave cooking")) {
+                        $flag = 1;
+                        unset($data['valid_data'][$key]);
+                        array_push($invalid_data, $value);
+                    }
+                    // Block Tds Meter. If its exist in the Excel file
+                    if (stristr($prod, "Tds Meter")) {
+                        $flag = 1;
+                        unset($data['valid_data'][$key]);
+                        array_push($invalid_data, $value);
+                    }
+                    // Block Accessories. If its exist in the Excel file
+                    if (stristr($prod, "Accessories")) {
+                        $flag = 1;
+                        unset($data['valid_data'][$key]);
+                        array_push($invalid_data, $value);
+                    }
+
+                    if (isset($data['valid_data'][$key]['appliance'])) {
+                        if ($flag == 0) {
+                            $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
+                            if ($service_id) {
+                                $data['valid_data'][$key]['service_id'] = $service_id;
+                            } else {
+                                unset($data['valid_data'][$key]);
+                                array_push($invalid_data, $value);
+                            }
+                        }
+                    } else {
+                        unset($data['valid_data'][$key]);
+                        array_push($invalid_data, $value);
+                    }
                 }
             }
         }

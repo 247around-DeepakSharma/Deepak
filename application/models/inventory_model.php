@@ -975,7 +975,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_alternate_inventory_master_list($post) {
-        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(inventory_master_list.inventory_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -986,7 +986,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_alternate_inventory_master_list($post){
-        $this->_get_alternate_inventory_master_list($post, 'count(distinct(inventory_master_list.inventory_id)) as numrows');
+        $this->_get_alternate_inventory_master_list($post, 'count(inventory_master_list.inventory_id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -1579,9 +1579,12 @@ class Inventory_model extends CI_Model {
             $this->db->where($where,false);
         }
         $this->db->from('inventory_ledger');
-        $this->db->join('courier_details','inventory_ledger.courier_id = courier_details.id');
+        $this->db->join('courier_company_invoice_details','inventory_ledger.courier_id = courier_company_invoice_details.id');
         $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        $this->db->join('inventory_master_list as im', 'spare_parts_details.shipped_inventory_id = im.inventory_id');
         $query = $this->db->get();
+        echo $this->db->last_query();
+        die();
         return $query->result_array();
     }
     

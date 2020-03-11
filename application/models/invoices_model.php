@@ -137,7 +137,7 @@ class invoices_model extends CI_Model {
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
-        $this->db->order_by('transaction_date DESC');
+        $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
         if($limit != 0){
             $this->db->limit($limit);
         }
@@ -716,7 +716,7 @@ class invoices_model extends CI_Model {
                         AND ud.ud_closed_date < '$to_date'
                     ) $s
                   )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
@@ -3296,9 +3296,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_spare_sale_list($post) {
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
       /**
@@ -3307,9 +3307,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_spare_sale_list($post){
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
     /**

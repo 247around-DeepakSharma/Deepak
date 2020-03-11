@@ -1053,7 +1053,7 @@ class User extends CI_Controller {
             
             if(!empty($manager_id)) {
                 $manager_details = $this->employee_model->getemployeefromid($manager_id);
-                $to .= (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
+                // $to .= (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
             }
             
             if(!empty($email_template[0]['to'])) {

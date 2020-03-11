@@ -132,7 +132,7 @@
     <div id="vendor_sf_cp_list">        
  <?php } ?>
         <table class="table table-bordered table-condensed" id="vender_details">
-          
+          <thead>
           <tr>
           	<th class="jumbotron">ID</th>
           	<th class="jumbotron">Name</th>
@@ -150,7 +150,8 @@
                 <th class="jumbotron">Resend Login Details</th>
                 <th class="jumbotron">View Active/De-active History</th>
           </tr>
-
+        </thead>
+        <tbody>
           
           <?php 
           $x = 0;
@@ -229,6 +230,7 @@
 
           </tr>	
           <?php } ?>
+          </tbody>
         </table>
 
 <?php if(!isset($is_ajax)) { ?>
@@ -409,6 +411,18 @@
   
 </div>
  <script>
+ 
+	var vendor_details;
+		vendor_details = $("#vender_details").DataTable(
+		{  
+		order:[[ 2, "desc" ]],
+		pageLength: 50,
+		"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-left"ip>>>'
+
+		});
+		vendor_details.draw(false);
+ 
+ 
      function permanentVendorOff(vendorID){
          $.ajax({
                 type: 'POST',
