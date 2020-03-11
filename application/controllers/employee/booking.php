@@ -280,7 +280,7 @@ class Booking extends CI_Controller {
                     
                 }
                 
-                if (isset($appliance_id[$key])) {
+                if (!empty($appliance_id[$key])) {
                     $services_details['appliance_id'] = $appliance_id[$key];
                     $this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
                 } else {
