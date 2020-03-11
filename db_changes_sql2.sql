@@ -1998,4 +1998,10 @@ ALTER TABLE `courier_company_invoice_details` ADD `sender_city` VARCHAR(64) CHAR
 update header_navigation set groups = REPLACE(groups, 'regionalmanager', 'regionalmanager,areasalesmanager');
 
   --- Abhishek -- 11-03-2020
+ 
   INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'send_notification_on_engg_assign', ' Hi %s, Booking ID- %s is assigned to you . ', 'This is used to send to notification to engg when booking is assigned to him', '1', '0', '2019-08-06 15:14:24');
+ 
+---Gorakh 11-03-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Download Courier Invoice', NULL, 'employee/inventory/download_courier_invoice', 2, '249', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2019-08-06 12:57:33');
+ 
