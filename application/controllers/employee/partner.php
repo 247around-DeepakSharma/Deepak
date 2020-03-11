@@ -8968,7 +8968,7 @@ class Partner extends CI_Controller {
                 $review_counter++;
 
                 }
-                else if (strtoupper($update_pending['status']) == 'CANCELLED') {
+                else if (strtoupper($update_pending['status']) == _247AROUND_CANCELLED) {
                     // Do nothing do not update nrn_approved_by_partner = 1;
                 } 
                 else{
@@ -9031,9 +9031,7 @@ class Partner extends CI_Controller {
               
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                foreach ($spare_inventory_update as $update_pending) {
-                    $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER, "", $update_pending['id']);
-                }
+                $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
             echo "1";   
         }else{
            echo "0";
