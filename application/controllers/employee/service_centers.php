@@ -1611,7 +1611,7 @@ class Service_centers extends CI_Controller {
 
 /*  Sending Notification to Engineer on assignment */
                    $select = "id,device_firebase_token";
-                   $where = array('active'=>1,'id'=>1);
+                   $where = array('active'=>1,'id'=>$engineer_id);
                    $result = $this->engineer_model->get_active_engineers($select,$where);
                    $data['firebase_token'] = $result[0]->device_firebase_token;
                    $template = $this->vendor_model->getVendorSmsTemplate(ASSIGN_ENGG_NOTIFICATION); // getting templet 
