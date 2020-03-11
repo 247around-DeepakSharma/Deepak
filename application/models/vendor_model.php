@@ -736,7 +736,7 @@ class vendor_model extends CI_Model {
      * @param: Array
      * @return : Array
      */
-    function getVendorDetails($select, $where =array() , $order_by='name',$whereIN=array()) {
+    function getVendorDetails($select, $where =array() , $order_by='name',$whereIN=array(),$join=array(),$JoinTypeTableArray=array()) {
         $this->db->select($select,FALSE);
         if(!empty($where)){
            $this->db->where($where);
@@ -746,6 +746,16 @@ class vendor_model extends CI_Model {
                     if(!empty($conditionArray)){
                         $this->db->where_in($fieldName, $conditionArray);
                     }                    
+            }
+        }
+        if(!empty($join)){
+            foreach ($join as $tableName=>$joinCondition){
+                if(array_key_exists($tableName, $JoinTypeTableArray)){
+                    $this->db->join($tableName,$joinCondition,$JoinTypeTableArray[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
             }
         }
         $this->db->order_by($order_by);
