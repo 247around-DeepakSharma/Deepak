@@ -5142,7 +5142,8 @@ class vendor extends CI_Controller {
     function get_miscellaneous_charges($booking_id, $is_sf = 0, $is_partner = 0){
        if(!empty($booking_id)){
             $data = $this->booking_model->get_misc_charges_data('*', array('booking_id' => $booking_id, 'active' => 1));
-            $html = "<table class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
+            $html = "<div style='width: 100% ;'>";
+            $html .= "<table style='overflow-x:auto;' class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
             if($is_partner){
                $html  .= "<th>Partner Offer</th>";
             }
@@ -5202,7 +5203,7 @@ class vendor extends CI_Controller {
                
                $html .= "</tr>";
            }
-           $html .= "</tbody></table>";
+           $html .= "</tbody></table></div>";
            echo $html;
        } else {
             echo "Failed";
