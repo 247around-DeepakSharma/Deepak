@@ -342,6 +342,7 @@
                                 <th>SF Name </th>
                                 <th>Account Manager </th>
                                 <th>Engineer Name </th>
+                                <th>Engineer Phone </th> <!-- Engg phone -->
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
@@ -352,6 +353,7 @@
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                                 <td><?php if(isset($booking_history[0]['account_manager_name'])){echo $booking_history[0]['account_manager_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['assigned_engineer_name'])){echo $booking_history[0]['assigned_engineer_name'];}?></td>
+                                <td><?php if(isset($booking_history[0]['engineer_phone'])){echo $booking_history[0]['engineer_phone'];}?></td> <!--  Engg Phone -->
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
                                     <?php if($c2c) { ?>
