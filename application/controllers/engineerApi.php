@@ -3718,6 +3718,7 @@ class engineerApi extends CI_Controller {
                 $post['unit_not_required'] = true;
                 $post['where']['assigned_engineer_id'] = $requestData['engineer_id'];
                 $post['where']['assigned_vendor_id'] = $requestData['service_center_id'];
+                $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
