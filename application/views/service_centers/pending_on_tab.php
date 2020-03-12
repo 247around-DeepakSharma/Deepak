@@ -35,7 +35,7 @@
                                         <th class="text-center" data-orderable="false">Warranty <br> Checker</th>
                                         <th class="text-center" data-orderable="false">Check Spare Part Price</th>
                                         <th class="text-center" data-orderable="false">Contacts</th> 
-                                       <th class="text-center" data-orderable="false">Send Email</th>                                                            
+                                        <th class="text-center" data-orderable="false">Send Email</th>                                                            
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
@@ -90,7 +90,7 @@
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
                                         </td>
-                                        <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                        <td data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                             <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
@@ -104,7 +104,7 @@
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
                                         <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
-                                        <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                        <td data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                             <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>

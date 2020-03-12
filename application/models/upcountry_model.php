@@ -855,7 +855,7 @@ class Upcountry_model extends CI_Model {
                 . " AND ud.ud_closed_date < '$to_date' "
                 . " AND bd.current_status = 'Completed' "
                 . " ) $spare_requested_unit_id )"
-                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id HAVING upcountry_price > 0 ";
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id HAVING upcountry_price > ".DEFAULT_CHARGES_LIMIT." ";
         
         $query = $this->db->query($sql);
         if($query->num_rows > 0){

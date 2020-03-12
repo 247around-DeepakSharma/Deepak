@@ -131,7 +131,11 @@
                 </form>-->
     <div id="vendor_sf_cp_list">        
  <?php } ?>
+<<<<<<< HEAD
         <table class="table table-bordered table-condensed" id="vendor_details">
+=======
+        <table class="table table-bordered table-condensed" id="vender_details">
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
           <thead>
           <tr>
           	<th class="jumbotron">ID</th>
@@ -150,8 +154,13 @@
                 <th class="jumbotron">Resend Login Details</th>
                 <th class="jumbotron">View Active/De-active History</th>
           </tr>
+<<<<<<< HEAD
 		</thead>
 		<tbody>
+=======
+        </thead>
+        <tbody>
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
           
           <?php 
           $x = 0;
@@ -230,7 +239,11 @@
 
           </tr>	
           <?php } ?>
+<<<<<<< HEAD
 		  </tbody>
+=======
+          </tbody>
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
         </table>
 
 <?php if(!isset($is_ajax)) { ?>
@@ -413,7 +426,11 @@
  <script>
  
 	var vendor_details;
+<<<<<<< HEAD
 		vendor_details = $("#vendor_details").DataTable(
+=======
+		vendor_details = $("#vender_details").DataTable(
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
 		{  
 		order:[[ 2, "desc" ]],
 		pageLength: 50,

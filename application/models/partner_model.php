@@ -2779,6 +2779,7 @@ function get_data_for_partner_callback($booking_id) {
 
     /**
      * Method returns query for detailed summary report
+     * This query used union all to combine booking's appliance detail and spare details.
      * @param type $partner_id
      * @param type $whereConditions
      * @author Ankit Rajvanshi
@@ -2869,8 +2870,8 @@ function get_data_for_partner_callback($booking_id) {
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    ' ' as 'Agent Name',
-                    ' ' as 'Creation Source',
+                    '' as 'Agent Name',
+                    partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
                     users.name as 'Customer Name',
@@ -2898,8 +2899,8 @@ function get_data_for_partner_callback($booking_id) {
                       DISTINCT(
                             CASE WHEN(
                               ud.serial_number IS NULL OR ud.serial_number = ''
-                            ) THEN '' ELSE CONCAT('`',
-                            ud.serial_number)
+                            ) THEN '' ELSE 
+                            ud.serial_number
                       END
                     )
                     ) AS 'Product Serial Number',	
@@ -2993,36 +2994,36 @@ function get_data_for_partner_callback($booking_id) {
                     booking_details.rating_stars AS 'Rating',
                     booking_details.rating_comments AS 'Rating Comments',
                     (CASE WHEN spare_parts_details.booking_id is not null THEN 'Yes' ELSE 'No' END) AS 'Is Part Involve',
-                    ' ' as 'Consumption Reason',
-                    ' ' as 'Is Part Lost',
-                    ' ' AS 'Requested Part Code',
-                    ' ' AS 'Requested Part',
-                    ' ' AS 'Part Requested Date',
-                    ' ' AS 'Part Warranty Status',
-                    ' ' AS 'Spare Approval Date',
-                    ' ' AS 'Spare approval Person Name',
-                    ' ' AS 'Requested On Partner/Warehouse',
-                    ' ' AS 'Shipped Part Code',
-                    ' ' AS 'Shipped Part',
-                    ' ' AS 'Part Shipped Date',
-                    ' ' AS 'Part Charge',
-                    ' ' AS 'Shipped Invoice Number (To SF)',
-                    ' ' AS 'Shipped Challan Number',
-                    ' ' AS 'Shipped AWB Number (To SF)',
-                    ' ' AS 'SF Acknowledged Date',
-                    ' ' AS 'Is auto Acknowledge',
-                    ' ' AS 'Part Consumed',
-                    ' ' AS 'Shipped Defective Part Code',
-                    ' ' AS 'Shipped Defective Part',
-                    ' ' AS 'Defective Part Shipped Date',
-                    ' ' AS 'SF Challan Number',
-                    ' ' AS 'SF AWB Number (Defective Shipped)',
-                    ' ' AS 'SF Courier Name',
-                    ' ' AS 'Defective received Date',
-                    ' ' AS 'Reverse Sale Invoice Id',
-                    ' ' AS 'Reverse Purchase Invoice Id',
-                    ' ' AS 'Purchase Invoice Id',
-                    ' ' AS 'Sale Invoice Id'                    
+                    '' as 'Consumption Reason',
+                    '' as 'Is Part Lost',
+                    '' AS 'Requested Part Code',
+                    '' AS 'Requested Part',
+                    '' AS 'Part Requested Date',
+                    '' AS 'Part Warranty Status',
+                    '' AS 'Spare Approval Date',
+                    '' AS 'Spare approval Person Name',
+                    '' AS 'Requested On Partner/Warehouse',
+                    '' AS 'Shipped Part Code',
+                    '' AS 'Shipped Part',
+                    '' AS 'Part Shipped Date',
+                    '' AS 'Part Charge',
+                    '' AS 'Shipped Invoice Number (To SF)',
+                    '' AS 'Shipped Challan Number',
+                    '' AS 'Shipped AWB Number (To SF)',
+                    '' AS 'SF Acknowledged Date',
+                    '' AS 'Is auto Acknowledge',
+                    '' AS 'Part Consumed',
+                    '' AS 'Shipped Defective Part Code',
+                    '' AS 'Shipped Defective Part',
+                    '' AS 'Defective Part Shipped Date',
+                    '' AS 'SF Challan Number',
+                    '' AS 'SF AWB Number (Defective Shipped)',
+                    '' AS 'SF Courier Name',
+                    '' AS 'Defective received Date',
+                    '' AS 'Reverse Sale Invoice Id',
+                    '' AS 'Reverse Purchase Invoice Id',
+                    '' AS 'Purchase Invoice Id',
+                    '' AS 'Sale Invoice Id'                    
             FROM
                     booking_details
                     LEFT JOIN booking_unit_details ud ON (booking_details.booking_id = ud.booking_id)
@@ -3033,6 +3034,7 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN employee regional_manager ON (service_centres.rm_id = regional_manager.id)
                     LEFT JOIN employee area_sales_manager ON (service_centres.asm_id = area_sales_manager.id)
                     LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
+                    LEFT JOIN partner_channel ON (booking_details.created_source = partner_channel.id)
                     LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
@@ -3042,8 +3044,8 @@ function get_data_for_partner_callback($booking_id) {
 
             SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    ' ' as 'Agent Name',
-                    ' ' as 'Creation Source',
+                    '' as 'Agent Name',
+                    partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
                     users.name as 'Customer Name',
@@ -3071,8 +3073,8 @@ function get_data_for_partner_callback($booking_id) {
                       DISTINCT(
                             CASE WHEN(
                               ud.serial_number IS NULL OR ud.serial_number = ''
-                            ) THEN '' ELSE CONCAT('`',
-                            ud.serial_number)
+                            ) THEN '' ELSE 
+                            ud.serial_number
                       END
                     )
                     ) AS 'Product Serial Number',	
@@ -3218,6 +3220,7 @@ function get_data_for_partner_callback($booking_id) {
                 LEFT JOIN service_centres ON (booking_details.assigned_vendor_id = service_centres.id)
                 LEFT JOIN employee regional_manager ON (service_centres.rm_id = regional_manager.id)
                 LEFT JOIN employee area_sales_manager ON (service_centres.asm_id = area_sales_manager.id)
+                LEFT JOIN partner_channel ON (booking_details.created_source = partner_channel.id)
                 LEFT JOIN employee spare_approval_person ON (spare_parts_details.approval_agent_id = spare_approval_person.id AND approval_entity_type = '247around')
                 LEFT JOIN entity_login_table spare_approval_person_partner ON (spare_parts_details.approval_agent_id = spare_approval_person_partner.agent_id AND approval_entity_type = 'partner')
                 LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)

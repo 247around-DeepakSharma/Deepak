@@ -133,12 +133,16 @@
                                 </div>
                              </div>
                         </div>
+<<<<<<< HEAD
 
                    
                         <div class="col-md-4 col-sm-4 col-xs-12">
 
                        <div class="col-md-4 col-sm-4 col-xs-12">
 
+=======
+                       <div class="col-md-4 col-sm-4 col-xs-12">
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
                              <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
                                 <div class="left col-xs-12">
                                     <h2><b>Ms. Nupur Baranwal</b></h2>

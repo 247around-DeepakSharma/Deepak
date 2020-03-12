@@ -3273,6 +3273,7 @@ exit();
                 $where = array("partner_vendor" => "vendor", "partner_vendor_id" => $service_center_id);
                 //calling method to get last payment details for SF
                 $last_payment_details = $this->invoices_model->get_bank_transactions_details("bank_transactions.transaction_date, bank_transactions.debit_amount, bank_transactions.credit_amount, bank_transactions.credit_debit", $where, '', 1);
+<<<<<<< HEAD
                 $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
                 if($last_payment_details[0]['credit_debit'] == "Credit"){
                     //Last payment type was Credit
@@ -3282,6 +3283,26 @@ exit();
                     $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
                 }
                 $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
+=======
+                if(count($last_payment_details)>0){
+                    //Last payment found
+                    $sc_details['last_payment_date'] = date("d-M-Y", strtotime($last_payment_details[0]['transaction_date']));
+                    if($last_payment_details[0]['credit_debit'] == "Credit"){
+                        //Last payment type was Credit
+                        $sc_details['last_payment_amount'] = $last_payment_details[0]['credit_amount']; 
+                    }else{
+                        //Last payment type was Debit
+                        $sc_details['last_payment_amount'] = $last_payment_details[0]['debit_amount']; 
+                    }
+                    $sc_details['last_payment_type'] = $last_payment_details[0]['credit_debit']; 
+                }else{
+                    //Last payment not found
+                    $sc_details['last_payment_date'] = "";
+                    $sc_details['last_payment_amount'] = "";
+                    $sc_details['last_payment_type'] = "";
+                }
+                
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3413,7 +3434,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN, FNF); // To be check whether FNF comes here or not
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -3483,7 +3504,11 @@ exit();
         $sc_details['payment_hold_reason'] = "Payment Hold Reason";
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
+<<<<<<< HEAD
         $sc_details['last_payment_type'] = "Last Payment TYpe";
+=======
+        $sc_details['last_payment_type'] = "Last Payment Type";
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
 
         return $sc_details;
     }
@@ -6196,7 +6221,11 @@ exit();
     function get_vendor_partner_bank_transaction(){
         $partner_vendor_id = $this->input->post('partner_vendor_id');
         $partner_vendor_type = $this->input->post('partner_vendor');
+<<<<<<< HEAD
         $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."' ORDER BY bank_transactions.transaction_date DESC limit 3";
+=======
+        $where = " AND bank_transactions.partner_vendor_id = '".$partner_vendor_id."' ORDER BY bank_transactions.transaction_date DESC, bank_transactions.id desc limit 3";
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
         $list = $this->invoices_model->get_all_bank_transactions($partner_vendor_type, $where);
         $data = array();
         $no = 0;

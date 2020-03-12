@@ -99,4 +99,6 @@ define("_247AROUND_CHIMNEY_GST_RATE",18);
 define('COURIER', 'Courier');
 define('ACCESSORIES_TAG','accessories');
 define('FNF', 'FNF');
+//Default Charges Limit for Courier & Upcountry
+define('DEFAULT_CHARGES_LIMIT', 10);
 ?>

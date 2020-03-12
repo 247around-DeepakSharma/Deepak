@@ -39,7 +39,7 @@
                             <div class="static-form-box" id="<?php echo "static-form-box_".$value['id'];?>">
                                 <div class="col-md-3" >
                                     <div class="form-group col-md-12  ">
-                                        <label for="product serices">Product/Service </label>
+                                        <label for="product serices">Product/Service * </label>
                                         <select name="<?php echo "misc[".$value['id']."][product_or_services]"; ?>" class="form-control" id="<?php echo "product_or_services_".$value['id'];?>" required>
                                             <option value="Service" <?php if($value['product_or_services'] == "Service"){ echo "selected";}?>>Service</option>
                                             <option value="Product" <?php if($value['product_or_services'] == "Product"){ echo "selected";}?>>Product</option>
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="col-md-5" >
                                     <div class="form-group col-md-12  ">
-                                        <label for="Service Description">Description </label>
+                                        <label for="Service Description">Description * </label>
                                         <input type="text" class="form-control" id="<?php echo "description_".$value['id'];?>" 
                                                placeholder="Enter Description" name="<?php echo "misc[".$value['id']."][description]"; ?>" 
                                                value = "<?php echo $value['description'];?>" required>
@@ -82,7 +82,7 @@
                                 </div>
                             <div class="col-md-5 ">
                                 <div class="form-group col-md-12  ">
-                                    <label for="remarks">Remarks *</label>
+                                    <label for="remarks">Remarks * </label>
                                     <input type="text" class="form-control" id="remarks" placeholder="Enter Remarks" name="remarks" value = "<?php echo $value['remarks'];?>" required>
                                 </div>
                             </div>
@@ -99,7 +99,7 @@
                                                     $required = false;
                                                 }
                                                 ?>
-                                    <label for="detailed Invoice">Approval/Email File </label>
+                                    <label for="detailed Invoice">Approval/Email File * </label>
                                     <input type="file" class="form-control" id="approval_misc_charges_file" name="approval_misc_charges_file" <?php if($required) { echo "required";}?>  >
                                     <input type="hidden" name="file_required" value="<?php if($required) { echo "1";} else { echo "0";}?>" >
                                 </div>

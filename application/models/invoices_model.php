@@ -137,7 +137,11 @@ class invoices_model extends CI_Model {
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
+<<<<<<< HEAD
         $this->db->order_by('transaction_date DESC');
+=======
+        $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
+>>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
         if($limit != 0){
             $this->db->limit($limit);
         }
@@ -716,7 +720,7 @@ class invoices_model extends CI_Model {
                         AND ud.ud_closed_date < '$to_date'
                     ) $s
                   )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
@@ -2271,8 +2275,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_sf
-                 HAVING courier_charges_by_sf > 10
-               ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2311,8 +2314,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date < '$to_date'
                     AND `around_pickup_from_partner` = 1
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10 
-                ";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2578,7 +2580,7 @@ class invoices_model extends CI_Model {
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
                  GROUP by s1.awb_by_partner
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2612,7 +2614,7 @@ class invoices_model extends CI_Model {
                     AND c.shippment_date >= '$from_date'
                     AND c.shippment_date < '$to_date'
                  GROUP by s1.awb_by_wh
-                 HAVING courier_charges_by_sf > 10";
+                 HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 
        
         $query = $this->db->query($sql);
@@ -2668,7 +2670,7 @@ class invoices_model extends CI_Model {
                 AND c.shippment_date >= '$from_date'
                 AND c.shippment_date < '$to_date'
              GROUP by c.awb_number
-             HAVING courier_charges_by_sf > 10";
+             HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
         
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -3298,9 +3300,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_spare_sale_list($post) {
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
       /**
@@ -3309,9 +3311,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_spare_sale_list($post){
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
     /**

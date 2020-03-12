@@ -20,13 +20,13 @@
                                     Summary Reports
                                 </a>
                             </li>
-                            <?php if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+                            <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
                             <li role="presentation">
                                 <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true">
                                     Detailed Summary Reports
                                 </a>
                             </li>
-                            <?php } ?>
+                            <?php // } ?>
                             <li role="presentation">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true">
                                     Serviceability Report
@@ -238,7 +238,7 @@
                         </div>
                         <div class="form-group col-md-3">
                         <label for="Status">Status</label><br>
-                        <select class="form-control" id="status_detailed" name="status_detailed">
+                        <select class="form-control" id="status_detailed" name="status_detailed" style="width: 100%;">
                                <option value="All">All</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
@@ -247,7 +247,7 @@
                         </div>
                 <div class="form-group col-md-3">
                         <label for="Status">States</label><br>
-                        <select class="form-control" id="state_detailed"  name="state_detailed" multiple="">
+                        <select class="form-control" id="state_detailed"  name="state_detailed" multiple="" style="width: 100%;">
                                 <?php
                                 foreach($states as $state){
                                     ?>
