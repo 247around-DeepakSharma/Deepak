@@ -388,12 +388,10 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                             
                     <!-- Upload Support File div End -->
                     <div class="clonedInput panel panel-info " id="clonedInput1">
-                        <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                            <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                         <div class="panel-heading">
-                            <?php if(!$is_repeat){?>
-                            <button class="clone btn btn-sm btn-info">Add</button>
-                            <button class="remove btn btn-sm btn-info">Remove</button>
+                            <?php if(!$is_repeat && !$str_disabled){?>
+<!--                            <button class="clone btn btn-sm btn-info">Add</button>
+                            <button class="remove btn btn-sm btn-info">Remove</button>-->
                             <?php } ?>
                             <p class="pull-right"><?php if(!is_null($booking_history[0]['paid_by_customer'])){ 
                                 if($booking_history[0]['paid_by_customer'] == 1) { 
@@ -668,10 +666,10 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                         <?php $number = 1; foreach ($unit_details as $key => $booking_unit_details) { ?>
                         <?php if($number > 1) { $clone_number++; ?>
                         <div class="clonedInput panel panel-info " id="<?php echo "cat_".$number;?>">
-                            <div class="panel-heading">
+<!--                            <div class="panel-heading">
                                 <button class="clone btn btn-sm btn-info">Add</button>
                                 <button class="remove btn btn-sm btn-info">Remove</button>
-                            </div>
+                            </div>-->
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-md-12">
