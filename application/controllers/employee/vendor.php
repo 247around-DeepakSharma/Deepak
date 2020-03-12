@@ -3191,27 +3191,32 @@ class vendor extends CI_Controller {
      */
     function download_sf_list_excel(){
         //Getting only Active Vendors List
-        //$vendor  = $this->vendor_model->viewvendor('',1);
-//        $where = array('active' => '1','on_off' => '1', 'is_CP' => '0');
         $where = array('is_CP' => '0');
-        $select = "*, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
+        $select = "*,e1.full_name as rm_full_name, e1.phone as rm_phone,e2.full_name as asm_full_name, e2.phone as asm_phone, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
         $whereIN = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
-            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
-            $serviceCenters = $sf_list[0]['service_centres_id'];
-            $whereIN =array("id"=>explode(",",$serviceCenters));
+        // In case RM/ASM login get only SFs associated with them.
+        if($this->session->userdata('user_group') == _247AROUND_RM){
+            $where['rm_id'] = $this->session->userdata('id');
         }
-        $vendor = $this->vendor_model->getVendorDetails($select, $where,'name',$whereIN);
+        elseif($this->session->userdata('user_group') == _247AROUND_ASM)
+        {
+            $where['asm_id'] = $this->session->userdata('id');
+        }
+        // Joins to fetch RM and ASM name
+        $arr_join['employee as e1'] = 'service_centres.rm_id = e1.id';
+        $arr_join['employee as e2'] = 'service_centres.asm_id = e2.id';
+        $arr_join_type['employee as e1'] = 'left';
+        $arr_join_type['employee as e2'] = 'left';
+        $vendor = $this->vendor_model->getVendorDetails($select, $where,'name',$whereIN, $arr_join, $arr_join_type);
         $districArray = $this->miscelleneous->get_district_covered_by_vendors();
         foreach($vendor as $index=>$values){
             $vendor[$index]['covered_state'] = '';
             $vendor[$index]['sf_rm_name'] = '';
             $vendor[$index]['sf_rm_phone'] = '';
-            $rm_detail = $this->vendor_model->get_rm_sf_relation_by_sf_id($values['id']);
-            if(!empty($rm_detail)){
-                $vendor[$index]['sf_rm_name'] = $rm_detail[0]['full_name'];
-                $vendor[$index]['sf_rm_phone'] = $rm_detail[0]['phone'];
-            }
+            $vendor[$index]['sf_rm_name'] = $values['rm_full_name'];
+            $vendor[$index]['sf_rm_phone'] = $values['rm_phone'];
+            $vendor[$index]['sf_asm_name'] = $values['asm_full_name'];
+            $vendor[$index]['sf_asm_phone'] = $values['asm_phone'];
             if(array_key_exists($values['id'], $districArray)){
                 $vendor[$index]['covered_state'] = $districArray[$values['id']];
             }
