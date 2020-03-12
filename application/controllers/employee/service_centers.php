@@ -6153,7 +6153,7 @@ class Service_centers extends CI_Controller {
     function process_update_spare_parts($booking_id, $wh = 0) {
         log_message('info', __FUNCTION__ . " Sf ID: " . $this->session->userdata('service_center_id'));
         log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
-
+        
         $this->check_WH_UserSession();
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
@@ -6342,10 +6342,22 @@ class Service_centers extends CI_Controller {
                             $this->session->set_userdata($userSession);
                         }
                     } else if ($part_details['shippingStatus'] == 0) {
-
+                        
                         $can_status = SPARE_PARTS_CANCELLED;
-                        $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Warehouse Reject Spare Part", "", "");
+                        $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Warehouse Reject Spare Part", "", "", $part_details['spare_id']);
                         $response = $this->service_centers_model->update_spare_parts(array("id" => $part_details['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+                        if ($response) {
+                            $spare_data = $this->inventory_model->get_spare_parts_details('spare_parts_details.booking_unit_details_id', array("spare_parts_details.id" => $part_details['spare_id']), false, false);
+                            if (!empty($spare_data)) {
+                                $this->booking_model->update_booking_unit_details_by_any(array("booking_unit_details.id" => $spare_data[0]['booking_unit_details_id']), array("booking_unit_details.booking_status" => _247AROUND_CANCELLED));
+                            }
+
+                            /* Insert Spare Tracking Details */
+                            if (!empty($part_details['spare_id'])) {
+                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => $can_status, 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            }
+                        }
 
                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {

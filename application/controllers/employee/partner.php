@@ -2301,7 +2301,7 @@ class Partner extends CI_Controller {
                 } else if ($value['shippingStatus'] == -1) {
                     $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
-
+                   
                     $spare_id = $value['spare_id'];
                     $status = _247AROUND_CANCELLED;
                     $remarks_by_partner = $value['remarks_by_partner'];
@@ -2311,6 +2311,21 @@ class Partner extends CI_Controller {
 
                     $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "","", $spare_id);
                     $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+                    
+                    if ($response) {
+                        
+                         $spare_data = $this->inventory_model->get_spare_parts_details('spare_parts_details.booking_unit_details_id', array("spare_parts_details.id" => $value['spare_id']), false, false);
+                         
+                         if(!empty($spare_data)){
+                            $this->booking_model->update_booking_unit_details_by_any(array("booking_unit_details.id" => $spare_data[0]['booking_unit_details_id']), array("booking_unit_details.booking_status" => _247AROUND_CANCELLED)); 
+                         }   
+                         
+                        /* Insert Spare Tracking Details */
+                        if (!empty($spare_id)) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => '', 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
                 }
                
                  /* Insert Spare Tracking Details */
