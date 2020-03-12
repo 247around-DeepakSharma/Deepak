@@ -2315,6 +2315,15 @@ function uploadfile(){
     }
     
     if(spareFileColumn=='partner_challan_file'){
+         var extension = getFileExtension(file);
+         if(extension!= 'pdf'){
+            alert('Challan file will be PDF.');
+            flag = false;
+            return;
+        }
+    }
+    
+    if(spareFileColumn=='partner_challan_file'){
         directory_name = 'vendor-partner-docs';
     }else{
         directory_name = '';
@@ -2367,6 +2376,11 @@ function uploadfile(){
                 }
             });
         }
+}
+/* @Desc: function is used to get the uploaded file extension*/
+function getFileExtension(filename){
+  var ext = /^.+\.([^.]+)$/.exec(filename);
+  return ext == null ? "" : ext[1];
 }
 
 $(".serial_no_edit").click(function() {
