@@ -160,8 +160,8 @@ class Warranty extends CI_Controller {
         $row[] = $warranty_end_period;
         $row[] = "All";
         $row[] = "All";
-        $row[] = "Yes";
-        $row[] = "Yes";
+        // $row[] = "Yes";
+        // $row[] = "Yes";
         $row[] = "In Warranty";
         $row[] = "12 Month(s)";
         $row[] = "0 Day(s)";
