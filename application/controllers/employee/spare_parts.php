@@ -2642,9 +2642,22 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
    
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
-                if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED ) {
+
+                if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED) {
                     
-                     if(isset($spare_data['requested_inventory_id']) && !empty($spare_data['requested_inventory_id'])){
+                    /* Checked Spare Approved By Admin Or Partner */
+                    $track_partner_id = _247AROUND;
+                    if ($this->session->userdata('userType') == 'partner') {
+                        $track_partner_id = $partner_id;
+                    }
+                    /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+                        if (!empty($spare_data['status'])) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_data['status'], 'remarks' => trim($reason), 'agent_id' => $agent_id, 'entity_id' => $track_partner_id, 'entity_type' => $track_entity_type);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
+                    if (isset($spare_data['requested_inventory_id']) && !empty($spare_data['requested_inventory_id'])) {
                         $requested_inventory_id = $spare_data['requested_inventory_id'];
                     } 
                     
