@@ -2078,9 +2078,15 @@ class engineerApi extends CI_Controller {
         if ($engineer_pincode) {
             foreach ($bookings as $key => $value) {
                 if ($engineer_pincode) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
+
                     $bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -2105,9 +2111,14 @@ class engineerApi extends CI_Controller {
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -2137,9 +2148,14 @@ class engineerApi extends CI_Controller {
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -3718,6 +3734,7 @@ class engineerApi extends CI_Controller {
                 $post['unit_not_required'] = true;
                 $post['where']['assigned_engineer_id'] = $requestData['engineer_id'];
                 $post['where']['assigned_vendor_id'] = $requestData['service_center_id'];
+                $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
@@ -3728,9 +3745,14 @@ class engineerApi extends CI_Controller {
                 $engineer_pincode = $requestData["engineer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                         $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
                         $distance_array = explode(" ", $distance_details['distance']['text']);
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity");
@@ -3746,6 +3768,10 @@ class engineerApi extends CI_Controller {
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
+                        /*  NO Action  Flag */
+                        $action_flag = $this->checkBookingActionrequired($value['booking_id']);
+                        $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
+                        $data['Bookings'][$key]['action_flag']['message'] =  $action_flag['message'];
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
@@ -3770,6 +3796,35 @@ class engineerApi extends CI_Controller {
     }
 
 
+
+      /*
+     * @Desc - This function used to check booking is billed to partner or not     
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
+    
+    function checkBookingActionrequired($booking_id){
+
+       $where = array('booking_id'=>$booking_id);
+       $select = 'partner_invoice_id';
+       $unit_array =  $this->booking_model->get_unit_details($where, FALSE, $select);
+       $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
+       // Response with messsgae // 
+       if($response){
+        $return_res['action_flag'] = TRUE;
+        $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+        return $return_res;
+
+       }else{
+        $return_res['action_flag'] = FALSE;
+        $return_res['message'] = '';
+        return $return_res;
+
+       }
+
+
+    }
 
 
       /*

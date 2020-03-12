@@ -1799,9 +1799,10 @@ class Booking extends CI_Controller {
             }
             //get engineer name
             if ($data['booking_history'][0]['assigned_engineer_id']) {
-                $engineer_name = $this->engineer_model->get_engineers_details(array("id" => $data['booking_history'][0]['assigned_engineer_id']), "name");
+                $engineer_name = $this->engineer_model->get_engineers_details(array("id" => $data['booking_history'][0]['assigned_engineer_id']), "name,phone");
                 if (!empty($engineer_name)) {
                     $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
+                    $data['booking_history'][0]['engineer_phone'] = $engineer_name[0]['phone']; // Engineer Phone //
                 }
             }
 
