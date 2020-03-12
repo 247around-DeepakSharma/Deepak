@@ -2078,9 +2078,15 @@ class engineerApi extends CI_Controller {
         if ($engineer_pincode) {
             foreach ($bookings as $key => $value) {
                 if ($engineer_pincode) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
+
                     $bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -2105,9 +2111,14 @@ class engineerApi extends CI_Controller {
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -2137,9 +2148,14 @@ class engineerApi extends CI_Controller {
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    }
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
@@ -3729,9 +3745,14 @@ class engineerApi extends CI_Controller {
                 $engineer_pincode = $requestData["engineer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
                         $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
                         $distance_array = explode(" ", $distance_details['distance']['text']);
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity");
