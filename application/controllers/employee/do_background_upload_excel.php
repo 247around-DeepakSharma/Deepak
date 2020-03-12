@@ -2315,7 +2315,7 @@ class Do_background_upload_excel extends CI_Controller {
                                     if(!in_array($rowData['booking_id'], $excel_booking)){
                                         if($rowData['incentive_amount'] <= ENGINEER_INCENTIVE_MAX_AMOUNT){
                                             $booking_existing_data = $this->engineer_model->get_booking_with_eng_incentive("booking_details.id as booking_details_id, booking_details.current_status,booking_details.internal_status, engineer_incentive_details.id as engineer_incentive_id", array("booking_id" => $rowData['booking_id']));
-                                            if((!empty($booking_existing_data)) && ($booking_existing_data[0]['engineer_incentive_id'] == NULL) && ($booking_existing_data[0]['internal_status'] == SF_BOOKING_COMPLETE_STATUS)){
+                                            if((!empty($booking_existing_data)) && ($booking_existing_data[0]['engineer_incentive_id'] == NULL) && ($booking_existing_data[0]['internal_status'] == SF_BOOKING_COMPLETE_STATUS || $booking_existing_data[0]['current_status'] == _247AROUND_COMPLETED)){
                                                 $incentive_data = array();
                                                 $incentive_data["booking_details_id"] = $booking_existing_data[0]["booking_details_id"];
                                                 $incentive_data["partner_incentive"] = $rowData['incentive_amount'];
