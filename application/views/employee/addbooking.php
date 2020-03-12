@@ -193,13 +193,13 @@
                     <!-- row End  -->
                     <!-- Upload Support File div Start -->
                     <div class="clonedInputSample panel panel-info " id="clonedInputSample1">                      
-                        <div class="panel-heading">
+<!--                        <div class="panel-heading">
                              <p style="color: #000;"><b>Add Support file</b></p>
                              <div style="float:right;margin-top: -31px;">
                                 <button class="clone1 btn btn-sm btn-info">Add</button>
                                 <button class="remove1 btn btn-sm btn-info">Remove</button>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
@@ -226,12 +226,10 @@
                             
                     <!-- Upload Support File div End -->
                     <div class="clonedInput panel panel-info " id="clonedInput1">
-                        <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                            <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
-                        <div class="panel-heading">
+<!--                        <div class="panel-heading">
                             <button class="clone btn btn-sm btn-info">Add</button>
                             <button class="remove btn btn-sm btn-info">Remove</button>
-                        </div>
+                        </div>-->
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
