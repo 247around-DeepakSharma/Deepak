@@ -2286,7 +2286,7 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL) {
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2305,6 +2305,9 @@ class Booking_model extends CI_Model {
             else{
                 $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
             }
+        }
+        if ($partner_details == 1) {
+            $this->db->join('partners', 'booking_details.partner_id  = partners.id', 'left');
         }
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
