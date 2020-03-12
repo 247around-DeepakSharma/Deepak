@@ -1458,10 +1458,13 @@ class engineerApi extends CI_Controller {
 
 /*  Making templet for sending message */
             $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
-            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
+            $sms['smsData']['name'] = $whatsapp_array['name'];
             $sms['smsData']['request_type'] = $whatsapp_array['request'];
+            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
             $sms['smsData']['partner'] = $whatsapp_array['partner'];
+            $sms['smsData']['cdate'] = date("d-M-Y");
+            $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
             $smsBody = vsprintf($template, $sms['smsData']);
 
         date_default_timezone_set('UTC');
