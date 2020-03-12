@@ -380,6 +380,17 @@
                     </div>
                 </div>
                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name" class="col-md-4">TDS <span class="red">*</span></label>
+                        <div class="col-md-6">
+                            <input type="number" class="form-control" id="tds_amount" min="0" value="0" step="0.01" name="tds_amount" value="" required >
+                        </div>
+                        <span id="errmsg4"></span>
+                    </div>
+                </div>  
+            </div>
+            <div class="col-md-12">
+                <div class="col-md-6">
                     <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px; display:none" class="col-md-offset-3">
                     <div class="form-group " id="advance_tag">
                         <label for="name" class="col-md-4">Advance Type <span class="red">*</span></label>
@@ -404,58 +415,6 @@
                         <span id="errmsg1"></span>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group " >
-                        <label for="name" class="col-md-4">Name<span class="red">*</span></label>
-                        <div class="col-md-6">
-                            <select  onchange="get_third_party_list()" class="form-control"  id="name" name="partner_vendor_id"  required></select>
-                        </div>
-                    </div>
-                </div>    
-                <div class="col-md-6">
-                    <div class="form-group " id="third_party_div" style="display:none">
-                        <label for="third party" class="col-md-4">Third Party Name<span class="red">*</span></label>
-                        <div class="col-md-6">
-                            <select  class="form-control" id="third_party" name="third_party"  ></select>
-                        </div>
-                    </div>
-                </div>    
-            </div>    
-            
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group ">
-                        <label for="name" class="col-md-4">Credit / Debit in 247Around <span class="red">*</span></label>
-                        <div class="col-md-6">
-                            <input type="radio"   name="credit_debit" value = "Credit">   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="radio"   name="credit_debit" value = "Debit" >    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <label for="credit_debit" generated="true" class="error"></label>
-                        </div>
-                        <span id="errmsg1"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="name" class="col-md-4">Amount (With TDS) <span class="red">*</span></label>
-                        <div class="col-md-6">
-                            <input type="number" class="form-control" id="amount" name="amount" min="0" value="0" step="0.01" value="" required>
-                        </div>
-                        <span id="errmsg4"></span>
-                    </div>
-                </div>    
-            </div>    
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="name" class="col-md-4">TDS <span class="red">*</span></label>
-                        <div class="col-md-6">
-                            <input type="number" class="form-control" id="tds_amount" min="0" value="0" step="0.01" name="tds_amount" value="" required >
-                        </div>
-                        <span id="errmsg4"></span>
-                    </div>
-                </div>    
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="name" class="col-md-4">Transaction Mode<span class="red">*</span></label>
@@ -470,9 +429,18 @@
                                >    Other
                         </div>
                     </div>
-                </div>    
+                </div> 
             </div>    
+            
             <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group " >
+                        <label for="name" class="col-md-4">Name<span class="red">*</span></label>
+                        <div class="col-md-6">
+                            <select  onchange="get_third_party_list()" class="form-control"  id="name" name="partner_vendor_id"  required></select>
+                        </div>
+                    </div>
+                </div> 
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="name" class="col-md-4">Party Bank Name</label>
@@ -480,7 +448,18 @@
                             <input type="text" class="form-control"  name="bankname" value="">
                         </div>
                     </div>
-                </div>    
+                </div> 
+            </div>
+            
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group " id="third_party_div" style="display:none">
+                        <label for="third party" class="col-md-4">Third Party Name<span class="red">*</span></label>
+                        <div class="col-md-6">
+                            <select  class="form-control" id="third_party" name="third_party"  ></select>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="name" class="col-md-4">Transaction Date <span class="red">*</span></label>
@@ -492,8 +471,20 @@
                         </div>
                     </div>
                 </div>    
-            </div>   
+            </div>
+   
             <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group ">
+                        <label for="name" class="col-md-4">Credit / Debit in 247Around <span class="red">*</span></label>
+                        <div class="col-md-6">
+                            <input type="radio"   name="credit_debit" value = "Credit">   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="radio"   name="credit_debit" value = "Debit" >    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label for="credit_debit" generated="true" class="error"></label>
+                        </div>
+                        <span id="errmsg1"></span>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="transaction_id" class="col-md-4">Transaction Id</label>
@@ -501,7 +492,18 @@
                             <input type="text" class="form-control"  name="transaction_id" value = "" placeholder="Transaction Id">
                         </div>
                     </div>
-                </div>
+                </div>  
+            </div>   
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name" class="col-md-4">Amount (With TDS) <span class="red">*</span></label>
+                        <div class="col-md-6">
+                            <input type="number" class="form-control" id="amount" name="amount" min="0" value="0" step="0.01" value="" required>
+                        </div>
+                        <span id="errmsg4"></span>
+                    </div>
+                </div>    
                 <div class="col-md-6">
                     <span id="errms5"></span>
                     <div class="form-group">
