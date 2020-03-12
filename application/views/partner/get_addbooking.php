@@ -169,7 +169,7 @@
                         <div class="form-group col-md-5 ">
                             <label for="appliance_unit">Unit* <span id="error_unit" style="color: red;"></label>
                             <select disabled="" style="width:55%" class="form-control" onchange="final_price()"   id="appliance_unit" name="appliance_unit" >
-                                <?php for($i =1; $i <11; $i++) { ?>
+                                <?php for($i =1; $i < 2; $i++) { ?>
                                 <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                 <?php }?>
                             </select>
