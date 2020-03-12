@@ -1091,6 +1091,11 @@ class vendor extends CI_Controller {
             if(!empty($booking_completed_by_sf)){
                 $arr_validation_checks[] = 'Booking already completed by SF, hence can not be re-assigned.';
             }
+            // check if booking cancelled by Admin
+            $booking_cancelled_by_admin = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'current_status = "'._247AROUND_CANCELLED.'"' => NULL));            
+            if(!empty($booking_cancelled_by_admin)){
+                $arr_validation_checks[] = 'Booking already cancelled, hence can not be re-assigned.';
+            }
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks));
         }
