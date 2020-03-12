@@ -3771,7 +3771,7 @@ class engineerApi extends CI_Controller {
                         /*  NO Action  Flag */
                         $action_flag = $this->checkBookingActionrequired($value['booking_id']);
                         $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
-                        $data['Bookings'][$key]['action_flag']['message'] =  $action_flag['message'];
+                        $data['Bookings'][$key]['message_flag'] =  $action_flag['message'];
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
