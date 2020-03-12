@@ -208,7 +208,9 @@ table {
                             </div>
                         </div>
                         <div class="modal-footer">
+                            <center>
                             <input type= "submit" id="escal_submit_button" onclick="return form_submit()" class="btn btn-primary" value ="Save" style="background-color:#2C9D9C; border-color:#2C9D9C;">
+                            </center>
                         </div>
                     </form>
                 </div>

@@ -545,7 +545,8 @@ function addBookingDialog(chanel = '') {
         }
         //If anyone select repeat booking than parent ID Shoud not blank
         if(!is_sf_panel && !parant_id){
-            alert("Please Select Parent ID");
+            alert("Parent ID not found, Repeat booking can not be created");
+            $(".repeat_Service").prop("checked", false);
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
@@ -1158,6 +1159,10 @@ function set_upcountry() {
             }
         });
     
+        $(".repeat-close").click(function(){
+            alert("Repeat booking can not be created without Parent Booking");
+            $(".repeat_Service").prop("checked", false);
+        });
 });
 
 function dealer_setup(partner_id,search_term,search_filed){
