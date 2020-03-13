@@ -2113,6 +2113,9 @@ class engineerApi extends CI_Controller {
                     $bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message'];
+                    // Abhishek Send Spare Details of booking //
+                    $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
+                    $bookings[$key]['spares'] =  $spares_details;
                 }
             }
         }
@@ -2145,6 +2148,10 @@ class engineerApi extends CI_Controller {
                     $missed_bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $missed_bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $missed_bookings[$key]['message'] =  $spare_resquest['message']; 
+
+                    // Abhishek Send Spare Details of booking //
+                    $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
+                    $missed_bookings[$key]['spares'] =  $spares_details;
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2182,6 +2189,10 @@ class engineerApi extends CI_Controller {
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                     $tomorrowBooking[$key]['pre_consume_req'] =  $previous_consumption_required;
                     $tomorrowBooking[$key]['message'] =  $spare_resquest['message']; 
+
+                    // Abhishek Send Spare Details of booking //
+                    $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
+                    $tomorrowBooking[$key]['spares'] =  $spares_details;
 
                 }
             }
@@ -3794,6 +3805,11 @@ class engineerApi extends CI_Controller {
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;
                         $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
+
+                        // Abhishek Send Spare Details of booking //
+                        $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
+                        $data['Bookings'][$key]['spares'] =  $spares_details;
+
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -3843,6 +3859,23 @@ class engineerApi extends CI_Controller {
 
 
     }
+
+      /*
+     * @Desc - This function used to get spares of booking     
+     * @param - $booking_id
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getSpareDetailsOfBooking($booking_id){
+/*  If Shipped is empty or NULL Show Requested Data */
+        $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity", array('booking_id' => $booking_id));
+
+        return $sp_details;
+    }
+
+
+
 
 
       /*
