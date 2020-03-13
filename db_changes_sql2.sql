@@ -2071,4 +2071,4 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
  
 --Abhishek 13-03-2020
 CREATE TABLE `cron_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `url` TEXT NULL DEFAULT NULL ,  `start_time` VARCHAR(25) NULL DEFAULT NULL ,  `end_time` VARCHAR(25) NULL DEFAULT NULL ,  `remark` TEXT NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
- 
+ ALTER TABLE `cron_logs` CHANGE `url` `cron_url` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
