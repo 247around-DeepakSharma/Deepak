@@ -455,7 +455,7 @@ class User extends CI_Controller {
             ##########################check if state served by other ASM#####################################
             if (!$isRM) {
                 $result = $this->employee_model->get_state_of_rm_asm($reqState, _247AROUND_ASM, $asmID);
-                if (count($result) > 0) {
+                if (is_array($result) && count($result) > 0) {
                     $stateString = implode(',', array_map(function ($entry) {
                                 return $entry['state'];
                             }, $result));
@@ -466,7 +466,7 @@ class User extends CI_Controller {
             #########################check if state served by other RM#######################################
             if ($rm_ID != 0 && $rm_ID != '' && $statusFlg) {
                 $result = $this->employee_model->get_state_of_rm_asm($reqState, _247AROUND_RM, $rm_ID);
-                if (count($result) > 0) {
+                if (is_array($result) && count($result) > 0) {
                     $stateString = implode(',', array_map(function ($entry) {
                                 return $entry['state'];
                             }, $result));
@@ -492,13 +492,14 @@ class User extends CI_Controller {
                 $diffStateString = "'" . implode("','", $diffState) . "'";
 
                 $result=$this->employee_model->get_asm_from_rm($diffState,$rm_ID);
-
-                if (count($result) > 0) {
-                    $stateString = implode(', ', array_map(function ($entry) {
-                                return $entry['state'];
-                            }, $result));
-                    $errormessage = "RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
-                    $statusFlg = false;
+                if (is_array($result)) {
+                    if (count($result) > 0) {
+                        $stateString = implode(', ', array_map(function ($entry) {
+                                    return $entry['state'];
+                                }, $result));
+                        $errormessage = "RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
+                        $statusFlg = false;
+                    }
                 }
             }
 
@@ -684,7 +685,7 @@ class User extends CI_Controller {
                     $arrayStateStr = array_map(function($element) {
                         return $element['state'];
                     }, $arrayState);
-                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $data['id']);
+                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $id);
                     $resultArray = array();
                     if (!empty($result)) {
                         $resultArray = array_map(function($element) {
