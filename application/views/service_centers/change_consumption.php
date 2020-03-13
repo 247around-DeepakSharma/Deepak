@@ -170,35 +170,69 @@
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
+            var weight_gram = $("#defective_parts_shipped_weight_in_gram").val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+            if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            var weight_gram = $("#defective_parts_shipped_weight_in_gram").val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+            if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            var weight_gram = $("#defective_parts_shipped_weight_in_gram").val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+            
+            if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
                 $(this).val('');
                 return false;
             }
@@ -215,12 +249,23 @@
     $("#defective_parts_shipped_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
+            var weight_gram = $("#defective_parts_shipped_weight_in_kg").val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+             if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
                 $(this).val('');
                 return false;
             }
@@ -228,12 +273,23 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
+            var weight_gram = $("#defective_parts_shipped_weight_in_kg").val(); 
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+             if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
+                (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
                 $(this).val('');
                 return false;
             }
