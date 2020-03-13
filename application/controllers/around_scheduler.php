@@ -2657,9 +2657,22 @@ class Around_scheduler extends CI_Controller {
      * Abhishek Awasthi
      */
     function check_app_uninstall() {
+
+
+        $cron =  $this->miscelleneous->get_uri_called();
+        $start_time = time();
+        $remark="";
         $select = "id,device_firebase_token";
         $where = array('active'=>1);
         $result = $this->engineer_model->get_active_engineers($select,$where);
+
+
+        try{
+
+          if(empty($result)) {
+                throw new Exception("Engineers Data is not available");
+          }
+
 
         foreach($result as $engineer){
         $msg = array
@@ -2689,22 +2702,35 @@ class Around_scheduler extends CI_Controller {
         curl_close($ch);
 
         $rowData['fire_base_response'] = $result;
-
+        $remark = "Cron has been executed ";
         $json_res = json_decode($result);
         if ($json_res->success) {
             // ENNG IS ACTIVE ON APP ///
             $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>1));
-            echo "Installed";
+            echo "Installed".PHP_EOL;
         } else {
             // IF NOT  REGISTERED THEN IT MEANS HE HAS UNINSTALLED //
             if(!empty($json_res->results[0]->error) && $json_res->results[0]->error='NotRegistered'){
                 $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>0));
-                echo "Uninstalled";
+                echo "Uninstalled".PHP_EOL;
             }
            
         }
 
         }
+
+     }catch(Exception $e) {
+        $remark = "Cron is not executed because : ".$e->getMessage();
+     }
+        $end_time = time();
+        $data = array(
+            'cron_url'=> $cron,
+            'start_time'=> $start_time,
+            'end_time' => $end_time,
+            'remark'=> $remark
+        );
+
+        $this->around_scheduler_model->save_cron_log($data);
 
     }
     
