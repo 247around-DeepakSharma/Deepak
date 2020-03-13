@@ -218,6 +218,19 @@
         
     }
     
+    $(document).on('keydown', 'input[pattern]', function(e){
+        var input = $(this);
+        var oldVal = input.val();
+        var regex = new RegExp(input.attr('pattern'), 'g');
+
+        setTimeout(function(){
+          var newVal = input.val();
+          if(!regex.test(newVal)){
+            input.val(oldVal); 
+          }
+        }, 0);
+      });
+    
     var confirm_payment  = true;
           (function($,W,D)
     {
@@ -233,7 +246,7 @@
                       //partner_vendor: "required",
                       credit_debit: "required",
                       amount: {
-                          digits: true,
+                         // digits: true,
                           required:true,
                           minlength:1
                           },
@@ -383,7 +396,7 @@
                     <div class="form-group">
                         <label for="name" class="col-md-4">TDS <span class="red">*</span></label>
                         <div class="col-md-6">
-                            <input type="number" class="form-control" id="tds_amount" min="0" value="0" step="0.01" name="tds_amount" value="" required >
+                            <input type="number" class="form-control" id="tds_amount" min="0" value="0" step="0.01" name="tds_amount" value="" required pattern="^\d*(\.\d{0,2})?$">
                         </div>
                         <span id="errmsg4"></span>
                     </div>
@@ -499,7 +512,7 @@
                     <div class="form-group">
                         <label for="name" class="col-md-4">Amount (With TDS) <span class="red">*</span></label>
                         <div class="col-md-6">
-                            <input type="number" class="form-control" id="amount" name="amount" min="0" value="0" step="0.01" value="" required>
+                            <input type="number" class="form-control" id="amount" name="amount" min="0" value="0" step="0.01" value="" required pattern="^\d*(\.\d{0,2})?$">
                         </div>
                         <span id="errmsg4"></span>
                     </div>
