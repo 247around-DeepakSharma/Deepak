@@ -5064,4 +5064,16 @@ function generate_image($base64, $image_name,$directory){
         }
         return $arr_emp;
     }
+
+/*  Getting URL called  Abhishek Awasthi*/
+
+    function get_uri_called(){
+        $base = base_url();
+        $controller = $this->My_CI->router->fetch_class();
+        $method = $this->My_CI->router->fetch_method();
+        return $base."/".$controller."/".$method;
+    }
+
+
+
 }
