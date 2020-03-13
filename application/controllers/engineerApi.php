@@ -1458,10 +1458,13 @@ class engineerApi extends CI_Controller {
 
 /*  Making templet for sending message */
             $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
-            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
+            $sms['smsData']['name'] = $whatsapp_array['name'];
             $sms['smsData']['request_type'] = $whatsapp_array['request'];
+            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
             $sms['smsData']['partner'] = $whatsapp_array['partner'];
+            $sms['smsData']['cdate'] = date("d-M-Y");
+            $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
             $smsBody = vsprintf($template, $sms['smsData']);
 
         date_default_timezone_set('UTC');
@@ -1963,6 +1966,21 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
+
+            /*  handle condition for OLD APK where device token not present  Abhishek  */ 
+            $engg_data=array();
+            if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
+            $engg_data = array(
+                    'device_firebase_token' => $requestData['device_firebase_token']
+            );
+            }else{
+            $engg_data = array(
+                    'device_firebase_token' => NULL
+            );  
+            }
+
+            $engg_where = array('id' => $requestData["engineer_id"]);
+            $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
@@ -3771,7 +3789,7 @@ class engineerApi extends CI_Controller {
                         /*  NO Action  Flag */
                         $action_flag = $this->checkBookingActionrequired($value['booking_id']);
                         $data['Bookings'][$key]['action_flag'] =  $action_flag['action_flag'];
-                        $data['Bookings'][$key]['action_flag']['message'] =  $action_flag['message'];
+                        $data['Bookings'][$key]['message_flag'] =  $action_flag['message'];
                         // Abhishek Check if we required the previous consumption or not return true/false
                         $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                         $data['Bookings'][$key]['pre_consume_req'] =  $previous_consumption_required;

@@ -523,4 +523,12 @@ class Around_scheduler_model extends CI_Model {
         
         return $this->db->query($sql)->result_array();
     }
+
+/*  Save CRON LOG IN DB Abhishek Awasthi */
+function save_cron_log($data){
+    $this->db->insert('cron_logs',$data);
+    return $this->db->insert_id();
+}
+
+
 }

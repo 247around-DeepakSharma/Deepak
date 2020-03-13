@@ -3140,6 +3140,11 @@ class Service_centers extends CI_Controller {
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
                 . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
 
+         $where = array(
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
+        );
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
 
@@ -7299,18 +7304,18 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
 
-        $select = "spare_parts_details.booking_id";
-               $where = array(
+        $select = "spare_parts_details.id";
+        $where = array(
             "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
         );
         
         $group_by = "spare_parts_details.id";
-        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
+        $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";        
         $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         if (!empty($total_rows)) {
-            echo json_encode(array("count" => count($total_rows), true));
+            echo json_encode(array("count" => count($total_rows)), true);
         } else {
             echo json_encode(array("count" => 0), true);
         }
