@@ -194,13 +194,13 @@ function addproduct()
 	
 	if(appliance_id=='')
 	{
-		alert('Please select appliance id');
+		alert('Please select Appliance.');
 		submit=false;
 		return false;
 	}
 	if(product_name=='')
 	{
-		alert('Please enter Product name');
+		alert('Please enter Product Name');
 		submit=false;
 		return false;
 	}
@@ -227,13 +227,13 @@ function addproduct()
 	}
 	if(hsn_code=='')
 	{
-		alert('Please select hsn_code');
+		alert('Please select Hsn Code');
 		submit=false;
 		return false;
 	}
 	if(tax_rate=='')
 	{
-		alert('tax rate should not be blank');
+		alert('Please select Hsn Code');
 		submit=false;
 		return false;
 	}
