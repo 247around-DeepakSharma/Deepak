@@ -19,8 +19,9 @@
                                     <th class="text-center">Basic Charge</th>
                                     <th class="text-center">HSN Code</th>
                                     <th class="text-center">Tax Rate</th>
+                                    <th class="text-center">Status</th>
                                     <th class="text-center">Edit</th>
-                                    <th class="text-center">Delete / Restore</th>
+                                    <th class="text-center">Active / Inactive</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -40,18 +41,22 @@
                                         <td class="text-center"><?php echo $row['basic_charge']; ?></td>
                                         <td class="text-center"><?php echo $row['hsn_code']; ?></td>
                                         <td class="text-center"><?php echo $row['tax_rate']; ?></td>
-                                        <td class="text-center"><a type="button" class="btn btn-info" href="<?php echo base_url() . "employee/accessories/edit_accessories/" . $row['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a></td>
-
-                                        <td class="text-center">
-                                            <?php
+                                        <?php
                                             $deactivateshow = 'none';
                                             $activateshow = 'none';
                                             if ($row['status'] == 1) {
                                                 $deactivateshow = 'initial';
+                                                $statusShow = 'Active';
                                             } else {
                                                 $activateshow = 'initial';
+                                                $statusShow = 'Inactive';
                                             }
                                             ?>
+                                        <td class="text-center"><?php echo $statusShow; ?></td>
+                                        <td class="text-center"><a type="button" class="btn btn-info" href="<?php echo base_url() . "employee/accessories/edit_accessories/" . $row['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a></td>
+
+                                        <td class="text-center">
+                                            
                                             <a type="button" class="btn btn-sm btn-danger open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 0)" id='btn_<?php echo $row['id']; ?>' title='delete' style='display:<?php echo $deactivateshow; ?>'><i class="fa fa-trash"></i></a>
 
                                             <a type="button" class="btn btn-sm btn-success open-adminremarks" onclick="update_accessories_status(<?php echo $row['id']; ?>, 1)" id='btn_s_<?php echo $row['id']; ?>' title='Restore' style='display:<?php echo $activateshow; ?>'><i class="fa fa-undo"></i></a>
@@ -81,7 +86,7 @@
                     title: 'accessories_list_<?php echo date('Ymd-His'); ?>',
                     footer: true,
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6,7],
                         modifier: {
                             // DataTables core
                             order: 'index', // 'current', 'applied', 'index',  'original'
