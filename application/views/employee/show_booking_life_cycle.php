@@ -43,6 +43,7 @@
     <hr>
       <?php if (!empty($request_type)) { ?>
     <h1 style='font-size:24px;'>Booking Request Type History</h1>
+    <div class="table-responsive">
     <table  class="table table-striped table-bordered table-hover">
         <tr>
             <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
@@ -85,10 +86,12 @@
         </tr>
         <?php } ?>
 </table>
+ </div>
       <?php } ?>
     <?php if (!empty($sms_sent_details)) { ?>
     
    <h1 style='font-size:24px;'>Booking SMS</h1>
+   <div class="table-responsive">
     <table  class="table table-striped table-bordered table-hover">
         <tr>
             <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
@@ -111,7 +114,8 @@
         </tr>
         <?php } ?>
 
-</table>
+    </table>
+</div>
 <?php } ?>
 
     

@@ -342,6 +342,7 @@
                                 <th>SF Name </th>
                                 <th>Account Manager </th>
                                 <th>Engineer Name </th>
+                                <th>Engineer Phone </th> <!-- Engg phone -->
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
                                 <th>Municipal Limit </th>
@@ -352,6 +353,7 @@
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                                 <td><?php if(isset($booking_history[0]['account_manager_name'])){echo $booking_history[0]['account_manager_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['assigned_engineer_name'])){echo $booking_history[0]['assigned_engineer_name'];}?></td>
+                                <td><?php if(isset($booking_history[0]['engineer_phone'])){echo $booking_history[0]['engineer_phone'];}?></td> <!--  Engg Phone -->
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
                                     <?php if($c2c) { ?>
@@ -940,7 +942,7 @@
                                         <th>Challan File</th>
                                         <th>Courier File</th>
                                         <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
-                                        <th>IS Defective Parts Required</th>
+                                        <th>Is Defective/Ok Parts Required</th>
                                         <?php } ?>
                                     </tr>
                                 </thead>
@@ -2313,6 +2315,15 @@ function uploadfile(){
     }
     
     if(spareFileColumn=='partner_challan_file'){
+         var extension = getFileExtension(file);
+         if(extension!= 'pdf'){
+            alert('Challan file will be PDF.');
+            flag = false;
+            return;
+        }
+    }
+    
+    if(spareFileColumn=='partner_challan_file'){
         directory_name = 'vendor-partner-docs';
     }else{
         directory_name = '';
@@ -2365,6 +2376,11 @@ function uploadfile(){
                 }
             });
         }
+}
+/* @Desc: function is used to get the uploaded file extension*/
+function getFileExtension(filename){
+  var ext = /^.+\.([^.]+)$/.exec(filename);
+  return ext == null ? "" : ext[1];
 }
 
 $(".serial_no_edit").click(function() {

@@ -137,7 +137,7 @@ class invoices_model extends CI_Model {
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
-        $this->db->order_by('transaction_date DESC');
+        $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
         if($limit != 0){
             $this->db->limit($limit);
         }
@@ -716,7 +716,7 @@ class invoices_model extends CI_Model {
                         AND ud.ud_closed_date < '$to_date'
                     ) $s
                   )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
@@ -733,11 +733,12 @@ class invoices_model extends CI_Model {
             "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
             if (!empty($open_cell_led_bar_charges)){
                 //calling function to get total Open cell and LED bar spare parts used in partner bookings
-                $spare_parts_select = "SELECT bd.order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
+                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
                                        ."FROM spare_parts_details as spd inner join booking_details as bd "
                                        ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
-				       ."WHERE spd.parts_requested_type in (?) and bd.current_status='Completed' and spd.status != 'Cancelled' and spd.shipped_date is not null and spd.partner_id = ? and bd.closed_date >= ? and bd.closed_date < ? and btpo.invoice_id is null;";
-                $spare_parts_open_cell_led_bar_data = execute_paramaterised_query($spare_parts_select, array("'LED BAR', 'OPEN CELL'", $partner_id, $from_date, $to_date));
+				       ."WHERE spd.parts_requested_type in ('LED BAR', 'OPEN CELL') and bd.current_status='Completed' and spd.status != 'Cancelled' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null;";
+                $opencell_data = $this->db->query($spare_parts_select);
+                $spare_parts_open_cell_led_bar_data = $opencell_data->result_array();
             }
         }
 
@@ -3296,9 +3297,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_spare_sale_list($post) {
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
       /**
@@ -3307,9 +3308,9 @@ class invoices_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_spare_sale_list($post){
-        $this->_get_spare_sale_list($post, 'count(distinct(spd.id)) as numrows');
+        $this->_get_spare_sale_list($post, 'distinct(spd.id) as id');
         $query = $this->db->get();
-        return $query->result_array()[0]['numrows'];
+        return $query->num_rows();
     }
     
     /**
@@ -3367,17 +3368,6 @@ class invoices_model extends CI_Model {
         }
     }
     
-    /**
-     * @Desc: This function is to get last 3 bank transactions details of vendor or partner
-     * @params: String $query
-     * @params : Array $params
-     * @return: Array()
-     * @author Ankit Bhatt
-     * @date : 27-02-2020
-     */
-    function get_vendor_partner_bank_transaction($query, $params){
-        return execute_paramaterised_query($query, $params);
-    }
     
     /**
      * @Desc: This function is to insert open cell spare parts data in bill_to_partner_opencell table

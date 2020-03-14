@@ -1240,6 +1240,19 @@ class Inventory extends CI_Controller {
                 CASE 'REQUIRED_PARTS':
                     $data['defective_part_required'] = 1;
                     $where = array('id' => $id);
+                    /**
+                     * If defective part required after booking completion then change spare status accordingly.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    if(!empty($booking_details['service_center_closed_date'])) {
+                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                            $data['status'] = DEFECTIVE_PARTS_PENDING;
+                        } else {
+                            $data['status'] = OK_PART_TO_BE_SHIPPED;
+                        }                    
+                    }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
@@ -7173,11 +7186,11 @@ class Inventory extends CI_Controller {
                                     return "'" . trim($val) . "'";
                                 }, $docket_number_arr));
 
-                        $where["AWB_no IN ($docket_number_arr_str)"] = NULL;
+                        $where["courier_company_invoice_details.awb_number IN ($docket_number_arr_str)"] = NULL;
                     }
 
                     if (!empty($from_date) && !empty($to_date)) {
-                        $where["courier_details.shipment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_details.shipment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                     }
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);

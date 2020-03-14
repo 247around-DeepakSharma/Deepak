@@ -709,6 +709,7 @@ define( 'API_KARIX_SOURCE','+917428747247');
 define( 'API_KARIX_CHANNEL','whatsapp');  // Use "sms" or "whatsapp"
 
 define( 'MSG_PARTNER_INVOICED','*Booking already invoiced to Partner, selected services can not be un-checked.'); 
+define('MSG_PARTNER_INVOICED_APP','*Booking already invoiced to Partner.');
 
 // Booking Sources
 define('BOOKING_SOURCE_API', 22);

@@ -82,8 +82,6 @@
                                 <th>End Date</th>
                                 <th>States</th>
                                 <th>Free Part Types</th>
-                                <th>Service Charge</th>
-                                <th>Gas Charge</th>
                                 <th>Warranty Type</th>
                                 <th>Warranty Period</th>
                                 <th>Warranty Grace Period</th>
@@ -265,7 +263,7 @@
         ],
         "createdRow": function( row, data, dataIndex){
                 var curDate = new Date();
-                var arrDate = data[11].split("-");
+                var arrDate = data[9].split("-");
                 var warranty_end_period = new Date(arrDate[2], arrDate[1]-1, arrDate[0]);
                 if(+warranty_end_period.getTime() < +curDate.getTime()){
                     $(row).addClass('deactive');              
