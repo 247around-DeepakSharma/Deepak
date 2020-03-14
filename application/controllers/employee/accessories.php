@@ -188,6 +188,7 @@ class Accessories extends CI_Controller {
                         $data[$count]['hsn_code'] = $hsn_code;
                         $data[$count]['gst_rate'] = $gst_rate;
                         $data[$count]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                        $data[$count]['from_gst_number'] = 7; // For Invoice ID 'ARD-9' : from_gst_number '7' will be stored in invoice_details table i.e. id for 247around(UP) in entity_gst_details table
                         ++$count;
                     }
                 }

@@ -1549,6 +1549,8 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
                 "total_amount" => $value['total_amount'],
+                "from_gst_number" => (isset($value['from_gst_number']) ? $value['from_gst_number'] : NULL),
+                "to_gst_number" => (isset($value['to_gst_number']) ? $value['to_gst_number'] : NULL),
                 "create_date" => date('Y-m-d H:i:s')
                 
             );
