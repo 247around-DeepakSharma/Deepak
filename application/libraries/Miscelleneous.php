@@ -4453,13 +4453,28 @@ function generate_image($base64, $image_name,$directory){
     /**
      * @desc This function is used to process spare transfer
      */
-      function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+    function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+        
+       
+        if ($this->My_CI->session->userdata('emp_name') && $this->My_CI->session->userdata('userType') != 'partner') {
+            $agent_id = $this->My_CI->session->userdata('id');
+            $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+            $track_partner_id = _247AROUND;
+        } else if ($this->My_CI->session->userdata('userType') == 'service_center') {
+            $agentid = $this->My_CI->session->userdata('service_center_agent_id');
+            $track_partner_id = $this->My_CI->session->userdata('service_center_id');
+            $track_entity_type = _247AROUND_SF_STRING;
+        } else {
+            $agentid = '';
+            $track_partner_id = '';
+            $track_entity_type = '';
+        }
         $tcount = 0;
         $booking_error_array = array();
         $add_row = array();
         
         foreach ($bookings_spare as $booking) {
-            $spareid = $booking['id'];
+            $spare_id = $spareid = $booking['id'];
             $partner_id = $booking['partner_id'];
             $state = $booking['state'];
             $delivered_sp=array();
@@ -4525,10 +4540,14 @@ function generate_image($base64, $image_name,$directory){
                            
                             $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
                         }
+                        /* Insert Spare Tracking Details */
+                        if (!empty($spare_id)) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $new_state, 'remarks' => trim($remarks), 'agent_id' => $agent_id, 'entity_id' => $track_partner_id, 'entity_type' => $track_entity_type);
+                            $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
 
 
-
-                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id, $spare_id);
 
 
                         if ($data['is_micro_wh']==1) {
@@ -4551,7 +4570,12 @@ function generate_image($base64, $image_name,$directory){
                         $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
 				        
                         $actor="Partner";
-                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                        /* Insert Spare Tracking Details */
+                        if (!empty($spare_id)) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $new_state, 'remarks' => trim($remarks), 'agent_id' => $agentid, 'entity_id' => $track_partner_id, 'entity_type' => $track_entity_type);
+                            $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id, $spare_id);
                         $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     }
                     $tcount++;
