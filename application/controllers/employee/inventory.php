@@ -1213,7 +1213,7 @@ class Inventory extends CI_Controller {
                     $data = array('status' => DEFECTIVE_PARTS_SHIPPED);
 
                     $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
-                    $new_state = DEFECTIVE_PARTS_SHIPPED;
+                    $track_status = $new_state = DEFECTIVE_PARTS_SHIPPED;
                     if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                         $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
