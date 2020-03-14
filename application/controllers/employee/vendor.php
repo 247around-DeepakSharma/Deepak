@@ -6010,7 +6010,8 @@ class vendor extends CI_Controller {
     function getRMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_RM]);
         $rm_id = $this->input->post('rm_id');
-        $option = '<option value="" disabled '.(empty($rm_id) && count($data) >= 1 ? 'selected' : '').'>Select Regional Manager</option>';
+        $arr_rm_ids  = array_column($data, 'id');
+        $option = '<option value="" disabled '.((empty($rm_id) || !in_array($rm_id, $arr_rm_ids)) ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}' ".(!empty($rm_id) && $rm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
@@ -6021,7 +6022,8 @@ class vendor extends CI_Controller {
     function getASMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM]);
         $asm_id = $this->input->post('asm_id');
-        $option = '<option value="" '.(empty($asm_id) && count($data) >= 1 ? 'selected' : '').'>Select Area Sales Manager</option>';
+        $arr_asm_ids  = array_column($data, 'id');
+        $option = '<option value="" disabled '.((empty($asm_id) || !in_array($asm_id, $arr_asm_ids)) ? 'selected' : '').'>Select Area Sales Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}' ".(!empty($asm_id) && $asm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
