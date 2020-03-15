@@ -12,6 +12,7 @@
             method: "POST",
             url: serviceUrl+"employee/invoice/get_all_invoice_vertical",
             data:{'vertical_input':vertical_input},
+            async: false,
             success: function (response) { 
                 $("#vertical").html(response);
                 get_category(serviceUrl);
@@ -32,6 +33,7 @@
             method: "POST",
             url: serviceUrl+"employee/invoice/get_invoice_category",
             data:{'vertical':vertical, 'category_input': category_input},
+            async: false,
             success: function (response) {
                 $("#category").html(response);
                 if(!category_input){
@@ -56,6 +58,7 @@
             method: "POST",
             url: serviceUrl+"employee/invoice/get_invoice_sub_category",
             data:{'vertical':vertical, 'category':category, 'sub_category_input': sub_category_input},
+            async: false,
             success: function (response) {
                 $("#sub_category").html(response);
                 if(!sub_category_input){
@@ -67,4 +70,5 @@
     
     function get_accounting(select){
         $("#accounting").val($('option:selected', select).attr('data-id'));
+        $('#select2-accounting-container').text($("#accounting").find(':selected').text());
     }
