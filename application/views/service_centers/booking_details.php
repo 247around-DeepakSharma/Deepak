@@ -162,7 +162,7 @@
                                             $booking_history[0]['booking_pincode'].", india"; ?>"></div>
                                         <div class="col-md-4">   <input type="hidden" class="form-control" id="txtDestination" value="<?php if(isset($dhq[0]['pincode'])){
                                         echo $dhq[0]['pincode'].", India";}?>"></div>
-<!--                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>-->
+                                        <div class="col-md-4"> <button class="btn btn-success" onclick="GetRoute()">Get Route</button></div>
                                              
                                     </div>
                                     <div class="col-md-12"> 
@@ -1258,7 +1258,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
 }
 
     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
-             setTimeout(function(){ GetRoute(); }, 1000);
+          //   setTimeout(function(){ GetRoute(); }, 1000);
     <?php } ?>
     $(document).ready(function () {
         get_booking_relatives();
