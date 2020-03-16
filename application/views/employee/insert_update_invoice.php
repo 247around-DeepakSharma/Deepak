@@ -352,8 +352,8 @@
                                         <td colspan="2" style="width:8%;text-align:center;">
                                             <input type="hidden" id="<?php echo "settle_qty_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][settle_qty]" value="<?php echo (isset($value['settle_qty']) ? $value['settle_qty'] : '');?>" >
                                             <input type="hidden" id="<?php echo "is_settle_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][is_settle]" value="<?php echo (isset($value['is_settle']) ? $value['is_settle'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "from_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][from_gst_number]" value="<?php echo (isset($value['from_gst_number']) ? $value['from_gst_number'] : '');?>" >
-                                            <input type="hidden" id="<?php echo "to_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : '');?>" >
+                                            <input type="hidden" id="<?php echo "from_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][from_gst_number_id]" value="<?php echo (isset($value['from_gst_number']) ? $value['from_gst_number'] : '');?>" >
+                                            <input type="hidden" id="<?php echo "to_gst_number_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][to_gst_number_id]" value="<?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : '');?>" >
                                             <input type="hidden" id="<?php echo "create_date_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][create_date]" value="<?php if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
                                             <button type="button" id="<?php echo "addButton_".$key; ?>" class="btn btn-default addButton" style="display:inline;"><i class="fa fa-plus"></i></button>&nbsp;
                                             <button type="button" id="<?php echo "removeButton_".$key; ?>" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
@@ -397,8 +397,8 @@
                                         <td><input id="igsttaxamount_0" type="number" name="invoice[0][igst_tax_amount]" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal" readonly ></td>
                                         <td><input id="totalamount_0" type="number" name="invoice[0][total_amount]" value="0.00" class="form-control total_amount allowNumericWithDecimal" readonly></td>
                                         <td colspan="2" style="width:8%;text-align:center;">
-                                            <input type="hidden" id="from_gst_number_0" name="invoice[0][from_gst_number]" >
-                                            <input type="hidden" id="to_gst_number_0" name="invoice[0][to_gst_number]" >
+                                            <input type="hidden" id="from_gst_number_0" name="invoice[0][from_gst_number_id]" >
+                                            <input type="hidden" id="to_gst_number_0" name="invoice[0][to_gst_number_id]" >
 <!--                                            <input type="hidden" id="create_date_0" name="invoice[0][create_date]" value="<?php //if(isset($value['create_date'])){ echo $value['create_date'];  } ?>" >
                                             <input type="hidden" id="update_date_0" name="invoice[0][update_date]" value="<?php //if(isset($value['update_date'])){ echo $value['update_date'];  } ?>" >-->
                                             <button type="button" id="addButton_0" class="btn btn-default addButton" style="display:inline;"><i class="fa fa-plus"></i></button>&nbsp;
@@ -662,8 +662,8 @@
                 .find('[id="igsttaxrate"]').attr('name', 'invoice[' + partIndex + '][igst_rate]').attr('id','igsttaxrate_'+partIndex).attr('onkeyup', 'validateDecimal(this.id, this.value);change_prices(' + partIndex + ')').end()
                 .find('[id="igsttaxamount"]').attr('name', 'invoice[' + partIndex + '][igst_tax_amount]').attr('id','igsttaxamount_'+partIndex).end()
                 .find('[id="totalamount"]').attr('name', 'invoice[' + partIndex + '][total_amount]').attr('id','totalamount_'+partIndex).end()
-                .find('[id="from_gst_number"]').attr('name', 'invoice[' + partIndex + '][from_gst_number]').attr('id','from_gst_number_'+partIndex).end()
-                .find('[id="to_gst_number"]').attr('name', 'invoice[' + partIndex + '][to_gst_number]').attr('id','to_gst_number_'+partIndex).end()
+                .find('[id="from_gst_number"]').attr('name', 'invoice[' + partIndex + '][from_gst_number_id]').attr('id','from_gst_number_'+partIndex).end()
+                .find('[id="to_gst_number"]').attr('name', 'invoice[' + partIndex + '][to_gst_number_id]').attr('id','to_gst_number_'+partIndex).end()
                 .find('[id="addButton"]').attr('id','addButton_'+partIndex).attr('class', 'btn btn-default addButton').end()
                 .find('[id="removeButton"]').attr('id','removeButton_'+partIndex).attr('class', 'btn btn-default removeButton').end();
                 rearrange_sno();
@@ -869,7 +869,7 @@
         var vendor_partner_type = '<?php echo $vendor_partner; ?>';
         var vendor_partner_id =  $("#vendor_partner_id").val();
         var type_code = $("input[name='around_type']:checked").val();
-        var type = $("#type_code").val();
+        var type = $("#type_code option:selected").val();
 
         if(gst_number === null){ 
             alert("Please Select 247around GST Number");
@@ -882,7 +882,7 @@
         } else if(type_code === undefined){ 
             alert("Please Select Buyer/Seller");
             return false;
-        } else if(type ==null){
+        } else if((type == '') || (type ==null)){
             alert("Please Select Invoice Type");
             $("#type_code").focus();
             return false;
@@ -895,7 +895,7 @@
                     alert(data);
                     $("#fetch_invoice_id").text("Fetch Invoice ID");
                     $(".panel-title").html(data);
-                    $("#invoice_id_gen").val(data).trigger('change');
+                    $("#invoice_id_gen").val(data).removeAttr('readonly').trigger('change');
                 }
             });
 
@@ -906,7 +906,7 @@
         if(is_value === 1){
             $('#type_code option:eq(0)').prop('selected', true);
             $('#select2-type_code-container').text($("#type_code").find(':selected').text());
-            $('#invoice_id_gen').val('');
+            $('#invoice_id_gen').val('').removeAttr('readonly');
         }
       
         if(radioValue === 'A'){
