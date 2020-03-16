@@ -941,8 +941,8 @@ class Spare_parts extends CI_Controller {
                 $cl = "btn-danger";
             }
             //$row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
-            $row[] = '<button type="button" data-button="Reject Courier" data-booking_id="' . $spare_list->booking_id . '"   data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/REJECT_COURIER_INVOICE" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"> <i class="fa fa-truck" style="font-size:16px;"></i></button>';
-            $row[] = '<button type="button" data-button="Approve Courier" data-charge="' . $spare_list->courier_charges_by_sf . '" data-booking_id="' . $spare_list->booking_id . '"   data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/APPROVE_COURIER_INVOICE" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-file" style="font-size:16px;"></i></button>';
+            $row[] = '<button type="button" data-button="Reject Courier" data-booking_id="' . $spare_list->booking_id . '"   data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/REJECT_COURIER_INVOICE" class="btn btn-danger btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"> <i class="glyphicon glyphicon-remove" style="font-size:16px;"></i></button>';
+            $row[] = '<button type="button" data-button="Approve Courier" data-charge="' . $spare_list->courier_charges_by_sf . '" data-booking_id="' . $spare_list->booking_id . '"   data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/APPROVE_COURIER_INVOICE" class="btn btn-success btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-ok" style="font-size:16px;"></i></button>';
         } else {
             $row[] = "";
             $row[] = "";
@@ -1438,6 +1438,12 @@ class Spare_parts extends CI_Controller {
         /* Insert Spare Tracking Details*/
         if (!empty($spare_id)) {
             $tracking_details = array('spare_id' => $spare_id, 'action' => COURIER_LOST, 'remarks' => COURIER_LOST_APPROVED_STATUS);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }
+        
+        /* Insert Spare Tracking Details */
+        if (!empty($post_data['courier_lost_spare_id'])) {
+            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => _247AROUND_COMPLETED, 'remarks' => $post_data['remarks']." ".COURIER_LOST_APPROVED_STATUS, 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         // state change entry.

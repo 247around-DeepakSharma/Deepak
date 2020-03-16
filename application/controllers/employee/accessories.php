@@ -115,7 +115,7 @@ class Accessories extends CI_Controller {
      */
     function sf_accessories_invoice() {
         $data['sf_list'] = $this->vendor_model->viewvendor('', 1);
-        $data['services_name'] = $this->accessories_model->show_accessories_list();
+        $data['services_name'] = $this->accessories_model->show_accessories_list(array('accessories_product_description.status' => 1));
         $data['quantity_list'] = range(1, 30);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_accessories_invoice', $data);
@@ -159,31 +159,38 @@ class Accessories extends CI_Controller {
             if(!empty($accessories)) {
                 foreach ($accessories as $key=>$accessory) {
                     $accessory_details=$this->accessories_model->show_accessories_list(array('accessories_product_description.id' => $accessory['id']))[0];
-
-                    $total_amount = $amount = sprintf("%.2f", ($accessory_details['basic_charge']*(1+($accessory_details['tax_rate']/100)))*$accessory['qty']);                
-                    $hsn_code = $accessory_details['hsn_code'];
-                    $gst_rate = $accessory_details['tax_rate'];
-                    $data[$count]['description'] =  $accessory_details['product_name'];
-                    $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
-                    $data[$count]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
-                    $data[$count]['product_or_services'] = "Product";
-                    if(!empty($vendor_data['gst_no'])){
-                        $data[$count]['gst_number'] = $vendor_data['gst_no'];
-                    } else {
-                        $data[$count]['gst_number'] = TRUE;
+                    
+                    if($accessory_details['status'] == 0) {
+                        $this->session->set_userdata(array('error' => $accessory_details['product_name']." Is Not Active !!"));
+                        redirect(base_url()."employee/accessories/sf_accessories_invoice");
                     }
+                    else {
+                        $total_amount = $amount = sprintf("%.2f", ($accessory_details['basic_charge']*(1+($accessory_details['tax_rate']/100)))*$accessory['qty']);                
+                        $hsn_code = $accessory_details['hsn_code'];
+                        $gst_rate = $accessory_details['tax_rate'];
+                        $data[$count]['description'] =  $accessory_details['product_name'];
+                        $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
+                        $data[$count]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
+                        $data[$count]['product_or_services'] = "Product";
+                        if(!empty($vendor_data['gst_no'])){
+                            $data[$count]['gst_number'] = $vendor_data['gst_no'];
+                        } else {
+                            $data[$count]['gst_number'] = TRUE;
+                        }
 
-                    $data[$count]['company_name'] = $vendor_data['company_name'];
-                    $data[$count]['company_address'] = $vendor_data['company_address'];
-                    $data[$count]['district'] = $vendor_data['district'];
-                    $data[$count]['pincode'] = $vendor_data['pincode'];
-                    $data[$count]['state'] = $vendor_data['state'];
-                    $data[$count]['rate'] = sprintf("%.2f", ($data[$count]['taxable_value']/$accessory['qty']));
-                    $data[$count]['qty'] = $accessory['qty'];
-                    $data[$count]['hsn_code'] = $hsn_code;
-                    $data[$count]['gst_rate'] = $gst_rate;
-                    $data[$count]['owner_phone_1'] = $vendor_data['owner_phone_1'];
-                    ++$count;
+                        $data[$count]['company_name'] = $vendor_data['company_name'];
+                        $data[$count]['company_address'] = $vendor_data['company_address'];
+                        $data[$count]['district'] = $vendor_data['district'];
+                        $data[$count]['pincode'] = $vendor_data['pincode'];
+                        $data[$count]['state'] = $vendor_data['state'];
+                        $data[$count]['rate'] = sprintf("%.2f", ($data[$count]['taxable_value']/$accessory['qty']));
+                        $data[$count]['qty'] = $accessory['qty'];
+                        $data[$count]['hsn_code'] = $hsn_code;
+                        $data[$count]['gst_rate'] = $gst_rate;
+                        $data[$count]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                        $data[$count]['from_gst_number'] = 7; // For Invoice ID 'ARD-9' : from_gst_number '7' will be stored in invoice_details table i.e. id for 247around(UP) in entity_gst_details table
+                        ++$count;
+                    }
                 }
             }
             

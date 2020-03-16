@@ -33,7 +33,7 @@
                                     </div>
                                     <div class="col-sm-6">
                                         <select class="form-control" name="appliance_id" id='appliance_id'>
-                                            <option value="<?php echo $accessories_detail[0]['appliance']; ?>">Select Appliance Name</option>
+                                            <option value="">Select Appliance Name</option>
                                             <?php
                                             foreach ($services_detail as $row) {
                                                 $selected_appliance = '';
@@ -106,7 +106,7 @@
                                     <div class="col-sm-6">
 
                                         <select class="form-control"  name="hsn_code" id="hsn_code" >
-                                            <option value="<?php echo $accessories_detail[0]['hsn_code']; ?>">Select HSN Code</option>
+                                            <option value="">Select HSN Code</option>
                                             <?php
                                             foreach ($hsn_code_detail as $row1) {
                                                 $selected_hsn = '';
@@ -201,7 +201,7 @@
 
             if (appliance_id == '')
             {
-                alert('Please select appliance id');
+                alert('Please select Appliance');
                 submit = false;
                 return false;
             }
@@ -233,13 +233,13 @@
             }
             if (hsn_code == '')
             {
-                alert('Please select hsn_code');
+                alert('Please select Hsn Code');
                 submit = false;
                 return false;
             }
             if (tax_rate == '')
             {
-                alert('tax rate should not be blank');
+                alert('Please select Hsn Code');
                 submit = false;
                 return false;
             }

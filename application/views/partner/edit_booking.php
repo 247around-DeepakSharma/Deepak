@@ -177,17 +177,18 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
                             <div class="form-group col-md-5 ">
                                 <label for="appliance_unit">Unit* <span id="error_seller" style="color: red;"></label>
                                 <select disabled style="width:55%" class="form-control" onchange="final_price()"  id="appliance_unit" name="appliance_unit" >
-                                    <?php if(!$is_repeat){
-                                        for($i =1; $i <26; $i++) { ?>
-                                    <option value="<?php echo $i;?>" <?php if(count($unique_appliance) == $i){ echo "selected";} ?>><?php echo $i; ?></option>
-                                    <?php } }
-                                        else{
-                                            $unique_appliance = array($unique_appliance[0]);
-                                            ?>
-                                    <option value="1">1</option>
-                                    <?php
-                                        }
-                                        ?>
+                                    <?php 
+                                        if(!$is_repeat){ ?>
+                                            <option value="1">1</option>
+                                            <?php if (count($unique_appliance) != 1) { ?>
+                                                <option value="<?php echo $unique_appliance;?>" selected><?php echo $unique_appliance; ?></option>
+                                            <?php } ?>                                    
+                                    <?php }
+                                        else
+                                        {  
+                                            $unique_appliance = array($unique_appliance[0]); ?>
+                                            <option value="1">1</option>
+                                    <?php } ?>
                                 </select>
                             </div>
                         </div>
