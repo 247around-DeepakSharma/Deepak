@@ -3585,8 +3585,7 @@ class Inventory_model extends CI_Model {
      */
    
     function download_oot_pending_defective_part($post) {
-        $this->_get_out_of_tat_pending_defective_part($post);
-        $query = $this->db->get();
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
         return $query;
     }
 
