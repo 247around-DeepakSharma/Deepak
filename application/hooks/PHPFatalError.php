@@ -12,7 +12,9 @@ function handleShutdown() {
      $error = error_get_last();
     if ($error['type'] === E_ERROR) {
         $buffer = ob_get_contents();
-        ob_clean();
+        if(ob_get_length() > 0) {
+            ob_clean();
+        }
         //$msg = $buffer;
         $CI = get_instance();
         $CI->email->clear(TRUE);
