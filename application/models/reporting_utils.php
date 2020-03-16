@@ -1009,7 +1009,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
      * return : Array
      */
     function make_final_array($result) {
-
+        $data_final = [];
         //Getting max length of array from array's
         $max_length = max(sizeof($result['yesterday_booked']), sizeof($result['yesterday_completed']), sizeof($result['yesterday_cancelled']), sizeof($result['month_completed']), sizeof($result['month_cancelled']), sizeof($result['last_3_day']), sizeof($result['greater_than_5_days']));
         //Getting service_center_id array
@@ -1047,7 +1047,6 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
         }
         $return_array['data'] = $this->get_final_array($service_center_id, $data_final);
         $return_array['service_center_id'] = $service_center_id;
-
         return $return_array;
     }
 
@@ -1073,6 +1072,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
      * 
      */
     private function get_service_center_id_array($result, $max_length) {
+        $service_center_id = [];
         for ($i = 0; $i < $max_length; $i++) {
 
             //Setting Service Center ID
