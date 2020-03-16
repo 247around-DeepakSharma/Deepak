@@ -3350,12 +3350,15 @@ exit();
         foreach ($payment_data as $line) {
             fputcsv($output, $line);
         }
+        ob_start();
         //Download zip file
         system('zip ' . TMP_FOLDER . "payment_upload_summary" . '.zip ' . $output_file_excel . ' ' . TMP_FOLDER."payment_upload_summary.csv");
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header("Content-Disposition: attachment; filename=\"payment_upload_summary.zip\"");
-
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $res2 = 0;
         system(" chmod 777 " . TMP_FOLDER . 'payment_upload_summary.zip ', $res2);
         readfile(TMP_FOLDER .  'payment_upload_summary.zip');
