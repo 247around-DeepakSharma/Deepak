@@ -18,15 +18,16 @@
             ?> 
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h1 class="panel-title" >Spare Parts Delivered To SF</h1>
+                    <h1 class="panel-title" >Courier Lost Spare Parts Details</h1>
                 </div>
                 <div class="panel-body">
+                    <?php //echo "<pre>";print_r($spare_parts);exit; ?>
                     <table id="delivered_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                         <thead>
                             <tr>
                                 <th class="text-center">No</th>
                                 <th class="text-center">Booking Id</th>
-                                <th class="text-center">User Name</th>
+                                <th class="text-center">User<br>Name</th>
                                 <th class="text-center">Requested<br>Part Number</th>
                                 <th class="text-center">Requested<br>Part Name</th>                                
                                 <th class="text-center">Requested<br>Part Type</th>
@@ -35,8 +36,9 @@
                                 <th class="text-center">Shipped<br>Part Name</th>                                
                                 <th class="text-center">Shipped<br>Part Type</th>
                                 <th class="text-center">Shipped<br>Quantity</th>
-                                <th class="text-center">Acknowledge Date</th>
-                                <th class="text-center">Action</th>
+                                <th class="text-center">AWB Number<br>By Partner</th>
+                                <th class="text-center">Courier Charges<br>By Partner</th>
+                                <th class="text-center">Remarks<br>By Partner</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,14 +76,13 @@
                                     <?php echo $spare_part['shipped_quantity']; ?>
                                 </td>
                                 <td style="word-break: break-all;">
-                                    <?php echo $this->miscelleneous->get_formatted_date($spare_part['acknowledge_date']); ?>
+                                    <?php echo $spare_part['awb_by_partner']; ?>
                                 </td>
                                 <td style="word-break: break-all;">
-                                    <?php if(!empty($spare_part['auto_acknowledeged']) && $spare_part['auto_acknowledeged'] == 2) { ?>
-                                        <a href="<?php echo base_url(); ?>service_center/update_courier_lost/<?php echo $spare_part['id']; ?>" class="btn btn-primary" name="courier_lost_<?php echo $spare_part['id']; ?>" onclick="return is_confirmed(this);">Courier Lost</a>  
-                                    <?php } else { ?>
-                                        Acknowledged    
-                                    <?php } ?>
+                                    <?php echo $spare_part['courier_price_by_partner']; ?>
+                                </td>
+                                <td style="word-break: break-all;">
+                                    <?php echo $spare_part['remarks_by_partner']; ?>
                                 </td>
                             </tr>
                             <?php } } else { ?>
@@ -96,13 +97,3 @@
 </div>
 <div class="custom_pagination" style="margin-left: 16px;" > <?php if (isset($links)) echo $links; ?></div>
 </div>
-
-<script>
-    function is_confirmed(obj) {
-        if(confirm('Are you sure you want to mark spare part as courier lost?')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-</script>

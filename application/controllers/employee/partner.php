@@ -2229,6 +2229,8 @@ class Partner extends CI_Controller {
             $invoide_data = array();
             $current_status = "";
             $internal_status = "";
+            $remarks_by_partner = "";
+            $status = "";
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
 

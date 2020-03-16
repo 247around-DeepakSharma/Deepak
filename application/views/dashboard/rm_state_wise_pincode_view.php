@@ -5,7 +5,7 @@
   </ul>
 
     <div class="tab-content" style="    margin-top: 15px;">
-    <div id="state" class="tab-pane fade in active container">
+    <div id="state" class="tab-pane fade in active container" style="overflow-x: auto;">
          <table class="table table-striped table-bordered" id="state_table" > 
         <thead>
                 <tr style="background: #2C9D9C;color: #fff;margin-top: 5px;">
@@ -54,7 +54,7 @@
     </tbody>
                             </table>
     </div>
-    <div id="district" class="tab-pane fade">
+    <div id="district" class="tab-pane fade" style="overflow-x: auto;">
 <div id="district_table_holder">  <center><img id="loader_gif_completed_rm" src="<?php echo base_url(); ?>images/loadring.gif" ></center></div>     
     </div>
   </div>
