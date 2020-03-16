@@ -2214,17 +2214,29 @@ class Partner extends CI_Controller {
             
         }
         
+        
+        
+        $shipped_part_details = $this->input->post("part");
+
+        foreach ($shipped_part_details as $key => $val) {
+            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+            }
+        }
+
+
         if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $is_file = $this->validate_invoice_data();
         }
-        
+
         $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+
         if (!empty($incoming_invoice_pdf)) {
             $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
         }
-
-        $shipped_part_details = $this->input->post("part");
         
+        $shipped_part_details = $this->input->post("part");
+
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
             $invoide_data = array();
@@ -2242,7 +2254,7 @@ class Partner extends CI_Controller {
                       $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                       } */
 
-                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
                         $data['status'] = SPARE_SHIPPED_BY_PARTNER;
@@ -2288,7 +2300,7 @@ class Partner extends CI_Controller {
                         if (!empty($spare_id)) {
                             $invoide_data = array("invoice_id" => $value['invoice_id'],
                                 "spare_id" => $spare_id, "invoice_date" => $value['invoice_date'], "hsn_code" => $value['hsn_code'],
-                                "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $value['incoming_invoice']);
+                                "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $this->input->post("part")[$key]['incoming_invoice']);
                             $this->service_centers_model->insert_data_into_spare_invoice_details($invoide_data);
                         }
                     }
