@@ -1462,9 +1462,9 @@ class engineerApi extends CI_Controller {
             $sms['smsData']['request_type'] = $whatsapp_array['request'];
             $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-            $sms['smsData']['partner'] = $whatsapp_array['partner'];
             $sms['smsData']['cdate'] = date("d-M-Y");
             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
+            $sms['smsData']['partner'] = $whatsapp_array['partner'];
             $smsBody = vsprintf($template, $sms['smsData']);
 
         date_default_timezone_set('UTC');
@@ -3868,8 +3868,8 @@ class engineerApi extends CI_Controller {
      */
 
     function getSpareDetailsOfBooking($booking_id){
-
-        $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
+/*  If Shipped is empty or NULL Show Requested Data */
+        $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity", array('booking_id' => $booking_id));
 
         return $sp_details;
     }
