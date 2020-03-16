@@ -2758,13 +2758,8 @@ exit();
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
-        if(isset($invoice_details['invoice_breakup']) && !empty($invoice_details['invoice_breakup'])){
-            $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/update_invoices_with_breakup', $invoice_details);
-        } else {
-            $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/insert_update_invoice', $invoice_details);
-        }
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/insert_update_invoice', $invoice_details);
         
     }
     /*
@@ -2808,20 +2803,30 @@ exit();
     }
     /**
      * @desc: Update/ Insert Partner Invoice Details from panel
-     * @param String $vendor_partner
+     * @param String $vendor_partner , bool $insert_flag
+     * @return JSON encoded Array
      */
-    function process_insert_update_invoice($vendor_partner) {
+    function process_insert_update_invoice($vendor_partner, $insert_flag = 0) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Entering...." . $vendor_partner);
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim');
         $this->form_validation->set_rules('invoice_id', 'Invoice ID', 'required|trim');
         $this->form_validation->set_rules('around_type', 'Around Type', 'required|trim');
-        $this->form_validation->set_rules('gst_rate', 'GST Rate', 'required|trim');
+        $this->form_validation->set_rules('gst_number', '247around GST Number', 'required|trim');
+        $this->form_validation->set_rules('invoice_date', 'Invoice Date', 'required|trim');
         $this->form_validation->set_rules('from_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('type', 'Type', 'required|trim');
+        
         if ($this->form_validation->run()) {
             $flag = true;
+            $text = (($insert_flag)?"inserted":"updated");
             $data = $this->get_create_update_invoice_input($vendor_partner);
+
+            $invoice['meta']['invoice_id'] = $data['invoice_id'];
+            $invoice['booking'] = $this->input->post('invoice');
+
+            $data['hsn_code'] = $invoice['booking'][array_keys($invoice['booking'])[0]]['hsn_code'];
+            
             $in_data = $this->invoices_model->get_invoices_details(array('invoice_id' => $data['invoice_id']),'*');
             if (!empty($in_data)) {
                 if ($data['vendor_partner_id'] != $in_data[0]['vendor_partner_id']) {
@@ -2838,53 +2843,37 @@ exit();
                         $data['upcountry_price'] + $data['credit_penalty_amount'] - $data['penalty_amount']);
                 
                 $tds_sc_charge = $total_amount_collected - $data['parts_cost'];
-
                 $entity_details = array();
                 $gst_number = "";
 
                 if ($data['vendor_partner'] == "vendor") {
                     $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
-                    
                     $gst_number = $entity_details[0]['gst_no'];
-                    if($data['type_code'] == "A" && empty($gst_number)){
-                        $gst_number = TRUE;
-                    }
-                    
                 } else {
-
                     $entity_details = $this->partner_model->getpartner_details("gst_number, state", array('partners.id' => $data['vendor_partner_id']));
                     $gst_number = $entity_details[0]['gst_number'];
-                    if (empty($gst_number)) {
-
-                        $gst_number = TRUE;
-                    }
                 }
 
                 if (empty($gst_number)) {
-                    $gst_rate = 0;
-                } else {
-                    $gst_rate = $this->input->post('gst_rate');
+                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
+                    $data['igst_tax_amount'] = $data['igst_tax_rate'] = 0;
                 }
 
-
-                $gst_amount = $total_amount_collected * ($gst_rate / 100);
-                $data['total_amount_collected'] = sprintf("%.2f",($total_amount_collected + $gst_amount));
-
+                $data['total_amount_collected'] = sprintf("%.2f",$this->input->post('total_amount_charge'));
                 $data['rcm'] = 0;
 
-                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-                if ($c_s_gst) {
-
-                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $gst_amount / 2;
-                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $gst_rate / 2;
-                    $data['igst_tax_rate'] = 0;
+                $is_igst = $this->input->post('is_igst');
+                if ($is_igst) {
+                    $data['igst_tax_amount'] = $this->input->post('total_igst_amount');
+                    $data['igst_tax_rate'] = sprintf("%.2f",($this->input->post('total_igst_amount')*100)/$this->input->post('total_taxablevalue'));
+                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = 0;
                 } else {
-
-                    $data['igst_tax_amount'] = $gst_amount;
-                    $data['igst_tax_rate'] = $gst_rate;
-                    $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = 0;
+                    $data['cgst_tax_amount'] = $this->input->post('total_cgst_amount');
+                    $data['sgst_tax_amount'] = $this->input->post('total_sgst_amount');
+                    $data['cgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_cgst_amount')*100)/$this->input->post('total_taxablevalue'));
+                    $data['sgst_tax_rate'] = sprintf("%.2f",($this->input->post('total_sgst_amount')*100)/$this->input->post('total_taxablevalue'));
+                    $data['igst_tax_rate'] = $data['igst_tax_amount'] = 0;
                 }
-
 
                 switch ($data['type_code']) {
                     case 'A':
@@ -2899,16 +2888,8 @@ exit();
                         $tds['tds'] = 0;
                         $tds['tds_rate'] = 0;
                         if ($data['type'] == 'FOC') {
-
                             if ($vendor_partner == "vendor") {
                                 $tds = $this->check_tds_sc($entity_details[0], ($tds_sc_charge));
-                                if (empty($gst_number)) {
-
-                                    $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['sgst_tax_rate'] = $data['cgst_tax_rate'] = 0;
-                                    $data['igst_tax_amount'] = 0;
-                                    $data['igst_tax_rate'] = 0;
-                                    // $data['rcm'] = $total_amount_collected * ($this->input->post('gst_rate') / 100);
-                                }
                             } else {
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
@@ -2927,6 +2908,7 @@ exit();
                 }
 
                 $file = $this->upload_create_update_invoice_to_s3($data['invoice_id']);
+                
                 if (isset($file['invoice_file_main'])) {
                     $data['invoice_file_main'] = $file['invoice_file_main'];
                 }
@@ -2940,37 +2922,46 @@ exit();
                 $data['vertical'] = $this->input->post("vertical");
                 $data['category'] = $this->input->post("category");
                 $data['sub_category'] = $this->input->post("sub_category");
-                $data['accounting'] = $this->input->post("accounting_input");
+                $data['accounting'] = $this->input->post("accounting");
                 
                 $status = $this->invoices_model->action_partner_invoice($data);
 
                 if ($status) {
-                    //Process Detailed File For buyback Reimburshment
-//                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_INVOICE_SUBCAT_REIMBURSEMENT) 
-//                            && ($this->input->post('vendor_partner_id') == AMAZON_SELLER_ID) && $_FILES['invoice_detailed_excel']['tmp_name'] ){
-//                        $this->process_buyback_reimburshment_detailed_file();
-//                    }
-                    //Process Detailed File For buyback CP Credit note
-//                    if(($this->input->post('vertical') == BUYBACK_TYPE) && ($this->input->post('sub_category') == BUYBACK_CP_CREDIT_NOTE_SUBCAT) && 
-//                            ($this->input->post('around_type') == 'B') && $_FILES['invoice_detailed_excel']['tmp_name']){
-//                        $this->process_buyback_cp_credit_note_detailed_file();
-//                    }
-                    log_message('info', __METHOD__ . ' Invoice details inserted ' . $data['invoice_id']);
-                } else {
-
+                    //Delete all invoice_details entries w.r.t. invoice_id
+                    $this->db->where('invoice_id', $data['invoice_id']);
+                    $this->db->delete('invoice_details');
+                    
+                    //Insert invoice Breakup
+                    $this->insert_invoice_breakup($invoice);
+                    
+                    log_message('info', __METHOD__ . ' Invoice details '.$text.' for Invoice ID : ' . $data['invoice_id']);
+                    $res['status'] = TRUE;
+                    $res['message'] = 'Invoice Details '.$text.' successfully';
+                } else if ($insert_flag) {
                     log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
+                    $res['status'] = false;
+                    $res['message'] = 'Invoice Details Not Inserted';
                 }
-
-                redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+                else {
+                    log_message('info', __METHOD__ . ' Invoice details not '.$text.' for Invoice ID : ' . $data['invoice_id']);
+                    $res['status'] = TRUE;
+                    $res['message'] = 'Invoice details not '.$text.'. Please try again';
+                }
             } else {
-               
-                $userSession = array('error' => "Invoice already mapped to another partner");
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . 'employee/invoice/insert_update_invoice/' . $vendor_partner);
+                $res['status'] = false;
+                $res['message'] = 'Invoice already mapped to another partner';
             }
-        } else {
-            $this->insert_update_invoice($vendor_partner);
+        } else if ($insert_flag) {
+            $res['status'] = false;
+            $res['message'] = 'Check all fields value';
         }
+        else {
+            log_message('info', __METHOD__ . ' Invoice details not '.$text.' for Invoice ID : ' . $data['invoice_id']);
+            $res['status'] = TRUE;
+            $res['message'] = 'Invoice details not '.$text.'. Please try again';
+        }
+        
+        echo json_encode($res);
     }
 
     function upload_create_update_invoice_to_s3($invoice_id_tmp) {
@@ -3033,37 +3024,39 @@ exit();
         $invoice_id_tmp_1 = str_replace("/","-",$invoice_id_tmp); 
         $invoice_id = str_replace("_","-",$invoice_id_tmp_1);
         $data['invoice_id'] = $invoice_id;
-        $data['reference_invoice_id'] = $this->input->post('reference_invoice_id');
+        $data['reference_invoice_id'] = (!empty($this->input->post('reference_invoice_id'))?$this->input->post('reference_invoice_id'):NULL);
         $data['type'] = $this->input->post('type');
         $data['vendor_partner'] = $vendor_partner;
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+        $data['third_party_entity'] = (!empty($this->input->post('third_party_entity'))?$this->input->post('third_party_entity'):NULL);
+        $data['third_party_entity_id'] = (!empty($this->input->post('third_party_entity_id'))?$this->input->post('third_party_entity_id'):NULL);
         $date_range = $this->input->post('from_date');
         $date_explode = explode("-", $date_range);
-        $data['from_date'] = trim($date_explode[0]);
-        $data['to_date'] = trim($date_explode[1]);
-        $data['num_bookings'] = $this->input->post('num_bookings');
-        $data['parts_count'] = $this->input->post('parts_count');
-        $data['hsn_code'] = $this->input->post('hsn_code');
-        $data['total_service_charge'] = $this->input->post('total_service_charge');
-        $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
-        $data['parts_cost'] = $this->input->post('parts_cost');
+        $data['from_date'] = date("Y-m-d", strtotime(trim($date_explode[0])));
+        $data['to_date'] = date("Y-m-d", strtotime(trim($date_explode[1])));
+        $data['num_bookings'] = (!empty($this->input->post('num_bookings'))?$this->input->post('num_bookings'):0);
+        $data['parts_count'] = (!empty($this->input->post('parts_count'))?$this->input->post('parts_count'):0);
+        $data['hsn_code'] = (!empty($this->input->post('hsn_code'))?$this->input->post('hsn_code'):NULL);
+        $data['total_service_charge'] = (!empty($this->input->post('total_service_charge'))?$this->input->post('total_service_charge'):'0.00');
+        $data['total_additional_service_charge'] = (!empty($this->input->post('total_additional_service_charge'))?$this->input->post('total_additional_service_charge'):'0.00');
+        $data['parts_cost'] = (!empty($this->input->post('parts_cost'))?$this->input->post('parts_cost'):'0.00');
        
-        $data['penalty_amount'] = $this->input->post("penalty_amount");
-        $data['credit_penalty_amount'] = $this->input->post("credit_penalty_amount");
-        $data['penalty_bookings_count'] = $this->input->post("penalty_bookings_count");
-        $data['credit_penalty_bookings_count'] = $this->input->post("credit_penalty_bookings_count");
-        $data['upcountry_booking'] = $this->input->post("upcountry_booking");
-        $data['upcountry_distance'] = $this->input->post("upcountry_distance");
-        $data['courier_charges'] = $this->input->post("courier_charges");
-        $data['upcountry_price'] = $this->input->post("upcountry_price");
-        $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
+        $data['penalty_amount'] = (!empty($this->input->post("penalty_amount"))?$this->input->post("penalty_amount"):NULL);
+        $data['credit_penalty_amount'] = (!empty($this->input->post("credit_penalty_amount"))?$this->input->post("credit_penalty_amount"):NULL);
+        $data['penalty_bookings_count'] = (!empty($this->input->post("penalty_bookings_count"))?$this->input->post("penalty_bookings_count"):NULL);
+        $data['credit_penalty_bookings_count'] = (!empty($this->input->post("credit_penalty_bookings_count"))?$this->input->post("credit_penalty_bookings_count"):NULL);
+        $data['upcountry_booking'] = (!empty($this->input->post("upcountry_booking"))?$this->input->post("upcountry_booking"):0);
+        $data['upcountry_distance'] = (!empty($this->input->post("upcountry_distance"))?$this->input->post("upcountry_distance"):'0.00');
+        $data['courier_charges'] = (!empty($this->input->post("courier_charges"))?$this->input->post("courier_charges"):'0.00');
+        $data['upcountry_price'] = (!empty($this->input->post("upcountry_price"))?$this->input->post("upcountry_price"):'0.00');
+        $data['remarks'] = (!empty($this->input->post("remarks"))?$this->input->post("remarks"):NULL);
+        $data['due_date'] = (!empty($this->input->post('due_date'))?date('Y-m-d', strtotime($this->input->post('due_date'))):'');
         $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
-        $data['packaging_quantity'] = $this->input->post('packaging_quantity');
-        $data['packaging_rate'] = $this->input->post('packaging_rate');
-        $data['miscellaneous_charges'] = $this->input->post('miscellaneous_charges');
-        $data['warehouse_storage_charges'] = $this->input->post('warehouse_storage_charges');
-        $data['type_code'] = $this->input->post('around_type');
+        $data['packaging_quantity'] = (!empty($this->input->post('packaging_quantity'))?$this->input->post('packaging_quantity'):0);
+        $data['packaging_rate'] = (!empty($this->input->post('packaging_rate'))?$this->input->post('packaging_rate'):'0.00');
+        $data['miscellaneous_charges'] = (!empty($this->input->post('miscellaneous_charges'))?$this->input->post('miscellaneous_charges'):'0.00');
+        $data['warehouse_storage_charges'] = (!empty($this->input->post('warehouse_storage_charges'))?$this->input->post('warehouse_storage_charges'):'0.00');
+        $data['type_code'] = (!empty($this->input->post('around_type'))?$this->input->post('around_type'):NULL);
         
        
         return $data;
@@ -5501,6 +5494,8 @@ exit();
                 "description" => $value['description'],
                 "inventory_id" => (isset($value['inventory_id']) ? $value['inventory_id'] : NULL),
                 "spare_id" => (isset($value['spare_id']) ? $value['spare_id'] : NULL),
+                "settle_qty" => (isset($value['settle_qty']) ? $value['settle_qty'] : NULL),
+                "is_settle" => (isset($value['is_settle']) ? $value['is_settle'] : NULL),
                 "qty" => $value['qty'],
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],
@@ -5513,8 +5508,10 @@ exit();
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
                 "total_amount" => $value['total_amount'],
-                "create_date" => date('Y-m-d H:i:s')
-                
+                "from_gst_number" => (!empty($value['from_gst_number']) ? $value['from_gst_number'] : NULL),
+                "to_gst_number" => (!empty($value['to_gst_number']) ? $value['to_gst_number'] : NULL),
+                "create_date" => (isset($value['create_date']) ? $value['create_date'] : date('Y-m-d H:i:s')),
+                "update_date" => (isset($value['update_date']) ? $value['update_date'] : date('Y-m-d H:i:s')),
             );
             
             array_push($invoice_breakup, $invoice_details);
@@ -5761,7 +5758,7 @@ exit();
         $vertical = $this->input->post('vertical');
         $category = $this->input->post('category');
         $sub_category_input = $this->input->post('sub_category_input');
-        $html = "<option value='' selected disabled>Select Category</option>";
+        $html = "<option value='' selected disabled>Select Sub-Category</option>";
         $select = 'distinct(sub_category), accounting';
         $where = array('vertical'=>$vertical, 'category'=>$category);
         $sub_category = $this->invoices_model->get_invoice_tag($select, $where);
@@ -6295,5 +6292,30 @@ exit();
         }catch (Exception $ex) {
             echo '0';
         }
+    }
+    
+    /**
+     *  @desc : This function is used to check gst tax type
+     *  @return : Boolean 0 or 1
+     */
+    function check_gst_tax_type() {
+        $gst_number_id = $this->input->post('gst_number');
+        $vendor_partner_type = $this->input->post('vendor_partner_type');
+        $vendor_partner_id = $this->input->post('vendor_partner_id');
+        
+        $c_s_gst = '';
+        if(!empty($gst_number_id) && !empty($vendor_partner_type) && !empty($vendor_partner_id)) {
+            $entity_details = (($vendor_partner_type == _247AROUND_PARTNER_STRING) ? $this->partner_model->getpartner($vendor_partner_id) : $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $vendor_partner_id)) );
+            $entity_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
+            
+            $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $gst_number_id));
+            
+            if ($around_gst[0]['state'] == $entity_state_code) {
+                $c_s_gst = true;
+            } else {
+                $c_s_gst = false;
+            }
+        }
+        echo $c_s_gst;
     }
 }

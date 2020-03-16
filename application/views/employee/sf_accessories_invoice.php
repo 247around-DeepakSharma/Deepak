@@ -76,7 +76,7 @@
                                                     <label for="accessories" class="col-md-4">Accessories *</label>
                                                     <div class="col-md-6">
                                                         <div class="accessories_holder" id="accessories_holder_1">
-                                                            <select class="form-control accessories" name ="accessories[0][id]" id="accessories_1" required>
+                                                            <select class="form-control accessories" name ="accessories[0][id]" id="accessories_1" onchange="hideAccessories(this.id)" required>
                                                                 <option selected  value=''>Select Accessories</option>
                                                                 <?php foreach ($services_name as $key => $value) { ?>
                                                                     <option value ="<?php echo $value['id']; ?>" > <?php echo $value['product_name']; ?> </option>
@@ -143,6 +143,7 @@
     
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
+    var partArr = new Array();
     
     function clone() {
         if($('div.clonedInput').length < 10) {
@@ -171,10 +172,14 @@
                 placeholder: "Select Accessories",
                 allowClear: true,
             });
-            $('#accessories_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+'][id]');
+            $('#accessories_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+'][id]').attr('onchange','hideAccessories(this.id)');
             $('#quantity_'+cloneIndex).attr('name','accessories['+(cloneIndex-1)+'][qty]');
             $("#select2-quantity_"+cloneIndex+"-container").val("");
             $("#select2-accessories_"+cloneIndex+"-container").val("");
+            $('#accessories_'+cloneIndex+' option').removeAttr('disabled');
+            for(var key in partArr) {
+                $('#accessories_'+cloneIndex+' option[value="'+partArr[key]+'"]').attr('disabled',true);
+            }
             cloneIndex++;
        }
        return false;
@@ -182,6 +187,7 @@
     function remove() {
         if($('div.clonedInput').length > 1) {
             $(this).parents(".clonedInput").remove();
+            resetPartArr();
         }
         return false;
     }
@@ -192,7 +198,7 @@
         var service_center = $("#service_center").val().trim();
         $("#sf_id").val(service_center);
         $("#sf_accessories_invoice_form").show();
-//        $("div.cloned").children('div.clonedInput').remove(); // Used to remove all cloned div by using Add button if SF is changed
+//        $("div.cloned").children('div.clonedInput').remove(); // Used to remove all cloned div added using Add button If SF is changed
         if (service_center == '')
         {
             alert('Please Select Service Center.');
@@ -200,16 +206,42 @@
         }
     }
     
+    function hideAccessories(id) {
+        var index = id.split('_')[1];
+        var accessory = $('#accessories_'+index).val();
+        if($.inArray(accessory,partArr) >= 0) {
+           alert("Please select another accessory as this is already selected!!");
+           $('#accessories_'+index).removeAttr('selected').val('');
+           $('#select2-accessories_'+index+'-container').text('');
+        }
+        if( partArr === undefined ) {
+            partArr = new Array();
+        }
+        resetPartArr();
+    }
+    
+    function resetPartArr() {
+        partArr = new Array();
+        $('.accessories').each(function() {
+            var id = (this.id).split("_")[1];
+            var accessory = $('#accessories_'+id).find(':selected').val();
+            if(accessory !== "") {
+                partArr.push(accessory);
+            }
+        });
+    }
+    
     function process_sf_accessories_invoice_validations (){
         $('#search').attr('disabled',true);
         $('#submit').val('Processing..');
         $('#submit').attr('disabled',true);
+        var count=0;
         $('.quantity').each(function() {
             var id = (this.id).split("_")[1];
             var quantity = $("#quantity_"+id).val();
             var accessories = $("#accessories_"+id).val();
             if(quantity && accessories){ 
-               return true;
+                ++count;
             }
             else{
                 alert('Please add all mandatory fields!!');
@@ -219,7 +251,10 @@
                 return false;
             }
         });
-        return true;
+        if(count == $('.quantity').length) {
+            partArr = new Array();
+            return true;
+        }
     }
     
 </script>

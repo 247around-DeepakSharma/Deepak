@@ -33,7 +33,7 @@
                                     </div>
                                     <div class="col-sm-6">
                                         <select class="form-control" name="appliance_id" id='appliance_id'>
-                                            <option value="<?php echo $accessories_detail[0]['appliance']; ?>">Select Appliance Name</option>
+                                            <option value="">Select Appliance Name</option>
                                             <?php
                                             foreach ($services_detail as $row) {
                                                 $selected_appliance = '';

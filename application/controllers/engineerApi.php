@@ -1462,9 +1462,9 @@ class engineerApi extends CI_Controller {
             $sms['smsData']['request_type'] = $whatsapp_array['request'];
             $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-            $sms['smsData']['partner'] = $whatsapp_array['partner'];
             $sms['smsData']['cdate'] = date("d-M-Y");
             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
+            $sms['smsData']['partner'] = $whatsapp_array['partner'];
             $smsBody = vsprintf($template, $sms['smsData']);
 
         date_default_timezone_set('UTC');
