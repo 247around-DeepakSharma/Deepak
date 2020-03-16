@@ -1478,7 +1478,7 @@
                                 <div class="form-group">
                                     <label for="Services">Select Appliance *</label>
                                     <p id="brand_mapping_holder" style="display:none;"><?php if(isset($results['brand_mapping'])){ echo json_encode($results['brand_mapping']); }?></p>
-                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(isset($results['partner_code'])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
+                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(!empty($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(!empty($results['partner_code'][0]['partner_type'])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -1794,9 +1794,10 @@
                                             <select type="text" class="form-control"  id="contact_person_department_1" name="contact_person_department[]" onChange="getRoles(this.value,this.id)" >
                                                 <option value="" disabled="" selected="" required="">Select Department</option>
                                                 <?php
+                                                if(!empty($department)) {
                                                 foreach ($department as $value) { ?>
                                                     <option value="<?php echo $value['department'] ?>"> <?php echo $value['department'] ?></option>
-                                                <?php }
+                                                <?php } }
                                                 ?>
                                             </select>
                                         </div>
@@ -2039,9 +2040,9 @@
                                         <div class="col-md-6">
                                             <select name="contact_person_id" class="form-control" id="contact_person_id" required>
                                                 <option selected="" value="" disabled="">Select Contact Person</option>
-                                                <?php foreach ($results['contact_name'] as $value) { ?>
+                                                <?php if(!empty($results['contact_name'])) { foreach ($results['contact_name'] as $value) { ?>
                                                 <option value="<?php echo $value->id;?>"<?php if(set_value('contact_name') == $value->id) {echo 'selected';} ?> ><?php echo $value->name;?></option>
-                                                <?php }?>
+                                                <?php } } ?>
                                             </select>
                                             <?php echo form_error('contact_person_id'); ?>
                                         </div>
@@ -2201,6 +2202,7 @@
                     </thead>
                     <tbody id="BD_table_body">
                         <?php
+                        if(!empty($results['bank_detail'])) {
                             foreach ($results['bank_detail'] as  $value) { ?>
                         <tr>
                             <td><?php echo $value['bank_name']; ?></td>
@@ -2231,7 +2233,7 @@
                                 <button class="btn btn-info btn-xs" onclick="update_bank_detail(this, <?php echo $value['id']; ?>)" style="margin-right: 5px;">Update</button>
                             </td>
                         </tr>
-                        <?php } ?>  
+                        <?php }  } ?>  
 
                         </tbody>
                     </table>
@@ -2256,9 +2258,9 @@
                                             <div class="col-md-6">
                                                 <select class="form-control input-contact-name"  name="charges_type" onchange="variable_charges_change(this)" id="charges_type" required>
                                                     <option value="" selected disabled>Select Charge Type</option>
-                                                    <?php foreach ($charges_type as $charges){ ?> 
+                                                    <?php if(!empty($charges_type)) { foreach ($charges_type as $charges){ ?> 
                                                     <option value="<?php echo $charges['id'] ?>" data-charge-type="<?php echo $charges['type'];  ?>"><?php echo $charges['description']; ?></option>
-                                                    <?php } ?>
+                                                    <?php } } ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -2307,6 +2309,8 @@
                     <tbody id="VC_table_body">
                        <?php 
                            $i = 0;
+                           if(!empty($results['variable_charges']))
+                           {
                            foreach($results['variable_charges'] as $variable_charges){
                                $i++;
                         ?>
@@ -2325,7 +2329,7 @@
                             </td>
                         </tr>
                         <?php
-                           }
+                           } }
                        ?>
                     </tbody>
                     </table>
@@ -3033,11 +3037,12 @@
                                         <select type="text" class="form-control"  id="contact_person_department" name="contact_person_department" onChange="getEditRole(this.value)" >
                                             <option value="" disabled="">Select Department</option>
                                             <?php
+                                            if(!empty($department)) {
                                                 foreach ($department as $values) {
                                                     ?> 
                                             <option value="<?php echo $values['department'] ?>"> <?php echo $values['department'] ?></option>
                                             <?php
-                                                }
+                                            } }
                                                 ?>
                                         </select>
                                         <div class="clear"></div>
@@ -3061,12 +3066,13 @@
                                             <select multiple="" class=" form-control contact_person_states well well-lg" name ="contact_person_states[]" id="contact_person_states">
                                                 <!--<option value = "" disabled>Select States</option>-->
                                                 <?php
+                                                    if(!empty($results['select_state'])) {
                                                     foreach ($results['select_state'] as $value) {
                                                         ?>
                                                 <option value = "<?php echo $value['state']?>" >
                                                     <?php echo $value['state']; ?>
                                                 </option>
-                                                <?php } ?>
+                                                    <?php } }?>
                                             </select>
                                         </div>
                                         <div class="clear"></div>
@@ -3120,9 +3126,9 @@
                                     <div class="col-md-8">
                                         <select class="form-control" name="am1" id="am1">
                                             <option selected disabled value="option_holder">Select Account Manager</option>
-                                            <?php foreach($employee_list as $employee){ ?>
+                                            <?php if(!empty($employee_list)) { foreach($employee_list as $employee){ ?>
                                             <option value="<?php echo $employee['id']; ?>" ><?php echo $employee['full_name']; ?></option>
-                                            <?php } ?>
+                                            <?php } } ?>
                                         </select>
                                     </div>
                                 </div>
@@ -3131,9 +3137,9 @@
                                     <div class="col-md-8">
                                         <select class="form-control" name="state1" id="state1">
                                             <option value="all">All States</option>
-                                            <?php foreach ($results['select_state'] as $state) {    ?>
+                                            <?php if(!empty($results['select_state'])) { foreach ($results['select_state'] as $state) {    ?>
                                             <option value = "<?php echo $state['state'] ?>"    ><?php echo $state['state']; ?></option>
-                                            <?php } ?>
+                                            <?php } }?>
                                         </select>
                                     </div>
                                 </div>
@@ -3216,9 +3222,9 @@
                                 <div class="col-md-7 col-md-offset-1">
                                     <select class="form-control" name="wh_state" id="wh_state" required>
                                         <option selected="" value="" disabled="">Select State</option>
-                                        <?php foreach ($results['select_state'] as $value) { ?>
+                                        <?php if(!empty($results['select_state'])) { foreach ($results['select_state'] as $value) { ?>
                                         <option value = "<?php echo $value['state'] ?>" > <?php echo $value['state']; ?> </option>
-                                        <?php } ?>
+                                        <?php } }?>
                                     </select>
                                 </div>
                             </div>
@@ -3231,9 +3237,9 @@
                                 <div class="col-md-7 col-md-offset-1">
                                     <select name="wh_contact_person_id" class="form-control" id="wh_contact_person_id" required>
                                         <option selected="" value="" disabled="">Select Contact Person</option>
-                                        <?php foreach ($results['contact_name'] as $value) { ?>
+                                        <?php if(!empty($results['contact_name'])) { foreach ($results['contact_name'] as $value) { ?>
                                         <option value="<?php echo $value->id;?>" ><?php echo $value->name;?></option>
-                                        <?php }?>
+                                        <?php } }?>
                                     </select>
                                 </div>
                             </div>
