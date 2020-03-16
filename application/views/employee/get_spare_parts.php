@@ -98,7 +98,7 @@
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
                             <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
                             <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
-                            <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost</a></li>
+                            <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost Approval</a></li>
                             <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part (All)</a></li>
                             <li role="presentation"><a href="#defective_part_pending_oot" aria-controls="defective_part_pending_oot" id="defective_part_oot" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part (OOT)</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective/Ok Part Shipped By SF ( Courier Audit )</a></li>
@@ -185,6 +185,7 @@
                 url : $(this).data('url')
             }).done(function (data) {
                 alert('Data has been updated successfully.');
+                load_table($("#reload_table_id").val());
             });
         }    
     });

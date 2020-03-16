@@ -1094,7 +1094,7 @@
                 type: "POST",
                 data: function(d){
                     d.type =  '12';     
-                    d.status =  '<?php echo COURIER_LOST; ?>';        
+                    d.status =  '<?php echo InProcess_Courier_Lost; ?>';        
                     d.partner_id =  '<?php echo $partner_id; ?>';       
                 },  
             },

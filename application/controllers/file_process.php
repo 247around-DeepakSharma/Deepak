@@ -87,7 +87,10 @@ class File_process extends CI_Controller {
             header('Content-Length: ' . filesize($output_file_excel));
             readfile($output_file_excel);
             exec("rm -rf " . escapeshellarg($output_file_excel));
-            unlink($output_file_excel);
+            if(file_exists($output_file_excel))
+            {
+                unlink($output_file_excel);
+            }
             exit;
         }
     }

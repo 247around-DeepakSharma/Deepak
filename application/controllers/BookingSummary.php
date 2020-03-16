@@ -897,6 +897,9 @@ EOD;
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
+            else {
+                $sf_list = "";
+            }
             $html = $this->booking_utilities->booking_report_by_service_center($sf_list, 1);
             $to = $value['official_email'];
 
