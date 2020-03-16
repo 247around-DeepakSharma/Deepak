@@ -58,13 +58,13 @@
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="Vendor Amounts">Vendor Charge </label>
-                                        <input type="number" step=".02" class="form-control" id="<?php echo "vendor_charge_".$value['id'];?>" placeholder="Vendor Amount" name="<?php echo "misc[".$value['id']."][vendor_charge]"; ?>" value = "<?php echo $value['vendor_basic_charges'];?>" >
+                                        <input type="number" step=".02" class="form-control" id="<?php echo "vendor_charge_".$value['id'];?>" placeholder="Vendor Amount" name="<?php echo "misc[".$value['id']."][vendor_charge]"; ?>" value = "<?php echo $value['vendor_basic_charges'];?>" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
                                     </div>
                                 </div>
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="partner Charge">Partner Charge </label>
-                                        <input type="number" step=".02" class="form-control" id="<?php echo "partner_charge_".$value['id'];?>" placeholder="Enter Partner Charge" name="<?php echo "misc[".$value['id']."][partner_charge]"; ?>" value = "<?php echo $value['partner_charge'];?>" >
+                                        <input type="number" step=".02" class="form-control" id="<?php echo "partner_charge_".$value['id'];?>" placeholder="Enter Partner Charge" name="<?php echo "misc[".$value['id']."][partner_charge]"; ?>" value = "<?php echo $value['partner_charge'];?>" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
                                     </div>
                                 </div>
                                 <div class="col-md-1 text-center" style="margin-top:20px;">

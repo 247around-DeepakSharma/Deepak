@@ -1811,7 +1811,7 @@
     
 function sf_tab_active(){
   <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
-   setTimeout(function(){ GetRoute(); }, 1000);
+   //setTimeout(function(){ GetRoute(); }, 1000);
   <?php } ?>
 }
  function resendCustomerInvoice(booking_id, invoice_id){

@@ -1223,6 +1223,17 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id);
                     $track_status = $new_state = "Spare Parts Not Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
+                    
+                    /**
+                     * If defective part not required after booking completion then change spare status accordingly.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    if(!empty($booking_details['service_center_closed_date'])) {
+                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                        $data['status'] = _247AROUND_COMPLETED;                 
+                    }
+                    
                     break;
 
                 CASE 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING':
@@ -1233,8 +1244,17 @@ class Inventory extends CI_Controller {
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = "Completed";
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+                    /**
+                     * If defective part not required after booking completion then change spare status accordingly.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    if(!empty($booking_details['service_center_closed_date'])) {
+                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                        $data['status'] = _247AROUND_COMPLETED;                 
+                    }
                     break;
 
                 CASE 'REQUIRED_PARTS':
@@ -1259,13 +1279,16 @@ class Inventory extends CI_Controller {
                 
                 CASE 'COURIER_LOST':
                     /**
+                     * Admin mark courier lost.
                      * @modifiedBy Ankit Rajvanshi
                      */
                     $where = array('id' => $id);
                     $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                    $data['status'] = COURIER_LOST;
-                    $track_status = $new_state = COURIER_LOST;
-                    $remarks = 'Courier Lost By Admin';
+                    $data['status'] = InProcess_Courier_Lost;
+                    $data['old_status'] = $spare_part_detail['status'];
+                    $data['consumed_part_status_id'] = 2;
+                    $track_status = $new_state = InProcess_Courier_Lost;
+                    $remarks = "Courier lost marked by admin";
                     $old_state = $spare_part_detail['status'];
                     break;
             }

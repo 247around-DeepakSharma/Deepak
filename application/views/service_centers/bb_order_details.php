@@ -143,7 +143,7 @@
                             <th>SF Charge</th>
                             <th>CP Claimed Price</th>
                             <th>Status</th>
-                            
+                            <th>Acknowledge Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,7 +166,7 @@
                             <th>SF Charge</th>
                             <th>CP Claimed Price</th>
                             <th>Status</th>
-                            
+                            <th>Acknowledge Date</th>
                         </tr>
                     </thead>
                     <tbody>

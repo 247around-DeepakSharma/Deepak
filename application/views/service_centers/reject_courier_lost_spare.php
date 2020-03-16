@@ -3,7 +3,7 @@
     <input type="hidden" name="reject" value="1"> 
 <div class="row">
     <div class="col-md-3">
-        <label> Upload POD</label>
+        <label> Upload POD<span style="color:red;">*</span></label>
     </div>
     <div class="col-md-9">
         <div class="form-group">
@@ -33,6 +33,12 @@
         // Submit form data via Ajax
         $("#form-reject").on('submit', function(e){
             e.preventDefault();
+            
+            var file = $('#reject_courier_lost_spare_part_pod').val();
+            if(file == '' || file == null) {
+                alert('Please upload POD.');
+                return false;
+            }
             
             var remarks = $('#reject_courier_lost_spare_part_remarks').val();
             if(remarks == '' || remarks == null) {
