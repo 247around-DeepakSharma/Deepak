@@ -3080,7 +3080,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             }
 
             $courier_id_arr = array();
-            $select = 'id, invoice_id, courier_id';
+            $select = 'id, invoice_id,micro_invoice_id, courier_id';
             $flag = true;
             $eway_data = array();
             
@@ -3091,10 +3091,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
            
             foreach ($invoice_ids_arr as $kay => $val) {
-                $where = array("inventory_ledger.invoice_id ='".$val."' OR inventory_ledger.micro_invoice_id ='".$val."'" => NULL);
+                $where = array("inventory_ledger.invoice_id ='" . $val . "' OR inventory_ledger.micro_invoice_id ='" . $val . "'" => NULL);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
-                    $courier_id_arr[] = array('courier_id'=> $inventory_ledger[0]['courier_id'], 'invoice_id' => $val) ;
+                    $courier_id_arr[] = array('courier_id' => $inventory_ledger[0]['courier_id'], 'invoice_id' => $val);
                     $eway_details = array();
                     $eway_details['courier_details_id'] = $inventory_ledger[0]['courier_id'];
                     $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
@@ -3116,9 +3116,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
-                   $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                    $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
                 } else {
-                    $courier_detail['courier_charge'] =  $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
+                    $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
                 }
 
                 if (!empty($exist_courier_image)) {
@@ -3141,7 +3141,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $affected_id = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
                     
                     if ($affected_id) {
-                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $val['invoice_id']), $spare_data);
+                        if (!empty($val['invoice_id'])) {
+                            $invoice_id = $val['invoice_id'];
+                        } else {
+                            $invoice_id = $val['micro_invoice_id'];
+                        }
+                        $this->service_centers_model->update_spare_parts(array('spare_parts_details.reverse_purchase_invoice_id' => $invoice_id), $spare_data);
                     }
                 }
             } else {
