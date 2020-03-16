@@ -3297,7 +3297,10 @@ function generate_image($base64, $image_name,$directory){
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv))
+        {
+            unlink($csv);
+        }
     }
     /*
      * This Function used to load navigation header from cache
