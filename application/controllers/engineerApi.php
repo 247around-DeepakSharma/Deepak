@@ -2585,7 +2585,7 @@ class engineerApi extends CI_Controller {
             $response['message'] = "Partner Flag not found";
         } else if (!isset($requestData['spare_shipped'])) {
             $response['message'] = "Shipped Spare not found";
-        } else if (!isset($requestData['reason'])) {
+        } else if (!isset($requestData['reason_text'])) {  /// Changing key according to CRM because it was going 0 due to key mismatch
             $response['message'] = "Spare Remarks not found";
         } else if (!isset($requestData['days'])) {
             $response['message'] = "Days not found";
