@@ -52,7 +52,7 @@
                                                 $statusShow = 'Inactive';
                                             }
                                             ?>
-                                        <td class="text-center"><?php echo $statusShow; ?></td>
+                                        <td class="text-center"><span id='status_s<?php echo $row['id']; ?>'><?php echo $statusShow; ?></span></td>
                                         <td class="text-center"><a type="button" class="btn btn-info" href="<?php echo base_url() . "employee/accessories/edit_accessories/" . $row['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a></td>
 
                                         <td class="text-center">
@@ -142,11 +142,45 @@
                 if (status == 1)
                 {
                     $("#btn_" + idtodelete).show();
+                    $("#status_s" + idtodelete).html('Active');
                 } else
                 {
-                    $("#btn_s_" + idtodelete).show();
+                    $("#btn_s_" +idtodelete).show();
+                    $("#status_s" + idtodelete).html('Inactive');
                 }
-
+                $('#annual_charges_report').dataTable().fnDestroy();
+            $('#annual_charges_report').DataTable({
+            "processing": true,
+            "serverSide": false,
+            "dom": 'lBfrtip',
+            "buttons": [
+            {
+                extend: 'excel',
+                text: '<span class="fa fa-file-excel-o"></span>  Export',
+                title: 'accessories_list_<?php echo date('Ymd-His'); ?>',
+                footer: true,
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6,7],
+                    modifier: {
+                        // DataTables core
+                        order: 'index', // 'current', 'applied', 'index',  'original'
+                        page: 'all', // 'all',     'current'
+                        search: 'none'     // 'none',    'applied', 'removed'
+                    }
+                }
+            }
+            ],
+            "order": [],
+            "ordering": true,
+            "deferRender": true,
+            //"searching": false,
+            //"paging":false
+            "pageLength": 50,
+            "language": {
+            "emptyTable": "No Data Found",
+            "searchPlaceholder": "Search by any column."
+            },
+            });
             }
         });
     }
