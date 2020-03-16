@@ -3364,7 +3364,10 @@ function generate_image($base64, $image_name,$directory){
                    // $login_email['password'] = "***********";
                     $login_emailBody247 = vsprintf($login_template[0], $login_email);
                     //Send Login Details to partner
-                    $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    if(!empty($data['email']))
+                    {
+                        $this->My_CI->notify->sendEmail($login_template[2], $data['email'], "", "",$login_subject, $login_emailBody, "",'partner_login_details');
+                    }
                     //Send Login Details to 247around 
                     $to = $this->My_CI->session->userdata('official_email');
                     $this->My_CI->notify->sendEmail($login_template[2], $to, $cc, $bcc,$login_subject, $login_emailBody247, "",'partner_login_details');
