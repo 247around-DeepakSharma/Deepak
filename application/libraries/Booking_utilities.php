@@ -430,9 +430,9 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     */
 
    function get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date = NULL) {
-
+       $final_way = [];
+       $state_final = [];
        $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days);
-       
        foreach ($data['service_center_id'] as $key => $val) {
            
            //Setting State and City value
@@ -520,13 +520,16 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
            $way_final['greater_than_5_days'] = (isset($data['data'][$val]['greater_than_5_days']['booked']) ? $data['data'][$val]['greater_than_5_days']['booked'] : '0');
 
            $final_way[] = $way_final;
-       }
+       }        
        return array("final_way"=>$final_way,"state_final"=>$state_final);
 }
 
    function booking_report_by_service_center($sf_list,$cron_flag, $interval_in_days = 1, $sf_closed_date = NULL) {
        $bookingReportData = $this->get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date);
        //Getting States and City List
+       $state_array = [];
+       $city_array = [];
+       $sf_array = [];
        foreach($bookingReportData['final_way'] as $value){
            $state_array[] = $value['state'];
            $city_array[] = $value['city'];
@@ -777,7 +780,6 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                     });
            </script></body>
                    </html>';
-
        return $html;
 
    }

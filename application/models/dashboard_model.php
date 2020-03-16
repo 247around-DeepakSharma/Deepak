@@ -410,7 +410,7 @@ class dashboard_model extends CI_Model {
         }
        $sql='SELECT sf.pincode,sf.city,state_code.state,services.services,emp.full_name as full_name '
                 .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.id '
-                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN agent_state_mapping ON state_code.state_code=agent_state_mapping.state_code'
+                .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN agent_state_mapping ON state_code.state_code=agent_state_mapping.state_code '
                . 'JOIN employee emp ON emp.id = agent_state_mapping.agent_id '
                 .'LEFT JOIN '
                  .'employee ON employee.id = agent_state_mapping.agent_id '.$where;

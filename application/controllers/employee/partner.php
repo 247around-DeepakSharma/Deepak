@@ -4376,7 +4376,7 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1',is_CP => '0');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1','is_CP' => '0');
         $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
@@ -5502,6 +5502,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     private function create_custom_summary_report($partnerID,$postArray){
+        $where = [];
         if(!empty($postArray['Date_Range'])) {
             $dateArray  = explode(" - ",$postArray['Date_Range']);
             $start = date('Y-m-d',strtotime($dateArray[0]));
@@ -5546,7 +5547,10 @@ class Partner extends CI_Controller {
             if(!in_array('All',$state)){
                 $where[] = "booking_details.state IN ('".implode("','",$state)."')";
             }
-           log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+            if(!empty($where))
+            {
+                log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+            }
            
            if(!empty($this->session->userdata('service_center_id'))) {
               $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
@@ -6672,7 +6676,10 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-         unlink($csv);
+        if(file_exists($csv))
+        {
+            unlink($csv);
+        }
     }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
