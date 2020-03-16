@@ -1387,12 +1387,18 @@ class Spare_parts extends CI_Controller {
         if(!empty($post_data['reject'])) {
             $spare_part_detail = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $post_data['spare_id']), true, false)[0];
             // update spare part details.
-            $spare_data = [
-                'status' => OK_PART_TO_BE_SHIPPED,
-                'old_status' => $spare_part_detail['status'],
-                'consumed_part_status_id' => OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID,
-                'defective_part_required' => 1
-            ];
+            $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $spare_part_detail['booking_id']])[0];
+            if(!empty($booking_details['service_center_closed_date'])) {
+                $spare_data = [
+                    'status' => OK_PART_TO_BE_SHIPPED,
+                    'old_status' => $spare_part_detail['status'],
+                    'consumed_part_status_id' => OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID,
+                    'defective_part_required' => 1
+                ];
+            } else {
+                $spare_data = ['status' => SPARE_DELIVERED_TO_SF];
+            }
+            
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
             /* Insert Spare Tracking Details*/
             if (!empty($spare_id)) {
@@ -1401,7 +1407,7 @@ class Spare_parts extends CI_Controller {
             }
             
             // state change entry.
-            $this->notify->insert_state_change($spare_part_detail['booking_id'], OK_PART_TO_BE_SHIPPED, $spare_part_detail['status'], $post_data['reject_courier_lost_spare_part_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $spare_part_detail['partner_id']);
+            $this->notify->insert_state_change($spare_part_detail['booking_id'], $spare_data['status'], $spare_part_detail['status'], $post_data['reject_courier_lost_spare_part_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $spare_part_detail['partner_id']);
 
             $courier_spare_lost_file_name = '';
             if(!empty($_FILES['reject_courier_lost_spare_part_pod'])) {

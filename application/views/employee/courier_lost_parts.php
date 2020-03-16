@@ -27,7 +27,7 @@
                             <tr>
                                 <th class="text-center">No</th>
                                 <th class="text-center">Booking Id</th>
-                                <th class="text-center">User Name</th>
+                                <th class="text-center">User<br>Name</th>
                                 <th class="text-center">Requested<br>Part Number</th>
                                 <th class="text-center">Requested<br>Part Name</th>                                
                                 <th class="text-center">Requested<br>Part Type</th>
@@ -36,6 +36,9 @@
                                 <th class="text-center">Shipped<br>Part Name</th>                                
                                 <th class="text-center">Shipped<br>Part Type</th>
                                 <th class="text-center">Shipped<br>Quantity</th>
+                                <th class="text-center">AWB Number<br>By Partner</th>
+                                <th class="text-center">Courier Charges<br>By Partner</th>
+                                <th class="text-center">Remarks<br>By Partner</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,6 +74,15 @@
                                 </td>
                                 <td style="word-break: break-all;">
                                     <?php echo $spare_part['shipped_quantity']; ?>
+                                </td>
+                                <td style="word-break: break-all;">
+                                    <?php echo $spare_part['awb_by_partner']; ?>
+                                </td>
+                                <td style="word-break: break-all;">
+                                    <?php echo $spare_part['courier_price_by_partner']; ?>
+                                </td>
+                                <td style="word-break: break-all;">
+                                    <?php echo $spare_part['remarks_by_partner']; ?>
                                 </td>
                             </tr>
                             <?php } } else { ?>
