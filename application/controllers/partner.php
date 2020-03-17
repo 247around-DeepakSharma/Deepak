@@ -1632,9 +1632,9 @@ class Partner extends CI_Controller {
                     }
                     
                     // set created_by, created_source and agent_type from session in booking_details Table
-                    $created_by = !empty($this->session->userdata('agent_id')) ? $this->session->userdata('agent_id') : "";
-                    $created_source = !empty($this->session->userdata('user_source')) ? $this->session->userdata('user_source') : "";
-                    $created_by_agent_type = !empty($this->session->userdata('userType')) ? $this->session->userdata('userType') : "";
+                    $created_by = !empty($requestData['session_data']['agent_id']) ? $requestData['session_data']['agent_id'] : "";
+                    $created_source = !empty($requestData['session_data']['user_source']) ? $requestData['session_data']['user_source'] : "";
+                    $created_by_agent_type = !empty($requestData['session_data']['userType']) ? $requestData['session_data']['userType'] : "";
                     $booking['created_by_agent_type'] = $created_by_agent_type;
                     $booking['created_by_agent_id'] = $created_by;
                     $booking['created_source'] = $created_source;
