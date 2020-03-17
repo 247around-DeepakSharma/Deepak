@@ -492,7 +492,7 @@ class User extends CI_Controller {
                 $diffStateString = "'" . implode("','", $diffState) . "'";
 
                 $result=$this->employee_model->get_asm_from_rm($diffState,$rm_ID);
-                if (!empty($result) && is_array($result)) {
+                if (is_array($result)) {
                     if (count($result) > 0) {
                         $stateString = implode(', ', array_map(function ($entry) {
                                     return $entry['state'];
@@ -1114,6 +1114,225 @@ class User extends CI_Controller {
             $data = $this->employee_model->get_entity_role('role',$cond);
         }
         echo json_encode($data);
+    }
+    /**
+     * @Desc: This function is used to get districts from states
+     * @params: void
+     * @return: view
+     * @ Ghanshyam Ji Gupta
+     */
+    function bring_district_from_state() {
+        $state_selected = $this->input->post('state_name');
+        $agent_ID = $this->input->post('agent_ID');
+        $state_selected_string = implode("','", $state_selected);
+        $state_selected_string = "'$state_selected_string'";
+        
+        $currentDistrict = $this->employee_model->get_rm_mapped_district($agent_ID);
+        $isRM = count($this->employee_model->isRManager($agent_ID)) > 0 ? true : false;
+        $reqDistrict = $html = '';
+        if ($isRM) {
+        $rm_ID = $agent_ID;
+        $asmID = 0;
+        $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $agent_ID);
+        } else {
+        $asmID = $agent_ID;
+        $rm_ID_Array = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $agent_ID));
+        $rm_ID = $rm_ID_Array[0]['manager_id'];
+        $result1 = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
+        $result2 = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_ASM, $agent_ID);
+        
+        if (!empty($result1) && !empty($result2)) {
+                $result = array_merge($result1, $result2);
+            } else if (!empty($result1)) {
+                $result = $result1;
+            } else if (!empty($result2)) {
+                $result = $result2;
+            }
+        }
+        $resultOtherAgentDistrict = array_map(function ($entry) { return $entry['id'];}, $result);        
+        $currentDistrictArray = array_map(function ($entry) { return $entry['id'];}, $currentDistrict);   
+        $resultArray = $this->employee_model->get_district_from_states($state_selected_string);
+        $array_state_district = array();
+        foreach($resultArray as $key => $value)
+        {
+            $array_state_district[$value['state']][$value['id']]=$value['district'];
+        }
+        
+        $count = 0;
+        foreach($array_state_district as $key => $value)
+        {
+          
+            $count = $count+1;
+            $html .='<div class="card" style="margin-bottom: 4px;">
+                  <div class="card-header" role="tab" id="headingOne'.$count.'">
+                     <div class="mb-0">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne'.$count.'" aria-expanded="false" aria-controls="collapseOne'.$count.'" class="collapsed">
+                           <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                           <h3>'.$key.' </h3>                           
+                        </a>
+                        <input type="checkbox"  id="selectall'.$count.'" onclick="selectall('.$count.')"> Select All
+                     </div>
+                  </div>
+                  <div id="collapseOne'.$count.'" class="collapse in" role="tabpanel" aria-labelledby="headingOne'.$count.'" aria-expanded="false" style="">
+                     <div class="card-block" style="height: auto;overflow:hidden">';
+                     $countr=0;
+                     foreach($value as $key_d => $value_d)
+                     {
+                         $countr = $countr+1;
+                         $disabled ='';
+                         $checked = '';
+                         $style='';
+                         $title ='';
+                         if(in_array($key_d,$currentDistrictArray))
+                         {
+                            $checked = 'checked';
+                         }
+                         $class ="myselectall$count";
+                         if(in_array($key_d,$resultOtherAgentDistrict))
+                         {
+                             $checked = '';
+                             $disabled ='disabled';
+                             $class = '';
+                             $style=";color:#ccc";
+                             $title ='You can not map this district as this is already mapped with other agent.';
+                         }
+                        $html .="<div class='col-md-3' style='padding:5px 0px$style' title='$title'><input type='checkbox' $checked class='$class ' $disabled name='district[]' value='$key_d'>&nbsp;&nbsp;$value_d</div>"; 
+                     }
+                        
+                  $html .='</div>
+                  </div>
+               </div>';
+        }
+        
+        echo $html;
+        
+    }
+     /**
+     * @Desc: This function is used to map rm and asm with district
+     * @params: void
+     * @return: view
+     * @ Ghanshyam Ji Gupta
+     */
+    function rm_asm_district_mapping() {
+        $data = $this->input->post();
+        $rm_asm = $this->input->post('rm_asm');
+        $state_name = $this->input->post('state_name');
+        $district = $this->input->post('district');
+        $array_return['status'] = 'success';
+        $array_return['message'] = 'Mapping Updated Successfully.';
+        $isRM = count($this->employee_model->isRManager($rm_asm)) > 0 ? true : false;
+        $Submit = true;
+        $statusFlg = true;
+        if ($isRM) {
+            $rm_ID = $data["rm_asm"];
+            $asmID = 0;
+        } else {
+            $asmID = $data["rm_asm"];
+            $rm_ID_Array = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $rm_asm));
+            $rm_ID = $rm_ID_Array[0]['manager_id'];
+        }
+        $reqDistrict = array();
+        $selDistrict = array();
+        foreach ($district as $key => $value) {
+            array_push($reqDistrict, $value);
+        }
+        $reqDistrictString = implode("','", $reqDistrict);
+        
+        if(empty($district))
+        {
+        $errormessage = "No district selected.";
+            $statusFlg = false;
+            $array_return['status'] = 'error';
+            $array_return['message'] = $errormessage;
+        }
+        ##########################check if state served by other ASM#####################################
+        if (!$isRM && $statusFlg) {
+            $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_ASM, $asmID);
+            if (count($result) > 0) {
+                $stateString = implode(',', array_map(function ($entry) {
+                            return $entry['district'];
+                        }, $result));
+                $errormessage = "District $stateString already served by other asm you can not assign to this ASM.";
+                $statusFlg = false;
+                $array_return['status'] = 'error';
+                $array_return['message'] = $errormessage;
+            }
+        }
+        #########################check if District served by other RM#######################################
+        if ($rm_ID != 0 && $rm_ID != '' && $statusFlg) {
+            $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
+            if (count($result) > 0) {
+                $stateString = implode(',', array_map(function ($entry) {
+                            return $entry['district'];
+                        }, $result));
+                $errormessage = "District $stateString already served by other RM you can not assign this RM.";
+                $statusFlg = false;
+                $array_return['status'] = 'error';
+                $array_return['message'] = $errormessage;
+            }
+        }
+        ######################check rm is removing its asm district from itself###############################
+        if ($isRM && $statusFlg) {
+            $currentDistrict = $this->employee_model->get_rm_mapped_district($rm_ID);
+            $currentDistrictArray = array_map(function ($entry) {
+                return $entry['id'];
+            }, $currentDistrict);
+            $diffDistrict = array_diff($currentDistrictArray, $reqDistrict);
+            $result = $this->employee_model->get_asm_from_rm_district($diffDistrict, $rm_ID);
+            if (count($result) > 0) {
+                $stateString = implode(', ', array_map(function ($entry) {
+                            return $entry['district'];
+                        }, $result));
+                $errormessage = "RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
+                $statusFlg = false;
+                $array_return['status'] = 'error';
+                $array_return['message'] = $errormessage;
+            }
+        }
+        if ($statusFlg) {
+            // print_r($reqDistrict); 
+            if ($asmID != 0) {
+                $currentDistrict = $this->employee_model->get_rm_mapped_district($asmID);
+                $currentDistrictArray = array_map(function ($entry) {
+                    return $entry['id'];
+                }, $currentDistrict);
+                $diffDistrict = array_diff($currentDistrictArray, $reqDistrict);
+                // Above array contains all district which are currently mapped to user (ASM) but now unmapping
+                foreach ($diffDistrict as $key => $value) {
+                    $deleteResult = $this->employee_model->delete_agent_district_mapping($asmID, $value);
+                    $update_string ="asm_id = null";
+                    $this->employee_model->update_asm_rm_service_center($update_string,$value);
+                }
+                $diffNewDistrict = array_diff($reqDistrict, $currentDistrictArray);
+                foreach ($diffNewDistrict as $key => $value) {
+                    $this->employee_model->insert_agent_district_mapping($asmID, $value, $this->session->userdata('id'));
+                    $update_string ="asm_id = $asmID";
+                    $this->employee_model->update_asm_rm_service_center($update_string,$value);
+                }
+            }
+            if ($rm_ID != 0 && $rm_ID != '') {
+                $currentDistrict = $this->employee_model->get_rm_mapped_district($rm_ID);
+                $currentDistrictArray = array_map(function ($entry) {
+                    return $entry['id'];
+                }, $currentDistrict);
+                $diffDistrict = array_diff($currentDistrictArray, $reqDistrict);
+                // Above array contains all district which are currently mapped to user but now unmapping
+                foreach ($diffDistrict as $key => $value) {
+                    if ($isRM) {
+                        $deleteResult = $this->employee_model->delete_agent_district_mapping($rm_ID, $value);
+                        $update_string ="rm_id = null";
+                        $this->employee_model->update_asm_rm_service_center($update_string,$value);
+                    }
+                }
+                $diffNewDistrict = array_diff($reqDistrict, $currentDistrictArray);
+                foreach ($diffNewDistrict as $key => $value) {
+                    $this->employee_model->insert_agent_district_mapping($rm_ID, $value, $this->session->userdata('id'));
+                    $update_string ="rm_id = $rm_ID";
+                    $this->employee_model->update_asm_rm_service_center($update_string,$value);
+                }
+            }
+        }
+        echo json_encode($array_return);
     }
      
 }
