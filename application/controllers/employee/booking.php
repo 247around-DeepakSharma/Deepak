@@ -6185,6 +6185,13 @@ class Booking extends CI_Controller {
         
         echo $str_body;
     }
+    function get_city_from_pincode() {
+        $post_data = $this->input->post();
+        $data = array();
+        if (!empty($post_data['booking_pincode'])) {
+            $data = $this->vendor_model->getDistrict_from_india_pincode('', $post_data['booking_pincode']);
+        }
+        echo json_encode($data);
+    }
 
-    
 }

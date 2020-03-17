@@ -13,6 +13,7 @@ var LOW_CREDIT_MSG = "Low Balance, Please Inform Brand To Recharge Account Immed
 var modelServiceUrl = baseUrl + '/employee/booking/getModelForService/';
 var partnerChannelServiceUrl = baseUrl + '/employee/partner/get_partner_channel/';
 var CategoryCapacityForModelUrl =  baseUrl + '/employee/booking/getCategoryCapacityForModel/';
+var URLGETCITYFROMPINCODE =  baseUrl + '/employee/booking/get_city_from_pincode/';
 
 function getAppliance(service_id) {
 
@@ -72,6 +73,37 @@ function getBrandForService() {
 
 
         });
+    }
+}
+$(document).ready(function(){
+   get_city_based_on_pincode(); 
+});
+function get_city_based_on_pincode() {
+    var postData = {};
+    var pincode = $("#booking_pincode").val();
+    pincode = pincode.trim();
+    if (pincode.length == 6)
+    {
+        postData['booking_pincode'] = pincode;
+        var selectedCity = $("#booking_city").val();
+        if (postData['source_code'] !== null) {
+            sendAjaxRequest(postData, URLGETCITYFROMPINCODE).done(function (data) {
+                var data1 = jQuery.parseJSON(data);
+                $("#booking_city").html('');
+                var newOption = new Option('Select City', '', false, false);
+                $('#booking_city').append(newOption).trigger('change');
+                $.each(data1, function (i, item) {
+                    //alert(item.district);
+                     var seleted = false;
+                    if(item.district == selectedCity)
+                    {
+                        var seleted = true;
+                    }
+                    var newOption = new Option(item.district, item.district, false, seleted);
+                    $('#booking_city').append(newOption).trigger('change');
+                });                
+            });
+        }
     }
 }
 
@@ -1127,6 +1159,7 @@ function set_upcountry() {
        
             check_pincode();
             getBrandForService();
+            get_city_based_on_pincode();
         
         });
         $("#dealer_phone_number").keyup(function(){
