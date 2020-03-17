@@ -1368,7 +1368,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         //Run Escalation Data through loop to calculate final matrix(total_escalation,total_booking,escalation% etc)For each and every vendor 
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
-                if($escalation !=0 ){
+                if(!empty($escalation['escalation']) && !empty($escalation['bookings']) && !empty($escalation['rm_name']) && !empty($escalation['zone'])){
                     $tempArray= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
                        "total_booking"=>$escalation['bookings'],"total_escalation"=>$escalation['escalation'],"rm_name"=>$escalation['rm_name'],"startDate"=>$startDate,"endDate"=>$endDate,"zone"=>$escalation['zone']);
                     $esclationPercentage[]=$tempArray;
@@ -2849,9 +2849,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $join['state_code'] = 'india_pincode.state=state_code.state';
                 $groupBY = array('district');
                 $indiaPincodeArray = $this->reusable_model->get_search_result_data("india_pincode",$select,NULL,$join,NULL,NULL,NULL,NULL,$groupBY);
-                $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,service_centres.rm_id as agent_id,employee.full_name,COUNT(DISTINCT pincode) as total_pincode"; 
+                $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,service_centres.rm_id as agent_id,employee.full_name,COUNT(DISTINCT vendor_pincode_mapping.pincode) as total_pincode"; 
                 $vendorJoin['state_code'] = 'vendor_pincode_mapping.State=state_code.state';
-                $vendorJoin['service_centres'] = '(vendor_pincode_mapping.Vendor_ID = service_centres.id)';
+                $vendorJoin['service_centres'] = 'vendor_pincode_mapping.Vendor_ID = service_centres.id ';
                 $vendorJoin['employee'] = 'employee.id=service_centres.rm_id';
                 $vendorGroupBY = array('City','vendor_pincode_mapping.Appliance_ID');
                 $where = NULL;

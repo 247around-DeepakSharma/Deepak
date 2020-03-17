@@ -492,7 +492,7 @@ class User extends CI_Controller {
                 $diffStateString = "'" . implode("','", $diffState) . "'";
 
                 $result=$this->employee_model->get_asm_from_rm($diffState,$rm_ID);
-                if (is_array($result)) {
+                if (!empty($result) && is_array($result)) {
                     if (count($result) > 0) {
                         $stateString = implode(', ', array_map(function ($entry) {
                                     return $entry['state'];

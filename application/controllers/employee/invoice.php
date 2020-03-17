@@ -3350,12 +3350,15 @@ exit();
         foreach ($payment_data as $line) {
             fputcsv($output, $line);
         }
+        ob_start();
         //Download zip file
         system('zip ' . TMP_FOLDER . "payment_upload_summary" . '.zip ' . $output_file_excel . ' ' . TMP_FOLDER."payment_upload_summary.csv");
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header("Content-Disposition: attachment; filename=\"payment_upload_summary.zip\"");
-
+        if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
         $res2 = 0;
         system(" chmod 777 " . TMP_FOLDER . 'payment_upload_summary.zip ', $res2);
         readfile(TMP_FOLDER .  'payment_upload_summary.zip');
@@ -5046,6 +5049,7 @@ exit();
         $this->form_validation->set_rules('invoice_type', 'Invoice Type', 'required|trim');
         $this->form_validation->set_rules('invoice_date', 'Invoice Period', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
+        $this->form_validation->set_rules('gst_number', '247around GST Number', 'required|trim');
 
         if ($this->input->post('service_rate') > 0) {
             $this->form_validation->set_rules('service_count', 'Service QTY', 'required|trim|greater_than[0]');
@@ -5076,6 +5080,7 @@ exit();
             $service_description = $this->input->post('service_description');
             $part_description = $this->input->post('part_description');
             $reference_number = $this->input->post('reference_numner');
+            $gst_number = $this->input->post('gst_number');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
             $sd = trim($custom_date[0]);
@@ -5125,20 +5130,42 @@ exit();
                     $data['sub_category'] = DEBIT_NOTE;
                     $data['accounting'] = 1;
                 }
+                
+                $from_gst_number = (($data['type'] == "CreditNote") ? '': $gst_number);
+                $to_gst_number = (($data['type'] == "CreditNote") ? $gst_number: '');
+
+                $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $gst_number));
+                $main_company_state = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
+                    
                 $invoice = array();
                 if ($service_rate > 0) {
-                    $s = $this->get_credit_debit_note_array_data(0, $service_description, $service_rate, $data['num_bookings'], "Service", $service_gst_rate, $service_hsn_code, $entity_details[0], true);
+                    $s = $this->get_credit_debit_note_array_data(0, $service_description, $service_rate, $data['num_bookings'], "Service", $service_gst_rate, $service_hsn_code, $entity_details[0], true, $main_company_state, $from_gst_number, $to_gst_number);
                     array_push($invoice, $s[0]);
                     $hsn_code = $service_hsn_code;
                 }
 
                 if ($parts_rate > 0) {
-                    $p = $this->get_credit_debit_note_array_data(0, $part_description, $parts_rate, $data['parts_count'], "Product", $part_gst_rate, $part_hsn_code, $entity_details[0], true);
+                    $p = $this->get_credit_debit_note_array_data(0, $part_description, $parts_rate, $data['parts_count'], "Product", $part_gst_rate, $part_hsn_code, $entity_details[0], true, $main_company_state, $from_gst_number, $to_gst_number);
                     array_push($invoice, $p[0]);
                     $hsn_code = $part_hsn_code;
                 }
                 if (!empty($invoice)) {
                     $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, $type, $invoice_date);
+                    $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
+                    $response['meta']['main_company_state'] = $main_company_state;
+                    $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," . $around_gst[0]['city'];
+
+                    $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
+                    $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
+                    if (!empty($around_gst[0]['email_id'])) {
+                        $response['meta']['main_company_email'] = $around_gst[0]['email_id'];
+                    }
+                    if (!empty($around_gst[0]['contact_number'])) {
+                        $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
+                    }
+                    if (!empty($around_gst[0]['state_stamp_picture'])) {
+                        $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
+                    }
                     $response['meta']['invoice_id'] = $invoice_id;
                     $response['meta']['reference_invoice_id'] = $reference_number;
                     $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
@@ -5236,7 +5263,7 @@ exit();
     }
 
     function get_credit_debit_note_array_data($key, $description, $rate, $qty, $product_or_services, 
-            $gst_rate, $hsn_code,$partner_data,$is_gst_required){
+            $gst_rate, $hsn_code,$partner_data,$is_gst_required,$main_company_state,$from_gst_number='',$to_gst_number=''){
         $data = array();
         $data[$key]['description'] =  $description;
         $data[$key]['rate'] = $rate;
@@ -5253,13 +5280,19 @@ exit();
             $data[$key]['gst_number'] = "";
         }
         
+        if ((strcasecmp($main_company_state, $partner_data['state']) == 0)) {
+            $data[$key]['c_s_gst'] = TRUE;
+        } else {
+            $data[$key]['c_s_gst'] = FALSE;
+        }
         $data[$key]['company_name'] = $partner_data['company_name'];
         $data[$key]['company_address'] = $partner_data['company_address'];
         $data[$key]['district'] = $partner_data['district'];
         $data[$key]['pincode'] = $partner_data['pincode'];
         $data[$key]['state'] = $partner_data['state'];
         $data[$key]['hsn_code'] = $hsn_code;
-       
+        $data[$key]['from_gst_number_id'] = (!empty($from_gst_number) ? $from_gst_number : NULL);
+        $data[$key]['to_gst_number_id'] = (!empty($to_gst_number) ? $to_gst_number : NULL);
         $data[$key]['gst_rate'] = $gst_rate;
         
         return $data;
@@ -5492,8 +5525,8 @@ exit();
                 "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
                 "hsn_code" => $value['hsn_code'],
                 "total_amount" => $value['total_amount'],
-                "from_gst_number" => (!empty($value['from_gst_number']) ? $value['from_gst_number'] : NULL),
-                "to_gst_number" => (!empty($value['to_gst_number']) ? $value['to_gst_number'] : NULL),
+                "from_gst_number" => (!empty($value['from_gst_number_id']) ? $value['from_gst_number_id'] : NULL),
+                "to_gst_number" => (!empty($value['to_gst_number_id']) ? $value['to_gst_number_id'] : NULL),
                 "create_date" => (isset($value['create_date']) ? $value['create_date'] : date('Y-m-d H:i:s')),
                 "update_date" => (isset($value['update_date']) ? $value['update_date'] : date('Y-m-d H:i:s')),
             );
@@ -6059,7 +6092,7 @@ exit();
                                 if (!empty($reverse_sale_invoice_id)) {
                                     //reverse sale invoice created successfully
                                     $spare_status = $this->get_spare_part_status($spare_lost_data[0]['defective_part_shipped'], $spare_lost_data[0]['consumed_part_status_id']);
-                                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array('spare_parts_details.status' => $spare_status, 'spare_parts_details.spare_lost' => 0));
+                                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array('spare_parts_details.status' => $spare_status, 'spare_parts_details.spare_lost' => 0, 'spare_parts_details.defective_part_required' => 1));
                                     //returning reverse_sale_invoice id so that we can display reverse sale invoice pdf link to user
                                     echo $reverse_sale_invoice_id;
                                 } else {
