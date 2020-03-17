@@ -2011,3 +2011,21 @@ CREATE TABLE `cron_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `url` TEXT NU
 
 CREATE TABLE `cron_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `url` TEXT NULL DEFAULT NULL ,  `start_time` VARCHAR(25) NULL DEFAULT NULL ,  `end_time` VARCHAR(25) NULL DEFAULT NULL ,  `remark` TEXT NULL DEFAULT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `cron_logs` CHANGE `url` `cron_url` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+
+--Ghanshyam 17-03-2020-------------------------------------
+
+CREATE TABLE IF NOT EXISTS `district_state_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `state_code` int(11) NOT NULL,
+  `district` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+ALTER TABLE `district_state_mapping` ADD UNIQUE unique_state_district(state_code,district);
+
+insert into district_state_mapping(district,state_code) select distinct india_pincode.district,state_code.state_code from india_pincode inner join state_code on india_pincode.state = state_code.state where india_pincode.district is not null and india_pincode.district!='';
+
+ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
+
+-------------------------------------------------------------

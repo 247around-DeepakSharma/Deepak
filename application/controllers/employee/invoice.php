@@ -6108,7 +6108,7 @@ exit();
                                 if (!empty($reverse_sale_invoice_id)) {
                                     //reverse sale invoice created successfully
                                     $spare_status = $this->get_spare_part_status($spare_lost_data[0]['defective_part_shipped'], $spare_lost_data[0]['consumed_part_status_id']);
-                                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array('spare_parts_details.status' => $spare_status, 'spare_parts_details.spare_lost' => 0));
+                                    $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array('spare_parts_details.status' => $spare_status, 'spare_parts_details.spare_lost' => 0, 'spare_parts_details.defective_part_required' => 1));
                                     //returning reverse_sale_invoice id so that we can display reverse sale invoice pdf link to user
                                     echo $reverse_sale_invoice_id;
                                 } else {
