@@ -2045,6 +2045,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->order_by('appliance_model_details.model_number', 'asc');
         
         $this->db->join("appliance_model_details", "appliance_model_details.id = partner_appliance_details.model");
+        $this->db->join("services", "services.id = partner_appliance_details.service_id");
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
