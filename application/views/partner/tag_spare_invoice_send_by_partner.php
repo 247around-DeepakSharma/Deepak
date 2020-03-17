@@ -634,8 +634,8 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate:new Date(),//date_before_15_days,
+            maxDate: false,//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -645,8 +645,8 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: new Date(),//date_before_15_days,
+            maxDate: false,//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -672,8 +672,8 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: new Date(), //date_before_15_days,
+            maxDate: false,//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
@@ -691,8 +691,8 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: new Date(),//date_before_15_days,
+            maxDate: false,//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
