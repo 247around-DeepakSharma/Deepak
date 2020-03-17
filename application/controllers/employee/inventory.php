@@ -1231,7 +1231,10 @@ class Inventory extends CI_Controller {
                     if(!empty($booking_details['service_center_closed_date'])) {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                        $data['status'] = _247AROUND_COMPLETED;                 
+                        $data['status'] = _247AROUND_COMPLETED;
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                            $b['internal_status'] = $data['status'];
+                        }
                     }
                     
                     break;
@@ -1253,7 +1256,10 @@ class Inventory extends CI_Controller {
                     if(!empty($booking_details['service_center_closed_date'])) {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                        $data['status'] = _247AROUND_COMPLETED;                 
+                        $data['status'] = _247AROUND_COMPLETED;
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                            $b['internal_status'] = $data['status'];
+                        }
                     }
                     break;
 
@@ -1271,7 +1277,11 @@ class Inventory extends CI_Controller {
                             $data['status'] = DEFECTIVE_PARTS_PENDING;
                         } else {
                             $data['status'] = OK_PART_TO_BE_SHIPPED;
-                        }                    
+                        }                 
+
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                            $b['internal_status'] = $data['status'];
+                        }
                     }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
