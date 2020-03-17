@@ -292,6 +292,7 @@ class Dealers extends CI_Controller {
 
         $authToken = $this->initialized_variable->get_partner_data()[0]['auth_token'];
        
+        $post['session_data'] = $this->session->userdata;
         $postData = json_encode($post, true);
 
         $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
