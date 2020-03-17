@@ -363,7 +363,7 @@ class Employee_model extends CI_Model{
     */
     function get_rm_mapped_state($rmid){
         $sql= "select
-              state_code.state from state_code            
+              distinct state_code.state from state_code            
               JOIN agent_state_mapping ON (agent_state_mapping.state_code = state_code.state_code)
             WHERE
               agent_state_mapping.agent_id = '".$rmid."'";
@@ -488,4 +488,115 @@ class Employee_model extends CI_Model{
         return $query->result_array();
         }
     }
+    /**
+     * @Desc: This function is get district of all RM / ASM except current user
+     * @params: $district List, $group (areasalesmanager/regionalmanager), $currentagent
+     * @return: array
+     * @ Ghanshyam Ji Gupta
+     */
+    function get_district_of_rm_asm($district, $group, $agent) {
+        if (!empty($group) && !empty($agent)) {
+            $this->db->select('agent_state_mapping.agent_id,district_state_mapping.id,district_state_mapping.district');
+            $this->db->from('agent_state_mapping');
+            $this->db->join('district_state_mapping', 'agent_state_mapping.district_id=district_state_mapping.id');
+            $this->db->join('employee', 'agent_state_mapping.agent_id=employee.id');
+            if (!empty($district)) {
+                $this->db->where_in('district_state_mapping.id', $district);
+            }
+            $this->db->where('employee.groups', $group);
+            $this->db->where_not_in('agent_state_mapping.agent_id', $agent);
+            $query = $this->db->get();
+            //echo $this->db->last_query();
+            return $query->result_array();
+        }
+    }
+    /**
+     * @Desc: This function is get mapped district of Current User
+     * @params: $agentID
+     * @return: array
+     * @ Ghanshyam Ji Gupta
+     */
+    function get_rm_mapped_district($rmid) {
+        if (!empty($rmid)) {
+            $sql = "select
+               district_state_mapping.id from district_state_mapping
+               JOIN agent_state_mapping ON (agent_state_mapping.district_id = district_state_mapping.id)
+               WHERE
+               agent_state_mapping.agent_id = '" . $rmid . "'";
+            return $this->db->query($sql)->result_array();
+        }
+    }
+    /**
+     * @Desc: This function is used to delete record from table / Un-Mapping of states
+     * @params: $agentID
+     * @return: boolean
+     * @ Ghanshyam Ji Gupta
+     */
+    function delete_agent_district_mapping($agentID, $district) {
+        if (!empty($agentID) && !empty($district)) {
+            $sql = "delete  from agent_state_mapping where agent_id=$agentID and district_id=$district";
+            $this->db->query($sql);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @Desc: This function is used to insert record in table for mapping
+     * @params: $agentID, $district
+     * @return: boolean
+     * @ Ghanshyam Ji Gupta
+     */
+    function insert_agent_district_mapping($agentID, $district, $created_by) {
+        if (!empty($agentID) && !empty($district) && !empty($created_by)) {
+            $sql = "insert into agent_state_mapping (agent_id,state_code,district_id,created_by) select '$agentID',state_code,$district,'$created_by' from district_state_mapping where id='$district'";
+            $this->db->query($sql);
+        } else {
+            return false;
+        }
+    }
+    /**
+     * @Desc: This function is used to insert record in table for mapping
+     * @params: $agentID, $district
+     * @return: boolean
+     * @ Ghanshyam Ji Gupta
+     */
+    function get_asm_from_rm_district($district, $agent) {
+        if (!empty($district) && !empty($agent)) {
+            $this->db->select('agent_state_mapping.agent_id,district_state_mapping.district');
+            $this->db->from('agent_state_mapping');
+            $this->db->join('district_state_mapping', 'agent_state_mapping.district_id=district_state_mapping.id');
+            $this->db->join('employee_hierarchy_mapping', 'agent_state_mapping.agent_id=employee_hierarchy_mapping.employee_id');
+            $this->db->where_in('district_state_mapping.id', $district);
+            $this->db->where('employee_hierarchy_mapping.manager_id', $agent);
+            $query = $this->db->get();
+            return $query->result_array();
+        }
+    }
+    /**
+     * @Desc: This function is used to update service center rm and asm id based on district
+     * @params: $agentID, $district
+     * @return: boolean
+     * @ Ghanshyam Ji Gupta
+     */
+    function update_asm_rm_service_center($stringtoupdate, $district) {
+        if (!empty($stringtoupdate) && !empty($district)) {
+            $sql = "update service_centres   join district_state_mapping on service_centres.district = district_state_mapping.district set $stringtoupdate where district_state_mapping.id = $district";
+            $this->db->query($sql);
+        }
+    }
+    /**
+     * @Desc: This function is to get district based on state string array
+     * @params: $agentID, $district
+     * @return: boolean
+     * @ Ghanshyam Ji Gupta
+     */
+    function get_district_from_states($state_selected_string = '') {
+        if (!empty($state_selected_string)) {
+            $sql = "SELECT district_state_mapping.id,district_state_mapping.district,state_code.state FROM district_state_mapping join state_code on district_state_mapping.state_code = state_code.state_code  where state_code.state in ($state_selected_string) order by field(state_code.state,$state_selected_string),district_state_mapping.district ASC";
+            $query = $this->db->query($sql);
+            return $query->result_array();
+        }
+    }
+
 }
