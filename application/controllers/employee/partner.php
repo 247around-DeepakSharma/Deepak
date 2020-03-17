@@ -407,6 +407,7 @@ class Partner extends CI_Controller {
 //                    $this->create_booking_or_query();
 //                }   
                 $post = $this->get_booking_form_data();
+                $post['session_data'] = $this->session->userdata;
                 $postData = json_encode($post, true);
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
                 curl_setopt_array($ch, array(
