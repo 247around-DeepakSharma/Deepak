@@ -1513,7 +1513,7 @@ if($this->session->userdata("wrong_pincode_msg")){
     
     function create_arm_tat_report_table(tableRow,data){
         html='<table class="table table-striped table-bordered sub-table">'
-                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+                +'<thead><tr><th>S.no</th><th>ASM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
         if(!!data.TAT && data.TAT.length>0){
             html += "<tbody>";
             for(var i in data.TAT){
@@ -1606,7 +1606,7 @@ if($this->session->userdata("wrong_pincode_msg")){
     }
     function create_arm_open_call_tat_report_table(tableRow,data){
         html='<table class="table table-striped table-bordered sub-table">'
-                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+                +'<thead><tr><th>S.no</th><th>ASM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
         if(!!data && data.length>0){
             html += "<tbody>";
             for(var i in data){
