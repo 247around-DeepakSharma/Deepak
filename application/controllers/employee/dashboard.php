@@ -2147,9 +2147,24 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($rmID != "00"){
                 $conditionsArray['where']["employee_relation.agent_id"] = $rmID;    
             }
-            $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            // for ASM specific Bookings
+            elseif($agent_type == _247AROUND_ASM)
+            {
+                if($rmID != "00"){
+                    $conditionsArray['where']["service_centres.asm_id"] = $rmID;    
+                }   
+                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
+            }
+            // for Both RM and its ASMs Bookings
+            else
+            {
+                if($rmID != "00"){
+                    $conditionsArray['where']["(service_centres.asm_id = $rmID OR service_centres.rm_id = $rmID)"] = NULL;    
+                } 
+                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
+            } 
         }
         else{
             if($rmID != "00"){
@@ -2184,20 +2199,43 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type){
         if($is_pending){
-            $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,"
+            $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
                 . "GROUP_CONCAT( DISTINCT booking_details.booking_id) as booking_id , COUNT(DISTINCT booking_details.booking_id) as booking_count,"
                     . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) AS TAT";
         }
         else{
-               $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-        }
+               $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+               }
         $stateData = array();
         if($is_am == 0){
-            if($rmID != "00"){
-                $conditionsArray['where']["employee_relation.agent_id"] = $rmID;    
+            // check if Bookings are of RM or ASM and show them individually
+            // for RM specific Bookings
+            if($agent_type == _247AROUND_RM)
+            {
+                if($rmID != "00"){
+                    $conditionsArray['where']["service_centres.rm_id = $rmID AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0)"] = NULL;    
+                } 
+                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+                $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
             }
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
+            // for ASM specific Bookings
+            elseif($agent_type == _247AROUND_ASM)
+            {
+                if($rmID != "00"){
+                    $conditionsArray['where']["service_centres.asm_id"] = $rmID;    
+                }   
+                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
+            }
+            // for Both RM and its ASMs Bookings
+            else
+            {
+                if($rmID != "00"){
+                    $conditionsArray['where']["(service_centres.asm_id = $rmID OR service_centres.rm_id = $rmID)"] = NULL;    
+                } 
+                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
+            }
         }
         else{
             if($rmID != "00"){
