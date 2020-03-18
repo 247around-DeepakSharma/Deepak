@@ -619,6 +619,14 @@ function addBookingDialog(chanel = '') {
         return false;
     }
 
+    // Make remarks mandatory 
+    if(!is_sf_panel && ($('#query_remarks').length > 0) && ($('#query_remarks').val() == ""))
+    {
+        alert('Please Enter Remarks');
+        $('#query_remarks').focus();
+        return false;
+    }
+
     if (count_number > 1) {
 
         $('.clone_m').html("");
@@ -1260,8 +1268,8 @@ function getModelForServiceCategoryCapacity(div_id) {
                 $('.input-model').hide();
                 $('.input-model-div').hide();
                 if($.trim(postData['capacity']) !== '' || !$("#is_repeat").val()) {
-                    $('#model_number_1').val('');
-                    $('#select2-model_number_1-container').empty();
+                    //$('#model_number_1').val('');
+                    //$('#select2-model_number_1-container').empty();
                     $(".select-model#model_number_" + div_no[2]).html(obj.msg);
                 }
             }

@@ -2,7 +2,8 @@
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+// if spare is requested on any booking or the booking is invoiced to partner, then booking details can not be edited
+$str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:none;background:#eee;" : "";
 //$str_disabled = "";
 ?>
 <style>
@@ -528,7 +529,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                     </tr>
                                                     <tbody>
                                                         <?php if(!empty($prices)) { ?>
-                                                        <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
+                                                        <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) {
+                                                        // Do not show request type Installation if Spare is requested on Booking
+                                                        if($is_spare_requested && strpos(str_replace(" ", "", strtoupper($price['service_category'])), "INSTALLATION") !== false)    
+                                                        {
+                                                            continue;
+                                                        }
+                                                        ?>
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php 
@@ -633,16 +640,24 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                                     //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                                                                                     $onclick = 'onclick="check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
                                                                                 }
+                                                                                // If partner is billed against a line item do not allow to uncheck this item
+                                                                                if(!empty($tags['partner_invoice_id']))
+                                                                                {
+                                                                                    $onclick = "onclick='return false;' ";
+                                                                                }
                                                                             }
                                                                             else{ 
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
-                                                                                   //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                                                                                     $onclick = 'onclick="check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
-                                                                                }
+                                                                                    // If partner is billed against a line item , Repeat booking category can not be selected
+                                                                                    if($is_partner_invoiced){
+                                                                                        $onclick = "onclick='return false;' ";
+                                                                                    }
                                                                             }
                                                                         }
                                                                      }
+                                                                    }
                                                                     }
                                                                     
                                                                     ?>
@@ -655,9 +670,12 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-12">
+                                        <?php if($is_partner_invoiced) { echo "<b><center><span class='text-danger'>".MSG_PARTNER_INVOICED."</span></center></b>"; } ?>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                    
                     <div class="cloned">
@@ -835,8 +853,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                         foreach ($unit_details[$key]['quantity'] as  $tags) {
                                                                             if($tags['price_tags'] == $price['service_category'] ){
                                                                                echo " checked ";
+                                                                                // If partner is billed against a line item do not allow to uncheck this item
+                                                                                if(!empty($tags['partner_invoice_id']))
+                                                                                {
+                                                                                    echo " style='pointer-events:none;' ";
                                                                             }
                                                                          }
+                                                                        }
                                                                         }
                                                                         
                                                                         ?>

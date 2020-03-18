@@ -271,7 +271,7 @@ class Partner extends CI_Controller {
          */
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
-
+        //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/booking_details', $data);
@@ -772,7 +772,6 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-                        // Send Mail to all SF poc and owner Email
                          $sf_list = $this->vendor_model->viewvendor('', 1);
                         $all_poc = implode(',', array_map(function ($entry) {
                                     return $entry['primary_contact_email'];
@@ -785,7 +784,13 @@ class Partner extends CI_Controller {
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
                         $bcc = '';
                         if (count($email_list) > 0) {
-                            $bcc = implode(',', $email_list);        
+                            $email_list = array_unique($email_list);
+                            $email_list = array_filter($email_list);
+                            $email_list_String = implode(',', $email_list);
+                            $bcc = $email_list_String;
+                            $bcc_array = explode(',', $bcc);
+                            $bcc_array = array_filter($bcc_array);
+                            $bcc = implode(',', $bcc_array);
                         }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
@@ -1745,8 +1750,10 @@ class Partner extends CI_Controller {
             
             $data['is_repeat'] = $is_repeat;
             $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($data['unit_details']) ? $data['unit_details'] : [];
+            $data['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);
             $this->miscelleneous->load_partner_nav_header();
-            //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
             $this->load->view('partner/partner_footer');
         } else {
@@ -2021,7 +2028,7 @@ class Partner extends CI_Controller {
      * @param String $new_state
      * @param String $remarks
      */
-    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action, $is_cron = "") {
+    function insert_details_in_state_change($booking_id, $new_state, $remarks,$actor,$next_action, $is_cron = "", $spare_id = NULL) {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
         //Save state change
         $state_change['booking_id'] = $booking_id;
@@ -2046,7 +2053,8 @@ class Partner extends CI_Controller {
         $state_change['remarks'] = $remarks;
         $state_change['actor'] = $actor;
         $state_change['next_action'] = $next_action;
-
+        $state_change['spare_id'] = $spare_id;
+        
         // Insert data into booking state change
         $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
         if ($state_change_id) {
@@ -2156,6 +2164,14 @@ class Partner extends CI_Controller {
 
             $billable_weight = $kilo_gram . "." . $gram;
                     
+            $partner_details = $this->partner_model->getpartner($partner_id);
+            $from_city = $partner_details[0]['district'];
+            $from_state = $partner_details[0]['state'];
+            
+            $vendor_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $this->input->post('assigned_vendor_id')));
+            $to_city = $vendor_details[0]['district'];
+            $to_state = $vendor_details[0]['state'];
+            
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $this->input->post('awb')), array());
             if (empty($exist_courier_details)) {
                 $awb_data = array(
@@ -2171,7 +2187,11 @@ class Partner extends CI_Controller {
                     'courier_invoice_file' => trim($challan_file),
                     'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
                     'created_by' => 2,
-                    'is_exist' => 1
+                    'is_exist' => 1,
+                    'sender_city' => $from_city,
+                    'receiver_city' => $to_city,
+                    'sender_state' => $from_state,
+                    'receiver_state' => $to_state
                 );
 
                 $this->service_centers_model->insert_into_awb_details($awb_data);
@@ -2276,7 +2296,7 @@ class Partner extends CI_Controller {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
-                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
                         if (!empty($spare_id)) {
                             $invoide_data = array("invoice_id" => $value['invoice_id'],
@@ -2302,16 +2322,16 @@ class Partner extends CI_Controller {
                         $internal_status = SPARE_PARTS_SHIPPED;
                     }
                 } else if ($value['shippingStatus'] == -1) {
-                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "");
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
-                  
+
                     $spare_id = $value['spare_id'];
                     $status = _247AROUND_CANCELLED;
                     $remarks_by_partner = $value['remarks_by_partner'];
                     $current_status = _247AROUND_PENDING;
                     $internal_status = _247AROUND_PENDING;
 
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "");
+                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Partner Reject Spare Part", "", "","", $spare_id);
                     $response = $this->service_centers_model->update_spare_parts(array("id" => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
                     
                     if ($response) {
@@ -2323,7 +2343,8 @@ class Partner extends CI_Controller {
                          }   
                                              
                     }
-                }              
+                }
+               
                  /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
                     $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => $remarks_by_partner, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
@@ -2359,7 +2380,7 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action);
+                $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action, "", $spare_id);
 
                 $this->booking_model->update_booking($booking_id, $booking);
 //                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
@@ -2745,6 +2766,12 @@ class Partner extends CI_Controller {
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         
+        /* Insert Spare Tracking Details */
+        if (!empty($spare_id)) {
+            $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_RECEIVED, 'remarks' => DEFECTIVE_PARTS_RECEIVED, 'agent_id' => $this->session->userdata('agent_id'), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }
+
         if ($response) {
             
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_sf", array('spare_parts_details.id' => $spare_id));
@@ -2787,7 +2814,7 @@ class Partner extends CI_Controller {
                     $this->booking_model->update_booking($booking_id, $booking);
                 }
             } else {
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts", $actor,$next_action,$is_cron, $spare_id);
             }
 
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
@@ -2851,11 +2878,12 @@ class Partner extends CI_Controller {
         }
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => $spare_status, 'received_defective_part_date' => date("Y-m-d H:i:s")));
+
         /* Insert Spare Tracking Details */
-        //if (!empty($spare_id)) {
-          //  $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $spare_status, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
-          //  $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        //}
+        if (!empty($spare_id)) {
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $spare_status, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+        }
         
         if($response){
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
@@ -2873,7 +2901,6 @@ class Partner extends CI_Controller {
             $next_action = NEXT_ACTION_NOT_DEFINE;
 
             $this->notify->insert_state_change($booking_id, $spare_status, "", $spare_status, $agent_id, $agent_name, $actor, $next_action, $partner_id, "", $spare_id);
-
             $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -2912,10 +2939,10 @@ class Partner extends CI_Controller {
         if ($response) {
             
             /* Insert Spare Tracking Details */
-            //if (!empty($spare_id)) {
-              //  $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
-              //  $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-            //}
+            if (!empty($spare_id)) {
+                $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata("partner_id"), 'entity_type' => _247AROUND_PARTNER_STRING);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
 
             $actor = ACTOR_NOT_DEFINE;
             $next_action = NEXT_ACTION_NOT_DEFINE;
@@ -2941,7 +2968,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
-
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'defective_part_rejected_by_partner'=>1,
@@ -2964,10 +2991,18 @@ class Partner extends CI_Controller {
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action);
+
+            /* Insert Spare Tracking Details */
+            if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => DEFECTIVE_PARTS_REJECTED, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('agent_id'), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+            
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED,$actor,$next_action, "", $spare_id);
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $this->booking_model->update_booking($booking_id, $booking);
             }
+
             $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
@@ -3551,6 +3586,8 @@ class Partner extends CI_Controller {
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $is_repeat = $this->input->post("is_repeat");
         $contact = $this->input->post("contact");
+        $str_disabled = !empty($this->input->post("str_disabled")) ? $this->input->post("str_disabled") : "";
+        $is_partner_invoiced = !empty($this->input->post("is_partner_invoiced")) ? $this->input->post("is_partner_invoiced") : false;
         if($this->input->post("add_booking")){
             $add_booking = $this->input->post("add_booking");
         }
@@ -3585,7 +3622,11 @@ class Partner extends CI_Controller {
                 $explode = explode(",", $service_category);
             }
             foreach ($result as $prices) {
-                
+                // Do not show request type Installation if Spare is requested on Booking
+                if(!empty($str_disabled) && strpos(str_replace(" ", "", strtoupper($prices['service_category'])), "INSTALLATION") !== false)    
+                {
+                    continue;
+                }
                 $customer_total = $prices['customer_total'];
                 $partner_net_payable = $prices['partner_net_payable'];
                 $customer_net_payable = $prices['customer_net_payable'];
@@ -3623,13 +3664,22 @@ class Partner extends CI_Controller {
                             $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
+                        // If partner is billed against a line item do not allow to uncheck this item
+                        if($is_partner_invoiced)
+                        {
+                            $onclick = "onclick='return false;' ";
+                        }
                     }
                     else{
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
                             $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
-                            //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
+                            // If partner is billed against a line item , Repeat booking category can not be selected
+                            if($is_partner_invoiced)
+                            {
+                                $onclick = "onclick='return false;' ";
+                            }
                          }
                     }
                 }
@@ -4669,6 +4719,7 @@ class Partner extends CI_Controller {
             $msg = "Partner Documents has been updated successfully";
             $this->session->set_userdata('success', $msg);
         }
+		$this->session->set_flashdata('current_tab', 2);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -4711,7 +4762,7 @@ class Partner extends CI_Controller {
             //Echoing message in Log file
             log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
         }
-
+		$this->session->set_flashdata('current_tab', 3);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -4811,6 +4862,7 @@ class Partner extends CI_Controller {
                 }
             }
         }
+		$this->session->set_flashdata('current_tab', 4);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
     /**
@@ -4902,6 +4954,7 @@ class Partner extends CI_Controller {
             $this->asynchronous_lib->do_background_process($sendUrl, $eData);
             $msg = "Partner Brand has been Updated Successfully";
             $this->session->set_userdata('success', $msg);
+			$this->session->set_flashdata('current_tab', 5);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
@@ -4929,9 +4982,9 @@ class Partner extends CI_Controller {
           $is_wh = 0;
 
         if(!empty($is_wh)){
-            $where = array('is_active'=>1,'(is_wh = 1 OR is_micro_wh = 1)' => NULL);
+            $where = array('(is_wh = 1 OR is_micro_wh = 1)' => NULL);
         }else{
-            $where = array('is_active'=>1);
+            $where = array();
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
@@ -5181,6 +5234,7 @@ class Partner extends CI_Controller {
                 $this->session->set_userdata('success', $msg);
             }
         //    echo "here".$partner; die();
+		$this->session->set_flashdata('current_tab', 6);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner);
     }
     
@@ -5368,6 +5422,22 @@ class Partner extends CI_Controller {
         $this->load->view('partner/inventory_stock_list');
         $this->load->view('partner/partner_footer');
     }
+    
+    
+    /**
+     *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
+     *  @param : void
+     *  @return : void
+     */
+    function warehouse_inventory_stock(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        //$this->load->view('partner/header');
+        $this->load->view('partner/warehouse_inventory_stock_list');
+        $this->load->view('partner/partner_footer');
+    }
+    
+    
     
      /**
      *  @desc : This function is used to show the current alternate spare parts stock of partner inventory in 247around warehouse.
@@ -6160,6 +6230,7 @@ class Partner extends CI_Controller {
             $msg =  "Something went Wrong Please try again or contact to admin!!";
             $this->session->set_userdata('error', $msg);
         }
+		$this->session->set_flashdata('current_tab', 16);
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
@@ -6376,14 +6447,17 @@ class Partner extends CI_Controller {
             if (!empty($status)) {
                 log_message("info", __METHOD__ . " Data Entered Successfully");
                 $this->session->set_userdata('success', 'Data Entered Successfully');
+				$this->session->set_flashdata('current_tab', 9);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+				$this->session->set_flashdata('current_tab', 9);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Select All Field');
+			$this->session->set_flashdata('current_tab', 9);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
     }  
@@ -6466,6 +6540,7 @@ class Partner extends CI_Controller {
         }
         else{
             $this->session->set_userdata('success', $msg);
+			$this->session->set_flashdata('current_tab', 8);
             redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
         }
     }
@@ -7322,7 +7397,7 @@ class Partner extends CI_Controller {
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
                                       <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
                                       <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
-                 $tempArray[] = '<button style="min-width: 59px;" type="button" class="btn btn-primary btn-sm open-adminremarks" 
+                 $tempArray[] = '<button style="min-width: 59px;" id="button_reject_'.$row['booking_id'].'" type="button" class="btn btn-primary btn-sm open-adminremarks" 
                                                                                data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
                 $finalArray[] = $tempArray;
              }
@@ -7671,7 +7746,7 @@ class Partner extends CI_Controller {
                 'bank_name' => $this->input->post('bank_name'),
                 'account_type' => $this->input->post('account_type'),
                 'bank_account' => $this->input->post('account_number'),
-                'ifsc_code' => $this->input->post('ifsc_code'),
+                'ifsc_code' => strtoupper($this->input->post('ifsc_code')),
                 'cancelled_cheque_file' => $check_file,
                 'beneficiary_name' => $this->input->post('beneficiary_name'),
                 'ifsc_code_api_response' => $this->input->post('ifsc_validation'),
@@ -7693,14 +7768,17 @@ class Partner extends CI_Controller {
             if($action){
                 log_message("info", __METHOD__ .$msg);
                 $this->session->set_userdata('success', 'Data Entered Successfully');
+				$this->session->set_flashdata('current_tab', 10);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             } else {
                 log_message("info", __METHOD__ . " Error in adding details");
                 $this->session->set_userdata('failed', 'Data can not be inserted. Please Try Again...');
+				$this->session->set_flashdata('current_tab', 10);
                 redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
             }
         }else{
             $this->session->set_userdata('error', 'Please Fill All Bank Detail');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         } 
     }
@@ -7725,10 +7803,12 @@ class Partner extends CI_Controller {
         }
         if($update){
             $this->session->set_userdata('success', 'Bank Data Updated Successfully');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
         else{
             $this->session->set_userdata('failed', 'Data can not be updated. Please Try Again...');
+			$this->session->set_flashdata('current_tab', 10);
             redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('partner_id'));
         }
     }
@@ -7979,6 +8059,7 @@ class Partner extends CI_Controller {
             );
             $this->partner_model->edit_partner($partner, $partner_id);
         }
+		$this->session->set_flashdata('current_tab', 12);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -8037,6 +8118,7 @@ class Partner extends CI_Controller {
             if($explode_array){
             $affected_rows = $this->partner_model->deactivate_collateral($explode_array);
              if($affected_rows){
+				$this->session->set_flashdata('current_tab', 6);
                 echo "Collateral has been deactivated successfully";
             }
         }
@@ -8085,9 +8167,11 @@ class Partner extends CI_Controller {
                 }
                 $this->notify->insert_state_change($contactID, "Contact Person - ".$v,"Contact Person", $contactID." has been ".$v, $agent, $agentName, 
                         'not_define','not_define',$partner_id);
+				$this->session->set_flashdata('current_tab', 8);
                 echo "Successfully Done";
             }
             else{
+				$this->session->set_flashdata('current_tab', 8);
                 echo "Something Went Wrong Please Try Again";
             }
         }
@@ -8168,6 +8252,7 @@ class Partner extends CI_Controller {
                 }
                       $msg = "Partner Sample Pic has been updated successfully";
                        $this->session->set_userdata('success', $msg);
+					   $this->session->set_flashdata('current_tab', 7);
                   redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
 
         }
@@ -8394,6 +8479,7 @@ class Partner extends CI_Controller {
                         }
                     } else {
                         $this->session->set_userdata(array('error' => 'Duplicate entry'));
+						$this->session->set_flashdata('current_tab', 13);
                         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
                     }
                 } else {
@@ -8403,10 +8489,12 @@ class Partner extends CI_Controller {
 
             if ($flag) {
                 $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+				$this->session->set_flashdata('current_tab', 13);
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
         } else {
             $this->session->set_userdata(array('error' => 'Please Check Around Margin and Vendor Margin.'));
+			$this->session->set_flashdata('current_tab', 13);
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
@@ -8817,7 +8905,8 @@ class Partner extends CI_Controller {
                      $tempArray[] =  '<a download  target="_blank" href='.S3_WEBSITE_URL.'nrn_approvals_files/'.$row['approval_file'].'  ><span style="color: #0ce10c;font-size:40px;"><i class="fa fa-download" aria-hidden="true"></i></span></a>';  
                     }
                     
-                    $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
+                    //$tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' title='NRN Approved' ><i class='fa fa-check' aria-hidden='true'></i></span>"."<span class='btn btn-danger' title='Reverse NRN' onclick=reverse_nrn_process('".$row['booking_id']."')><span id='reverse_nrn_process".$row['booking_id']."'>Reverse NRN</span></span>";
+                    $tempArray[] =  "<span class='btn btn-danger' title='Reverse NRN' onclick=reverse_nrn_process('".$row['booking_id']."')><span id='reverse_nrn_process".$row['booking_id']."'>Reverse NRN</span></span>";
                     
                     
                     $finalArray[] = $tempArray;
@@ -8834,92 +8923,87 @@ class Partner extends CI_Controller {
 
 //  function do the NRN approval ///
 
-   function do_partner_nrn_approval() {
+   function do_partner_nrn_approval(){
 
         $booking_id = trim($this->input->post('booking_id'));
         $partner_id = $this->session->userdata('partner_id');
-        if (empty($partner_id)) {
-            $partner_id = $this->input->post('partner_id');
+        if(empty($partner_id)){
+         $partner_id = $this->input->post('partner_id');   
         }
-        $email = "Not Given";
+        $email="Not Given";
         $remarks = $this->input->post('remarks');
         if (isset($_POST['email']) && !empty($_POST['email'])) {
-            $email = $this->input->post('email');
+           $email = $this->input->post('email');
         }
-        //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
-        $allowedExts = array("PDF", "pdf", 'jpg', 'jpeg', 'png', 'PNG', 'docx', 'DOCX', 'doc', 'DOC', 'JPG', 'JPEG');
+      //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
+        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC','JPG','JPEG');
         $approval_file_name = "Not Uploaded";
-        if (isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])) {
-            $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
+        if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
+           $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
         }
 
         $data_nrn = array(
-            'booking_id' => $booking_id,
-            'email_to' => trim($email),
-            'approval_file' => $approval_file_name,
-            'remark' => trim($remarks)
+            'booking_id'=>$booking_id,
+            'email_to'=>trim($email),
+            'approval_file'=>$approval_file_name,
+            'remark'=>trim($remarks)
         );
-
+ 
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
-            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory, $where_inventory);
-
-            $review_counter = 0;
-            $sc_action = array();
-            foreach ($spare_inventory_update as $update_pending) {
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+            
+            $review_counter=0;
+            $sc_action=array();
+            
+            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['tag' => PART_SHIPPED_BUT_NOT_USED_TAG], NULL, NULL, NULL, NULL, NULL)[0];
+            //fetch spare consumption reason for part shipped but not used
+            foreach ($spare_inventory_update as  $update_pending) {
 
 
                 if (!empty($update_pending['shipped_date'])) {
+                   
+                $where = array('id' => trim($update_pending['id']));
+                $data = array(
+                    'nrn_approv_by_partner'=>1,
+                    'status' => OK_PART_TO_BE_SHIPPED,
+                    'consumed_part_status_id' => $spare_consumption_status_tag['id']
+                );
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
 
-                    $where = array('id' => trim($update_pending['id']));
-                    $data = array(
-                        'nrn_approv_by_partner' => 1
-                    );
-                    $response = $this->service_centers_model->update_spare_parts($where, $data);
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
                     $tracking_details = array('spare_id' => $update_pending['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
-                    $unit_array = array(
-                        'serial_number' => $update_pending['serial_number'],
-                        'sf_model_number' => $update_pending['model_number'],
-                        'serial_number_pic' => $update_pending['serial_number_pic']
-                    );
-                    //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
+                $unit_array = array(
+                    'serial_number' => $update_pending['serial_number'],
+                    'sf_model_number' => $update_pending['model_number'],
+                    'serial_number_pic' => $update_pending['serial_number_pic']
+                );
+                 //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
-                    if (!empty($update_pending['serial_number'])) {
-                        $sc_action['serial_number'] = $update_pending['serial_number'];
-                    }
-                    if (!empty($update_pending['model_number'])) {
-                        $sc_action['model_number'] = $update_pending['model_number'];
-                    }
-                    if (!empty($update_pending['serial_number_pic'])) {
-                        $sc_action['serial_number_pic'] = $update_pending['serial_number_pic'];
-                    }
+                if (!empty($update_pending['serial_number'])) {
+                    $sc_action['serial_number']=$update_pending['serial_number'];
+                }
+                if (!empty($update_pending['model_number'])) {
+                    $sc_action['model_number']=$update_pending['model_number'];
+                }
+                if (!empty($update_pending['serial_number_pic'])) {
+                    $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
+                }
 
-                    $review_counter++;
-                } else {
+                $review_counter++;
 
-                    $where = array('id' => trim($update_pending['id']));
-                    $data = array(
-                        'status' => _247AROUND_CANCELLED,
-                        'nrn_approv_by_partner' => 1
-                    );
-                    $response = $this->service_centers_model->update_spare_parts($where, $data);
-                    if (!empty($update_pending['serial_number'])) {
-                        $sc_action['serial_number'] = $update_pending['serial_number'];
-                    }
-                    if (!empty($update_pending['model_number'])) {
-                        $sc_action['model_number'] = $update_pending['model_number'];
-                    }
-                    if (!empty($update_pending['serial_number_pic'])) {
-                        $sc_action['serial_number_pic'] = $update_pending['serial_number_pic'];
-                    }
+                }
+                else if (strtoupper($update_pending['status']) == _247AROUND_CANCELLED) {
+                    // Do nothing do not update nrn_approved_by_partner = 1;
+                } 
+                else{
 
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
@@ -8944,87 +9028,91 @@ class Partner extends CI_Controller {
                     $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
                 }
 
-                    if ($update_pending['entity_type'] == _247AROUND_SF_STRING) {
 
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+                if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
+                    
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+                }
+                $booking_details_unit_id = $update_pending['booking_unit_details_id'];
+                    if ($booking_details_unit_id != '') {
+                        $data_booking_unit_detail['booking_status'] = _247AROUND_CANCELLED;
+                        $where_booking_unit_detail['id'] = $booking_details_unit_id;
+                        $this->booking_model->update_booking_unit_details_by_any($where_booking_unit_detail, $data_booking_unit_detail);
                     }
+                    
                 }
+   
             }
 
-
-            $booking['internal_status'] = NRN_APPROVED_BY_PARTNER;
-            $booking['current_status'] = _247AROUND_PENDING;
-            $actor = "";
-            $next_action = "";
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
-
-            if (!empty($partner_status)) {
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-                $actor = $booking['actor'] = $partner_status[2];
-                $next_action = $booking['next_action'] = $partner_status[3];
-                $booking['nrn_approved'] = 1;
-            }
-            $this->booking_model->update_booking($booking_id, $booking);
-
-            $data_service_center = array(
-                'current_status' => "InProcess",
-                'internal_status' => NRN_APPROVED_BY_PARTNER,
-            );
-
-
-            $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
-            /// Move To Review Booking ///
-            if ($review_counter == 0) {
-                $review_update_array = array(
-                    'current_status' => 'Pending',
-                    'internal_status' => SF_BOOKING_COMPLETE_STATUS,
-                    'actor' => '247Around'
-                );
-                // $this->booking_model->update_booking($booking_id, $review_update_array);
-
-                if (!empty($sc_action['serial_number'])) {
-                    $serial_number = $sc_action['serial_number'];
-                } else {
-                    $serial_number = NULL;
+        
+                    $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
+                    $booking['current_status'] = _247AROUND_PENDING;
+                    $actor="";
+                    $next_action="";
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
+                
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                    $booking['nrn_approved'] = 1;
                 }
-                if (!empty($sc_action['serial_number_pic'])) {
-                    $serial_number_pic = $sc_action['serial_number_pic'];
-                } else {
-                    $serial_number_pic = NULL;
-                }
-                if (!empty($sc_action['model_number'])) {
-                    $model_number = $sc_action['model_number'];
-                } else {
-                    $model_number = NULL;
-                }
-                $data_service_center_review = array(
-                    'current_status' => 'InProcess',
-                    'internal_status' => 'Completed',
-                    'serial_number' => $serial_number,
-                    'model_number' => $model_number,
-                    'serial_number_pic' => $serial_number_pic
+                $this->booking_model->update_booking($booking_id, $booking);
+
+               $data_service_center=array(
+                        'current_status'=>"InProcess",
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER,
                 );
 
-                //$this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
+
+               $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+              
+
+                $new_state=NRN_APPROVED_BY_PARTNER;
+                $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+            echo "1";   
+        }else{
+           echo "0";
+        }
+       
+    }
+
+
+
+    /**
+     * @Desc: This function is for reversal of approverd NRN booking(ajax request)
+     * @params: void
+     * @return: NULL
+     * @author Ghanshyam
+     * @date : 24-02-2020
+     */
+    function reverse_nrn_process() {
+        if ($this->input->post('booking_id')) {
+            $booking_id = trim($this->input->post('booking_id'));
+            $select = 'booking_details.id';
+            $partner_id = $this->session->userdata('partner_id');
+            $where = array('booking_id' => $booking_id, 'nrn_approved' => 1, 'partner_id' => $partner_id);
+            $data = $this->booking_model->get_bookings_count_by_any($select, $where);
+
+            if (count($data) > 0) {
+                $booking['nrn_approved'] = 0;
+                $this->booking_model->update_booking($booking_id, $booking);
+                $data_service_center = array(
+                    'current_status' => "InProcess",
+                    'internal_status' => "InProcess",
+                );
+                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+                echo 1;
             } else {
-
-                $review_update_array = array(
-                    'actor' => 'Vendor'
-                );
-                $this->booking_model->update_booking($booking_id, $review_update_array);
+                echo 0;
             }
-
-            $new_state = NRN_APPROVED_BY_PARTNER;
-            $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
-
-            echo "1";
         } else {
-            echo "0";
+            echo 0;
         }
     }
 
-    
+
     /**
      * 
      * @param type $partner_id
@@ -9035,8 +9123,10 @@ class Partner extends CI_Controller {
             if(in_array('all', $post_data['service_center_id'])) {
                 unset($post_data['service_center_id'][array_search('all', $post_data['service_center_id'])]);
             }
+			$this->session->set_flashdata('current_tab', 17);
             $this->partner_model->insert_en_vendor_brand_mapping($partner_id, $post_data['service_center_id']);
         } else {
+			$this->session->set_flashdata('current_tab', 17);
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
     }

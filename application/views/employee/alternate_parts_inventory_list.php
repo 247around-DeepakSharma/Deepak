@@ -80,7 +80,7 @@
             <div class="form-group">
                 <div class="form-group col-md-4">
                     <select class="form-control" id="spare_parts_inventory_id">
-                        <option value="" selected="" disabled="">Select Spare Part</option>
+                        <option value="" selected="" disabled="">Select Spare Number</option>
                     </select>
                 </div>
                 <button class="btn btn-success col-md-2" id="get_inventory_data">Submit</button>
@@ -126,14 +126,14 @@
     var entity_type = '';
     var entity_id = '';
     var time = moment().format('D-MMM-YYYY');
-    $('#inventory_service_id,#spare_parts_inventory_id').select2({
+    $('#inventory_service_id').select2({
         allowClear: true,
         placeholder: 'Select Appliance'
     });
     
     $('#spare_parts_inventory_id').select2({
         allowClear: true,
-        placeholder: 'Select Spare Part'
+        placeholder: 'Select Spare Number'
     });
     
     $(document).ready(function(){
@@ -157,7 +157,7 @@
         }
         
         if(spare_parts_inventory_id == '' || spare_parts_inventory_id == null){
-            alert("Please Select Spare Part"); 
+            alert("Please Select Spare Number"); 
             return false;
         }
         

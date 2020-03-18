@@ -1,4 +1,5 @@
 <form id="change-consumption-form" method="post" action="#" enctype="multipart/form-data">
+    <center><img id="loader_gif" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
     <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value=''>
     <div class="row form-group" style="padding: 10px;"> 
         <div class="col-md-2"> 
@@ -32,13 +33,13 @@
             <label>Weight</label>
         </div>        
         <div class="col-md-4"> 
-            <input type="number" class="form-control" style="width: 100%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight"> 
+            <input type="text" class="form-control" style="width: 100%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight"> 
         </div>
          <div class="col-md-2"> 
             <label><strong> in KG</strong> </label>
         </div> 
         <div class="col-md-4">
-            <input type="number" class="form-control" style="width: 50%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight">&nbsp;<strong>in Gram </strong>   
+            <input type="text" class="form-control" style="width: 50%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight">&nbsp;<strong>in Gram </strong>   
         </div>        
     </div> 
     <div class="row form-group" style="padding: 10px;"> 
@@ -51,7 +52,7 @@
     </div>
     <div class="row form-group"> 
         <div class="col-md-12" style="text-align: center; padding: 5px;"> 
-        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption" value="Submit" class="btn btn-primary">
+            <input type="submit" name="change-consumption" id="received_button" class="btn btn-primary change-consumption" value="Submit">
         </div>
     </div>
 </form>
@@ -141,7 +142,8 @@
             }
             e.preventDefault();
             var formData = new FormData(this);
-
+            $("#loader_gif").css('display','block');
+            $("#received_button").attr('disabled', 'disabled');
             $.ajax({
                 type:'POST',
                 url: "<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
@@ -151,6 +153,8 @@
                 processData: false,
                 success:function(data){
                     alert(data);
+                    $("#loader_gif").css('display','none');
+                    $('#received_button').removeAttr("disabled");
                     $('#SpareConsumptionModal').modal('hide');
                     inventory_spare_table.ajax.reload();
                 },
@@ -171,6 +175,7 @@
         "click": function () {
             var weight_kg = $(this).val();
             var weight_gram = $("#defective_parts_shipped_weight_in_gram").val();
+
             if(weight_kg !=''){
                 var regex = /^[0-9\s]*$/;
                 isValid = regex.test(weight_kg);
@@ -239,6 +244,14 @@
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
@@ -296,9 +309,29 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
+            }
             if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
+            }
+
+        },
+        "mouseout": function () {
+            var weight_kg = $(this).val();
+            if(weight_kg !=''){
+                var regex = /^[0-9\s]*$/;
+                isValid = regex.test(weight_kg);
+                if(!isValid){
+                    $(this).val('');
+                    return false;  
+                }
             }
         },
         "mouseout": function () {

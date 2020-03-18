@@ -25,6 +25,10 @@ define('_247AROUND_WHATSAPP_NUMBER', '9555000247');
 define('VIDEOCON_NOT_PICKED_SMS_TAG', 'videocon_not_picked_sms');
 define('VIDEOCON_CANCELLED_BOOKING_TAG', 'videocon_cancelled_booking_sms');
 define('APPLIANCE_INSTALLATION_VIDEO_LINK', 'appliance_installation_video_link');
+
+define('ASSIGN_ENGG_NOTIFICATION', 'send_notification_on_engg_assign');
+
+
 //define('VIDEOCON_STATES_WHATSAPP_NUMBER', array("Uttar Pradesh" => "8448759247", "Delhi" => "8130070247", "Maharashtra" => "8130070247", "Gujarat" => "8130070247"));
 
 

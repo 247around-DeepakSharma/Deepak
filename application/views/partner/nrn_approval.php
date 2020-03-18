@@ -49,7 +49,7 @@
                                         <th class="text-center">Problem Description</th>
                                         <th class="text-center">NRN Remark</th>
                                         <th class="text-center">Approval File</th>
-                                        <th data-sortable="false" class="text-center"> NRN Status</th>
+                                        <th data-sortable="false" class="text-center"> Reverse NRN</th>
 
                         </tr>
                     </thead>
@@ -118,7 +118,37 @@
     function booking_search(){
              nrn_table.ajax.reload();
              }
-
+   function reverse_nrn_process(booking_id)
+   {
+       var confirm_message = confirm('Are you sure to Reverse NRN for this booking.');
+       if(confirm_message)
+       {
+        var dataString = "booking_id="+booking_id;
+        $.ajax({
+            method: 'post',
+            url: '<?php echo base_url(); ?>employee/partner/reverse_nrn_process',
+            data: dataString,
+            beforeSend: function()
+           {
+               $("#reverse_nrn_process"+booking_id).addClass('fa-spin');
+           },
+           success: function(data)
+             {
+                 data=data.trim();
+                 if(data==1)
+                 {
+                    $("#reverse_nrn_process"+booking_id).removeClass('fa-spin');
+                    alert('Reverse NRN done successfully for booking: '+booking_id);
+                    booking_search();
+                }
+                else
+                {
+                    alert('Something Went Wrong, Please try again.');
+                }
+             }
+        });
+       }
+   }
 
 
 

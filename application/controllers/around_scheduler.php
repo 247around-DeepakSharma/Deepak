@@ -1160,9 +1160,16 @@ class Around_scheduler extends CI_Controller {
                 . "sf_not_exist_booking_details sf INNER JOIN booking_details  ON sf.booking_id=booking_details.booking_id WHERE sf.rm_id IS NULL  GROUP BY sf.pincode";
         $affectedRows = $this->reusable_model->execute_custom_insert_update_delete_query($sql);
         if ($affectedRows > 0) {
-            $getRmSql = "SELECT india_pincode.pincode,employee_relation.agent_id as rm_id,india_pincode.state FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN employee_relation ON
-FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
-      GROUP BY india_pincode.pincode";
+            $getRmSql = "SELECT 
+                            india_pincode.pincode,
+                            agent_state_mapping.agent_id as rm_id,
+                            india_pincode.state
+                        FROM 
+                            india_pincode
+                            INNER JOIN state_code ON state_code.state=india_pincode.state
+                            LEFT JOIN agent_state_mapping ON (agent_state_mapping.state_code = state_code.state_code)
+                        WHERE india_pincode.pincode IN (SELECT sf.pincode FROM sf_not_exist_booking_details sf WHERE sf.rm_id IS NULL GROUP BY sf.pincode)
+                        GROUP BY india_pincode.pincode";
             $result = $this->reusable_model->execute_custom_select_query($getRmSql);
             if ($result) {
                 foreach ($result as $data) {
@@ -2133,14 +2140,23 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             );
         $this->table->set_template($table_template);
         $this->table->set_heading(array('Regional Manager', 'Penalty Resson', 'Total Bookings', 'Total penalty', 'Penalty Amount'));
-        $query = "select employee.full_name, penalty_details.criteria, count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, 
-                count(penalty_on_booking.id) as total_penalty_count, SUM(penalty_on_booking.penalty_amount) as penalty_amount 
-                from penalty_on_booking join employee_relation on FIND_IN_SET(penalty_on_booking.service_center_id, employee_relation.service_centres_id) 
-                join employee on employee.id = employee_relation.agent_id 
-                join penalty_details on penalty_details.id = penalty_on_booking.criteria_id 
-                WHERE penalty_remove_reason IS NULL AND penalty_on_booking.create_date >= '".$start_date."' AND penalty_on_booking.create_date <= '".$end_date."'
-                group by criteria_id, employee_relation.agent_id 
-                ORDER BY `employee`.`full_name` ASC";
+        $query = "select 
+                    employee.full_name,
+                    penalty_details.criteria,
+                    count(DISTINCT penalty_on_booking.booking_id) as total_booking_id, 
+                    count(penalty_on_booking.id) as total_penalty_count,
+                    SUM(penalty_on_booking.penalty_amount) as penalty_amount 
+                from 
+                    penalty_on_booking
+                    join service_centres ON (penalty_on_booking.service_center_id = service_centres.id)
+                    join employee ON employee.id = service_centres.rm_id
+                    join penalty_details on penalty_details.id = penalty_on_booking.criteria_id 
+                WHERE
+                    penalty_remove_reason IS NULL AND penalty_on_booking.create_date >= '".$start_date."' AND penalty_on_booking.create_date <= '".$end_date."'
+                group by
+                    criteria_id, service_centres.rm_id 
+                ORDER BY 
+                    `employee`.`full_name` ASC";
         $data = $this->reusable_model->execute_custom_select_query($query);
         if(!empty($data)){
             $table = $this->table->generate($data);
@@ -2615,6 +2631,28 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     }
 
 
+   
+    
+    /**
+     * @desc This is used to validate gst for all active vendors
+     * @param Array $upload_serial_number_pic
+     * @return boolean
+     * Ghanshyam
+     */
+    function get_all_vendors_to_validate_sf_gst() {
+        $allVendors = $this->vendor_model->viewvendor('', 1);
+        foreach ($allVendors as $key => $value) {
+            $vendorID = $value['id'];
+            $vendorGstNumber = $value['gst_no'];
+            if (!empty($vendorGstNumber)) {
+                $status = $this->invoice_lib->get_gstin_status_by_api($vendorID);
+            }
+        }
+    }
+
+
+
+
      /**
      * @desc This is used manage and update engg not using the APP
      * @param 
@@ -2622,9 +2660,22 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * Abhishek Awasthi
      */
     function check_app_uninstall() {
+
+
+        $cron =  $this->miscelleneous->get_uri_called();
+        $start_time = time();
+        $remark="";
         $select = "id,device_firebase_token";
         $where = array('active'=>1);
         $result = $this->engineer_model->get_active_engineers($select,$where);
+
+
+        try{
+
+          if(empty($result)) {
+                throw new Exception("Engineers Data is not available");
+          }
+
 
         foreach($result as $engineer){
         $msg = array
@@ -2654,40 +2705,36 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         curl_close($ch);
 
         $rowData['fire_base_response'] = $result;
-
+        $remark = "Cron has been executed ";
         $json_res = json_decode($result);
         if ($json_res->success) {
             // ENNG IS ACTIVE ON APP ///
             $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>1));
-            echo "Installed";
+            echo "Installed".PHP_EOL;
         } else {
             // IF NOT  REGISTERED THEN IT MEANS HE HAS UNINSTALLED //
             if(!empty($json_res->results[0]->error) && $json_res->results[0]->error='NotRegistered'){
                 $this->vendor_model->update_engineer(array('id'=>$engineer->id), array('installed'=>0));
-                echo "Uninstalled";
+                echo "Uninstalled".PHP_EOL;
             }
            
         }
 
         }
 
-    }
-    
-    /**
-     * @desc This is used to validate gst for all active vendors
-     * @param Array $upload_serial_number_pic
-     * @return boolean
-     * Ghanshyam
-     */
-    function get_all_vendors_to_validate_sf_gst() {
-        $allVendors = $this->vendor_model->viewvendor('', 1);
-        foreach ($allVendors as $key => $value) {
-            $vendorID = $value['id'];
-            $vendorGstNumber = $value['gst_no'];
-            if (!empty($vendorGstNumber)) {
-                $status = $this->invoice_lib->get_gstin_status_by_api($vendorID);
-            }
-        }
+     }catch(Exception $e) {
+        $remark = "Cron is not executed because : ".$e->getMessage();
+     }
+        $end_time = time();
+        $data = array(
+            'cron_url'=> $cron,
+            'start_time'=> $start_time,
+            'end_time' => $end_time,
+            'remark'=> $remark
+        );
+
+        $this->around_scheduler_model->save_cron_log($data);
+
     }
 
 }

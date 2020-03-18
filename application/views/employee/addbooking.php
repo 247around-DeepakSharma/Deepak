@@ -493,6 +493,7 @@
     var cloneIndex = $(".clonedInput").length +1;
 
     function clone(){
+		
         $('.select-model').select2("destroy");
        $(this).parents(".clonedInput").clone()
            .appendTo(".cloned")
@@ -512,7 +513,9 @@
            $('#priceList_'+cloneIndex).html("");
            $('#order_item_id_'+cloneIndex).val("");
            $('#purchase_date_'+cloneIndex).val("");
-           
+		   $('#description_'+cloneIndex).val("");
+		   $('#appliance_capacity_'+cloneIndex).val("");
+          
            $('.purchase_date').each(function () {
                 if ($(this).hasClass('hasDatepicker')) {
                     $(this).removeClass('hasDatepicker');

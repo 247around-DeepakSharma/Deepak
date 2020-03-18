@@ -198,6 +198,9 @@ class Booking extends CI_Controller {
             }
             // Do not un comment until serial input added in the form
             // $serial_number = $this->input->post('serial_number');
+            
+            $serial_number = !empty($this->input->post('serial_number')) ? $this->input->post('serial_number') : "";
+            $serial_number_pic = !empty($this->input->post('serial_number_pic')) ? $this->input->post('serial_number_pic') : "";
 
             $partner_net_payable = $this->input->post('partner_paid_basic_charges');
             $appliance_description = $this->input->post('appliance_description');
@@ -234,6 +237,9 @@ class Booking extends CI_Controller {
                 $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
                 $services_details['partner_id'] = $booking['partner_id'];
                 $services_details['sub_order_id'] = trim($order_item_id[$key]);
+                // save serial number and serial number pic in booking_unit_details and service_center_booking_action if request type is changed           
+                $services_details['serial_number'] = $serial_number;
+                $services_details['serial_number_pic'] = $serial_number_pic;
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance 
                  * details other wise insert appliance details and return appliance id
@@ -306,8 +312,14 @@ class Booking extends CI_Controller {
 
                     $prices = explode("_", $values);  // split string..
                     $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
-
-                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    if(!empty($discount[$brand_id][$key + 1][$services_details['id']][0]))
+                    {
+                        $services_details['around_paid_basic_charges'] = $discount[$brand_id][$key + 1][$services_details['id']][0];
+                    }
+                    else
+                    {
+                        $services_details['around_paid_basic_charges'] =    0;
+                    }
                     $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$key + 1][$services_details['id']][0];
                     $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
                     $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
@@ -609,6 +621,13 @@ class Booking extends CI_Controller {
             switch ($booking_id) {
 
                 case INSERT_NEW_BOOKING:
+                    // Save Booking Creater Id and Source
+                    $created_by = !empty($this->session->userdata('id')) ? $this->session->userdata('id') : "";
+                    $created_source = !empty($this->session->userdata('user_source')) ? $this->session->userdata('user_source') : "";
+                    $created_by_agent_type = !empty($this->session->userdata('userType')) ? $this->session->userdata('userType') : "";
+                    $booking['created_by_agent_type'] = $created_by_agent_type;
+                    $booking['created_by_agent_id'] = $created_by;
+                    $booking['created_source'] = $created_source;
                     $booking['create_date'] = date("Y-m-d H:i:s");
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
@@ -1780,9 +1799,10 @@ class Booking extends CI_Controller {
             }
             //get engineer name
             if ($data['booking_history'][0]['assigned_engineer_id']) {
-                $engineer_name = $this->engineer_model->get_engineers_details(array("id" => $data['booking_history'][0]['assigned_engineer_id']), "name");
+                $engineer_name = $this->engineer_model->get_engineers_details(array("id" => $data['booking_history'][0]['assigned_engineer_id']), "name,phone");
                 if (!empty($engineer_name)) {
                     $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
+                    $data['booking_history'][0]['engineer_phone'] = $engineer_name[0]['phone']; // Engineer Phone //
                 }
             }
 
@@ -1897,6 +1917,7 @@ class Booking extends CI_Controller {
         }
  */
        
+        //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
@@ -2001,7 +2022,10 @@ class Booking extends CI_Controller {
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);      
         if($booking){            
             $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);  
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking); 
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+            $booking['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);            
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -2569,8 +2593,12 @@ class Booking extends CI_Controller {
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+            $this->notify->insert_state_change($booking_id, _247AROUND_COMPLETED, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            if($booking['internal_status'] != _247AROUND_COMPLETED) {
+                $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            }
             if($booking['internal_status'] == _247AROUND_COMPLETED){
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $send['booking_id'] = $booking_id;
@@ -3481,10 +3509,13 @@ class Booking extends CI_Controller {
         else {
             $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         }
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $vendorWhere['employee_relation.agent_id'] = $rm_id;
-            $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
+            $vendorWhere['service_centres.rm_id'] = $rm_id;
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $vendorWhere['service_centres.asm_id'] = $asm_id;
         }
         $request_type=array('Repair','Installation');
         $data['request_type']=$request_type;
@@ -3515,9 +3546,15 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("asm_id"=>$asm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -3696,8 +3733,7 @@ class Booking extends CI_Controller {
              $post['where']['booking_details.actor'] =  $actor;
         }
         if(!empty($rm_id)){
-             $post['where']['employee_relation.agent_id'] =  $rm_id;
-             $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
+             $post['where']['service_centres.rm_id'] =  $rm_id;             
         }
         if(!empty($am_id)){
              $post['where']["agent_filters.agent_id"] = $am_id;
@@ -4333,12 +4369,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $str_reassign_disabled = "";
-        if(!empty($order_list->service_center_closed_date) && $order_list->internal_status != SF_BOOKING_CANCELLED_STATUS)
-        {
-            $str_reassign_disabled = "disabled";
-        }
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color $str_reassign_disabled' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5280,9 +5311,15 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
+        if($this->session->userdata('user_group') == _247AROUND_RM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("service_centres","group_concat(service_centres.id) as service_centres_id",array("rm_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
+            $sfIDArray = explode(",",$sfIDList);
+        }
+        if($this->session->userdata('user_group') == _247AROUND_ASM){
+            $asm_id = $this->session->userdata('id');
+            $rmServiceCentersData=  $this->reusable_model->get_search_result_data("service_centres","group_concat(service_centres.id) as service_centres_id",array("asm_id"=>$asm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -5309,14 +5346,14 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
-            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
              service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
              booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
             
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1); 
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',1); 
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
@@ -5567,7 +5604,13 @@ class Booking extends CI_Controller {
                 $arrBookingsData = array_filter($arrBookingsData);                
                 $arrBookingsData = array_chunk($arrBookingsData, 50);
                 $data['bookings_data'] = $arrBookingsData;
-            }   
+            }
+            if (!empty($data['charges'])) {
+                foreach ($data['charges'] as $key => $value) {
+                    $bookingID = $value['booking_id'];
+                    $data['bookings_comment_count'][$bookingID] = count($this->booking_model->get_remarks(array('booking_id' => $bookingID, "isActive" => 1, 'comment_type' => 1)));
+                }
+            }
             // Function ends here
             $data['data_id'] = $data_id;
             $this->load->view('employee/completed_cancelled_review', $data);
@@ -5866,10 +5909,14 @@ class Booking extends CI_Controller {
             }
         }
     }
-            /**
+
+    /**
      * @desc: This function is used to update both Bookings and Queries.
+     * @param type $user_id
+     * @param type $booking_id
+     * @param type $insert_state_change : defines whether to insert entry in booking state change table or not
      */
-    function update_booking_by_sf($user_id, $booking_id) {
+    function update_booking_by_sf($user_id, $booking_id, $do_not_insert_state_change = 0) {
         $bookings = array($booking_id);
         if($booking_id != INSERT_NEW_BOOKING){
             $bookings = $this->booking_model->getbooking_history($booking_id);
@@ -6112,6 +6159,9 @@ class Booking extends CI_Controller {
         if($booking){
             $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
             $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
+            // Check if any line item against booking is invoiced to partner or not
+            $arr_booking_unit_details = !empty($booking['unit_details'][0]['quantity']) ? $booking['unit_details'][0]['quantity'] : [];
+            $booking['booking_history']['is_partner_invoiced'] = $this->booking_utilities->is_partner_invoiced($arr_booking_unit_details);           
             $booking['allow_skip_validations'] = 1;
             $this->miscelleneous->load_nav_header();
             $this->load->view('service_centers/update_booking', $booking);    

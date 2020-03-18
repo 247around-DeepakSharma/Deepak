@@ -52,6 +52,7 @@
                                                 $statusShow = 'Inactive';
                                             }
                                             ?>
+                                            
                                         <td class="text-center"><span id='status_s<?php echo $row['id']; ?>'><?php echo $statusShow; ?></span></td>
                                         <td class="text-center"><a type="button" class="btn btn-info" href="<?php echo base_url() . "employee/accessories/edit_accessories/" . $row['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a></td>
 

@@ -322,6 +322,7 @@
                     <input type="hidden" name="part[<?php echo $key;?>][spare_id]"  id="<?php echo "spare_id_".$key; ?>" value="<?php echo $value->id;?>">
 <!--                    <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">-->
                     <input type="hidden" id="<?php echo "estimatecostgivendate_".$key ?>" name= "part[<?php echo $key;?>][estimate_cost_given_date_h]" value="<?php echo $value->estimate_cost_given_date; ?>">
+                    <input type="hidden" name= "part[<?php echo $key;?>][spare_part_warranty_status]" value="<?php echo $value->part_warranty_status ;?>">
                     <?php } ?>
                     
                     <div id="template" class="hide">
@@ -651,8 +652,8 @@
     $('#shipment_date').daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
-        maxDate: someDate,
-        minDate:false,
+        maxDate: false,
+        minDate:new Date(),
         locale:{
             format: 'YYYY-MM-DD'
         }

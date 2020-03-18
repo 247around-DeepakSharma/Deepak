@@ -147,7 +147,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                            <?php $count =1;$initial_offset = $offset; foreach ($charges as $key => $value) { ?>
                             <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               <?php $offset++ ;?>
-                              <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?></td>
+                              <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?>
+                                <?php if ($value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                              </td>
                               
                               <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
@@ -279,7 +281,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                     ?>
                               <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
                               <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" onclick="open_admin_remarks_modal('<?php echo $value['booking_id']; ?>')"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
-                              <a style="margin-top:5px;" class="btn btn-success" id='<?php echo 'comment_'.$count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i></a>
+                              <a style="margin-top:5px;position: relative;" class="btn btn-success" id='<?php echo 'comment_' . $count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i>
+                                      <?php
+                                      if (isset($bookings_comment_count[$value['booking_id']]) && $bookings_comment_count[$value['booking_id']] > 0) {
+                                          ?>
+                                          <span class='comment_count'><?php echo $bookings_comment_count[$value['booking_id']]; ?></span>                        
+                                          <?php
+                                        }
+                                      ?>
+                                  </a>
                               </td>
                            
                             </tr>
@@ -357,6 +367,18 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
          </div>
       </div>
    </div>
+<style>
+    .comment_count
+    {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        width: 20px;
+        height: 20px;
+        background: #df4848;
+        border-radius: 10px;
+    }
+</style>
 <script>
     $('.download').on('click', function() {
         var download_btn = $(this).attr('name');

@@ -163,7 +163,8 @@ class Login extends CI_Controller {
                 'user_group'=> $groups,
             'official_email'=>$official_email,
             'emp_name' => $emp_name,
-            'is_am' => $is_am
+            'is_am' => $is_am,
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
 //        if($this->db->login_partner_id){
@@ -292,7 +293,8 @@ class Login extends CI_Controller {
             'partners' => $partner_data,
             'sess_expiration' => 30000,
             'loggedIn' => TRUE,
-            'userType' => 'dealers'
+            'userType' => 'dealers',
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
          $this->session->set_userdata($userSession);
@@ -407,6 +409,7 @@ class Login extends CI_Controller {
             'is_filter_applicable' => $filter,
             'review' => $review,
             'emp_name' => $agentName,
+            'user_source' => BOOKING_SOURCE_CRM
         );
         
         $this->session->set_userdata($userSession);
@@ -554,7 +557,8 @@ class Login extends CI_Controller {
         $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
         $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
         $login_data['is_login_by_247'] = $is_login_by_247;
-        $login_id = $this->employee_model->add_login_logout_details($login_data);
+        $login_id = 1;
+//        $login_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($login_id) {
             log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['agent_id']);

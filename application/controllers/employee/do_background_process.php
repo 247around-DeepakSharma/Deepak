@@ -285,6 +285,7 @@ class Do_background_process extends CI_Controller {
 
                     $booking['current_status'] = $current_status;
                     $booking['internal_status'] = $current_status;
+                    
                     // check spares are pending or shipped for current booking.
                     // @modifiedBy Ankit Rajvanshi
                     $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
@@ -325,7 +326,12 @@ class Do_background_process extends CI_Controller {
                     $this->miscelleneous->process_booking_tat_on_completion($booking_id);
 
                     //Log this state change as well for this booking
-                   $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
+                    $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
+                    //Log this state entry for spares
+                    if($booking['internal_status'] != _247AROUND_COMPLETED) {
+                        $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+                            $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+                    }
 
                     $this->notify->send_sms_email_for_booking($booking_id, $current_status);
 

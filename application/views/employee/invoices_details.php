@@ -124,6 +124,45 @@
 </div>
       </div>
     
+    <?php
+	  if(isset($service_center_payment_hold_reason) && count($service_center_payment_hold_reason) > 0 && isset($service_center))
+	  {
+	  ?>
+		<div class='col-md-12' id='payment_hold_reason' style='display:none'>
+		<h2><u>Payment Hold Reason</u></h2>
+			<table class="table  table-striped">
+					<thead style='background: #f2dede;'>
+						<tr>
+							<th class="text-center">Sn.</th>				
+							<th class="text-center">Payment hold reason</th>
+							<th class="text-center">Created Date</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php  
+						$StartRowCount=0;
+						$totalAmount=0;
+						$TotalCashInoviceInst=0;
+
+						foreach ($service_center_payment_hold_reason as $row)  
+						{  //print_r($row);
+						?>
+							<tr id='rowid<?php echo $row['id']; ?>'>
+							<td class="text-center"><?php echo ++$StartRowCount; ?></td>			
+							<td class="text-center"><?php echo $row['payment_hold_reason']; ?></td>
+							<td class="text-center"><?php echo $this->miscelleneous->get_formatted_date($row['create_date']); ?></td>
+							</tr>
+						<?php
+						}
+						?>
+					</tbody>
+				</table>
+		</div>
+		
+	  <?php
+	  }
+	  ?>
+    
          <div id="myModal2" class="modal fade" role="dialog">
              <div class="modal-dialog modal-lg" style="width: 62%;">
          <!-- Modal content-->
@@ -135,7 +174,15 @@
             <div class="modal-body">
                 <form class="form-horizontal" id ="cn_dn_form" action="#"  method="POST" >
                     <div class="col-md-12" >
-                        <div class="col-md-4 ">
+                        <div class="col-md-4 " style="width:25%;">
+                            <div class="form-group col-md-12  ">
+                                <label for="gst_number">247around GST Number *</label>
+                                <select class="form-control"  id="gst_number" name="gst_number" required>
+                                    <option value="" disabled selected>Select 247around GST Number *</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
                                 <label for="Invoice type">Select Type *</label>
                                 <select name="invoice_type" id="invoice_type" class="form-control">
@@ -144,14 +191,14 @@
                                 </select>
                             </div>
                         </div>
-                         <div class="col-md-4 ">
+                         <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
                                 <label for="invoice Date">Date *</label>
                                  
                                 <input type="text" class="form-control" style="font-size: 13px; background-color:#fff;" placeholder="Select Date" id="invoice_date" name="invoice_date" required readonly='true' >
                             </div>
                         </div>
-                        <div class="col-md-4 ">
+                        <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
                                 <label for="reference_numner">Reference Number </label>
                                 <input type="text" class="form-control" style="font-size: 13px;"  id="reference_numner" placeholder="Enter Reference Number" name="reference_numner" value = "" required>
@@ -271,8 +318,10 @@
             startDate: '<?php echo date("Y-m-01", strtotime("-1 month")) ?>',
             endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
         });
+        
+        get_247around_wh_gst_number('247001');
 
-        });
+    });
 
    $(document).ready(function () {
 
@@ -321,6 +370,9 @@
           success: function (data) {
             $('#loader_gif').attr('src', '');
             $("#invoicing_table").html(data);
+             if($("#payment_hold_reason").length != 0) {
+            $('#payment_hold_reason').show();
+            }
          }
        });
     }
@@ -354,6 +406,18 @@
    
    function open_create_cd_invoice_form(){
         $('#myModal2').modal('toggle'); 
+    }
+    
+    function get_247around_wh_gst_number(partner_id){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
+            async: false,
+            data:{partner_id:partner_id},
+            success: function (response) {
+                $("#gst_number").html(response);
+            }
+        });
     }
     
     function genaerate_cn_dn_invoice(){

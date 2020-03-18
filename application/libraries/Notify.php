@@ -18,10 +18,11 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
-        $this->My_CI->load->library('miscelleneous');
-        $this->My_CI->load->model('partner_model');
+    $this->My_CI->load->library('miscelleneous');
+    $this->My_CI->load->model('partner_model');
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
+    $this->My_CI->load->model('engineer_model');
     }
 
     /**
@@ -30,37 +31,39 @@ class Notify {
      *  @return : if mail send return true else false
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $attachment2 = "", $booking_id = "") {
-    	switch (ENVIRONMENT) {
-    	    case 'production':
-    		//Clear previous email
-                    if(!empty($to)){
-                        $this->My_CI->email->clear(TRUE);
+	switch (ENVIRONMENT) {
+	    case 'production':
+		//Clear previous email
+                if(!empty($to) && !empty($from)) {
+                    $this->My_CI->email->clear(TRUE);
 
-                        //Attach file with mail
-                        if (!empty($attachment)) {
-                            $this->My_CI->email->attach($attachment, 'attachment');
-                        }
-                        
-                        if(!empty($attachment2)){
-                            $this->My_CI->email->attach($attachment2, 'attachment');
-                        }
-
-                        $this->My_CI->email->from($from, '247around Team');
-
-                        $this->My_CI->email->to($to);
-                        $this->My_CI->email->bcc($bcc);
-                        $this->My_CI->email->cc($cc);
-
-                        $this->My_CI->email->subject($subject);
-                        $this->My_CI->email->message($message);
-                        if ($this->My_CI->email->send()) {
-                            $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
-                            return true;
-                        } else {
-                            log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
-                            return false;
-                        }
+                    //Attach file with mail
+                    if (!empty($attachment)) {
+                        $this->My_CI->email->attach($attachment, 'attachment');
                     }
+                    
+                    if(!empty($attachment2)){
+                        $this->My_CI->email->attach($attachment2, 'attachment');
+                    }
+
+                    $this->My_CI->email->from($from, '247around Team');
+
+                    $this->My_CI->email->from($from, '247around Team');
+
+                    $this->My_CI->email->to($to);
+                    $this->My_CI->email->bcc($bcc);
+                    $this->My_CI->email->cc($cc);
+
+                    $this->My_CI->email->subject($subject);
+                    $this->My_CI->email->message($message);
+                    if ($this->My_CI->email->send()) {
+                        $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
+                        return true;
+                    } else {
+                        log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                        return false;
+                    }
+                }
 
     		break;
     	}
@@ -294,7 +297,16 @@ class Notify {
      * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL) {
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $actor, $next_action, $partner_id = NULL, $service_center_id = NULL, $spare_id = NULL) {
+        // if Request Type Change is done before Booking completion from SF panel and Admin Panel
+        // Do not insert data in booking_state_change Table
+        $currentURL = current_url();    
+        $arr_url = explode("/", $currentURL);
+        $do_not_insert_state_change = end($arr_url);
+        if(strpos($currentURL,'update_booking_by_sf') && !empty($do_not_insert_state_change) && $do_not_insert_state_change == 1){
+            return;
+        }
+
         //Log this state change as well for this booking
         $state_change['booking_id'] = $booking_id;
         //$state_change['old_state'] = $old_state;
@@ -303,6 +315,7 @@ class Notify {
         $state_change['agent_id'] = $agent_id;
         $state_change['partner_id'] = $partner_id;
         $state_change['service_center_id'] = $service_center_id;
+        $state_change['spare_id'] = $spare_id;
         if(!empty($actor)){
             $state_change['actor'] = $actor;
             $state_change['next_action'] = $next_action;
@@ -1136,4 +1149,55 @@ class Notify {
 		break;
 	}
     }
+
+/*  Sending Notification to Engineer on assignment */
+
+    function send_push_notification($data){
+
+
+        $msg = array
+            (
+            'body' => $data['message'],
+            'title' => 'Message from 247Around',
+            //'subtitle'  => 'This is a subtitle. subtitle',
+            //'tickerText'    => 'Ticker text here...Ticker text here...Ticker text here',
+            'vibrate' => 1,
+            'sound' => 1,
+            'largeIcon' => 'large_icon',
+            'smallIcon' => 'small_icon'
+        );
+        $fields = array
+            (
+            'registration_ids' => array($data['firebase_token']), /*  Changing key */
+            'notification' => $msg
+        );
+
+        $headers = array
+            (
+            'Authorization: key=' . API_ACCESS_KEY_FIREBASE,
+            'Content-Type: application/json'
+        );
+/*  Calling FCM API for notification */
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');  //https://fcm.googleapis.com/fcm
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $rowData['fire_base_response'] = $result;
+        $rowData['phone'] = $data['phone']; // Getting Details from controller and saving in DB Table //
+        $rowData['message'] = $data['message'];
+        $insert_id = $this->My_CI->engineer_model->insert_engg_notification_data($rowData);
+        $json_res = json_decode($result);
+           
+        }
+
+ 
+
+
+
 }

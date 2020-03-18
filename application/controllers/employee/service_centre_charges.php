@@ -1390,9 +1390,11 @@ class service_centre_charges extends CI_Controller {
     }
     
     function process_add_misc_charges(){
+        $this->form_validation->set_rules('misc', 'Miscellaneous', 'callback_validate_form_data');
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
         $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
+        $this->form_validation->set_rules('validate_purchase_invoice_file', 'Purchase Invoice File', 'callback_validate_purchase_invoice_file');
         if ($this->form_validation->run() == TRUE) {
          
             $booking_id = $this->input->post('booking_id');
@@ -1433,6 +1435,9 @@ class service_centre_charges extends CI_Controller {
                             if(!empty($this->input->post("approval_file"))){
                                 $misc_charge_data[$key]['approval_file'] = $this->input->post("approval_file");
                             } 
+                            if(!empty($this->input->post("file_purchase_invoice"))){
+                                $misc_charge_data[$key]['purchase_invoice_file'] = $this->input->post("file_purchase_invoice");
+                            }
                             
                             $misc_charge_data[$key]['create_date'] = date('Y-m-d H:i:s');
                             
@@ -1456,7 +1461,8 @@ class service_centre_charges extends CI_Controller {
                             $to = $email_template[1]. ", ".$this->session->userdata('official_email');
                             $cc = $email_template[3];
                             $subject = vsprintf($email_template[4], array($booking_id));
-                            $bcc = $email_template[5];
+                            $cc = (!empty($email_template[3]) ? $email_template[3] : "");
+                            $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
                             $message = vsprintf($email_template[0], array($agent_id, $this->table->generate(), $a));
@@ -1476,7 +1482,7 @@ class service_centre_charges extends CI_Controller {
                     redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
                 }
             } else {
-                $this->session->set_userdata(array('error' => "Booking ID is not Exist"));
+                $this->session->set_userdata(array('error' => "Booking ID does not Exist"));
                 redirect(base_url()."employee/service_centre_charges/add_miscellaneous_charges");
             }
             
@@ -1495,11 +1501,11 @@ class service_centre_charges extends CI_Controller {
                 $this->miscelleneous->load_nav_header();
                 $this->load->view('employee/update_misc_charges', $data);
             } else {
-                $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                $this->session->set_userdata(array('error' => "Booking ID does not exist"));
                 redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
             }
         } else {
-            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            $this->session->set_userdata(array('error' => "Booking ID does not exist"));
             redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
         }
     }
@@ -1534,11 +1540,38 @@ class service_centre_charges extends CI_Controller {
         }
     }
     
+    /**
+     *  @desc : This function is used to validate uploaded purchase invoice file
+     *  @param : void
+     *  @return : boolean
+     */
+
+    function validate_purchase_invoice_file() {
+        if (!empty($_FILES['purchase_invoice_file']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $booking_id = $this->input->post("booking_id");
+            $purchase_invoice_file = $this->miscelleneous->upload_file_to_s3($_FILES["purchase_invoice_file"], 
+                    "file_purchase_invoice", $allowedExts, $booking_id, "purchase-invoices", "file_purchase_invoice");
+            if($purchase_invoice_file){
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_purchase_invoice_file', 'Image, File size or '
+                        . 'File Type is not supported. Allowed extentions are png, jpg, jpeg or pdf. '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            return TRUE;
+        }
+    }
+    
     function process_upload_misc_charges($booking_id) {
         if (!empty($booking_id)) {
             $this->form_validation->set_rules('misc', 'Miscellaneous', 'callback_validate_form_data');
+            $this->form_validation->set_rules('booking_id', 'Booking ID', 'required|trim');
             $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
             $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
+            $this->form_validation->set_rules('validate_purchase_invoice_file', 'Purchase Invoice File', 'callback_validate_purchase_invoice_file');
             if ($this->form_validation->run() == TRUE) {
                 $booking_details = $this->booking_model->get_bookings_count_by_any("assigned_vendor_id", array('booking_id' => $booking_id));
                 if (!empty($booking_details)) {
@@ -1578,6 +1611,9 @@ class service_centre_charges extends CI_Controller {
                                 if(!empty($this->input->post("approval_file"))){
                                     $misc_charge_data['approval_file'] = $this->input->post("approval_file");
                                 }
+                                if(!empty($this->input->post("file_purchase_invoice"))){
+                                    $misc_charge_data['purchase_invoice_file'] = $this->input->post("file_purchase_invoice");
+                                }
                                 
                                 $this->booking_model->update_misc_charges(array('id' => $id), $misc_charge_data);
 
@@ -1592,7 +1628,7 @@ class service_centre_charges extends CI_Controller {
                         redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
                     }
                 } else {
-                    $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+                    $this->session->set_userdata(array('error' => "Booking ID does not exist"));
                      redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
                 }
             } else {
@@ -1601,7 +1637,7 @@ class service_centre_charges extends CI_Controller {
                  redirect(base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id);
             }
         } else {
-            $this->session->set_userdata(array('error' => "Booking ID is not exist"));
+            $this->session->set_userdata(array('error' => "Booking ID does not exist"));
             redirect(base_url() . "employee/service_centre_charges/add_miscellaneous_charges");
         }
     }
@@ -1613,24 +1649,19 @@ class service_centre_charges extends CI_Controller {
         foreach ($data as $key => $value) {
            
             if(empty($value['product_or_services'])){
-                array_push($m,"Product Or Sevice");
+                array_push($m,"Product Or Service");
                 $is_validate = true;
             }
             if(empty($value['description'])){
                 $is_validate = true;
-                if(empty($m)){
-                     array_push($m,"Description");
-                } else {
-                    array_push($m,"/Description");
-                }
-               
+                array_push($m,"Description");
                 break;
             }
             
         }
-      
+        $m= array_unique($m);
         if($is_validate){
-             $this->form_validation->set_message('validate_form_data', implode(",", $m). ", All are mandatory");
+             $this->form_validation->set_message('validate_form_data', implode("/", $m). " is mandatory");
              return false;
         } else {
            return true;

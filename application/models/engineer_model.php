@@ -693,7 +693,6 @@ class Engineer_model extends CI_Model {
 
    }
 
-
 /* @author Abhishek Awasthi
      *@Desc - This function is used to get consumption status 
      *@param -  
@@ -708,9 +707,5 @@ class Engineer_model extends CI_Model {
     return $query->result();
 
    }
-
-
-
-
 
 }

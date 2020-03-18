@@ -125,7 +125,7 @@ class Inventory_model extends CI_Model {
      */
     function update_brackets($data,$where){
         $this->db->where($where);
-	$this->db->update('brackets', $data);
+    $this->db->update('brackets', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
             return true;
@@ -725,7 +725,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("(rm_id = '".$rm_id."' || asm_id = '".$rm_id."')"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -1050,7 +1050,7 @@ class Inventory_model extends CI_Model {
         //RM Specific Bookings
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             if(!empty($rmServiceCentersData)){
                 $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
                 $sfIDArray = explode(",",$sfIDList);
@@ -1094,6 +1094,7 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+   
     /**
      * @desc This is used to insert details into inventory_master_list table in batch
      * @param Array $data
@@ -1133,7 +1134,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
+          $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1171,18 +1172,21 @@ class Inventory_model extends CI_Model {
     
     
     function get_spare_need_to_acknowledge($post, $select = "",$is_array = false){
+       
         $this->_get_spare_need_to_acknowledge($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
         
         $query = $this->db->get();
-        
         if($is_array){
             return $query->result_array();
+
         }else{
             return $query->result();
+
         }
+        
     }
     
     /**
@@ -2118,7 +2122,8 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
-    }
+    }    
+        
     /**
      * @desc This is used to get list of inventory stock count from inventory_stocks     
      * @table inventory_stocks 
@@ -2229,7 +2234,7 @@ class Inventory_model extends CI_Model {
         $sfIDArray =array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
-            $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
+            $rmServiceCentersData= $this->reusable_model->get_search_result_data("service_centres","group_concat(id) as service_centres_id",array("rm_id = '".$rm_id."' || asm_id = '".$rm_id."'"=>NULL),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
             $sfIDArray = explode(",",$sfIDList);
         }
@@ -2272,16 +2277,20 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_pending_spare_part_details($post, $where = array()) {
+    function get_pending_spare_part_details($post, $where=array()){
         $this->db->select($post['select'], FALSE);
-        $this->db->from('spare_parts_details');
+        $this->db->from('spare_parts_details');   
         $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
     }
-
-    /**
+    
+    
+    
+    
+    
+      /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
      * @params: $where array
@@ -2326,7 +2335,7 @@ class Inventory_model extends CI_Model {
      */
     function update_inventory_parts_type($data,$where){
         $this->db->where($where);
-	$this->db->update('inventory_parts_type', $data);
+    $this->db->update('inventory_parts_type', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Inventory Part Type  SQL ". $this->db->last_query());
             return true;
@@ -2345,7 +2354,7 @@ class Inventory_model extends CI_Model {
      */
     function update_alternate_inventory_set($data,$where){
         $this->db->where($where);
-	$this->db->update('alternate_inventory_set', $data);
+    $this->db->update('alternate_inventory_set', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Alternate Inventory Set SQL ". $this->db->last_query());
             return true;
@@ -2430,6 +2439,8 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
      /**
      * @Desc: This function is used to get data from the set_oow_part_type_margin table
      * @params: $select string
@@ -2487,7 +2498,7 @@ class Inventory_model extends CI_Model {
      * @return: $query array
      * 
      */
-     function get_generic_table_details($table, $select, $where, $where_in){
+    function get_generic_table_details($table, $select, $where, $where_in){
        
        $this->db->select($select);
        
@@ -2503,7 +2514,9 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();         
         return $query->result_array(); 
     }
-     /* @Desc: This function is used to get data from the spare_parts_details table
+       
+     /**
+     * @Desc: This function is used to get data from the spare_parts_details table
      * @params $table string 
      * @params: $select string
      * @params: $where array
@@ -2524,7 +2537,8 @@ class Inventory_model extends CI_Model {
         }
     }
 
-     /* @desc: This function is used to insert data in alternate_inventory_set table
+    /**
+     * @desc: This function is used to insert data in alternate_inventory_set table
      * @params: Array of data
      * return : boolean
      */
@@ -2546,7 +2560,7 @@ class Inventory_model extends CI_Model {
      */
     function update_group_wise_inventory_id($data,$where){
         $this->db->where($where);
-	$this->db->update('alternate_inventory_set', $data);
+    $this->db->update('alternate_inventory_set', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> Inventory ID SQL ". $this->db->last_query());
             return true;
@@ -2692,6 +2706,7 @@ class Inventory_model extends CI_Model {
 
     }
     
+
     function get_entity_gst_data($select="entity_gst_details.*", $where){
         $this->db->select($select);
         $this->db->where($where);
@@ -2719,9 +2734,13 @@ class Inventory_model extends CI_Model {
             }
         }
         $this->db->from('inventory_model_mapping');
+
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+    
     
     /**
      * @Desc: This function is used to get Details of serviceable BOM
@@ -2744,7 +2763,6 @@ class Inventory_model extends CI_Model {
         return $query;        
        
     }
-   
 
     /**
      * @Desc: This function is used to get alternate parts
@@ -2964,7 +2982,7 @@ class Inventory_model extends CI_Model {
      */
     function update_inventory_model_mapping($data,$where){
         $this->db->where($where);
-	$this->db->update('inventory_model_mapping', $data);
+    $this->db->update('inventory_model_mapping', $data);
         if($this->db->affected_rows() > 0){
              log_message ('info', __METHOD__ . "=> inventory_model_mapping Set SQL ". $this->db->last_query());
             return true;
@@ -3359,7 +3377,7 @@ class Inventory_model extends CI_Model {
      */
     function update_courier_services($data,$where){
         $this->db->where($where);
-	$this->db->update('courier_services', $data);
+    $this->db->update('courier_services', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -3570,4 +3588,161 @@ class Inventory_model extends CI_Model {
         $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
         return $query;
     }
+    
+    /*
+     * @desc: This function is used to get the courier invoice details.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+
+    function get_courier_invoice_data($select, $where, $group_by = '') {
+        $this->db->distinct();
+        $this->db->select($select);
+        if ($group_by == 'msl') {
+            $this->db->_protect_identifiers = FALSE;
+            $this->db->from('courier_details');
+            $this->db->join('courier_company_invoice_details', 'courier_company_invoice_details.awb_number = courier_details.AWB_no');
+            $this->db->join('partners', 'courier_company_invoice_details.partner_id = partners.id', 'left');
+        } else {
+
+            $this->db->from('spare_parts_details');
+            $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id');
+            $this->db->join('partners', 'booking_details.partner_id = partners.id', 'left');
+            if ($group_by == 'awb_by_partner') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_partner = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if ($group_by == 'awb_by_sf') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_sf = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if ($group_by == 'awb_by_wh') {
+                $this->db->join('courier_company_invoice_details', 'spare_parts_details.awb_by_wh = courier_company_invoice_details.awb_number', 'left');
+            }
+
+            if (!empty($where)) {
+                $this->db->where($where, false);
+            }
+
+            if (!empty($group_by)) {
+                $this->db->group_by($group_by, false);
+            }
+        }
+
+        $query = $this->db->get();
+
+        return $query;
+    }
+    
+    
+     /*
+     * @desc: This function is used to get Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+    
+    function get_out_tat_spare_parts_list($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    /*
+     * @desc: This function is used to Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+    function _get_out_of_tat_pending_defective_part($post) {
+
+        $this->db->select($post['select'], false);
+        $this->db->from('spare_parts_details');
+        $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id', "left");
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
+        $this->db->join('partners', 'partners.id = booking_details.partner_id', "left");
+        $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id', "left");
+        $this->db->join('users', 'users.user_id = booking_details.user_id', "left");
+
+        if (isset($post['is_inventory'])) {
+            $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as i', 'i.inventory_id = spare_parts_details.shipped_inventory_id', "left");
+        }
+
+        $this->db->join('services', 'booking_details.service_id = services.id', 'left');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search']['value'])) {
+            $like = "";
+            if (array_key_exists("column_search", $post)) {
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                    }
+                }
+                $like .= ") ";
+            } else {
+                $like .= "(booking_details.booking_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+    }
+
+    /*
+     * @desc: This function is used to get total count of Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Total Count
+     */
+    
+    public function count_oot_spare_parts($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        $query = $this->db->count_all_results();
+        return $query;
+    }
+
+    /*
+     * @desc: This function is used to get filter records of Out of TAT list.
+     * @params: $select
+     * @params: Array $where
+     * @return: Count
+     */
+
+    function count_spare_oot_filtered($post) {
+        $this->_get_out_of_tat_pending_defective_part($post);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+    
+     /**
+     * @desc: This function is used to Download OOT data
+     * @params: $post
+     * @return: Object
+     */
+   
+    function download_oot_pending_defective_part($post) {
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
+        return $query;
+    }
+
 }

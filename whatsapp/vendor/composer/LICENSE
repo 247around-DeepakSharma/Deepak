@@ -8,12 +8,7 @@ Copyright: 2016, Nils Adermann <naderman@naderman.de>
            2016, Jordi Boggiano <j.boggiano@seld.be>
 License: Expat
 
-Files: res/cacert.pem
-Copyright: 2015, Mozilla Foundation
-License: MPL-2.0
-
-Files: src/Composer/Util/RemoteFilesystem.php
-       src/Composer/Util/TlsHelper.php
+Files: src/Composer/Util/TlsHelper.php
 Copyright: 2016, Nils Adermann <naderman@naderman.de>
            2016, Jordi Boggiano <j.boggiano@seld.be>
            2013, Evan Coury <me@evancoury.com>

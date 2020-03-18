@@ -2292,7 +2292,7 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL) {
+    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0) {
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2311,6 +2311,9 @@ class Booking_model extends CI_Model {
             else{
                 $this->db->where_in('booking_details.current_status', array('Pending','Rescheduled'));
             }
+        }
+        if ($partner_details == 1) {
+            $this->db->join('partners', 'booking_details.partner_id  = partners.id', 'left');
         }
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
@@ -2724,15 +2727,24 @@ class Booking_model extends CI_Model {
         } 
         return $result;
     }
+    
+    // check for duplicate serial number bookings which are not cancelled / cancelled by SF
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
-          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_unit_details.booking_status != 'Cancelled' AND price_tags NOT IN ('Repeat Booking','Presale Repair') AND booking_id != '".$booking_id."'"
-                . " UNION "
-                . "SELECT booking_unit_details.* FROM service_center_booking_action JOIN booking_unit_details ON booking_unit_details.id = service_center_booking_action.unit_details_id WHERE "
-                . "service_center_booking_action.serial_number = '".$serialNumber."' AND booking_unit_details.booking_status != 'Cancelled' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` NOT IN ( 'Repeat Booking','Presale Repair') "
-                . "AND service_center_booking_action.booking_id != '".$booking_id."'";
-        
-         $query = $this->db->query($sql);
-         return $query->result_array();
+        $sql = "SELECT 
+                    *
+                FROM
+                    booking_unit_details
+                    JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
+                    JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
+                WHERE
+                    (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
+                    AND booking_details.current_status != '"._247AROUND_CANCELLED."' 
+                    AND booking_details.internal_status != '".SF_BOOKING_CANCELLED_STATUS."'
+                    AND service_center_booking_action.current_status != 'Cancelled'
+                    AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
+                    AND booking_unit_details.booking_id != '".$booking_id."'";  
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
     /** @description:* add symptom at the time of add booking
      *  @param : booking symptom array

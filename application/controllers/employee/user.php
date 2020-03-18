@@ -424,108 +424,163 @@ class User extends CI_Controller {
      * @Developer: Pranjal
      * @Date: 8/22/2019
      */
-    function process_rm_state_mapping(){
+    function process_rm_state_mapping() {
+
         $data = $this->input->post();
-//        print_r($data);
-//        exit;
-        
-        $res=$this->employee_model->chk_entry_in_employee_relation($data["rm_asm"]);
-        
-        $isRM = count($this->employee_model->isRManager($data["rm_asm"])) > 0 ? true : false;
+        if ($data) {
+            $isRM = count($this->employee_model->isRManager($data["rm_asm"])) > 0 ? true : false;
 
-        
-        $currentState=$this->employee_model->get_rm_mapped_state($data["rm_asm"]);
-        $statusFlg = true;
-        $reqState = array();
-        $selState1 = array();
-        foreach ($data["state_name"] as $key => $value){
-            // $selState[]=array($value);  
-             array_push($reqState, $value);
-          }
+            $Submit = true;
+            $statusFlg = true;
 
-        if(!empty($currentState)){
-             
-           foreach ($currentState as $key => $value){
-               
-               array_push($selState1, $value['state']);            
+
+            if ($isRM) {
+                $rm_ID = $data["rm_asm"];
+                $asmID = 0;
+            } else {
+                $asmID = $data["rm_asm"];
+                $rm_ID_Array = $this->employee_model->getemployeeManagerfromid(array('employee_id' => $asmID));
+                $rm_ID = $rm_ID_Array[0]['manager_id'];
             }
 
-             $diffState =array();
-           $diffState =array_diff($selState1,$reqState);
-//          // print_r($selState);
-           if(!empty($diffState)){
-                foreach ($diffState as $key => $value){
-                    //pick all info for state in employee_relation                         
-                    $statusFlg = $this->remove_rm_map_for_state($value, $isRM);
+            $reqState = array();
+            $selState1 = array();
+            foreach ($data['state_name'] as $key => $value) {
+                array_push($reqState, $value);
+            }
+
+            $reqStateString = "'" . implode("','", $reqState) . "'";
+
+
+            ##########################check if state served by other ASM#####################################
+            if (!$isRM) {
+                $result = $this->employee_model->get_state_of_rm_asm($reqState, _247AROUND_ASM, $asmID);
+                if (is_array($result) && count($result) > 0) {
+                    $stateString = implode(',', array_map(function ($entry) {
+                                return $entry['state'];
+                            }, $result));
+                    $errormessage = "State $stateString already served by other asm you can not assign to this ASM.";
+                    $statusFlg = false;
                 }
-           }
-           
-        }
-      //  exit();
-      if( $statusFlg) {
-        $diffState =array();
-        if($isRM) {
-        $diffState =array_diff($reqState, $selState1);
+            }
+            #########################check if state served by other RM#######################################
+            if ($rm_ID != 0 && $rm_ID != '' && $statusFlg) {
+                $result = $this->employee_model->get_state_of_rm_asm($reqState, _247AROUND_RM, $rm_ID);
+                if (is_array($result) && count($result) > 0) {
+                    $stateString = implode(',', array_map(function ($entry) {
+                                return $entry['state'];
+                            }, $result));
+                    $errormessage = "State $stateString already served by other RM you can not assign this RM.";
+                    $statusFlg = false;
+                }
+            }
+            ######################check rm is removing its asm state from itself###############################
+            if ($isRM && $statusFlg) {
+                $currentState = $this->employee_model->get_rm_mapped_state($rm_ID);
+                $reqState = array();
+                $selState1 = array();
+                foreach ($data['state_name'] as $key => $value) {
+                    array_push($reqState, $value);
+                }
+                if (!empty($currentState)) {
+                    $selState1 = array_map(function ($entry) {
+                        return $entry['state'];
+                    }, $currentState);
+                }
+                $diffState = array_diff($selState1, $reqState);
+
+                $diffStateString = "'" . implode("','", $diffState) . "'";
+
+                $result=$this->employee_model->get_asm_from_rm($diffState,$rm_ID);
+                if (!empty($result) && is_array($result)) {
+                    if (count($result) > 0) {
+                        $stateString = implode(', ', array_map(function ($entry) {
+                                    return $entry['state'];
+                                }, $result));
+                        $errormessage = "RM has ASM mapped with $stateString. you can not remove these states from RM, Remove from ASM first.";
+                        $statusFlg = false;
+                    }
+                }
+            }
+
+            if ($statusFlg) {
+                if ($asmID != 0) {
+                    $currentState = $this->employee_model->get_rm_mapped_state($asmID);
+
+                    $selState1 = array();
+
+                    if (!empty($currentState)) {
+                        $selState1 = array_map(function ($entry) {
+                            return $entry['state'];
+                        }, $currentState);
+                    }
+
+                    $diffState = array_diff($selState1, $reqState);
+
+                    foreach ($diffState as $key => $value) {
+
+                        $deleteResult = $this->employee_model->delete_agent_state_mapping($asmID, $value);
+                        $this->service_centers_model->update_service_centers_by_state(array('asm_id' => null), array('asm_id' => $asmID, 'state' => $value));
+                    }
+
+
+                    $diffState1 = array_diff($reqState, $selState1);
+
+                    foreach ($diffState1 as $key => $value) {
+                        $this->employee_model->insert_agent_state_mapping($asmID, $value, $this->session->userdata('id'));
+                        $this->service_centers_model->update_service_centers_by_state(array('asm_id' => $asmID), array('state' => $value));
+                    }
+                }
+
+                if ($rm_ID != 0 && $rm_ID != '') {
+                    $currentState = $this->employee_model->get_rm_mapped_state($rm_ID);
+                    $reqState = array();
+                    $selState1 = array();
+                    foreach ($data['state_name'] as $key => $value) {
+                        array_push($reqState, $value);
+                    }
+                    if (!empty($currentState)) {
+                        $selState1 = array_map(function ($entry) {
+                            return $entry['state'];
+                        }, $currentState);
+                    }
+
+                    $diffState = array_diff($selState1, $reqState);
+
+                    foreach ($diffState as $key => $value) {
+                        if ($isRM) {
+                            $deleteResult = $this->employee_model->delete_agent_state_mapping($rm_ID, $value);
+                            $this->service_centers_model->update_service_centers_by_state(array('rm_id' => null), array('rm_id' => $rm_ID, 'state' => $value));
+                        }
+                    }
+                    $diffState1 = array_diff($reqState, $selState1);
+
+                    foreach ($diffState1 as $key => $value) {
+                        $this->employee_model->insert_agent_state_mapping($rm_ID, $value, $this->session->userdata('id'));
+                        $this->service_centers_model->update_service_centers_by_state(array('rm_id' => $rm_ID), array('state' => $value));
+                    }
+                }
+                $data["msg"] = 'Data updated successfully.';
+                $data['employee_rm'] = $this->employee_model->get_rm_details();
+                $data['state'] = $this->employee_model->get_states();
+                $data['error'] = $this->session->flashdata('error');
+                $this->miscelleneous->load_nav_header();
+                $this->load->view('employee/rm_state_mapping', $data);
+            } else {
+                $data["msg"] = $errormessage;
+                $data['employee_rm'] = $this->employee_model->get_rm_details();
+                $data['state'] = $this->employee_model->get_states();
+                $data['error'] = $this->session->flashdata('error');
+                $this->miscelleneous->load_nav_header();
+                $this->load->view('employee/rm_state_mapping', $data);
+            }
         } else {
-            $diffState = $reqState;
-        }
-        foreach ($diffState as $key => $value){
-            $this->remove_rm_map_for_state($value, false);       
-             $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);          
-        }
-
-        $res=$this->employee_model->update_asm_manager_mapping($data["rm_asm"]);
-        
-
-        $data["msg"]="Updated Successfully!";
-        $data['employee_rm'] = $this->employee_model->get_rm_details();
-        $data['state'] = $this->employee_model->get_states();
-        $data['error'] = $this->session->flashdata('error');
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/rm_state_mapping', $data);
-    }
-    else
-    {
-        $data["msg"]="Error! Please remove mapping of state(s) from ASM.";
-        $data['employee_rm'] = $this->employee_model->get_rm_details();
-        $data['state'] = $this->employee_model->get_states();
-        $data['error'] = $this->session->flashdata('error');
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/rm_state_mapping', $data);
-    }
-        
-    }
-
-
-    // value is state name
-    function remove_rm_map_for_state($value, $isRM)
-    {
-        $employee_rel =   $this->employee_model->pick_all_rm_state_map($value);
-        // pick service center for state
-        if(count($employee_rel) > 1 && $isRM) {
-            return false;
-        } else {
-            $service_center = $this->reporting_utils->find_all_service_centers_by_state($value);
-            foreach ($employee_rel as $key => $emp_rel){
-                
-                $ser_center = explode( "," , $service_center[0]["service_center_id"]);
-
-                $str1=implode(",", array_diff(explode(",",  $emp_rel["service_centres_id"]), $ser_center));
-                $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
-                $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
-                $this->employee_model->update_rm_relation_details($emp_rel["agent_id"],$str1,$str2,$str3);
-                // Map RMs and ASMs to their respective SFs in service_centers Table
-                $sf_ids = $str2;
-                if($isRM){
-                    $sf_ids = $str1;
-                }
-                if(!empty($emp_rel["agent_id"]) && !empty($sf_ids))
-                {
-                    $this->service_centers_model->update_rm_asm_to_sf($emp_rel["agent_id"],$sf_ids,$isRM);                
-                }
-                
-            }  
-            return true;
+            $data["msg"] = '';
+            $data['employee_rm'] = $this->employee_model->get_rm_details();
+            $data['state'] = $this->employee_model->get_states();
+            $data['error'] = $this->session->flashdata('error');
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/rm_state_mapping', $data);
         }
     }
 
@@ -616,14 +671,36 @@ class User extends CI_Controller {
         
         //add a blank row in employee_relation only when user is regional manager
         //code updated dt: 8/21/2019 by PB
-        if(($data1['groups'] == _247AROUND_RM) || ($data1['groups'] == _247AROUND_ASM)){
-            
-            //add in relation table if not exist
-            $this->employee_model->chk_entry_in_employee_relation($id);
-           
-           //If the new added is RM and has subordinates it will update their mapping onto his
-           $res=$this->employee_model->update_new_rm_mapping($id);
-           
+        if (($data1['groups'] == _247AROUND_RM)) {
+            //If the new added is RM and has subordinates it will update their mapping onto his
+            $res = $this->employee_model->update_new_rm_mapping($id);
+            if (!empty($data['subordinate'])) {
+                $subOrdinate = $data['subordinate'];
+                $arrayState = array();
+                foreach ($subOrdinate as $key => $asmID) {
+                    $currentState = $this->employee_model->get_rm_mapped_state($asmID);
+                    $arrayState = array_merge($arrayState, $currentState);
+                }
+                if (!empty($arrayState)) {
+                    $arrayStateStr = array_map(function($element) {
+                        return $element['state'];
+                    }, $arrayState);
+                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $id);
+                    $resultArray = array();
+                    if (!empty($result)) {
+                        $resultArray = array_map(function($element) {
+                            return $element['state'];
+                        }, $result);
+                    }
+                    foreach ($arrayState as $key => $value) {
+                        $state = $value['state'];
+                        if (!in_array($state, $resultArray)) {
+                            $this->employee_model->insert_agent_state_mapping($id, $state, $this->session->userdata('id'));
+                            $this->service_centers_model->update_service_centers_by_state(array('rm_id' => $id), array('state' => $state));
+                        }
+                    }
+                }
+            }
         }
         //*********END
         
@@ -781,6 +858,48 @@ class User extends CI_Controller {
             $this->employee_model->insertManagerData($data2);
         }
         
+        if (($data1['groups'] == _247AROUND_RM)) {
+
+            //If the  is RM and has subordinates it will update their mapping onto his
+            if (!empty($data['subordinate'])) {
+                $subOrdinate = $data['subordinate'];
+                $arrayState = array();
+                foreach ($subOrdinate as $key => $asmID) {
+                    $currentState = $this->employee_model->get_rm_mapped_state($asmID);
+                    $arrayState = array_merge($arrayState, $currentState);
+                }
+                $currentStateOfRm = $this->employee_model->get_rm_mapped_state($data['id']);
+                if (!empty($currentStateOfRm)) {
+                    $currentStateOfRm = array_map(function($element) {
+                        return $element['state'];
+                    },
+                            $currentStateOfRm
+                    );
+                }
+
+                if (!empty($arrayState)) {
+                    $arrayStateStr = array_map(function($element) {
+                        return $element['state'];
+                    }, $arrayState);
+                    //$arrayStateStr ="'".$arrayStateStr."'";
+                    $result = $this->employee_model->get_state_of_rm_asm($arrayStateStr, _247AROUND_RM, $data['id']);
+                    $resultArray = array();
+                    if (!empty($result)) {
+                        $resultArray = array_map(function($element) {
+                            return $element['state'];
+                        }, $result);
+                    }
+                    foreach ($arrayState as $key => $value) {
+                        $state = $value['state'];
+                        if (!in_array($state, $currentStateOfRm) && !in_array($state, $resultArray)) {
+                            $this->employee_model->insert_agent_state_mapping($data['id'], $state, $this->session->userdata('id'));
+                            $this->service_centers_model->update_service_centers_by_state(array('rm_id' => $data['id']), array('state' => $state));
+                        }
+                    }
+                }
+            }
+        }
+
         $this->session->set_userdata('success','Employee Updated Successfully.');
         
         redirect(base_url() . "employee/user/show_employee_list");
@@ -793,8 +912,25 @@ class User extends CI_Controller {
      * @return: view
      */
     function deactive_employee($id){
+        // check if any SF is associated with the Employee
+        // If yes, Employee can not be de-activated
+        $arr_vendors = $this->vendor_model->get_sf_associated_with_rm($id);
+        if(!empty($arr_vendors[0]['individual_service_centres_id']))
+        {
+            $this->session->set_userdata('error','Employee can not be deactivated, There are some Vendors associated with this employee');
+            redirect(base_url() . "employee/user/show_employee_list");
+        }
         $data = array("active"=>0);
         $this->employee_model->update($id,$data);
+        // remove state mapping from employee
+        $currentState = $this->employee_model->get_rm_mapped_state($id);
+        if (!empty($currentState)) {
+            foreach ($currentState as $key => $value) {
+                $state = $value['state'];
+                $deleteResult = $this->employee_model->delete_agent_state_mapping($id, $state);
+            }
+        }
+
         $this->session->set_userdata('success','Employee Updated Sucessfully.');
         redirect(base_url() . "employee/user/show_employee_list");
     }

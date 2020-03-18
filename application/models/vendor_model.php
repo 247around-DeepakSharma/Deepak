@@ -1645,7 +1645,7 @@ class vendor_model extends CI_Model {
             return FALSE;
         }
     }
-   
+    
     /**
      * 
      * @Desc: This function is used to get employee_relation if present in employee_relation
@@ -1653,15 +1653,19 @@ class vendor_model extends CI_Model {
      * @return: Array or Empty
      */
     function get_employee_relation($agent_id){
-        $this->db->select('*');
-        $this->db->where('agent_id',$agent_id);
-        $query = $this->db->get('employee_relation');
+        $this->db->select('employee.id as agent_id, group_concat(service_centres.id) as service_centres_id, group_concat(agent_state_mapping.state_code) as state_code');
+        $this->db->where('employee.id',$agent_id);
+        $this->db->where_in('employee.groups',[_247AROUND_RM, _247AROUND_ASM]);
+        $this->db->join('agent_state_mapping', 'agent_state_mapping.agent_id = employee.id', 'left');
+        $this->db->join('service_centres', 'service_centres.rm_id = employee.id OR service_centres.asm_id = employee.id', 'left');
+        $this->db->group_by('employee.id');
+        $query = $this->db->get('employee');
         $result = $query->result_array();
         if(!empty($result)){
             return $result;
         }else{
             return '';
-}
+        }
     }
     
     /**
@@ -1672,16 +1676,18 @@ class vendor_model extends CI_Model {
      */
     function add_rm_to_sf_relation($agent_id, $sf_id){
         
-
-        // check relation exists.
-        $rm_to_sf_relation = $this->db->where("agent_id = {$agent_id} AND FIND_IN_SET({$sf_id}, individual_service_centres_id)")
-                                    ->get('employee_relation')->result_array();
-        if (empty($rm_to_sf_relation)) {
-            $this->db->where('agent_id', $agent_id);
-            $this->db->set('service_centres_id', "CONCAT(service_centres_id, ',".$sf_id."' )", FALSE);
-            $this->db->set('individual_service_centres_id', "TRIM(BOTH ',' FROM CONCAT(ifnull(individual_service_centres_id, ''), ',".$sf_id."' ))", FALSE);
-            $this->db->update('employee_relation');
-        } 
+        // check SF is mapped with ASM/RM or not
+        $agent_group = $this->db->where("id = {$agent_id}")->get('employee')->result_array()[0]['groups'];
+        $this->db->where('id', $sf_id);
+        if($agent_group == _247AROUND_RM)
+        {                      
+            $this->db->set('rm_id', $agent_id);            
+        }
+        else
+        {
+            $this->db->set('asm_id', $agent_id);
+        }
+        $this->db->update('service_centres');
         
         if($this->db->affected_rows() > 0) {
             // get manager of rm and check manager is also rm.
@@ -1696,12 +1702,9 @@ class vendor_model extends CI_Model {
                         
             $rm_manager = $this->db->query($sql)->result_array();
             if(!empty($rm_manager)) {
-                $rm_manager_to_sf_relation = $this->db->where("agent_id = {$rm_manager[0]['id']} AND FIND_IN_SET({$sf_id}, service_centres_id)")->get('employee_relation')->result_array();
-                if (empty($rm_manager_to_sf_relation)) {
-                    $this->db->where('agent_id', $rm_manager[0]['id']);
-                    $this->db->set('service_centres_id', "TRIM(BOTH ',' FROM CONCAT(ifnull(service_centres_id, ''), ',".$sf_id."' ))", FALSE);
-                    $this->db->update('employee_relation');
-                } 
+                $this->db->where('id', $sf_id);
+                $this->db->set('rm_id', $rm_manager[0]['id']);
+                $this->db->update('service_centres'); 
             }
 
             return true;
@@ -1719,10 +1722,31 @@ class vendor_model extends CI_Model {
      */
     function get_rm_sf_relation_by_sf_id($sf_id){
         if(!empty($sf_id)){
-            $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
-                . "where FIND_IN_SET($sf_id,employee_relation.individual_service_centres_id) "
-                . "AND employee.groups != '"._247AROUND_ADMIN."' "
-                . "AND employee_relation.agent_id = employee.id ORDER BY employee_relation.agent_id DESC";
+            $sql = "Select 
+                        service_centres.rm_id as agent_id,
+                        group_concat(agent_state_mapping.state_code) as state_code,
+                        employee.*
+                    from 
+                        service_centres
+                        JOIN employee ON (service_centres.rm_id = employee.id)
+                        LEFT JOIN agent_state_mapping ON (service_centres.rm_id = agent_state_mapping.agent_id)
+                    where 
+                        service_centres.id = {$sf_id}
+                        AND employee.groups != '"._247AROUND_ADMIN."'
+                    GROUP BY service_centres.rm_id
+                    UNION
+                    Select 
+                        service_centres.asm_id as agent_id,
+                        group_concat(agent_state_mapping.state_code) as state_code,
+                        employee.*
+                    from 
+                        service_centres
+                        JOIN employee ON (service_centres.asm_id = employee.id)
+                        LEFT JOIN agent_state_mapping ON (service_centres.asm_id = agent_state_mapping.agent_id)
+                    where 
+                        service_centres.id = {$sf_id}
+                        AND employee.groups != '"._247AROUND_ADMIN."'
+                    GROUP BY service_centres.asm_id";
             $response = $this->db->query($sql)->result_array();
         }else{
             $response = false;
@@ -1758,72 +1782,15 @@ class vendor_model extends CI_Model {
         return $response;
     }
     
-    
-    /**
-     * @Desc: This function is used to update employee_relation table
-     * @parmas: $agent_id, $sf_id
-     * @return: boolean
-     *
-     */
-    function update_rm_to_sf_relation($agent_id,$sf_id) {
-        // remove service center id.
-        $sql = "SELECT
-                    employee_relation.*
-                FROM
-                    employee_relation,employee
-                WHERE
-                    (FIND_IN_SET({$sf_id},employee_relation.service_centres_id)  or FIND_IN_SET({$sf_id},employee_relation.individual_service_centres_id))
-                    AND employee.groups != 'admin'
-                    AND employee_relation.agent_id = employee.id
-                ORDER BY
-                    employee_relation.agent_id DESC";
-       
-        $remove_array = $this->db->query($sql)->result_array();
-       
-        if(!empty($remove_array)) {
-            foreach($remove_array as $rm_relation) {
-                if(!empty($rm_relation['service_centres_id'])) {
-                    $arr_service_center_id = explode(',', $rm_relation['service_centres_id']);
-                    if(in_array($sf_id, array_filter($arr_service_center_id))) {
-                        unset($arr_service_center_id[array_search($sf_id, $arr_service_center_id)]);
-                        $this->reusable_model->update_table('employee_relation',['service_centres_id' => trim(implode(',', array_filter($arr_service_center_id)), ',')], ['id' => $rm_relation['id']]);
-                    }
-                }
-               
-                if(!empty($rm_relation['individual_service_centres_id'])) {
-                    $arr_individual_service_center_id = explode(',', $rm_relation['individual_service_centres_id']);
-                    if(in_array($sf_id, array_filter($arr_individual_service_center_id))) {
-                        unset($arr_individual_service_center_id[array_search($sf_id, $arr_individual_service_center_id)]);
-                        $this->reusable_model->update_table('employee_relation',['individual_service_centres_id' => trim(implode(',', array_filter($arr_individual_service_center_id)), ',')], ['id' => $rm_relation['id']]);
-                    }
-                }
-            }
-        }
-       
-
-        return $this->add_rm_to_sf_relation($agent_id, $sf_id);
-    }
-    
     /**
      * @Desc: This function is used to add newly added sf to admin present in Employee_SF_relation
      * @params: sf_id
      * @return: boolean
      * 
      */
-    function add_sf_to_admin_relation($sf_id){
-        $sql = "Select employee_relation.* from employee_relation,employee "
-                . "WHERE employee.groups = '"._247AROUND_ADMIN."' "
-                . "AND employee_relation.agent_id = employee.id";
-        $query_array = $this->db->query($sql)->result_array();
-        if(!empty($query_array)){
-            foreach($query_array as $value){
-                //Now adding SF to Admin
-                return $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
-            }   
-        }else{
-            return FALSE;
-        }
-    }
+//    function add_sf_to_admin_relation($sf_id){
+//        
+//    }
     
     function insert_india_pincode_in_batch($rows) {
         if(!empty($rows)){
@@ -2187,27 +2154,7 @@ class vendor_model extends CI_Model {
         }
         return $return;
     }
-     /**
-     * @Desc: This function is used to get relation of RM SF is present by using State Code
-     *          We are not getting Row for Admin group present for relation
-     * @params: sf_id
-     * @return: Array
-     * 
-     */
-    function get_rm_sf_relation_by_state_code($state_code){
-        if(!empty($state_code)){
-            $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
-                . "where FIND_IN_SET($state_code,employee_relation.state_code) "
-                . "AND employee.groups != '"._247AROUND_ADMIN."' "
-                . "AND employee_relation.agent_id = employee.id ORDER BY employee_relation.agent_id DESC";
-            $response = $this->db->query($sql)->result_array();
-        }else{
-            $response = false;
-        }
         
-        return $response;
-    }
-    
      /**
      * @Desc: This function is used to insert entity identity proof details
      * @params: $data Array
@@ -2312,7 +2259,6 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('service_center_brand_mapping');
         return $query->result_array()[0]['map_brands']; 
     }
-    
     function get_sf_call_load($sfArray){
         $sfString = implode("','",$sfArray);
         $sql = "SELECT assigned_vendor_id,COUNT(booking_id) as booking_count FROM booking_details WHERE assigned_vendor_id IN ('".$sfString."') AND current_status NOT IN ('Completed','Cancelled') "
@@ -2327,4 +2273,41 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('sms_template');
         return $query->result();
     }
+    
+    /**
+     * 
+     * @Desc: This function is used to get the list of all SFs associated with given employee
+     * @params: agent_id, hierarchy boolean
+     * @return: Array or Empty
+     * @author : Prity Sharma
+     * @date : 29-01-2020
+     */
+    function get_sf_associated_with_rm($agent_id, $hierarchy = false)
+    {
+        // if $hierarchy is true we get the list of all SFs associated with given employee and his team as well.
+        // else only those SFs which are individually associated with current agent are fetched
+        if($hierarchy)
+        {
+            $arr_hierarchy_agents = $this->miscelleneous->get_child_managers($agent_id);
+            if(!empty($arr_hierarchy_agents)){
+                $agent_id = implode(',', $arr_hierarchy_agents);
 }
+            $this->db->select('group_concat(service_centres.id) as service_centres_id');
+        }
+        else
+        {
+            $this->db->select('group_concat(service_centres.id) as individual_service_centres_id');
+        }
+
+        $this->db->where('(service_centres.rm_id IN ('.$agent_id.') OR service_centres.asm_id IN ('.$agent_id.'))', NULL);
+        $query = $this->db->get('service_centres');
+        $result = $query->result_array();
+        if(!empty($result)){
+            return $result;
+        } else {
+            return '';
+        }
+    }
+    
+}
+

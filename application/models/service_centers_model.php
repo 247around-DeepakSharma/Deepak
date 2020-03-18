@@ -920,6 +920,8 @@ class Service_centers_model extends CI_Model {
         $this->db->where($where);
         $this->db->join("collateral_type","collateral_type.id=collateral.collateral_id");
         $query= $this->db->get('collateral');
+
+
         return  $query->result_array();
     }
     /*
@@ -1593,6 +1595,12 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         } 
     }
     
+     /*
+     * @desc: Insert in table courier_lost_spare_status 
+     * @param :Array $data
+     * @return : Int $last_inserted_id
+     */
+    
     function insert_courier_lost_spare_status($data) {
         if(!empty($data)){
           $this->db->insert('courier_lost_spare_status', $data);  
@@ -1602,6 +1610,21 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         return false;
     }
 
+     /*
+     * @desc: Insert Spare Tracking History On Line Item
+     * @param :Array $data
+     * @return : Int $last_inserted_id
+     */
+    function insert_spare_tracking_details($data) {
+
+        if (!empty($data)) {
+            $this->db->insert('spare_state_change_tracker', $data);
+            return $this->db->insert_id();
+            log_message('info', __FUNCTION__ . '=> Insert Spare Tracking History: ' . $this->db->last_query());
+        } else {
+            return false;
+        }
+    }
     
     /**
      * @Desc: This function maps a SF with its respective RM, ASM
@@ -1620,6 +1643,21 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }
         $this->db->where('id IN ('.$service_centres_id.')', NULL);
         $this->db->update("service_centres");
+    }
+    
+    function update_service_centers_by_state($arrayUpdateColumn,$arrayWhere)
+    {
+        if(!empty($arrayUpdateColumn) && !empty($arrayWhere))
+        {
+            $this->db->set($arrayUpdateColumn);
+            $this->db->where($arrayWhere);
+            $this->db->update("service_centres");
+            return $this->db->affected_rows();
+        }
+        else
+        {
+            return false;
+        }
     }
 
 }

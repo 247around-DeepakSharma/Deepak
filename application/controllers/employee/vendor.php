@@ -91,8 +91,8 @@ class vendor extends CI_Controller {
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                //Updating details of SF in employee_relation table
-                $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
+                //Updating details of SF against RM
+                $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
                     log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
@@ -152,17 +152,17 @@ class vendor extends CI_Controller {
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
 
-                //Adding values in admin groups present in employee_relation table
-                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
-                if($check_admin_sf_relation != FALSE){
-                    //Logging success 
-                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
-                }else{
-                    //Logging Error 
-                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
-                }
+                //Adding values in admin groups 
+//                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
+//                if($check_admin_sf_relation != FALSE){
+//                    //Logging success 
+//                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
+//                }else{
+//                    //Logging Error 
+//                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
+//                }
 
-                //Updating details of SF in employee_relation table
+                //Updating details of SF against RM
                 $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
@@ -2384,7 +2384,11 @@ class vendor extends CI_Controller {
                 }
                 if($booking_id != NULL){
                             $booking_data  = $this->booking_model->getbooking_history($booking_id);
-                            $data['pincode'] = $booking_data[0]['booking_pincode'];
+                            if (isset($booking_data[0])) {
+                                $data['pincode'] = $booking_data[0]['booking_pincode'];
+                            } else {
+                                $data['pincode'] = '';
+                            }
                             $pincodeAvaliablity = $this->is_pincode_available_in_india_pincode_table($data['pincode']);
                             if($pincodeAvaliablity){
                                     $data['selected_appliance'][0] = array('service_id'=>$booking_data[0]['service_id'],'service_name'=>$booking_data[0]['services']);
@@ -3235,6 +3239,7 @@ class vendor extends CI_Controller {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
             readfile($output_file_excel);
+            unlink($output_file_excel);
             exit;
         }
 
@@ -5136,6 +5141,7 @@ class vendor extends CI_Controller {
             if($is_partner){
                 $html .=  "<th>Partner Invoice Id</th>";
                 $html .=  "<th>Approval File</th>";
+                $html .=  "<th>Purchase Invoice File</th>";
             }
             if($is_sf){
                 $html  .= "<th>Vendor Invoice Id</th>";
@@ -5161,6 +5167,12 @@ class vendor extends CI_Controller {
                     if(!empty($value['approval_file'])){
                         
                         $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'misc-images/'.$value['approval_file'].'" >Click Here</a></td>';
+                    } else {
+                        $html .= '<td></td>';
+                    }
+                    if(!empty($value['purchase_invoice_file'])){
+                        
+                        $html .= '<td><a target="_blank" href="'.S3_WEBSITE_URL.'purchase-invoices/'.$value['purchase_invoice_file'].'" >Click Here</a></td>';
                     } else {
                         $html .= '<td></td>';
                     }
@@ -5231,7 +5243,8 @@ class vendor extends CI_Controller {
             }
         }
     }
-        function save_vendor_documents(){
+    
+    function save_vendor_documents(){
 
             $this->checkUserSession();
             $vendor = [];
@@ -5399,9 +5412,6 @@ class vendor extends CI_Controller {
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-
-                $this->session->set_flashdata('vendor_added', "Vendor Documents Has been updated Successfully , Please Fill other details");
-
                
                 $this->session->set_userdata('vendor_added', 'Vendor Documents Has been updated Successfully , Please Fill other details');
                 $this->session->set_flashdata('current_tab', 2);
@@ -5423,6 +5433,7 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
+			$this->session->set_flashdata('current_tab', 3);
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
     }
@@ -5503,6 +5514,7 @@ class vendor extends CI_Controller {
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
         $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+		$this->session->set_flashdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -5520,6 +5532,10 @@ class vendor extends CI_Controller {
                     
                     echo $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
                     
+                    $filePath = TMP_FOLDER.$cancelled_cheque_file;
+                    if (file_exists($filePath)){
+                        unlink($filePath);
+                    }
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
                 }
@@ -5531,7 +5547,7 @@ class vendor extends CI_Controller {
                 $bank_data['bank_name'] = trim($this->input->post('bank_name'));
                 $bank_data['account_type'] = trim($this->input->post('account_type'));
                 $bank_data['bank_account'] = trim($this->input->post('bank_account'));
-                $bank_data['ifsc_code'] = trim($this->input->post('ifsc_code'));
+                $bank_data['ifsc_code'] = strtoupper(trim($this->input->post('ifsc_code')));
                 $bank_data['beneficiary_name'] = trim($this->input->post('beneficiary_name'));
                 $bank_data['ifsc_code_api_response'] = trim($this->input->post('ifsc_validation'));
                 $bank_data['is_verified'] = $this->input->post('is_verified');
@@ -5544,6 +5560,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                 $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
+				$this->session->set_flashdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){
@@ -6009,7 +6026,8 @@ class vendor extends CI_Controller {
     function getRMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_RM]);
         $rm_id = $this->input->post('rm_id');
-        $option = '<option value="" disabled '.(empty($rm_id) && count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
+        $arr_rm_ids  = array_column($data, 'id');
+        $option = '<option value="" disabled '.((empty($rm_id) || !in_array($rm_id, $arr_rm_ids)) ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}' ".(!empty($rm_id) && $rm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
@@ -6020,7 +6038,8 @@ class vendor extends CI_Controller {
     function getASMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM]);
         $asm_id = $this->input->post('asm_id');
-        $option = '<option value="" disabled '.(empty($asm_id) && count($data) > 1 ? 'selected' : '').'>Select Area Sales Manager</option>';
+        $arr_asm_ids  = array_column($data, 'id');
+        $option = '<option value="" disabled '.((empty($asm_id) || !in_array($asm_id, $arr_asm_ids)) ? 'selected' : '').'>Select Area Sales Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}' ".(!empty($asm_id) && $asm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
@@ -6051,7 +6070,10 @@ class vendor extends CI_Controller {
         $this->vendor_model->update_engineer($where, $data);
         echo true;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> CRM_Release_1.71.0.0
         
     /**
      * This function is used to check basic validation that if a booking can be re-assigned or not
@@ -6097,6 +6119,7 @@ class vendor extends CI_Controller {
 
         return $arr_validation_checks;
     }
+<<<<<<< HEAD
 
 
 
@@ -6111,4 +6134,6 @@ class vendor extends CI_Controller {
             file_put_contents($imageName, $signature_file);
             echo json_encode(array('filename' => $filename));
         }
+=======
+>>>>>>> CRM_Release_1.71.0.0
 }

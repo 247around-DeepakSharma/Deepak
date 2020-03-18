@@ -21,6 +21,7 @@ define('GST_DEBIT_NOTE', 'GST Debit Note');
 define('MSL_DEFECTIVE_RETURN', 'MSL Defective Return');
 define('MSL_NEW_PART_RETURN', 'MSL New Part Return');
 define('OOW_NEW_PART_RETURN', 'OOW New Part Return');
+define('SPARE_LOST_PART_RETURN', 'Spare Lost Part Return');
 define('OUT_OF_WARRANTY', 'Out-of-Warranty');
 define('IN_WARRANTY', 'In-Warranty');
 define('CUSTOMER_PAYMENT', 'Customer Payment');
@@ -97,4 +98,7 @@ define("_247AROUND_AUDIO_SYSTEM_GST_RATE",18);
 define("_247AROUND_CHIMNEY_GST_RATE",18);
 define('COURIER', 'Courier');
 define('ACCESSORIES_TAG','accessories');
+define('FNF', 'FNF');
+//Default Charges Limit for Courier & Upcountry
+define('DEFAULT_CHARGES_LIMIT', 10);
 ?>

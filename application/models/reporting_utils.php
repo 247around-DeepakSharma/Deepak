@@ -53,9 +53,8 @@ class Reporting_utils extends CI_Model {
                 FROM (booking_details)
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-                JOIN employee_relation ON FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)
-                JOIN employee ON employee.id = employee_relation.agent_id
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
+                LEFT JOIN employee ON employee.id = service_centres.rm_id
                 LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` = `booking_details`.`booking_id`
                 WHERE " . $where . "
         ORDER BY booking_age DESC"

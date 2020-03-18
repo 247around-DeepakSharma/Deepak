@@ -57,5 +57,5 @@
 
     setTimeout(function(){
         window.close();
-    }, 1);
+    }, 10);
 </script>

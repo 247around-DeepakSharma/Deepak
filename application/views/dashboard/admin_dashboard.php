@@ -369,7 +369,11 @@
                               <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 > 0" class="btn btn-danger">
                                             <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
                                              </form></td>
-                           <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                           <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
+                                            <input type="hidden" name="booking_id_status" value=" {{x.TAT_Total_bookings}}">
+                              <input type="submit" value="{{x.Total_Pending}} ({{x.TAT_total_per}}%)" ng-if="x.Total_Pending > 0" class="btn btn-danger">
+                                            <input type="submit" value="{{x.Total_Pending}} ({{x.TAT_total_per}}%)" ng-if="x.Total_Pending <= 0" class="btn btn-success">
+                                             </form></td>
                         </tr>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
                             <td>{{$index+1}}</td>
@@ -384,7 +388,6 @@
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
                             <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
-                            <td></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1897,7 +1900,7 @@
     }
     function create_arm_open_call_tat_report_table(tableRow,data){
         html='<table class="table table-striped table-bordered sub-table">'
-                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+                +'<thead><tr><th>S.no</th><th>ASM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
         if(!!data && data.length>0){
             html += "<tbody>";
             for(var i in data){
@@ -1905,11 +1908,33 @@
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
                 if(data[i].id === "00"){
-                    html += "<td><button class='btn btn-info'>"+ data[i].entity+ "</button></td>";
+                    html += "<td>"+ data[i].entity+ "</td>";
+                    html += '<td>'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)</td>';
+                    total += data[i].TAT_0;
+                    html += '<td>'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)</td>'; 
+                    total += data[i].TAT_1;
+                    html += '<td>'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)</td>';
+                    total += data[i].TAT_2;
+                    html += '<td>'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)</td>';
+                    total += data[i].TAT_3;
+                    html += '<td>'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)</td>';
+                    total += data[i].TAT_4;
+                    html += '<td>'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)</td>';
+                    total += data[i].TAT_5;
+                    html += '<td>'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)</td>';
+                    total += data[i].TAT_8;
+                    html += '<td>'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)</td>';
+                    total += data[i].TAT_16;
+                    html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";                
                 }else{
-                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
-                }
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                    // Added entity_type (RM/ASM) to fetch their specific Bookings
+                    var entity_type = "";
+                    if (typeof(data[i].entity_type) != "undefined")
+                    {
+                       entity_type = data[i].entity_type;
+                    }
+                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form','"+entity_type+"')\">"+ data[i].entity+ "</button></td>";
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
                              +'</form></td>';
@@ -1949,7 +1974,11 @@
                             +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
                              +'</form></td>';
                 total += data[i].TAT_16;
-                html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_Total_bookings + '">'
+                                +'<input type="submit" value="'+ data[i].Total_Pending + ' ('+ data[i].TAT_total_per + '%)"  class="btn btn-'+ ((data[i].Total_Pending<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                }
                 html += '</tr>';
             }
             html += "</tbody></table>";
@@ -2545,9 +2574,10 @@ function initiate_escalation_data(){
        startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
     });
 }
-    function open_full_view(id,url,is_am,is_pending,form_id){
+    function open_full_view(id,url,is_am,is_pending,form_id,entity_type=""){
+      // Add entity_type(ASM/RM) 
       entity_id = id.split("_")[1];
-      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending;
+      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
     }

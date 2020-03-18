@@ -185,6 +185,10 @@ class Miscelleneous {
             $unit_details = $this->My_CI->booking_model->get_unit_details($where);
             foreach ($unit_details as $value) {
                 $sc_data['unit_details_id'] = $value['id'];
+                // update serial number and serial number image from booking_unit_details table
+                // added by Prity Sharma on 03-03-2020                                
+                $sc_data['serial_number'] = $value['serial_number'];
+                $sc_data['serial_number_pic'] = $value['serial_number_pic'];
                 $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
                 
                 if (!$sc_id) {
@@ -698,6 +702,10 @@ class Miscelleneous {
                                 $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
                                 $sc_data['booking_id'] = $booking_id;
                                 $sc_data['unit_details_id'] = $value['id'];
+                                // update serial number and serial number image from booking_unit_details table
+                                // added by Prity Sharma on 03-03-2020
+                                $sc_data['serial_number'] = $value['serial_number'];
+                                $sc_data['serial_number_pic'] = $value['serial_number_pic'];
                                 $sc_id = $this->My_CI->vendor_model->insert_service_center_action($sc_data);
                                 if (!$sc_id) {
                                     log_message('info', __METHOD__ . "=> Data is not inserted into service center "
@@ -3208,8 +3216,7 @@ function generate_image($base64, $image_name,$directory){
             $select = "booking_details.*,employee.id as emp_id,employee.official_email,service_centres.name,service_centres.owner_email as service_center_owner_email,services.services,service_centres.primary_contact_email as sf_email";
             $where["booking_details.booking_id"] = $bookingID; 
             $partnerJoin["agent_filters"] = "agent_filters.entity_id=booking_details.partner_id";
-            $join["employee_relation"] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
-            $join["employee"] = "employee.id=employee_relation.agent_id";
+            $join["employee"] = "employee.id=service_centres.rm_id";
             $join["service_centres"] = "service_centres.id=booking_details.assigned_vendor_id";
             $join["services"] = "services.id=booking_details.service_id";
             $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
@@ -3440,12 +3447,11 @@ function generate_image($base64, $image_name,$directory){
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
                 . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
-        $join['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
         $join['employee e'] = "e.id = agent_filters.agent_id";
-        $join['employee'] = "employee.id = employee_relation.agent_id";
+        $join['employee'] = "employee.id = service_centres.rm_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
@@ -4476,7 +4482,6 @@ function generate_image($base64, $image_name,$directory){
             $track_partner_id = '';
             $track_entity_type = '';
         }
-
         $tcount = 0;
         $booking_error_array = array();
         $add_row = array();
@@ -4974,6 +4979,23 @@ function generate_image($base64, $image_name,$directory){
                         }
                     }
                 }
+                
+                if (!empty($this->My_CI->session->userdata('service_center_id'))) {
+                    $agent_id = $this->My_CI->session->userdata("service_center_agent_id");
+                    $track_entity_id = $this->My_CI->session->userdata('service_center_id');
+                    $track_entity_type = _247AROUND_SF_STRING;
+                } else {
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $track_entity_id = _247AROUND;
+                    $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                }
+
+                /* Insert Spare Tracking Details */
+                if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
+                    $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
+
             }
 
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {
@@ -5079,4 +5101,16 @@ function generate_image($base64, $image_name,$directory){
         }
         return $arr_emp;
     }
+
+/*  Getting URL called  Abhishek Awasthi*/
+
+    function get_uri_called(){
+        $base = base_url();
+        $controller = $this->My_CI->router->fetch_class();
+        $method = $this->My_CI->router->fetch_method();
+        return $base."/".$controller."/".$method;
+    }
+
+
+
 }
