@@ -311,6 +311,7 @@ $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_pl
 $route['employee/invoice/reverse_sale_for_part_lost/(:any)'] = 'employee/invoice/reverse_sale_for_part_lost/$1';
 $route['service_center/parts_delivered_to_sf'] = 'employee/service_centers/parts_delivered_to_sf';
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
+$route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -2054,6 +2054,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->order_by('appliance_model_details.model_number', 'asc');
         
         $this->db->join("appliance_model_details", "appliance_model_details.id = partner_appliance_details.model");
+        $this->db->join("services", "services.id = partner_appliance_details.service_id");
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
@@ -2594,6 +2595,22 @@ function get_data_for_partner_callback($booking_id) {
             return TRUE; 
         }else{
           return FALSE;
+        }
+    }
+
+     /**
+     This function used to get nrn history based on booking ID
+     * @author Ghanshyam
+     * @date 18-03-2020
+     * @param type $select,$where
+     * @return boolean
+     */
+    function get_nrn_approval_history($select,$where){
+        if(!empty($select) && !empty($where)){
+           $this->db->select($select);
+           $this->db->where($where);
+           $query = $this->db->get('spare_nrn_approval');
+            return $query->result_array();
         }
     }
 
