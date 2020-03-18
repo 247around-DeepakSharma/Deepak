@@ -3589,22 +3589,6 @@ class Inventory_model extends CI_Model {
         return $query;
     }
     
-     /*
-     * @desc: This function is used to get Out of TAT list.
-     * @params: $select
-     * @params: Array $where
-     * @return: Json
-     */
-    
-    function get_out_tat_spare_parts_list($post) {
-        $this->_get_out_of_tat_pending_defective_part($post);
-        if ($post['length'] != -1) {
-            $this->db->limit($post['length'], $post['start']);
-        }
-
-        $query = $this->db->get();
-        return $query->result();
-    }
 
     /*
      * @desc: This function is used to Out of TAT list.
