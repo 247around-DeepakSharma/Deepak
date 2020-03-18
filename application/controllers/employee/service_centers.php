@@ -2445,9 +2445,15 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
+                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
+                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
+                        $data['original_inventory_id'] = $value['requested_inventory_id'];
+                    }
+                    
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
-                        $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        //$data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
                         $sc_data['internal_status'] = $reason;
                     } else {
 
@@ -2455,10 +2461,6 @@ class Service_centers extends CI_Controller {
                         $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                     }
 
-                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
-                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
-                        $data['original_inventory_id'] = $value['requested_inventory_id'];
-                    }
 
                     $data['partner_id'] = $this->input->post('partner_id');
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
