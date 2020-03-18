@@ -719,5 +719,7 @@ define('BOOKING_SOURCE_Website', 25);
 // Agents for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
+//Constant for file upload history in bulk warrenty checker panel
+define("BULK_CHECK_WARRANTY_STATUS" , "bulk_check_warranty_status");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
