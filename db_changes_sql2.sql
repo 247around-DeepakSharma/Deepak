@@ -2029,3 +2029,6 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
 -------------------------------------------------------------
+
+-- Ankit Rajvanshi 18-03-2020
+ALTER TABLE inventory_master_list ADD COLUMN is_defective_required tinyint(1) NOT NULL DEFAULT 0;

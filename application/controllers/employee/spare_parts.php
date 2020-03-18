@@ -2752,7 +2752,8 @@ class Spare_parts extends CI_Controller {
                 $spare_data['part_warranty_status'] = $part_warranty_status;
 
                 if ($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
-                    $spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                    //$spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($warehouse_details['inventory_id']);
                 } else {
                     $spare_data['defective_part_required'] = 0;
                 }
