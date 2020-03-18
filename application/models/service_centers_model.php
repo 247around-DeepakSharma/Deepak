@@ -517,6 +517,7 @@ class Service_centers_model extends CI_Model {
         $this->db->join('users', 'users.user_id =  booking_details.user_id');
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('inventory_master_list as s', " s.inventory_id = spare_parts_details.shipped_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
         $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
 
@@ -1595,12 +1596,11 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         } 
     }
     
-     /*
-     * @desc: Insert in table courier_lost_spare_status 
-     * @param :Array $data
+    /**
+     * @desc: Insert Courier Lost spare data.
+     * @param : Array $data
      * @return : Int $last_inserted_id
      */
-    
     function insert_courier_lost_spare_status($data) {
         if(!empty($data)){
           $this->db->insert('courier_lost_spare_status', $data);  

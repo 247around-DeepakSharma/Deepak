@@ -1287,6 +1287,21 @@ class Inventory extends CI_Controller {
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
+                
+                CASE 'COURIER_LOST':
+                    /**
+                     * Admin mark courier lost.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    $where = array('id' => $id);
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    $data['status'] = InProcess_Courier_Lost;
+                    $data['old_status'] = $spare_part_detail['status'];
+                    $data['consumed_part_status_id'] = 2;
+                    $track_status = $new_state = InProcess_Courier_Lost;
+                    $remarks = "Courier lost marked by admin";
+                    $old_state = $spare_part_detail['status'];
+                    break;
             }
             if ($flag) {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);

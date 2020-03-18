@@ -498,7 +498,6 @@ class Around_scheduler_model extends CI_Model {
         return $query->result_array();
     }
 
-
     /**
      * @desc:This method is used to get all spare parts which are pending on service center to return for more than 45 days.
      * @author Ankit Rajvanshi
@@ -525,11 +524,12 @@ class Around_scheduler_model extends CI_Model {
         return $this->db->query($sql)->result_array();
     }
 
+
 /*  Save CRON LOG IN DB Abhishek Awasthi */
 function save_cron_log($data){
     $this->db->insert('cron_logs',$data);
     return $this->db->insert_id();
 }
 
- 
+
 }

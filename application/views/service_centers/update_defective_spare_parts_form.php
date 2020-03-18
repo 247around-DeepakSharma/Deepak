@@ -65,6 +65,7 @@
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="partner_challan_number[<?php echo $spare_parts[0]['id']; ?>]" value="<?php echo $spare_parts[0]['partner_challan_number']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="challan_approx_value[<?php echo $spare_parts[0]['id']; ?>]" value="<?php echo $spare_parts[0]['challan_approx_value']; ?>">
                 <input type="hidden" class="form-control" id="defective_part_shipped" name="parts_requested[<?php echo $spare_parts[0]['id']; ?>]" value="<?php echo $spare_parts[0]['parts_requested']; ?>">
+                
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Courier Details</h2>
@@ -236,6 +237,11 @@
         placeholder:'Select Courier Name',
         allowClear:true
     });
+    $('#consumed_part_status_id').select2({
+        placeholder:'Select Consumption Reason',
+        allowClear:true
+    });
+    
     
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
@@ -371,7 +377,7 @@
                                 awb_by_sf: "required",
                                 defective_part_shipped_date: "required",
                                 courier_charges_by_sf: "customNumber",
-                                defective_courier_receipt: "required"
+                                defective_courier_receipt: "required",
                             },
                             messages: {
                                 remarks_defective_part: "Please Enter Remarks",
@@ -380,7 +386,6 @@
                                 defective_part_shipped_date: "Please Select Shipped Date",
                                 courier_charges_by_sf: "Please Enter Valid Courier Charges",
                                 defective_courier_receipt: "Please Select Courier Receipt"
-    
                             },
                             submitHandler: function (form) {
                                 if( $("#courier_charges_by_sf_hidden").val()!=0)

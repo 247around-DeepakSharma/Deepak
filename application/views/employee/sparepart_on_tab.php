@@ -446,6 +446,7 @@
                                         <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Mark Courier Lost</th>
                                         <th class="text-center" data-orderable="false">Generate Invoice</th>
                                     </tr>
                                 </thead>
@@ -1059,7 +1060,7 @@
                 type: "POST",
                 data: function(d){
                     d.type =  '12';     
-                    d.status =  '<?php echo COURIER_LOST; ?>';        
+                    d.status =  '<?php echo InProcess_Courier_Lost; ?>';        
                     d.partner_id =  '<?php echo $partner_id; ?>';       
                 },  
             },
