@@ -2587,6 +2587,22 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
 
+     /**
+     This function used to get nrn history based on booking ID
+     * @author Ghanshyam
+     * @date 18-03-2020
+     * @param type $select,$where
+     * @return boolean
+     */
+    function get_nrn_approval_history($select,$where){
+        if(!empty($select) && !empty($where)){
+           $this->db->select($select);
+           $this->db->where($where);
+           $query = $this->db->get('spare_nrn_approval');
+            return $query->result_array();
+        }
+    }
+
     /**
      * 
      * @param type $partner_id
