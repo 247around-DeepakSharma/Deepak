@@ -941,7 +941,7 @@
                                         <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
-                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <th>Is Defective/Ok Parts Required</th>
                                         <?php } ?>
                                     </tr>
@@ -1008,7 +1008,7 @@
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
-                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <td>
                                             <?php echo $sp['btn'] ?>
                                         </td>
