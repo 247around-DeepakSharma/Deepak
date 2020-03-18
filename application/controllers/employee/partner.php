@@ -8949,7 +8949,12 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
  
-        $response = $this->partner_model->insert_nrn_approval($data_nrn);
+        $count_entry = $this->partner_model->get_nrn_approval_history('id', array('booking_id' => $booking_id));
+        if (!empty($count_entry)) {
+            $response = true;
+        } else {
+            $response = $this->partner_model->insert_nrn_approval($data_nrn);
+        }
         if ($response) {
 
             $select_invemtory = "spare_parts_details.id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
