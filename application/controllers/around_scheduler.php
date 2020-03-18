@@ -2756,13 +2756,13 @@ class Around_scheduler extends CI_Controller {
         {
             foreach($spare_part_details as $spare_part_detail)
             {
-                if(!empty($spare_part_detail['consumed_part_status_id']))
+                if(empty($spare_part_detail['consumed_part_status_id']) || $spare_part_detail['consumed_part_status_id'] == 1)
                 {
-                    $spare_status = OK_PART_TO_BE_SHIPPED;
+                    $spare_status = DEFECTIVE_PARTS_PENDING;
                 } 
                 else
                 {
-                    $spare_status = DEFECTIVE_PARTS_PENDING;
+                    $spare_status = OK_PART_TO_BE_SHIPPED;
                 }
                 // update spare parts.
                 $this->service_centers_model->update_spare_parts(['id' => $spare_part_detail['id']], ['status' => $spare_status]);
