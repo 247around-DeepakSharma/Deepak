@@ -1735,7 +1735,7 @@ class Booking extends CI_Controller {
                 foreach ($query1 as $key1 => $sp) {
 
                     $query1[$key1]['btn'] = '';
-                    if ($data['booking_history'][0]["internal_status"] == "Completed") {
+                    if (!empty($data['booking_history'][0]["service_center_closed_date"])) {
                         if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager" || $this->session->userdata('user_group') == "accountant") {
                             if ($sp["defective_part_required"] == '0') {
                                 $required_parts = 'REQUIRED_PARTS';
