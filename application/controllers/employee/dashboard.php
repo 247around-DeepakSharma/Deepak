@@ -949,7 +949,7 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
     //create groupby array for booking(group by rm and then vendor)
     $groupBy['booking'] = array("service_centres.rm_id","booking_details.assigned_vendor_id");
     //create groupby array for escalation(group by rm and then vendor)
-    $groupBy['escalation'] = array("service_centres.rm_id as agent_id","vendor_escalation_log.vendor_id");
+    $groupBy['escalation'] = array("service_centres.rm_id","vendor_escalation_log.vendor_id");
     $partner_id = NULL;
     if($this->session->userdata('partner_id')){
         $partner_id = $this->session->userdata('partner_id');
