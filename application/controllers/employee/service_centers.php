@@ -2393,7 +2393,12 @@ class Service_centers extends CI_Controller {
                 $this->booking_model->update_booking_unit_details($booking_id, $dataunit_details);
 
                 $booking_date = $this->input->post('booking_date');
-                $reason = $this->input->post('reason');
+/* Reason as reason text in Android API CALL */
+                if (!$this->input->post("call_from_api")) {
+                    $reason = $this->input->post('reason');
+                }else{
+                    $reason = $this->input->post('reason_text');
+                }
                 //$price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');

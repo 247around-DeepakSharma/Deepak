@@ -1505,16 +1505,10 @@ class Accounting extends CI_Controller {
                                 $data_on_tax = $data_on_invoice_items['itm_det'];
                                 $gst_rate = $data_on_tax['rt'];
                                 $taxable_val = $data_on_tax['txval'];
-                                if (isset($data_on_tax['iamt'])){
-                                    $cgst_val = 0;
-                                    $sgst_val = 0;
-                                    $igst_val = $data_on_tax['iamt'];
-                                }
-                                else{
-                                    $cgst_val = $data_on_tax['camt'];
-                                    $sgst_val = $data_on_tax['samt'];
-                                    $igst_val = 0;
-                                }
+                                //setting value of igst amount, cgst amount and samt amount if they are available, otherwise set them to 0
+                                $igst_val = (isset($data_on_tax['iamt'])) ? $data_on_tax['iamt'] : 0;
+                                $cgst_val = (isset($data_on_tax['camt'])) ? $data_on_tax['camt'] : 0;
+                                $sgst_val = (isset($data_on_tax['samt'])) ? $data_on_tax['samt'] : 0;
                                 $row = array(
                                     'gst_no' => $gst_no,
                                     'invoice_number' => $invoice_number,
