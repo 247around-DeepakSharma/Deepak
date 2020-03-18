@@ -6116,10 +6116,6 @@ class vendor extends CI_Controller {
 
         return $arr_validation_checks;
     }
-<<<<<<< HEAD
-
-
-
 
     function signature_file(){
             $signature_file = $_POST["image"];
@@ -6131,6 +6127,5 @@ class vendor extends CI_Controller {
             file_put_contents($imageName, $signature_file);
             echo json_encode(array('filename' => $filename));
         }
-=======
->>>>>>> CRM_Release_1.71.0.0
+
 }
