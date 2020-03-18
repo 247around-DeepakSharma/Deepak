@@ -6070,10 +6070,7 @@ class vendor extends CI_Controller {
         $this->vendor_model->update_engineer($where, $data);
         echo true;
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> CRM_Release_1.71.0.0
         
     /**
      * This function is used to check basic validation that if a booking can be re-assigned or not
