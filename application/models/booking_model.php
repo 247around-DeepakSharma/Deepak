@@ -1541,7 +1541,7 @@ class Booking_model extends CI_Model {
         $trimed_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
         if (!empty($trimed_booking_id) && strlen($trimed_booking_id) > 7) {
             $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage');
+            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
             $this->db->like('booking_id', $trimed_booking_id);
@@ -1559,6 +1559,9 @@ class Booking_model extends CI_Model {
                 if (!empty($unit_details) && !empty($unit_details[$key]['price_tags']) && $unit_details[$key]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
                     $result['customer_total'] = $unit_details[$key]['customer_total'];
                     $result['vendor_basic_percentage'] = $unit_details[$key]['vendor_basic_percentage'];
+                    // keep booking_status same as prev in case of spare line item
+                    // for other line tems booking current status is copied into booking_status column
+                    $result['booking_status'] = $unit_details[$key]['booking_status'];
                 }
             }
 
