@@ -29,7 +29,7 @@ class Inventory extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('invoice_lib');
         $this->load->library('table');
-        
+        $this->load->library('warranty_utilities');
     }
 
     public function index() {
@@ -9303,6 +9303,183 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
 
         echo json_encode($res);
+    }
+    /**
+     * @Desc: This function is used for view page of bulk warrenty checker in partner panel
+     * @params: void
+     * @return: view
+     * @author Ghanshyam
+     * @date : 24-02-2020
+     */
+    function bulk_warranty_checker() {
+        $this->check_PartnerSession();
+        $warrentyStatus_pre = array();
+        $warrentyStatus = array();
+        $errormessage = '';
+        $uploadSuccess = 0;
+        if (!empty($_FILES)) {
+            $file_status = $this->get_upload_file_type_partner();
+            $data = array();
+            if (!empty($file_status['file_ext'])) {
+                if ($file_status['file_name_lenth']) {
+                    if ($file_status['status']) {
+                        $data = $this->read_upload_file_header_partner($file_status);
+                        $data['post_data'] = $this->input->post();
+                        $sheetUniqueRowData = array();
+                        $msg = "";
+                        //column which must be present in the  uploaded file
+                        $header_column_need_to_be_present = array('booking_id');
+                        //check if required column is present in upload file header
+                        $is_all_header_present = array_diff(array_filter($data['header_data']), $header_column_need_to_be_present);
+                        if (empty($is_all_header_present)) {
+                            $check_header['status'] = true;
+                        } else {
+                            $check_header['status'] = false;
+                        }
+                        $arrBookings = array();
+                        if ($check_header['status']) {
+                            if ($data['highest_row'] > 1) {
+                                for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                                    $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                                    $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                                    if (!empty(array_filter($sanitizes_row_data))) {
+                                        $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                                        $bookingID[] = $rowData['booking_id'];
+                                    }
+                                }
+                                $uploadSuccess = 1;
+                            } else {
+                                $errormessage = "Empty File";
+                            }
+                        } else {
+                            $errormessage = "Uploaded File format not matches with required file format";
+                        }
+                        if (!empty($bookingID)) {
+                            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($bookingID);
+                            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
+                            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+                            foreach ($arrBookings as $key => $value) {
+                                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
+                                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
+                                }
+                                $warrentyStatus_pre['warrenty_status'][$value['booking_id']] = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
+                            }
+                        }
+                    }
+                }
+            } else {
+                $errormessage = "Invalid file type.";
+            }
+        }
+        $partner_id = $this->session->userdata('partner_id');
+        if ($uploadSuccess == 1) {
+            foreach ($bookingID as $key => $value) {
+
+                $where = array('booking_id' => $value, 'partner_id' => $partner_id);
+                $validBooking = $this->booking_model->get_bookings_count_by_any('booking_id', $where);
+                if (!empty($validBooking)) {
+                    if (!empty($warrentyStatus_pre['warrenty_status'][$value])) {
+                        $warrentyStatus['warrenty_status'][$value] = $warrentyStatus_pre['warrenty_status'][$value];
+                    } else {
+                        $warrentyStatus['warrenty_status'][$value] = "No Data Found";
+                    }
+                } else {
+                    $warrentyStatus['warrenty_status'][$value] = "Booking not found.";
+                }
+            }
+            $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_CHECK_WARRANTY_STATUS, FILE_UPLOAD_SUCCESS_STATUS, "", "partner", $partner_id);
+        }
+        if (!empty($data['file_name'])) {
+                $fileName = TMP_FOLDER . $data['file_name'];
+                if (file_exists($fileName)) {
+                    unlink($fileName);
+                }
+            }
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/bulk_warranty_checker', array('warrentyStatus' => $warrentyStatus, 'partner_id' => $partner_id, 'errormessage' => $errormessage));
+        $this->load->view('partner/partner_footer');
+    }
+    /**
+     * @desc: This function is used to get the file type
+     * @param void
+     * @param $response array   //consist file temporary name, file extension and status(file type is correct or not)
+     */
+    private function get_upload_file_type_partner() {
+        log_message('info', __FUNCTION__ . "=> getting upload file type");
+        if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) <= 100) {
+            if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
+                $pathinfo = pathinfo($_FILES["file"]["name"]);
+
+                switch ($pathinfo['extension']) {
+                    case 'xlsx':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel2007';
+                        break;
+                    case 'xls':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel5';
+                        break;
+                }
+
+                $response['status'] = True;
+                $response['file_name_lenth'] = True;
+            } else {
+                log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+                $response['status'] = False;
+                $response['file_name_lenth'] = True;
+            }
+        } else {
+            log_message('info', __FUNCTION__ . 'File Name Length Is Long');
+            $response['status'] = False;
+            $response['file_name_lenth'] = false;
+        }
+
+        return $response;
+    }
+
+    /**
+     * @desc: This function is used to get the file header
+     * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
+     * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
+     */
+    private function read_upload_file_header_partner($file) {
+        log_message('info', __FUNCTION__ . "=> getting upload file header");
+        try {
+            $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
+            $objPHPExcel = $objReader->load($file['file_tmp_name']);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+
+        $file_name = $_FILES["file"]["name"];
+        move_uploaded_file($file['file_tmp_name'], TMP_FOLDER . $file_name);
+        chmod(TMP_FOLDER . $file_name, 0777);
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->getSheet(0);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $response['status'] = TRUE;
+        //Validation for Empty File
+        if ($highestRow <= 1) {
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+            $response['status'] = False;
+        }
+
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
+
+        $headings_new1 = array_map('strtolower', $headings_new[0]);
+
+        $response['file_name'] = $file_name;
+        $response['header_data'] = $headings_new1;
+        $response['sheet'] = $sheet;
+        $response['highest_row'] = $highestRow;
+        $response['highest_column'] = $highestColumn;
+        return $response;
     }
 
 }
