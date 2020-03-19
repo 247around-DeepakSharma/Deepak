@@ -8996,17 +8996,17 @@ class Service_centers extends CI_Controller {
             "status IN ('" . SPARE_DELIVERED_TO_SF . "')  " => NULL,
         );
 
-        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
+        $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
                 . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
 
         $group_by = "spare_parts_details.id";
-        $order_by = "spare_parts_details.booking_id ASC";
+        $order_by = "booking_details.create_date desc, spare_parts_details.booking_id ASC";
 
 
         $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
         $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
 
-        $config['per_page'] = 50;
+        $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
