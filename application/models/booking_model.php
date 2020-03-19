@@ -1577,7 +1577,8 @@ class Booking_model extends CI_Model {
                 //if found, update this entry
 
                 log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[$key]['id'], true));
-                $this->db->where('id', $unit_details[$key]['id']);
+                $this->db->where('id', $unit_details[$key]['id']);                
+                $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                 $this->db->update('booking_unit_details', $result);
                 $u_unit_id = $unit_details[$key]['id'];
             } else {
@@ -1602,6 +1603,7 @@ class Booking_model extends CI_Model {
                         //$this->db->where('booking_id',  $booking_id);
                         if (empty($unit_num[0]['price_tags'])) {
                             $this->db->where('id', $unit_num[0]['id']);
+                            $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                             $this->db->update('booking_unit_details', $result);
                             $u_unit_id = $unit_num[0]['id'];
                             log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
