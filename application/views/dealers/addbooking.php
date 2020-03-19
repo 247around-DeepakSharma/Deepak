@@ -187,7 +187,7 @@
                                      
                                     <select type="text" class="form-control"  id="appliance_unit" name="appliance_unit" >
                                       
-                                        <?php for($i =1; $i <26; $i++) { ?>
+                                        <?php for($i =1; $i <2; $i++) { ?>
                                         <option value="<?php echo $i;?>"><?php echo $i; ?></option>
                                         <?php }?>
                                        
