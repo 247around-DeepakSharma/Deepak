@@ -3211,18 +3211,19 @@ class Service_centers extends CI_Controller {
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
 
 
-        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
+//        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//
+//        $config['per_page'] = 50;
+//        $config['uri_segment'] = 3;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
 
-        $config['per_page'] = 50;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        //$data['count'] = $config['total_rows'];
+        //$data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
