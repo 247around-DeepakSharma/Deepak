@@ -1541,10 +1541,6 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('wrong_part_shipped_details','spare_parts_details.id = wrong_part_shipped_details.spare_id and wrong_part_shipped_details.active = 1', 'left');
         }
 
-        if(!empty($post['courier_pod'])) {
-            $this->db->join('courier_lost_spare_status','spare_parts_details.id = courier_lost_spare_status.spare_id', 'left');
-        }
-        
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
@@ -3244,5 +3240,15 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query($sql);
     } 
 
+    /**
+     * Method return courier lost parts which are rejected by admin/warehouse
+     * @param type $spare_id_array
+     * @return array
+     * @author Ankit Rajvanshi
+     */
+    function get_courier_lost_parts_details($spare_id_array) {
+        $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
+        return $query = $this->db->query($sql)->result_array();
+    }
 }
 
