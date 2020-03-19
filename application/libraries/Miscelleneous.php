@@ -4244,7 +4244,7 @@ function generate_image($base64, $image_name,$directory){
             $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
         }
         else{
-            $html = '<table class="table">
+            $html = '<table class="table" style="table-layout: fixed;word-break: break-word;">
   <thead>
     <tr>
       <th scope="col">Booking ID</th>

@@ -2450,9 +2450,15 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
+                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
+                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
+                        $data['original_inventory_id'] = $value['requested_inventory_id'];
+                    }
+                    
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
-                        $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        //$data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
                         $sc_data['internal_status'] = $reason;
                     } else {
 
@@ -2460,10 +2466,6 @@ class Service_centers extends CI_Controller {
                         $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                     }
 
-                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
-                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
-                        $data['original_inventory_id'] = $value['requested_inventory_id'];
-                    }
 
                     $data['partner_id'] = $this->input->post('partner_id');
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -8994,17 +8996,17 @@ class Service_centers extends CI_Controller {
             "status IN ('" . SPARE_DELIVERED_TO_SF . "')  " => NULL,
         );
 
-        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
+        $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
                 . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
 
         $group_by = "spare_parts_details.id";
-        $order_by = "spare_parts_details.booking_id ASC";
+        $order_by = "booking_details.create_date desc, spare_parts_details.booking_id ASC";
 
 
         $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
         $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
 
-        $config['per_page'] = 50;
+        $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';

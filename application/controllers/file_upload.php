@@ -310,7 +310,7 @@ class File_upload extends CI_Controller {
 
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin');
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin', 'is_defective_required');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
 
@@ -334,7 +334,7 @@ class File_upload extends CI_Controller {
 
                     if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
                             !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
-                            (!is_null($margin) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
+                            (!is_null($margin) && !empty($rowData['is_defective_required']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
                             (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
                             ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
 
@@ -849,6 +849,12 @@ class File_upload extends CI_Controller {
             $tmp_data['is_return'] = (strtolower($data['is_part_return']) == PART_TYPE_RETURN_MAPPING_FILE_VALUE) ? 1 : 0;
         }
 
+        if(strtolower($data['is_defective_required']) == 'yes') {
+            $tmp_data['is_defective_required'] = 1;
+        } else {
+            $tmp_data['is_defective_required'] = 0;
+        }
+        
         array_push($this->dataToInsert, $tmp_data);
     }
 

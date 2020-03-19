@@ -107,13 +107,13 @@ class Booking_model extends CI_Model {
         $where = "";
 
         if($booking_id !=""){
-           $where = " `booking_unit_details`.booking_id = '$booking_id' ";
+           $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
             $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
 
-	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
+	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
 
             $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_date`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
@@ -1560,9 +1560,6 @@ class Booking_model extends CI_Model {
                 if (!empty($unit_details) && !empty($unit_details[$key]['price_tags']) && $unit_details[$key]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
                     $result['customer_total'] = $unit_details[$key]['customer_total'];
                     $result['vendor_basic_percentage'] = $unit_details[$key]['vendor_basic_percentage'];
-                    // keep booking_status same as prev in case of spare line item
-                    // for other line tems booking current status is copied into booking_status column
-                    $result['booking_status'] = $unit_details[$key]['booking_status'];
                 }
             }
 
@@ -1587,7 +1584,8 @@ class Booking_model extends CI_Model {
                 //if found, update this entry
 
                 log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[$key]['id'], true));
-                $this->db->where('id', $unit_details[$key]['id']);
+                $this->db->where('id', $unit_details[$key]['id']);                
+                $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                 $this->db->update('booking_unit_details', $result);
                 $u_unit_id = $unit_details[$key]['id'];
             } else {
@@ -1612,6 +1610,7 @@ class Booking_model extends CI_Model {
                         //$this->db->where('booking_id',  $booking_id);
                         if (empty($unit_num[0]['price_tags'])) {
                             $this->db->where('id', $unit_num[0]['id']);
+                            $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                             $this->db->update('booking_unit_details', $result);
                             $u_unit_id = $unit_num[0]['id'];
                             log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());

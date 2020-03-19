@@ -1264,7 +1264,7 @@ class Spare_parts extends CI_Controller {
         } elseif ($spare_list->is_micro_wh == 2) {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
             if (!empty($wh_details)) {
-                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse--';
             }
         } else {
             $spare_pending_on = 'Partner';
@@ -2752,7 +2752,8 @@ class Spare_parts extends CI_Controller {
                 $spare_data['part_warranty_status'] = $part_warranty_status;
 
                 if ($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
-                    $spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                    //$spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($warehouse_details['inventory_id']);
                 } else {
                     $spare_data['defective_part_required'] = 0;
                 }
@@ -4315,8 +4316,12 @@ class Spare_parts extends CI_Controller {
         unset($post['where']['status']);
 
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
-        $post['where']['defective_part_shipped_date IS NULL'] = NULL;
-        $post['where']['defective_part_required'] = 1;
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
+        $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
+        $post['where']['spare_parts_details.defective_part_required'] = 1;
+        $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
+        
+        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
@@ -4413,8 +4418,11 @@ class Spare_parts extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
       
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['defective_part_required'] = 1;
+        $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
+        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['group_by'] = "spare_parts_details.id";
 
         if (!empty($download_flag)) {

@@ -272,6 +272,7 @@ function addproduct()
 			$("#response_div_e").show();
 			$("#response_div_e_span").html(returndata.msg);
 		}
+                setTimeout(function(){ $("#response_div_s").hide(); $("#response_div_e").hide(); }, 5000);
 		$("#response_div").show();
 		$("#submitform").val("Add Accessories");
 		$("#submitform").prop('disabled',false);
