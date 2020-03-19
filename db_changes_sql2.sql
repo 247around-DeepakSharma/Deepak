@@ -2028,6 +2028,6 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
-DROP INDEX uk_state_agent ON agent_state_mapping;
---Droping uniqie key constraint from agent state combination
 -------------------------------------------------------------
+
+-- Ankit Rajvanshi 18-03-2020

@@ -2652,9 +2652,18 @@ class Inventory extends CI_Controller {
             if (!$saas_partner) {
                 $row[] = $stock_list->oow_around_margin . " %";
             }
+        }
 
+        if(!empty($stock_list->is_defective_required)) {
+            $row[] = 'Yes';
+        } else {
+            $row[] = 'No';
+        }
+        
+        if ($this->session->userdata('userType') == 'employee') {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
+        
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='" . base_url() . "employee/inventory/get_bom_list_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         $row[] = '<a href="' . base_url() . 'employee/inventory/alternate_inventory_list/' . $stock_list->entity_id . '/' . $stock_list->inventory_id . '/' . $stock_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
@@ -2902,6 +2911,7 @@ class Inventory extends CI_Controller {
      */
     function process_inventoy_master_list_data() {
         $submit_type = $this->input->post('submit_type');
+        
         if (!empty($submit_type)) {
             $data = array('part_name' => trim($this->input->post('part_name')),
                 'part_number' => trim($this->input->post('part_number')),
@@ -2915,7 +2925,8 @@ class Inventory extends CI_Controller {
                 'entity_type' => $this->input->post('entity_type'),
                 'entity_id' => $this->input->post('entity_id'),
                 'oow_vendor_margin' => $this->input->post('oow_vendor_margin'),
-                'oow_around_margin' => $this->input->post('oow_around_margin')
+                'oow_around_margin' => $this->input->post('oow_around_margin'),
+                'is_defective_required' => $this->input->post('is_defective_required'),
             );
 
 
