@@ -3822,6 +3822,8 @@ exit();
                         $data['category'] = EXCHANGE;
                         $data['sub_category'] = ADVANCE;
                         $data['accounting'] = 0;
+                        $basic_price = $amount;
+                        $data['parts_cost'] = $basic_price;
                         break;
                     
                     case MICRO_WAREHOUSE_CHARGES_TYPE:
@@ -3832,6 +3834,8 @@ exit();
                         $data['category'] = SPARES;
                         $data['sub_category'] = MSL_SECURITY_AMOUNT;
                         $data['accounting'] = 0;
+                        $basic_price = $amount;
+                        $data['parts_cost'] = $basic_price;
                         break;
                     
                     case SECURITY:
@@ -3840,6 +3844,8 @@ exit();
                         $data['category'] = ADVANCE;
                         $data['sub_category'] = SECURITY;
                         $data['accounting'] = 0;
+                        $basic_price = $amount;
+                        $data['total_service_charge'] = $basic_price;
                         break;
                     case FNF:
                         $data['type'] = VENDOR_VOUCHER;
@@ -3847,6 +3853,8 @@ exit();
                         $data['category'] = ADVANCE;
                         $data['sub_category'] = FNF;
                         $data['accounting'] = 0;
+                        $basic_price = $amount;
+                        $data['total_service_charge'] = $basic_price;
                         break;
                     default :
                         $data['type'] = VENDOR_VOUCHER;
@@ -3854,20 +3862,21 @@ exit();
                         $data['category'] = ADVANCE;
                         $data['sub_category'] = SECURITY;
                         $data['accounting'] = 0;
+                        $basic_price = $amount;
+                        $data['total_service_charge'] = $basic_price;
                         break;
                 }
                 if($txntype == "Credit"){
                     $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-RV");
-                    $basic_price = $amount;
-                    $data['parts_cost'] = $basic_price;
+                    
                     $amount_collected_paid = $amount;
                     $data['type_code'] = "B";
                     $data['amount_collected_paid'] = -$amount_collected_paid;
                 } else {
                     $data['invoice_id'] = $this->create_invoice_id_to_insert($entity[0]['sc_code']."-RV");
-                    $basic_price = $amount;
+                    
                     $amount_collected_paid = $amount;
-                    $data['total_service_charge'] = $basic_price;
+                    
                     $data['type_code'] = "A";
                     $data['amount_collected_paid'] = $amount_collected_paid;
                     $data['vertical'] =SERVICE;
