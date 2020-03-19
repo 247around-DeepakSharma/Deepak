@@ -4948,6 +4948,12 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                // if part is out of warranty and consumption no then set spare status ok part to be shipped
+                if($spare_part_detail['part_warranty_status'] == 2 && in_array($status, [_247AROUND_COMPLETED, OK_PART_TO_BE_SHIPPED])) {
+                    $up['status'] = OK_PART_TO_BE_SHIPPED;
+                    $up['defective_part_required'] = 1;
+                }
+                
                 // set remarks if remarks not empty.
                 if(!empty($post_data['consumption_remarks']) && !empty($post_data['consumption_remarks'][$spare_id])) {
                     $up['consumption_remarks'] = $post_data['consumption_remarks'][$spare_id];
