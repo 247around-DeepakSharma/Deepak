@@ -686,6 +686,16 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
+        
+        // Generate NRN Approval Parts Excel
+        if (!empty($misc_data['nrn'])) {
+            $meta['total_nrn_price'] = $misc_data['nrn'][0]['total_nrn_price'];
+            $meta['total_nrn_quantity'] = $misc_data['nrn'][0]['total_nrn_quantity'];
+            $sp_files_name = $this->generate_partner_nrn_excel($misc_data['nrn'], $meta);
+            array_push($files, $sp_files_name);
+
+            log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
@@ -827,6 +837,14 @@ class Invoice extends CI_Controller {
                     $this->invoices_model->insert_open_cell_data($open_cell_data);
                 }
             }
+            
+            //update invoice entry for NRN parts approved by partner
+            if(!empty($misc_data['nrn'])){
+                foreach($misc_data['nrn'] as $nrn_details){
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $nrn_details['unit_id']), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+            }
+            
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
             if (file_exists(TMP_FOLDER . $meta['invoice_id'] . ".pdf")) {
                 unlink(TMP_FOLDER . $meta['invoice_id'] . ".pdf");
@@ -978,6 +996,21 @@ class Invoice extends CI_Controller {
     function generate_partner_open_cell_excel($partner_id, $data, $meta) {
         $template = 'Partner_invoice_detail_template-v2-open_cell.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-open-cell-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+
+    }
+    
+     /**
+     * @desc This function is used to generate spare nrn approval annexure file
+     * @param Integer $partner_id
+     * @param Array $data
+     * @param Array $meta
+     * @return string
+     */
+    function generate_partner_nrn_excel($data, $meta) {
+        $template = 'Partner_invoice_detail_template-v2-nrn.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-nrn-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
 
