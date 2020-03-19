@@ -4316,11 +4316,12 @@ class Spare_parts extends CI_Controller {
         unset($post['where']['status']);
 
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
         
-        $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
@@ -4417,10 +4418,11 @@ class Spare_parts extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
       
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
-        $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['group_by'] = "spare_parts_details.id";
 
         if (!empty($download_flag)) {
