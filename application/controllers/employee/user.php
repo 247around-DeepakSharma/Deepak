@@ -1124,6 +1124,8 @@ class User extends CI_Controller {
     function bring_district_from_state() {
         $state_selected = $this->input->post('state_name');
         $agent_ID = $this->input->post('agent_ID');
+        if(!empty($state_selected) && !empty($agent_ID))
+        {
         $state_selected_string = implode("','", $state_selected);
         $state_selected_string = "'$state_selected_string'";
         
@@ -1149,7 +1151,13 @@ class User extends CI_Controller {
                 $result = $result2;
             }
         }
-        $resultOtherAgentDistrict = array_map(function ($entry) { return $entry['id'];}, $result);        
+        if (!empty($result)) {
+            $resultOtherAgentDistrict = array_map(function ($entry) {
+                return $entry['id'];
+            }, $result);
+        } else {
+            $resultOtherAgentDistrict = array();
+        }
         $currentDistrictArray = array_map(function ($entry) { return $entry['id'];}, $currentDistrict);   
         $resultArray = $this->employee_model->get_district_from_states($state_selected_string);
         $array_state_district = array();
@@ -1205,6 +1213,7 @@ class User extends CI_Controller {
         }
         
         echo $html;
+        }
         
     }
      /**
@@ -1279,7 +1288,7 @@ class User extends CI_Controller {
             }, $currentDistrict);
             $diffDistrict = array_diff($currentDistrictArray, $reqDistrict);
             $result = $this->employee_model->get_asm_from_rm_district($diffDistrict, $rm_ID);
-            if (count($result) > 0) {
+            if (!empty($result)) {
                 $stateString = implode(', ', array_map(function ($entry) {
                             return $entry['district'];
                         }, $result));
