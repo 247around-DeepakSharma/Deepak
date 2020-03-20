@@ -107,13 +107,13 @@ class Booking_model extends CI_Model {
         $where = "";
 
         if($booking_id !=""){
-           $where = " `booking_unit_details`.booking_id = '$booking_id' ";
+           $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
             $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
 
-	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
+	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
 
             $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_date`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
@@ -744,11 +744,11 @@ class Booking_model extends CI_Model {
         $post['is_original_inventory']=1;
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
-        $post['courier_pod'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, courier_lost_spare_status.pod as courier_pod, courier_lost_spare_status.remarks as courier_remarks, courier_lost_spare_status.status as courier_status, courier_lost_spare_status.agent_id,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight ', array('spare_parts_details.booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight ', array('spare_parts_details.booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
+            $result['courier_lost_spares'] = $this->partner_model->get_courier_lost_parts_details(array_column($result['spare_parts'], 'id'));
         }
         // check if status is 'InProcess' in service_center_booking_action_action table
         // If so, we will not allow vendor to reschedule booking
@@ -1560,9 +1560,6 @@ class Booking_model extends CI_Model {
                 if (!empty($unit_details) && !empty($unit_details[$key]['price_tags']) && $unit_details[$key]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
                     $result['customer_total'] = $unit_details[$key]['customer_total'];
                     $result['vendor_basic_percentage'] = $unit_details[$key]['vendor_basic_percentage'];
-                    // keep booking_status same as prev in case of spare line item
-                    // for other line tems booking current status is copied into booking_status column
-                    $result['booking_status'] = $unit_details[$key]['booking_status'];
                 }
             }
 
@@ -1587,7 +1584,8 @@ class Booking_model extends CI_Model {
                 //if found, update this entry
 
                 log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[$key]['id'], true));
-                $this->db->where('id', $unit_details[$key]['id']);
+                $this->db->where('id', $unit_details[$key]['id']);                
+                $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                 $this->db->update('booking_unit_details', $result);
                 $u_unit_id = $unit_details[$key]['id'];
             } else {
@@ -1612,6 +1610,7 @@ class Booking_model extends CI_Model {
                         //$this->db->where('booking_id',  $booking_id);
                         if (empty($unit_num[0]['price_tags'])) {
                             $this->db->where('id', $unit_num[0]['id']);
+                            $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
                             $this->db->update('booking_unit_details', $result);
                             $u_unit_id = $unit_num[0]['id'];
                             log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());

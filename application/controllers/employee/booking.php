@@ -2056,6 +2056,7 @@ class Booking extends CI_Controller {
                         $this->partner_cb->partner_callback($booking_id);
 
                         //Redirect to Default Search Page
+                        $this->session->set_userdata('success', 'Booking inserted successfully with Booking Id : '.$status['booking_id']);
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
                         //Redirect to edit booking page if validation err occurs

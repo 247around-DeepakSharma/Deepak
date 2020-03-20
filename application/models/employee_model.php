@@ -127,6 +127,15 @@ class Employee_model extends CI_Model{
       }
       
       
+      function rm_detail_unmap(){
+
+        $this->db->select('*');
+        $this->db->from('employee');
+       $this->db->join('rm_region_mapping', 'rm_region_mapping.rm_id = employee.id');
+        $query = $this->db->get();
+        return $query->result_array();
+     }
+     
       /**
        * @Desc: This function is used to get RM's from employee table
        * @params: void
