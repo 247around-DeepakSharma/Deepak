@@ -859,7 +859,7 @@
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
-                                <td><?php if(isset($booking_history[0]['sc_district']) && $booking_history[0]['sc_district']!=''){ echo $booking_history[0]['sc_district'];} else if($booking_history[0]['upcountry_partner_approved']==0 && $booking_history[0]['is_upcountry']==1) { echo 'District is not showing because upcountry approval is pending.';} ?></td>
+                                <td><?php if(isset($booking_history[0]['sc_district']) && $booking_history[0]['sc_district']!=''){ echo $booking_history[0]['sc_district'];} else if($booking_history[0]['upcountry_partner_approved']==0 && $booking_history[0]['is_upcountry']==1 && $booking_history[0]['current_status']!=_247AROUND_CANCELLED) { echo 'District is not showing because upcountry approval is pending.';} ?></td>
                                 <td><?php if(isset($booking_history[0]['pincode']) && isset($booking_history[0]['sc_district'])){ echo $booking_history[0]['pincode'];}?></td>
                                 <td> <?php if(isset($dhq[0]['original_district'])){echo $dhq[0]['original_district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>
