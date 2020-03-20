@@ -4012,10 +4012,16 @@ class Inventory extends CI_Controller {
         echo $option;
     }
 
+    /**
+     *  @desc : This function is used to Process send MSL data 
+     *  @param : void
+     *  @return : $res JSON 
+     */
+
     function process_msl_upload_excel() {
         $input_d = file_get_contents('php://input');
         $_POST = json_decode($input_d, TRUE);
-
+        $_FILES = $_POST['files'];
         if (!(json_last_error() === JSON_ERROR_NONE)) {
             log_message('info', __METHOD__ . ":: Invalid JSON", true);
         } else {
@@ -4182,7 +4188,7 @@ class Inventory extends CI_Controller {
 
                             if (!empty($exist_courier_details)) {
                                 $courier_company_details_id = trim($exist_courier_details[0]['id']);
-
+                               
                                 //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
                                 //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
                                 //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
@@ -8280,7 +8286,17 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/msl_excel_upload');
     }
-
+    
+    /**
+     * @desc This function is used to create the view page to upload msl file.
+     * @param: null
+     */
+    function upload_msl_excel_file() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_msl_excel_file',$data);
+    }
+    
     /**
      *  @desc : This function is used to appliance wise model number and inventory details
      *  @param : void
