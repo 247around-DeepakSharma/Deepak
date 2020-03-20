@@ -79,7 +79,7 @@
                     <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
                      <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right" style="margin-left: 1%;"/>
-                     <?php if(in_array($this->session->userdata['user_group'], [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN, _247AROUND_RM, _247AROUND_DEVELOPER])) { ?>
+                     <?php if(in_array($this->session->userdata['user_group'], [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN, _247AROUND_RM, _247AROUND_ASM, _247AROUND_DEVELOPER])) { ?>
                         <a onclick="edit_form();" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
                      <?php } ?>
                 </form>
@@ -744,7 +744,7 @@
                                 ?>">
                                        <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
                                 <div class="col-md-7">
-                                    <input type="file" class="form-control crop_image"  name="signature_file" id="signature_file" value = "<?php
+                                    <input type="file" accept="image/*" class="form-control crop_image"  name="signature_file" id="signature_file" value = "<?php
                                     if (isset($query[0]['signature_file'])) {
                                         echo $query[0]['signature_file'];
                                     }
@@ -768,6 +768,7 @@
                             <?php if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) { ?>
                                 <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['signature_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                             <?php } ?>
+
                             <input type="hidden" id="cropped_image_file" name="cropped_image">
 
                         </div>  
@@ -826,14 +827,20 @@
                                 reader.onload = function (event) {
                                   $image_crop.croppie('bind', {
                                     url: event.target.result
-                                  }).then(function(){
-                                    console.log('jQuery bind complete');
-                                  });
+                                  })
                                 }
                                 reader.readAsDataURL(this.files[0]);
+                            
+                                var size = this.files[0].size;
+                                if (size > 5000000 || size < 10000) { 
+                                alert("File must be between the size of 10KB to 5MB");
+                                $('#signature_file').val('');
+                                return false; 
+                                                            
+                                }                                 
                                 $('#uploadimageModal').modal('show');
-                              });
-
+                                
+                              }); 
                     
                              $('#crop_image').click(function(event){
                                   $image_crop.croppie('result', {
@@ -848,7 +855,6 @@
                                     {   
                                         var tmp  = "<?php  echo TMP_FOLDER; ?>";
                                         var data = JSON.parse(data);
-                                        console.log(data.filename);
                                         $("#cropped_image_file").val(data.filename);
                                          
                                       $('#uploadimageModal').modal('hide');
