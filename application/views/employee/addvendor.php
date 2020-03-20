@@ -832,8 +832,8 @@
                                 reader.readAsDataURL(this.files[0]);
                             
                                 var size = this.files[0].size;
-                                if (size > 5000000 || size < 10000) { 
-                                alert("File must be between the size of 10KB to 5MB");
+                                if (size > 5000000 || size < 1000) { 
+                                alert("File must be between the size of 1KB to 5MB");
                                 $('#signature_file').val('');
                                 return false; 
                                                             
