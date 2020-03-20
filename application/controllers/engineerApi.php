@@ -3848,8 +3848,8 @@ class engineerApi extends CI_Controller {
        $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
        // Response with messsgae // 
        if($response){
-        $return_res['action_flag'] = TRUE;
-        $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+        $return_res['action_flag'] = FALSE;
+        $return_res['message'] = '';  //MSG_PARTNER_INVOICED_APP
         return $return_res;
 
        }else{
