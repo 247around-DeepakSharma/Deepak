@@ -18,7 +18,7 @@
                 <div class="x_content">
                     <div id="container" style="margin: 0px 10px;" class="form_container">
                         <!-- Form to upload excel file starts here -->
-                        <a class="btn btn-info btn-sm" style="float:right" target="_blank" href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/	bulk_warranty_checker_sample_file.xlsx'>Download Sample File</a>
+                        <a class="btn btn-info btn-sm" style="float:right" target="_blank" href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/20-Mar-2020-04-19-33-sample_file.xlsx'>Download Sample File</a>
                         <div class="col-md-6">
                             <form class="form-horizontal" id="fileinfo" name="fileinfo" method="POST" enctype="multipart/form-data"  action="<?php echo base_url(); ?>partner/inventory/bulk_warranty_checker">
                                 <input type="hidden" name="redirect_url" id="redirect_url" value="check_warranty">                          
