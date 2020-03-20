@@ -485,7 +485,7 @@ class Invoice extends CI_Controller {
         $meta = $misc_data['meta'];
         $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
         $files = array();
-        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta);
+        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id);
         //echo $c_files_name;
         array_push($files, $output_file_excel);
         log_message('info', __METHOD__ . "=> File created " . $output_file_excel);
@@ -937,9 +937,15 @@ class Invoice extends CI_Controller {
 
     }
     
-    function generate_partner_courier_excel($data, $meta){
-        
-        $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
+    function generate_partner_courier_excel($data, $meta, $partner_id){
+        if($partner_id == VIDEOCON_ID){
+            //Partner is Videocon
+            $template = 'Partner_invoice_detail_template-v2-courier-videocon.xlsx';
+        }else
+        {
+            //Partner other than Videocon
+            $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
+        }
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
@@ -2290,7 +2296,7 @@ exit();
     
     function create_partner_courier_invoice($partner_id, $from_date, $to_date, $invoice_type, $agent_id){
         log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
-        $invoices = $this->invoices_model->generate_partner_courier_invoice($partner_id, $from_date, $to_date);;
+        $invoices = $this->invoices_model->generate_partner_courier_invoice($partner_id, $from_date, $to_date);
         if(!empty($invoices)){
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
             
