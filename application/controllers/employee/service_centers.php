@@ -6639,14 +6639,13 @@ class Service_centers extends CI_Controller {
                //send email
                 $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
                 //update inventory stocks
-                // change id to whome part was sent to who is recieving
-                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $spare_part_detail['partner_id'], 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
                     $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                 } else {
                     $insert_data = [];
-                    $insert_data['entity_id'] = $spare_part_detail['partner_id']; // change id to whome part was sent to who is recieving
+                    $insert_data['entity_id'] = $this->session->userdata('service_center_id');
                     $insert_data['entity_type'] = _247AROUND_SF_STRING;
                     $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
                     $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
