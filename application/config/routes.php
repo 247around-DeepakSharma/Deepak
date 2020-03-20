@@ -242,6 +242,7 @@ $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['inventory/upload_msl_excel_file']='employee/inventory/upload_msl_excel_file'; 
 $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';

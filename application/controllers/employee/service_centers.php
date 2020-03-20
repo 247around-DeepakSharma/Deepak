@@ -3194,11 +3194,10 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
-            "spare_parts_details.defective_part_required" => 1, 
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
-            "spare_parts_details.status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
-            "spare_parts_details.consumed_part_status_id is null" => NULL,
-            "spare_parts_details.parts_shipped is not null and spare_parts_details.defective_part_shipped is null" => null
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
+            "spare_parts_details.consumed_part_status_id is null" => NULL
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
@@ -6632,14 +6631,13 @@ class Service_centers extends CI_Controller {
                //send email
                 $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
                 //update inventory stocks
-                // change id to whome part was sent to who is recieving
-                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $spare_part_detail['partner_id'], 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
                     $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                 } else {
                     $insert_data = [];
-                    $insert_data['entity_id'] = $spare_part_detail['partner_id']; // change id to whome part was sent to who is recieving
+                    $insert_data['entity_id'] = $this->session->userdata('service_center_id');
                     $insert_data['entity_type'] = _247AROUND_SF_STRING;
                     $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
                     $insert_data['stock'] = $spare_part_detail['shipped_quantity'];

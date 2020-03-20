@@ -90,6 +90,10 @@ class File_upload extends CI_Controller {
                             //process msl excel  
                             $response = $this->process_msl_upload_file($data);
                             break;
+                         case UPLOAD_MSL_EXCEL_FILE:
+                            //process upload msl excel  
+                            $response = $this->process_upload_msl_file($data);
+                            break;
                         case _247AROUND_ENGINEER_NOTIFICATIONS:
                             //process msl excel  
                             $response = $this->process_engg_notification_upload_file($data);
@@ -760,6 +764,216 @@ class File_upload extends CI_Controller {
 
         return $return_data;
     }
+    
+    
+    
+    
+    /**
+
+     * @desc: This function is used to validate upload file header
+     * @param $actual_header array this is actual header. It contains all the required column
+     * @param $upload_file_header array this is upload file header. It contains all column from the upload file header
+     * @param $return_data array
+
+     * */
+    function process_upload_msl_file($data) {
+        log_message('info', __FUNCTION__ . " => process upload msl file");
+        //  $partner_id = $this->input->post('partner_id');
+        //  $service_id = $this->input->post('service_id');
+        $action_entity_id = "";
+        $action_agent_id = "";
+        if ($this->session->userdata('service_center_id')) {
+            $agent_id = $this->session->userdata('service_center_id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = $this->session->userdata('service_center_id');
+            ;
+            $agent_type = _247AROUND_SF_STRING;
+        } else if ($this->session->userdata('id')) {
+            $agent_id = $this->session->userdata('id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = _247AROUND;
+            $agent_type = _247AROUND_EMPLOYEE_STRING;
+        } else {
+            $agent_id = $this->session->userdata('partner_id');
+            $action_agent_id = $this->session->userdata('agent_id');
+            $action_entity_id = $this->session->userdata('partner_id');
+            $agent_type = _247AROUND_PARTNER_STRING;
+        }
+        
+        $file_data = array();
+        $file_data['invoice_file'] = array(
+            'name' => $_FILES['invoice_file']['name'],
+            'type' => $_FILES['invoice_file']['type'],
+            'tmp_name' => $_FILES['invoice_file']['tmp_name'],
+            'error' => $_FILES['invoice_file']['error'],
+            'size' => $_FILES['invoice_file']['size']
+        );
+
+        $file_data['courier_file'] = array(
+            'name' => $_FILES['courier_file']['name'],
+            'type' => $_FILES['courier_file']['type'],
+            'tmp_name' => $_FILES['courier_file']['tmp_name'],
+            'error' => $_FILES['courier_file']['error'],
+            'size' => $_FILES['courier_file']['size']
+        );
+
+
+        $sheetUniqueRowData = array();
+        //$file_appliance_arr = array();
+        //column which must be present in the  upload inventory file
+        $header_column_need_to_be_present = array('appliance', 'part_code', 'quantity', 'basic_price', 'hsn_code', 'gst_rate');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+        if ($check_header['status']) {
+            $invalid_data = array();
+            $flag = 1;
+            $valid_flage = 1;
+            $msg = "";
+            $template1 = array(
+                'table_open' => '<table border="1" class="table" cellpadding="2" cellspacing="0" class="mytable">'
+            );
+
+            $this->table->set_template($template1);
+            $this->table->set_heading(array('Appliance', 'Part Number', 'HSN Code', 'Error Type'));
+            //get file data to process
+            $post_data = array();
+            $error_type = "";
+            $reciver_entity_id = 0;
+            $error_array = array();
+            $invoice_price = 0;
+            $invoice_price_with_gst = 0;
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                    if (!empty($rowData['appliance']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['gst_rate'])) {
+                        
+                        $select = 'inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
+
+                        $part_details = $this->inventory_model->get_inventory_master_list_data($select, array('part_number' => $rowData['part_code']), array());
+                        if (empty($part_details)) {
+                            $error_type = "Part not found in inventory";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                        }
+
+                        if (!empty($part_details) && $part_details[0]['price'] != $rowData['basic_price']) {
+                            $error_type = "Basic price details mismatch";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                        }
+
+                        if (!empty($part_details) && $part_details[0]['gst_rate'] != $rowData['gst_rate']) {
+                            $error_type = "GST details mismatch";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                        }
+
+                        if (!empty($part_details) && trim($part_details[0]['hsn_code']) != trim($rowData['hsn_code'])) {
+                            $error_type = "HSN details mismatch";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                        }
+                        
+                        if (!empty($part_details)) {
+                            if (isset($post_data[$rowData['appliance']])) {
+                                $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']),2);
+                                $invoice_price_with_gst =($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
+                                $part = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+                                unset($post_data[$rowData['appliance']]['invoice_amount']);
+                                $post_data[$rowData['appliance']]['invoice_amount'] = round(($invoice_price_with_gst), 2);
+                                array_push($post_data[$rowData['appliance']]['part'], $part);
+                            } else {
+                                $part = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']),2),
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+
+                                $invoice_price = $invoice_price + round(($part_details[0]['price'] * $rowData['quantity']),2);
+                                $invoice_price_with_gst = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
+                                $post_data[$rowData['appliance']]['is_wh_micro'] = $this->input->post("is_wh_micro");
+                                $post_data[$rowData['appliance']]['dated'] = date('Y-m-d H:i:s');
+                                $post_data[$rowData['appliance']]['invoice_id'] = $this->input->post("invoice_id");
+                                $post_data[$rowData['appliance']]['invoice_amount'] = $invoice_price_with_gst;
+                                $post_data[$rowData['appliance']]['courier_name'] = $this->input->post("courier_name");
+                                $post_data[$rowData['appliance']]['awb_number'] = $this->input->post("awb_number");
+                                $post_data[$rowData['appliance']]['courier_shipment_date'] = $this->input->post("courier_shipment_date");
+                                $post_data[$rowData['appliance']]['from_gst_number'] = $this->input->post("from_gst_number");
+                                $post_data[$rowData['appliance']]['to_gst_number'] = $this->input->post("to_gst_number");
+                                $post_data[$rowData['appliance']]['wh_id'] = $this->input->post("wh_id");
+                                $post_data[$rowData['appliance']]['partner_id'] = $this->input->post("partner_id");
+                                $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
+                                $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
+                                $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
+                                $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
+                                $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
+                                $post_data[$rowData['appliance']]['part'] = array();
+                                $post_data[$rowData['appliance']]['files'] = $file_data;
+                                array_push($post_data[$rowData['appliance']]['part'], $part);
+                            }
+                        }
+                    } else {
+                        $error_type = "Error in header";
+                        $error_array[] = $error_type;
+                        $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
+                    }
+                }
+            }
+        } else {
+            $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
+        }
+
+        $err_msg = $this->table->generate();
+
+        if (empty($error_array)) {
+
+            foreach ($post_data as $post) {
+                $post_json = json_encode($post, true);
+                $url = base_url() . 'employee/inventory/process_msl_upload_excel';
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+                $response1 = curl_exec($ch);
+                curl_close($ch);
+            }
+            $response['status'] = TRUE;
+            $response['message'] = $err_msg;
+            $response['bulk_msl'] = TRUE;
+            $response['redirect_to'] = 'inventory/upload_msl_excel_file';
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = $err_msg;
+            $response['redirect_to'] = 'inventory/upload_msl_excel_file';
+            // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/msl_excel_upload_errors', $response);
+        }
+
+
+        return $response;
+    }
+    
 
     /**
      * @desc: This function is used to create new part number based on partner_id,service_id and part description
