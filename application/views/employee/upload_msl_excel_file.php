@@ -30,7 +30,7 @@
             ?>
             <h1 class="page-header">
                MSL Excel Upload
-               <a href="<?php echo "https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/vendor-partner-docs/MSL-excel-sample.xlsx' ?>" name="download-sample-file" class="btn btn-primary" style="float:right;">Download Sample File</a>
+               <a href="<?php echo "https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/vendor-partner-docs/Upload-msl-excel-sample.xlsx' ?>" name="download-sample-file" class="btn btn-primary" style="float:right;">Download Sample File</a>
             </h1>
           <div id="show_both">
               <form method="POST" id="msl_bulk_upload_form"  enctype="multipart/form-data"  action="<?php echo base_url(); ?>file_upload/process_upload_file" data-preview="true" >
