@@ -4901,11 +4901,12 @@ function generate_image($base64, $image_name,$directory){
                     }
                 }
 
-                if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
+                if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
-
-                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
-                    $this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+					if(!empty($post_data['wrong_part'])) {
+						$wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+						$this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+					}
                 }
 
                 if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
