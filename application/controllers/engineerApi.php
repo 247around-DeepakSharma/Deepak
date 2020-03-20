@@ -3349,7 +3349,7 @@ class engineerApi extends CI_Controller {
                 $response['spare_parts'] = $spare_details[0];
             }
             // Do not change the request type if invoiced to partner //
-            $response['partner_invoiced'] = $this->checkBookingActionrequired($value['booking_id']);
+            $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
             /** End * */
             log_message("info", "Warranty checker call type data founded successfully");
             $this->jsonResponseString['response'] = $response;
