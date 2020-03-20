@@ -9245,6 +9245,7 @@ class Inventory extends CI_Controller {
                             $check_header['status'] = false;
                         }
                         $arrBookings = array();
+                        $bookingID = array();
                         if ($check_header['status']) {
                             if ($data['highest_row'] > 1) {
                                 for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
@@ -9272,6 +9273,10 @@ class Inventory extends CI_Controller {
                                 }
                                 $warrentyStatus_pre['warrenty_status'][$value['booking_id']] = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
                             }
+                        }
+                        else{
+                          $uploadSuccess = 0;
+                          $errormessage = "Empty File";
                         }
                     }
                 }
