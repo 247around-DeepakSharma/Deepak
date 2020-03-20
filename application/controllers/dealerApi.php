@@ -46,6 +46,7 @@ class dealerApi extends CI_Controller {
         $this->load->library('warranty_utilities');
         $this->load->library('booking_creation_lib');
         $this->load->library('invoice_lib');
+        $this->load->library('around_generic_lib');
     }
 
     /**
@@ -292,8 +293,11 @@ class dealerApi extends CI_Controller {
               $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
               break;
              
-            case 'engineerLogin':
+            case 'dealerLogin':
                 $this->processDealerLogin();
+                break;
+            case 'getStates':
+                $this->getAllStates();
                 break;
             default:
                 break;
@@ -398,6 +402,36 @@ function check_for_upgrade(){
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
             $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
+
+}
+
+
+    /**
+     *  @desc : This function is to get all states.
+     *
+     *  All the distinct states of India in Ascending order From Table state_code
+     *
+     *  @param : void
+     *  @return : array of states
+     *  @author : Abhishek Awasthi
+     */
+
+
+function getAllStates(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if ($requestData['entity_type']) { 
+                $response =  $this->around_generic_lib->getAllStates(); 
+                 $this->jsonResponseString['response'] = $response['data'];
+                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+        }
+
+
 
 }
 
