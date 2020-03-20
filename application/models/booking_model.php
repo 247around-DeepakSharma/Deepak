@@ -2674,10 +2674,11 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff){
+    function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date = ""){
         $this->db->_protect_identifiers = FALSE;
         $this->db->_reserved_identifiers = array('NOT');
-        $where["DATEDIFF(CURRENT_TIMESTAMP , service_center_closed_date) <= ".$dayDiff] = NULL;
+        $initial_booking_date = !empty($initial_booking_date) ? date("Y-m-d", strtotime($initial_booking_date)) : date("Y-m-d");
+        $where["DATEDIFF('".$initial_booking_date."' , service_center_closed_date) <= ".$dayDiff] = NULL;
         $where['booking_details.service_id'] = $service_id;
         $where['booking_details.partner_id'] = $partnerID;
         $where['booking_primary_contact_no'] = $contact;
