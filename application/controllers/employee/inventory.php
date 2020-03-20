@@ -1086,6 +1086,14 @@ class Inventory extends CI_Controller {
             $flag = true;
             $b = array();
             $line_items = '';
+            
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
+
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
+                . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
+
+            $line_items = count($spare_parts_details);
+            
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -1118,12 +1126,6 @@ class Inventory extends CI_Controller {
                     $data['approval_agent_id'] = $approval_agent_id;     /// the data is to be set by only one case and in this case array name is data // abhishek
                     $data['approval_entity_type'] = $approval_entity_type;
 
-                    $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
-
-                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '") ' => NULL), TRUE, false, false);
-
-                    $line_items = count($spare_parts_details);
                     if ($requestType == "CANCEL_PARTS") {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -1233,7 +1235,7 @@ class Inventory extends CI_Controller {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                         $data['status'] = _247AROUND_COMPLETED;
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -1258,7 +1260,7 @@ class Inventory extends CI_Controller {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                         $data['status'] = _247AROUND_COMPLETED;
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -1280,7 +1282,7 @@ class Inventory extends CI_Controller {
                             $data['status'] = OK_PART_TO_BE_SHIPPED;
                         }                 
 
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
