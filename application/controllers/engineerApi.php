@@ -1979,7 +1979,7 @@ class engineerApi extends CI_Controller {
             );  
             }
 
-            $engg_where = array('id' => $requestData["engineer_id"]);
+            $engg_where = array('id' => $requestData["engineer_id"],'installed'=>1); /* Update installed app when token available */
             $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
@@ -3348,6 +3348,8 @@ class engineerApi extends CI_Controller {
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
             }
+            // Do not change the request type if invoiced to partner //
+            $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
             /** End * */
             log_message("info", "Warranty checker call type data founded successfully");
             $this->jsonResponseString['response'] = $response;
@@ -3846,8 +3848,8 @@ class engineerApi extends CI_Controller {
        $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
        // Response with messsgae // 
        if($response){
-        $return_res['action_flag'] = TRUE;
-        $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+        $return_res['action_flag'] = FALSE;
+        $return_res['message'] = '';  //MSG_PARTNER_INVOICED_APP
         return $return_res;
 
        }else{
