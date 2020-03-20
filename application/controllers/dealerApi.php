@@ -293,7 +293,7 @@ class dealerApi extends CI_Controller {
               break;
              
             case 'engineerLogin':
-                $this->processEngineerLogin();
+                $this->processDealerLogin();
                 break;
             default:
                 break;
@@ -355,25 +355,22 @@ class dealerApi extends CI_Controller {
 
   
 
-    function processEngineerLogin() {
+    function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
         $data = $this->dealer_model->entity_login(array("entity" => "dealer",
             "active" => 1, "user_id" => $requestData["mobile"]));
         if (!empty($data)) {
-            $login = $this->dealer_model->entity_login(array("entity" => "dealer",
-                "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+            $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
-                  
-
-
 ////// LOGIN LOGIC ///
+                $this->jsonResponseString['response'] = $login[0];
 
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         } else {
-            $this->sendJsonResponse(array('0014', 'User Id does not exist'));
+            $this->sendJsonResponse(array('0014', 'User Id does not exist or user not active'));
         }
     }
 
