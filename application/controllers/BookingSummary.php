@@ -1044,6 +1044,10 @@ EOD;
                         if(!empty($rm_details)){
                             $rm_email = $rm_details[0]['official_email'];
                         }
+                        $asm_email = '';
+                        if(!empty($rm_details[1]['official_email'])){
+                            $asm_email = $rm_details[1]['official_email'];
+                        }
                         
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $file_data = $this->penalty_model->get_penalty_on_booking_any(array('penalty_on_booking.service_center_id' => $data['data'][0]['service_center_id'],
@@ -1068,7 +1072,7 @@ EOD;
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
 
                         $bcc = "";
-                        $cc = $rm_email;
+                        $cc = $asm_email;
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);

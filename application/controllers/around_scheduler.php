@@ -1789,12 +1789,17 @@ class Around_scheduler extends CI_Controller {
                         $rm_email = "";
                         $from = $email_template[2];
                         if(!empty($rm)){
-                            $rm_email = ", ".$rm[0]['official_email'];
-                            $from = $rm[0]['official_email'];
+                           $rm_email = ", ".$rm[0]['official_email'];
+                            //$from = $rm[0]['official_email'];
+                        }
+                        $asm_email = '';
+                        if(!empty($rm[1]['official_email'])){
+                            $asm_email = ", ".$rm[1]['official_email'];
+                            $from = $rm[1]['official_email'];
                         }
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
                         $bcc = $email_template[5];
-                        $cc = $email_template[3]. $rm_email;
+                        $cc = $email_template[3]. $asm_email;
                         $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
                         $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
                         
