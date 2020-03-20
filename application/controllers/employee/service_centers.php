@@ -2453,7 +2453,7 @@ class Service_centers extends CI_Controller {
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
                         //$data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
-                        $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
+                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
                         $sc_data['internal_status'] = $reason;
                     } else {
 
