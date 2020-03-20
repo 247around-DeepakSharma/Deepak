@@ -3194,10 +3194,11 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
-            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
+            "spare_parts_details.defective_part_required" => 1, 
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
-            "spare_parts_details.consumed_part_status_id is null" => NULL
+            "spare_parts_details.status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
+            "spare_parts_details.consumed_part_status_id is null" => NULL,
+            "spare_parts_details.parts_shipped is not null and spare_parts_details.defective_part_shipped is null" => null
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
@@ -3211,18 +3212,19 @@ class Service_centers extends CI_Controller {
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
 
 
-        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
+//        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//
+//        $config['per_page'] = 50;
+//        $config['uri_segment'] = 3;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
 
-        $config['per_page'] = 50;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        //$data['count'] = $config['total_rows'];
+        //$data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
@@ -6630,13 +6632,14 @@ class Service_centers extends CI_Controller {
                //send email
                 $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
                 //update inventory stocks
-                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                // change id to whome part was sent to who is recieving
+                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $spare_part_detail['partner_id'], 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
                     $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
                 } else {
                     $insert_data = [];
-                    $insert_data['entity_id'] = $this->session->userdata('service_center_id');
+                    $insert_data['entity_id'] = $spare_part_detail['partner_id']; // change id to whome part was sent to who is recieving
                     $insert_data['entity_type'] = _247AROUND_SF_STRING;
                     $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
                     $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
