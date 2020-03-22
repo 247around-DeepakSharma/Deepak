@@ -1191,6 +1191,56 @@ class Notify {
            
         }
 
+
+
+          
+    /*  Function to send whatsapp SMS when engg complete */
+
+    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
+        $base =base_url(); /// path with base url
+        include('whatsapp/vendor/autoload.php');  // conf directory
+// Configure HTTP basic authorization: basicAuth
+        $config = Karix\Configuration::getDefaultConfiguration();
+        $config->setUsername(API_KARIX_USER_ID);
+        $config->setPassword(API_KARIX_PASSWORD);
+
+        $apiInstance = new Karix\Api\MessageApi(
+                // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+                // This is optional, `GuzzleHttp\Client` will be used as default.
+                new GuzzleHttp\Client(),
+                $config
+        );
+        $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
+
+/*  Making templet for sending message */
+            $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
+            $sms['smsData']['name'] = $whatsapp_array['name'];
+            $sms['smsData']['request_type'] = $whatsapp_array['request'];
+            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
+            $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
+            $sms['smsData']['cdate'] = date("d-M-Y");
+            $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
+            $sms['smsData']['partner'] = $whatsapp_array['partner'];
+            $smsBody = vsprintf($template, $sms['smsData']);
+
+        date_default_timezone_set('UTC');
+        $phone_number = "+91" . $phone_number;
+        $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
+        $message->setDestination([$phone_number]);
+        $message->setSource(API_KARIX_SOURCE);
+        $message->setContent([
+            "text" => $smsBody,
+        ]);
+
+        try {
+            $result = $apiInstance->sendMessage($message);
+            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
+        }
+    }
+
  
 
 
