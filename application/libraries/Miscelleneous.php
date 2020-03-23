@@ -4950,7 +4950,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 // if part is out of warranty and consumption no then set spare status ok part to be shipped
-                if($spare_part_detail['part_warranty_status'] == 2 && in_array($status, [_247AROUND_COMPLETED, OK_PART_TO_BE_SHIPPED])) {
+                if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
                     $up['defective_part_required'] = 1;
                 }
