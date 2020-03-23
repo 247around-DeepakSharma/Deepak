@@ -242,6 +242,7 @@ $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['inventory/upload_msl_excel_file']='employee/inventory/upload_msl_excel_file'; 
 $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
@@ -260,7 +261,7 @@ $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
 
 
 
-
+$route['whatsapp'] = 'api/karix_whatsapp';
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
@@ -310,6 +311,7 @@ $route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_pl
 
 $route['employee/invoice/reverse_sale_for_part_lost/(:any)'] = 'employee/invoice/reverse_sale_for_part_lost/$1';
 $route['service_center/parts_delivered_to_sf'] = 'employee/service_centers/parts_delivered_to_sf';
+$route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_centers/parts_delivered_to_sf/$1';
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 

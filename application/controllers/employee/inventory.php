@@ -1086,6 +1086,14 @@ class Inventory extends CI_Controller {
             $flag = true;
             $b = array();
             $line_items = '';
+            
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
+
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
+                . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
+
+            $line_items = count($spare_parts_details);
+            
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
@@ -1118,12 +1126,6 @@ class Inventory extends CI_Controller {
                     $data['approval_agent_id'] = $approval_agent_id;     /// the data is to be set by only one case and in this case array name is data // abhishek
                     $data['approval_entity_type'] = $approval_entity_type;
 
-                    $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
-
-                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '") ' => NULL), TRUE, false, false);
-
-                    $line_items = count($spare_parts_details);
                     if ($requestType == "CANCEL_PARTS") {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -1233,7 +1235,7 @@ class Inventory extends CI_Controller {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                         $data['status'] = _247AROUND_COMPLETED;
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -1258,7 +1260,7 @@ class Inventory extends CI_Controller {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
                         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                         $data['status'] = _247AROUND_COMPLETED;
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -1280,7 +1282,7 @@ class Inventory extends CI_Controller {
                             $data['status'] = OK_PART_TO_BE_SHIPPED;
                         }                 
 
-                        if($booking_details['current_status'] == _247AROUND_COMPLETED) {
+                        if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
                     }
@@ -2652,9 +2654,18 @@ class Inventory extends CI_Controller {
             if (!$saas_partner) {
                 $row[] = $stock_list->oow_around_margin . " %";
             }
+        }
 
+        if(!empty($stock_list->is_defective_required)) {
+            $row[] = 'Yes';
+        } else {
+            $row[] = 'No';
+        }
+        
+        if ($this->session->userdata('userType') == 'employee') {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
+        
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
         $row[] = "<a href='" . base_url() . "employee/inventory/get_bom_list_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         $row[] = '<a href="' . base_url() . 'employee/inventory/alternate_inventory_list/' . $stock_list->entity_id . '/' . $stock_list->inventory_id . '/' . $stock_list->service_id . '" target="_blank" class="btn btn-info">View</a>';
@@ -2902,6 +2913,7 @@ class Inventory extends CI_Controller {
      */
     function process_inventoy_master_list_data() {
         $submit_type = $this->input->post('submit_type');
+        
         if (!empty($submit_type)) {
             $data = array('part_name' => trim($this->input->post('part_name')),
                 'part_number' => trim($this->input->post('part_number')),
@@ -2915,7 +2927,8 @@ class Inventory extends CI_Controller {
                 'entity_type' => $this->input->post('entity_type'),
                 'entity_id' => $this->input->post('entity_id'),
                 'oow_vendor_margin' => $this->input->post('oow_vendor_margin'),
-                'oow_around_margin' => $this->input->post('oow_around_margin')
+                'oow_around_margin' => $this->input->post('oow_around_margin'),
+                'is_defective_required' => $this->input->post('is_defective_required'),
             );
 
 
@@ -4006,11 +4019,17 @@ class Inventory extends CI_Controller {
 
         echo $option;
     }
+    
+    /**
+     *  @desc : This function is used to Process send MSL data 
+     *  @param : void
+     *  @return : $res JSON 
+     */
 
     function process_msl_upload_excel() {
         $input_d = file_get_contents('php://input');
         $_POST = json_decode($input_d, TRUE);
-
+        $_FILES = $_POST['files'];
         if (!(json_last_error() === JSON_ERROR_NONE)) {
             log_message('info', __METHOD__ . ":: Invalid JSON", true);
         } else {
@@ -4175,7 +4194,7 @@ class Inventory extends CI_Controller {
 
                             if (!empty($exist_courier_details)) {
                                 $courier_company_details_id = trim($exist_courier_details[0]['id']);
-
+                               
                                 //$awb_by_wh = trim($exist_courier_details[0]['awb_number']);
                                 //$courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
                                 //$courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
@@ -8260,6 +8279,16 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/msl_excel_upload');
     }
+    
+    /**
+     * @desc This function is used to create the view page to upload msl file.
+     * @param: null
+     */
+    function upload_msl_excel_file() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_msl_excel_file',$data);
+    }
 
     /**
      *  @desc : This function is used to appliance wise model number and inventory details
@@ -9232,6 +9261,7 @@ class Inventory extends CI_Controller {
                             $check_header['status'] = false;
                         }
                         $arrBookings = array();
+                        $bookingID = array();
                         if ($check_header['status']) {
                             if ($data['highest_row'] > 1) {
                                 for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
@@ -9259,6 +9289,10 @@ class Inventory extends CI_Controller {
                                 }
                                 $warrentyStatus_pre['warrenty_status'][$value['booking_id']] = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
                             }
+                        }
+                        else{
+                          $uploadSuccess = 0;
+                          $errormessage = "Empty File";
                         }
                     }
                 }

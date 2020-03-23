@@ -2450,9 +2450,15 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
+                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
+                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
+                        $data['original_inventory_id'] = $value['requested_inventory_id'];
+                    }
+                    
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
-                        $data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        //$data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
                         $sc_data['internal_status'] = $reason;
                     } else {
 
@@ -2460,10 +2466,6 @@ class Service_centers extends CI_Controller {
                         $sc_data['internal_status'] = SPARE_OOW_EST_REQUESTED;
                     }
 
-                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
-                        $data['requested_inventory_id'] = $value['requested_inventory_id'];
-                        $data['original_inventory_id'] = $value['requested_inventory_id'];
-                    }
 
                     $data['partner_id'] = $this->input->post('partner_id');
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -3158,11 +3160,6 @@ class Service_centers extends CI_Controller {
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
                 . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
 
-         $where = array(
-            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
-            "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL
-        );
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
 
@@ -3209,18 +3206,19 @@ class Service_centers extends CI_Controller {
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.booking_id ASC";
 
 
-        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//        $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
+//        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+//
+//        $config['per_page'] = 50;
+//        $config['uri_segment'] = 3;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
 
-        $config['per_page'] = 50;
-        $config['uri_segment'] = 3;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['count'] = $config['total_rows'];
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        //$data['count'] = $config['total_rows'];
+        //$data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
         $data['partner_on_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
@@ -9006,17 +9004,17 @@ class Service_centers extends CI_Controller {
             "status IN ('" . SPARE_DELIVERED_TO_SF . "')  " => NULL,
         );
 
-        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
+        $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
                 . " i.part_number, i.part_number as shipped_part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed, users.name";
 
         $group_by = "spare_parts_details.id";
-        $order_by = "spare_parts_details.booking_id ASC";
+        $order_by = "booking_details.create_date desc, spare_parts_details.booking_id ASC";
 
 
         $config['base_url'] = base_url() . 'service_center/parts_delivered_to_sf';
         $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
 
-        $config['per_page'] = 50;
+        $config['per_page'] = 100;
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';

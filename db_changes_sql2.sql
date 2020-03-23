@@ -2028,6 +2028,13 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
-DROP INDEX uk_state_agent ON agent_state_mapping;
---Droping uniqie key constraint from agent state combination
 -------------------------------------------------------------
+
+-- Ankit Rajvanshi 18-03-2020
+
+--Ghanshyam 19-03-2020---- Bulk Warranty checker partner panel Navigation
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Bulk Warranty Checker', NULL, 'partner/inventory/bulk_warranty_checker', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', 1, '2020-03-19 05:14:03');;
+
+---------------------------------------------------------
