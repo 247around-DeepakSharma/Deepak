@@ -863,8 +863,8 @@ class Notify {
     }
     function send_sms_using_msg91($phone_number,$body){
         $data = array();
-
-        if(KARIX_SENDING){
+/*  check if phone is empty */
+        if(!empty($phone_number) && KARIX_SENDING){
 /*  Making Payload */
            $payloadName = '{
                            "channel": "'.KARIX_CHANNEL.'",
