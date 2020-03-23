@@ -9394,8 +9394,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             }
                         }
                         else{
-                          $uploadSuccess = 0;
-                          $errormessage = "Empty File";
+                            if ($uploadSuccess) {
+                                $uploadSuccess = 0;
+                                $errormessage = "Empty File";
+                            }
                         }
                     }
                 }
@@ -9420,6 +9422,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 }
             }
             $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_CHECK_WARRANTY_STATUS, FILE_UPLOAD_SUCCESS_STATUS, "", "partner", $partner_id);
+        }
+        if (!empty($data['highest_row'])) {
+            if ($data['highest_row'] > 1) {
+                $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], BULK_CHECK_WARRANTY_STATUS, FILE_UPLOAD_FAILED_STATUS, "", "partner", $partner_id);
+            }
         }
         if (!empty($data['file_name'])) {
                 $fileName = TMP_FOLDER . $data['file_name'];
