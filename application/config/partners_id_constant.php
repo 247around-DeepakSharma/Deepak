@@ -1,6 +1,6 @@
 <?php
 //247Around ID
-define('_247AROUND', $db->login_partner_id);
+// define('_247AROUND', $db->login_partner_id);
 //Jeeves ID
 define("JEEVES_ID", 247030);
 //Wybor ID
