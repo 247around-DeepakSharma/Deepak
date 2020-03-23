@@ -1789,12 +1789,20 @@ class Around_scheduler extends CI_Controller {
                         $rm_email = "";
                         $from = $email_template[2];
                         if(!empty($rm)){
-                            $rm_email = ", ".$rm[0]['official_email'];
+                           $rm_email = ", ".$rm[0]['official_email'];
+                            //$from = $rm[0]['official_email'];
+                        }
+                        $asm_rm_email = ''; // Send Email to ASM, If asm not exisr then send to RM
+                        if(!empty($rm[1]['official_email'])){
+                            $asm_rm_email = ", ".$rm[1]['official_email'];
+                            $from = $rm[1]['official_email'];
+                        } else if(!empty($rm[0]['official_email'])){
+                            $asm_rm_email = ", ".$rm[0]['official_email'];
                             $from = $rm[0]['official_email'];
                         }
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
                         $bcc = $email_template[5];
-                        $cc = $email_template[3]. $rm_email;
+                        $cc = $email_template[3]. $asm_rm_email;
                         $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
                         $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
                         
@@ -2751,13 +2759,13 @@ class Around_scheduler extends CI_Controller {
         {
             foreach($spare_part_details as $spare_part_detail)
             {
-                if(!empty($spare_part_detail['consumed_part_status_id']))
+                if(empty($spare_part_detail['consumed_part_status_id']) || $spare_part_detail['consumed_part_status_id'] == 1)
                 {
-                    $spare_status = OK_PART_TO_BE_SHIPPED;
+                    $spare_status = DEFECTIVE_PARTS_PENDING;
                 } 
                 else
                 {
-                    $spare_status = DEFECTIVE_PARTS_PENDING;
+                    $spare_status = OK_PART_TO_BE_SHIPPED;
                 }
                 // update spare parts.
                 $this->service_centers_model->update_spare_parts(['id' => $spare_part_detail['id']], ['status' => $spare_status]);

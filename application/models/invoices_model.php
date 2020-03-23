@@ -673,6 +673,12 @@ class invoices_model extends CI_Model {
             $u = array_column($spare_requested_data, 'id');
             $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
         }
+        $n="";
+        $nrn_data = $this->get_nrn_approved_booking($partner_id, $from_date, $to_date);
+        if(!empty($nrn_data)){
+            $nd = array_column($nrn_data, 'unit_id');
+            $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
+        }
         
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
@@ -718,7 +724,7 @@ class invoices_model extends CI_Model {
                         AND ud.booking_status =  'Completed'
                         AND ud.ud_closed_date >=  '$from_date'
                         AND ud.ud_closed_date < '$to_date'
-                    ) $s
+                    ) $s $n
                   )
                 GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
@@ -766,6 +772,7 @@ class invoices_model extends CI_Model {
         $result['packaging_data'] = array();
         $result['spare_requested_data'] = $spare_requested_data;
         $result['open_cell'] = array();
+        $result['nrn'] = array();
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -838,6 +845,13 @@ class invoices_model extends CI_Model {
                 $result['open_cell'] = $spare_parts_open_cell_led_bar_data;
             }
             
+        }
+        
+        //set values for NRN annexure 
+        if (!empty($nrn_data)) {
+            $nrn_data[0]['total_nrn_price'] = (array_sum(array_column($nrn_data, 'partner_net_payable')));
+            $nrn_data[0]['total_nrn_quantity'] = count($nrn_data);
+            $result['nrn'] = $nrn_data;
         }
 
         if (!empty($result['result'])) {
@@ -1060,6 +1074,7 @@ class invoices_model extends CI_Model {
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];
             $data['open_cell'] = $result_data['open_cell'];
+            $data['nrn'] = $result_data['nrn'];
           
             return $data;
         } else {
@@ -3398,5 +3413,52 @@ class invoices_model extends CI_Model {
         $this->db->where($where);
         $query = $this->db->get('bank_transactions');
         return $query->result_array(); 
+    }
+    
+    /**
+     * @Desc: This function is to get NRN booking data
+     * @params: Integer $partner_id
+     * @params : String $from_date
+     * @params : String $to_data
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 18-03-2020
+     */
+    function get_nrn_approved_booking($partner_id, $from_date, $to_date){
+        $sql1 = "SELECT booking_unit_details.id AS unit_id,"
+                . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (CONCAT('''', order_id)) END AS order_id, "
+                . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
+                . " booking_details.rating_stars,  "
+                . " `booking_details`.partner_id, `booking_details`.source, "
+                . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL.SERIAL_NUMBER_PIC_DIR."/', serial_number_pic)) END as serial_number_pic,"
+                . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date, "
+                . " `booking_details`.city, `booking_details`.state, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%d-%b-%Y') as closed_date,price_tags, "
+                . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
+                . "  booking_details.booking_primary_contact_no,  "
+                . " `services`.services, users.name, "
+                . " partner_net_payable, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
+                    CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
+                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
+              
+                    CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
+                    CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
+
+              From booking_details, booking_unit_details, services, users, spare_nrn_approval as sn
+                  WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
+                  AND `services`.id = `booking_details`.service_id 
+                  AND booking_details.partner_id = '$partner_id'
+                  AND users.user_id = booking_details.user_id
+                  AND booking_unit_details.partner_net_payable > 0
+                  AND partner_invoice_id IS NULL
+                  AND partner_refuse_to_pay = 0
+                  AND sn.booking_id = booking_details.booking_id
+                  AND booking_details.nrn_approved = 1
+                  AND booking_unit_details.booking_status = '"._247AROUND_PENDING."'
+                  AND booking_unit_details.partner_invoice_id is null
+                  AND sn.created_on >= '".$from_date."'
+                  AND sn.created_on < '".$to_date."'
+               ";
+        $query1 = $this->db->query($sql1);
+        return $query1->result_array();
     }
 }

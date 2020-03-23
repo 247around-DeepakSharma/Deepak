@@ -4234,7 +4234,8 @@ function generate_image($base64, $image_name,$directory){
         $service_id = $this->My_CI->input->post('service_id');
         $partnerID = $this->My_CI->input->post('partnerID');
         $dayDiff = $this->My_CI->input->post('day_diff');
-        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
+        $initial_booking_date = !empty($this->My_CI->input->post('initial_booking_date')) ? $this->My_CI->input->post('initial_booking_date') : date('Y-m-d');
+        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date);
         $count = count($bookingsArray);
         if($count == 1){
             $resultArray['html'] = $bookingsArray[0]['booking_id'];
@@ -4244,7 +4245,7 @@ function generate_image($base64, $image_name,$directory){
             $resultArray['status'] = _NO_REPEAT_BOOKING_FLAG;
         }
         else{
-            $html = '<table class="table">
+            $html = '<table class="table" style="table-layout: fixed;word-break: break-word;">
   <thead>
     <tr>
       <th scope="col">Booking ID</th>
@@ -4969,6 +4970,12 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                // if part is out of warranty and consumption no then set spare status ok part to be shipped
+                if($spare_part_detail['part_warranty_status'] == 2 && in_array($status, [_247AROUND_COMPLETED, OK_PART_TO_BE_SHIPPED])) {
+                    $up['status'] = OK_PART_TO_BE_SHIPPED;
+                    $up['defective_part_required'] = 1;
+                }
+                
                 // set remarks if remarks not empty.
                 if(!empty($post_data['consumption_remarks']) && !empty($post_data['consumption_remarks'][$spare_id])) {
                     $up['consumption_remarks'] = $post_data['consumption_remarks'][$spare_id];

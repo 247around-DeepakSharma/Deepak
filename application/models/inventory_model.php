@@ -3589,5 +3589,16 @@ class Inventory_model extends CI_Model {
         $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
         return $query;
     }
-
+    
+    /**
+     * Function returns whether defective part is required or not from inventory master list.
+     * @param type $inventory_id
+     * @author Ankit Rajvanshi
+     */
+    function is_defective_part_required($inventory_id) {
+        $this->db->select('is_defective_required');
+        $this->db->from('inventory_master_list');
+        $this->db->where("inventory_id = {$inventory_id}");
+        return $this->db->get()->result_array()[0]['is_defective_required'];
+    }
 }
