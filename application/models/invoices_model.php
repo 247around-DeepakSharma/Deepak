@@ -137,11 +137,7 @@ class invoices_model extends CI_Model {
         if($join != ''){
             $this->db->join('employee','bank_transactions.agent_id = employee.id');
         }
-<<<<<<< HEAD
-        $this->db->order_by('transaction_date DESC');
-=======
         $this->db->order_by('bank_transactions.transaction_date DESC, bank_transactions.id desc');
->>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
         if($limit != 0){
             $this->db->limit($limit);
         }
