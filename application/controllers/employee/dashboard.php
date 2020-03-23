@@ -1,8 +1,4 @@
-<?php
-
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+<?php if (!defined('BASEPATH')) { exit('No direct script access allowed'); }
 
 /** Error reporting */
 error_reporting(E_ALL);
@@ -780,8 +776,7 @@ class Dashboard extends CI_Controller {
      * Dynamically Javascript will change the number for this view
      */
     function get_missing_pincode_detailed_view(){
-        ?>
-        <div id="missingPincodeDetails" class="modal fade" role="dialog">
+        echo '<div id="missingPincodeDetails" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
@@ -811,8 +806,7 @@ class Dashboard extends CI_Controller {
     </div>
 
   </div>
-</div>
-     <?php   
+</div>';  
     }
     /*
      * This function use to create a dashboard for RM
@@ -3448,12 +3442,67 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $data_report['series'] = $series;
             $data_report['xaxis'] = implode(",", $hour_xt);
-            echo trim(json_encode($data_report, TRUE));
+            trim(ob_get_clean());
+            echo json_encode($data_report, TRUE);
         } else {
-            echo "Data Not Found";
+            trim(ob_get_clean());
+            echo false;
         }
     }
+    /**
+     * @This function is used to fetch and return - total account manager performance score 
+     *  We are showing CRM click count per hour on the Dashboard
+     * 
+     */
+    function get_am_total_performace_score(){
+         $sdate = date('Y-m-d', strtotime($this->input->post('sDate')));
+        $edate = date('Y-m-d', strtotime($this->input->post('eDate')."+1 days"));
+        log_message('info', __METHOD__. $sdate. "  .... ". $edate);
+       
+        //fetching click count of account manager from agent_action_table
+        $data = $this->dashboard_model->get_agent_total_per_score(array('agent_action_log.create_date >="'.$sdate.'" ' =>NULL, 'agent_action_log.create_date < "'.$edate.'"'=>NULL, 'groups' =>'accountmanager'  ));
+        if (!empty($data)) {
+            $graph = array();
+            
+            //create array  by indexing hour basis
+            foreach ($data as $value) {
+                $graph[$value['agent_id']][] = $value;
+            }
+            
+            $employee_name = array();
+            $count = array();
+            $data = array();
 
+            $employee_id = $this->employee_model->get_employee_by_group(array('active' => 1, 'groups' => 'accountmanager'));
+            foreach ($employee_id as $emp) {
+                
+                if (!array_key_exists($emp['id'], $graph)) {
+                    
+                    $graph[$emp['id']][] = array('name' => $emp['full_name'],
+                        'agent_id' => $emp['id'],
+                        'data' => 0);
+                    
+                }
+                    
+            }
+            //Creating series for the Graph
+            foreach ($graph as $value) {
+                foreach ($value as $key => $v) {
+                    array_push($employee_name, $v['name']);
+                    array_push($count, $v['data']);
+                    
+                }
+            }
+
+            $data_report['yaxis'] = implode(",", $count);
+            $data_report['xaxis'] = implode(",", $employee_name);
+            trim(ob_get_clean()); 
+            echo json_encode($data_report, TRUE);
+        } else {
+            trim(ob_get_clean());
+            echo false;
+        }
+    }
 }
 
 
