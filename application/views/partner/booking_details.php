@@ -814,7 +814,7 @@
                                         </div>
                                     </div>
                                     <?php } ?>
-                            </div>
+                            </div></div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
                                 <div id="historyDetailsPartner"></div>
                                 <div id="commentboxPartner"> </div>
