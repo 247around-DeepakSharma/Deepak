@@ -19,10 +19,11 @@ class UserSession extends CI_Hooks {
      */
     public function checkUserSession() {
         $segments = $this->CI->uri->segments;
-        $this->checkSession($segments);
-        
+        $methodName = $this->getUrl($segments);
+        if($this->allowedUrls($methodName) !== "allowed") {
+            $this->checkSession();
+        }
     }
-   
     
     /**
      *  @desc : This function will check if requested url is allowed without login or not
@@ -55,15 +56,12 @@ class UserSession extends CI_Hooks {
     }
     
     /**
-     *  @desc : This function will capcture agent action
-     *  @return : 
+     *  @desc : This function will check if user is logged in or not
+     *  @return : redirects to login page
      */
-    function checkSession($segment) {
-       if (($this->CI->session->userdata('loggedIn')==TRUE)&&($this->CI->session->userdata('userType') =='employee'))  {
-           $this->CI->load->model('employee_model');
-           $u = implode("/", $segment);
-           $this->CI->employee_model->agent_action_log(array('agent_id' => $this->CI->session->userdata('id'), 
-               'url' => $u));
+    function checkSession() {
+       if (($this->CI->session->userdata('loggedIn')!==TRUE)&&($this->CI->session->userdata('userType')!=='admin'))  {
+        redirect('admin');
         } 
     }
 

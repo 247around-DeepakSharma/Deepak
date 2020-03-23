@@ -1480,7 +1480,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $this->db->select("vertical");
             $this->db->select("category");
             $this->db->select("sub_category");
-            $this->db->select("(total_amount_collected) as 'amount'");
+            $this->db->select("(total_amount_collected-amount_paid) as 'amount'");
             $this->db->limit($limit, $start);
         }
         $this->db->from('vendor_partner_invoices');

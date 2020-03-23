@@ -4507,23 +4507,6 @@ class Api extends CI_Controller {
         
         $this->output->set_header("HTTP/1.1 200 OK");
     }
-
-
-
-     /**
-     * @desc: This function gets called through Karix  for webhooks 
-     * 
-     * @retun:void()
-     */
-    public function karix_whatsapp(){
-        // Test //
-         print_r($this->input->post());
-         log_message('info', _FUNCTION_ . "=> Entering ");
-         $input_d = file_get_contents('php://input');
-         print_r($input_d);
-
-
-    }
     
     /**
      * @desc: This function is used to insert rating if only one booking is 

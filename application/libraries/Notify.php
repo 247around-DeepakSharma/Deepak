@@ -858,45 +858,6 @@ class Notify {
     }
     function send_sms_using_msg91($phone_number,$body){
         $data = array();
-
-        if(KARIX_SENDING){
-/*  Making Payload */
-           $payloadName = '{
-                           "channel": "'.KARIX_CHANNEL.'",
-                           "source": "'.KARIX_SENDER_ID.'",
-                           "destination": [
-                             "+91'.$phone_number.'"
-                           ],
-                           "content": {
-                           "text": "'.$body.'"
-                          } 
-                          }';
-         $headers = array(
-           'Content-Type:application/json',
-           'Authorization: Basic '. API_KARIX_PASSWORD // <---
-         );
-         $additionalHeaders ="";
-         $ch = curl_init(KARIX_HOST);
-         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
-//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-         curl_setopt($ch, CURLOPT_HEADER, 0);
-         curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
-         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-         curl_setopt($ch, CURLOPT_POST, 1);
-         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-         $return = curl_exec($ch);
-         curl_close($ch);
-         $data_r = json_decode($return);
-         $content  = $data_r->objects[0]->content->text;
-         $status = $data_r->objects[0]->status;
-         $error = $data_r->objects[0]->error;
-
-         $data['content'] =  $content;
-         $data['status'] =  $status;
-         $data['error'] =  $error;
-        }else{
-
         $message = urlencode($body);
         $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
                 . $phone_number . "&message=" . $message
@@ -906,7 +867,6 @@ class Notify {
         $data['content'] = curl_exec($ch);
                         log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
                         curl_close($ch);
-        }
         return  $data;
     }
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
@@ -952,7 +912,7 @@ class Notify {
 
                 //sometimes we get a 24 char random value, other times we get 'success'
                 if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
-                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") ) || (empty($status['error']))){
+                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") )){
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
@@ -1230,56 +1190,6 @@ class Notify {
         $json_res = json_decode($result);
            
         }
-
-
-
-          
-    /*  Function to send whatsapp SMS when engg complete */
-
-    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
-        $base =base_url(); /// path with base url
-        include('whatsapp/vendor/autoload.php');  // conf directory
-// Configure HTTP basic authorization: basicAuth
-        $config = Karix\Configuration::getDefaultConfiguration();
-        $config->setUsername(API_KARIX_USER_ID);
-        $config->setPassword(API_KARIX_PASSWORD);
-
-        $apiInstance = new Karix\Api\MessageApi(
-                // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-                // This is optional, `GuzzleHttp\Client` will be used as default.
-                new GuzzleHttp\Client(),
-                $config
-        );
-        $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-
-/*  Making templet for sending message */
-            $template = $this->My_CI->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
-            $sms['smsData']['name'] = $whatsapp_array['name'];
-            $sms['smsData']['request_type'] = $whatsapp_array['request'];
-            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
-            $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-            $sms['smsData']['cdate'] = date("d-M-Y");
-            $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
-            $sms['smsData']['partner'] = $whatsapp_array['partner'];
-            $smsBody = vsprintf($template, $sms['smsData']);
-
-        date_default_timezone_set('UTC');
-        $phone_number = "+91" . $phone_number;
-        $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
-        $message->setDestination([$phone_number]);
-        $message->setSource(API_KARIX_SOURCE);
-        $message->setContent([
-            "text" => $smsBody,
-        ]);
-
-        try {
-            $result = $apiInstance->sendMessage($message);
-            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
-            return TRUE;
-        } catch (Exception $e) {
-            return FALSE;
-        }
-    }
 
  
 

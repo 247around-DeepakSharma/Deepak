@@ -135,7 +135,7 @@
                             </div>
                             </form>
                             <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                                <div id="loader-gif" style="position: absolute; display: none; width: 100%; height: 100%; z-index: 3000; padding-top: 110px;"> <center><img src="<?php echo base_url(); ?>images/loadring.gif" ></center></div>
+                                <div id="loader-gif" style="position: absolute; display: none; width: 100%; height: 100%; z-index: 3000; padding-top: 110px;"> <center><img src="http://247around-adminp-aws/images/loadring.gif" ></center></div>
                                 <table id="advance_booking_search" class="table table-striped table-bordered" style="overflow-x: auto;">
                                     <thead>
                                         <tr>

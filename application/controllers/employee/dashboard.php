@@ -3374,80 +3374,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         echo json_encode($data, TRUE); 
 
     }
-    
-    /**
-     * @desc This function is used to show Account Manager data on dashboard
-     * We are showing CRM click count per hour on the Dashboard
-     * Count Vs time for Agent
-     */
-    function get_agent_action_log_per_hour() {
-        $date = date('Y-m-d', strtotime($this->input->post('date')));
-        //fetching click count of account manager from agent_action_table
-        $data = $this->dashboard_model->get_agent_action_per_hour_count($date);
-        if (!empty($data)) {
-            $graph = array();
-            $h_x = array_column($data, 'theHour');
-            $hour_x = array_unique($h_x);
-            sort($hour_x, SORT_FLAG_CASE);
-            
-            //create array  by indexing hour basis
-            foreach ($data as $value) {
-                $graph[$value['theHour']][$value['agent_id']][] = $value;
-            }
 
-            $employee_id = $this->employee_model->get_employee_by_group(array('active' => 1, 'groups' => 'accountmanager'));
-            $agent_click = array();
-            $series = array();
-            $hour_xt = array();
-            foreach ($employee_id as $emp) {
-                foreach ($hour_x as $value) {
-                    if ($value >= 12) {
-                        array_push($hour_xt, $value . "PM");
-                    } else {
-                        array_push($hour_xt, $value . "AM");
-                    }
 
-                    if (isset($graph[$value])) {
-                        if (!array_key_exists($emp['id'], $graph[$value])) {
-                            $agent_click[$value][$emp['id']] = array('name' => $emp['full_name'],
-                                'agent_id' => $emp['id'],
-                                'theHour' => $value,
-                                'data' => 0);
-                        } else {
-                            $agent_click[$value][$emp['id']] = $graph[$value][$emp['id']][0];
-                        }
-                    } else {
-                        $agent_click[$value][$emp['id']] = array('name' => $emp['full_name'],
-                            'agent_id' => $emp['id'],
-                            'theHour' => $value,
-                            'data' => 0);
-                    }
-                }
-            }
-            unset($graph);
-            $tmp_series = array();
-            //Creating series for the Graph
-            foreach ($agent_click as $value) {
-                foreach ($value as $key => $v) {
-                    if (isset($tmp_series[$v['name']])) {
-                        array_push($tmp_series[$v['name']], $v['data']);
-                    } else {
-                        $tmp_series[$v['name']] = array();
-                        array_push($tmp_series[$v['name']], $v['data']);
-                    }
-                }
-            }
 
-            foreach ($tmp_series as $key => $value) {
-                $series[] = array('name' => $key, 'count' => $value);
-            }
-            $data_report['series'] = $series;
-            $data_report['xaxis'] = implode(",", $hour_xt);
-            echo trim(json_encode($data_report, TRUE));
-        } else {
-            echo "Data Not Found";
-        }
-    }
 
 }
 

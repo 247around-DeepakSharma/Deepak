@@ -965,22 +965,5 @@ class dashboard_model extends CI_Model {
        // print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
-    /**
-     * @desc This funnction is used to get count of click per hour for account manager
-     * @param Date $date
-     * @return Array
-     */
-    function get_agent_action_per_hour_count($date){
-        $sql = "SELECT full_name as name, agent_id, extract( HOUR FROM agent_action_log.create_date ) AS theHour, count( * ) AS data FROM agent_action_log, employee "
-                . "WHERE agent_action_log.create_date >= '".$date."' AND agent_action_log.create_date < '".date('Y-m-d', strtotime($date. '+1 days'))."' "
-                . "AND agent_id != 1 "
-                . " AND employee.id = agent_id  AND employee.groups = 'accountmanager' "
-                . " GROUP BY extract( HOUR FROM agent_action_log.create_date ), "
-                . "agent_id order by agent_id";
-        
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-    
 }
     

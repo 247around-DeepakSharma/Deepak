@@ -127,15 +127,6 @@ class Employee_model extends CI_Model{
       }
       
       
-      function rm_detail_unmap(){
-
-        $this->db->select('*');
-        $this->db->from('employee');
-       $this->db->join('rm_region_mapping', 'rm_region_mapping.rm_id = employee.id');
-        $query = $this->db->get();
-        return $query->result_array();
-     }
-     
       /**
        * @Desc: This function is used to get RM's from employee table
        * @params: void
@@ -606,15 +597,6 @@ class Employee_model extends CI_Model{
             $query = $this->db->query($sql);
             return $query->result_array();
         }
-    }
-    /**
-     * @desc This function is used to insert user action
-     * @param Array $data
-     * @return type
-     */
-    function agent_action_log($data){
-        $this->db->insert('agent_action_log',$data);
-        return  $this->db->insert_id();
     }
 
 }

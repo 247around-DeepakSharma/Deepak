@@ -148,7 +148,7 @@
                         <?php if(!$saas_module){ ?>
                         <th>Around Margin</th>
                         <?php } ?>
-                        <th>Is Defective/Ok<br>Part Required</th>
+                        <?php ?>
                         <th>Customer Price</th>
                         <th>Edit</th>
                         <th>Get Model</th>
@@ -321,19 +321,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                 <div class="form-group">
-                                     <label class="control-label col-md-4" for="model_number_id">Is defective/Ok Part Required</label>
-                                    <div class="col-md-7 col-md-offset-1">
-                                        <select class="form-control" id="is_defective_required" name="is_defective_required">
-                                            <option value="0">No</option>
-                                            <option value="1">Yes</option>
-                                        </select>
-                                    </div>
-                                 </div>
-                            </div>
-                        </div>
+                        
                         <div class="modal-footer">
                             <input type="hidden"  id="entity_type" name='entity_type' value="partner">                            
                             <input type="hidden"  id="inventory_id" name='inventory_id' value="">
@@ -656,7 +644,6 @@
         $('#inventory_id').val(form_data.inventory_id);
         $('#oow_vendor_margin').val(form_data.oow_vendor_margin);
         $('#oow_around_margin').val(form_data.oow_around_margin);
-        $('#is_defective_required').val(form_data.is_defective_required);
         $('#master_list_submit_btn').val('Edit');
         $('#modal_title_action').html("Edit Details");
         $('#inventory_master_list_data').modal('toggle');

@@ -422,7 +422,7 @@
                                             </div>
                                        </div>
                                     </div>
-                            <?php if(!empty($booking_history['courier_lost_spares'])) { ?>
+                            <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
                                 <div class="col-md-12 col-sm-12 col-xs-12">
 
                                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -436,7 +436,9 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>S. No.</th>
-                                                                <th>Spare Id</th>
+                                                                <th>Part Number</th>
+                                                                <th>Part Name</th>
+                                                                <th>Part Type</th>
                                                                 <th>Courier POD</th>
                                                                 <th>Remarks</th>
                                                                 <th>Status</th>
@@ -445,23 +447,26 @@
                                                         </thead>
                                                         <tbody>
                                                             <?php 
-                                                                foreach($booking_history['courier_lost_spares'] as $courier_sno => $spare_part_data) { 
+                                                                foreach($booking_history['spare_parts'] as $courier_sno => $spare_part_data) { 
+                                                                if(empty($spare_part_data['courier_status'])) { continue; }
                                                             ?>
                                                             <tr>
                                                                 <td><?php echo ++$courier_sno; ?></td>
-                                                                <td><?php echo $spare_part_data['spare_id']; ?></td>
+                                                                <td><?php echo $spare_part_data['shipped_part_number']; ?></td>
+                                                                <td><?php echo $spare_part_data['parts_shipped']; ?></td>
+                                                                <td><?php echo $spare_part_data['shipped_parts_type']; ?></td>
                                                                 <td>
                                                                     <?php 
-                                                                        if(!empty($spare_part_data['pod'])) {
-                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['pod'];
+                                                                        if(!empty($spare_part_data['courier_pod'])) {
+                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['courier_pod'];
                                                                             echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
                                                                         } else {
                                                                             echo '-';
                                                                         }
                                                                     ?>
                                                                 </td>
-                                                                <td><?php echo $spare_part_data['remarks']; ?></td>
-                                                                <td><?php echo ($spare_part_data['status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
+                                                                <td><?php echo $spare_part_data['courier_remarks']; ?></td>
+                                                                <td><?php echo ($spare_part_data['courier_status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
                                                                 <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
                                                             </tr> 
                                                             <?php } ?>
@@ -859,7 +864,7 @@
                                     <?php echo round(($booking_history[0]["upcountry_distance"] + ($booking_history[0]["municipal_limit"] * 2))/2,2) . " KM"; ?>
                                 <?php } ?></td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["upcountry_distance"]." KM";} ?></td>
-                                <td><?php if(isset($booking_history[0]['sc_district']) && $booking_history[0]['sc_district']!=''){ echo $booking_history[0]['sc_district'];} else if($booking_history[0]['upcountry_partner_approved']==0 && $booking_history[0]['is_upcountry']==1 && $booking_history[0]['current_status']!=_247AROUND_CANCELLED) { echo 'District is not showing because upcountry approval is pending.';} ?></td>
+                                <td><?php if(isset($booking_history[0]['sc_district']) && $booking_history[0]['sc_district']!=''){ echo $booking_history[0]['sc_district'];} else if($booking_history[0]['upcountry_partner_approved']==0 && $booking_history[0]['is_upcountry']==1) { echo 'District is not showing because upcountry approval is pending.';} ?></td>
                                 <td><?php if(isset($booking_history[0]['pincode']) && isset($booking_history[0]['sc_district'])){ echo $booking_history[0]['pincode'];}?></td>
                                 <td> <?php if(isset($dhq[0]['original_district'])){echo $dhq[0]['original_district'];}?></td>
                                 <td><?php if(isset($dhq[0]['pincode'])){ echo $dhq[0]['pincode'];} ?></td>

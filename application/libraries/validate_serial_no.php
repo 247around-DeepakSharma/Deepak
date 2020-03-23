@@ -296,10 +296,8 @@ class Validate_serial_no {
             foreach ($data as $key =>$value) {
                $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
                if($value['booking_status'] == _247AROUND_COMPLETED){
-                   // calculate 30 days from service_center_closed_date
-                   // if sf_closed_Date not found use booking closed date by admin
-                    $booking_closed_date = !empty($value['service_center_closed_date']) ? $value['service_center_closed_date'] : $value['closed_date'];
-                    $d = date_diff(date_create($booking_closed_date), date_create('today')); 
+
+                    $d = date_diff(date_create($value['ud_closed_date']), date_create('today')); 
                     if($d->days < BOOKING_WARRANTY_DAYS){                      
                         
                         if($booking_details[0]['user_id'] == $user_id){

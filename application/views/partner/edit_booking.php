@@ -833,7 +833,6 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
         postData['is_repeat'] = '<?php echo $is_repeat;?>';
         postData['partner_type'] = '<?php echo $partner_type;?>';
         postData['contact'] = '<?php echo $booking_history[0]['booking_primary_contact_no']; ?>';
-        postData['initial_booking_date'] = '<?php echo $booking_history[0]['initial_booking_date']; ?>';
         postData['str_disabled'] = '<?php echo $is_spare_requested; ?>';
         // flag to check if any line item is invoiced to partner ?
         postData['is_partner_invoiced'] = '<?php echo $is_partner_invoiced; ?>';
@@ -1433,13 +1432,13 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
             });
         }
     }
-    function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat,initial_booking_date){
+    function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
         if(isChecked){
             if(!is_already_repeat){
               $.ajax({
                       type: 'POST',
                       url: '<?php echo base_url(); ?>employee/partner/get_posible_parent_id',
-                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date},
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
