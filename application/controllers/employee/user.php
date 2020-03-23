@@ -97,7 +97,8 @@ class User extends CI_Controller {
             $view = "employee/search_result";
            
             
-        }
+        } 
+
 
             else if(!empty($serial_number)){
             $post['search_value'] = $serial_number;
@@ -107,7 +108,7 @@ class User extends CI_Controller {
         
             
         }
-         else if(!empty($userName)){
+        else if(!empty($userName)){
             
             $select = "users.name as customername,
             users.phone_number, users.user_email, users.home_address, users.pincode, users.account_email";
@@ -131,6 +132,7 @@ class User extends CI_Controller {
             
         }
          else{
+        } else{
             echo "Please Select Atlease One Input Field.";
             exit();
         }
