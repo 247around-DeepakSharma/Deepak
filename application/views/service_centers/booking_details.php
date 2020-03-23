@@ -956,7 +956,7 @@
                     <?php foreach($unit_details as $unit){?>
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
-                        No";} ?></td>
+                        
 <!--- Abhishek if en_is_broken  is not available check -->
                         <td><?php if(isset($unit['en_is_broken'])  && $unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
 <!--- Abhishek if serial number pic and serial number is not available check -->
