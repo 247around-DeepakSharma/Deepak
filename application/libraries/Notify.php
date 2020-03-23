@@ -858,6 +858,45 @@ class Notify {
     }
     function send_sms_using_msg91($phone_number,$body){
         $data = array();
+
+        if(KARIX_SENDING){
+/*  Making Payload */
+           $payloadName = '{
+                           "channel": "'.KARIX_CHANNEL.'",
+                           "source": "'.KARIX_SENDER_ID.'",
+                           "destination": [
+                             "+91'.$phone_number.'"
+                           ],
+                           "content": {
+                           "text": "'.$body.'"
+                          } 
+                          }';
+         $headers = array(
+           'Content-Type:application/json',
+           'Authorization: Basic '. API_KARIX_PASSWORD // <---
+         );
+         $additionalHeaders ="";
+         $ch = curl_init(KARIX_HOST);
+         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
+//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+         curl_setopt($ch, CURLOPT_HEADER, 0);
+         curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
+         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+         curl_setopt($ch, CURLOPT_POST, 1);
+         curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+         $return = curl_exec($ch);
+         curl_close($ch);
+         $data_r = json_decode($return);
+         $content  = $data_r->objects[0]->content->text;
+         $status = $data_r->objects[0]->status;
+         $error = $data_r->objects[0]->error;
+
+         $data['content'] =  $content;
+         $data['status'] =  $status;
+         $data['error'] =  $error;
+        }else{
+
         $message = urlencode($body);
         $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
                 . $phone_number . "&message=" . $message
@@ -867,6 +906,7 @@ class Notify {
         $data['content'] = curl_exec($ch);
                         log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
                         curl_close($ch);
+        }
         return  $data;
     }
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
@@ -912,7 +952,7 @@ class Notify {
 
                 //sometimes we get a 24 char random value, other times we get 'success'
                 if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
-                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") )){
+                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") ) || (empty($status['error']))){
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
