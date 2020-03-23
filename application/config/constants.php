@@ -20,10 +20,6 @@ include('sms_constant.php');
 include('partner_permission_constant.php');
 include('api_response_code_constants.php'); /// Include api constants response
 include('engineer_config.php'); /// Include engg constants
-include('around_lib_constant.php'); /// Include around generic constant file
-
-
-
 
 
 

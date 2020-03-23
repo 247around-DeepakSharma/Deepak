@@ -1979,7 +1979,7 @@ class engineerApi extends CI_Controller {
             );  
             }
 
-            $engg_where = array('id' => $requestData["engineer_id"],'installed'=>1); /* Update installed app when token available */
+            $engg_where = array('id' => $requestData["engineer_id"]);
             $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
@@ -3322,7 +3322,6 @@ class engineerApi extends CI_Controller {
             }
             $response['model_number_list'] = $model_numbers;
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
-            $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
             unset($booking_details['booking_history']);
@@ -3341,16 +3340,14 @@ class engineerApi extends CI_Controller {
             unset($booking_details['appliance_id']);
             unset($booking_details['c2c']);
             $response['booking_details'] = $booking_details;
-            /* Abhishek check for paarent bookings in repeat bookings . Calculation of parent and repeat booking from initial booking date instead of current date */
-            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30,$initial_booking_date);
+            /* Abhishek check for paarent bookings in repeat bookings */
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30);
 
             /** get model number and date of purchase if spare part already ordered * */
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
             }
-            // Do not change the request type if invoiced to partner //
-            $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
             /** End * */
             log_message("info", "Warranty checker call type data founded successfully");
             $this->jsonResponseString['response'] = $response;

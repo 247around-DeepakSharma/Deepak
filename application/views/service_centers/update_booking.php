@@ -284,7 +284,8 @@ else
                                                                             if(($tags['price_tags'] == $price['service_category'])){
                                                                                 echo " checked ";
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
-                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true,'".$booking_history[0]['initial_booking_date']."'";
+                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true";
+                                                                                    //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                                                                                     $onclick = 'onclick="check_booking_request(), get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
                                                                                 }
                                                                                 // If partner is billed against a line item do not allow to uncheck this item
@@ -295,7 +296,7 @@ else
                                                                             }
                                                                             else{ 
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
-                                                                                   $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false,'".$booking_history[0]['initial_booking_date']."'";
+                                                                                   $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
                                                                                    $onclick = 'onclick="check_booking_request(), get_parent_booking('.$tempString.'), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()"';
                                                                                     // If partner is billed against a line item , Repeat booking category can not be selected
                                                                                     if($is_partner_invoiced){
@@ -832,7 +833,7 @@ function delete_supporting_file(id){
         }
     });
 }
-function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat,initial_booking_date){
+function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat){
         $("#submitform").attr("disabled", false);
         if(isChecked){
             var parent_booking_id = $('#parent_id_temp').val();
@@ -840,7 +841,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
               $.ajax({
                       type: 'POST',
                       url: '<?php echo base_url(); ?>employee/booking/get_posible_parent_id',
-                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>,initial_booking_date:initial_booking_date},
+                      data: {contact: contactNumber, service_id: serviceID,partnerID:partnerID,day_diff:<?php echo _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS; ?>},
                       success: function(response) {
                           obj = JSON.parse(response);
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){

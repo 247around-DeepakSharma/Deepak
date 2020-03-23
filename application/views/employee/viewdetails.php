@@ -104,7 +104,6 @@
 </div>
     <?php }?>
 </div>
-  
 <div class="well">
     <div class="tab-content">
         <div class="tab-pane fade in active" id="tab1">
@@ -804,7 +803,7 @@
                         </div>
                     </div>
                 </div>
-                <?php if(!empty($booking_history['courier_lost_spares'])) { ?>
+                <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Courier Lost Part Details</h1>
@@ -813,7 +812,9 @@
                                 <thead>
                                     <tr>
                                         <th>S. No.</th>
-                                        <th>Spare Id</th>
+                                        <th>Part Number</th>
+                                        <th>Part Name</th>
+                                        <th>Part Type</th>
                                         <th>Courier POD</th>
                                         <th>Remarks</th>
                                         <th>Status</th>
@@ -822,23 +823,26 @@
                                 </thead>
                                 <tbody>
                                     <?php 
-                                        foreach($booking_history['courier_lost_spares'] as $courier_sno => $spare_part_data) { 
+                                        foreach($booking_history['spare_parts'] as $courier_sno => $spare_part_data) { 
+                                        if(empty($spare_part_data['courier_status'])) { continue; }
                                     ?>
                                     <tr>
                                         <td><?php echo ++$courier_sno; ?></td>
-                                        <td><?php echo $spare_part_data['spare_id']; ?></td>
+                                        <td><?php echo $spare_part_data['shipped_part_number']; ?></td>
+                                        <td><?php echo $spare_part_data['parts_shipped']; ?></td>
+                                        <td><?php echo $spare_part_data['shipped_parts_type']; ?></td>
                                         <td>
                                             <?php 
-                                                if(!empty($spare_part_data['pod'])) {
-                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['pod'];
+                                                if(!empty($spare_part_data['courier_pod'])) {
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['courier_pod'];
                                                     echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
                                                 } else {
                                                     echo '-';
                                                 }
                                             ?>
                                         </td>
-                                        <td><?php echo $spare_part_data['remarks']; ?></td>
-                                        <td><?php echo ($spare_part_data['status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
+                                        <td><?php echo $spare_part_data['courier_remarks']; ?></td>
+                                        <td><?php echo ($spare_part_data['courier_status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
                                         <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
                                     </tr> 
                                     <?php } ?>
@@ -937,7 +941,7 @@
                                         <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
-                                        <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
                                         <th>Is Defective/Ok Parts Required</th>
                                         <?php } ?>
                                     </tr>
@@ -1004,7 +1008,7 @@
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
-                                        <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
                                         <td>
                                             <?php echo $sp['btn'] ?>
                                         </td>

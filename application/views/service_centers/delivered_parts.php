@@ -77,7 +77,7 @@
                                     <?php echo $this->miscelleneous->get_formatted_date($spare_part['acknowledge_date']); ?>
                                 </td>
                                 <td style="word-break: break-all;">
-                                    <?php if(!empty($spare_part['auto_acknowledeged']) && in_array($spare_part['auto_acknowledeged'], [1,2])) { ?>
+                                    <?php if(!empty($spare_part['auto_acknowledeged']) && $spare_part['auto_acknowledeged'] == 2) { ?>
                                         <a href="<?php echo base_url(); ?>service_center/update_courier_lost/<?php echo $spare_part['id']; ?>" class="btn btn-primary" name="courier_lost_<?php echo $spare_part['id']; ?>" onclick="return is_confirmed(this);">Courier Lost</a>  
                                     <?php } else { ?>
                                         Acknowledged    

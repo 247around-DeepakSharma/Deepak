@@ -1,6 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
+
 <div class="container-fluid">
     <div class="row" style="margin-top: 40px;">
         <div class="col-md-12">
@@ -33,7 +34,7 @@
                                                     </a>
                                                 </li>
                                                 <li role="presentation">
-                                                    <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url(); ?>service_center/get_defective_parts_pending_bookings/<?php echo $this->uri->segment('3'); ?>">
+                                                    <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url(); ?>service_center/get_defective_parts_pending_bookings">
                                                         Send Defective/Ok Parts
                                                     </a>
                                                 </li>

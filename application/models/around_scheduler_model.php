@@ -519,8 +519,7 @@ class Around_scheduler_model extends CI_Model {
                     and booking_details.service_center_closed_date is null 
                     and spare_parts_details.defective_part_shipped_date is null
                     and spare_parts_details.defective_part_required = 1
-                    and spare_parts_details.status NOT IN ('"._247AROUND_CANCELLED."', '".OK_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."')
-                    and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id != 2);";
+                    and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = 5);";
         
         return $this->db->query($sql)->result_array();
     }
