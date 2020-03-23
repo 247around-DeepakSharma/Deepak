@@ -18,7 +18,6 @@
             }
 
             if (ph_no != "" && booking_id != "" && user_name !="" && order_id !="" && serial_number != "") {
-            if (ph_no != "" && booking_id != "" && user_name !="" && order_id !="" && serial_number !="") {
                 alert("Please fill only one field...");
                 return false;
             }
