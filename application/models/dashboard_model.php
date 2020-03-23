@@ -982,5 +982,22 @@ class dashboard_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @Desc this function is used to return total click on crm by agent id
+     * @param Array $where
+     * @return Array
+     */
+    function get_agent_total_per_score($where){
+        $this->db->select('agent_id, full_name as name, count(agent_action_log.id) as data');
+        $this->db->where($where);
+        $this->db->from('agent_action_log');
+        $this->db->order_by('data', 'desc');
+        $this->db->join('employee', 'employee.id = agent_id ');
+        $this->db->group_by('agent_id');
+        $query = $this->db->get();
+        return $query->result_array();
+        
+    }
+    
 }
     
