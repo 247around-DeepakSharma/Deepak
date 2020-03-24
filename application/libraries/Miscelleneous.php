@@ -4954,7 +4954,7 @@ function generate_image($base64, $image_name,$directory){
                 $up = array('consumed_part_status_id' => $status_id);
                 if($spare_part_detail['spare_lost'] == 1){
                     continue;
-                } else if ($defective_part_required == 0) {
+                } else if ($defective_part_required == 0 && $consumption_status_tag != PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = _247AROUND_COMPLETED;
                     $up['status'] = $status;
                     
