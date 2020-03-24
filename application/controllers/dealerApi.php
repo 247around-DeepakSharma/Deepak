@@ -447,7 +447,7 @@ function check_for_upgrade(){
      *  All the distinct states of India in Ascending order From Table state_code
      *
      *  @param : void
-     *  @return : array of states
+     *  @return : json of states
      *  @author : Abhishek Awasthi
      */
 
@@ -457,6 +457,37 @@ function getAllStates(){
         $validation = $this->validateKeys(array("entity_type"), $requestData);
         if ($requestData['entity_type']) { 
                 $response =  $this->around_generic_lib->getAllStates(); 
+                 $this->jsonResponseString['response'] = $response['data'];
+                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+        }
+
+
+
+}
+
+
+
+    /**
+     *  @desc : This function is to get all cities of state.
+     *
+     *  All the cities of state of India in Ascending order
+     *
+     *  @param : void
+     *  @return : cities json
+     *  @author : Abhishek Awasthi
+     */
+
+
+function getAllStates(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("state_code"), $requestData);
+        if ($requestData['entity_type']) { 
+                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
                  $this->jsonResponseString['response'] = $response['data'];
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
