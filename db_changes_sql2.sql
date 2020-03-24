@@ -2021,7 +2021,7 @@ ALTER TABLE `engineer_details` ADD `installed` INT(4) NOT NULL DEFAULT '0' AFTER
 INSERT INTO `variable_charges_type` (`type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES ('opencell-ledbar-charges-fixed', 'Open Cell & Led Bar Charges', '998715', '18', '0', '2018-12-03 00:00:00', '2018-12-03 00:00:00');
 
 insert into vendor_partner_variable_charges(entity_type, entity_id, charges_type, fixed_charges, percentage_charge, validity_in_month, status, create_date, update_date) values('partner', 247130, 4, 10, 0, 0, 1, now(), now());
-=======
+
 -- Kajal 25-02-2020
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
 
@@ -2115,4 +2115,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('Partner', 'Bulk Warranty Checker', NULL, 'partner/inventory/bulk_warranty_checker', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', 1, '2020-03-19 05:14:03');;
 
 ---------------------------------------------------------
+--Gorakh 24-03-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 07:54:48');
 
