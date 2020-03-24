@@ -2769,8 +2769,39 @@ class Around_scheduler extends CI_Controller {
                 }
                 // update spare parts.
                 $this->service_centers_model->update_spare_parts(['id' => $spare_part_detail['id']], ['status' => $spare_status]);
+                // generate challan file
+                $this->invoice_lib->generate_challan_file($spare_part_detail['id'], $spare_part_detail['service_center_id']);
             }
         }
+    }
+
+    /**
+     * @desc : This method is used to generate challans of defective/ok parts to be shipped.
+     * @author Ankit Rajvanshi
+     */
+    function generate_challan_of_spare_parts() 
+    {
+        // fetch data from spare parts details.
+        $spare_part_details = $this->around_scheduler_model->generate_challan_of_to_be_shipped_parts();
+        /**
+         * Check if data exists then
+         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
+         * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
+         */
+        if(!empty($spare_part_details))
+        {
+            foreach($spare_part_details as $spare_part_detail)
+            {
+                // generate challan file
+                $this->invoice_lib->generate_challan_file($spare_part_detail['id'], $spare_part_detail['service_center_id']);
+            }
+            
+            echo 'Challans have been generated successfully.';
+        } 
+        else 
+        {
+            echo 'No data found.';
+        }    
     }
 
 }
