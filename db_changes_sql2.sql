@@ -2038,3 +2038,6 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('Partner', 'Bulk Warranty Checker', NULL, 'partner/inventory/bulk_warranty_checker', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', 1, '2020-03-19 05:14:03');;
 
 ---------------------------------------------------------
+--Gorakh 24-03-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 07:54:48');
