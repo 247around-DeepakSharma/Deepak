@@ -54,6 +54,7 @@ class User extends CI_Controller {
      */
     
     function finduser(){
+        $serial_number=$this->input->get('serial_number');
         $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('booking_id')));
         $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
         //$userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
@@ -96,7 +97,17 @@ class User extends CI_Controller {
             $view = "employee/search_result";
            
             
-        } else if(!empty($userName)){
+        }
+
+            else if(!empty($serial_number)){
+            $post['search_value'] = $serial_number;
+            $post['column_search'] = array('booking_unit_details.serial_number');
+            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number);
+            $view = "employee/search_result";
+        
+            
+        }
+         else if(!empty($userName)){
             
             $select = "users.name as customername,
             users.phone_number, users.user_email, users.home_address, users.pincode, users.account_email";
@@ -118,7 +129,8 @@ class User extends CI_Controller {
             $is_flag = false;
             $view = "employee/bookinghistory";
             
-        } else{
+        }
+         else{
             echo "Please Select Atlease One Input Field.";
             exit();
         }

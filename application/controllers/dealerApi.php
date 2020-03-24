@@ -46,6 +46,7 @@ class dealerApi extends CI_Controller {
         $this->load->library('warranty_utilities');
         $this->load->library('booking_creation_lib');
         $this->load->library('invoice_lib');
+        $this->load->library('around_generic_lib');
     }
 
     /**
@@ -237,6 +238,41 @@ class dealerApi extends CI_Controller {
         }
     }
 
+     /**
+     * @input: Array having code (numeric) and result (string) as 1st and 2nd elements
+     * @description: send success and failure response
+     * @output: Echoes response which gets returned to the Client (Android App) through the REST API
+     */
+    function sendJsonResponse($code) {
+
+        $this->jsonResponseString['code'] = $code[0];
+        $this->jsonResponseString['result'] = $code[1];
+
+        if ($this->debug == "true") {
+            $responseData = array("data" => $this->jsonResponseString);
+            $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        } else if ($this->debug == "false") {
+            $message = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $message = json_encode($message, JSON_UNESCAPED_SLASHES);
+            $signature = $this->doCalculateHmacSignature($message, $this->appSecrete);
+            header("x-pingoo:" . $signature);
+            $responseData = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $responseData = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+            $response = base64_encode($responseData);
+
+            echo $response;
+        } else {
+            $responseData = array("appid" => $this->appId, "debug" => $this->debug, "data" => $this->jsonResponseString);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        }
+    }
+
     /**
      * @input: void
      * @description: verify signarure
@@ -292,8 +328,11 @@ class dealerApi extends CI_Controller {
               $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
               break;
              
-            case 'engineerLogin':
-                $this->processEngineerLogin();
+            case 'dealerLogin':
+                $this->processDealerLogin();
+                break;
+            case 'getStates':
+                $this->getAllStates();
                 break;
             default:
                 break;
@@ -355,25 +394,22 @@ class dealerApi extends CI_Controller {
 
   
 
-    function processEngineerLogin() {
+    function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
         $data = $this->dealer_model->entity_login(array("entity" => "dealer",
             "active" => 1, "user_id" => $requestData["mobile"]));
         if (!empty($data)) {
-            $login = $this->dealer_model->entity_login(array("entity" => "dealer",
-                "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+            $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
-                  
-
-
 ////// LOGIN LOGIC ///
+                $this->jsonResponseString['response'] = $login[0];
 
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         } else {
-            $this->sendJsonResponse(array('0014', 'User Id does not exist'));
+            $this->sendJsonResponse(array('0014', 'User Id does not exist or user not active'));
         }
     }
 
@@ -401,6 +437,36 @@ function check_for_upgrade(){
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
             $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
         }
+
+}
+
+
+    /**
+     *  @desc : This function is to get all states.
+     *
+     *  All the distinct states of India in Ascending order From Table state_code
+     *
+     *  @param : void
+     *  @return : array of states
+     *  @author : Abhishek Awasthi
+     */
+
+
+function getAllStates(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if ($requestData['entity_type']) { 
+                $response =  $this->around_generic_lib->getAllStates(); 
+                 $this->jsonResponseString['response'] = $response['data'];
+                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+        }
+
+
 
 }
 

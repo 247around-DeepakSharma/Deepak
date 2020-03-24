@@ -1232,6 +1232,71 @@
             </div>
         </div>
     </div>
+    
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="dashboard_graph">
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Account Manager Performance Score &nbsp;&nbsp;&nbsp;
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-5">
+                        <div id="action_agent_date" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                           
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_containeragentdiv" data-toggle="collapse" onclick="agent_action_status()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="x_content collapse" id="chart_containeragentdiv">
+                    <div class="col-md-12">
+                        <center><img id="loader_gifagent" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+                    <div id="chart_agentdiv" class="chart_agentdiv" style="width:100%; height:400px;"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="dashboard_graph">
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Account Manager Total Performance Score &nbsp;&nbsp;&nbsp;
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-5">
+                        <div id="action_agent_date_performance" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                           
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <span class="collape_icon" href="#chart_containeragentperformancediv" data-toggle="collapse" onclick="agent_performance_status()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="x_content collapse" id="chart_containeragentperformancediv">
+                    <div class="col-md-12">
+                        <center><img id="loader_gifagentperformance" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+                    <div id="chart_agentperformancediv" class="chart_agentperformancediv" style="width:100%; height:400px;"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
     <!-- Agent Graph -->
     
    <!-- show more content -->
@@ -1487,12 +1552,55 @@
     
     $(function () {
         function cb(start, end) {
+            $('#action_agent_date_performance span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#action_agent_date_performance').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
+    
+    $(function () {
+        function cb(start, end) {
             $('#reportrange4 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
         $('#reportrange4').daterangepicker(options, cb);
 
         cb(start, end);
+    });
+       
+    $(function () {
+        function cb(start, end) {
+            $('#action_agent_date span').html('<?php echo date('F d Y');?>');
+        }
+
+        $('#action_agent_date span').daterangepicker({
+                autoUpdateInput: false,
+                singleDatePicker: true,
+                showDropdowns: true,
+                minDate:"01-01-1998",
+                locale:{
+                    format: 'MMMM D, YYYY'
+                }
+            });
+
+        cb(start, end);
+    });
+    
+            
+    $('#action_agent_date span').on('apply.daterangepicker', function(ev, picker) {
+        
+        $('#action_agent_date span').html(picker.startDate.format('MMMM D, YYYY'));
+        agent_click_count(picker.startDate.format('MMMM D, YYYY'));
+    });
+    
+    function agent_action_status(){
+        agent_click_count();
+    }
+    
+    $('#action_agent_date').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
     });
     
     $(function () {
@@ -1535,6 +1643,14 @@
         });
     });
     
+    $('#action_agent_date_performance').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gifagentperformance').show();
+        $('#chart_agentdiv').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        agent_click_performance(startDate, endDate);
+        
+    });
     $('#reportrange3').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
@@ -1546,7 +1662,7 @@
         var endDate = picker.endDate.format('YYYY-MM-DD');
         partner_unit_chart(startDate, endDate);
     });
-    
+   
      $('#reportrange5').on('apply.daterangepicker', function (ev, picker) {
         $('#loader_gif7').show();
         $('#completed_booking_closure_chart').hide();
@@ -1565,8 +1681,8 @@
             }
         });
     });
-    
-    $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
+     
+   $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
         $('#loader_gif8').show();
         $('#cancelled_booking_closure_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
@@ -1661,6 +1777,15 @@
    
     function agent_daily_report_call(){ 
         agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    }
+    
+    function agent_daily_report_call(){ 
+        agent_daily_report(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+    }
+    
+    function agent_performance_status(){
+        agent_click_performance(start.format('MMMM D, YYYY'), end.format('MMMM D, YYYY'));
+        
     }
     
     
@@ -2241,7 +2366,7 @@
         chart = new Highcharts.Chart({
             chart: {
                 renderTo: render_div,
-                type: 'column'
+                type: 'scatter'
             },
             title: {
                 text: '',
@@ -2350,6 +2475,7 @@
             success: function (response) {
                 $('#loader_gif4').hide();
                 $('#chart_container2').fadeIn();
+                //console.log(response);
                 var data = JSON.parse(response);
                 var agent_name = data.agent_name.split(',');
                 var query_cancel = JSON.parse("[" + data.query_cancel + "]");
@@ -2357,6 +2483,7 @@
                 var query_booking = JSON.parse("[" + data.query_booking + "]");
                 var calls_received = JSON.parse("[" + data.calls_received + "]");
                 var rating = JSON.parse("[" + data.rating + "]");
+                
                 chart1 = new Highcharts.Chart({
                     chart: {
                         renderTo: 'chart_container2',
@@ -2739,6 +2866,157 @@ function initiate_escalation_data(){
                 }]
         });
     
+    }
+    
+    function agent_click_performance(startDate, endDate){
+        url = baseUrl + '/employee/dashboard/get_am_total_performace_score';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            console.log(response);
+            create_chart_am_performace_total_score(response);
+        });
+    }
+    
+    function create_chart_am_performace_total_score(response = false){
+        console.log(response);
+        if(response){
+            $('#loader_gifagentperformance').hide();
+            $('#chart_agentperformancediv').fadeIn();
+            
+            var data = JSON.parse(response);
+            var xaxis = data.xaxis.split(',');
+            var yaxis = JSON.parse("[" + data.yaxis + "]");
+            
+            chart1 = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chart_agentperformancediv',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        }
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: xaxis
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        column: {
+                            dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: [
+                {
+                    name: 'Account Manager',
+                    data: yaxis
+                }]
+                });
+                $('#loader_gifagentperformance').hide();
+        
+            
+        } else {
+            alert("Graph Data Not Found");
+            $('#loader_gifagentperformance').hide();
+            $('#chart_agentperformancediv').hide();
+        }
+    }
+    
+    function agent_click_count(date = ""){
+        if(date === ""){
+            date = $('#action_agent_date span').text();
+            //console.log(date);
+        }
+        $('#loader_gifagent').fadeIn();
+        $('#chart_agentdiv').hide();
+        var data = {date: date};
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_agent_action_log_per_hour';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            
+            if(response){
+               // console.log(response);
+                var data = JSON.parse(response);
+                var theHour = data.xaxis.split(',');
+                //console.log(theHour);
+                var series = data.series;
+                
+                 for (i = 0; i < series.length; i++) {
+                    series[i].data = JSON.parse("[" + series[i].count + "]");
+                }
+                $('#chart_agentdiv').fadeIn();
+                chart1 = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chart_agentdiv',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        }
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: theHour
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        column: {
+                            dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: series
+                });
+                $('#loader_gifagent').hide();
+            }
+            
+            else{
+                alert("Graph Data Not Found");
+                $('#loader_gifagent').hide();
+            }
+        });
     }
 </script>
 <style>

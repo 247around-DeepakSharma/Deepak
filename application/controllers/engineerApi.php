@@ -1378,7 +1378,7 @@ class engineerApi extends CI_Controller {
             // Variable defined to get whatsapp config //
             $whatsapp = $this->engineer_model->get_engineer_config(SEND_WHATSAPP);
             if($whatsapp[0]->config_value){
-             $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
+             $this->notify->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);     
             }
 
             /*   */
@@ -1437,53 +1437,54 @@ class engineerApi extends CI_Controller {
         }
     }
     
+
     
     /*  Function to send whatsapp SMS when engg complete */
 
-    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
-        $base =base_url(); /// path with base url
-        include('whatsapp/vendor/autoload.php');  // conf directory
-// Configure HTTP basic authorization: basicAuth
-        $config = Karix\Configuration::getDefaultConfiguration();
-        $config->setUsername(API_KARIX_USER_ID);
-        $config->setPassword(API_KARIX_PASSWORD);
+//     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
+//         $base =base_url(); /// path with base url
+//         include('whatsapp/vendor/autoload.php');  // conf directory
+// // Configure HTTP basic authorization: basicAuth
+//         $config = Karix\Configuration::getDefaultConfiguration();
+//         $config->setUsername(API_KARIX_USER_ID);
+//         $config->setPassword(API_KARIX_PASSWORD);
 
-        $apiInstance = new Karix\Api\MessageApi(
-                // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-                // This is optional, `GuzzleHttp\Client` will be used as default.
-                new GuzzleHttp\Client(),
-                $config
-        );
-        $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
+//         $apiInstance = new Karix\Api\MessageApi(
+//                 // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+//                 // This is optional, `GuzzleHttp\Client` will be used as default.
+//                 new GuzzleHttp\Client(),
+//                 $config
+//         );
+//         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
 
-/*  Making templet for sending message */
-            $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
-            $sms['smsData']['name'] = $whatsapp_array['name'];
-            $sms['smsData']['request_type'] = $whatsapp_array['request'];
-            $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
-            $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-            $sms['smsData']['cdate'] = date("d-M-Y");
-            $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
-            $sms['smsData']['partner'] = $whatsapp_array['partner'];
-            $smsBody = vsprintf($template, $sms['smsData']);
+// /*  Making templet for sending message */
+//             $template = $this->vendor_model->getVendorSmsTemplate(SEND_COMPLETE_WHATSAPP_NUMBER_TAG);
+//             $sms['smsData']['name'] = $whatsapp_array['name'];
+//             $sms['smsData']['request_type'] = $whatsapp_array['request'];
+//             $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
+//             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
+//             $sms['smsData']['cdate'] = date("d-M-Y");
+//             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
+//             $sms['smsData']['partner'] = $whatsapp_array['partner'];
+//             $smsBody = vsprintf($template, $sms['smsData']);
 
-        date_default_timezone_set('UTC');
-        $phone_number = "+91" . $phone_number;
-        $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
-        $message->setDestination([$phone_number]);
-        $message->setSource(API_KARIX_SOURCE);
-        $message->setContent([
-            "text" => $smsBody,
-        ]);
+//         date_default_timezone_set('UTC');
+//         $phone_number = "+91" . $phone_number;
+//         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
+//         $message->setDestination([$phone_number]);
+//         $message->setSource(API_KARIX_SOURCE);
+//         $message->setContent([
+//             "text" => $smsBody,
+//         ]);
 
-        try {
-            $result = $apiInstance->sendMessage($message);
-            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
-            return TRUE;
-        } catch (Exception $e) {
-            return FALSE;
-        }
-    }
+//         try {
+//             $result = $apiInstance->sendMessage($message);
+//             log_message('Whatsapp Response', __METHOD__ . json_encode($result));
+//             return TRUE;
+//         } catch (Exception $e) {
+//             return FALSE;
+//         }
+//     }
 
     function getCancellationReason() {
         $where = array('reason_of' => 'vendor', 'show_on_app' => 1);
@@ -3322,6 +3323,7 @@ class engineerApi extends CI_Controller {
             }
             $response['model_number_list'] = $model_numbers;
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
             unset($booking_details['booking_history']);
@@ -3340,8 +3342,8 @@ class engineerApi extends CI_Controller {
             unset($booking_details['appliance_id']);
             unset($booking_details['c2c']);
             $response['booking_details'] = $booking_details;
-            /* Abhishek check for paarent bookings in repeat bookings */
-            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30);
+            /* Abhishek check for paarent bookings in repeat bookings . Calculation of parent and repeat booking from initial booking date instead of current date */
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30,$initial_booking_date);
 
             /** get model number and date of purchase if spare part already ordered * */
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
@@ -3349,7 +3351,7 @@ class engineerApi extends CI_Controller {
                 $response['spare_parts'] = $spare_details[0];
             }
             // Do not change the request type if invoiced to partner //
-            $response['partner_invoiced'] = $this->checkBookingActionrequired($value['booking_id']);
+            $response['partner_invoiced'] = $this->checkBookingActionrequired($requestData['booking_id']);
             /** End * */
             log_message("info", "Warranty checker call type data founded successfully");
             $this->jsonResponseString['response'] = $response;

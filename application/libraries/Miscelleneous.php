@@ -4234,7 +4234,8 @@ function generate_image($base64, $image_name,$directory){
         $service_id = $this->My_CI->input->post('service_id');
         $partnerID = $this->My_CI->input->post('partnerID');
         $dayDiff = $this->My_CI->input->post('day_diff');
-        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff);
+        $initial_booking_date = !empty($this->My_CI->input->post('initial_booking_date')) ? $this->My_CI->input->post('initial_booking_date') : date('Y-m-d');
+        $bookingsArray = $this->My_CI->booking_model->get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff,$initial_booking_date);
         $count = count($bookingsArray);
         if($count == 1){
             $resultArray['html'] = $bookingsArray[0]['booking_id'];
@@ -4911,7 +4912,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 if ($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-                    $status = COURIER_LOST;
+                    $status = InProcess_Courier_Lost;
                     $courier_lost_spare[] = $spare_part_detail;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
@@ -4970,7 +4971,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 // if part is out of warranty and consumption no then set spare status ok part to be shipped
-                if($spare_part_detail['part_warranty_status'] == 2 && in_array($status, [_247AROUND_COMPLETED, OK_PART_TO_BE_SHIPPED])) {
+                if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
                     $up['defective_part_required'] = 1;
                 }

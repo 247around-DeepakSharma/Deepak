@@ -1792,14 +1792,17 @@ class Around_scheduler extends CI_Controller {
                            $rm_email = ", ".$rm[0]['official_email'];
                             //$from = $rm[0]['official_email'];
                         }
-                        $asm_email = '';
+                        $asm_rm_email = ''; // Send Email to ASM, If asm not exisr then send to RM
                         if(!empty($rm[1]['official_email'])){
-                            $asm_email = ", ".$rm[1]['official_email'];
+                            $asm_rm_email = ", ".$rm[1]['official_email'];
                             $from = $rm[1]['official_email'];
+                        } else if(!empty($rm[0]['official_email'])){
+                            $asm_rm_email = ", ".$rm[0]['official_email'];
+                            $from = $rm[0]['official_email'];
                         }
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
                         $bcc = $email_template[5];
-                        $cc = $email_template[3]. $asm_email;
+                        $cc = $email_template[3]. $asm_rm_email;
                         $subject = vsprintf($email_template[4], array($value['company_name'], abs(round($amount_cr_deb['total_balance'], 0))));
                         $message = vsprintf($email_template[0], array(abs(round($amount_cr_deb['total_balance'], 0))));
                         
