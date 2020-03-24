@@ -4891,7 +4891,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 if ($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-                    $status = COURIER_LOST;
+                    $status = InProcess_Courier_Lost;
                     $courier_lost_spare[] = $spare_part_detail;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
