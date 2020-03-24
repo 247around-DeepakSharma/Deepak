@@ -77,7 +77,7 @@ class around_generic_lib {
         if(!empty($response)){
             $result['data'] = $response;
             $result['message'] = CITIES_FOUND_MSG; 
-            $result['code'] = SUCCESS_CODE;
+            $result['code'] = API_SUCCESS_CODE;
         }else{
             $result['data'] = array();
             $result['message'] = CITIES_FOUND_MSG_ERR;
