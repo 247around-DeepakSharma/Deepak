@@ -833,7 +833,6 @@ function delete_supporting_file(id){
     });
 }
 function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_already_repeat,initial_booking_date){
-        $("#submitform").attr("disabled", false);
         if(isChecked){
             var parent_booking_id = $('#parent_id_temp').val();
             if(!is_already_repeat){
@@ -860,7 +859,6 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                              $(".cloned :input").attr("disabled", true);
                           }
                           else if(obj.status  == <?Php echo _MULTIPLE_REPEAT_BOOKING_FLAG; ?>){
-                              $("#submitform").attr("disabled", true);
                               $('.Service:checked').prop('checked', false);
                                 $('.Service').each(function() {
                                     $(this).prop('disabled', true);
