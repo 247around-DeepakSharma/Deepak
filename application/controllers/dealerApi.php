@@ -238,6 +238,41 @@ class dealerApi extends CI_Controller {
         }
     }
 
+     /**
+     * @input: Array having code (numeric) and result (string) as 1st and 2nd elements
+     * @description: send success and failure response
+     * @output: Echoes response which gets returned to the Client (Android App) through the REST API
+     */
+    function sendJsonResponse($code) {
+
+        $this->jsonResponseString['code'] = $code[0];
+        $this->jsonResponseString['result'] = $code[1];
+
+        if ($this->debug == "true") {
+            $responseData = array("data" => $this->jsonResponseString);
+            $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        } else if ($this->debug == "false") {
+            $message = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $message = json_encode($message, JSON_UNESCAPED_SLASHES);
+            $signature = $this->doCalculateHmacSignature($message, $this->appSecrete);
+            header("x-pingoo:" . $signature);
+            $responseData = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $responseData = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+            $response = base64_encode($responseData);
+
+            echo $response;
+        } else {
+            $responseData = array("appid" => $this->appId, "debug" => $this->debug, "data" => $this->jsonResponseString);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        }
+    }
+
     /**
      * @input: void
      * @description: verify signarure
