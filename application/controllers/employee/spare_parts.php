@@ -1849,7 +1849,7 @@ class Spare_parts extends CI_Controller {
     function move_to_update_spare_parts_details() {
         log_message('info', __METHOD__ . " " . json_encode($_POST, true));
         ob_clean();
-        $spare_parts_id = $this->input->post('spare_parts_id');
+        $spare_id = $spare_parts_id = $this->input->post('spare_parts_id');
         $partner_id = $this->input->post('booking_partner_id');
         $entity_type = $this->input->post('entity_type');
         $booking_id = $this->input->post('booking_id');
@@ -1870,13 +1870,31 @@ class Spare_parts extends CI_Controller {
             $data['quantity'] = $quantity; // Quantity
             //  $data['remarks'] = "Spare Transfer to Partner";
             $row = $this->service_centers_model->update_spare_parts($where, $data);
+            $partner_details = $this->partner_model->getpartner_details("partners.id, partners.public_name", array("partners.id" => $partner_id), $is_reporting_mail="");
+           
+            if(!empty($partner_details)){
+                $partner_name = $partner_details[0]['public_name'];
+            } else {
+              $partner_name = '';  
+            }
+            
             if ($row) {
                 if ($this->session->userdata('userType') == 'employee') {
-                    $new_state = 'Spare Part Transferred to ' . $partner_id;
+                    $new_state = 'Spare Part Transferred to ' . $partner_name;
+                     /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $new_state, 'remarks' => PARTNER_WILL_SEND_NEW_PARTS, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $partner_id);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouse_id, $requested_inventory, -1);
                     echo 'success';
                 } else {
+                    /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $new_state, 'remarks' => PARTNER_WILL_SEND_NEW_PARTS, 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
                     $this->notify->insert_state_change($booking_id, $new_state, '', PARTNER_WILL_SEND_NEW_PARTS, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), '', '', NULL, $partner_id);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $warehouse_id, $requested_inventory, -1);
                     echo 'success';
