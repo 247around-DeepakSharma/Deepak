@@ -5739,7 +5739,12 @@ class Inventory extends CI_Controller {
                                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),
                                     'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh,
                                     'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'], 'reverse_purchase_invoice_id' => $invoice['invoice'][0]));
-
+                                
+                                $agent_id = $this->session->userdata('service_center_agent_id');
+                                $service_center_id = $this->session->userdata('service_center_id');
+                                /* Insert Spare Tracking Details */
+                                $tracking_details = array('spare_id' => $spare_id, 'action' =>$spare_status, 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                                 // fetch record from booking details of $booking_id.
                                 $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
                                 
