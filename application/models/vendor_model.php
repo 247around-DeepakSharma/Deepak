@@ -395,13 +395,11 @@ class vendor_model extends CI_Model {
      *  @return : array of states
      */
     function get_allstates() {
-	$this->db->distinct();
-	$this->db->select('state');
-	
-	$this->db->order_by('state');
-	$query = $this->db->get('state_code');
-
-	return $query->result_array();
+	   $this->db->distinct();
+	   $this->db->select('state');
+	   $this->db->order_by('state','asc');
+	   $query = $this->db->get('state_code');
+	   return $query->result_array();
     }
 
     /**
