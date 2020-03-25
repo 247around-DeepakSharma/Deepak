@@ -2797,6 +2797,7 @@ exit();
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
+        $invoice_details['invoice_category'] = $this->invoices_model->get_invoice_category("*", array());
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/insert_update_invoice', $invoice_details);
         
@@ -3095,6 +3096,9 @@ exit();
         $data['packaging_rate'] = (!empty($this->input->post('packaging_rate'))?$this->input->post('packaging_rate'):'0.00');
         $data['miscellaneous_charges'] = (!empty($this->input->post('miscellaneous_charges'))?$this->input->post('miscellaneous_charges'):'0.00');
         $data['warehouse_storage_charges'] = (!empty($this->input->post('warehouse_storage_charges'))?$this->input->post('warehouse_storage_charges'):'0.00');
+        $data['upcountry_rate'] = (!empty($this->input->post('upcountry_rate'))?$this->input->post('upcountry_rate'):'0.00');
+        $data['call_center_charges'] = (!empty($this->input->post('call_center_charges'))?$this->input->post('call_center_charges'):'0.00');
+        $data['micro_warehouse_charges'] = (!empty($this->input->post('micro_warehouse_charges'))?$this->input->post('micro_warehouse_charges'):'0.00');
         $data['type_code'] = (!empty($this->input->post('around_type'))?$this->input->post('around_type'):NULL);
         
        
