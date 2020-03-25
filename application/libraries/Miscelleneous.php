@@ -4912,7 +4912,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 if ($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-                    $status = COURIER_LOST;
+                    $status = InProcess_Courier_Lost;
                     $courier_lost_spare[] = $spare_part_detail;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
@@ -4954,7 +4954,7 @@ function generate_image($base64, $image_name,$directory){
                 $up = array('consumed_part_status_id' => $status_id);
                 if($spare_part_detail['spare_lost'] == 1){
                     continue;
-                } else if ($defective_part_required == 0) {
+                } else if ($defective_part_required == 0 && $consumption_status_tag != PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = _247AROUND_COMPLETED;
                     $up['status'] = $status;
                     
@@ -4971,7 +4971,7 @@ function generate_image($base64, $image_name,$directory){
                 }
 
                 // if part is out of warranty and consumption no then set spare status ok part to be shipped
-                if($spare_part_detail['part_warranty_status'] == 2 && in_array($status, [_247AROUND_COMPLETED, OK_PART_TO_BE_SHIPPED])) {
+                if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
                     $up['defective_part_required'] = 1;
                 }

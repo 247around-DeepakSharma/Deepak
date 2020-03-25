@@ -111,11 +111,7 @@ if ($this->session->userdata('error')) {
                 <?php } ?>
 
             <table class="table table-striped table-bordered" id="partner_details">
-<<<<<<< HEAD
 				<thead>
-=======
-                <thead>
->>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
                 <tr>
                     <th class='jumbotron'>ID</th>
                     <th class='jumbotron' style="text-align: center">Company Name</th>
@@ -133,13 +129,8 @@ if ($this->session->userdata('error')) {
                     <th class='jumbotron' style="text-align: center">Summary Report<br>Send / View</th>
                     <th class='jumbotron' style="text-align: center">Activation / Deactivation<br>History</th>
                 </tr>
-<<<<<<< HEAD
 				</thead>
 				<tbody>
-=======
-		</thead>
-		<tbody>
->>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
                         <?php foreach ($query as $key => $row) { ?>
                     <tr>
                         <td><?= ($key + 1) . '.'; ?></td>
@@ -219,14 +210,9 @@ if ($this->session->userdata('error')) {
                         </td>
                     </tr>
 <?php } ?>
-                </tbody>
             </table>
 
-<<<<<<< HEAD
 		</tbody>
-=======
-		
->>>>>>> ea84549a0db4ab6d09bbcb0c6c812147d216bcb9
 
         </div>
     </div>

@@ -508,6 +508,7 @@ class Around_scheduler_model extends CI_Model {
         $sql = "SELECT
                     spare_parts_details.booking_id,
                     spare_parts_details.id,
+                    spare_parts_details.service_center_id,
                     spare_parts_details.consumed_part_status_id,
                     DATEDIFF(CURDATE(), spare_parts_details.shipped_date) as days
                 FROM
@@ -519,6 +520,7 @@ class Around_scheduler_model extends CI_Model {
                     and booking_details.service_center_closed_date is null 
                     and spare_parts_details.defective_part_shipped_date is null
                     and spare_parts_details.defective_part_required = 1
+                    and spare_parts_details.part_warranty_status = ".SPARE_PART_IN_WARRANTY_STATUS." 
                     and spare_parts_details.status NOT IN ('"._247AROUND_CANCELLED."', '".OK_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."')
                     and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id != 2);";
         
@@ -531,5 +533,22 @@ function save_cron_log($data){
     return $this->db->insert_id();
 }
 
-
-}
+    /**
+     * Method returns those parts whose challan not generated.
+     * @author Ankit Rajvanshi
+     * @return type
+     */
+    function generate_challan_of_to_be_shipped_parts() {
+        
+        $sql= "SELECT
+                    id, service_center_id, status, sf_challan_file
+                FROM
+                    `spare_parts_details`
+               WHERE
+                    defective_part_required = 1
+                    and STATUS IN('".DEFECTIVE_PARTS_PENDING."', '".OK_PART_TO_BE_SHIPPED."')
+                    and sf_challan_file IS NULL";
+        return $this->db->query($sql)->result_array();
+        
+    }
+}    

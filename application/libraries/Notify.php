@@ -861,6 +861,8 @@ class Notify {
 /*  check if phone is empty */
         if(!empty($phone_number) && KARIX_SENDING){
 /*  Making Payload */
+// logging for debug
+ log_message('info', __METHOD__. "Karix called  Log: ".$data['content']);
            $payloadName = '{
                            "channel": "'.KARIX_CHANNEL.'",
                            "source": "'.KARIX_SENDER_ID.'",
@@ -895,6 +897,7 @@ class Notify {
          $data['content'] =  $content;
          $data['status'] =  $status;
          $data['error'] =  $error;
+          log_message('info', __METHOD__. "Karix Return Log: ".$data['content']);
         }else{
 
         $message = urlencode($body);
@@ -921,7 +924,9 @@ class Notify {
                         break;
                         default:
                         $data  = $this->send_sms_using_msg91($phone_number, $body);
+                        break;
                 }
+                break;
                 default:
                 $data  = $this->send_sms_using_msg91($phone_number, $body);
 
@@ -930,6 +935,7 @@ class Notify {
         
         return $data;
     }
+
 
     function send_sms_acl($sms) {
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);

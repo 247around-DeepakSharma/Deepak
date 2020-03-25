@@ -107,6 +107,28 @@ class Indiapincode_model extends CI_Model {
        }
         
     }
+
+
+
+    /**
+     *  @desc : This function is to get all cities of state.
+     *
+     *  
+     *
+     *  @param : void state_code
+     *  @return : array of cities
+     *  @author : Abhishek Awasthi
+     */
+
+    function getStateCities($state_code){
+
+        $this->db->distinct();
+        $this->db->select('district');
+        $this->db->order_by('district','asc');
+        $query = $this->db->get('district_state_mapping');
+        return $query->result_array();
+
+    }
     
     
 

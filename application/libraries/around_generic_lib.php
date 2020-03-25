@@ -24,6 +24,7 @@ class around_generic_lib {
     $this->My_CI->load->model('booking_request_model');
     $this->My_CI->load->model('warranty_model');
     $this->My_CI->load->model('vendor_model');
+    $this->My_CI->load->model('indiapincode_model');
     $this->My_CI->load->library('paytm_payment_lib');
     }
 
@@ -56,6 +57,35 @@ class around_generic_lib {
 
     }
 
+
+
+
+    /**
+     *  @desc : This function is to get all cities of state.
+     *
+     *  
+     *
+     *  @param : void
+     *  @return : array of cities
+     *  @author : Abhishek Awasthi
+     */
+
+
+    function getStateCities($state_code){
+        $result = array();
+        $response  = $this->My_CI->indiapincode_model->getStateCities($state_code);
+        if(!empty($response)){
+            $result['data'] = $response;
+            $result['message'] = CITIES_FOUND_MSG; 
+            $result['code'] = API_SUCCESS_CODE;
+        }else{
+            $result['data'] = array();
+            $result['message'] = CITIES_FOUND_MSG_ERR;
+            $result['code'] = CITIES_FOUND_MSG_ERR_CODE; 
+        }
+        return $result;
+
+    }
 
 
 

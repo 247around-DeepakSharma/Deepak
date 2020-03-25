@@ -576,7 +576,7 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If anyone select repeat booking than parent ID Shoud not blank
-        if(!is_sf_panel && !parant_id){
+        if(!parant_id){
             alert("Parent ID not found, Repeat booking can not be created");
             $(".repeat_Service").prop("checked", false);
             return false;

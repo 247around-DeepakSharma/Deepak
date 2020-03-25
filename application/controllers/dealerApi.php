@@ -238,6 +238,41 @@ class dealerApi extends CI_Controller {
         }
     }
 
+     /**
+     * @input: Array having code (numeric) and result (string) as 1st and 2nd elements
+     * @description: send success and failure response
+     * @output: Echoes response which gets returned to the Client (Android App) through the REST API
+     */
+    function sendJsonResponse($code) {
+
+        $this->jsonResponseString['code'] = $code[0];
+        $this->jsonResponseString['result'] = $code[1];
+
+        if ($this->debug == "true") {
+            $responseData = array("data" => $this->jsonResponseString);
+            $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
+            $this->apis->logTable($activity);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        } else if ($this->debug == "false") {
+            $message = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $message = json_encode($message, JSON_UNESCAPED_SLASHES);
+            $signature = $this->doCalculateHmacSignature($message, $this->appSecrete);
+            header("x-pingoo:" . $signature);
+            $responseData = array("appid" => $this->appId, "data" => $this->jsonResponseString);
+            $responseData = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+            $response = base64_encode($responseData);
+
+            echo $response;
+        } else {
+            $responseData = array("appid" => $this->appId, "debug" => $this->debug, "data" => $this->jsonResponseString);
+            $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
+
+            echo $response;
+        }
+    }
+
     /**
      * @input: void
      * @description: verify signarure
@@ -412,7 +447,7 @@ function check_for_upgrade(){
      *  All the distinct states of India in Ascending order From Table state_code
      *
      *  @param : void
-     *  @return : array of states
+     *  @return : json of states
      *  @author : Abhishek Awasthi
      */
 
@@ -422,6 +457,37 @@ function getAllStates(){
         $validation = $this->validateKeys(array("entity_type"), $requestData);
         if ($requestData['entity_type']) { 
                 $response =  $this->around_generic_lib->getAllStates(); 
+                 $this->jsonResponseString['response'] = $response['data'];
+                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+        }
+
+
+
+}
+
+
+
+    /**
+     *  @desc : This function is to get all cities of state.
+     *
+     *  All the cities of state of India in Ascending order
+     *
+     *  @param : void
+     *  @return : cities json
+     *  @author : Abhishek Awasthi
+     */
+
+
+function getAllStates(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("state_code"), $requestData);
+        if ($requestData['entity_type']) { 
+                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
                  $this->jsonResponseString['response'] = $response['data'];
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
