@@ -334,6 +334,10 @@ class dealerApi extends CI_Controller {
             case 'getStates':
                 $this->getAllStates();
                 break;
+
+            case 'searchData':
+                $this->getSearchData();
+                break;
             default:
                 break;
         }
@@ -500,6 +504,89 @@ function getAllStates(){
 
 
 }
+
+
+
+
+  /*
+     * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
+     * @param - $engineer_id, $service_center_id, $search_value
+     * @response - json
+     */
+
+    function getSearchData() {
+        log_message("info", __METHOD__ . " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $phone_number = "";
+        $booking_id = "";
+        $data = array();
+        $validation = $this->validateKeys(array("search_value"), $requestData);
+        if ($validation['status']) {
+            $search = preg_replace('/[^A-Za-z0-9\-]/', '', trim($requestData['search_value']));
+            //echo $search; die();
+            if (!empty($search)) {
+                if (preg_match("/^[6-9]{1}[0-9]{9}$/", $search)) {
+                    $phone_number = $search;
+                } else {
+                    $booking_id = $search;
+                }
+            }
+            // Add alternate number ///
+            $select = "services.services, users.phone_number,users.alternate_phone_number,users.name as name, users.phone_number, booking_details.*";
+            $post['length'] = -1;
+            if (!empty($booking_id)) {
+                $post['search_value'] = $booking_id;
+                $post['column_search'] = array('booking_details.booking_id');
+                $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
+                $post['order_performed_on_count'] = TRUE;
+                $post['column_order'] = array('booking_details.booking_id');
+                $post['unit_not_required'] = true;
+                $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
+
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
+            } else {
+                // Search other than booking 
+            }
+
+            if (!empty($data['Bookings'])) {
+                $dealer_pincode = $requestData["dealer_pincode"];
+                foreach ($data['Bookings'] as $key => $value) {
+                    if ($engineer_pincode) {
+/*  Make True if want calculation from google API */
+                    $calculate_ddistance = FALSE;
+                    $distance = "0"; 
+                    if($calculate_ddistance){
+                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($dealer_pincode, "", $value['booking_pincode'], "");
+                        $distance_array = explode(" ", $distance_details['distance']['text']);
+                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        }
+                        $data['Bookings'][$key]['booking_distance'] = $distance;
+
+                        $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity");
+                        $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
+                        $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
+                        $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
+                        // Abhishek Send Spare Details of booking //
+                        $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
+                        $data['Bookings'][$key]['spares'] =  $spares_details;
+                        $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
+                        $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
+                        if (!empty($query_scba)) {
+                            $data['Bookings'][$key]['service_center_booking_action_status'] = "InProcess";
+                        }
+                    }
+                }
+                $this->jsonResponseString['response'] = $data;
+                $this->sendJsonResponse(array('0000', "Details found successfully"));
+            } else {
+                log_message("info", __METHOD__ . "Data not found");
+                $this->sendJsonResponse(array("1003", "Data not found"));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("1004", $validation['message']));
+        }
+    }
 
 
 
