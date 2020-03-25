@@ -5027,6 +5027,9 @@ function generate_image($base64, $image_name,$directory){
 
                 /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
+                    if(empty($post_data['closing_remarks'])){
+                        $post_data['closing_remarks'] = "";
+                    }
                     $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
                     $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
