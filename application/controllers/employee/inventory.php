@@ -3734,14 +3734,14 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.service_id'] = $this->input->post('service_id');
         }
         if (!empty($where)) {
-            $inventory_master_list = $this->inventory_model->get_inventory_without_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id', $where);
+            $inventory_master_list = $this->inventory_model->get_inventory_without_model_mapping_data('inventory_master_list.part_number,inventory_master_list.inventory_id', $where);
         }
 
         foreach ($inventory_master_list as $value) {
-            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_number'] . "'";
 
             $option .= " > ";
-            $option .= $value['part_name'] . "</option>";
+            $option .= $value['part_number'] . "</option>";
         }
 
         echo $option;
@@ -6551,26 +6551,28 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_parts_number() {
-
+        
         $part_name = trim($this->input->post('part_name'));
 
+        $part_number = trim($this->input->post('part_number'));
+
         $post['length'] = -1;
-        $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_name' => $part_name);
+        $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_number' => $part_number);
         $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
-        $post['column_order'] = array('part_number');
-        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_number', true);
+        $post['column_order'] = array('part_name');
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
 
         if ($this->input->post('is_option_selected')) {
-            $option = '<option selected disabled>Select Part Number</option>';
+            $option = '<option selected disabled>Select Part Name</option>';
         } else {
             $option = '';
         }
 
 
         foreach ($inventory_details as $value) {
-            $option .= "<option value='" . $value['part_number'] . "'";
+            $option .= "<option value='" . $value['part_name'] . "'";
             $option .=" > ";
-            $option .= $value['part_number'] . "</option>";
+            $option .= $value['part_name'] . "</option>";
         }
 
         echo $option;
