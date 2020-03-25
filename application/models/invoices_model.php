@@ -736,7 +736,9 @@ class invoices_model extends CI_Model {
         if($partner_id == VIDEOCON_ID){
             //finding fixed charges for open cell and led bar spare parts
             $open_cell_led_bar_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
+            "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, 
+                "vendor_partner_variable_charges.status" => 1,
+                "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
             if (!empty($open_cell_led_bar_charges)){
                 //calling function to get total Open cell and LED bar spare parts used in partner bookings
                 $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
@@ -872,7 +874,8 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1, "vendor_partner_variable_charges.status" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1, "vendor_partner_variable_charges.status" => 1, 
+                "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
@@ -890,7 +893,9 @@ class invoices_model extends CI_Model {
             }
             
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE, 
+                "vendor_partner_variable_charges.status" => 1, 
+                "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
                     $micro_wh_lists = $this->invoices_model->calculate_active_microwarehouse($partner_id, $tmp_from_date, $to_date);
@@ -1417,7 +1422,11 @@ class invoices_model extends CI_Model {
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_installation_charge,
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (round(vendor_basic_charges,2)) ELSE 0 END) as vendor_stand
 
-                    $condition ";
+                    $condition "
+                . " AND NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+                . " AND spare_parts_details.shipped_date IS NOT NULL AND defective_part_required = 1 "
+                . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
+                . " AND spare_parts_details.status !='Cancelled' )";
 
         $query1 = $this->db->query($sql1);
         return $query1->result_array();
@@ -1478,6 +1487,10 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
+                AND NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE bd.booking_id = spare_parts_details.booking_id 
+                AND spare_parts_details.shipped_date IS NOT NULL AND defective_part_required = 1 
+                AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) 
+                AND spare_parts_details.status !='Cancelled' )
                 $is_invoice_null
                 GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags, product_or_services, tax_rate,ud.appliance_capacity ";
 
@@ -1637,7 +1650,8 @@ class invoices_model extends CI_Model {
             
 //            if ($result['booking'][0]['is_wh'] == 1) {
 //                $packaging1 = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
-//                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG));
+//                    "entity_id" => $vendor_id, "charges_type" => FIXED_MONTHLY_WAREHOUSE_CHARGES_TAG,
+//                    "fixed_charges > 0 " => NULL, "vendor_partner_variable_charges.active" => 1));
 //                if (!empty($packaging1)) {
 //                    $c_data = array();
 //                    $c_data[0]['description'] = $packaging1[0]['description'];
@@ -2498,6 +2512,11 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
+        $this->db->where(" EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+                . " AND spare_parts_details.shipped_date IS NOT NULL "
+                . " AND defective_part_required = 1 "
+                . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
+                . " AND spare_parts_details.status !='Cancelled' )", NULL, FALSE);
         $query = $this->db->get();
         return $query->result_array();
     }
