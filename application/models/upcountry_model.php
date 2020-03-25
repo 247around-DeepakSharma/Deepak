@@ -376,6 +376,10 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND bd.upcountry_partner_approved = 1 "
+                . " AND NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE bd.booking_id = spare_parts_details.booking_id "
+                . " AND spare_parts_details.shipped_date IS NOT NULL AND defective_part_required = 1 "
+                . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
+                . " AND spare_parts_details.status !='Cancelled' )"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.sf_upcountry_rate ";
         
         $query = $this->db->query($sql);

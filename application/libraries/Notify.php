@@ -924,7 +924,9 @@ class Notify {
                         break;
                         default:
                         $data  = $this->send_sms_using_msg91($phone_number, $body);
+                        break;
                 }
+                break;
                 default:
                 $data  = $this->send_sms_using_msg91($phone_number, $body);
 
@@ -933,6 +935,7 @@ class Notify {
         
         return $data;
     }
+
 
     function send_sms_acl($sms) {
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
