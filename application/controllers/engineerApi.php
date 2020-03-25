@@ -1972,7 +1972,8 @@ class engineerApi extends CI_Controller {
             $engg_data=array();
             if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
             $engg_data = array(
-                    'device_firebase_token' => $requestData['device_firebase_token']
+                    'device_firebase_token' => $requestData['device_firebase_token'],
+                    'installed'=>1
             );
             }else{
             $engg_data = array(
@@ -1980,7 +1981,7 @@ class engineerApi extends CI_Controller {
             );  
             }
 
-            $engg_where = array('id' => $requestData["engineer_id"],'installed'=>1); /* Update installed app when token available */
+            $engg_where = array('id' => $requestData["engineer_id"]); /* Update installed app when token available */
             $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
