@@ -1956,16 +1956,16 @@ class Service_centers extends CI_Controller {
                 if (isset($warehouse_details['challan_approx_value'])) {
                     $data['challan_approx_value'] = round($warehouse_details['challan_approx_value'] * $data['quantity'], 2);
                 }
-                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                $data['defective_return_to_entity_id'] = $partner_id;
+                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                 $data['requested_inventory_id'] = $change_inventory_id;
             }
         } else {
             $data['partner_id'] = $partner_id;
             $data['entity_type'] = _247AROUND_PARTNER_STRING;
             $data['is_micro_wh'] = 0;
-            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['defective_return_to_entity_id'] = $partner_id;
+            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
         }
 
 //        if (!isset($data['defective_return_to_entity_id'])) {
@@ -2470,8 +2470,8 @@ class Service_centers extends CI_Controller {
                     $data['partner_id'] = $this->input->post('partner_id');
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
                     $data['is_micro_wh'] = 0;
-                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
+                    $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                    $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
 
                     /** search if there is any warehouse for requested spare parts
                      * if any warehouse exist then assign this spare request to that service center otherwise assign
@@ -2510,8 +2510,8 @@ class Service_centers extends CI_Controller {
                             $data['partner_id'] = $this->input->post('partner_id');
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
                             $data['is_micro_wh'] = 0;
-                            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                            $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                             if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                                 $data['requested_inventory_id'] = $value['requested_inventory_id'];
                             }
@@ -2523,8 +2523,8 @@ class Service_centers extends CI_Controller {
                         $data['partner_id'] = $this->input->post('partner_id');
                         $data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['is_micro_wh'] = 0;
-                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
+                        $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                     }
 
 
@@ -5676,16 +5676,16 @@ class Service_centers extends CI_Controller {
                             if (isset($warehouse_details['challan_approx_value'])) {
                                 $data['challan_approx_value'] = round(($warehouse_details['challan_approx_value'] * $spare_data['quantity']), 2);
                             }
-                            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                            $data['defective_return_to_entity_id'] = $partner_id;
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                             $is_micro_wh = 0;
                         }
                     } else {
                         $data['partner_id'] = $partner_id;
                         $data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['is_micro_wh'] = 0;
-                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $data['defective_return_to_entity_id'] = $partner_id;
+                        $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                         $entity_type = _247AROUND_PARTNER_STRING;
                         $is_micro_wh = 0;
                     }
