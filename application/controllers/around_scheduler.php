@@ -1786,12 +1786,7 @@ class Around_scheduler extends CI_Controller {
                     $email_template = $this->booking_model->get_booking_email_template(CP_OUTSTANDING_AMOUNT);
                     if(!empty($email_template)){
                         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($value['id']);
-                        $rm_email = "";
                         $from = $email_template[2];
-                        if(!empty($rm)){
-                           $rm_email = ", ".$rm[0]['official_email'];
-                            //$from = $rm[0]['official_email'];
-                        }
                         $asm_rm_email = ''; // Send Email to ASM, If asm not exisr then send to RM
                         if(!empty($rm[1]['official_email'])){
                             $asm_rm_email = ", ".$rm[1]['official_email'];
