@@ -3504,13 +3504,13 @@ function generate_image($base64, $image_name,$directory){
                             $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
                             $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
                         } else {
-                            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                            $response['defective_return_to_entity_id'] = $partner_id;     
+                            $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;     
                         }
                        
                     } else {
-                        $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $response['defective_return_to_entity_id'] = $partner_id;                        
+                        $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;                        
                     }
                 }
                 
@@ -3550,16 +3550,16 @@ function generate_image($base64, $image_name,$directory){
             $response['inventory_id'] = $inventory_id;
             $response['is_micro_wh'] = 0;    //
             $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
-            $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-            $response['defective_return_to_entity_id'] = $partner_id;
-            // if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
-            //     $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
-            //     $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-            //     $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
-            // } else {
-            //     $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-            //     $response['defective_return_to_entity_id'] = $partner_id;
-            // }
+            $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+            $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+//            if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+//                $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
+//                $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+//                $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+//            } else {
+//                $response['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $response['defective_return_to_entity_id'] = $partner_id;
+//            }
         }
 	
         $is_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -4148,10 +4148,10 @@ function generate_image($base64, $image_name,$directory){
                                $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
                                    'status' => $sp['old_status'],
                                    'is_micro_wh' => 0, 
-                                   'defective_return_to_entity_type' => _247AROUND_PARTNER_STRING, 
+                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
                                    "entity_type" => _247AROUND_PARTNER_STRING, 
                                    "partner_id" => $partner_id,
-                                   "defective_return_to_entity_id" => $partner_id
+                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
                                 ));
                             }
                         } else {
@@ -4159,10 +4159,10 @@ function generate_image($base64, $image_name,$directory){
                           $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
                                    'status' => $sp['old_status'],
                                    'is_micro_wh' => 0, 
-                                   'defective_return_to_entity_type' => _247AROUND_PARTNER_STRING, 
+                                   'defective_return_to_entity_type' => _247AROUND_SF_STRING, 
                                    "entity_type" => _247AROUND_PARTNER_STRING, 
                                    "partner_id" => $partner_id,
-                                   "defective_return_to_entity_id" => $partner_id
+                                   "defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID
                                 ));
                         }
                         

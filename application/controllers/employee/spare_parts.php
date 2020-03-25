@@ -1762,8 +1762,8 @@ class Spare_parts extends CI_Controller {
             $new_state = REQUESTED_SPARED_REMAP;
             $data['entity_type'] = $entity_type;
             $data['partner_id'] = $partner_id;
-            $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-            $data['defective_return_to_entity_id'] = $partner_id;
+            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
             $data['is_micro_wh'] = 0;
             $data['quantity'] = $quantity; // Quantity
             //  $data['remarks'] = "Spare Transfer to Partner";
@@ -1916,16 +1916,16 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         if (isset($warehouse_details['challan_approx_value'])) {
                         $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$req_quantity,2);   
                         }
-                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $data['defective_return_to_entity_id'] = $partner_id;
+                        $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                         array_push($parts_stock_not_found, array('model_number' => $spare_parts_list[0]['model_number'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'part_name' => $spare_parts_list[0]['parts_requested']));
                     }
                 } else {
                     $data['partner_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
                     $data['is_micro_wh'] = 0;
-                    $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $data['defective_return_to_entity_id'] = $partner_id;
+                    $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                    $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                 }
 
                 if (!empty($parts_stock_not_found)) {
@@ -2674,16 +2674,16 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 if (isset($warehouse_details['challan_approx_value'])) {
                                  $spare_data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$data['quantity']),2);   
                                 }
-                                $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                                $spare_data['defective_return_to_entity_id'] = $partner_id;
+                                $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                             }
 
                     } else {
                         $spare_data['partner_id'] = $partner_id;
                         $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $is_micro_wh = $spare_data['is_micro_wh'] = 0;
-                        $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                        $spare_data['defective_return_to_entity_id'] = $partner_id;
+                        $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                     }
                 } 
                        
