@@ -3454,4 +3454,22 @@ class invoices_model extends CI_Model {
         $query1 = $this->db->query($sql1);
         return $query1->result_array();
     }
+    
+      /**
+     * @Desc: This function is to get invoice categories
+     * @params: String $select
+     * @params : Array $where
+     * @return: Array()
+     * @author Ankit Bhatt
+     * @date : 23-03-2020
+     */
+    function get_invoice_category($select, $where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by('category', "asc");
+        $query = $this->db->get('invoice_category');
+        return $query->result_array(); 
+    }
 }

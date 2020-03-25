@@ -2119,3 +2119,33 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 07:54:48');
 
+--Ankit Bhatt 2020-03-23
+CREATE TABLE `invoice_category` (
+  `id` int(11) NOT NULL,
+  `category` varchar(64) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `invoice_category` (`id`, `category`, `create_date`, `update_date`) VALUES
+(1, 'Service', '2020-03-23 07:46:31', '2020-03-23 07:46:31'),
+(2, 'Product', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(3, 'Upcountry', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(4, 'Debit Penalty', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(5, 'Courier', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(6, 'Misc Charge', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(7, 'Packaging Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(9, 'Warehouse Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(10, 'Call Center Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(11, 'Penalty Discount', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(13, 'Credit Penalty', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(14, 'Micro Warehouse', '2020-03-23 07:47:37', '2020-03-23 07:47:37');
+
+ALTER TABLE `invoice_category`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `invoice_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+ALTER TABLE `vendor_partner_invoices`  ADD `micro_warehouse_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `miscellaneous_charges`;
+ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `micro_warehouse_charges`;
