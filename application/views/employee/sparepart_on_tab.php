@@ -2016,6 +2016,17 @@
             alert('Spare part has been approved successfully.');
         });
     });
+        $(document).ready(function(){
+        $('.panel .form-control').on('keypress keyup', function (event) {
+            var regex = new RegExp("^[a-zA-Z0-9 ,-]+$");
+            var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+            $(this).val($(this).val().replace(/[^a-z0-9 ,-\s]/gi, ''));
+            if (!regex.test(key)) {
+               event.preventDefault();
+               return false;
+            }
+        });
+    });
 </script>
 <style>
     #partner_wise_parts_requested2 .select2-container{
