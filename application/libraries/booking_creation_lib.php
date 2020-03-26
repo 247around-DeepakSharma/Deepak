@@ -53,14 +53,20 @@ class booking_creation_lib {
                  }
             }
             
-            $prepaid = $this->My_CI->miscelleneous->get_partner_prepaid_amount($booking_history[0]['partner_id']);
-            $booking['active'] = $prepaid['active'];
+            $booking['services'] = array();
+            $booking['active'] = "";
+            $booking['partner_type'] = "";
+            if(!empty($booking_history[0]['partner_id']))
+            {
+                $prepaid = $this->My_CI->miscelleneous->get_partner_prepaid_amount($booking_history[0]['partner_id']);
+                $booking['active'] = $prepaid['active'];
             
-            $booking['partner_type'] = $prepaid["partner_type"];
-            if ($booking['partner_type'] == OEM) {
-                $booking['services'] = $this->My_CI->partner_model->get_partner_specific_services($booking_history[0]['partner_id']);
-            } else {
-                $booking['services'] = $this->My_CI->booking_model->selectservice();
+                $booking['partner_type'] = $prepaid["partner_type"];
+                if ($booking['partner_type'] == OEM) {
+                    $booking['services'] = $this->My_CI->partner_model->get_partner_specific_services($booking_history[0]['partner_id']);
+                } else {
+                    $booking['services'] = $this->My_CI->booking_model->selectservice();
+                }
             }
 
             $service_category = array();
@@ -156,7 +162,7 @@ class booking_creation_lib {
             );
         // IF Booking is Repeat Then compare tag  //
             $b_details = $this->My_CI->booking_model->get_bookings_count_by_any("booking_details.request_type",$where_booking);
-            if ($b_details[0]['request_type'] ==REPEAT_BOOKING_TAG)
+            if (!empty($b_details[0]['request_type']) && $b_details[0]['request_type'] == REPEAT_BOOKING_TAG)
             {
              $booking['repeat_booking_flag'] = TRUE;
             }
