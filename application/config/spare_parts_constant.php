@@ -196,3 +196,7 @@ define('DEFECTIVE_PARTS_PENDING_OOT','Defective Part To Be Shipped By SF Out Of 
 
 // InProcess_CourierLost
 define('InProcess_Courier_Lost','Courier Lost Approval Pending');
+//LED BAR part type
+define('LED_BAR', 'LED BAR');
+//Open cell Part Type
+define('OPEN_CELL_PART_TYPE', 'OPEN CELL');

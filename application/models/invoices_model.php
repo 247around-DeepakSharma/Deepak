@@ -739,10 +739,10 @@ class invoices_model extends CI_Model {
             "entity_id" => $partner_id, "variable_charges_type.type" => OPENCELL_LEDBAR_SPARE_PARTS_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
             if (!empty($open_cell_led_bar_charges)){
                 //calling function to get total Open cell and LED bar spare parts used in partner bookings
-                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, 'Service' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
+                $spare_parts_select = "SELECT CONCAT('''', bd.order_id) as order_id, spd.booking_id, spd.shipped_quantity, spd.id as spare_id, '".OPENCELL_LEDBAR_CHARGES."' as product_or_services, spd.parts_requested_type as description, ".$open_cell_led_bar_charges[0]['fixed_charges']." * spd.shipped_quantity as partner_charge "
                                        ."FROM spare_parts_details as spd inner join booking_details as bd "
                                        ."on (bd.booking_id = spd.booking_id) left join bill_to_partner_opencell as btpo on(spd.id = btpo.spare_id) "
-				       ."WHERE spd.parts_requested_type in ('LED BAR', 'OPEN CELL') and bd.current_status='Completed' and spd.status != 'Cancelled' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' and bd.closed_date >= '".$from_date."' and bd.closed_date < '".$to_date."' and btpo.invoice_id is null;";
+				       ."WHERE spd.parts_requested_type in ('".LED_BAR."', '".OPEN_CELL_PART_TYPE."') and spd.status != 'Cancelled' and spd.shipped_date is not null and bd.partner_id = '".$partner_id."' and spd.shipped_date >= '".$from_date."' and spd.shipped_date < '".$to_date."' and btpo.invoice_id is null;";
                 $opencell_data = $this->db->query($spare_parts_select);
                 $spare_parts_open_cell_led_bar_data = $opencell_data->result_array();
             }
@@ -828,12 +828,12 @@ class invoices_model extends CI_Model {
                 //get total open cell parts price
                 $total_open_cell_price = $total_open_cell_quantity * $open_cell_led_bar_charges[0]['fixed_charges'];
                 $spare_parts_data = array();
-                $spare_parts_data[0]['description'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['description'] = OPENCELL_LEDBAR_CHARGES;
                 $spare_parts_data[0]['hsn_code'] = '';
                 $spare_parts_data[0]['qty'] = $total_open_cell_quantity;
                 $spare_parts_data[0]['rate'] = $open_cell_led_bar_charges[0]['fixed_charges'];
                 $spare_parts_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $spare_parts_data[0]['product_or_services'] = 'Open Cell & LED Bar Charges';
+                $spare_parts_data[0]['product_or_services'] = OPENCELL_LEDBAR_CHARGES;
                 $spare_parts_data[0]['taxable_value'] = sprintf("%.2f", $total_open_cell_price);
                 $spare_parts_open_cell_led_bar_data[0]['total_open_cell_price'] = $total_open_cell_price;
                 $spare_parts_open_cell_led_bar_data[0]['total_open_cell_quantity'] = $total_open_cell_quantity;
