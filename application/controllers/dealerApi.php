@@ -467,7 +467,7 @@ function getAllStates(){
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+            $this->sendJsonResponse(array($response['code'], $response['message'])); 
         }
 
 
@@ -498,7 +498,7 @@ function getAllStates(){
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+            $this->sendJsonResponse(array($response['code'], $response['message'])); //
         }
 
 
@@ -588,8 +588,29 @@ function getAllStates(){
         }
     }
 
+  /*
+     * @Desc - This function is used to get booking deatails 
+     * @param - $booking_id
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
 
+function getBookingDetails(){
 
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat"), $requestData);
+        if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
+                $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }
+
+}
 
 
 
