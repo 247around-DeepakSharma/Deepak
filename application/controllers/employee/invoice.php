@@ -122,6 +122,14 @@ class Invoice extends CI_Controller {
            }
         }
         
+        $msl_invoice = 0;
+        //check if user has checked checkbox to view MSL invoice or not
+        if(!empty($this->input->post('msl_invoice'))){
+           if($this->input->post('msl_invoice') == 1){
+               $msl_invoice = 1;
+           }
+        }
+        
         if($invoice_period === 'all'){
             $where = array('vendor_partner' => $this->input->post('source'),
                       'vendor_partner_id' => $this->input->post('vendor_partner_id'));
@@ -129,6 +137,13 @@ class Invoice extends CI_Controller {
                 $where['settle_amount'] = 0;
             }
             
+            if($msl_invoice == 1){
+                //add condition in query to select MSL invoices
+                $where["sub_category like '%MSL%'"] = null;
+            }else{
+                //add condition in query to exclude MSL invoices
+                $where["sub_category not like '%MSL%'"] = null;
+            }
             if($invoice_type){
                $types = implode('","', $invoice_type); 
                if($types){
