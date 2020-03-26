@@ -195,4 +195,4 @@ define('InProcess_Courier_Lost','Courier Lost Approval Pending');
 //LED BAR part type
 define('LED_BAR', 'LED BAR');
 //Open cell Part Type
-defeine('OPEN_CELL_PART_TYPE', 'OPEN CELL');
+define('OPEN_CELL_PART_TYPE', 'OPEN CELL');
