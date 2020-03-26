@@ -15,6 +15,7 @@ class around_generic_lib {
     $this->My_CI->load->library('s3');
     $this->My_CI->load->library('form_validation');
     $this->My_CI->load->library("miscelleneous");
+    $this->My_CI->load->library("booking_creation_lib");
     $this->My_CI->load->library("notify");
     $this->My_CI->load->helper('download');
     $this->My_CI->load->helper(array('form', 'url'));
@@ -104,7 +105,25 @@ class around_generic_lib {
     }
 
 
+     /*
+     * @Desc - This function used to get booking data like spares , units ,etc
+     * @param - $booking_id
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
 
+    function getBookingDetails($booking_id="",$appliance_id,$is_repeat,$show_all_capacity=FALSE){
+        $booking = array();
+        if(!empty($booking_id)){
+          $booking_history = $this->My_CI->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat, $show_all_capacity); 
+          $booking['booking_history'] =  $booking_history; 
+          return $booking; 
+        }else{
+            return $booking;
+        }
+        
+
+    }
 
 
 
