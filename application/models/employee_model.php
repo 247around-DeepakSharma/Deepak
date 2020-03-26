@@ -128,13 +128,12 @@ class Employee_model extends CI_Model{
       
       
       function get_rm_region($region=null){
-        $this->db->select('employee.full_name, rm_region_mapping.*');
+        $this->db->select('employee.full_name, rm_region_mapping.region');
         $this->db->join('employee', 'rm_region_mapping.rm_id = employee.id','left');
         if(!empty($region)){
-            $this->db->where_in('rm_region_mapping.region',$region);
-            $query = $this->db->get('rm_region_mapping');
-            return $query->result_array(); 
-        }
+            $this->db->where_in('rm_region_mapping.region',$region);}
+        $query = $this->db->get('rm_region_mapping');
+        return $query->result_array(); 
      }
      
       /**

@@ -3551,7 +3551,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
         $partner_id = $this->session->userdata('partner_id');
-        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
+        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id,'booking_details.create_date desc');
 
         if (!empty($data['data'])) {
             $this->miscelleneous->load_partner_nav_header();
