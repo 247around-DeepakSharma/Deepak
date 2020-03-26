@@ -114,6 +114,12 @@
                 <input style="margin-left:15px" type="checkbox" onclick="getInvoicingData('<?php echo $vendor_partner; ?>');" checked id="settle_invoice_checkbox" name="settle_invoice_checkbox" class="form-control">
             </div>
          </div>
+          <div class="form-group col-md-3">
+            <label for="msl_invoice_checkbox" class="col-sm-8">MSL Invoice</label>
+            <div class="col-md-4">
+                <input style="margin-left:15px" type="checkbox" onclick="getInvoicingData('<?php echo $vendor_partner; ?>');" id="msl_invoice_checkbox" name="msl_invoice_checkbox" class="form-control">
+            </div>
+         </div>
       </div>
        <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
       <div class="row" style="margin-top: 20px;">
@@ -357,6 +363,12 @@
     } else {
         c = 0;
     }
+    //check if MSL invoice checkbox is checked
+    if($('#msl_invoice_checkbox').is(":checked")){
+        msl = 1;
+    } else {
+        msl = 0;
+    }
     var invoice_period = $('#invoice_period').val();
     var invoice_type = $('#filter_invoice_type').val();
     var vertical = $("#vertical").val();
@@ -366,7 +378,7 @@
     $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,invoice_period:invoice_period, settle_invoice: c, vertical:vertical, category:category, sub_category:sub_category},
+          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,invoice_period:invoice_period, settle_invoice: c, vertical:vertical, category:category, sub_category:sub_category, msl_invoice : msl},
           success: function (data) {
             $('#loader_gif').attr('src', '');
             $("#invoicing_table").html(data);
