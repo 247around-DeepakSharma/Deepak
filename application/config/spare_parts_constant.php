@@ -191,3 +191,9 @@ define('OK_PARTS_SEND_TO_PARTNER_BY_WH','Ok parts send by warehouse to partner')
 // Defective Parts pending OOT
 define('DEFECTIVE_PARTS_PENDING_OOT','Defective Part To Be Shipped By SF Out Of TAT');
 //define('OK_PARTS_SEND_TO_PARTNER_BY_WH','Ok parts send by warehouse to partner');
+// InProcess_CourierLost
+define('InProcess_Courier_Lost','Courier Lost Approval Pending');
+//LED BAR part type
+define('LED_BAR', 'LED BAR');
+//Open cell Part Type
+defeine('OPEN_CELL_PART_TYPE', 'OPEN CELL');

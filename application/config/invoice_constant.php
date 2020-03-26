@@ -101,4 +101,5 @@ define('ACCESSORIES_TAG','accessories');
 define('FNF', 'FNF');
 //Default Charges Limit for Courier & Upcountry
 define('DEFAULT_CHARGES_LIMIT', 10);
-?>
+//OPENCELLInvoice 
+define('OPENCELL_LEDBAR_CHARGES', 'Open Cell & LED Bar Charges');
