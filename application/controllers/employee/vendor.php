@@ -4413,7 +4413,9 @@ class vendor extends CI_Controller {
                 readfile($output_file_excel);
                 // Delete file from temp folder
                 // @modified by : Ankit Rajvanshi
-                unlink($output_file_excel);
+                if(file_exists($output_file_excel)){
+                    unlink($output_file_excel);
+                }
                 exit;
             } 
 

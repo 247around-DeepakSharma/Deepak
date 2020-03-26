@@ -2424,7 +2424,8 @@ class Partner extends CI_Controller {
         $data['service_center_id'] = $sp_details[0]['service_center_id'];
         $data['model_number'] = $part_details['shipped_model_number'];
         $data['serial_number'] = $sp_details[0]['serial_number'];
-        $data['requested_inventory_id'] = $part_details['inventory_id'];
+        $data['requested_inventory_id'] = $part_details['requested_inventory_id'];
+        $data['original_inventory_id'] = $part_details['requested_inventory_id'];
         $data['date_of_purchase'] = $sp_details[0]['date_of_purchase'];
         $data['date_of_request'] = date("Y-m-d");
         $data['create_date'] = date('Y-m-d H:i:s');
@@ -3550,7 +3551,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
         $partner_id = $this->session->userdata('partner_id');
-        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
+        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id,'booking_details.create_date desc');
 
         if (!empty($data['data'])) {
             $this->miscelleneous->load_partner_nav_header();

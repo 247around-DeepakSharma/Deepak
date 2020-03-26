@@ -2987,7 +2987,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
         $service_center_id = $this->session->userdata('service_center_id');
-        $data['data'] = $this->service_centers_model->search_booking_history(trim($searched_text), $service_center_id);
+        $data['data'] = $this->service_centers_model->search_booking_history(trim($searched_text), $service_center_id,'booking_details.create_date desc');
 
         if (!empty($data['data'])) {
             $this->load->view('service_centers/header');
