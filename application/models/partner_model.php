@@ -1389,7 +1389,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param String $partner_id
      * @return Array
      */
-    function search_booking_history($searched_text_tmp,$partner_id) {
+    function search_booking_history($searched_text_tmp,$partner_id,$order_by='') {
         //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
         $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         log_message("info", $searched_text);
@@ -1403,6 +1403,9 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND services.id = booking_details.service_id "
                     . " AND ( `partner_id` = '$partner_id' OR origin_partner_id = '$partner_id' )". $where_phone
                     . " ";
+            if(!empty($order_by)){
+               $sql .= "order by ".$order_by;
+            }
             $query = $this->db->query($sql);
             $response = $query->result_array();
         }else{

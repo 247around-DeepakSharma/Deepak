@@ -636,7 +636,7 @@ class Service_centers_model extends CI_Model {
      * @param String $service_center_id
      * @return Array
      */
-    function search_booking_history($searched_text_tmp,$service_center_id) {
+    function search_booking_history($searched_text_tmp,$service_center_id,$order_by='') {
         //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
         $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         
@@ -648,6 +648,9 @@ class Service_centers_model extends CI_Model {
                 . " AND services.id = booking_details.service_id "
                 . " AND `assigned_vendor_id` = '$service_center_id' ". $where
                 . " ";
+        if(!empty($order_by)){
+               $sql .= "order by ".$order_by;
+            }
         $query = $this->db->query($sql);
         
         //log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
