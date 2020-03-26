@@ -118,7 +118,7 @@
                    <div class="form-group col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
                        <label for="" style="color:#fff">Dependency</label>
                        <select class="form-control"  ng-model="status" id="status" name="status[]" multiple="">
-                           <option value="247Around:Warehouse" <?php if(!empty($filters['status']) && is_array($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
+                           <option value="247Around:Warehouse" <?php if(!empty($filters['status']) && is_array($filters['status'])){if(in_array("247Around:Warehouse", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
                                 <option value="Partner" <?php if(!empty($filters['status']) && is_array($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
                                 <option value="Vendor:not_define" <?php if(!empty($filters['status']) && is_array($filters['status'])){if(in_array("Vendor:not_define", $filters['status'])){echo 'selected="selected"';}} ?>>SF</option>  
                        </select>
@@ -179,9 +179,13 @@
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
                             <th>S.no</th>
                             <th>States</th>
+                            <?php if(isset($state['leg_1'])){ ?>
+                                    <td></td>
+                            <?php } ?>
                             <?php if ($is_pending) {?>
                              <th> >Day3</th>
-                             <?php  } ?>
+                             <?php 
+                             } ?>
                             <th>Day0</th>
                             <th>Day1</th>
                             <th>Day2</th>
@@ -197,21 +201,24 @@
     </thead>
     <tbody>
         <?php
-         if(!$is_pending){
-             $stateTemp = $state;
-             if(isset($state['TAT'])){
-                 $state = $state['TAT'];
-                 $sfTemp = $sf;
-                 $sf = $sf['TAT'];
-             }
-         }
         $index = 0;
-        foreach($state as $key => $values){
+        // set Array to blank if no data found
+        $state['TAT'] = !empty($state['TAT']) ? $state['TAT'] : [];
+        foreach($state['TAT'] as $key => $values){
             $index++;
             ?>
         <tr>
             <td><?php echo $index;?></td>
-            <td><?php echo $values['entity']?></td>
+            <td>
+                <?php echo $values['entity']?>                
+            </td>
+            <?php if(isset($state['leg_1'])){ ?>
+                    <td>
+                        <?php if($values['id'] != '00') { ?>
+                            <p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p>
+                        <?php } ?>
+                    </td>
+            <?php } ?>
             <?php
             if(!$is_pending || $this->session->userdata('partner_id')){ 
                  if($is_pending){
@@ -220,14 +227,57 @@
                     <?php
                 }
                 ?>
-                <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
-                <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
-                <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
-                <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>
-                <td><?php echo $values['TAT_4'] ."<br>(". $values['TAT_4_per']."%)";?></td>
-                <td><?php echo $values['TAT_5'] ."<br>(". $values['TAT_5_per']."%)";?></td>
-                <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
-                <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php
+                    if(isset($state['leg_1'][$key]['TAT_0'])) {
+                            echo $state['leg_1'][$key]['TAT_0'] ." (". $state['leg_1'][$key]['TAT_0_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_0'] ." (". $state['leg_2'][$key]['TAT_0_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_0'] ." (". $values['TAT_0_per']."%)";?>
+                </td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_1'])) {
+                            echo $state['leg_1'][$key]['TAT_1'] ." (". $state['leg_1'][$key]['TAT_1_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_1'] ." (". $state['leg_2'][$key]['TAT_1_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_1'] ." (". $values['TAT_1_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_2'])) {
+                            echo $state['leg_1'][$key]['TAT_2'] ." (". $state['leg_1'][$key]['TAT_2_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_2'] ." (". $state['leg_2'][$key]['TAT_2_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_2'] ." (". $values['TAT_2_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_3'])) {
+                            echo $state['leg_1'][$key]['TAT_3'] ." (". $state['leg_1'][$key]['TAT_3_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_3'] ." (". $state['leg_2'][$key]['TAT_3_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_3'] ." (". $values['TAT_3_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_4'])) {
+                            echo $state['leg_1'][$key]['TAT_4'] ." (". $state['leg_1'][$key]['TAT_4_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_4'] ." (". $state['leg_2'][$key]['TAT_4_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_4'] ." (". $values['TAT_4_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_5'])) {
+                            echo $state['leg_1'][$key]['TAT_5'] ." (". $state['leg_1'][$key]['TAT_5_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_5'] ." (". $state['leg_2'][$key]['TAT_5_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_5'] ." (". $values['TAT_5_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_8'])) {
+                            echo $state['leg_1'][$key]['TAT_8'] ." (". $state['leg_1'][$key]['TAT_8_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_8'] ." (". $state['leg_2'][$key]['TAT_8_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_8'] ." (". $values['TAT_8_per']."%)";?></td>
+                <td>
+                    <?php if(isset($state['leg_1'][$key]['TAT_16'])) {
+                            echo $state['leg_1'][$key]['TAT_16'] ." (". $state['leg_1'][$key]['TAT_16_per']."%)"."<br/>";
+                            echo $state['leg_2'][$key]['TAT_16'] ." (". $state['leg_2'][$key]['TAT_16_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_16'] ." (".$values['TAT_16_per']."%)";?></td>
             <?php
                 if($is_pending){
                     ?>
@@ -333,7 +383,10 @@
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
                             <th>S.no</th>
                             <th>Service Centers</th>
-                            <th>State</th>
+                            <th>State</th>                            
+                            <?php if(isset($sf['leg_1'])){ ?>
+                                <th></th>
+                            <?php } ?>
                             <?php if ($is_pending) {?>
                              <th> >Day3</th>
                              <?php  } ?>
@@ -353,25 +406,18 @@
     <tbody>
         <?php
         $index = 0;
-        foreach($sf as $key => $values){
+        // set Array to blank if no data found
+        $sf['TAT'] = !empty($sf['TAT']) ? $sf['TAT'] : [];
+        foreach($sf['TAT'] as $key => $values){
             $index++;
             ?>
         <tr>
             <td><?php echo $index;   ;?></td>
             <td>
                 <?php
-//                if($this->session->userdata('partner_id')){
-//                    if($values['id'] !="00"){
-//                        echo "247Around_Service_Center_".$values['id'];
-//                    }
-//                    else{
-//                        echo wordwrap($values['entity'], 30, "<br />\n");
-//                    }
-//                }
-//                else{
                     echo wordwrap($values['entity'], 30, "<br />\n");
-                //}
-                ?> </td>
+                ?>                 
+            </td>
             <td><?php 
             $onlyID = "00";
             $onlyIDArray = explode("_",$values['id']);
@@ -381,7 +427,15 @@
             if(array_key_exists("sf_".$onlyID, $sf_state)){
                 echo $sf_state["sf_".$onlyID];
             }
-            ?></td>
+            ?>
+            </td>            
+            <?php if(isset($sf['leg_1'])){ ?>
+                <td>
+                    <?php if($values['id'] != '00') { ?>
+                        <p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p>
+                    <?php } ?>
+                </td>
+            <?php } ?>
             <?php
                if($is_pending){
                     ?>
@@ -390,14 +444,62 @@
                 }
             if(!$is_pending || $this->session->userdata('partner_id')){
                 ?>
-                <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
-                <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
-                <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
-                <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>
-                <td><?php echo $values['TAT_4'] ."<br>(". $values['TAT_4_per']."%)";?></td>
-                <td><?php echo $values['TAT_5'] ."<br>(". $values['TAT_5_per']."%)";?></td>
-                <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
-                <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_0'])) {
+                            echo $sf['leg_1'][$key]['TAT_0'] ." (". $sf['leg_1'][$key]['TAT_0_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_0'] ." (". $sf['leg_2'][$key]['TAT_0_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_0'] ." (". $values['TAT_0_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_1'])) {
+                            echo $sf['leg_1'][$key]['TAT_1'] ." (". $sf['leg_1'][$key]['TAT_1_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_1'] ." (". $sf['leg_2'][$key]['TAT_1_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_1'] ." (". $values['TAT_1_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_2'])) {
+                            echo $sf['leg_1'][$key]['TAT_2'] ." (". $sf['leg_1'][$key]['TAT_2_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_2'] ." (". $sf['leg_2'][$key]['TAT_2_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_2'] ." (". $values['TAT_2_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_3'])) {
+                            echo $sf['leg_1'][$key]['TAT_3'] ." (". $sf['leg_1'][$key]['TAT_3_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_3'] ." (". $sf['leg_2'][$key]['TAT_3_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_3'] ." (". $values['TAT_3_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_4'])) {
+                            echo $sf['leg_1'][$key]['TAT_4'] ." (". $sf['leg_1'][$key]['TAT_4_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_4'] ." (". $sf['leg_2'][$key]['TAT_4_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_4'] ." (". $values['TAT_4_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_5'])) {
+                            echo $sf['leg_1'][$key]['TAT_5'] ." (". $sf['leg_1'][$key]['TAT_5_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_5'] ." (". $sf['leg_2'][$key]['TAT_5_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_5'] ." (". $values['TAT_5_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_8'])) {
+                            echo $sf['leg_1'][$key]['TAT_8'] ." (". $sf['leg_1'][$key]['TAT_8_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_8'] ." (". $sf['leg_2'][$key]['TAT_8_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_8'] ." (". $values['TAT_8_per']."%)";?></td>
+                <td>
+                    <!--show leg-wise data-->
+                    <?php if(isset($sf['leg_1'][$key]['TAT_16'])) {
+                            echo $sf['leg_1'][$key]['TAT_16'] ." (". $sf['leg_1'][$key]['TAT_16_per']."%)"."<br/>";
+                            echo $sf['leg_2'][$key]['TAT_16'] ." (". $sf['leg_2'][$key]['TAT_16_per']."%)"."<br/>";
+                    } ?>
+                    <?php echo $values['TAT_16'] ." (".$values['TAT_16_per']."%)";?></td>
             <?php
             }
             else {
