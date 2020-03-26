@@ -89,6 +89,23 @@ class around_generic_lib {
 
 
 
+          /*
+     * @Desc - This function used to get spares of booking     
+     * @param - $booking_id
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getSpareDetailsOfBooking($booking_id){
+/*  If Shipped is empty or NULL Show Requested Data */
+        $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity", array('booking_id' => $booking_id));
+
+        return $sp_details;
+    }
+
+
+
+
 
 
 }

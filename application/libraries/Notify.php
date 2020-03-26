@@ -862,7 +862,7 @@ class Notify {
         if(!empty($phone_number) && KARIX_SENDING){
 /*  Making Payload */
 // logging for debug
- log_message('info', __METHOD__. "Karix called  Log: ".$data['content']);
+ log_message('info', __METHOD__. "Karix called  Log: ".$body);
            $payloadName = '{
                            "channel": "'.KARIX_CHANNEL.'",
                            "source": "'.KARIX_SENDER_ID.'",

@@ -2277,8 +2277,8 @@ class Partner extends CI_Controller {
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
-                        $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
-                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                        $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                         
                         if (empty($is_saas)) {
@@ -3551,7 +3551,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
         $partner_id = $this->session->userdata('partner_id');
-        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
+        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id,'booking_details.create_date desc');
 
         if (!empty($data['data'])) {
             $this->miscelleneous->load_partner_nav_header();
