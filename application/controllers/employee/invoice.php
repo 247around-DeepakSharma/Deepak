@@ -161,6 +161,13 @@ class Invoice extends CI_Controller {
             $where['from_date >='] = $financial_year_start;
             $where['from_date <='] = $financial_year_end;
             $where['settle_amount'] = 0;
+            if($msl_invoice == 1){
+                //add condition in query to select MSL invoices
+                $where["sub_category like '%MSL%'"] = null;
+            }else{
+                //add condition in query to exclude MSL invoices
+                $where["sub_category not like '%MSL%'"] = null;
+            }
             
              if($this->input->post('invoice_type')){
                $types = implode('","', $invoice_type); 
