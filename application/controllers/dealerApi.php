@@ -373,6 +373,10 @@ class dealerApi extends CI_Controller {
                 $this->getAllStates();
                 break;
 
+             case 'getStatesCities':
+                $this->getStatesCities();
+                break;
+
             case 'searchData':
                 $this->getSearchData();
                 break;
@@ -510,10 +514,31 @@ function getAllStates(){
 
 }
 
-
+    /**
+     *  @desc : This function is to get all cities of state.
+     *
+     *  All the distinct states of India in Ascending order  
+     *
+     *  @param : void
+     *  @return : json of cities
+     *  @author : Abhishek Awasthi
+     */
  
 
-
+function getStatesCities(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("state_code"), $requestData);
+        if (!empty($requestData['state_code'])) { 
+                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
+                 $this->jsonResponseString['response'] = $response['data'];
+                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
+        }
+}
 
 
   /*
