@@ -1712,8 +1712,8 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id = null) {
         if (empty($booking_id)) {
-            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : " . $_SERVER['HTTP_REFERER'];
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "", "BOOKING_VIEW_DETAILS");
+            // This is the case when user hits view details URL directly from the browser, without entering any Booking Id
+            // Manual Error
             return;
         }
 
