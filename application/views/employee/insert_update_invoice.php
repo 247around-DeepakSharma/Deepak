@@ -11,6 +11,9 @@
     label.error {
         color:red;
     }
+    .padding_space{
+        padding: 6px 5px;
+    }
 </style>
 <div id="page-wrapper" >
     <div class="container-fluid" >
@@ -339,17 +342,17 @@
                                             <label for="<?php echo "qty_".$key; ?>" class="error"></label>
                                         </td>
                                         <td>
-                                            <input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "rate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][rate]" value="<?php echo $value['rate'];?>" class="form-control rate allowNumericWithDecimal" required="" >
+                                            <input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "rate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][rate]" value="<?php echo $value['rate'];?>" class="form-control rate allowNumericWithDecimal padding_space" required="" >
                                             <label for="<?php echo "rate_".$key; ?>" class="error"></label>
                                         </td>
-                                        <td><input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "taxablevalue_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][taxable_value]" value="<?php echo $value['taxable_value'];?>" class="form-control taxable_value allowNumericWithDecimal" ></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "cgsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][cgst_rate]" value="<?php echo $value['cgst_tax_rate'];?>" class="form-control cgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input  id="<?php echo "cgsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][cgst_tax_amount]"  value="<?php echo $value['cgst_tax_amount'];?>" class="form-control cgst_tax_amount allowNumericWithDecimal" readonly></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "sgsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][sgst_rate]" value="<?php echo $value['sgst_tax_rate'];?>" class="form-control sgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="<?php echo "sgsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][sgst_tax_amount]" value="<?php echo $value['sgst_tax_amount'];?>" class="form-control sgst_tax_amount allowNumericWithDecimal" readonly></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "igsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][igst_rate]" value="<?php echo $value['igst_tax_rate'];?>" class="form-control igst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="<?php echo "igsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][igst_tax_amount]" value="<?php echo $value['igst_tax_amount'];?>" class="form-control igst_tax_amount allowNumericWithDecimal" readonly></td>
-                                        <td><input id="<?php echo "totalamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][total_amount]" value="<?php echo $value['total_amount'];?>" class="form-control total_amount allowNumericWithDecimal" readonly></td>
+                                        <td><input onkeyup="change_prices('<?php echo $key; ?>')"  id="<?php echo "taxablevalue_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][taxable_value]" value="<?php echo $value['taxable_value'];?>" class="form-control taxable_value allowNumericWithDecimal padding_space" ></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "cgsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][cgst_rate]" value="<?php echo $value['cgst_tax_rate'];?>" class="form-control cgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input  id="<?php echo "cgsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][cgst_tax_amount]"  value="<?php echo $value['cgst_tax_amount'];?>" class="form-control cgst_tax_amount allowNumericWithDecimalpadding_space" readonly></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "sgsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][sgst_rate]" value="<?php echo $value['sgst_tax_rate'];?>" class="form-control sgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="<?php echo "sgsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][sgst_tax_amount]" value="<?php echo $value['sgst_tax_amount'];?>" class="form-control sgst_tax_amount allowNumericWithDecimal padding_space" readonly></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('<?php echo $key; ?>')"  id="<?php echo "igsttaxrate_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][igst_rate]" value="<?php echo $value['igst_tax_rate'];?>" class="form-control igst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="<?php echo "igsttaxamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][igst_tax_amount]" value="<?php echo $value['igst_tax_amount'];?>" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly></td>
+                                        <td><input id="<?php echo "totalamount_".$key; ?>" type="number" name="invoice[<?php echo $value['id']; ?>][total_amount]" value="<?php echo $value['total_amount'];?>" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td colspan="2" style="width:8%;text-align:center;">
                                             <input type="hidden" id="<?php echo "settle_qty_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][settle_qty]" value="<?php echo (isset($value['settle_qty']) ? $value['settle_qty'] : '');?>" >
                                             <input type="hidden" id="<?php echo "is_settle_".$key; ?>" name="invoice[<?php echo $value['id']; ?>][is_settle]" value="<?php echo (isset($value['is_settle']) ? $value['is_settle'] : '');?>" >
@@ -387,17 +390,17 @@
                                             <label for="qty_0" class="error"></label>
                                         </td>
                                         <td>
-                                            <input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="rate_0" type="number" name="invoice[0][rate]" value="" class="form-control rate allowNumericWithDecimal" required="" >
+                                            <input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="rate_0" type="number" name="invoice[0][rate]" value="" class="form-control rate allowNumericWithDecimal padding_space" required="" >
                                             <label for="rate_0" id="lbl_rate_0" class="error"></label>
                                         </td>
-                                        <td><input onkeyup="change_prices('0')"  id="taxablevalue_0" type="number" name="invoice[0][taxable_value]" value="0.00" class="form-control taxable_value allowNumericWithDecimal" readonly ></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="cgsttaxrate_0" type="number" name="invoice[0][cgst_rate]" value="" class="form-control cgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="cgsttaxamount_0" type="number" name="invoice[0][cgst_tax_amount]"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="sgsttaxrate_0" type="number" name="invoice[0][sgst_rate]" value="" class="form-control sgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="sgsttaxamount_0" type="number" name="invoice[0][sgst_tax_amount]" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="igsttaxrate_0" type="number" name="invoice[0][igst_rate]" value="" class="form-control igst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="igsttaxamount_0" type="number" name="invoice[0][igst_tax_amount]" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="totalamount_0" type="number" name="invoice[0][total_amount]" value="0.00" class="form-control total_amount allowNumericWithDecimal" readonly></td>
+                                        <td><input onkeyup="change_prices('0')"  id="taxablevalue_0" type="number" name="invoice[0][taxable_value]" value="0.00" class="form-control taxable_value allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="cgsttaxrate_0" type="number" name="invoice[0][cgst_rate]" value="" class="form-control cgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="cgsttaxamount_0" type="number" name="invoice[0][cgst_tax_amount]"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="sgsttaxrate_0" type="number" name="invoice[0][sgst_rate]" value="" class="form-control sgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="sgsttaxamount_0" type="number" name="invoice[0][sgst_tax_amount]" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input onkeyup="validateDecimal(this.id, this.value);change_prices('0')"  id="igsttaxrate_0" type="number" name="invoice[0][igst_rate]" value="" class="form-control igst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="igsttaxamount_0" type="number" name="invoice[0][igst_tax_amount]" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="totalamount_0" type="number" name="invoice[0][total_amount]" value="0.00" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td colspan="2" style="width:8%;text-align:center;">
                                             <input type="hidden" id="from_gst_number_0" name="invoice[0][from_gst_number_id]" >
                                             <input type="hidden" id="to_gst_number_0" name="invoice[0][to_gst_number_id]" >
@@ -433,17 +436,17 @@
                                             <label for="qty" class="error"></label>
                                         </td>
                                         <td>
-                                            <input id="rate" type="number" value="" class="form-control rate allowNumericWithDecimal" required="" >
+                                            <input id="rate" type="number" value="" class="form-control rate allowNumericWithDecimal padding_space" required="" >
                                             <label for="rate" class="error"></label>
                                         </td>
-                                        <td><input id="taxablevalue" type="number" value="0.00" class="form-control taxable_value allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="cgsttaxrate" type="number" value="" class="form-control cgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="cgsttaxamount" type="number"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="sgsttaxrate" type="number" value="" class="form-control sgst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="sgsttaxamount" type="number" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="igsttaxrate" type="number" value="" class="form-control igst_tax_rate allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="igsttaxamount" type="number" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal" readonly ></td>
-                                        <td><input id="totalamount" type="number" value="0.00" class="form-control total_amount allowNumericWithDecimal" readonly></td>
+                                        <td><input id="taxablevalue" type="number" value="0.00" class="form-control taxable_value allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="cgsttaxrate" type="number" value="" class="form-control cgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="cgsttaxamount" type="number"  value="0.00" class="form-control cgst_tax_amount allowNumericWithDecimalpadding_space" readonly ></td>
+                                        <td><input id="sgsttaxrate" type="number" value="" class="form-control sgst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="sgsttaxamount" type="number" value="0.00" class="form-control sgst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="igsttaxrate" type="number" value="" class="form-control igst_tax_rate allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="igsttaxamount" type="number" value="0.00" class="form-control igst_tax_amount allowNumericWithDecimal padding_space" readonly ></td>
+                                        <td><input id="totalamount" type="number" value="0.00" class="form-control total_amount allowNumericWithDecimal padding_space" readonly></td>
                                         <td colspan="2" style="width:8%;text-align:center;">
                                             <input type="hidden" id="from_gst_number" >
                                             <input type="hidden" id="to_gst_number" >
@@ -466,7 +469,7 @@
                                         </td>
                                         <td ></td>
                                         <td>
-                                            <input id="total_taxablevalue" type="number" value="0.00" name="total_taxablevalue" class="form-control" readonly >
+                                            <input id="total_taxablevalue" type="number" value="0.00" name="total_taxablevalue" class="form-control padding_space" readonly >
                                             <input type="hidden" id="parts_cost" name="parts_cost" value="0.00">
                                             <input type="hidden" id="total_service_charge" name="total_service_charge" value="0.00">
                                             <input type="hidden" id="warehouse_storage_charges" name="warehouse_storage_charges" value="0.00">
@@ -481,12 +484,12 @@
                                             <input type="hidden" id="call_center_charges" name="call_center_charges" value="0.00">
                                         </td>
                                         <td></td>
-                                        <td><input id="total_cgst_amount" type="number" value="0.00" name="total_cgst_amount" class="form-control" readonly ></td>
+                                        <td><input id="total_cgst_amount" type="number" value="0.00" name="total_cgst_amount" class="form-control padding_space" readonly ></td>
                                         <td></td>
-                                        <td><input id="total_sgst_amount" type="number" value="0.00" name="total_sgst_amount" class="form-control" readonly ></td>
+                                        <td><input id="total_sgst_amount" type="number" value="0.00" name="total_sgst_amount" class="form-control padding_space" readonly ></td>
                                         <td></td>
-                                        <td><input id="total_igst_amount" type="number" value="0.00" name="total_igst_amount" class="form-control" readonly ></td>
-                                        <td><input id="total_amount_charge" type="number" value="0.00" name="total_amount_charge" class="form-control" readonly ></td>
+                                        <td><input id="total_igst_amount" type="number" value="0.00" name="total_igst_amount" class="form-control padding_space" readonly ></td>
+                                        <td><input id="total_amount_charge" type="number" value="0.00" name="total_amount_charge" class="form-control padding_space" readonly ></td>
                                         <td colspan="2"></td>
                                     </tr>
                                 </tbody>
@@ -1014,12 +1017,13 @@
             index = id.split("_")[1];
             
             total_quantity += Number($("#qty_"+ index).val());
+            var deduct_amount = 0;
             //Invoice category type that is selected
             var category_type = $("#productorservices_"+ index).val();
             if(category_type === 'Product') {
                 parts_count += Number($("#qty_"+ index).val());
                 parts_cost += Number($("#taxablevalue_"+ index).val());
-            }else if(category_type === 'Service'){
+            }else if(category_type === 'Service' || category_type === 'Annual Charges'){
                 num_bookings += Number($("#qty_"+ index).val());
                 total_service_charge += Number($("#taxablevalue_"+ index).val());
             }else if(category_type === 'Warehouse Charges'){
@@ -1035,6 +1039,7 @@
                 credit_penalty_bookings_count += Number($("#qty_"+ index).val()); 
                 credit_penalty_amount += Number($("#taxablevalue_"+ index).val());
             }else if(category_type === 'Debit Penalty' || category_type === 'Penalty Discount'){
+                deduct_amount = 1;
                 penalty_bookings_count += Number($("#qty_"+ index).val()); 
                 penalty_amount += Number($("#taxablevalue_"+ index).val());
             }else if(category_type === 'Upcountry'){
@@ -1045,15 +1050,40 @@
             }else if(category_type === 'Micro Warehouse'){
                 micro_warehouse_charges += Number($("#taxablevalue_"+ index).val());
             }
-            taxable_value += Number($("#taxablevalue_"+ index).val());
+            if(deduct_amount == 0){
+                //add amount in total taxable amount
+                taxable_value += Number($("#taxablevalue_"+ index).val());
+            }else{
+                //deduct amount from total taxable value
+                taxable_value -= Number($("#taxablevalue_"+ index).val());
+            }
             if(is_igst === '1'){
-                igst_amount += Number($("#igsttaxamount_"+index).val());
+                if(deduct_amount == 0){
+                    //add amount in total igst amount
+                    igst_amount += Number($("#igsttaxamount_"+index).val());
+                }else{
+                    //deduct amount from total igst value
+                    igst_amount -= Number($("#igsttaxamount_"+index).val());
+                }  
             } else if(is_igst === '0'){
-                sgst_amount += Number($("#sgsttaxamount_"+index).val());
-                cgst_amount += Number($("#cgsttaxamount_"+index).val());
+                if(deduct_amount == 0){
+                    //add amount in total cgst and total sgst amount
+                    sgst_amount += Number($("#sgsttaxamount_"+index).val());
+                    cgst_amount += Number($("#cgsttaxamount_"+index).val());
+                }else{
+                    //deduct amount from total cgst and total sgst value
+                    sgst_amount -= Number($("#sgsttaxamount_"+index).val());
+                    cgst_amount -= Number($("#cgsttaxamount_"+index).val());
+                }
             } 
             
-            total_charge += Number($("#totalamount_"+index).val());
+            if(deduct_amount == 0){
+                //add amount in total amount
+                total_charge += Number($("#totalamount_"+index).val());
+            }else{
+                //deduct amount from total value
+                total_charge -= Number($("#totalamount_"+index).val());
+            }
     
         });
         

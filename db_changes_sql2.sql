@@ -2072,3 +2072,8 @@ ALTER TABLE `invoice_category`
 
 ALTER TABLE `vendor_partner_invoices`  ADD `micro_warehouse_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `miscellaneous_charges`;
 ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `micro_warehouse_charges`;
+
+--Ankit Bhatt 2020-03-26
+INSERT INTO `invoice_category` (`category`, `create_date`, `update_date`) VALUES
+('OPEN CELL', '2020-03-23 07:46:31', CURRENT_TIMESTAMP),
+('Annual Charges', '2020-03-23 07:47:37', CURRENT_TIMESTAMP);

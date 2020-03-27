@@ -2748,7 +2748,9 @@ class Booking_model extends CI_Model {
                     AND booking_details.internal_status != '".SF_BOOKING_CANCELLED_STATUS."'
                     AND service_center_booking_action.current_status != 'Cancelled'
                     AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
-                    AND booking_unit_details.booking_id != '".$booking_id."'";  
+                    AND booking_unit_details.booking_id != '".$booking_id."'
+                GROUP BY 
+                    booking_details.booking_id";  
         $query = $this->db->query($sql);
         return $query->result_array();
     }
