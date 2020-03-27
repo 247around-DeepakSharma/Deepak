@@ -385,6 +385,10 @@ class dealerApi extends CI_Controller {
                 $this->getTrackingData(); /* get Tracking Details API */
                 break;
 
+            case 'getBookingData':
+                $this->getBookingDetails(); /* get Booking Details API */
+                break;
+
             default:
                 break;
         }
@@ -636,9 +640,9 @@ function getStatesCities(){
 function getBookingDetails(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat"), $requestData);
+        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
         if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
-                $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id']); 
+                $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id'],$requestData['appliance_id'],$requestData['is_repeat'],$requestData['show_all_capacity']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
