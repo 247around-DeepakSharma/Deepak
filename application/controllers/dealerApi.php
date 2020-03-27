@@ -380,6 +380,11 @@ class dealerApi extends CI_Controller {
             case 'searchData':
                 $this->getSearchData();
                 break;
+
+            case 'getTrackingData':
+                $this->getTrackingData(); /* get Tracking Details API */
+                break;
+
             default:
                 break;
         }
@@ -641,6 +646,31 @@ function getBookingDetails(){
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }
+
+}
+
+
+  /*
+     * @Desc - This function is used to get tracking details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+
+function getTrackingData(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("carrier_code","awb_number"), $requestData);
+        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+                $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1006", "Tracking details not found !")); 
         }
 
 }
