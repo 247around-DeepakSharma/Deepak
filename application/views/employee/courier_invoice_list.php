@@ -14,17 +14,13 @@
             <section class="search_docket_number_div" style="padding: 10px;">
                 <div class="row">
                     <div class="form-inline">
-                        <div class="form-group col-md-2">
-                            <label class="radio-inline"><input type="radio" name="download_invoice_type" value="awb_by_partner"> New Spare Part Sent To SF</label>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">Partner * </label>
                         </div>
-                        <div class="form-group col-md-2">
-                            <label class="radio-inline"><input type="radio" name="download_invoice_type" value="awb_by_sf"> Defective/New Part Return From SF</label>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label class="radio-inline"><input type="radio" name="download_invoice_type" value="awb_by_wh"> Defective/New Part Return To Partner From Warehouse</label>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label class="radio-inline"><input type="radio" name="download_invoice_type" value="msl"> MSL </label>
+                        <div class="form-group col-md-7">
+                            <select class="form-control" id="partner_id">
+                                <option value="" disabled="">Select Partner</option>
+                            </select>
                         </div>
                         <div class="form-group col-md-2">
                             <a class="btn btn-success"  href="javascript:void(0);"  id="download_invoice_data">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
@@ -38,17 +34,34 @@
 </div>
 <script>
     
+    get_partner();
+    
+    function get_partner(){
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/partner/get_partner_list',
+            data:{is_wh:true},
+            success:function(response){
+                $('#partner_id').html(response);
+                var option_length = $('#partner_id').children('option').length;
+                if(option_length == 2){
+                 $("#partner_id").change();   
+                }
+                $('#partner_id').select2();
+            }
+        });
+    }
     
     $("#download_invoice_data").click(function(){
-        var invoice_type = $("input[name='download_invoice_type']:checked").val();
-         if(invoice_type == undefined || invoice_type == ''){
-             alert("Please Select Courier Invoice.");
+        var partner_id = $("#partner_id").val();
+         if(partner_id == undefined || partner_id == ''){
+             alert("Please Select Partner.");
          }else{
               $('#download_invoice_data').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true)
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/download_courier_invoice_data',
-                data: {invoice_type : invoice_type},
+                data: {partner_id : partner_id},
                 success: function (data) {
                     $('#download_invoice_data').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
