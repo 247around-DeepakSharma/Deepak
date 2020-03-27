@@ -130,20 +130,21 @@ class Invoice extends CI_Controller {
            }
         }
         
+        if($msl_invoice == 1){
+            //add condition in query to select MSL invoices
+            $where["sub_category like '%MSL%'"] = null;
+        }else{
+            //add condition in query to exclude MSL invoices
+            $where["sub_category not like '%MSL%'"] = null;
+        }
+        
         if($invoice_period === 'all'){
-            $where = array('vendor_partner' => $this->input->post('source'),
-                      'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+            $where['vendor_partner'] = $this->input->post('source');
+            $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             if($settle_amount == 0){
                 $where['settle_amount'] = 0;
             }
             
-            if($msl_invoice == 1){
-                //add condition in query to select MSL invoices
-                $where["sub_category like '%MSL%'"] = null;
-            }else{
-                //add condition in query to exclude MSL invoices
-                $where["sub_category not like '%MSL%'"] = null;
-            }
             if($invoice_type){
                $types = implode('","', $invoice_type); 
                if($types){
@@ -161,13 +162,6 @@ class Invoice extends CI_Controller {
             $where['from_date >='] = $financial_year_start;
             $where['from_date <='] = $financial_year_end;
             $where['settle_amount'] = 0;
-            if($msl_invoice == 1){
-                //add condition in query to select MSL invoices
-                $where["sub_category like '%MSL%'"] = null;
-            }else{
-                //add condition in query to exclude MSL invoices
-                $where["sub_category not like '%MSL%'"] = null;
-            }
             
              if($this->input->post('invoice_type')){
                $types = implode('","', $invoice_type); 
