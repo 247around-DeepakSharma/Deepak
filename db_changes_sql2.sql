@@ -2077,3 +2077,20 @@ ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) N
 INSERT INTO `invoice_category` (`category`, `create_date`, `update_date`) VALUES
 ('OPEN CELL', '2020-03-23 07:46:31', CURRENT_TIMESTAMP),
 ('Annual Charges', '2020-03-23 07:47:37', CURRENT_TIMESTAMP);
+
+--Ankit Bhatt 2020-03-27
+ALTER TABLE `courier_company_invoice_details`  ADD `small_box_count` int(11) NOT NULL DEFAULT 0  AFTER `box_count`;
+
+CREATE TABLE IF NOT EXISTS `billed_msl_package` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `courier_id` int(11) NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `invoice_id` varchar(64) NOT NULL,
+  `rate` decimal(10,2) NOT NULL default 0.00,
+  `box_count` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
