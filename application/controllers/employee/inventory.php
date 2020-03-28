@@ -9171,20 +9171,14 @@ class Inventory extends CI_Controller {
 
         log_message('info', __METHOD__ . ' Processing...');
 
-        $download_request_type = $this->input->post('invoice_type');
-                
-        if (!empty($download_request_type)) {
-            $where = array();
-            if ($download_request_type == 'msl') {
-                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',courier_details.booking_id as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', (CHAR_LENGTH(courier_details.booking_id) - CHAR_LENGTH(REPLACE(courier_details.booking_id,',', '')) + 1) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
-            } else {
-                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',GROUP_CONCAT(spare_parts_details.booking_id) as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', COUNT(spare_parts_details.booking_id) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
-            
-                $where = array("$download_request_type  IS NOT NULL "=> NULL);
-            }
-            
-            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where , $download_request_type);
-            
+        $partner_id = $this->input->post('partner_id');
+
+        if (!empty($partner_id)) {
+            $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', "
+                    . "partners.public_name as 'Partner Name',billed_docket.invoice_id as 'Invoice No.', courier_company_invoice_details.receiver_city as 'City',"
+                    . "courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            $where = array("billed_docket.entity_id" => $partner_id);
+            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where);
             $this->load->dbutil();
             $this->load->helper('file');
 
@@ -9206,7 +9200,7 @@ class Inventory extends CI_Controller {
                 $res['msg'] = 'error in generating file';
             }
         } else {
-            $res['msg'] = 'Please Select Courier Invoice';
+            $res['msg'] = 'Please Select Partner';
         }
 
         echo json_encode($res);

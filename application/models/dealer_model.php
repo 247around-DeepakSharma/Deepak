@@ -205,4 +205,38 @@ class Dealer_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
+
+
+
+
+
+    /*
+     * @Desc - This function used to get dealer state mapping Data
+     * @param - $dealer
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getDealerStates($dealer){
+        $state =array();
+        ///  Will come when mappping is done //
+        return  $states;
+    }
+
+    /*
+     * @Desc - This function used to get dealer state cities mapping Data
+     * @param - $entity, $state_code
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getDealerStatesCities($entity, $state_code){
+        $cities =array();
+         ///  Will come when mappping is done //
+         return  $cities;
+
+    }
+
+
+
 }

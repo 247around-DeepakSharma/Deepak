@@ -2094,3 +2094,7 @@ CREATE TABLE IF NOT EXISTS `billed_msl_package` (
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ;
+--Abhishek 28-mar-2020--
+ALTER TABLE `dealer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `active`;
+ALTER TABLE `dealer_details` ADD `installed` TINYINT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+

@@ -177,8 +177,12 @@ class Booking_model extends CI_Model {
      *  @return :
      */
     function insert_booking_state_change($details) {
+        if(empty($details['new_state'])){
+            $message = "function insert_booking_state_change(), new_state not found for Booking : '".$details['booking_id']."', REFERRER : " . $_SERVER['HTTP_REFERER'];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'BOOKING STATE CHANGE', $message, "", "");
+            return;
+        }
         $this->db->insert('booking_state_change', $details);
-
         return $this->db->insert_id();
     }
     
