@@ -457,8 +457,23 @@ class dealerApi extends CI_Controller {
         if (!empty($data)) {
             $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
+          /*  Token Update */
+          	
+          	$update_dealer =array();
+          	if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
+                $update_dealer = array(
+                    'device_firebase_token' => $requestData['device_firebase_token']
+                );
+                }else{
+                $update_dealer = array(
+                    'device_firebase_token' => NULL
+                );  
+            }
+
+            $this->dealer_model->update_dealer($update_dealer,array('id'=>$login[0]['entity_id']))
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
+                $this->sendJsonResponse(array('0000', 'success'));
 
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));

@@ -2077,3 +2077,8 @@ ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) N
 INSERT INTO `invoice_category` (`category`, `create_date`, `update_date`) VALUES
 ('OPEN CELL', '2020-03-23 07:46:31', CURRENT_TIMESTAMP),
 ('Annual Charges', '2020-03-23 07:47:37', CURRENT_TIMESTAMP);
+
+--Abhishek 28-mar-2020--
+ALTER TABLE `dealer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `active`;
+ALTER TABLE `dealer_details` ADD `installed` TINYINT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
