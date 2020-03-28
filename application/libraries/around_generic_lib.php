@@ -25,6 +25,7 @@ class around_generic_lib {
     $this->My_CI->load->model('booking_request_model');
     $this->My_CI->load->model('warranty_model');
     $this->My_CI->load->model('vendor_model');
+    $this->My_CI->load->model('dealer_model');
     $this->My_CI->load->model('indiapincode_model');
     $this->My_CI->load->library('paytm_payment_lib');
     $this->My_CI->load->library('trackingmore_api');
@@ -139,6 +140,33 @@ class around_generic_lib {
          return  $track_api_data;
     }
 
+
+
+    /*
+     * @Desc - This function used to get dealer state mapping Data
+     * @param - $dealer
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getDealerStateMapped($dealer){
+         $states = $this->dealer_model->getDealerStates($dealer);
+         return  $states;
+    }
+
+    /*
+     * @Desc - This function used to get dealer state cities mapping Data
+     * @param - $entity, $state_code
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+
+    function getDealerStateCitiesMapped($entity, $state_code){
+
+         $states = $this->dealer_model->getDealerStatesCities($entity, $state_code);
+         return  $states;
+
+    }
 
 
 }

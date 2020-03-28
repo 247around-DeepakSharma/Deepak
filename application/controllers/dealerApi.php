@@ -510,9 +510,18 @@ function check_for_upgrade(){
 function getAllStates(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type"), $requestData);
+        $response=array();
         if (!empty($requestData['entity_type'])) { 
-                $response =  $this->around_generic_lib->getAllStates(); 
-                 $this->jsonResponseString['response'] = $response['data'];
+
+                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer States Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
+                }else{
+                    $result =  $this->around_generic_lib->getAllStates();
+                    $response = $result['data'];
+                }
+                
+                $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
