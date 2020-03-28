@@ -546,10 +546,19 @@ function getAllStates(){
 function getStatesCities(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("state_code"), $requestData);
+        $response=array();
         if (!empty($requestData['state_code'])) { 
-                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
-                 $this->jsonResponseString['response'] = $response['data'];
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+
+        	    if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer State Cities Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
+                }else{
+                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
+                    $response = $result['data'];
+                }
+                //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
