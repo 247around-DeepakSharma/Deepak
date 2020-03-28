@@ -712,6 +712,16 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
+        
+        // Generate MSL Packaging Excel
+        if (!empty($misc_data['msl_packaging_data'])) {
+            $meta['total_msl_box_packaging_charge'] = $misc_data['msl_packaging_data'][0]['total_msl_box_packaging_charge'];
+            $meta['total_msl_box_count'] = $misc_data['msl_packaging_data'][0]['total_msl_box_count'];
+            $sp_files_name = $this->generate_partner_msl_packaging_excel($partner_id, $misc_data['msl_packaging_data'], $meta);
+            array_push($files, $sp_files_name);
+
+            log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
@@ -858,6 +868,22 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['nrn'])){
                 foreach($misc_data['nrn'] as $nrn_details){
                     $this->booking_model->update_booking_unit_details_by_any(array('id' => $nrn_details['unit_id']), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+            }
+            
+            //insert entry for MSL packaging courier in billed_msl_package table so that their invoice do not get generated again
+            if (!empty($misc_data['msl_packaging_data'])) {
+                foreach ($misc_data['msl_packaging_data'] as $msl_courier_details) {
+                    $msl_courier_data = array(
+                        'courier_id' => $msl_courier_details['id'],
+                        'type' => MSL_PACKAGING_CHARGES,
+                        'entity_type' => _247AROUND_PARTNER_STRING,
+                        'entity_id' => $partner_id,
+                        'invoice_id' => $meta['invoice_id'],
+                        'box_count' => $msl_courier_details['msl_box'],
+                        'rate' => $msl_courier_details['msl_box_price']
+                    );
+                    $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
             }
             
@@ -1033,6 +1059,21 @@ class Invoice extends CI_Controller {
     function generate_partner_nrn_excel($data, $meta) {
         $template = 'Partner_invoice_detail_template-v2-nrn.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-nrn-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+
+    }
+    
+    /**
+     * @desc This function is used to generate partner MSL packaging annexure file
+     * @param Integer $partner_id
+     * @param Array $data
+     * @param Array $meta
+     * @return string
+     */
+    function generate_partner_msl_packaging_excel($partner_id, $data, $meta) {
+        $template = 'Partner_invoice_detail_template-v2-packaging-msl.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-packaging-msl-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
 
