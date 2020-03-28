@@ -620,7 +620,8 @@ function getStatesCities(){
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
-                // Search other than booking 
+                // Search   booking  on phone number
+                $data['Bookings'] = $this->dealer_model->dealer_partner_bookings_on_user($phone_number, $requestData['entity_id'] , $requestData['entity_type']);
             }
 
             if (!empty($data['Bookings'])) {

@@ -238,5 +238,37 @@ class Dealer_model extends CI_Model {
     }
 
 
+    /*
+     * @Desc - This function used to get dealer state cities mapping Data
+     * @param - $entity, $state_code
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+    function dealer_partner_bookings_on_user($phone_number,$enitity_id,$entity_type){
+
+        if($entity_type == _247AROUND_DEALER_STRING){
+
+         $sql = "SELECT DISTINCT services.services, users.phone_number, users.name as name, users.phone_number, booking_details.* "
+             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id` AND `booking_details`.`dealer_id` = '".$enitity_id."'"
+             . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
+             . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
+             . " ORDER BY `booking_details`.`create_date` DESC";
+
+        }else{
+
+         $sql = "SELECT DISTINCT services.services, users.phone_number, users.name as name, users.phone_number, booking_details.* "
+             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id` AND `booking_details`.`partner_id` = '".$enitity_id."'"
+             . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
+             . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
+             . " ORDER BY `booking_details`.`create_date` DESC";
+        }
+
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+
+    }
+
+
 
 }
