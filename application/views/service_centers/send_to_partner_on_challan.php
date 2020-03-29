@@ -245,12 +245,25 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">No Of Boxes *</label>
+                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Large Box Count</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
-                                            <option selected disabled>Select Boxes</option>
+                                            <option selected value="">Select Large Boxes</option>
                                             <?php for ($i = 1; $i < 11; $i++) { ?>
                                                 <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">Small Box Count</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
+                                            <option selected="" disabled="" value="">Select Small Boxes</option>
+                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -445,7 +458,9 @@
         //postData['from_gst_number'] = $('#from_gst_number').val();
         //postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
         //postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
-        postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val();
+        postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val() || 0;
+        postData['shipped_spare_parts_small_boxes_count'] = $('#shipped_spare_parts_small_boxes_count').val() || 0;
+        var total_boxes = postData['shipped_spare_parts_boxes_count']+postData['shipped_spare_parts_small_boxes_count'];
         postData['shipped_spare_parts_weight_in_kg'] = $('#shipped_spare_parts_weight_in_kg').val();
         postData['shipped_spare_parts_weight_in_gram'] = $('#shipped_spare_parts_weight_in_gram').val();
         
@@ -532,7 +547,7 @@
         
         $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && total_boxes > 0 && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_to_partner_from_wh_on_challan',
@@ -558,7 +573,11 @@
         }else{
             $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-            alert("Please enter all required field");
+            if(total_boxes == 0){
+                alert('Minimum box count should be 1, Please select from Large or small box count.');
+            }else{
+                alert("Please enter all required field");
+            }
         }
         
     });
