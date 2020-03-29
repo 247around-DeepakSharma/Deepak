@@ -103,4 +103,10 @@ define('FNF', 'FNF');
 define('DEFAULT_CHARGES_LIMIT', 10);
 //OPENCELLInvoice 
 define('OPENCELL_LEDBAR_CHARGES', 'Open Cell & LED Bar Charges');
+//MSL courier large box packaging price
+define('LARGE_MSL_BOX_PACKAGING_PRICE', '10');
+//MSL courier small box packaging price
+define('SMALL_MSL_BOX_PACKAGING_PRICE', '5');
+//MSL Packaging charges invoice
+define('MSL_PACKAGING_CHARGES', 'MSL Packaging Charges');
 ?>

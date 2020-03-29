@@ -457,8 +457,23 @@ class dealerApi extends CI_Controller {
         if (!empty($data)) {
             $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
+          /*  Token Update */
+          	
+          	$update_dealer =array();
+          	if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
+                $update_dealer = array(
+                    'device_firebase_token' => $requestData['device_firebase_token']
+                );
+                }else{
+                $update_dealer = array(
+                    'device_firebase_token' => NULL
+                );  
+            }
+
+            $this->dealer_model->update_dealer($update_dealer,array('id'=>$login[0]['entity_id']))
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
+                $this->sendJsonResponse(array('0000', 'success'));
 
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
@@ -481,9 +496,9 @@ function check_for_upgrade(){
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version']!=APP_VERSION) { 
+        if ($requestData['app_version']!=DEALER_APP_VERSION) { 
                 // get configuration data from table for App version upgrade // 
-                $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
+                $response = $this->engineer_model->get_engineer_config(DEALER_FORCE_UPGRADE); 
                 $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
                 $this->sendJsonResponse(array('0000', 'success')); // send success response //
                
@@ -510,9 +525,18 @@ function check_for_upgrade(){
 function getAllStates(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type"), $requestData);
+        $response=array();
         if (!empty($requestData['entity_type'])) { 
-                $response =  $this->around_generic_lib->getAllStates(); 
-                 $this->jsonResponseString['response'] = $response['data'];
+
+                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer States Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
+                }else{
+                    $result =  $this->around_generic_lib->getAllStates();
+                    $response = $result['data'];
+                }
+                
+                $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
@@ -537,10 +561,19 @@ function getAllStates(){
 function getStatesCities(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("state_code"), $requestData);
+        $response=array();
         if (!empty($requestData['state_code'])) { 
-                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
-                 $this->jsonResponseString['response'] = $response['data'];
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+
+        	    if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer State Cities Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
+                }else{
+                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
+                    $response = $result['data'];
+                }
+                //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
@@ -587,7 +620,8 @@ function getStatesCities(){
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
-                // Search other than booking 
+                // Search   booking  on phone number
+                $data['Bookings'] = $this->dealer_model->dealer_partner_bookings_on_user($phone_number, $requestData['entity_id'] , $requestData['entity_type']);
             }
 
             if (!empty($data['Bookings'])) {
