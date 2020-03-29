@@ -141,6 +141,28 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="col-xs-2 control-label">Large Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="box_count" id="box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="box_count" class="error" id='box_count_error'></label>
+                                            </div>
+                                            <label class="col-xs-2 control-label">Small Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="small_box_count" id="small_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="small_box_count" class="error"></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
@@ -376,6 +398,28 @@
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                            <label class="col-xs-2 control-label">Large Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="box_count" id="on_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="box_count" class="error" id='on_box_count_error'></label>
+                                            </div>
+                                            <label class="col-xs-2 control-label">Small Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="small_box_count" id="on_small_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="small_box_count" class="error"></label>
+                                            </div>
+                                     </div>
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-4">
@@ -701,6 +745,11 @@
                 
                 var entered_invoice_amt = Number($('#invoice_amount').val());
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
+                var box_count = $("#box_count").val() || 0;
+                var small_box_count = $("#small_box_count").val() || 0;
+                $('#box_count').css('border','');
+                $('#small_box_count').css('border','');
+                if(box_count + small_box_count > 0){
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
@@ -823,7 +872,12 @@
                     $('#total_spare_invoice_price').addClass('text-danger');
                     return false;
                 }
-            }
+            }else{
+                alert('Minimum box count should be 1, Please select from Large or small box count.');
+                $('#box_count').css('border','1px solid red');
+                $('#small_box_count').css('border','1px solid red');
+                return false;
+            }}
         });
         
         // Add button click handler
@@ -1410,6 +1464,11 @@
 
                 if(flag == true) {
                     var booking_id = $("#onbookingid_0").val();
+                    var box_count = $("#on_box_count").val() || 0;
+                    var small_box_count = $("#on_small_box_count").val() || 0;
+                    $('#on_box_count').css('border','');
+                    $('#on_small_box_count').css('border','');
+                    if(box_count + small_box_count > 0){
                     if(booking_id !== ""){
                         var wh_name = $('#on_wh_id option:selected').text();
                         $('#on_wh_name').val(wh_name);
@@ -1445,6 +1504,11 @@
 
                         return false;
                     }
+                }else{
+                    onBookingshowConfirmDialougeBox('Minimum box count should be 1, Please select from Large or small box count.', 'warning');
+                    $('#on_box_count').css('border','1px solid red');
+                    $('#on_small_box_count').css('border','1px solid red');
+                }
                 }
             }
         });

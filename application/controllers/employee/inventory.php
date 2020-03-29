@@ -4056,6 +4056,8 @@ class Inventory extends CI_Controller {
         $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
         $from_gst_number = $this->input->post("from_gst_number");
         $to_gst_number = $this->input->post("to_gst_number");
+        $box_count = $this->input->post("box_count");
+        $small_box_count = $this->input->post("small_box_count");
         $req = TRUE;
         if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
@@ -4197,7 +4199,8 @@ class Inventory extends CI_Controller {
                                     'partner_id' => $partner_id,
                                     'booking_id' => (!empty($booking_id_array) ? implode(",", $booking_id_array) : ''),
                                     'courier_charge' => '0.00',
-                                    'box_count' => '1', //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                    'box_count' => $box_count, //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                    'small_box_count' => $small_box_count,
                                     'billable_weight' => '0.00', //trim($billable_weight),
                                     'actual_weight' => '0.00', //trim($billable_weight),
                                     'basic_billed_charge_to_partner' => '0.00',
@@ -5596,6 +5599,7 @@ class Inventory extends CI_Controller {
                             'partner_id' => $this->input->post('receiver_partner_id'),
                             'courier_charge' => trim($courier_price_by_wh),
                             'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')),
+                            'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')),
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
                             'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
@@ -5818,6 +5822,7 @@ class Inventory extends CI_Controller {
                         'partner_id' => $this->input->post('receiver_partner_id'),
                         'courier_charge' => trim($courier_price_by_wh),
                         'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //defective_parts_shipped_gram
+                        'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')), //defective_parts_shipped_gram
                         'billable_weight' => trim($billable_weight),
                         'actual_weight' => trim($billable_weight),
                         'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
