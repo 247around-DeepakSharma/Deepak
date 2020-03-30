@@ -1567,12 +1567,13 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
 
-
-
-        if ($this->form_validation->run() == FALSE) {
+        if ($this->form_validation->run() == FALSE && !$this->input->post("call_from_api")) {
             echo validation_errors();
-        } else {
-
+        } else if($this->form_validation->run() == FALSE && $this->input->post("call_from_api")){
+			$response['status'] = FALSE;
+		    $response['message'] = "Bookig either already escalated or NRN approved ";
+			return $response;
+		}else{
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
@@ -1680,7 +1681,12 @@ class Partner extends CI_Controller {
             }
 
             log_message('info', __FUNCTION__ . " Exiting");
-            echo "success";
+			if($this->input->post("call_from_api")){
+				$response['status'] = TRUE;
+				$response['message'] = "Booking escalated successfully !";
+			}else{	
+              echo "success";
+			}
         }
     }
 

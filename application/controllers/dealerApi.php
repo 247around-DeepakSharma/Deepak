@@ -770,8 +770,48 @@ function getEscalationReason(){
 
 }
 
+  /*
+     * @Desc - This function is used to submit escalation  
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+function submitEscalation(){
 
 
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type","booking_id","escalation_reason_id"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+                    $postData = array(
+                        "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "escalation_remarks" => $requestData['escalation_remarks']
+                    );
+                    //Call curl for updating booking by engineer
+                    $url = base_url() . "employee/partner/process_escalation/".$requestData['booking_id'];
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = curl_exec($ch);
+                    curl_close($ch);
+  
+                 $this->jsonResponseString['response'] = $curl_response;
+                 $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1009", "Escalation details not updated !")); 
+        }
+
+
+
+
+
+
+}
 
 
 
