@@ -991,6 +991,11 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
 
+        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+            $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 2)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+        } else {
+            $row[] = "";
+        }        
         return $row;
     }
     
@@ -1152,7 +1157,13 @@ class Spare_parts extends CI_Controller {
             
             $row[] = "";
         }
-        
+
+        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+            $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 1)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+        } else {
+            $row[] = "";
+        }        
+
         return $row;
     }
     
@@ -1309,9 +1320,15 @@ class Spare_parts extends CI_Controller {
         }
         $row[] = $part_status_text;
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
-        
-        $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-ok"></span></a>';
-        $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-remove"></span></a>';
+        $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
+        $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
+
+        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+            $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 12)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+        } else {
+            $row = '';
+        }        
+
         return $row;
     }
     
@@ -4495,10 +4512,14 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->load->view("employee/spare_history_details",$data);
     }
     
-    
-    
-     
-
-    
+    /**
+     * @desc This method is called when a part is marked cancelled through RTO case.
+     * @author Ankit Rajvanshi
+     */
+    function rto_case_spare() {
+        $this->checkUserSession();
+        $post_data = $this->input->post();
+        return $this->inventory_model->handle_rto_case($post_data['rto_case_spare_part_id'], $post_data);
+    }
 
 }

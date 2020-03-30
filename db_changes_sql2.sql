@@ -2197,3 +2197,4 @@ ALTER TABLE `courier_company_invoice_details` ADD column is_rto tinyint(1) NOT N
 ALTER TABLE `courier_company_invoice_details` ADD column rto_file varchar(255) NULL DEFAULT NULL;
 --Ankit Rajvanshi 03-04-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'Part Not Consumed', 'spare_parts', '0', CURRENT_TIMESTAMP);
+

@@ -3584,4 +3584,114 @@ class Inventory_model extends CI_Model {
         $this->db->where("inventory_id = {$inventory_id}");
         return $this->db->get()->result_array()[0]['is_defective_required'];
     }
+    
+    /**
+     * @desc This method is called to handle rto cases.
+     * @param type $spare_id
+     * @param type $post_data
+     * @author Ankit Rajvanshi
+     */
+    function handle_rto_case($spare_id, $post_data) {
+       
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $spare_part_detail['booking_id']])[0];
+
+        /**
+         * Update spare parts details.
+         * Set shipped details & courier details to null.
+         */
+        $spare_data = array(
+            'status' => SPARE_PARTS_CANCELLED,
+            'spare_cancelled_date' => date('Y-m-d H:i:s'),
+            'spare_cancellation_reason' => RTO_CASE_CANCELLATION_REASON_ID, 
+            'parts_shipped' => NULL,
+            'shipped_date' => NULL,
+            'model_number_shipped' => NULL,
+            'shipped_parts_type' => NULL,
+            'shipped_quantity' => 0,
+            'shipped_inventory_id' => NULL,
+            'defective_return_to_entity_type' => NULL,
+            'defective_return_to_entity_id' => NULL,
+            'awb_by_partner' => NULL,
+            'courier_price_by_partner' => NULL,
+            'courier_pic_by_partner' => NULL,
+            'courier_name_by_partner' => NULL,
+            'remarks_by_partner' => NULL,
+            'challan_approx_value' => NULL,
+            'partner_challan_file' => NULL,
+            'partner_challan_number' => NULL
+        );
+
+        $this->service_centers_model->update_spare_parts(['id' => $spare_id], $spare_data);
+
+        /**
+         * Increase stock if part shipped from warehouse.
+         */
+        if (!empty($spare_part_detail['shipped_inventory_id']) && $spare_part_detail['is_micro_wh'] == 2) {
+            //update inventory stocks
+            $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $spare_part_detail['defective_return_to_entity_id'], 'entity_type' => $spare_part_detail['defective_return_to_entity_type'], 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if (!empty($is_entity_exist)) {
+                $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
+                $update_stocks = $this->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+            } else {
+                $insert_data = [];
+                $insert_data['entity_id'] = $spare_part_detail['defective_return_to_entity_id'];
+                $insert_data['entity_type'] = $spare_part_detail['defective_return_to_entity_type'];
+                $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
+                $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
+                $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                $this->insert_inventory_stock($insert_data);
+            }
+
+            // create entry in inventory ledger.
+            $ledger_data = array(
+                'receiver_entity_id' => $spare_part_detail['defective_return_to_entity_id'],
+                'receiver_entity_type' => $spare_part_detail['defective_return_to_entity_type'],
+                'quantity' => $spare_part_detail['shipped_quantity'],
+                'inventory_id' => $spare_part_detail['shipped_inventory_id'],
+                'agent_id' => $this->session->userdata('id'),
+                'agent_type' => _247AROUND_EMPLOYEE_STRING,
+                'booking_id' => $spare_part_detail['booking_id'],
+                'remarks' => $post_data['remarks']
+            );
+
+            $this->insert_inventory_ledger($ledger_data);
+        }
+
+
+        // entry in spare tracking history.
+        $tracking_details = array(
+            'spare_id' => $spare_id, 
+            'action' => SPARE_PARTS_CANCELLED, 
+            'remarks' => $post_data['remarks'], 
+            'agent_id' => $this->session->userdata('id'), 
+            'entity_id' => _247AROUND,
+            'entity_type' => _247AROUND_EMPLOYEE_STRING
+        );
+        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+
+        // entry in booking state change.
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', $spare_part_detail['partner_id'], NULL, $spare_id);
+
+        //check other spares state and update booking internal status 
+        $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
+                . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
+
+        if(empty($check_spare_parts_details)) {
+            $b = [];
+            $b['internal_status'] = SPARE_PARTS_CANCELLED;
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $b['internal_status'], $partner_id[0]['partner_id'], $spare_part_detail['booking_id']);
+            if (!empty($partner_status)) {
+                $b['partner_current_status'] = $partner_status[0];
+                $b['partner_internal_status'] = $partner_status[1];
+                $b['actor'] = $partner_status[2];
+                $b['next_action'] = $partner_status[3];
+            }
+
+            $this->booking_model->update_booking($spare_part_detail['booking_id'], $b);
+        }
+
+        return true;
+    }    
 }

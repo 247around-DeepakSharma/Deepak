@@ -622,6 +622,7 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Part Lost & Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -664,6 +665,7 @@
                                         <th class="text-center" data-orderable="true">Age Of Delivered</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -706,6 +708,7 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="true">Approve</th>
                                     <th class="text-center" data-orderable="true">Reject</th>
+                                    <th class="text-center" data-orderable="true">Mark RTO Case</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -816,7 +819,29 @@
         </div>
     </div>
 </div>
-
+<div id="RtoCaseSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="rto_case_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">RTO Case </h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea name="remarks" class="form-control" id="rto_case_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="submit" id="rto_case_spare_part_btn" name="rto-case-part" value="Save" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -1987,6 +2012,46 @@
             alert('Spare part has been approved successfully.');
         });
     });
+    
+    var rto_case_spare_part_id;
+    var tab_type;
+    function handle_rto_case(spare_id, type) {
+        rto_case_spare_part_id = spare_id;
+        tab_type = type;
+        $('#RtoCaseSparePartModal').modal({backdrop: 'static', keyboard: false});
+    }
+    
+    $('#rto_case_spare_part_btn').on('click', function(data) {
+        var remarks = $('#rto_case_spare_part_remarks').val();
+        if(remarks == '' || remarks == null) {
+            alert("Please enter remarks.");
+            return false;
+        }        
+       
+        $('#rto_case_spare_part_btn').attr("disabled", true);
+        $('#rto_case_spare_part_btn').val("Please wait...");
+        
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/spare_parts/rto_case_spare',
+            data:{remarks:remarks, rto_case_spare_part_id:rto_case_spare_part_id}
+        }).done(function(data){
+            if(tab_type == 1) {
+                partner_shipped_part_table.ajax.reload(null, false);
+            }
+            if(tab_type == 2) {
+                sf_received_part_table.ajax.reload(null, false);
+            }
+            if(tab_type == 12) {
+                courier_lost_spare_parts_table.ajax.reload(null, false);  
+            }
+            $('#RtoCaseSparePartModal').modal('hide');
+            $('#rto_case_spare_part_remarks').val('');
+            alert('Spare part has been cancelled successfully.');
+        });
+    });
+    
+    
         $(document).ready(function(){
         $('.panel .form-control').on('keypress keyup', function (event) {
             var regex = new RegExp("^[a-zA-Z0-9 ,-]+$");
