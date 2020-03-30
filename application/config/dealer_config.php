@@ -4,4 +4,3 @@
 define("DEALER_ENV","production");
 define("DEALER_APP_VERSION", "2.22"); /* Engineer App Current Version */
 define("DEALER_FORCE_UPGRADE", "dealer_force_upgrade");
-define("SEND_WHATSAPP", "send_whatsapp");
