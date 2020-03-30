@@ -1222,6 +1222,7 @@ class User_invoice extends CI_Controller {
                                     'partner_id' => trim($partner_id),
                                     'courier_charge' => trim($return_data['courier_price']),
                                     'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //1,
+                                    'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')), //1,
                                     'billable_weight' => trim($billable_weight), //'0.00',
                                     'actual_weight' => trim($billable_weight), //'0.00',
                                     'basic_billed_charge_to_partner' => '0.00',

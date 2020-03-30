@@ -329,7 +329,7 @@
                     pageSize: 'LEGAL',
                     title: 'Manual_Acknowledge',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8],
+                       columns: [1,2,3,4,5,6,7,8,10],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -373,7 +373,7 @@
                     pageSize: 'LEGAL',
                     title: 'Auto_Acknowledge',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8],
+                       columns: [1,2,3,4,5,6,7,8,10],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

@@ -169,10 +169,10 @@
                         <div class='row'>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">No Of Boxes *</label>
+                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">Large Box Count</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required>
-                                            <option selected="" disabled="" value="">Select Boxes</option>
+                                            <option selected=""  value="">Select Large Boxes</option>
                                             <?php for ($i = 1; $i < 11; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
@@ -182,10 +182,14 @@
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="shipped_spare_parts_weight" class="col-md-4">Weight *</label>
+                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">Small Box Count</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="shipped_spare_parts_weight_in_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="shipped_spare_parts_weight_in_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                        <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
+                                            <option selected=""  value="">Select Small Boxes</option>
+                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -193,27 +197,19 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="shippped_courier_pic" class="col-md-4">Courier Pic *</label>
+                                    <label for="shipped_spare_parts_weight" class="col-md-4">Weight *</label>
                                     <div class="col-md-8">
-                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
-                                        <input type="file" class="form-control"  id="shippped_courier_pic" name="shippped_courier_pic" required>
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="shipped_spare_parts_weight_in_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="shipped_spare_parts_weight_in_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <label for="shippped_courier_pic" class="col-md-4">Courier Pic *</label>
                                     <div class="col-md-8">
-                                        <select class="form-control" id="from_gst_number" required>
-                                            <option selected disabled value="">Select from GST number</option>
-                                            <?php
-                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
-                                            ?>
-                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
-                                            <?php    
-                                            }
-                                            ?>
-                                        </select>
+                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
+                                        <input type="file" class="form-control"  id="shippped_courier_pic" name="shippped_courier_pic" required>
                                     </div>
                                 </div>
                             </div>
@@ -236,6 +232,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="from_gst_number" required>
+                                            <option selected disabled value="">Select from GST number</option>
+                                            <?php
+                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
+                                            ?>
+                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                            <?php
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6" id='to_gst'>
                                 <div class='form-group'>
                                     <label for="to_gst_number" class="col-md-4">To GST Number *</label>
@@ -247,7 +260,7 @@
                                                 foreach ($to_gst_number as $gst_numbers => $gst_number) {
                                                 ?>
                                                 <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
-                                                <?php    
+                                                <?php
                                                 }
                                             }
                                             ?>
@@ -292,7 +305,7 @@
                         </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="submit_courier_form" onclick="return_new_parts()" >Return New Parts</button>
+                    <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Return New Parts</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal" onclick="sellItem.disabled=false" >Close</button>
                 </div>
               </div>
@@ -620,5 +633,15 @@
                 break;
         }
     });
+    function check_return_new_parts(){
+        var shipped_spare_parts_boxes_count = $('#shipped_spare_parts_boxes_count').val() || 0;
+        var shipped_spare_parts_small_boxes_count= $('#shipped_spare_parts_small_boxes_count').val() || 0;
+        var total_boxes = shipped_spare_parts_boxes_count+shipped_spare_parts_small_boxes_count;
+        if(total_boxes > 0){
+            return_new_parts();
+        }else{
+            alert('Minimum box count should be 1, Please select from Large or small box count.');
+        }
+    }
 
 </script>
