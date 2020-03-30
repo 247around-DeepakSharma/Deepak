@@ -6560,27 +6560,30 @@ class Inventory extends CI_Controller {
         $part_name = trim($this->input->post('part_name'));
 
         $part_number = trim($this->input->post('part_number'));
-
+        
         $post['length'] = -1;
         $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_number' => $part_number);
         $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
         $post['column_order'] = array('part_name');
         $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
+        if (!empty($inventory_details)) {
+            if ($this->input->post('is_option_selected')) {
+                $option = '<option selected disabled>Select Part Name</option>';
+            } else {
+                $option = '';
+            }
 
-        if ($this->input->post('is_option_selected')) {
-            $option = '<option selected disabled>Select Part Name</option>';
+
+            foreach ($inventory_details as $value) {
+                $option .= "<option value='" . $value['part_name'] . "'";
+                $option .= " > ";
+                $option .= $value['part_name'] . "</option>";
+            }
+
+            echo $option;
         } else {
-            $option = '';
+            echo "Part Number Not Exist In Our System";
         }
-
-
-        foreach ($inventory_details as $value) {
-            $option .= "<option value='" . $value['part_name'] . "'";
-            $option .=" > ";
-            $option .= $value['part_name'] . "</option>";
-        }
-
-        echo $option;
     }
 
     /**
