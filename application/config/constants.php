@@ -22,6 +22,7 @@ include('api_response_code_constants.php'); /// Include api constants response
 include('engineer_config.php'); /// Include engg constants
 include('around_lib_constant.php'); /// Include around generic constant file
 include('karix_constant.php');
+include('dealer_config.php'); // Deal app config and constants
 
 
 
@@ -726,5 +727,6 @@ define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
 //Constant for file upload history in bulk warrenty checker panel
 define("BULK_CHECK_WARRANTY_STATUS" , "bulk_check_warranty_status");
+define("_247AROUND_DEALER_STRING" , "dealer");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

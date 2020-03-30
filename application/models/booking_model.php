@@ -177,8 +177,12 @@ class Booking_model extends CI_Model {
      *  @return :
      */
     function insert_booking_state_change($details) {
+        if(empty($details['new_state'])){
+            $message = "function insert_booking_state_change(), new_state not found for Booking : '".$details['booking_id']."', REFERRER : " . $_SERVER['HTTP_REFERER'];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'BOOKING STATE CHANGE', $message, "", "");
+            return;
+        }
         $this->db->insert('booking_state_change', $details);
-
         return $this->db->insert_id();
     }
     
@@ -2748,7 +2752,9 @@ class Booking_model extends CI_Model {
                     AND booking_details.internal_status != '".SF_BOOKING_CANCELLED_STATUS."'
                     AND service_center_booking_action.current_status != 'Cancelled'
                     AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
-                    AND booking_unit_details.booking_id != '".$booking_id."'";  
+                    AND booking_unit_details.booking_id != '".$booking_id."'
+                GROUP BY 
+                    booking_details.booking_id";  
         $query = $this->db->query($sql);
         return $query->result_array();
     }

@@ -122,9 +122,25 @@ class Invoice extends CI_Controller {
            }
         }
         
+        $msl_invoice = 0;
+        //check if user has checked checkbox to view MSL invoice or not
+        if(!empty($this->input->post('msl_invoice'))){
+           if($this->input->post('msl_invoice') == 1){
+               $msl_invoice = 1;
+           }
+        }
+        
+        if($msl_invoice == 1){
+            //add condition in query to select MSL invoices
+            $where["sub_category like '%MSL%'"] = null;
+        }else{
+            //add condition in query to exclude MSL invoices
+            $where["sub_category not like '%MSL%'"] = null;
+        }
+        
         if($invoice_period === 'all'){
-            $where = array('vendor_partner' => $this->input->post('source'),
-                      'vendor_partner_id' => $this->input->post('vendor_partner_id'));
+            $where['vendor_partner'] = $this->input->post('source');
+            $where['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             if($settle_amount == 0){
                 $where['settle_amount'] = 0;
             }
@@ -696,6 +712,16 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
+        
+        // Generate MSL Packaging Excel
+        if (!empty($misc_data['msl_packaging_data'])) {
+            $meta['total_msl_box_packaging_charge'] = $misc_data['msl_packaging_data'][0]['total_msl_box_packaging_charge'];
+            $meta['total_msl_box_count'] = $misc_data['msl_packaging_data'][0]['total_msl_box_count'];
+            $sp_files_name = $this->generate_partner_msl_packaging_excel($partner_id, $misc_data['msl_packaging_data'], $meta);
+            array_push($files, $sp_files_name);
+
+            log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
@@ -842,6 +868,22 @@ class Invoice extends CI_Controller {
             if(!empty($misc_data['nrn'])){
                 foreach($misc_data['nrn'] as $nrn_details){
                     $this->booking_model->update_booking_unit_details_by_any(array('id' => $nrn_details['unit_id']), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+            }
+            
+            //insert entry for MSL packaging courier in billed_msl_package table so that their invoice do not get generated again
+            if (!empty($misc_data['msl_packaging_data'])) {
+                foreach ($misc_data['msl_packaging_data'] as $msl_courier_details) {
+                    $msl_courier_data = array(
+                        'courier_id' => $msl_courier_details['id'],
+                        'type' => MSL_PACKAGING_CHARGES,
+                        'entity_type' => _247AROUND_PARTNER_STRING,
+                        'entity_id' => $partner_id,
+                        'invoice_id' => $meta['invoice_id'],
+                        'box_count' => $msl_courier_details['msl_box'],
+                        'rate' => $msl_courier_details['msl_box_price']
+                    );
+                    $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
             }
             
@@ -1017,6 +1059,21 @@ class Invoice extends CI_Controller {
     function generate_partner_nrn_excel($data, $meta) {
         $template = 'Partner_invoice_detail_template-v2-nrn.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-nrn-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+
+    }
+    
+    /**
+     * @desc This function is used to generate partner MSL packaging annexure file
+     * @param Integer $partner_id
+     * @param Array $data
+     * @param Array $meta
+     * @return string
+     */
+    function generate_partner_msl_packaging_excel($partner_id, $data, $meta) {
+        $template = 'Partner_invoice_detail_template-v2-packaging-msl.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-packaging-msl-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
 
@@ -2797,6 +2854,7 @@ exit();
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
+        $invoice_details['invoice_category'] = $this->invoices_model->get_invoice_category("*", array());
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/insert_update_invoice', $invoice_details);
         
@@ -3095,6 +3153,9 @@ exit();
         $data['packaging_rate'] = (!empty($this->input->post('packaging_rate'))?$this->input->post('packaging_rate'):'0.00');
         $data['miscellaneous_charges'] = (!empty($this->input->post('miscellaneous_charges'))?$this->input->post('miscellaneous_charges'):'0.00');
         $data['warehouse_storage_charges'] = (!empty($this->input->post('warehouse_storage_charges'))?$this->input->post('warehouse_storage_charges'):'0.00');
+        $data['upcountry_rate'] = (!empty($this->input->post('upcountry_rate'))?$this->input->post('upcountry_rate'):'0.00');
+        $data['call_center_charges'] = (!empty($this->input->post('call_center_charges'))?$this->input->post('call_center_charges'):'0.00');
+        $data['micro_warehouse_charges'] = (!empty($this->input->post('micro_warehouse_charges'))?$this->input->post('micro_warehouse_charges'):'0.00');
         $data['type_code'] = (!empty($this->input->post('around_type'))?$this->input->post('around_type'):NULL);
         
        

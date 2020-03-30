@@ -3699,14 +3699,14 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.service_id'] = $this->input->post('service_id');
         }
         if (!empty($where)) {
-            $inventory_master_list = $this->inventory_model->get_inventory_without_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id', $where);
+            $inventory_master_list = $this->inventory_model->get_inventory_without_model_mapping_data('inventory_master_list.part_number,inventory_master_list.inventory_id', $where);
         }
 
         foreach ($inventory_master_list as $value) {
-            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_number'] . "'";
 
             $option .= " > ";
-            $option .= $value['part_name'] . "</option>";
+            $option .= $value['part_number'] . "</option>";
         }
 
         echo $option;
@@ -4056,6 +4056,8 @@ class Inventory extends CI_Controller {
         $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
         $from_gst_number = $this->input->post("from_gst_number");
         $to_gst_number = $this->input->post("to_gst_number");
+        $box_count = $this->input->post("box_count");
+        $small_box_count = $this->input->post("small_box_count");
         $req = TRUE;
         if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
@@ -4197,7 +4199,8 @@ class Inventory extends CI_Controller {
                                     'partner_id' => $partner_id,
                                     'booking_id' => (!empty($booking_id_array) ? implode(",", $booking_id_array) : ''),
                                     'courier_charge' => '0.00',
-                                    'box_count' => '1', //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                    'box_count' => $box_count, //trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                    'small_box_count' => $small_box_count,
                                     'billable_weight' => '0.00', //trim($billable_weight),
                                     'actual_weight' => '0.00', //trim($billable_weight),
                                     'basic_billed_charge_to_partner' => '0.00',
@@ -5596,6 +5599,7 @@ class Inventory extends CI_Controller {
                             'partner_id' => $this->input->post('receiver_partner_id'),
                             'courier_charge' => trim($courier_price_by_wh),
                             'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')),
+                            'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')),
                             'billable_weight' => trim($billable_weight),
                             'actual_weight' => trim($billable_weight),
                             'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
@@ -5818,6 +5822,7 @@ class Inventory extends CI_Controller {
                         'partner_id' => $this->input->post('receiver_partner_id'),
                         'courier_charge' => trim($courier_price_by_wh),
                         'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //defective_parts_shipped_gram
+                        'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')), //defective_parts_shipped_gram
                         'billable_weight' => trim($billable_weight),
                         'actual_weight' => trim($billable_weight),
                         'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
@@ -6484,26 +6489,28 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
     function get_parts_number() {
-
+        
         $part_name = trim($this->input->post('part_name'));
 
+        $part_number = trim($this->input->post('part_number'));
+
         $post['length'] = -1;
-        $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_name' => $part_name);
+        $post['where'] = array('entity_id' => trim($this->input->post('entity_id')), 'entity_type' => trim($this->input->post('entity_type')), 'service_id' => trim($this->input->post('service_id')), 'part_number' => $part_number);
         $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
-        $post['column_order'] = array('part_number');
-        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_number', true);
+        $post['column_order'] = array('part_name');
+        $inventory_details = $this->inventory_model->get_inventory_master_list($post, 'inventory_master_list.part_name', true);
 
         if ($this->input->post('is_option_selected')) {
-            $option = '<option selected disabled>Select Part Number</option>';
+            $option = '<option selected disabled>Select Part Name</option>';
         } else {
             $option = '';
         }
 
 
         foreach ($inventory_details as $value) {
-            $option .= "<option value='" . $value['part_number'] . "'";
+            $option .= "<option value='" . $value['part_name'] . "'";
             $option .=" > ";
-            $option .= $value['part_number'] . "</option>";
+            $option .= $value['part_name'] . "</option>";
         }
 
         echo $option;
@@ -9169,20 +9176,14 @@ class Inventory extends CI_Controller {
 
         log_message('info', __METHOD__ . ' Processing...');
 
-        $download_request_type = $this->input->post('invoice_type');
-                
-        if (!empty($download_request_type)) {
-            $where = array();
-            if ($download_request_type == 'msl') {
-                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',courier_details.booking_id as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', (CHAR_LENGTH(courier_details.booking_id) - CHAR_LENGTH(REPLACE(courier_details.booking_id,',', '')) + 1) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
-            } else {
-                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', partners.public_name as 'Partner Name',courier_company_invoice_details.courier_invoice_id as 'Invoice No.',GROUP_CONCAT(spare_parts_details.booking_id) as 'Booking IDs', courier_company_invoice_details.receiver_city as 'City', COUNT(spare_parts_details.booking_id) as 'Booking Count', courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
-            
-                $where = array("$download_request_type  IS NOT NULL "=> NULL);
-            }
-            
-            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where , $download_request_type);
-            
+        $partner_id = $this->input->post('partner_id');
+
+        if (!empty($partner_id)) {
+            $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', "
+                    . "partners.public_name as 'Partner Name',billed_docket.invoice_id as 'Invoice No.', courier_company_invoice_details.receiver_city as 'City',"
+                    . "courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+            $where = array("billed_docket.entity_id" => $partner_id);
+            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where);
             $this->load->dbutil();
             $this->load->helper('file');
 
@@ -9204,7 +9205,7 @@ class Inventory extends CI_Controller {
                 $res['msg'] = 'error in generating file';
             }
         } else {
-            $res['msg'] = 'Please Select Courier Invoice';
+            $res['msg'] = 'Please Select Partner';
         }
 
         echo json_encode($res);

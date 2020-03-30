@@ -273,6 +273,44 @@ class dealerApi extends CI_Controller {
         }
     }
 
+
+
+      /* @Desc - This function is used to validate keys exist in array or not
+     * @Param - $keysArray(array), $requestArray(array)
+     * @return - $response(array)
+     */
+
+    function validateKeys($keysArray, $requestArray) {
+        $response = array();
+        $missing_key = "";
+        $check = true;
+        if (!empty($requestArray)) {
+            if (!empty($keysArray)) {
+                foreach ($keysArray as $key) {
+                    if (!array_key_exists($key, $requestArray)) {
+                        $check = false;
+                        $missing_key = $key;
+                        break;
+                    }
+                }
+                if ($check) {
+                    $response['status'] = true;
+                    $response['message'] = "Success";
+                } else {
+                    $response['status'] = false;
+                    $response['message'] = "Request key missing - " . $missing_key;
+                }
+            } else {
+                $response['status'] = false;
+                $response['message'] = "Keys Array Not Found";
+            }
+        } else {
+            $response['status'] = false;
+            $response['message'] = "Requested Array Not Found";
+        }
+        return $response;
+    }
+
     /**
      * @input: void
      * @description: verify signarure
@@ -335,9 +373,22 @@ class dealerApi extends CI_Controller {
                 $this->getAllStates();
                 break;
 
+             case 'getStatesCities':
+                $this->getStatesCities();
+                break;
+
             case 'searchData':
                 $this->getSearchData();
                 break;
+
+            case 'getTrackingData':
+                $this->getTrackingData(); /* get Tracking Details API */
+                break;
+
+            case 'getBookingData':
+                $this->getBookingDetails(); /* get Booking Details API */
+                break;
+
             default:
                 break;
         }
@@ -406,8 +457,23 @@ class dealerApi extends CI_Controller {
         if (!empty($data)) {
             $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
+          /*  Token Update */
+          	
+          	$update_dealer =array();
+          	if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
+                $update_dealer = array(
+                    'device_firebase_token' => $requestData['device_firebase_token']
+                );
+                }else{
+                $update_dealer = array(
+                    'device_firebase_token' => NULL
+                );  
+            }
+
+            $this->dealer_model->update_dealer($update_dealer,array('id'=>$login[0]['entity_id']))
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
+                $this->sendJsonResponse(array('0000', 'success'));
 
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
@@ -430,9 +496,9 @@ function check_for_upgrade(){
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version']!=APP_VERSION) { 
+        if ($requestData['app_version']!=DEALER_APP_VERSION) { 
                 // get configuration data from table for App version upgrade // 
-                $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
+                $response = $this->engineer_model->get_engineer_config(DEALER_FORCE_UPGRADE); 
                 $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
                 $this->sendJsonResponse(array('0000', 'success')); // send success response //
                
@@ -459,53 +525,62 @@ function check_for_upgrade(){
 function getAllStates(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type"), $requestData);
-        if ($requestData['entity_type']) { 
-                $response =  $this->around_generic_lib->getAllStates(); 
-                 $this->jsonResponseString['response'] = $response['data'];
+        $response=array();
+        if (!empty($requestData['entity_type'])) { 
+
+                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer States Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
+                }else{
+                    $result =  $this->around_generic_lib->getAllStates();
+                    $response = $result['data'];
+                }
+                
+                $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
         }
 
-
-
 }
-
-
 
     /**
      *  @desc : This function is to get all cities of state.
      *
-     *  All the cities of state of India in Ascending order
+     *  All the distinct states of India in Ascending order  
      *
      *  @param : void
-     *  @return : cities json
+     *  @return : json of cities
      *  @author : Abhishek Awasthi
      */
+ 
 
-
-function getAllStates(){
+function getStatesCities(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("state_code"), $requestData);
-        if ($requestData['entity_type']) { 
-                $response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
-                 $this->jsonResponseString['response'] = $response['data'];
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
+        $response=array();
+        if (!empty($requestData['state_code'])) { 
+
+        	    if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                    /// Will Come Dealer State Cities Mapped ///
+                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
+                }else{
+                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
+                    $response = $result['data'];
+                }
+                //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array($response['code'], $response['message'])); // Syntax Error Solve //
+            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
         }
-
-
-
 }
-
-
 
 
   /*
@@ -545,7 +620,8 @@ function getAllStates(){
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
-                // Search other than booking 
+                // Search   booking  on phone number
+                $data['Bookings'] = $this->dealer_model->dealer_partner_bookings_on_user($phone_number, $requestData['entity_id'] , $requestData['entity_type']);
             }
 
             if (!empty($data['Bookings'])) {
@@ -588,8 +664,54 @@ function getAllStates(){
         }
     }
 
+  /*
+     * @Desc - This function is used to get booking deatails 
+     * @param - $booking_id
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+
+function getBookingDetails(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
+        if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
+                $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id'],$requestData['appliance_id'],$requestData['is_repeat'],$requestData['show_all_capacity']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }
+
+}
 
 
+  /*
+     * @Desc - This function is used to get tracking details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+
+function getTrackingData(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("carrier_code","awb_number"), $requestData);
+        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+                $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1006", "Tracking details not found !")); 
+        }
+
+}
 
 
 

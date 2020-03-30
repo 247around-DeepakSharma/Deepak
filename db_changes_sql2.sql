@@ -2041,3 +2041,62 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 --Gorakh 24-03-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 07:54:48');
+
+--Ankit Bhatt 2020-03-23
+CREATE TABLE `invoice_category` (
+  `id` int(11) NOT NULL,
+  `category` varchar(64) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `invoice_category` (`id`, `category`, `create_date`, `update_date`) VALUES
+(1, 'Service', '2020-03-23 07:46:31', '2020-03-23 07:46:31'),
+(2, 'Product', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(3, 'Upcountry', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(4, 'Debit Penalty', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(5, 'Courier', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(6, 'Misc Charge', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(7, 'Packaging Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(9, 'Warehouse Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(10, 'Call Center Charges', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(11, 'Penalty Discount', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(13, 'Credit Penalty', '2020-03-23 07:47:37', '2020-03-23 07:47:37'),
+(14, 'Micro Warehouse', '2020-03-23 07:47:37', '2020-03-23 07:47:37');
+
+ALTER TABLE `invoice_category`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `invoice_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+ALTER TABLE `vendor_partner_invoices`  ADD `micro_warehouse_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `miscellaneous_charges`;
+ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) NOT NULL DEFAULT 0.00  AFTER `micro_warehouse_charges`;
+
+--Ankit Bhatt 2020-03-26
+INSERT INTO `invoice_category` (`category`, `create_date`, `update_date`) VALUES
+('OPEN CELL', '2020-03-23 07:46:31', CURRENT_TIMESTAMP),
+('Annual Charges', '2020-03-23 07:47:37', CURRENT_TIMESTAMP);
+
+--Ankit Bhatt 2020-03-27
+ALTER TABLE `courier_company_invoice_details`  ADD `small_box_count` int(11) NOT NULL DEFAULT 0  AFTER `box_count`;
+
+CREATE TABLE IF NOT EXISTS `billed_msl_package` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `courier_id` int(11) NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `invoice_id` varchar(64) NOT NULL,
+  `rate` decimal(10,2) NOT NULL default 0.00,
+  `box_count` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
+--Abhishek 28-mar-2020--
+ALTER TABLE `dealer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `active`;
+ALTER TABLE `dealer_details` ADD `installed` TINYINT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
+INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'dealer_force_upgrade', '0', 'Dealer App upgrade hard or soft', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
+ALTER TABLE `engineer_configs` ADD UNIQUE(`configuration_type`);

@@ -4,7 +4,11 @@
 <?php
 // if spare is requested on any booking or the booking is invoiced to partner, then booking details can not be edited
 $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:none;background:#eee;" : "";
-//$str_disabled = "";
+
+// If Booking not found, do not show this page
+if(empty($booking_history[0]['booking_id'])){
+   exit("<br/><center><h3 class='text-danger'>Booking Not Found.</h3></center>");
+}
 ?>
 <style>
     #dealer_list{

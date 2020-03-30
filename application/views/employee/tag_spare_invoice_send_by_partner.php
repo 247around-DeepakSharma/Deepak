@@ -141,6 +141,28 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="col-xs-2 control-label">Large Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="box_count" id="box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="box_count" class="error" id='box_count_error'></label>
+                                            </div>
+                                            <label class="col-xs-2 control-label">Small Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="small_box_count" id="small_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="small_box_count" class="error"></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
@@ -163,12 +185,15 @@
                                             <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <p class="text-center"><strong>Appliance</strong></p>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <p class="text-center"><strong>Part Name</strong></p>
-                                            </div>
+                                            
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <p class="text-center"><strong>Part Number</strong></p>
                                             </div>
+                                            
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
+                                                <p class="text-center"><strong>Part Name</strong></p>
+                                            </div>
+                                            
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                                 <p class="text-center"><strong>Booking Id <small>(Optional)</small></strong></p>
                                             </div>
@@ -192,12 +217,12 @@
                                                 <label for="serviceId_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
-                                                <label for="partName_0" class="error"></label>
+                                                <select class="form-control" name="part[0][part_number]" id="partNumber_0" required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="partNumber_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
-                                                <label for="partNumber_0" class="error"></label>
+                                                <select class="form-control" name="part[0][part_name]" id="partName_0" ></select>
+                                                <label for="partName_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                                 <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" onblur="check_booking_id(this.id)"/>
@@ -229,12 +254,12 @@
                                                 <label for="service_id" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
-                                                <label for="part_name" class="error"></label>
+                                                <select class="form-control" id="part_number"  required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="part_number" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" id="part_number"></select>
-                                                <label for="part_number" class="error"></label>
+                                                <select class="form-control" id="part_name"></select>
+                                                <label for="part_name" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                                 <input type="text" class="form-control" id="booking_id"  onblur="check_booking_id(this.id)"/>
@@ -373,6 +398,28 @@
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                            <label class="col-xs-2 control-label">Large Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="box_count" id="on_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="box_count" class="error" id='on_box_count_error'></label>
+                                            </div>
+                                            <label class="col-xs-2 control-label">Small Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="small_box_count" id="on_small_box_count">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="small_box_count" class="error"></label>
+                                            </div>
+                                     </div>
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-4">
@@ -698,6 +745,11 @@
                 
                 var entered_invoice_amt = Number($('#invoice_amount').val());
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
+                var box_count = $("#box_count").val() || 0;
+                var small_box_count = $("#small_box_count").val() || 0;
+                $('#box_count').css('border','');
+                $('#small_box_count').css('border','');
+                if(box_count + small_box_count > 0){
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
@@ -820,7 +872,12 @@
                     $('#total_spare_invoice_price').addClass('text-danger');
                     return false;
                 }
-            }
+            }else{
+                alert('Minimum box count should be 1, Please select from Large or small box count.');
+                $('#box_count').css('border','1px solid red');
+                $('#small_box_count').css('border','1px solid red');
+                return false;
+            }}
         });
         
         // Add button click handler
@@ -839,10 +896,10 @@
                 .find('[id="shippingStatus"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).end()
                 .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_'+partIndex).select2({placeholder:'Select Appliance'}).end()
                 .find('[for="service_id"]').attr('for','serviceId_'+partIndex).end()
-                .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
-                .find('[for="part_name"]').attr('for','partName_'+partIndex).end()
                 .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
                 .find('[for="part_number"]').attr('for','partNumber_'+partIndex).end()
+                .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[for="part_name"]').attr('for','partName_'+partIndex).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[for="quantity"]').attr('for','quantity_'+partIndex).end()
@@ -933,20 +990,21 @@
         var element = e.split('_');
         var index = element[1];
         var part_element = element[0];
+        //alert(part_element);
         switch(part_element){
             case 'serviceId':
-                get_part_name(index);
+                get_part_number_list(index);
                 break;
-            case 'partName':
+            case 'partNumber':
                 get_part_number(index);
                 break;
             case 'quantity':
                 get_part_price(index);
-                break;
+                break;index 
         }
     }
     
-    function get_part_name(index){
+    function get_part_number_list(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
         if(partner_id){
@@ -955,17 +1013,17 @@
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_name_without_model_mapping',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
                 success: function (response) {
-                    $('#partName_'+index).val('val', "");
-                    $('#partName_'+index).val('Select Part Name').change();
-                    $('#partName_'+index).html(response);
+                    $('#partNumber_'+index).val('val', "");
+                    $('#partNumber_'+index).val('Select Part Number').change();
+                    $('#partNumber_'+index).html(response);
                     $('#inventoryId_'+index).val('');
                     $('#partBasicPrice_'+index).val('');
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
-                    $('#partName_'+index+' option').removeAttr('disabled');
+                    $('#partNumber_'+index+' option').removeAttr('disabled');
                     for(var key in partArr[service_id]) {
-                        $('#partName_'+index+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
+                        $('#partNumber_'+index+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
                     }
                 }
             });
@@ -977,26 +1035,26 @@
     function get_part_number(index){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
-        var part_name = $('#partName_'+index).val();
-        if($.inArray(part_name,partArr[service_id]) > 0) {
+        var part_number = $('#partNumber_'+index).val();
+        if($.inArray(part_number,partArr[service_id]) > 0) {
            alert("Please select another part as this is already selected!!");
            return false;
         }
         if( partArr[service_id] === undefined ) {
             partArr[service_id] = new Array();
         }
-        if(part_name !== undefined) {
-            partArr[service_id].push(part_name);
+        if(part_number !== undefined) {
+            partArr[service_id].push(part_number);
         }
         if(partner_id){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_name:part_name,is_option_selected:true},
+                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number,is_option_selected:true},
                 success: function (response) {
-                    $('#partNumber_'+index).val('val', "");
-                    $('#partNumber_'+index).val('Select Part Number').change();
-                    $('#partNumber_'+index).html(response);
+                    $('#partName_'+index).val('val', "");
+                    $('#partName_'+index).val('Select Part Name').change();
+                    $('#partName_'+index).html(response);
                     $('#inventoryId_'+index).val('');
                     $('#partBasicPrice_'+index).val('');
                     $('#partGstRate_'+index).val('');
@@ -1406,6 +1464,11 @@
 
                 if(flag == true) {
                     var booking_id = $("#onbookingid_0").val();
+                    var box_count = $("#on_box_count").val() || 0;
+                    var small_box_count = $("#on_small_box_count").val() || 0;
+                    $('#on_box_count').css('border','');
+                    $('#on_small_box_count').css('border','');
+                    if(box_count + small_box_count > 0){
                     if(booking_id !== ""){
                         var wh_name = $('#on_wh_id option:selected').text();
                         $('#on_wh_name').val(wh_name);
@@ -1441,6 +1504,11 @@
 
                         return false;
                     }
+                }else{
+                    onBookingshowConfirmDialougeBox('Minimum box count should be 1, Please select from Large or small box count.', 'warning');
+                    $('#on_box_count').css('border','1px solid red');
+                    $('#on_small_box_count').css('border','1px solid red');
+                }
                 }
             }
         });
