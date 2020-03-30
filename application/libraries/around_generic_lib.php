@@ -26,6 +26,7 @@ class around_generic_lib {
     $this->My_CI->load->model('warranty_model');
     $this->My_CI->load->model('vendor_model');
     $this->My_CI->load->model('dealer_model');
+    $this->My_CI->load->model('partner_model');
     $this->My_CI->load->model('indiapincode_model');
     $this->My_CI->load->library('paytm_payment_lib');
     $this->My_CI->load->library('trackingmore_api');
@@ -167,6 +168,44 @@ class around_generic_lib {
          return  $states;
 
     }
+
+
+    /*
+     * @Desc - This function used to get spare tracking history
+     * @param - $spare_id
+     * @response - Array
+     * @Author - Abhishek Awasthi
+     */
+    function getSpareTrackingHistory($spare_id){
+
+        $data = array();
+        if (!empty($spare_id)) {
+            $data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date", array('spare_state_change_tracker.spare_id' => $spare_id), false);
+        }else{
+            $data['spare_history'] = array();
+        }
+
+        return $data;
+    }
+
+
+
+  /*
+     * @Desc - This function is used to get escalation reasons 
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+
+function getEscalationReason($entity_type){
+
+$data = array();
+$data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>$entity_type,'active'=> '1','process_type'=>'escalation'));
+
+return $data;
+
+}
 
 
 }

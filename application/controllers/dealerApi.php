@@ -389,6 +389,10 @@ class dealerApi extends CI_Controller {
                 $this->getBookingDetails(); /* get Booking Details API */
                 break;
 
+            case 'getSpareHistory':
+                $this->getSpareTrackingHistory(); /* get Booking Details API */
+                break;
+
             default:
                 break;
         }
@@ -710,6 +714,102 @@ function getTrackingData(){
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("1006", "Tracking details not found !")); 
         }
+
+}
+
+
+  /*
+     * @Desc - This function is used to get spare tracking details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+
+function getSpareTrackingHistory(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("spare_id"), $requestData);
+        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+                $response =  $this->around_generic_lib->getSpareTrackingHistory($requestData['spare_id']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Spare tracking details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1007", "Tracking details not found !")); 
+        }
+
+}
+
+
+
+  /*
+     * @Desc - This function is used to get escalation reasons 
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+
+function getEscalationReason(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+                $response =  $this->around_generic_lib->getEscalationReason($requestData['entity_type']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
+        }
+
+
+}
+
+  /*
+     * @Desc - This function is used to submit escalation  
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+function submitEscalation(){
+
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type","booking_id","escalation_reason_id"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+                    $postData = array(
+                        "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "escalation_remarks" => $requestData['escalation_remarks']
+                    );
+                    //Call curl for updating booking by engineer
+                    $url = base_url() . "employee/partner/process_escalation/".$requestData['booking_id'];
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = curl_exec($ch);
+                    curl_close($ch);
+  
+                 $this->jsonResponseString['response'] = $curl_response;
+                 $this->sendJsonResponse(array('0000', "Escalation details updated successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1009", "Escalation details not updated !")); 
+        }
+
+
+
+
+
 
 }
 
