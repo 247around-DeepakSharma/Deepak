@@ -756,7 +756,7 @@ function getEscalationReason(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type"), $requestData);
-        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+        if (!empty($requestData['entity_type'])) { 
                 $response =  $this->around_generic_lib->getEscalationReason($requestData['entity_type']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
