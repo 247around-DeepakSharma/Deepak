@@ -699,6 +699,7 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
         var repair_out_flag = false;
         var installation_flag = false;
         var amc_flag = false;
+        var replacement_flag = false;
         var pdi = false;
         var extended_warranty = false;
         var pre_sales = false;
@@ -754,6 +755,11 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
              array.push(amc_flag);
          }
          
+         if(findInArray(delivered_price_tags, 'Replacement') > -1 ){
+             replacement_flag = true;
+             array.push(replacement_flag);
+         }
+         
          // ----------------------------------------------------------------------------------------
          // DO NOT ALLOW SAME REQUEST TYPE COMBINATIONS IN BOOKING         
          if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1) ||
@@ -790,16 +796,19 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
          
          if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
                     others_flag = true;
+                    // Both In-out Recharge types can not be selected together, that's why adding 2 values in others_flag 
                     array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
                     others_flag = true;
+                    // Both In-out Recharge types can not be selected together, that's why adding 2 values in others_flag 
                     array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Gas Recharge with Dryer (In Warranty)') > -1 && findInArray(delivered_price_tags, 'Gas Recharge with Dryer (Out Warranty)') > -1){
                     others_flag = true;
+                    // Both In-out Recharge types can not be selected together, that's why adding 2 values in others_flag 
                     array.push(others_flag, others_flag);
          }
          
