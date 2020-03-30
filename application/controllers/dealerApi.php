@@ -389,6 +389,10 @@ class dealerApi extends CI_Controller {
                 $this->getBookingDetails(); /* get Booking Details API */
                 break;
 
+            case 'getSpareHistory':
+                $this->getSpareTrackingHistory(); /* get Booking Details API */
+                break;
+
             default:
                 break;
         }
@@ -714,6 +718,29 @@ function getTrackingData(){
 }
 
 
+  /*
+     * @Desc - This function is used to get spare tracking details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+
+function getSpareTrackingHistory(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("spare_id"), $requestData);
+        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+                $response =  $this->around_generic_lib->getSpareTrackingHistory($requestData['spare_id']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Spare tracking details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1007", "Tracking details not found !")); 
+        }
+
+}
 
 
 
