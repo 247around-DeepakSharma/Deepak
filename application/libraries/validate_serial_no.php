@@ -288,18 +288,23 @@ class Validate_serial_no {
      */
     function check_duplicate_serial_number($serial_number, $price_tags, $user_id, $booking_id){
         $data = $this->MY_CI->booking_model->get_data_for_duplicate_serial_number_check($serial_number,$booking_id);
-//        $data = $this->MY_CI->booking_model->get_unit_details(array('serial_number' => $serial_number, 'booking_status != "'._247AROUND_CANCELLED.'"' => NULL,
-//            "price_tags != '".REPEAT_BOOKING_TAG."'" => NULL, "booking_id != '".$booking_id."'" => NULL));
+        // get booking initial date
+        $arr_booking_date = $this->MY_CI->booking_model->get_booking_details("initial_booking_date", array("booking_id"=>$booking_id));
+        $initial_booking_date = date_create('today');
+        if(!empty($arr_booking_date)){
+            $initial_booking_date = $arr_booking_date[0]['initial_booking_date'];
+            $initial_booking_date = date_create(date("Y-m-d", strtotime($initial_booking_date)));
+        }
         if(!empty($data)){
             $msg = "";
             $isDuplicate = false;
             foreach ($data as $key =>$value) {
                $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
                if($value['booking_status'] == _247AROUND_COMPLETED){
-                   // calculate 30 days from service_center_closed_date
+                   // calculate 30 days from service_center_closed_date and booking initial date
                    // if sf_closed_Date not found use booking closed date by admin
                     $booking_closed_date = !empty($value['service_center_closed_date']) ? $value['service_center_closed_date'] : $value['closed_date'];
-                    $d = date_diff(date_create($booking_closed_date), date_create('today')); 
+                    $d = date_diff(date_create($booking_closed_date), $initial_booking_date); 
                     if($d->days < BOOKING_WARRANTY_DAYS){                      
                         
                         if($booking_details[0]['user_id'] == $user_id){
