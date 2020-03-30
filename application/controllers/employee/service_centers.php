@@ -5186,7 +5186,7 @@ class Service_centers extends CI_Controller {
         $row[] = ($order_list->cp_claimed_price);
         $row[] = $order_list->current_status . "<b> (" . $order_list->internal_status . " )</b>";
         if(!$inprocess) {
-            if(!empty($order_list->auto_acknowledge_date)) {
+            if(!empty($order_list->auto_acknowledge)) {
                 $row[] = $order_list->auto_acknowledge_date;
             } else {
                 $row[] = $order_list->acknowledge_date;
