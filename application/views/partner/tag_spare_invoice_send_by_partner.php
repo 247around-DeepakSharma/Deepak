@@ -219,11 +219,11 @@
                                     <div class="form-group">
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
-                                            <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
+                                            <select class="form-control" name="part[0][service_id]" id="serviceId_0" required=""></select>
                                             <span id="error_serviceId_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
-                                            <select class="form-control" name="part[0][part_number]" id="partNumber_0" required="" onchange="get_part_details(this.id)"></select>
+                                            <input type="text" class="form-control" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                             <span id="error_partNumber_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -256,11 +256,11 @@
                                     <div class="form-group hide" id="partTemplate">
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <input type="hidden" id="shippingStatus" value="1">
-                                            <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
+                                            <select class="form-control" id="service_id"  required=""></select>
                                             <span id="error_service_id" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
-                                            <select class="form-control" id="part_number"  required="" onchange="get_part_details(this.id)"></select>
+                                            <input type="text" class="form-control" id="part_number"  required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
                                             <span id="error_part_name" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -657,9 +657,9 @@ $("#on_invoice_file").change(function(){
         $('#partName_0').select2({
             placeholder:'Select Part Name'
         });
-        $('#partNumber_0').select2({
-            placeholder:'Select Part Number'
-        });
+//        $('#partNumber_0').select2({
+//            placeholder:'Select Part Number'
+//        });
         
         $('#from_gst_number,on_from_gst_number').select2({
             placeholder:'Select From GST Number'
@@ -882,7 +882,7 @@ $("#on_invoice_file").change(function(){
                 .find('[id="shippingStatus"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).end()
                 .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_'+partIndex).select2({placeholder:'Select Appliance'}).end()
                 .find('[id="error_service_id"]').attr('id','error_serviceId_'+partIndex).end()
-                .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
+                .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).attr({placeholder:'Enter Part Number'}).end()
                 .find('[id="error_part_number"]').attr('id','error_partNumber_'+partIndex).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
                 .find('[id="error_part_name"]').attr('id','error_partName_'+partIndex).end()
@@ -1208,9 +1208,6 @@ $("#on_invoice_file").change(function(){
         var index = element[1];
         var part_element = element[0];
         switch(part_element){
-            case 'serviceId':
-                get_part_number(index);
-                break;
             case 'partNumber':
                 get_part_name(index);
                 break;
@@ -1220,41 +1217,15 @@ $("#on_invoice_file").change(function(){
         }
     }
     
-    function get_part_number(index){
-        var partner_id = $('#partner_id').val();
-        var service_id = $('#serviceId_'+index).val();
-        if(partner_id){
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_parts_name_without_model_mapping',
-                data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
-                success: function (response) {
-                    $('#partNumber_'+index).val('val', "");
-                    $('#partNumber_'+index).val('Select Part Name').change();
-                    $('#partNumber_'+index).html(response);
-                    $('#inventoryId_'+index).val('');
-                    $('#partBasicPrice_'+index).val('');
-                    $('#partGstRate_'+index).val('');
-                    $('#partHsnCode_'+index).val('');
-                    $('#quantity_'+index).val('');
-                    $('#partNumber_'+index+' option').removeAttr('disabled');
-                    for(var key in partArr[service_id]) {
-                        $('#partNumber_'+index+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
-                    }
-                }
-            });
-        }else{
-            showConfirmDialougeBox('Please Select All Field', 'warning');
-        }
-    }
-    
+       
     function get_part_name(index){
    
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
         var part_number = $('#partNumber_'+index).val();
-        if($.inArray(part_number,partArr[service_id]) > 0) {
-           alert("Please select another part as this is already selected!!");
+        if($.inArray(part_number,partArr[service_id]) > parseInt(-1)) {
+           alert("Please enter another part as this is already enter !");
+           $('#partNumber_'+index).val('');
            return false;
         }
         if( partArr[service_id] === undefined ) {
@@ -1263,13 +1234,22 @@ $("#on_invoice_file").change(function(){
         if(part_number !== undefined) {
             partArr[service_id].push(part_number);
         }
-        if(partner_id){
+        
+        if(part_number =='' && (partner_id != null) ) {
+           alert("Please enter part number.");
+           return false;    
+        }
+        
+       if(partner_id !='' && part_number !=''){
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number,is_option_selected:true},
                 success: function (response) {
-                    console.log(response);
+                    if(response == 'Part Number Not Exist In Our System'){
+                         alert(response);
+                         $('#partNumber_'+index).val('');
+                    }else{
                     $('#partName_'+index).val('val', "");
                     $('#partName_'+index).val('Select Part Number').change();
                     $('#partName_'+index).html(response);
@@ -1279,6 +1259,7 @@ $("#on_invoice_file").change(function(){
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
+                }
                 }
             });
         }else{
