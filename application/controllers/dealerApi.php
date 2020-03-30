@@ -744,4 +744,37 @@ function getSpareTrackingHistory(){
 
 
 
+  /*
+     * @Desc - This function is used to get escalation reasons 
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+
+function getEscalationReason(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+                $response =  $this->around_generic_lib->getEscalationReason($requestData['entity_type']); 
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
+        }
+
+
+}
+
+
+
+
+
+
+
+
 }

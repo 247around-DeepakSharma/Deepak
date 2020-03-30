@@ -189,4 +189,23 @@ class around_generic_lib {
     }
 
 
+
+  /*
+     * @Desc - This function is used to get escalation reasons 
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+  */
+
+
+function getEscalationReason($entity_type){
+
+$data = array();
+$data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>$entity_type,'active'=> '1','process_type'=>'escalation'));
+
+return $data;
+
+}
+
+
 }
