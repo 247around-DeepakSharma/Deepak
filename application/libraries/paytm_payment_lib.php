@@ -151,9 +151,13 @@ class paytm_payment_lib {
         //Select * From paytm_transaction_callback where booking_id=$booking_id
         $data = $this->P_P->reusable_model->get_search_result_data("paytm_transaction_callback","*",array("booking_id"=>$booking_id),NULL,NULL,NULL,NULL,NULL,array());
         if(!empty($data)){
+            $channel = array();
             foreach($data as $transaction){
                 $finalAmount = $finalAmount+$transaction['paid_amount'];
-                $channel[] = explode("_",$transaction['order_id'])[1];
+                $channel_data = explode("_",$transaction['order_id']);
+                if(!empty($channel_data[1])){
+                    $channel[] = $channel_data[1];
+                }
             }
             return array('status'=>true,'data'=>$data,'total_amount'=>$finalAmount,'channels'=>array_values(array_unique($channel)));
         }
