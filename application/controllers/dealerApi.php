@@ -729,7 +729,7 @@ function getSpareTrackingHistory(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("spare_id"), $requestData);
-        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+        if (!empty($requestData['spare_id'])) { 
                 $response =  $this->around_generic_lib->getSpareTrackingHistory($requestData['spare_id']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Spare tracking details found successfully")); // send success response //
