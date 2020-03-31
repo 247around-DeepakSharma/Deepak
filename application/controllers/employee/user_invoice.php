@@ -556,7 +556,7 @@ class User_invoice extends CI_Controller {
         $invoice_amount = $reason = array();
         $booking_id = $this->input->post('booking_id');
         $remarks = $this->input->post('remarks');
-        $sd = $ed = $invoice_date = date("Y-m-d");
+        $sd = $ed = $invoice_date = '2020-03-31'; #date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                             . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
@@ -793,7 +793,7 @@ class User_invoice extends CI_Controller {
         $partner_reference_invoice = array();
         $vendor_reference_invoice = array();
         //$invoice_id = "";
-        $sd = $ed = $invoice_date = date("Y-m-d");
+        $sd = $ed = $invoice_date = '2020-03-31';#date("Y-m-d");
         $booking_data = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id, partner_id', array('booking_id' => $booking_id));
 
         if (!empty($booking_data) & !empty($booking_data[0]['assigned_vendor_id'])) {
@@ -1654,7 +1654,7 @@ class User_invoice extends CI_Controller {
     function process_repair_oow_spare_invoice(){
         $data = array();
         $spare_parts_detail_ids = array();
-        $sd = $ed = $invoice_date = date("Y-m-d");
+        $sd = $ed = $invoice_date = '2020-03-31';#date("Y-m-d");
         $vendor_email_parts_name = "";
         $email_parts_name_partner = "";
         $partner_id = 0;
