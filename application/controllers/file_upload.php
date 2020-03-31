@@ -819,7 +819,7 @@ class File_upload extends CI_Controller {
             'size' => $_FILES['courier_file']['size']
         );
 
-
+     
         $sheetUniqueRowData = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
@@ -844,100 +844,111 @@ class File_upload extends CI_Controller {
             $error_array = array();
             $invoice_price = 0;
             $invoice_price_with_gst = 0;
+            $uniqu_part_number_arr = array();
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    if (!empty($rowData['appliance']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['gst_rate'])) {
-                        
-                        $select = 'inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
+                    
+                    if (!in_array($rowData['part_code'], $uniqu_part_number_arr)) {
+                        array_push($uniqu_part_number_arr, $rowData['part_code']);
 
-                        $part_details = $this->inventory_model->get_inventory_master_list_data($select, array('part_number' => $rowData['part_code']), array());
-                        if (empty($part_details)) {
-                            $error_type = "Part not found in inventory";
-                            $error_array[] = $error_type;
-                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                        }
+                        if (!empty($rowData['appliance']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['gst_rate'])) {
 
-                        if (!empty($part_details) && $part_details[0]['price'] != $rowData['basic_price']) {
-                            $error_type = "Basic price details mismatch";
-                            $error_array[] = $error_type;
-                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                        }
+                            $select = 'inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
 
-                        if (!empty($part_details) && $part_details[0]['gst_rate'] != $rowData['gst_rate']) {
-                            $error_type = "GST details mismatch";
-                            $error_array[] = $error_type;
-                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                        }
+                            $part_details = $this->inventory_model->get_inventory_master_list_data($select, array('inventory_master_list.part_number' => $rowData['part_code'], 'inventory_master_list.entity_id' => $this->input->post("partner_id"), 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING), array());
 
-                        if (!empty($part_details) && trim($part_details[0]['hsn_code']) != trim($rowData['hsn_code'])) {
-                            $error_type = "HSN details mismatch";
-                            $error_array[] = $error_type;
-                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
-                        }
-                        
-                        if (!empty($part_details)) {
-                            if (isset($post_data[$rowData['appliance']])) {
-                                $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']),2);
-                                $invoice_price_with_gst =($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
-                                $part = array(
-                                    'shippingStatus' => 1,
-                                    'service_id' => $part_details[0]['service_id'],
-                                    'part_name' => $part_details[0]['part_name'],
-                                    'part_number' => $part_details[0]['part_number'],
-                                    'booking_id' => '',
-                                    'quantity' => $rowData['quantity'],
-                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
-                                    'hsn_code' => $rowData['hsn_code'],
-                                    'gst_rate' => $rowData['gst_rate'],
-                                    'inventory_id' => $part_details[0]['inventory_id'],
-                                );
-                                unset($post_data[$rowData['appliance']]['invoice_amount']);
-                                $post_data[$rowData['appliance']]['invoice_amount'] = round(($invoice_price_with_gst), 2);
-                                array_push($post_data[$rowData['appliance']]['part'], $part);
-                            } else {
-                                $part = array(
-                                    'shippingStatus' => 1,
-                                    'service_id' => $part_details[0]['service_id'],
-                                    'part_name' => $part_details[0]['part_name'],
-                                    'part_number' => $part_details[0]['part_number'],
-                                    'booking_id' => '',
-                                    'quantity' => $rowData['quantity'],
-                                    'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']),2),
-                                    'hsn_code' => $rowData['hsn_code'],
-                                    'gst_rate' => $rowData['gst_rate'],
-                                    'inventory_id' => $part_details[0]['inventory_id'],
-                                );
-
-                                $invoice_price = $invoice_price + round(($part_details[0]['price'] * $rowData['quantity']),2);
-                                $invoice_price_with_gst = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
-                                $post_data[$rowData['appliance']]['is_wh_micro'] = $this->input->post("is_wh_micro");
-                                $post_data[$rowData['appliance']]['dated'] = date('Y-m-d H:i:s');
-                                $post_data[$rowData['appliance']]['invoice_id'] = $this->input->post("invoice_id");
-                                $post_data[$rowData['appliance']]['invoice_amount'] = $invoice_price_with_gst;
-                                $post_data[$rowData['appliance']]['courier_name'] = $this->input->post("courier_name");
-                                $post_data[$rowData['appliance']]['awb_number'] = $this->input->post("awb_number");
-                                $post_data[$rowData['appliance']]['courier_shipment_date'] = $this->input->post("courier_shipment_date");
-                                $post_data[$rowData['appliance']]['from_gst_number'] = $this->input->post("from_gst_number");
-                                $post_data[$rowData['appliance']]['to_gst_number'] = $this->input->post("to_gst_number");
-                                $post_data[$rowData['appliance']]['wh_id'] = $this->input->post("wh_id");
-                                $post_data[$rowData['appliance']]['partner_id'] = $this->input->post("partner_id");
-                                $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
-                                $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
-                                $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
-                                $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
-                                $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
-                                $post_data[$rowData['appliance']]['part'] = array();
-                                $post_data[$rowData['appliance']]['files'] = $file_data;
-                                array_push($post_data[$rowData['appliance']]['part'], $part);
+                            if (empty($part_details)) {
+                                $error_type = "Part not found in inventory";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
+
+                            if (!empty($part_details) && $part_details[0]['price'] != $rowData['basic_price']) {
+                                $error_type = "Basic price details mismatch";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                            }
+
+                            if (!empty($part_details) && $part_details[0]['gst_rate'] != $rowData['gst_rate']) {
+                                $error_type = "GST details mismatch";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                            }
+
+                            if (!empty($part_details) && trim($part_details[0]['hsn_code']) != trim($rowData['hsn_code'])) {
+                                $error_type = "HSN details mismatch";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                            }
+
+                            if (!empty($part_details)) {
+                                if (isset($post_data[$rowData['appliance']])) {
+                                    $invoice_price = round(($part_details[0]['price'] * $rowData['quantity']), 2);
+                                    $invoice_price_with_gst = ($invoice_price_with_gst + ($invoice_price + (($invoice_price * $rowData['gst_rate']) / 100)));
+                                    $part = array(
+                                        'shippingStatus' => 1,
+                                        'service_id' => $part_details[0]['service_id'],
+                                        'part_name' => $part_details[0]['part_name'],
+                                        'part_number' => $part_details[0]['part_number'],
+                                        'booking_id' => '',
+                                        'quantity' => $rowData['quantity'],
+                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
+                                        'hsn_code' => $rowData['hsn_code'],
+                                        'gst_rate' => $rowData['gst_rate'],
+                                        'inventory_id' => $part_details[0]['inventory_id'],
+                                    );
+                                    unset($post_data[$rowData['appliance']]['invoice_amount']);
+                                    $post_data[$rowData['appliance']]['invoice_amount'] = round(($invoice_price_with_gst), 2);
+                                    array_push($post_data[$rowData['appliance']]['part'], $part);
+                                } else {
+                                    $part = array(
+                                        'shippingStatus' => 1,
+                                        'service_id' => $part_details[0]['service_id'],
+                                        'part_name' => $part_details[0]['part_name'],
+                                        'part_number' => $part_details[0]['part_number'],
+                                        'booking_id' => '',
+                                        'quantity' => $rowData['quantity'],
+                                        'part_total_price' => round(($part_details[0]['price'] * $rowData['quantity']), 2),
+                                        'hsn_code' => $rowData['hsn_code'],
+                                        'gst_rate' => $rowData['gst_rate'],
+                                        'inventory_id' => $part_details[0]['inventory_id'],
+                                    );
+
+                                    $invoice_price = $invoice_price + round(($part_details[0]['price'] * $rowData['quantity']), 2);
+                                    $invoice_price_with_gst = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
+                                    $post_data[$rowData['appliance']]['is_wh_micro'] = $this->input->post("is_wh_micro");
+                                    $post_data[$rowData['appliance']]['dated'] = date('Y-m-d H:i:s');
+                                    $post_data[$rowData['appliance']]['invoice_id'] = $this->input->post("invoice_id");
+                                    $post_data[$rowData['appliance']]['invoice_amount'] = $invoice_price_with_gst;
+                                    $post_data[$rowData['appliance']]['courier_name'] = $this->input->post("courier_name");
+                                    $post_data[$rowData['appliance']]['awb_number'] = $this->input->post("awb_number");
+                                    $post_data[$rowData['appliance']]['courier_shipment_date'] = $this->input->post("courier_shipment_date");
+                                    $post_data[$rowData['appliance']]['from_gst_number'] = $this->input->post("from_gst_number");
+                                    $post_data[$rowData['appliance']]['to_gst_number'] = $this->input->post("to_gst_number");
+                                    $post_data[$rowData['appliance']]['wh_id'] = $this->input->post("wh_id");
+                                    $post_data[$rowData['appliance']]['partner_id'] = $this->input->post("partner_id");
+                                    $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
+                                    $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
+                                    $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
+                                    $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
+                                    $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
+                                    $post_data[$rowData['appliance']]['part'] = array();
+                                    $post_data[$rowData['appliance']]['files'] = $file_data;
+                                    array_push($post_data[$rowData['appliance']]['part'], $part);
+                                }
+                            }
+                        } else {
+                            $error_type = "Error in header Or excel value should not be null.";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                         }
                     } else {
-                        $error_type = "Error in header";
+                        $error_type = "Duplicate part number not allowed ".$rowData['part_code'];
                         $error_array[] = $error_type;
-                        $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
+                        $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                     }
                 }
             }
@@ -946,7 +957,7 @@ class File_upload extends CI_Controller {
         }
 
         $err_msg = $this->table->generate();
-
+        
         if (empty($error_array)) {
 
             foreach ($post_data as $post) {
@@ -962,7 +973,7 @@ class File_upload extends CI_Controller {
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
-            $response['redirect_to'] = 'inventory/upload_msl_excel_file';
+            $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
         } else {
             $response['status'] = FALSE;
             $response['message'] = $err_msg;
