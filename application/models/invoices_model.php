@@ -730,8 +730,24 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        //get data for MSL courier packaging charges
-        $msl_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date);
+        $msl_packaging_charge = array();
+        $msl_large_box_packaging_charge = array();
+        $msl_small_box_packaging_charge = array();
+        // We will get data only if large MSL box price will be greater than 0
+        if(LARGE_MSL_BOX_PACKAGING_PRICE > 0){
+            //get data for MSL courier packaging charges for large box
+            $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
+        }
+        
+        // We will get data only if small MSL box price will be greater than 0
+        if(SMALL_MSL_BOX_PACKAGING_PRICE > 0){
+            //get data for MSL courier packaging charges for large box
+            $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
+        }
+        //merge small and large MSL box data into common array
+        $msl_packaging_charge = array_merge($msl_packaging_charge, $msl_large_box_packaging_charge);
+        $msl_packaging_charge = array_merge($msl_packaging_charge, $msl_small_box_packaging_charge);
+        
         $spare_parts_open_cell_led_bar_data = array();
         $open_cell_led_bar_charges = array();
         //checking if selected partner is Videocon because we want open cell and led bar spare parts invoice for Videocon only
@@ -813,21 +829,31 @@ class invoices_model extends CI_Model {
         }
         
         if (!empty($msl_packaging_charge)) {
-            $total_msl_box_count = (array_sum(array_column($msl_packaging_charge, 'msl_box')));
-            $total_msl_packaging_charge = (array_sum(array_column($msl_packaging_charge, 'total_charge')));
+            $total_msl_box_count = array_sum(array_column($msl_packaging_charge, 'msl_box'));
+            $total_msl_packaging_charge = sprintf("%.2f", (array_sum(array_column($msl_packaging_charge, 'total_charge'))));
             $data = array();
             $data[0]['description'] = MSL_PACKAGING_CHARGES;
             $data[0]['hsn_code'] = '';
-            $data[0]['qty'] = $total_msl_box_count;
-            $data[0]['rate'] = '';
             $data[0]['gst_rate'] = DEFAULT_TAX_RATE;
             $data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
-            $data[0]['taxable_value'] = sprintf("%.2f", $total_msl_packaging_charge);
-            $result['result'] = array_merge($result['result'], $data);
 
+            if(count($msl_large_box_packaging_charge) > 0){
+                //get total number of big box count to show them as separate line items
+                $data[0]['qty'] = array_sum(array_column($msl_large_box_packaging_charge, 'msl_box'));
+                $data[0]['rate'] = LARGE_MSL_BOX_PACKAGING_PRICE;
+                $data[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($msl_large_box_packaging_charge, 'total_charge'))));
+                $result['result'] = array_merge($result['result'], $data);
+            }
+            if(count($msl_small_box_packaging_charge) > 0){
+                //get total number of small box count to show them as separate line items
+                $data[0]['qty'] = array_sum(array_column($msl_small_box_packaging_charge, 'msl_box'));
+                $data[0]['rate'] = SMALL_MSL_BOX_PACKAGING_PRICE;
+                $data[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($msl_small_box_packaging_charge, 'total_charge'))));
+                $result['result'] = array_merge($result['result'], $data);
+            }
+            
             $msl_packaging_charge[0]['total_msl_box_packaging_charge'] = $total_msl_packaging_charge;
             $msl_packaging_charge[0]['total_msl_box_count'] = $total_msl_box_count;
-
             $result['msl_packaging_data'] = $msl_packaging_charge;
         }
 
@@ -2789,7 +2815,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date){
+    function get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, $box_type){
         log_message('info', __METHOD__. " Enterring..");
         $msl_box_packaging_price = array();
         $where =  ' ccid.partner_id = "'.$partner_id.'" '
@@ -2802,55 +2828,34 @@ class invoices_model extends CI_Model {
         $join_spare_parts_details = ' FROM courier_company_invoice_details as ccid JOIN  spare_parts_details as spd ON ccid.awb_number = spd.awb_by_wh  ';
         $join_billed_msl_package = " left join billed_msl_package as bmp on (ccid.id = bmp.courier_id)";
         
-        if(LARGE_MSL_BOX_PACKAGING_PRICE > 0){
-            // We will execute query only if large MSL box price will be greater than 0
-            //join with courier_details table
-            $large_msl_condition = " AND ccid.box_count > 0";
-            $large_msl_select = ', ccid.box_count as msl_box, ccid.box_count * ' . LARGE_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.LARGE_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
-            $sql = $select.$large_msl_select.$join_courier_details.$join_billed_msl_package
-                . ' WHERE '
-                . $where
-                . $large_msl_condition;
-            
-            $query = $this->db->query($sql);
-            $result = $query->result_array();
-            $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
-            
-            //join with spare_parts_details table
-            $sql = $select.$large_msl_select.$join_spare_parts_details.$join_billed_msl_package
-                . ' WHERE '
-                . $where
-                . $large_msl_condition;
-            
-            $query = $this->db->query($sql);
-            $result = $query->result_array();
-            $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
+        if($box_type == LARGE_MSL_BOX){
+            //get data for large MSL box
+            $msl_condition = " AND ccid.box_count > 0";
+            $msl_select = ', ccid.box_count as msl_box, ccid.box_count * ' . LARGE_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.LARGE_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
+        }else{
+            //get data for small MSL box
+            $msl_condition = " AND ccid.small_box_count > 0";
+            $msl_select = ', ccid.small_box_count as msl_box, ccid.small_box_count * ' . SMALL_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.SMALL_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
         }
-        if(SMALL_MSL_BOX_PACKAGING_PRICE > 0){
-            // We will execute query only if small MSL box price will be greater than 0
-             //join with courier_details table
-            $small_msl_condition = " AND ccid.small_box_count > 0";
-            $small_msl_select = ', ccid.small_box_count as msl_box, ccid.small_box_count * ' . SMALL_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.SMALL_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
-            $sql = $select.$small_msl_select.$join_courier_details.$join_billed_msl_package
-                . ' WHERE '
-                . $where
-                . $small_msl_condition;
-            
-            $query = $this->db->query($sql);
-            $result = $query->result_array();
-            $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
-            
-            //join with spare_parts_details table
-            $sql = $select.$small_msl_select.$join_spare_parts_details.$join_billed_msl_package
-                . ' WHERE '
-                . $where
-                . $small_msl_condition;
-            
-            $query = $this->db->query($sql);
-            $result = $query->result_array();
-            $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
-        }
-        
+        //join with courier_details table
+        $sql = $select.$msl_select.$join_courier_details.$join_billed_msl_package
+            . ' WHERE '
+            . $where
+            . $msl_condition;
+
+        $query = $this->db->query($sql);
+        $result = $query->result_array();
+        $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
+
+        //join with spare_parts_details table
+        $sql = $select.$msl_select.$join_spare_parts_details.$join_billed_msl_package
+            . ' WHERE '
+            . $where
+            . $msl_condition;
+
+        $query = $this->db->query($sql);
+        $result = $query->result_array();
+        $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
         return $msl_box_packaging_price;
     }
     

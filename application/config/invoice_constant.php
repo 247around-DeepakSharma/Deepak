@@ -109,4 +109,8 @@ define('LARGE_MSL_BOX_PACKAGING_PRICE', '10');
 define('SMALL_MSL_BOX_PACKAGING_PRICE', '5');
 //MSL Packaging charges invoice
 define('MSL_PACKAGING_CHARGES', 'MSL Packaging Charges');
+//large MSL box type
+define('LARGE_MSL_BOX', 'LARGE_MSL_BOX');
+//small MSL box type
+define('SMALL_MSL_BOX', 'SMALL_MSL_BOX');
 ?>
