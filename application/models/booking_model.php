@@ -2732,23 +2732,22 @@ class Booking_model extends CI_Model {
         return $result;
     }
     
-    // check for duplicate serial number bookings which are not cancelled / cancelled by SF
+    // check for duplicate serial number bookings which are not cancelled 
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
         $sql = "SELECT 
-                    *
+                        *
                 FROM
-                    booking_unit_details
-                    JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
-                    JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
+                        booking_unit_details
+                        JOIN service_center_booking_action ON (service_center_booking_action.unit_details_id = booking_unit_details.id)
+                        JOIN booking_details ON (booking_unit_details.booking_id = booking_details.booking_id)
                 WHERE
-                    (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
-                    AND booking_details.current_status != '"._247AROUND_CANCELLED."' 
-                    AND booking_details.internal_status != '".SF_BOOKING_CANCELLED_STATUS."'
-                    AND service_center_booking_action.current_status != 'Cancelled'
-                    AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
-                    AND booking_unit_details.booking_id != '".$booking_id."'
+                        (booking_unit_details.serial_number = '".$serialNumber."' || service_center_booking_action.serial_number = '".$serialNumber."')
+                        AND booking_unit_details.booking_status != '"._247AROUND_CANCELLED."' 
+                        AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."')
+                        AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
+                        AND booking_unit_details.booking_id != '".$booking_id."'
                 GROUP BY 
-                    booking_details.booking_id";  
+                        booking_details.booking_id";  
         $query = $this->db->query($sql);
         return $query->result_array();
     }
