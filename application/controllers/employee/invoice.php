@@ -2852,6 +2852,9 @@ exit();
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
+            $invoice_details['can_update_invoice'] = $this->can_update_invoice($invoice_details['invoice_details'][0]['invoice_date']);
+        }else{
+            $invoice_details['can_update_invoice'] = true;
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
         $invoice_details['invoice_category'] = $this->invoices_model->get_invoice_category("*", array());
@@ -6438,5 +6441,27 @@ exit();
             }
         }
         echo $c_s_gst;
+    }
+    
+    /**
+     *  @desc : This function is used to check whether admin can update invoice or not
+     *  @param : String $invoice_date
+     *  @return : Boolean true or false
+     * @author Ankit Bhatt
+     * @date : 31-03-2020
+     */
+    function can_update_invoice($invoice_date){
+        try{
+            //This is used to check if we can update invoice or not. We cannot update invoice after 8th of next month on which invoice was created
+            if(date("Y-m-08", strtotime($invoice_date. ' + 1 month')) < date("Y-m-d")){ 
+            //Invoice will not be updated
+                return false;
+            }else{
+                //Invoice will be updated
+                return true;
+            }
+        }catch (Exception $ex) {
+            return false;
+        }
     }
 }
