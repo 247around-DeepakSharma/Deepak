@@ -3327,7 +3327,7 @@ class engineerApi extends CI_Controller {
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
             $response['model_number_list'] = $model_numbers;
-            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL, TRUE); ///show all category and capacity ///
             $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
