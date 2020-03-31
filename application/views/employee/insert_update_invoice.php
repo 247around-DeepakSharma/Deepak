@@ -14,6 +14,9 @@
     .padding_space{
         padding: 6px 5px;
     }
+    .cannot_update_invoice {
+        color:red;
+    }
 </style>
 <div id="page-wrapper" >
     <div class="container-fluid" >
@@ -496,9 +499,10 @@
                             </table>
                             <div class="text-center">
                                 <!--<input type="submit" value="Submit" class="btn btn-primary btn-lg text-center">-->
-                                <input type="submit" id="submitBtn" name="submitBtn" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
+                                <input type="submit" id="submitBtn" name="submitBtn" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" <?php if(!$can_update_invoice){echo "style='display:none;'";} ?> class="btn btn-md btn-primary" />
                                 <input type="hidden" id="confirmation" value="0">
                                 <input type="hidden" id="is_igst" name="is_igst" value="<?php echo ((!empty($invoice_breakup[0]['igst_tax_amount']) && ($invoice_breakup[0]['igst_tax_amount'] != 0)) ? "1" : ((!empty($invoice_breakup[0]['sgst_tax_amount']) && ($invoice_breakup[0]['sgst_tax_amount'] != 0)) ? "0" : "2"));?>" >
+                                <label for="invoice_update_time_over" class="cannot_update_invoice"><?php if(!$can_update_invoice){echo INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME;} ?></label>
                             </div>
                         </div>
                     </div>
