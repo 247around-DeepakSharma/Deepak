@@ -2031,7 +2031,7 @@ ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  A
 -------------------------------------------------------------
 
 -- Ankit Rajvanshi 18-03-2020
-
+ALTER TABLE inventory_master_list ADD COLUMN is_defective_required tinyint(1) NOT NULL DEFAULT 0;
 --Ghanshyam 19-03-2020---- Bulk Warranty checker partner panel Navigation
 
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES

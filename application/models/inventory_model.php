@@ -3587,39 +3587,18 @@ class Inventory_model extends CI_Model {
      */
     function handle_rto_case($spare_id, $post_data) {
        
+        /*fetch spare part detail $spare_id*/ 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        /*fetch booking detail*/
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $spare_part_detail['booking_id']])[0];
 
-        /**
-         * Update spare parts details.
-         * Set shipped details & courier details to null.
-         */
-        $spare_data = array(
-            'status' => SPARE_PARTS_CANCELLED,
-            'spare_cancelled_date' => date('Y-m-d H:i:s'),
-            'spare_cancellation_reason' => RTO_CASE_CANCELLATION_REASON_ID, 
-            'parts_shipped' => NULL,
-            'shipped_date' => NULL,
-            'model_number_shipped' => NULL,
-            'shipped_parts_type' => NULL,
-            'shipped_quantity' => 0,
-            'shipped_inventory_id' => NULL,
-            'defective_return_to_entity_type' => NULL,
-            'defective_return_to_entity_id' => NULL,
-            'awb_by_partner' => NULL,
-            'courier_price_by_partner' => NULL,
-            'courier_pic_by_partner' => NULL,
-            'courier_name_by_partner' => NULL,
-            'remarks_by_partner' => NULL,
-            'challan_approx_value' => NULL,
-            'partner_challan_file' => NULL,
-            'partner_challan_number' => NULL
-        );
-
+        /* Load data which is required to mark rto i.e., remove all shipped details & courier details */
+        $spare_data = $this->miscelleneous->load_data_to_cancel_micro_wh_part($spare_id, $spare_part_detail['status'], RTO_CASE_CANCELLATION_REASON_ID); // to be discussed
+        /* update data of spare parts details */
         $this->service_centers_model->update_spare_parts(['id' => $spare_id], $spare_data);
 
         /**
-         * Increase stock if part shipped from warehouse.
+         * Increase stock if part shipped from warehouse and maintain ledger for the same.
          */
         if (!empty($spare_part_detail['shipped_inventory_id']) && $spare_part_detail['is_micro_wh'] == 2) {
             //update inventory stocks
@@ -3647,7 +3626,8 @@ class Inventory_model extends CI_Model {
                 'agent_id' => $this->session->userdata('id'),
                 'agent_type' => _247AROUND_EMPLOYEE_STRING,
                 'booking_id' => $spare_part_detail['booking_id'],
-                'remarks' => $post_data['remarks']
+                'remarks' => $post_data['remarks'],
+                'is_wh_micro' => 1
             );
 
             $this->insert_inventory_ledger($ledger_data);
@@ -3657,7 +3637,7 @@ class Inventory_model extends CI_Model {
         // entry in spare tracking history.
         $tracking_details = array(
             'spare_id' => $spare_id, 
-            'action' => SPARE_PARTS_CANCELLED, 
+            'action' => _247AROUND_CANCELLED, 
             'remarks' => $post_data['remarks'], 
             'agent_id' => $this->session->userdata('id'), 
             'entity_id' => _247AROUND,
