@@ -1073,7 +1073,7 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
 
-        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+        if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
             $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 2)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
         } else {
             $row[] = "";
@@ -1256,7 +1256,7 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
 
-        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+        if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
             $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 1)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
         } else {
             $row[] = "";
@@ -1425,7 +1425,7 @@ class Spare_parts extends CI_Controller {
         $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
         $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
 
-        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+        if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
             $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 12)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
         } else {
             $row = '';

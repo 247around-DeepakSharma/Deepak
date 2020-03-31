@@ -109,4 +109,10 @@ define('LARGE_MSL_BOX_PACKAGING_PRICE', '10');
 define('SMALL_MSL_BOX_PACKAGING_PRICE', '5');
 //MSL Packaging charges invoice
 define('MSL_PACKAGING_CHARGES', 'MSL Packaging Charges');
+//large MSL box type
+define('LARGE_MSL_BOX', 'LARGE_MSL_BOX');
+//small MSL box type
+define('SMALL_MSL_BOX', 'SMALL_MSL_BOX');
+//message to display when invoice update time is expired
+define('INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME', 'Cannot update invoice after 8th of next month.')
 ?>
