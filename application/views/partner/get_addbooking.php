@@ -1596,6 +1596,7 @@
         var extended_warranty = false;
         var pre_sales = false;
         var others_flag = false;
+        var replacement_flag = false;
         var array =[];
         var videocon_id = "247130";
 
@@ -1644,6 +1645,11 @@
          if(findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1 ){
              amc_flag = true;
              array.push(amc_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Replacement') > -1 ){
+             replacement_flag = true;
+             array.push(replacement_flag);
          }
          
          // ----------------------------------------------------------------------------------------

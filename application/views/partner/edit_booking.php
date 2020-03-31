@@ -1168,6 +1168,7 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
         var extended_warranty = false;
         var pre_sales = false;
         var others_flag = false;
+        var replacement_flag = false;
         var array =[];
         var videocon_id = "247130";
 
@@ -1216,6 +1217,11 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
          if(findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1 ){
              amc_flag = true;
              array.push(amc_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Replacement') > -1 ){
+             replacement_flag = true;
+             array.push(replacement_flag);
          }
          
          // ----------------------------------------------------------------------------------------
