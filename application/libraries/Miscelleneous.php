@@ -4970,6 +4970,15 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                /**
+                 * if micro warehouse part involved and no consumption then cancel part 
+                 * Also increase stock of part for micro warehouse. 
+                 */
+                if($spare_part_detail['is_micro_wh'] == 1 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
+                    $this->cancel_delivered_but_not_consumed_micro_wh_part($spare_id, $booking_id, $status_id);
+                    continue;
+                }                
+                
                 // if part is out of warranty and consumption no then set spare status ok part to be shipped
                 if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
@@ -4986,6 +4995,7 @@ function generate_image($base64, $image_name,$directory){
                     $up['acknowledge_date'] = date('Y-m-d');
                     $up['auto_acknowledeged'] = 1;
                 }
+                // update spare parts details.
                 if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
@@ -5147,7 +5157,91 @@ function generate_image($base64, $image_name,$directory){
         $method = $this->My_CI->router->fetch_method();
         return $base."/".$controller."/".$method;
     }
-
-
-
+    
+    /**
+     * @desc Method is used to cancel micro warehouse part if part not consumed.
+     * Also increase the inventory stock and as well as maintain the inventory ledger.
+     * @param type $id
+     * @param type $booking_id
+     * @author Ankit Rajvanshi
+     */
+    function cancel_delivered_but_not_consumed_micro_wh_part($spare_id, $booking_id, $consumption_reason_id = NULL) {
+        
+        /* fetch spare part details */
+        $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        
+        /* Load data & update spare parts details */
+        $spare_data = $this->load_data_to_cancel_micro_wh_part($spare_id, SPARE_DELIVERED_TO_SF, ''); // to be discussed
+        // update consumption reason.
+        if(!empty($consumption_reason_id)) {
+            $spare_data['consumed_part_status_id'] = $consumption_reason_id;
+        }
+        $this->My_CI->service_centers_model->update_spare_parts(['id' => $spare_id], $spare_data);
+        
+        /* Insert Spare Tracking Details */
+        $tracking_details = array(
+            'spare_id' => $spare_id, 
+            'action' => _247AROUND_CANCELLED, 
+            'remarks' => SPARE_RECIEVED_NOT_USED, 
+            'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 
+            'entity_id' => $this->My_CI->session->userdata('service_center_id'), 
+            'entity_type' => _247AROUND_SF_STRING
+        );
+        $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
+        
+        /* insert state change. */
+        $this->My_CI->notify->insert_state_change($booking_id, SPARE_PARTS_CANCELLED, SPARE_DELIVERED_TO_SF, SPARE_RECIEVED_NOT_USED, $this->My_CI->session->userdata('service_center_agent_id'), $this->My_CI->session->userdata('service_center_agent_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $this->My_CI->session->userdata('service_center_id'), $spare_id);
+        
+        /* increase stock for cancel part */
+        $data = array(
+            "receiver_entity_type" => _247AROUND_SF_STRING,
+            "receiver_entity_id" => $this->My_CI->session->userdata("service_center_id"),
+            "sender_entity_type" => _247AROUND_SF_STRING,
+            "sender_entity_id" => $this->My_CI->session->userdata("service_center_id"),
+            "stock" => $spare_part_detail['shipped_quantity'],
+            "booking_id" => $booking_id,
+            "inventory_id" => $spare_part_detail['shipped_inventory_id'],
+            "agent_id" => $this->My_CI->session->userdata("service_center_agent_id"),
+            "agent_type" => _247AROUND_SF_STRING,
+            "is_wh" => TRUE,
+            "is_cancel_part" => TRUE
+        );
+        
+        $this->process_inventory_stocks($data);
+        
+        return true;
+    }
+    
+    /**
+     * @desc Method returns the set of fields which is used to remove shipment details & courier details.
+     * @param type $spare_id
+     * @param type $old_status
+     * @param type $spare_cancellation_reason_id
+     * @return array
+     * @author Ankit Rajvanshi
+     */
+    function load_data_to_cancel_micro_wh_part($spare_id, $old_status, $spare_cancellation_reason_id) {
+        return array (
+            'old_status' => $old_status,
+            'status' => _247AROUND_CANCELLED,
+            'spare_cancelled_date' => date('Y-m-d H:i:s'),
+            'spare_cancellation_reason' => $spare_cancellation_reason_id, 
+            'parts_shipped' => NULL,
+            'shipped_date' => NULL,
+            'model_number_shipped' => NULL,
+            'shipped_parts_type' => NULL,
+            'shipped_quantity' => 0,
+            'shipped_inventory_id' => NULL,
+            'defective_return_to_entity_type' => NULL,
+            'defective_return_to_entity_id' => NULL,
+            'awb_by_partner' => NULL,
+            'courier_price_by_partner' => NULL,
+            'courier_pic_by_partner' => NULL,
+            'courier_name_by_partner' => NULL,
+            'remarks_by_partner' => NULL,
+            'challan_approx_value' => NULL,
+            'partner_challan_file' => NULL,
+            'partner_challan_number' => NULL
+        );
+    }
 }

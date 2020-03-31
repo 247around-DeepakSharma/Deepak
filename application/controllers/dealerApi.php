@@ -311,6 +311,16 @@ class dealerApi extends CI_Controller {
         return $response;
     }
 
+
+
+        /**
+     * Simple function to replicate PHP 5 behaviour
+     */
+    function microtime_float() {
+        list($usec, $sec) = explode(" ", microtime());
+        return ((float) $usec + (float) $sec);
+    }
+
     /**
      * @input: void
      * @description: verify signarure
@@ -705,6 +715,7 @@ function getTrackingData(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("carrier_code","awb_number"), $requestData);
         if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+        	/* getting tracking data of AWB from trackmoreAPI */
                 $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
@@ -729,7 +740,8 @@ function getSpareTrackingHistory(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("spare_id"), $requestData);
-        if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
+        if (!empty($requestData['spare_id'])) { 
+        	/* Get Spare tracking data from DB */
                 $response =  $this->around_generic_lib->getSpareTrackingHistory($requestData['spare_id']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Spare tracking details found successfully")); // send success response //
@@ -787,7 +799,7 @@ function submitEscalation(){
                         "escalation_reason_id" => $requestData['escalation_reason_id'],
                         "escalation_remarks" => $requestData['escalation_remarks']
                     );
-                    //Call curl for updating booking by engineer
+                    //Call curl for updating booking 
                     $url = base_url() . "employee/partner/process_escalation/".$requestData['booking_id'];
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);

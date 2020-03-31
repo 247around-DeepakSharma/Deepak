@@ -560,7 +560,7 @@ class User_invoice extends CI_Controller {
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                             . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
-                            . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
+                            . "district, owner_email as invoice_email_to, email as invoice_email_cc, primary_contact_email", array('id' => $postData[0]->service_center_ids))[0];
         $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
         foreach ($postData as $key=>$value){
             if($value->spare_detail_ids){
@@ -644,7 +644,7 @@ class User_invoice extends CI_Controller {
                 $message = vsprintf($email_template[0], array($email_parts_name, $booking_id));
                 $email_from = $email_template[2];
                 $to = $vendor_data['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                $cc = $email_template[3];
+                $cc = $vendor_data['primary_contact_email'].",".$email_template[3];
                 //$to = $email_template[1];
                 //$cc = $email_template[3];
                 

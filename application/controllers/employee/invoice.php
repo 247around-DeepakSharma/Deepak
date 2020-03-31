@@ -2852,6 +2852,9 @@ exit();
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
+            $invoice_details['can_update_invoice'] = $this->can_update_invoice($invoice_details['invoice_details'][0]['invoice_date']);
+        }else{
+            $invoice_details['can_update_invoice'] = true;
         }
         $invoice_details['vendor_partner'] = $vendor_partner;
         $invoice_details['invoice_category'] = $this->invoices_model->get_invoice_category("*", array());
@@ -4511,8 +4514,9 @@ exit();
         $array[0]['reference_invoice_id'] = $invoice_details[0]['invoice_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
-            
-        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, $sub_category, $vendor_details[0]['owner_email']);
+        //set array to which we have to send mail when reverse sale invoice is generated
+        $email_array = array($vendor_details[0]['owner_email'], $vendor_details[0]['primary_contact_email']);    
+        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, $sub_category, $email_array);
         if($a){
              return $invoice_id;
         } else {
@@ -4531,7 +4535,7 @@ exit();
         if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
@@ -4590,7 +4594,8 @@ exit();
                                     $data[0]['from_address'] = $value['to_address'];
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
-                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $spare[0]['owner_email']);
+                                    $email_array = array($spare[0]['owner_email'], $spare[0]['primary_contact_email']);
+                                    $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, MSL_DEFECTIVE_RETURN, $email_array);
                                     if ($a) {
                                         
                                     } else {
@@ -4622,7 +4627,7 @@ exit();
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $vendor_email = ""){
+    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $sub_category, $vendor_email = array()){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
         if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
@@ -4712,7 +4717,12 @@ exit();
             $email_from = $email_template[2];
 
             $to = $email_template[3];
-            $cc = $vendor_email;
+            //set emails o which we have to send mails on reverse sale invoice generation
+            if(!empty($vendor_email)){
+                $cc = implode(',',$vendor_email);
+            }else{
+                $cc = "";
+            }
             
             unset($response['meta']['main_company_logo_cell']);
             unset($response['meta']['main_company_seal_cell']);
@@ -6438,5 +6448,27 @@ exit();
             }
         }
         echo $c_s_gst;
+    }
+    
+    /**
+     *  @desc : This function is used to check whether admin can update invoice or not
+     *  @param : String $invoice_date
+     *  @return : Boolean true or false
+     * @author Ankit Bhatt
+     * @date : 31-03-2020
+     */
+    function can_update_invoice($invoice_date){
+        try{
+            //This is used to check if we can update invoice or not. We cannot update invoice after 8th of next month on which invoice was created
+            if(date("Y-m-08", strtotime($invoice_date. ' + 1 month')) < date("Y-m-d")){ 
+            //Invoice will not be updated
+                return false;
+            }else{
+                //Invoice will be updated
+                return true;
+            }
+        }catch (Exception $ex) {
+            return false;
+        }
     }
 }
