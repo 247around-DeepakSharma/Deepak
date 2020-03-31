@@ -116,6 +116,28 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                         <label class="col-xs-2 control-label">Large Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i var flag = true;; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="box_count" class="error" id='box_count_error'></label>
+                                            </div>
+                                         <label class="col-xs-2 control-label">Small Box Count</label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="small_box_count" id="small_box_count" onchange="$('#box_count').css('border','')">
+                                                    <option selected=""  value="">Select Boxes</option>
+                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="small_box_count" class="error"></label>
+                                            </div>
+                                          </div>
+                                        <div class="form-group">
                                             <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="to_gst_number" id="from_gst_number" required="">
@@ -462,6 +484,13 @@ $("#on_invoice_file").change(function(){
             $("#submit_btn").attr('disabled',true);
             var isvalid = $("#spareForm").valid();
             var flag = true;
+            var box_count = $("#box_count").val() || 0;
+            var small_box_count = $("#small_box_count").val() || 0;
+            if(box_count+small_box_count==0){
+                $("#box_count_error").html('Minimum box count should be 1, Please select from Large or small box count.');
+                setTimeout(function(){$("#box_count_error").css('display','block'); }, 20);
+                isvalid = false;
+            }
             if (isvalid) {
                 var wh_name = $('#wh_id option:selected').text();
                 $('#wh_name').val(wh_name);
