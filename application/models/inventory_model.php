@@ -3573,6 +3573,12 @@ class Inventory_model extends CI_Model {
      * @author Ankit Rajvanshi
      */
     function is_defective_part_required($inventory_id) {
+        /* for non inventory cases defective part must be return that's why returning 1 in case of inventory id is empty */
+        if(empty($inventory_id)) {
+            return 1;
+        }
+        
+        /* Execute query to select is_defective_required from inventory_master_list table */
         $this->db->select('is_defective_required');
         $this->db->from('inventory_master_list');
         $this->db->where("inventory_id = {$inventory_id}");
@@ -3649,13 +3655,13 @@ class Inventory_model extends CI_Model {
         $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', $spare_part_detail['partner_id'], NULL, $spare_id);
 
         //check other spares state and update booking internal status 
-        $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
+        $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
                 . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
 
         if(empty($check_spare_parts_details)) {
             $b = [];
             $b['internal_status'] = SPARE_PARTS_CANCELLED;
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $b['internal_status'], $partner_id[0]['partner_id'], $spare_part_detail['booking_id']);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $b['internal_status'], $booking_details['partner_id'], $spare_part_detail['booking_id']);
             if (!empty($partner_status)) {
                 $b['partner_current_status'] = $partner_status[0];
                 $b['partner_internal_status'] = $partner_status[1];

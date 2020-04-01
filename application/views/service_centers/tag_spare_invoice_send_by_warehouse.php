@@ -82,9 +82,7 @@
                                                 <label for="wh_id" class="error"></label>
                                             </div>
                                         </div>
-                                        
                                         <div class="form-group">                                            
-                                            
                                             <label class="col-xs-2 control-label">AWB Number *</label>
                                             <div class="col-xs-4">
                                                 <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
@@ -121,7 +119,7 @@
                                                 <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
                                                     <?php for ($i = 1; $i < 11; $i++) { ?>
-                                                        <option value="<?php echo $i var flag = true;; ?>" ><?php echo $i; ?></option>
+                                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
                                                 <label for="box_count" class="error" id='box_count_error'></label>
@@ -187,6 +185,7 @@
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" name="part[0][part_name]" id="partName_0" ></select>
+                                                <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="partName_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -224,6 +223,7 @@
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_name"></select>
+                                                <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                                 <label for="part_name" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -440,10 +440,24 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
         });
-        $("#courier_shipment_date").datepicker({
-            dateFormat: 'dd/mm/yy',
-            minDate: date_before_15_days,
-            maxDate:'today',
+        
+        $('#courier_shipment_date').daterangepicker({
+            autoUpdateInput: false,
+            singleDatePicker: true,
+            showDropdowns: true,
+            minDate: new Date(), //date_before_15_days,
+            maxDate: false,//'today',
+            locale:{
+                format: 'DD/MM/YYYY'
+            }
+        });
+        
+         $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+        });
+
+        $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
         });
         
         $(".allowNumericWithDecimal").keydown(function (e) {
@@ -666,6 +680,7 @@ $("#on_invoice_file").change(function(){
                 .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).attr({placeholder:'Enter Part Number'}).end()
                 .find('[for="part_number"]').attr('for','partNumber_'+partIndex).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="part_loader"]').attr('id','part_loader_'+partIndex).end()
                 .find('[for="part_name"]').attr('for','partName_'+partIndex).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
@@ -790,6 +805,7 @@ $("#on_invoice_file").change(function(){
         }
         
         if(partner_id !='' && part_number !=''){
+            $("#part_loader_"+index).css('display','block');
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
@@ -798,6 +814,7 @@ $("#on_invoice_file").change(function(){
                     if(response == 'Part Number Not Exist In Our System'){
                          alert(response);
                          $('#partNumber_'+index).val('');
+                         $("#part_loader_"+index).css('display','none');
                     }else{
                     $('#partName_'+index).val('val', "");
                     $('#partName_'+index).val('Select Part Number').change();
@@ -807,6 +824,7 @@ $("#on_invoice_file").change(function(){
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
+                    $("#part_loader_"+index).css('display','none');
                   }
               }
             });

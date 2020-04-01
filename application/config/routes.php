@@ -261,7 +261,7 @@ $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
 
 
 
-$route['whatsapp'] = 'api/karix_whatsapp';
+$route['message'] = 'api/karix_whatsapp';
 $route['pass-through-rating-missed-call'] = 'api/pass_through_rating_missed_call';
 $route['pass-through-fake-reschedule-call'] = 'api/pass_through_fake_reschedule_call';
 $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
