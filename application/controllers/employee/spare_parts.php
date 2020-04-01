@@ -4520,7 +4520,70 @@ class Spare_parts extends CI_Controller {
     function rto_case_spare() {
         $this->checkUserSession();
         $post_data = $this->input->post();
-        return $this->inventory_model->handle_rto_case($post_data['rto_case_spare_part_id'], $post_data);
+        $data['spare_id'] = $post_data['spare_id'];
+        
+        /* get spare part detail of $spare_id */ 
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
+        if (!empty($post_data['rto'])) {
+            // upload rto document.
+            $post_data['rto_file'] = NULL;
+            if (!empty($_FILES['rto_file'])) {
+                $rto_pod_file_name = $this->upload_rto_doc($spare_part_detail['booking_id'], $_FILES['rto_file']['tmp_name'], ' ', $_FILES['rto_file']['name']);
+                $post_data['rto_file'] = $rto_pod_file_name;
+            }
+            
+            /* fetch all spare associated with this awb number */
+            $spare_part_details = $this->reusable_model->get_search_result_data('spare_parts_details', 'id', ['awb_by_partner' => $spare_part_detail['awb_by_partner'], 'status != "'._247AROUND_CANCELLED.'"' => NULL], NULL, NULL, NULL, NULL, NULL);
+            if(!empty($spare_part_details)) {
+                foreach($spare_part_details as $spare_part) {
+                    $this->inventory_model->handle_rto_case($spare_part['id'], $post_data);
+                }
+            }
+            
+            /**
+             * Set is_rto is equals to 1 for awb_number in courier_company_invoice_details table.
+             */
+            $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
+
+            return $spare_part_detail['awb_by_partner'];
+        }
+        
+        $this->load->view('employee/rto_spare_part', $data);
     }
 
+    /**
+     *  @desc : This function is used to upload the rto to s3.
+     * @param type $booking_id
+     * @param type $tmp_name
+     * @param type $error
+     * @param type $name
+     * @return boolean|string
+     * @author Ankit Rajvanshi
+     */
+    function upload_rto_doc($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_rto_pod_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "rto-pod/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            if ($upload_file_status) {
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'RTO pod has been uploaded sucessfully for booking_id: ' . $booking_id);
+                return $support_file_name;
+            } else {
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading rto pod file for booking_id: ' . $booking_id);
+                return False;
+            }
+        }
+    }
+    
 }
