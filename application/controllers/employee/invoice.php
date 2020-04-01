@@ -4337,7 +4337,7 @@ exit();
             $data[0]['spare_id'] = $spare_id;
                 
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
-            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
+            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9", $invoice_date);
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);

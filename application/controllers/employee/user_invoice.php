@@ -561,7 +561,7 @@ class User_invoice extends CI_Controller {
                             . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc, primary_contact_email", array('id' => $postData[0]->service_center_ids))[0];
-        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
+        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9", $invoice_date);
         foreach ($postData as $key=>$value){
             if($value->spare_detail_ids){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
@@ -937,7 +937,7 @@ class User_invoice extends CI_Controller {
 //        }
 
             if (!empty($vendor_invoice_data)) {
-                $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
+                $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN", $invoice_date);
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, "Debit Note", $invoice_date);
                 $response['meta']['invoice_id'] = $vendor_invoice_id;
                 $response['meta']['reference_number'] = $booking_id;
@@ -1666,7 +1666,7 @@ class User_invoice extends CI_Controller {
                             . "state,address as company_address, "
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
-        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
+        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9", $invoice_date);
         foreach ($postData as $key=>$value){ 
             $spare_parts_detail_ids[] = $value->spare_detail_ids;
             $spare_id = $value->spare_detail_ids;
