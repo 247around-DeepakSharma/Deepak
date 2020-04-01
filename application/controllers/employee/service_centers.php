@@ -1960,6 +1960,16 @@ class Service_centers extends CI_Controller {
                 $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                 $data['requested_inventory_id'] = $change_inventory_id;
             }
+            
+            /**
+            * change defective part required in spare part details
+            * @modifiedBy Ankit Rajvanshi
+            */
+            if ($data['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
+                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
+            } else {
+                $data['defective_part_required'] = 0;
+            }
         } else {
             $data['partner_id'] = $partner_id;
             $data['entity_type'] = _247AROUND_PARTNER_STRING;
