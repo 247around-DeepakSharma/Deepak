@@ -29,6 +29,22 @@ class Booking_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+
+    //function to fetch ratings from the table
+    function get_rating_stars($table)
+        {
+        $this->db->order_by('rating');
+        $query=$this->db->get($table);
+        return $query->result_array();
+       
+        }
+    
+    //Function to fetch rating_dissatisfactory_reasons
+    function get_dissatisfactory_reason($rating_id){
+        $query = $this->db->get_where('rating_dissatisfactory_reason', array('reason_rating_id' => $rating_id));
+        return $query;
+        }
+        
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
 
