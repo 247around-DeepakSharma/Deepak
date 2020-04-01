@@ -2104,7 +2104,14 @@ ALTER TABLE `engineer_configs` ADD UNIQUE(`configuration_type`);
 
 --Ankit 30-Mar-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'RTO Case', 'spare_parts', '0', CURRENT_TIMESTAMP);
+---Gorakh 01 Apr 2020
+UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
 
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 2, '119', 'accountant,accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2018-10-04 12:08:07');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Send MSL Via Form', NULL, 'employee/inventory/tag_spare_invoice_send_by_partner', 2, '119', 'accountant,accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2018-10-04 12:08:07');
 ---Abhishek ----01-04-2020
 CREATE TABLE `boloaaka`.`whatsapp_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `source` VARCHAR(15) NOT NULL ,  `destination` VARCHAR(15) NOT NULL ,  `channel` VARCHAR(50) NOT NULL ,  `direction` VARCHAR(50) NOT NULL ,  `content` TEXT NOT NULL ,  `content_type` VARCHAR(50) NOT NULL ,  `source_profile` VARCHAR(50) NOT NULL ,  `status` VARCHAR(50) NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 ALTER TABLE `whatsapp_logs` ADD `type` VARCHAR(50) NULL DEFAULT NULL AFTER `id`;
@@ -2113,4 +2120,3 @@ ALTER TABLE `whatsapp_logs` ADD `json_response` TEXT NULL DEFAULT NULL AFTER `st
 
 ALTER TABLE `whatsapp_logs` ADD `message_type` VARCHAR(50) NULL DEFAULT NULL AFTER `created_on`, ADD `total_cost` VARCHAR(10) NULL DEFAULT NULL AFTER `message_type`, ADD `update_on` VARCHAR(50) NULL DEFAULT NULL AFTER `total_cost`;
 ALTER TABLE `whatsapp_logs` CHANGE `update_on` `update_on` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
-
