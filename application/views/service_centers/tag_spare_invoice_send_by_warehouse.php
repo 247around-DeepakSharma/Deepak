@@ -440,10 +440,24 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
         });
-        $("#courier_shipment_date").datepicker({
-            dateFormat: 'dd/mm/yy',
-            minDate: date_before_15_days,
-            maxDate:'today',
+        
+        $('#courier_shipment_date').daterangepicker({
+            autoUpdateInput: false,
+            singleDatePicker: true,
+            showDropdowns: true,
+            minDate: new Date(), //date_before_15_days,
+            maxDate: false,//'today',
+            locale:{
+                format: 'DD/MM/YYYY'
+            }
+        });
+        
+         $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+        });
+
+        $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
         });
         
         $(".allowNumericWithDecimal").keydown(function (e) {
