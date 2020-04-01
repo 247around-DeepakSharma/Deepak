@@ -29,6 +29,22 @@ class Booking_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+
+    //function to fetch ratings from the table
+    function get_rating_stars($table)
+        {
+        $this->db->order_by('rating');
+        $query=$this->db->get($table);
+        return $query->result_array();
+       
+        }
+    
+    //Function to fetch rating_dissatisfactory_reasons
+    function get_dissatisfactory_reason($rating_id){
+        $query = $this->db->get_where('rating_dissatisfactory_reason', array('reason_rating_id' => $rating_id));
+        return $query;
+        }
+        
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
 
@@ -2619,7 +2635,20 @@ class Booking_model extends CI_Model {
         $this->db->where($where);
         $this->db->update('miscellaneous_charges', $data);
     }
-    
+     /**
+     * @Desc: This function is used to get rm's email from particular booking id
+     * @return: array
+     * 
+     */
+    function get_rm_email_from_booking_details($region)
+    {
+       $this->db->select('employee.official_email');
+        $this->db->where_in('booking_details.booking_id',$region);
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
+        $this->db->join('employee','service_centres.rm_id = employee.id','left');
+        $query = $this->db->get('booking_details');
+        return $query->result_array(); 
+    }
      /**
      * @Desc: This function is used to get remarks sent for particular booking id
      * @params: booking_id
