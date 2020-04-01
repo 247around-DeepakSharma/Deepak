@@ -2154,3 +2154,41 @@ ALTER TABLE `vendor_partner_invoices`  ADD `call_center_charges` decimal(10,2) N
 INSERT INTO `invoice_category` (`category`, `create_date`, `update_date`) VALUES
 ('OPEN CELL', '2020-03-23 07:46:31', CURRENT_TIMESTAMP),
 ('Annual Charges', '2020-03-23 07:47:37', CURRENT_TIMESTAMP);
+ 
+
+--Ankit Bhatt 2020-03-27
+ALTER TABLE `courier_company_invoice_details`  ADD `small_box_count` int(11) NOT NULL DEFAULT 0  AFTER `box_count`;
+
+CREATE TABLE IF NOT EXISTS `billed_msl_package` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `courier_id` int(11) NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `entity_type` varchar(64) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `invoice_id` varchar(64) NOT NULL,
+  `rate` decimal(10,2) NOT NULL default 0.00,
+  `box_count` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ;
+--Abhishek 28-mar-2020--
+ALTER TABLE `dealer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `active`;
+ALTER TABLE `dealer_details` ADD `installed` TINYINT(4) NOT NULL DEFAULT '0' AFTER `device_firebase_token`;
+
+INSERT INTO `engineer_configs` (`id`, `configuration_type`, `config_value`, `description`, `app_version`, `groups`, `update_date`, `create_date`) VALUES (NULL, 'dealer_force_upgrade', '0', 'Dealer App upgrade hard or soft', NULL, NULL, '2020-02-13 13:33:33', '2020-02-12 05:12:09');
+ALTER TABLE `engineer_configs` ADD UNIQUE(`configuration_type`);
+
+
+--Ankit 30-Mar-2020
+INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'RTO Case', 'spare_parts', '0', CURRENT_TIMESTAMP);
+
+---Abhishek ----01-04-2020
+CREATE TABLE `boloaaka`.`whatsapp_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `source` VARCHAR(15) NOT NULL ,  `destination` VARCHAR(15) NOT NULL ,  `channel` VARCHAR(50) NOT NULL ,  `direction` VARCHAR(50) NOT NULL ,  `content` TEXT NOT NULL ,  `content_type` VARCHAR(50) NOT NULL ,  `source_profile` VARCHAR(50) NOT NULL ,  `status` VARCHAR(50) NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `whatsapp_logs` ADD `type` VARCHAR(50) NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `whatsapp_logs` CHANGE `source` `source` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `destination` `destination` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `channel` `channel` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `direction` `direction` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `content` `content` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `content_type` `content_type` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `source_profile` `source_profile` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `status` `status` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `whatsapp_logs` ADD `json_response` TEXT NULL DEFAULT NULL AFTER `status`;
+
+ALTER TABLE `whatsapp_logs` ADD `message_type` VARCHAR(50) NULL DEFAULT NULL AFTER `created_on`, ADD `total_cost` VARCHAR(10) NULL DEFAULT NULL AFTER `message_type`, ADD `update_on` VARCHAR(50) NULL DEFAULT NULL AFTER `total_cost`;
+ALTER TABLE `whatsapp_logs` CHANGE `update_on` `update_on` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
+ 

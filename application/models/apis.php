@@ -1889,4 +1889,18 @@ class Apis extends CI_Model {
             return false;
         }
     }
+
+    /**
+     * @desc: This function is used to insert log data for whatsapp response
+     * @param $whatsapp Array 
+     * @retun:void()
+     */
+
+    function logWhatsapp($whatsapp){
+        $this->db->insert('whatsapp_logs',$whatsapp);
+        return $this->db->insert_id();
+    }
+
+
+
 }

@@ -4516,11 +4516,35 @@ class Api extends CI_Controller {
      * @retun:void()
      */
     public function karix_whatsapp(){
-        // Test //
-         print_r($this->input->post());
-         log_message('info', _FUNCTION_ . "=> Entering ");
-         $input_d = file_get_contents('php://input');
-         print_r($input_d);
+        // log_message('info', _FUNCTION_ . "=> Entering ");
+        $response = file_get_contents('php://input');
+         $json_decode = json_decode($json);
+         $type =  $json_decode->type;
+         $source =  $json_decode->data->source;
+         $total_cost = $json_decode->data->total_cost; 
+         $direction = $json_decode->data->direction; 
+         $destination =  $json_decode->data->destination;
+         $content_type = $json_decode->data->content_type;
+         $content =  $json_decode->data->content->text;
+         $status =  $json_decode->data->status;
+         $message_type = $json_decode->data->channel_details->whatsapp->type;
+         $whatsapp_profile = $json_decode->data->channel_details->whatsapp->source_profile->name;
+         $whatsapp = array(
+            'source'=>$source,
+            'destination'=>$destination,
+            'channel'=>'whatsapp',
+            'direction'=>$direction,
+            'content'=>$content,
+            'content_type'=>$content_type,
+            'source_profile'=>$whatsapp_profile,
+            'status'=>$status,
+            'type'=>trim($type),
+            'total_cost'=>$total_cost,
+            'message_type'=>$message_type,
+            'json_response'=>$json
+
+          );
+         $this->apis->logWhatsapp($whatsapp);
 
 
     }
