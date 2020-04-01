@@ -3573,6 +3573,12 @@ class Inventory_model extends CI_Model {
      * @author Ankit Rajvanshi
      */
     function is_defective_part_required($inventory_id) {
+        /* for non inventory cases defective part must be return that's why returning 1 in case of inventory id is empty */
+        if(empty($inventory_id)) {
+            return 1;
+        }
+        
+        /* Execute query to select is_defective_required from inventory_master_list table */
         $this->db->select('is_defective_required');
         $this->db->from('inventory_master_list');
         $this->db->where("inventory_id = {$inventory_id}");
