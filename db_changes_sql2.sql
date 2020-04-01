@@ -2104,3 +2104,13 @@ ALTER TABLE `engineer_configs` ADD UNIQUE(`configuration_type`);
 
 --Ankit 30-Mar-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'RTO Case', 'spare_parts', '0', CURRENT_TIMESTAMP);
+
+---Abhishek ----01-04-2020
+CREATE TABLE `boloaaka`.`whatsapp_logs` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `source` VARCHAR(15) NOT NULL ,  `destination` VARCHAR(15) NOT NULL ,  `channel` VARCHAR(50) NOT NULL ,  `direction` VARCHAR(50) NOT NULL ,  `content` TEXT NOT NULL ,  `content_type` VARCHAR(50) NOT NULL ,  `source_profile` VARCHAR(50) NOT NULL ,  `status` VARCHAR(50) NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ALTER TABLE `whatsapp_logs` ADD `type` VARCHAR(50) NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `whatsapp_logs` CHANGE `source` `source` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `destination` `destination` VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `channel` `channel` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `direction` `direction` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `content` `content` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `content_type` `content_type` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `source_profile` `source_profile` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL, CHANGE `status` `status` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `whatsapp_logs` ADD `json_response` TEXT NULL DEFAULT NULL AFTER `status`;
+
+ALTER TABLE `whatsapp_logs` ADD `message_type` VARCHAR(50) NULL DEFAULT NULL AFTER `created_on`, ADD `total_cost` VARCHAR(10) NULL DEFAULT NULL AFTER `message_type`, ADD `update_on` VARCHAR(50) NULL DEFAULT NULL AFTER `total_cost`;
+ALTER TABLE `whatsapp_logs` CHANGE `update_on` `update_on` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
+
