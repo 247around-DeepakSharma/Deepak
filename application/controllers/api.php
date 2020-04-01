@@ -4541,7 +4541,7 @@ class Api extends CI_Controller {
             'type' => trim($type),
             'total_cost' => $total_cost,
             'message_type' => $message_type,
-            'json_response' => $json
+            'json_response' => $response
         );
         $this->apis->logWhatsapp($whatsapp);
     }
