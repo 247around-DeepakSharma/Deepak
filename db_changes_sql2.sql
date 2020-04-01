@@ -2316,3 +2316,11 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
+---Gorakh 01 Apr 2020
+UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload MSL File', NULL, 'employee/inventory/upload_msl_excel_file', 2, '119', 'accountant,accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2018-10-04 12:08:07');
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Send MSL Via Form', NULL, 'employee/inventory/tag_spare_invoice_send_by_partner', 2, '119', 'accountant,accountmanager,admin,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2018-10-04 12:08:07');
