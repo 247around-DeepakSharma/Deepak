@@ -47,6 +47,7 @@
                 return false;
             }
 
+            //Serial no. validation
             if (serial_number != ""  && user_name !="" ) {
                 alert("Please fill only one field...");
                 return false;
@@ -149,6 +150,7 @@
 
                     </div>
 
+                    <!-- Find booking from serial number -->
                     <div class="form-group">
                         <label for="serial id" class="col-md-2">Serial No.</label>
                         <div class="col-md-4">
