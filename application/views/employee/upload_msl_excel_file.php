@@ -9,6 +9,9 @@
     .select2-container--default .select2-selection--single{
         height: 32px;
     }
+    .modal-body{
+        padding: 0px;
+    }
 </style>
 <div id="page-wrapper">
    <div class="container-fluid">
@@ -455,7 +458,8 @@
     }
     
     var ExcelToJSON = function() {
-
+    
+    var invoice_amount = $("#invoice_amount").val();
         this.parseExcel = function(file) {
             var reader = new FileReader();
 
@@ -471,20 +475,36 @@
                     //console.log(JSON.parse(json_object));
                     console.log(XL_row_object);
                     var html = "";
+                    var total_price = 0 ;
                     for(var i in XL_row_object){
                         html += "<tr>";
-                        html += "<td>"+ XL_row_object[i]['Appliance'];
-                        html += "<td>"+ XL_row_object[i]['Part Code'];
-                        html += "<td>"+ XL_row_object[i]['Quantity'];
-                        html += "<td>"+ XL_row_object[i]['Basic Price'];
-                        html += "<td>"+ XL_row_object[i]['HSN Code'];
-                        html += "<td>"+ XL_row_object[i]['GST Rate'];
+                        html += "<td>"+ XL_row_object[i]['Appliance'] +"</td>";
+                        html += "<td>"+ XL_row_object[i]['Part Code'] +"</td>";
+                        html += "<td>"+ XL_row_object[i]['Quantity'] +"</td>";
+                        html += "<td>"+ XL_row_object[i]['Basic Price'] +"</td>";
+                        html += "<td>"+ XL_row_object[i]['HSN Code'] +"</td>";
+                        html += "<td>"+ XL_row_object[i]['GST Rate'] +"</td>";
                         html += "</tr>";
+                        
+                        if(XL_row_object[i]['Basic Price'] != undefined ){
+                         total_price = parseInt(total_price) + parseInt(XL_row_object[i]['Basic Price']);   
+                        }
+                        
                     }
+                        html += "<tr>";
+                        html += "<td colspan='4'></td>";
+                        html += "<td><b>Total Price:</b></td>";
+                        html += "<td style='flot:right;'><b>"+ total_price +"</b></td>";
+                        html += "</tr>";
+                     if(parseInt(invoice_amount) != parseInt(total_price)){
+                         alert("Amount of invoice does not match with total price "+total_price);
+                         return false;
+                     }else{   
                     $("#msl_preview_table tbody").empty().html(html);
                     $("#msl_bulk_upload_form").data("preview",false);
                     $("#msl_upload_preview").modal();
                     //jQuery( '#xlx_json' ).val( json_object );
+                   }
                 })
             };
 
