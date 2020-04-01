@@ -228,6 +228,7 @@
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" name="part[0][part_name]" id="partName_0"></select>
+                                            <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                             <span id="error_partName_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -265,6 +266,7 @@
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" id="part_name"></select>
+                                            <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
                                             <span id="error_part_number" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -885,6 +887,7 @@ $("#on_invoice_file").change(function(){
                 .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).attr({placeholder:'Enter Part Number'}).end()
                 .find('[id="error_part_number"]').attr('id','error_partNumber_'+partIndex).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="part_loader"]').attr('id','part_loader_'+partIndex).end()
                 .find('[id="error_part_name"]').attr('id','error_partName_'+partIndex).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
@@ -1241,6 +1244,7 @@ $("#on_invoice_file").change(function(){
         }
         
        if(partner_id !='' && part_number !=''){
+           $("#part_loader_"+index).css('display','block');
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_parts_number',
@@ -1249,6 +1253,7 @@ $("#on_invoice_file").change(function(){
                     if(response == 'Part Number Not Exist In Our System'){
                          alert(response);
                          $('#partNumber_'+index).val('');
+                         $("#part_loader_"+index).css('display','none');
                     }else{
                     $('#partName_'+index).val('val', "");
                     $('#partName_'+index).val('Select Part Number').change();
@@ -1259,6 +1264,7 @@ $("#on_invoice_file").change(function(){
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
+                     $("#part_loader_"+index).css('display','none');
                 }
                 }
             });
