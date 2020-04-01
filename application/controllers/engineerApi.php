@@ -475,6 +475,10 @@ class engineerApi extends CI_Controller {
             case 'getEngineerIncentives':  
                 $this->get_engineer_incentives();  //// Getting engineer Incentives
                 break;
+/*   this API used to get parents of booking */
+            case 'checkBookingParents':  
+                $this->getBookingParents();  //// Getting parents
+                break;
 
             default:
                 break;
@@ -3323,7 +3327,7 @@ class engineerApi extends CI_Controller {
                 $model_numbers = $this->inventory_model->get_appliance_model_details('id, model_number', $where);
             }
             $response['model_number_list'] = $model_numbers;
-            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL, TRUE); ///show all category and capacity ///
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
             $initial_booking_date  = $booking_details['booking_history'][0]['initial_booking_date'];
             unset($booking_details['city']);
             unset($booking_details['sources']);
@@ -3851,8 +3855,8 @@ class engineerApi extends CI_Controller {
        $response =  $this->booking_utilities->is_partner_invoiced($unit_array); 
        // Response with messsgae // 
        if($response){
-        $return_res['action_flag'] = TRUE;
-        $return_res['message'] = MSG_PARTNER_INVOICED_APP;
+        $return_res['action_flag'] = FALSE;
+        $return_res['message'] = '';  //MSG_PARTNER_INVOICED_APP
         return $return_res;
 
        }else{
@@ -4453,5 +4457,32 @@ function submitPreviousPartsConsumptionData(){
 
    }
 
+
+
+   /**
+     * Get All parents of booking .
+     * @param 
+     * @author Abhishek Awasthi
+     */
+    function getBookingParents() {
+
+        log_message("info", __METHOD__ . " Entering..in getting parents");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id", "primary_contact", "service_id", "partner_id"), $requestData);
+        if ($validation['status']) {
+            /* Getting booking initial date */
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $initial_booking_date = $booking_details['booking_history'][0]['initial_booking_date'];
+            //getting possible parents //
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'], $requestData['service_id'], $requestData['partner_id'], 30, $initial_booking_date);
+
+            $this->jsonResponseString['response'] = $response; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
+            $this->sendJsonResponse(array("0099", 'No parents  Found'));
+        }
+    }
 
 }

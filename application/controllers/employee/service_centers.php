@@ -2393,7 +2393,12 @@ class Service_centers extends CI_Controller {
                 $this->booking_model->update_booking_unit_details($booking_id, $dataunit_details);
 
                 $booking_date = $this->input->post('booking_date');
-                $reason = $this->input->post('reason');
+/* Reason as reason text in Android API CALL */
+                if (!$this->input->post("call_from_api")) {
+                    $reason = $this->input->post('reason');
+                }else{
+                    $reason = $this->input->post('reason_text');
+                }
                 //$price_tags = $this->input->post('price_tags');
 
                 $partner_id = $this->input->post('partner_id');
@@ -3143,8 +3148,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array(
-            "spare_parts_details.defective_part_required" => 1,
-            "spare_parts_details.defective_part_rejected_by_wh" => 0,
+            "spare_parts_details.defective_part_required" => 1, // no need to check removed coloumn //
             "spare_parts_details.service_center_id" => $service_center_id,
             "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
             "spare_parts_details.consumed_part_status_id is not null" => NULL

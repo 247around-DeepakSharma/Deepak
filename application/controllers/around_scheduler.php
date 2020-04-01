@@ -2738,16 +2738,13 @@ class Around_scheduler extends CI_Controller {
         );
 
         $this->around_scheduler_model->save_cron_log($data);
-
-
     }
     
     /**
      * @desc : This method is used to update status of those spare parts where defectives are not shipped for more than 45 days.
      * @author Ankit Rajvanshi
      */
-    function change_spares_status_pending_for_more_than_45_days() 
-    {
+    function change_spares_status_pending_for_more_than_45_days() {
         // fetch data from spare parts details.
         $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
         /**
@@ -2773,15 +2770,12 @@ class Around_scheduler extends CI_Controller {
                 $this->invoice_lib->generate_challan_file($spare_part_detail['id'], $spare_part_detail['service_center_id']);
             }
         }
-
     }
-
     /**
      * @desc : This method is used to generate challans of defective/ok parts to be shipped.
      * @author Ankit Rajvanshi
      */
-    function generate_challan_of_spare_parts() 
-    {
+    function generate_challan_of_spare_parts() {
         // fetch data from spare parts details.
         $spare_part_details = $this->around_scheduler_model->generate_challan_of_to_be_shipped_parts();
         /**

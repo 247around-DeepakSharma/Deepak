@@ -4290,7 +4290,7 @@ exit();
             $data[0]['rate'] = sprintf("%.2f", ($data[0]['taxable_value']/$shipped_quantity));//"0";
             $data[0]['qty'] = $shipped_quantity;
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
-            $sd = $ed = $invoice_date = date("Y-m-d");
+            $sd = $ed = $invoice_date = '2020-03-31';#date("Y-m-d");
             $gst_rate = $sp_data[0]->invoice_gst_rate;
             $data[0]['gst_rate'] = $gst_rate;
             $data[0]['inventory_id'] = $inventory_id;
@@ -4332,7 +4332,7 @@ exit();
                     'parts_cost' => $response['meta']['total_taxable_value'],
                     'parts_count' => 1,
                     'total_amount_collected' => $response['meta']['sub_total_amount'],
-                    'invoice_date' => date("Y-m-d"),
+                    'invoice_date' => $invoice_date,
                     'around_royalty' => $response['meta']['sub_total_amount'],
                     'due_date' => date("Y-m-d"),
                     //Amount needs to be collected from Vendor

@@ -4949,6 +4949,15 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
 
+                /**
+                 * if micro warehouse part involved and no consumption then cancel part 
+                 * Also increase stock of part for micro warehouse. 
+                 */
+                if($spare_part_detail['is_micro_wh'] == 1 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
+                    $this->cancel_delivered_but_not_consumed_micro_wh_part($spare_id, $booking_id, $status_id);
+                    continue;
+                }                
+                
                 // if part is out of warranty and consumption no then set spare status ok part to be shipped
                 if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
@@ -4965,6 +4974,7 @@ function generate_image($base64, $image_name,$directory){
                     $up['acknowledge_date'] = date('Y-m-d');
                     $up['auto_acknowledeged'] = 1;
                 }
+                // update spare parts details.
                 if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
@@ -5012,7 +5022,6 @@ function generate_image($base64, $image_name,$directory){
                     $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
                     $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
-
             }
 
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {

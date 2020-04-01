@@ -81,18 +81,17 @@ class dealerApi extends CI_Controller {
             // $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
             // exit;
             // }
-
             //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
             }
 
             $this->requestId = $requestData['requestId'];
-        /*  Configure to skip device info in request from spalsh screen if device id come or not */
-            if(isset($requestData['deviceId']) && !empty($requestData['deviceId'])){
-                $this->deviceId =   $requestData['deviceId'];
-            }else{
-                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+            /*  Configure to skip device info in request from spalsh screen if device id come or not */
+            if (isset($requestData['deviceId']) && !empty($requestData['deviceId'])) {
+                $this->deviceId = $requestData['deviceId'];
+            } else {
+                $this->deviceId = ACCESS_FROM_SPLASH_SCREEN;
             }
 
             $this->requestUrl = $requestData['requestUrl'];
@@ -143,11 +142,11 @@ class dealerApi extends CI_Controller {
         $this->user = $this->input->get('username');
         $this->token = $this->input->get('jwt');
         /*  Configure to skip device info in request from spalsh screen if device id come or not */
-        $deviceID =  $this->input->get('deviceId');
-        if(isset($deviceID) && !empty($deviceID)){
-                $this->deviceId =   $deviceID;
-        }else{
-                $this->deviceId =   ACCESS_FROM_SPLASH_SCREEN;
+        $deviceID = $this->input->get('deviceId');
+        if (isset($deviceID) && !empty($deviceID)) {
+            $this->deviceId = $deviceID;
+        } else {
+            $this->deviceId = ACCESS_FROM_SPLASH_SCREEN;
         }
 
         $this->requestId = $this->input->get('requestId');
@@ -238,7 +237,7 @@ class dealerApi extends CI_Controller {
         }
     }
 
-     /**
+    /**
      * @input: Array having code (numeric) and result (string) as 1st and 2nd elements
      * @description: send success and failure response
      * @output: Echoes response which gets returned to the Client (Android App) through the REST API
@@ -273,9 +272,7 @@ class dealerApi extends CI_Controller {
         }
     }
 
-
-
-      /* @Desc - This function is used to validate keys exist in array or not
+    /* @Desc - This function is used to validate keys exist in array or not
      * @Param - $keysArray(array), $requestArray(array)
      * @return - $response(array)
      */
@@ -363,9 +360,9 @@ class dealerApi extends CI_Controller {
         switch ($this->requestUrl) {
 
             case 'checkForUpgrade':
-              $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
-              break;
-             
+                $this->check_for_upgrade();  // this function is used to check the app version and hard/soft upgrade //
+                break;
+
             case 'dealerLogin':
                 $this->processDealerLogin();
                 break;
@@ -434,8 +431,6 @@ class dealerApi extends CI_Controller {
         $this->sendJsonResponse(array($code, $status));
     }
 
-  
-
     function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
@@ -444,9 +439,23 @@ class dealerApi extends CI_Controller {
         if (!empty($data)) {
             $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
+                /*  Token Update */
+
+                $update_dealer = array();
+                if (isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])) {
+                    $update_dealer = array(
+                        'device_firebase_token' => $requestData['device_firebase_token']
+                    );
+                } else {
+                    $update_dealer = array(
+                        'device_firebase_token' => NULL
+                    );
+                }
+
+                $this->dealer_model->update_dealer($update_dealer, array('id' => $login[0]['entity_id']));
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
-
+                $this->sendJsonResponse(array('0000', 'success'));
             } else {
                 $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
@@ -455,33 +464,28 @@ class dealerApi extends CI_Controller {
         }
     }
 
-
-
     /* @author Abhishek Awasthi
-     *@Desc - This function is used to check app upgrade
-     *@param - 
-     *@return - json
+     * @Desc - This function is used to check app upgrade
+     * @param - 
+     * @return - json
      */
 
-function check_for_upgrade(){
+    function check_for_upgrade() {
 
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version']!=APP_VERSION) { 
-                // get configuration data from table for App version upgrade // 
-                $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
-                $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
-                $this->sendJsonResponse(array('0000', 'success')); // send success response //
-               
+        if ($requestData['app_version'] != APP_VERSION) {
+            // get configuration data from table for App version upgrade // 
+            $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+            $this->jsonResponseString['response'] = array('configuration_type' => $response[0]->configuration_type, 'config_value' => $response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//
-            $this->sendJsonResponse(array("9998",'Upgrade not required')); // Syntax Error Solve //
+            $this->sendJsonResponse(array("9998", 'Upgrade not required')); // Syntax Error Solve //
         }
-
-}
-
+    }
 
     /**
      *  @desc : This function is to get all states.
@@ -492,31 +496,21 @@ function check_for_upgrade(){
      *  @return : json of states
      *  @author : Abhishek Awasthi
      */
-
-
-function getAllStates(){
+    function getAllStates() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type"), $requestData);
-        if (!empty($requestData['entity_type'])) { 
-                $response =  $this->around_generic_lib->getAllStates(); 
-                 $this->jsonResponseString['response'] = $response['data'];
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
-               
+        if (!empty($requestData['entity_type'])) {
+            $response = $this->around_generic_lib->getAllStates();
+            $this->jsonResponseString['response'] = $response['data'];
+            $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!"));
         }
+    }
 
-}
-
-
- 
-
-
-
-
-  /*
+    /*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
      * @param - $engineer_id, $service_center_id, $search_value
      * @response - json
@@ -560,13 +554,13 @@ function getAllStates(){
                 $dealer_pincode = $requestData["dealer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
-/*  Make True if want calculation from google API */
-                    $calculate_ddistance = FALSE;
-                    $distance = "0"; 
-                    if($calculate_ddistance){
-                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($dealer_pincode, "", $value['booking_pincode'], "");
-                        $distance_array = explode(" ", $distance_details['distance']['text']);
-                        $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        /*  Make True if want calculation from google API */
+                        $calculate_ddistance = FALSE;
+                        $distance = "0";
+                        if ($calculate_ddistance) {
+                            $distance_details = $this->upcountry_model->calculate_distance_between_pincode($dealer_pincode, "", $value['booking_pincode'], "");
+                            $distance_array = explode(" ", $distance_details['distance']['text']);
+                            $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
 
@@ -576,7 +570,7 @@ function getAllStates(){
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
-                        $data['Bookings'][$key]['spares'] =  $spares_details;
+                        $data['Bookings'][$key]['spares'] = $spares_details;
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -596,32 +590,26 @@ function getAllStates(){
         }
     }
 
-  /*
+    /*
      * @Desc - This function is used to get booking deatails 
      * @param - $booking_id
      * @response - json
      * @Author  - Abhishek Awasthi
      */
 
-function getBookingDetails(){
+    function getBookingDetails() {
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat"), $requestData);
-        if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
-                $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id']); 
-                 $this->jsonResponseString['response'] = $response;
-                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
-               
+        $validation = $this->validateKeys(array("booking_id", "appliance_id", "is_repeat"), $requestData);
+        if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) {
+            $response = $this->around_generic_lib->getBookingDetails($requestData['booking_id']);
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
         } else {
             log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+            $this->jsonResponseString['response'] = array();
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !"));
         }
-
-}
-
-
-
-
+    }
 
 }

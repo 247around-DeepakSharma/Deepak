@@ -599,5 +599,13 @@ class Employee_model extends CI_Model{
             return $query->result_array();
         }
     }
-
+    /**
+     * @desc This function is used to insert user action
+     * @param Array $data
+     * @return type
+     */
+    function agent_action_log($data){
+        $this->db->insert('agent_action_log',$data);
+        return  $this->db->insert_id();
+    }
 }
