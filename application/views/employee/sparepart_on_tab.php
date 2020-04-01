@@ -828,16 +828,6 @@
                 <h4 class="modal-title">RTO Case </h4>
             </div>
             <div class="modal-body" >
-                <div class="row">
-                    <div class="col-md-12">
-                        <textarea name="remarks" class="form-control" id="rto_case_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <input type="submit" id="rto_case_spare_part_btn" name="rto-case-part" value="Save" class="btn btn-primary form-control" style="margin-top:2px;">
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -2018,39 +2008,16 @@
     function handle_rto_case(spare_id, type) {
         rto_case_spare_part_id = spare_id;
         tab_type = type;
-        $('#RtoCaseSparePartModal').modal({backdrop: 'static', keyboard: false});
-    }
-    
-    $('#rto_case_spare_part_btn').on('click', function(data) {
-        var remarks = $('#rto_case_spare_part_remarks').val();
-        if(remarks == '' || remarks == null) {
-            alert("Please enter remarks.");
-            return false;
-        }        
-       
-        $('#rto_case_spare_part_btn').attr("disabled", true);
-        $('#rto_case_spare_part_btn').val("Please wait...");
         
         $.ajax({
             method:'POST',
-            url:'<?php echo base_url(); ?>employee/spare_parts/rto_case_spare',
-            data:{remarks:remarks, rto_case_spare_part_id:rto_case_spare_part_id}
-        }).done(function(data){
-            if(tab_type == 1) {
-                partner_shipped_part_table.ajax.reload(null, false);
-            }
-            if(tab_type == 2) {
-                sf_received_part_table.ajax.reload(null, false);
-            }
-            if(tab_type == 12) {
-                courier_lost_spare_parts_table.ajax.reload(null, false);  
-            }
-            $('#RtoCaseSparePartModal').modal('hide');
-            $('#rto_case_spare_part_remarks').val('');
-            alert('Spare part has been cancelled successfully.');
+            url: '<?php echo base_url(); ?>employee/spare_parts/rto_case_spare',
+            data: {spare_id}
+        }).done(function (data){
+            $("#rto_case_spare_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#RtoCaseSparePartModal').modal({backdrop: 'static', keyboard: false});
         });
-    });
-    
+    }
     
         $(document).ready(function(){
         $('.panel .form-control').on('keypress keyup', function (event) {
