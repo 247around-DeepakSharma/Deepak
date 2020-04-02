@@ -36,7 +36,7 @@ class booking_creation_lib {
         } else {
             $booking_history = $this->My_CI->booking_model->getbooking_history_by_appliance_id($appliance_id);
         }
-        if (!empty($booking_history)) {
+        if (!empty($booking_history) && !empty($booking_history[0]['partner_id']) && !empty($booking_history[0]['service_id'])) {
             $booking = $this->My_CI->booking_model->get_city_source();
             $booking['booking_history'] = $booking_history;
             $booking['unit_details'] = $this->My_CI->booking_model->getunit_details($booking_id, $appliance_id);
