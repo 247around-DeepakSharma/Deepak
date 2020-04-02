@@ -4525,7 +4525,14 @@ class Api extends CI_Controller {
         $direction = $json_decode->data->direction;
         $destination = $json_decode->data->destination;
         $content_type = $json_decode->data->content_type;
-        $content = $json_decode->data->content->text;
+        if($content_type=='media'){
+        $content = json_encode($json_decode->data->content->media); /// Handle Media Option
+        }else if($content_type=='location'){
+        $content = json_encode($json_decode->data->content->location);
+        }else{
+        $content = $json_decode->data->content->text;  
+        }
+        
         $status = $json_decode->data->status;
         $message_type = $json_decode->data->channel_details->whatsapp->type;
         $whatsapp_profile = $json_decode->data->channel_details->whatsapp->source_profile->name;
