@@ -25,7 +25,8 @@ class Bulkupload extends CI_Controller {
      */
     function check_warranty() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload_check_warranty');
+        $serviceArray = $this->reusable_model->get_search_result_data("services","services,id",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+        $this->load->view('employee/bulk_upload_check_warranty',array('serviceArray'=>$serviceArray));
     }
 
     /**
