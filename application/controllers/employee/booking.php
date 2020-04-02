@@ -990,7 +990,7 @@ class Booking extends CI_Controller {
         //Get Partner Details Like source and partner Type
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
-        $data['booking_history'][0]['source_name'] = $source[0]['source'];
+        $data['booking_history'][0]['source_name'] = !empty($source[0]['source']) ? $source[0]['source'] : "";
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
 
@@ -1006,7 +1006,7 @@ class Booking extends CI_Controller {
         //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
             //If partner type is OEM then get price for booking unit brands
-            if ($source[0]['partner_type'] == OEM) {
+            if (!empty($source[0]['partner_type']) && $source[0]['partner_type'] == OEM) {
                 $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $value['brand']);
             } 
             //If partner type is not OEM then check is brand white list for partner if brand is white listed then use brands if not then 
@@ -1485,7 +1485,7 @@ class Booking extends CI_Controller {
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
         // Array of price tags selected against booking
-        $arr_selected_price_tags = "";
+        $arr_selected_price_tags = [];
         if(!empty($this->input->post('selected_price_tags'))){
             $selected_price_tags = $this->input->post('selected_price_tags');
             $arr_selected_price_tags = explode(",", $selected_price_tags);

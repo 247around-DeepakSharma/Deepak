@@ -135,7 +135,7 @@ class Paytm_gateway extends CI_Controller {
         
         $insert_data = array(
             'order_id' => $param_list['ORDERID'],
-            'gw_txn_id' => $param_list['TXNID'],
+            'gw_txn_id' => isset($param_list['TXNID'])?$param_list['TXNID']:NULL,
             'txn_amount' => $param_list['TXNAMOUNT'],
             'gw_txn_status' => $param_list['STATUS'],
             'gw_response_code' => $param_list['RESPCODE'],
