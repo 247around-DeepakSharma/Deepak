@@ -3874,6 +3874,9 @@ class Inventory extends CI_Controller {
             $data = $this->input->post('data');
             $id = $this->input->post('id');
             $column = $this->input->post('column');
+            if($column=='shipped_date'){
+                $data = date('Y-m-d', strtotime($data));
+            }
             $booking_id = $this->input->post('booking_id');
             $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
             // if serial number is changed , update in booking_unit_details table also.
