@@ -4125,8 +4125,8 @@ class vendor extends CI_Controller {
      */
     function process_reassign_partner_form(){
         log_message('info',__FUNCTION__);
-        $booking_id = $this->input->post('booking_id');
-        $partner = $this->input->post('partner');
+        $booking_id = !empty($this->input->post('booking_id')) ? $this->input->post('booking_id') : [];
+        $partner = !empty($this->input->post('partner')) ? $this->input->post('partner') : [];
         if(count($booking_id) === count($partner)){
             foreach($booking_id as $key=>$value){
                 

@@ -83,15 +83,16 @@ if(empty($booking_history[0]['booking_id'])){
                 <?php
                 $is_repeat_value = "";
                 $parentBkng = "";
+                $booking_id = !empty($booking_history[0]['booking_id']) ? $booking_history[0]['booking_id'] : "";
                 if($is_repeat){
                     $bkng_id = INSERT_NEW_BOOKING;
-                    $parentBkng = $booking_history[0]['booking_id'];
+                    $parentBkng = $booking_id;
                     $is_repeat_value = 1;
                 }
                 else{
-                    $bkng_id = $booking_history[0]['booking_id'];
+                    $bkng_id = $booking_id;
                 }
-                if($booking_history[0]['parent_booking'] && !$is_repeat){
+                if(!empty($booking_history[0]['parent_booking']) && !$is_repeat){
                      $is_repeat_value = 1;
                      $parentBkng = $booking_history[0]['parent_booking'];
                 }
@@ -106,7 +107,7 @@ if(empty($booking_history[0]['booking_id'])){
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="upcountry_data" value="<?php echo json_decode(""); ?>" id="upcountry_data" /> 
-                                        <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly"/>
+                                        <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(!empty($booking_history[0]['name'])) { echo $booking_history[0]['name']; } ?>" readonly="readonly"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -114,16 +115,16 @@ if(empty($booking_history[0]['booking_id'])){
                                     <div class="col-md-6">
                                         <input type="hidden" name="partner_type" value="<?php echo $partner_type; ?>" id="partner_type" />
                                         <input type="hidden" name="is_active" value="<?php echo $active;?>" id="is_active" />
-                                        <input type="hidden" id="partner_channel" value="<?php echo $booking_history[0]['partner_source']; ?>"/>
-                                        <input type="hidden" name="booking_type" id="booking_type" value="<?php echo $booking_history[0]["type"];?>" />
-                                        <input type="hidden" name="partner_id" value="<?php echo $booking_history[0]['partner_id'];?>" id="partner_id" />
+                                        <input type="hidden" id="partner_channel" value="<?php if(!empty($booking_history[0]['partner_source'])) { echo $booking_history[0]['partner_source']; } ?>"/>
+                                        <input type="hidden" name="booking_type" id="booking_type" value="<?php if(!empty($booking_history[0]["type"])) { echo $booking_history[0]["type"] ; }?>" />
+                                        <input type="hidden" name="partner_id" value="<?php if(!empty($booking_history[0]['partner_id'])) { echo $booking_history[0]['partner_id']; } ?>" id="partner_id" />
                                         <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; } else { echo '';} ?>" id="assigned_vendor_id" />
                                         <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required  <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(!empty($booking_history[0]['booking_primary_contact_no'])) { echo $booking_history[0]['booking_primary_contact_no']; }?>" required  <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                     </div>
                                     <?php if($c2c) { ?>
                                     <div class="col-md-2">
-                                        <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                                        <button type="button" onclick="outbound_call(<?php if(!empty($booking_history[0]['booking_primary_contact_no'])) { echo $booking_history[0]['booking_primary_contact_no']; } ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                                     </div>
                                     <?php } ?>
                                 </div>
@@ -150,7 +151,7 @@ if(empty($booking_history[0]['booking_id'])){
                                             <option <?php if(strtolower($cites['district']) == $selected_city){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
-                                           <?php if($flag == 0){ ?>
+                                           <?php if($flag == 0 && !empty($booking_history[0]['city'])){ ?>
                                             <option selected="selected" ><?php echo $booking_history[0]['city']; ?></option>
                                             <?php } ?>
                                         </select>
@@ -163,7 +164,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
-                                            <option <?php if($booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>
+                                            <option <?php if(!empty($booking_history[0]['service_id']) && $booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>
                                                 <?php echo $values->services; }    ?>
                                             </option>
                                             <?php echo form_error('service_id'); ?>
@@ -191,22 +192,22 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="form-group ">
                                     <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
-                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>" >
+                                        <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(!empty($booking_history[0]['user_email'])) { echo $booking_history[0]['user_email']; } ?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>" >
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(!empty($booking_history[0]['alternate_phone_number'])) { echo $booking_history[0]['alternate_phone_number']; } ?>" >
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select onchange= "getAppliance('<?php if(!empty($booking_history[0]['service_id'])) { echo $booking_history[0]['service_id'] ; } ?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
-                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if($values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } else {if($is_repeat){echo 'disabled';}}?> value=<?php echo $values['code']; ?>>
+                                            <option data-id="<?php echo $values['partner_id']; ?>" <?php if(!empty($booking_history[0]['partner_id']) && $values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } else {if($is_repeat){echo 'disabled';}}?> value=<?php echo $values['code']; ?>>
                                                 <?php echo $values['source']; }    ?>
                                             </option>
                                         </select>
@@ -223,11 +224,8 @@ if(empty($booking_history[0]['booking_id'])){
                                 </div>
                                 <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
-                                    <p id="booking_old_type_holder" style="display:none;"><?php echo $booking_history[0]['type'] ?></p>
-                                    <div class="col-md-8">
-                                     <!-- <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php //if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php //if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking-->
-
+                                    <p id="booking_old_type_holder" style="display:none;"><?php if(!empty($booking_history[0]['type'])) { echo $booking_history[0]['type']; } ?></p>
+                                    <div class="col-md-8">                                    
                                         <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Query')" name="type" value="Query" required <?php if($is_repeat){ echo 'disabled'; } ?> >Query
                                         <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>Booking
                                     </div>
@@ -242,7 +240,7 @@ if(empty($booking_history[0]['booking_id'])){
                                     <label  class="col-md-4">Support File</label>
                                     <div class="col-md-6">
                                         <div class="col-md-10">
-                                        <input type="file" class="form-control"  id="support_file" name="support_file" value = "<?php echo $booking_history[0]['support_file']; ?>">
+                                        <input type="file" class="form-control"  id="support_file" name="support_file" value = "<?phpif(!empty($booking_history[0]['support_file'])) { echo $booking_history[0]['support_file']; }?>">
                                     
                                         </div>
                                         <div class="col-md-2">
@@ -398,7 +396,7 @@ if(empty($booking_history[0]['booking_id'])){
 <!--                            <button class="clone btn btn-sm btn-info">Add</button>
                             <button class="remove btn btn-sm btn-info">Remove</button>-->
                             <?php } ?>
-                            <p class="pull-right"><?php if(!is_null($booking_history[0]['paid_by_customer'])){ 
+                            <p class="pull-right"><?php if(!empty($booking_history[0]['paid_by_customer'])){ 
                                 if($booking_history[0]['paid_by_customer'] == 1) { 
                                     echo "<b style='margin-right:100px'>Paid By Customer</b>";} 
                                     else { 
@@ -431,10 +429,12 @@ if(empty($booking_history[0]['booking_id'])){
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
-                                                    <?php foreach ($category[0] as $key => $appliance_category) { ?>
+                                                    <?php
+                                                    if(!empty($category[0])) {
+                                                    foreach ($category[0] as $key => $appliance_category) { ?>
                                                     <option <?php if(isset($unit_details[0]['category'])) { if(strtoupper(str_replace(" ","",$appliance_category['category'])) == strtoupper(str_replace(" ","",$unit_details[0]['category']))) { echo "selected"; }  } ?>
                                                         ><?php echo $appliance_category['category']; ?></option>
-                                                    <?php } ?>
+                                                    <?php } }?>
                                                 </select>
                                             </div>
                                         </div>
@@ -443,10 +443,12 @@ if(empty($booking_history[0]['booking_id'])){
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
-                                                    <?php foreach ($capacity[0] as $appliance_capacity) { ?>
+                                                    <?php 
+                                                    if(!empty($capacity[0])) {
+                                                    foreach ($capacity[0] as $appliance_capacity) { ?>
                                                     <option <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; } else{  if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo "disabled"; }} } ?>
                                                         ><?php echo $appliance_capacity['capacity']; ?></option>
-                                                    <?php } ?>
+                                                    <?php } }?>
                                                 </select>
                                             </div>
                                         </div>
@@ -898,7 +900,7 @@ if(empty($booking_history[0]['booking_id'])){
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea  class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
+                                    <textarea  class="form-control" rows="4" id="booking_address" name="home_address"   ><?php if(!empty($booking_history[0]['booking_address'])) { echo $booking_history[0]['booking_address']; }?></textarea>
                                 </div>
                             </div>
                              <div class="form-group ">

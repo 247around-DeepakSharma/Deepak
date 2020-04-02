@@ -1511,8 +1511,13 @@
                  <td ><?php echo $index?></td>
                 <td ><?php echo $paytm['paid_amount']?></td>
                 <td ><?php echo $paytm['txn_id']?></td>
-                <td ><?php echo $paytm['create_date']?></td>
-                <td ><?php echo explode("_",$paytm['order_id'])[1]?></td>
+                <td ><?php echo date("d-M-Y", strtotime($paytm['create_date']))?></td>
+                <td ><?php 
+                    $arr_order_id = explode("_",$paytm['order_id']);
+                    $order_id = !empty($arr_order_id[1]) ? $arr_order_id[1] : "";
+                    echo $order_id;
+                    ?>
+                </td>
                 <td>
                     <?php if($paytm['vendor_invoice_id']){?>
                     <a target="_blank" style="background-color: #5bc0de;color:#fff;border-color: #5bc0de;" class="btn btn-sm" href="<?php echo S3_WEBSITE_URL."invoices-excel/".$paytm['vendor_invoice_id'].".pdf"?>"
