@@ -930,7 +930,7 @@
                                         <th>AWB </th>
                                         <th>No. Of Boxes </th>
                                         <th>Weight </th>
-                                        <th>Shipped date </th>
+                                        <th style='min-width:120px'>Shipped date </th>
                                         <th>EDD </th>
                                         <th>Remarks By Partner</th>
                                         <th>Challan Number </th>
@@ -978,7 +978,13 @@
                                                         }
                                                     }
                                                     ?></td>
-                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></td>
+                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" />
+                                            <?php //echo date("d-m-Y", strtotime($sp['shipped_date'])); ?>
+                                           <span class="shipdate_no_text" id="<?php echo $sp['id']."_spare_shipped_date";?>" data_booking_id='' line_item_id='<?php echo $sp['id']; ?>'><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></span>
+                                            <span class="shipdate_no_text_approval" style='display:none'><?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){echo $sp['spare_approval_date'];}else{echo $sp['date_of_request'];} ?></span>
+                                            <span class="shipdate_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span id=<?php echo "shipment_date_edit".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                        </td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
                                         <td>                                         
@@ -1000,9 +1006,11 @@
                                         ?> <a href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank" id="<?php echo "a_partner_challan_file_".$sp['id']; ?>">Click Here to view</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "partner_challan_file_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','partner_challan_file');"></i>
                                         </td>
                                         <td>
-                                            <?php if(!empty($sp['courier_pic_by_partner'])){ ?> 
-                                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
-                                            <?php } ?>
+                                            <?php if(!empty($sp['courier_pic_by_partner'])){ ?>
+                                            <div class="progress-bar progress-bar-success myprogress" id="myprogresscourier_pic_by_partner<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>
+                                            <!--<a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>-->
+                                            <a href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank" id="<?php echo "a_courier_pic_by_partner_".$sp['id']; ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "courier_pic_by_partner_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','courier_pic_by_partner');"></i>
+                                               <?php } ?>
                                         </td>
                                         <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <td>
@@ -2319,7 +2327,7 @@ function uploadfile(){
         }
     }
     
-    if(spareFileColumn=='partner_challan_file'){
+    if(spareFileColumn=='partner_challan_file' || spareFileColumn=='courier_pic_by_partner'){
         directory_name = 'vendor-partner-docs';
     }else{
         directory_name = '';
@@ -2436,7 +2444,55 @@ $(".serial_no_edit").click(function() {
         $(this).siblings(".serial_no_text").hide();
     }
 });
-
+$(".shipdate_no_edit").click(function() {
+    if ($(this).siblings(".shipdate_no_text").is(":hidden")) {
+        var prethis = $(this);
+        var text_id = $(this).siblings(".shipdate_no_text").attr('id');
+        var booking_id = $(this).siblings(".shipdate_no_text").attr('data_booking_id');
+        var line_item_id = $(this).siblings(".shipdate_no_text").attr('line_item_id');
+        var data_value = $(this).siblings(".dateinput").val();
+        $(this).siblings(".shipdate_no_text").text($(this).siblings(".dateinput").val());
+        $(this).siblings(".shipdate_no_text_r").text($(this).siblings(".dateinput").val());
+        var column = 'shipped_date';
+        if(data_value == ''){
+          alert("Detail should not be blank.");
+          return false;
+        }
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/inventory/update_spare_parts_column",
+            type: "POST",
+            beforeSend: function(){
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { data: data_value, id: line_item_id, booking_id:booking_id,column:column},
+            success: function (data) {
+                data = $.trim(data);
+                if(data.toLowerCase() === "success"){
+                    prethis.siblings(".dateinput").remove();
+                    prethis.siblings(".shipdate_no_text").show();
+                    prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                } else {
+                    alert("There is a problem to update");
+                }
+            }
+        });
+    }
+    else {
+        var text = $(this).siblings(".shipdate_no_text").text();
+        var text_id = $(this).siblings(".shipdate_no_text").attr('id');
+        var text_min = $(this).siblings(".shipdate_no_text_approval").text();
+        //var newDate = text_min.toDate('dd-MM-yy');
+        var min_date ='';
+        if(text_min!='0000-00-00' && text_min!=''){
+        text_min=text_min.split("-")
+        var min_date = text_min[2]+'-'+text_min[1]+'-'+text_min[0];
+        }
+        $(this).before("<input id='purchase_date_1_"+text_id+"' class='form-control dateinput'   type='text'    max='<?php echo date('Y-m-d');?>' autocomplete='off' onkeydown='return false' required value='"+text+"' readonly>");
+        $(this).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $("#purchase_date_1_"+text_id).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, minDate:min_date, changeYear: true, changeMonth: true});
+        $(this).siblings(".shipdate_no_text").hide();
+    }
+});
 </script>
 <style>
     .edit
