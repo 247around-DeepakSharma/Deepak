@@ -4329,7 +4329,7 @@ class Inventory extends CI_Controller {
 
                                 // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                 If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
+                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
                                 }
 
                                 //send email to 247around warehouse incharge
