@@ -599,19 +599,19 @@
                                 <tr>
                                     <td><?php echo $detail['appliance_brand']?></td>
                                     <td><?php echo $detail['appliance_category']."/<br/>".$detail['appliance_capacity']?></td>
-                                    <td><?php echo $detail['scba_model_number']?></td>
+                                    <td><?php if(!empty($detail['scba_model_number'])){echo $detail['scba_model_number'];}?></td>
                                     <td><?php if(!empty($detail['scba_serial_number_pic'])){?>
                                         <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
-                                             <?php } else { echo $detail['scba_serial_number'];} ?>
+                                             <?php } else { if(!empty($detail['scba_serial_number'])){echo $detail['scba_serial_number'];}} ?>
                                     </td>
                                     <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_purchase_date']));}?></td>
                                     <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo date("d-M-Y", strtotime($detail['scba_sf_closed_date']));}?></td>
                                     <td><?php echo $detail['appliance_description']?></td>
                                     <td><?php  print_r($detail['price_tags']); ?></td>
-                                    <td><?php echo $detail['scba_basic_charges']?></td>
-                                    <td><?php echo $detail['scba_additional_charges']?></td>
-                                    <td><?php echo $detail['scba_parts_cost']?></td>
-                                    <td><?php echo $detail['scba_upcountry_charges']?></td>
+                                    <td><?php if(!empty($detail['scba_basic_charges'])){echo $detail['scba_basic_charges'];}?></td>
+                                    <td><?php if(!empty($detail['scba_additional_charges'])){echo $detail['scba_additional_charges'];}?></td>
+                                    <td><?php if(!empty($detail['scba_parts_cost'])){echo $detail['scba_parts_cost'];}?></td>
+                                    <td><?php if(!empty($detail['scba_upcountry_charges'])){echo $detail['scba_upcountry_charges'];}?></td>
                                 </tr>    
                                 <?php } ?>
                             </tbody>
