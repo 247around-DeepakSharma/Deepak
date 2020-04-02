@@ -23,6 +23,7 @@ class Notify {
 	$this->My_CI->load->model('vendor_model');
 	$this->My_CI->load->model('booking_model');
     $this->My_CI->load->model('engineer_model');
+    $this->My_CI->load->model('apis');
     }
 
     /**
