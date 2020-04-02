@@ -1315,7 +1315,7 @@ class Notify {
             'message_type' => $message_type,
             'json_response' => $response
         );
-       $insert_id =  $this->apis->logWhatsapp($whatsapp);
+       $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
         try {
             if($insert_id){
 
