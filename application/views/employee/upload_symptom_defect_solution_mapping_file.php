@@ -4,18 +4,18 @@
             <div class="col-lg-12">
                 <?php
                 if ($this->session->userdata('file_error')) {
-                    echo '54651656561<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
                        <strong>' . $this->session->userdata('file_error') . '</strong>
                     </div>';
                 } else {
-                    echo 'ftujty'.$this->session->userdata('file_error');
+                    echo $this->session->userdata('file_error');
                 }
 
                 if ($this->session->userdata('file_success')) {
-                    echo 'dfhfgh<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
@@ -43,19 +43,7 @@
                                 </div>
                                 <?php echo form_error('partner_id'); ?>
                             </div>
-                            <div class="form-group <?php
-                            if (form_error('service_id')) {
-                                echo 'has-error';
-                            }
-                            ?>">
-                                <label for="excel" class="col-md-3">Select Appliance</label>
-                                <div class="col-md-9">
-                                    <select class="form-control" id="service_id" required="" name="service_id">
-                                        <option value="" selected="" disabled="">Select Appliance</option>
-                                    </select>
-                                </div>
-                                <?php echo form_error('service_id'); ?>
-                            </div>
+
                             <div class="form-group  <?php
                             if (form_error('excel')) {
                                 echo 'has-error';
@@ -134,7 +122,6 @@
     $('#service_id').select2();
     function submitForm() {
         if ($('#partner_id').val()) {
-            if ($('#service_id').val()) {
                 var fd = new FormData(document.getElementById("fileinfo"));
                 fd.append("label", "WEBUPLOAD");
                 fd.append('partner_id', $('#partner_id').val());
@@ -150,15 +137,14 @@
                 }).done(function (data) {
                     if($.trim(data) == '1') {
                         alert('Data has been saved successfully.');
-                    } else {
+                    } else if($.trim(data) == '0') {
                         alert('Data validation failed. Please check data.');
+                        window.location.href = window.location.href;
+                    }else{
+                        alert(data);
                     }
                 });
                // alert('File validation is in progress, please wait....');
-            } else {
-                alert("Please Select Appliance. ");
-                return false;
-            }
 
         } else {
             alert("Please Select Partner ");
@@ -202,30 +188,6 @@
                 }
             ]
         });
-    }
-
-    $('#partner_id').on('change', function () {
-        get_appliance();
-    });
-
-    function get_appliance() {
-        var partner_id = $('#partner_id').val();
-        if (partner_id) {
-            $.ajax({
-                type: 'GET',
-                url: '<?php echo base_url() ?>employee/partner/get_partner_specific_appliance',
-                data: {is_option_selected: true, partner_id: partner_id},
-                success: function (response) {
-                    if (response) {
-                        $('#service_id').html(response);
-                    } else {
-                        console.log(response);
-                    }
-                }
-            });
-        } else {
-            alert('Please Select Partner');
-        }
     }
 </script>
 <?php

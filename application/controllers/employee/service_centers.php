@@ -6246,6 +6246,16 @@ class Service_centers extends CI_Controller {
                             $data = array();
                             $data['courier_pic_by_partner'] = (!empty($courier_image['status'])) ? $courier_image['message'] : NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
+                            /**
+                             * change defective part required flag in spare part details on the basis of shipped inventory id
+                             * @modifiedBy Ankit Rajvanshi
+                             */
+                            if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) { 
+                                $data['defective_part_required'] = 0;
+                            } else {
+                                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['shipped_inventory_id']);
+                            }
+                            
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
