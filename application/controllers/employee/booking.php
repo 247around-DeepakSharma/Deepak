@@ -1485,7 +1485,7 @@ class Booking extends CI_Controller {
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = $this->input->post('is_sf_panel');
         // Array of price tags selected against booking
-        $arr_selected_price_tags = "";
+        $arr_selected_price_tags = [];
         if(!empty($this->input->post('selected_price_tags'))){
             $selected_price_tags = $this->input->post('selected_price_tags');
             $arr_selected_price_tags = explode(",", $selected_price_tags);
