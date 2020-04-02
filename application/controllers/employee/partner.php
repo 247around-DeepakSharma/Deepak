@@ -2275,9 +2275,9 @@ class Partner extends CI_Controller {
                     $data['quantity'] = $value['quantity'];
                     $data['shipped_quantity']=$value['shipped_quantity'];  
                     }
-                    $data['remarks_by_partner'] = $value['remarks_by_partner'];
-                    if (!empty($value['requested_inventory_id'])) {
-                        $data['shipped_inventory_id'] = $value['requested_inventory_id'];
+                    $remarks_by_partner = $data['remarks_by_partner'] = $value['remarks_by_partner'];
+                    if (!empty($value['inventory_id'])) {
+                        $data['shipped_inventory_id'] = $value['inventory_id'];
                     }
                     
                     if (!empty($value['spare_id'])) {
