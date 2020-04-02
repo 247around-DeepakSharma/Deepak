@@ -3,13 +3,15 @@
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
 // this is used to avoid all booking related extra validations on change request type panel
+$allow_skip_validations = "";
 if(!empty($this->session->userdata('service_center_id')) || !empty($allow_skip_validations)){
     $allow_skip_validations = 1;
 }
-else
-{
-    $allow_skip_validations = "";
-}
+
+// get selected price tags
+$selected_price_tags = !empty($unit_details[0]['quantity']) ? array_column($unit_details[0]['quantity'], 'price_tags') : [];
+$selected_price_tags = implode(",", $selected_price_tags);
+
 ?>
 <div id="page-wrapper" >
     <div class="container" >
@@ -92,7 +94,7 @@ else
                     <input type="hidden" value="<?php echo $str_disabled ?>" name="is_spare_requested" id="is_spare_requested">                    
                     <input type="hidden" value="<?php echo $allow_skip_validations ?>" name="is_sf_panel" id="is_sf_panel">                                       
                     <input checked="checked" style ='visibility: hidden;' id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
-                    
+                    <input type="hidden" value="<?php echo $selected_price_tags ?>" name="selected_price_tags" id="selected_price_tags">                                       
                     
                     <p id="parent_id_temp" style="display:none;"><?php echo $parentBkng; ?></p>
                     <p id="booking_old_type_holder" style="display:none;"><?php echo $booking_history[0]['type'] ?></p>
@@ -102,22 +104,7 @@ else
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12" style="padding:0;">
-                                    <div class="col-md-6" style="width: 40%;">
-                                        <div class="form-group ">
-                                            <label for="service_name" class="col-md-4">Brand *</label>
-                                            <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
-                                                    name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> readonly="readonly">
-                                                    <option selected disabled>Select Brand</option>
-                                                    <?php 
-                                                        if(!empty($brand[0])) {
-                                                            foreach ($brand[0] as  $appliance_brand) { ?>
-                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} else{  echo "disabled"; }}   ?>
-                                                        ><?php echo $appliance_brand['brand_name']; ?></option >
-                                                    <?php } } ?>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-6" style="width: 40%;">                                        
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
                                         $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  date("d-m-Y", strtotime($unit_details[0]['sf_purchase_date'])) : "";
@@ -159,11 +146,26 @@ else
                                             <div class="col-md-6">
                                                 <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
                                             </div>
-                                        </div>                                        
+                                        </div> 
+                                        <div class="form-group ">
+                                            <label for="service_name" class="col-md-4">Brand *</label>
+                                            <div class="col-md-6">
+                                                <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
+                                                    name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required style="background: #eee;pointer-events: none;" tabindex=-1>
+                                                    <option selected disabled>Select Brand</option>
+                                                    <?php 
+                                                        if(!empty($brand[0])) {
+                                                            foreach ($brand[0] as  $appliance_brand) { ?>
+                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";}}   ?>
+                                                        ><?php echo $appliance_brand['brand_name']; ?></option >
+                                                    <?php } } ?>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;">
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;" tabindex=-1>
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category[0] as $key => $appliance_category) { ?>
                                                     <option <?php if(isset($unit_details[0]['category'])) { if(strtoupper(str_replace(" ","",$appliance_category['category'])) == strtoupper(str_replace(" ","",$unit_details[0]['category']))) { echo "selected"; } } ?>><?php echo $appliance_category['category']; ?></option>
@@ -174,7 +176,7 @@ else
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;">
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;" tabindex=-1>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
                                                     <option  <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; }  } ?>  ><?php echo $appliance_capacity['capacity']; ?></option>
@@ -682,6 +684,10 @@ else
         if($('.select-model').css("display") == "none") {
             $('.select-model').next(".select2-container").hide();
         }
+        else
+        {
+            $('.select-model').trigger("change");
+        }
       final_price();
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();
@@ -901,11 +907,8 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
     <?php if(!empty($str_disabled)) { ?> 
-        $(".purchase_date").attr("tabindex",-1);  
-        $(".appliance_brand").attr("tabindex",-1);  
+        $(".purchase_date").attr("tabindex",-1);   
         $(".select-model").attr("tabindex",-1);  
-        $(".appliance_category").attr("tabindex",-1);  
-        $(".appliance_capacity").attr("tabindex",-1);  
     <?php } ?>
 
 
@@ -915,13 +918,5 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     {
     color: red;
     }
-    
-    // Do not allow User to Change Request type if spare is Already Requested.
-    <?php if(!empty($str_disabled)) { ?> 
-/*    .price_checkbox {
-        pointer-events : none !important;
-        background : #eee !important;
-    }    */
-    <?php } ?>
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
