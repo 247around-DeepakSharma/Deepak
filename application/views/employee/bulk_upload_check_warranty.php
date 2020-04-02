@@ -67,26 +67,6 @@
                     <div class="col-md-6">
                         <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b><br/><font color="red">* Upload date(s) in dd-mm-yyyy format</font></p>
                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_sample_sheet.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
-                        <p style="font-size: 18px;margin-top:10px"><b>Please choose service_id only from below list</b><br> <small>Example : Use <strong style="color:red"><?php echo $serviceArray[0]['id'] ?></strong> for <?php echo $serviceArray[0]['services'] ?></small></p>
-                         <table class='table table-condensed table-bordered'>
-                             <thead>
-                                 <?php
-                                 foreach($serviceArray as $index => $serviceName){
-                                     if($index%5== 0){
-                                         echo "<tr>";
-                                     }
-                                 ?>
-                                <td style='font-size: 10px !important;font-weight: bold;'><?php echo $serviceName['services']; ?> (<?php echo $serviceName['id']; ?>)</td>
-                                 <?php
-                                if(($index+1)%5== 0){
-                                         echo "</tr>";
-                                     }
-                                 }
-                                 ?>
-                             </thead>
-                             <tbody>
-                             </tbody>
-                         </table>
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
