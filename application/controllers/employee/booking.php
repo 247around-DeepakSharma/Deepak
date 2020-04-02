@@ -1631,19 +1631,9 @@ class Booking extends CI_Controller {
             $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c));
-            $rating=$this->booking_model->get_rating_stars('rating_star'); 
-            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c,'rating_star' => $rating));
         } else {
             echo "Id doesn't exist";
         }
-    }
-
-    //This function is to fetch data on AJAX request after rating star selection
-    
-    function fetch_dissatisfactory_reasons(){
-        $rating_id = $this->input->post('rating_id',TRUE);
-        $data = $this->booking_model->get_dissatisfactory_reason($rating_id)->result();
-        echo json_encode($data);
     }
 
     /**
