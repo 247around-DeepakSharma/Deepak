@@ -35,11 +35,44 @@
         ?>
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="page-header">
-                    Warranty Plans 
-                    <button type="button" class="btn btn-primary" id="submit_btn" target="_blank" onClick="window.location.href = '<?php echo base_url(); ?>employee/warranty/add_model_to_plan';
+                <div class="page-header">                    
+                    <h1>Warranty Plans</h1> <hr/>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <form name="myForm" id="myForm" action="<?php echo base_url()?>employee/warranty/plan_model_mapping"  method="POST"   >
+                                <div class="row">
+                                    <div class="col-md-4"  style="width:200px;">
+                                        <select type="text" class="form-control"  id="partner_id" name="partner_id" required>
+                                            <option selected="selected" disabled="disabled">Select Partner</option>
+                                            <?php foreach ($partners as $key => $values) { ?>
+                                            <option value=<?php echo $values['id']; ?> <?php if($values['id'] == $selected_partner_id){ echo " selected "; } ?>>
+                                                <?php echo $values['public_name']; ?>
+                                            </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4"  style="width:200px;">
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" required >
+                                            <option selected="selected" disabled="disabled">Select Product</option>
+                                            <?php foreach ($services as $key => $values) { ?>
+                                            <option value=<?php echo $values['id']; ?> <?php if($values['id'] == $selected_service_id){ echo " selected "; } ?>>
+                                                <?php echo $values['services']; ?>
+                                            </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="submit" name="show" value="Show" class="btn btn-primary">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="submit_btn" target="_blank" onClick="window.location.href = '<?php echo base_url(); ?>employee/warranty/add_model_to_plan';
                             return false;" style="float:right" value="Add Models">Add Models</button>
-                </h1>                        
+                        </div>
+                    </div>                                     
+                </div>                        
             </div>
         </div>
         <div class="x_panel" style="height: auto;">
@@ -108,6 +141,9 @@
     </div>    
 </div>
 <script>
+    $("#partner_id").select2();
+    $("#service_id").select2();
+    
     $('#datatablemappingview').DataTable({
         "processing": true,
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
