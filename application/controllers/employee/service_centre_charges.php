@@ -1457,15 +1457,12 @@ class service_centre_charges extends CI_Controller {
                     $actor, $next_action, _247AROUND);
                         
                         $email_template = $this->booking_model->get_booking_email_template(MISC_CHARGES_DETAILS_ON_EMAIL);
-                        //rm email from db using booking id
-                        $rm_email_id =  $this->booking_model->get_rm_email_from_booking_details($booking_id);
-
                         if(!empty($email_template)){
 
                             
                             $to = $email_template[1]. ", ".$this->session->userdata('official_email'). ", ". $this->employee_model->getemployeeManagerDetails("employee.official_email",array('employee_hierarchy_mapping.employee_id' => $this->session->userdata('employee_id')))[0][0];
                             $subject = vsprintf($email_template[4], array($booking_id));
-                            $cc = (!empty($email_template[3]) ? $email_template[3] : "") . ", " . $rm_email_id;
+                            $cc = (!empty($email_template[3]) ? $email_template[3] : "");
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
