@@ -773,9 +773,9 @@ class Booking_request extends CI_Controller {
 
                     $insert_id = $this->booking_request_model->insert_data(array('product_id' => $data['service_id'], 'request_id' => $request_type, 'symptom_id' => $data['symptom'], 'defect_id' => $data['defect'], 'solution_id' => $data['solution']), 'symptom_defect_solution_mapping');
 
-                } else if(!empty($is_exist) && $is_exist[0]['active'] == 0){
+                } else if(!empty($is_exist) && $is_exist[0]['is_active'] == 0){
 
-                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('active' => 1), 'symptom_defect_solution_mapping');
+                    $this->booking_request_model->update_table(array('id' => $is_exist[0]['id']), array('is_active' => 1), 'symptom_defect_solution_mapping');
                     $insert_id = true;
                 } else{
                     $this->session->set_userdata(array('error' => "Mapping Data is already added"));
@@ -986,16 +986,22 @@ class Booking_request extends CI_Controller {
 
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url');
-
+        if ($this->session->userdata('file_error')) {
+            $this->session->unset_userdata('file_error');
+        }
+        if ($this->session->userdata('file_success')) {
+            $this->session->unset_userdata('file_success');
+        }
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
+            if (!empty($file_status['file_ext'])) {
 
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
                 $data['post_data'] = $this->input->post();
 
                 $partner_id = $this->input->post('partner_id');
-                $service_id = $this->input->post('service_id');
+                //$service_id = $this->input->post('service_id');
                 $sheetUniqueRowData = array();
                 $msg = ""; 
 
@@ -1003,7 +1009,8 @@ class Booking_request extends CI_Controller {
                 $header_column_need_to_be_present = array('service', 'call_type', 'symptom', 'defect', 'solution');
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
-
+                $is_expra_header_present = array_diff(array_filter($data['header_data']),$header_column_need_to_be_present);
+                if(empty($is_expra_header_present)){
                 if ($check_header['status']) {
                     
                     $is_data_validated = true;
@@ -1024,14 +1031,22 @@ class Booking_request extends CI_Controller {
                                 $is_data_validated = false;
                             }
                             // check service exist in database.
+                            $service_id_act='';
                             $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $rowData['service']], NULL, NULL, NULL, NULL, NULL);
                             if (empty($service_id)) {
                                 $unknown_service_msg .= $row.",";
                                 $is_data_validated = false;
+                            }else{
+                                $service_id_act = $service_id[0]['id'];
                             }
                             // check call type or request type in database.
-                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $rowData['call_type']], NULL, NULL, NULL, NULL, NULL);
-                            if (empty($request_type_id)) {
+                            $request_type_id_only = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $rowData['call_type']], NULL, NULL, NULL, NULL, NULL);
+                            if (empty($request_type_id_only)) {
+                                $unknown_call_type_msg .= $row.",";
+                                $is_data_validated = false;
+                            }
+                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $rowData['call_type'],'service_id'=>$service_id_act], NULL, NULL, NULL, NULL, NULL);
+                            if (empty($request_type_id) && !empty($request_type_id_only) && !empty($service_id)) {
                                 $unknown_call_type_msg .= $row.",";
                                 $is_data_validated = false;
                             }
@@ -1040,7 +1055,16 @@ class Booking_request extends CI_Controller {
                     
                     // if data has errors.
                     if(!$is_data_validated) {
-                        $msg = trim($incomplete_data_error_msg,',')."<br/>".trim($unknown_service_msg, ',')."<br/>".trim($unknown_call_type_msg, ',');
+                        $msg = '';
+                        if($incomplete_data_error_msg != 'Incompelete data found at line '){
+                                $msg .=trim($incomplete_data_error_msg,',')."<br/>";
+                        }
+                        if($unknown_service_msg != 'Unknown service at line '){
+                                $msg .=trim($unknown_service_msg,',')."<br/>";
+                        }
+                        if($unknown_call_type_msg != 'Unknown call type at line '){
+                                $msg .=trim($unknown_call_type_msg,',');
+                        }
                         $this->session->set_userdata('file_error', $msg);
 
                         // saving history of failure.
@@ -1067,7 +1091,7 @@ class Booking_request extends CI_Controller {
                             // get id of service
                             $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $service], NULL, NULL, NULL, NULL, NULL)[0]['id'];
                             // get request type id.
-                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $call_type], NULL, NULL, NULL, NULL, NULL)[0]['id'];
+                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $call_type,'service_id'=>$service_id], NULL, NULL, NULL, NULL, NULL)[0]['id'];
 
                             $is_symptom_exist = $this->reusable_model->get_search_result_data('symptom', '*', ['service_id' => $service_id, 'symptom' => $symptom], NULL, NULL, NULL, NULL, NULL);
                             if(empty($is_symptom_exist)) {
@@ -1125,9 +1149,23 @@ class Booking_request extends CI_Controller {
                     
                     
                 }
+            } else {
+                        echo "File header not matching.  For reference,Please use previous successfully upload file from CRM.";
+                        exit;
+                    }
+                } else {
+                    echo "Invalid file uploaded, Please upload Excel File.";
+                    exit;
+                }
+            } else {
+                echo "Empty file uploaded";
+                exit;
             }
+        } else {
+            echo "File name length too long, Please keep file name length short.";
+            exit;
         }
-        
+
         $this->session->set_userdata('file_success', 'Data has been saved successfully.');
        
         // saving history of success.

@@ -477,18 +477,29 @@
                     var html = "";
                     var total_price = 0 ;
                     for(var i in XL_row_object){
+                        var parts_total_price = 0;
+
+                        if((XL_row_object[i]['Basic Price'] != undefined)  && (XL_row_object[i]['Quantity'] != undefined) && (XL_row_object[i]['GST Rate'] != undefined)){
+                            var total_part_basic = (Number(XL_row_object[i]['Quantity']) * Number(XL_row_object[i]['Basic Price']));
+                            total_basic = total_part_basic;
+                            var tax_value = ( total_part_basic * Number(XL_row_object[i]['GST Rate'])/100);
+                            total_part_basic = (Number(total_part_basic) + Number(tax_value)).toFixed(2);
+                        }else{
+                            alert("Excel cell value is going null or empty."); 
+                            return false;
+                        }
+                                                
                         html += "<tr>";
                         html += "<td>"+ XL_row_object[i]['Appliance'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['Part Code'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['Quantity'] +"</td>";
-                        html += "<td>"+ XL_row_object[i]['Basic Price'] +"</td>";
+                        html += "<td>"+ total_basic +"</td>";
                         html += "<td>"+ XL_row_object[i]['HSN Code'] +"</td>";
                         html += "<td>"+ XL_row_object[i]['GST Rate'] +"</td>";
                         html += "</tr>";
                         
-                        if(XL_row_object[i]['Basic Price'] != undefined ){
-                         total_price = parseInt(total_price) + parseInt(XL_row_object[i]['Basic Price']);   
-                        }
+                        total_price = (Number(total_price) + Number(total_part_basic)).toFixed(2);   
+                        
                         
                     }
                         html += "<tr>";

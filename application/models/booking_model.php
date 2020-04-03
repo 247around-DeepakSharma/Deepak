@@ -2619,20 +2619,7 @@ class Booking_model extends CI_Model {
         $this->db->where($where);
         $this->db->update('miscellaneous_charges', $data);
     }
-     /**
-     * @Desc: This function is used to get rm's email from particular booking id
-     * @return: array
-     * 
-     */
-    function get_rm_email_from_booking_details($region)
-    {
-       $this->db->select('employee.official_email');
-        $this->db->where_in('booking_details.booking_id',$region);
-        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
-        $this->db->join('employee','service_centres.rm_id = employee.id','left');
-        $query = $this->db->get('booking_details');
-        return $query->result_array(); 
-    }
+    
      /**
      * @Desc: This function is used to get remarks sent for particular booking id
      * @params: booking_id

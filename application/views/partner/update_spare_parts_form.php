@@ -170,13 +170,13 @@
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                 <div class="col-md-7">
-                                                    <select required="" class="form-control spare_parts shipped_parts_name shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]"  data-key="<?=$key?>">
+                                                    <select required="" class="form-control spare_parts shipped_parts_name shipped-part-name" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]"  data-key="<?=$key?>">
                                                     </select>
                                                     <span id="spinner" style="display:none"></span>
                                                 </div>
                                             <?php } else { ?> 
                                                 <div class="col-md-7">
-                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
+                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -320,7 +320,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="part[<?php echo $key;?>][spare_id]"  id="<?php echo "spare_id_".$key; ?>" value="<?php echo $value->id;?>">
-<!--                    <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">-->
+                    <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">
                     <input type="hidden" id="<?php echo "estimatecostgivendate_".$key ?>" name= "part[<?php echo $key;?>][estimate_cost_given_date_h]" value="<?php echo $value->estimate_cost_given_date; ?>">
                     <input type="hidden" name= "part[<?php echo $key;?>][spare_part_warranty_status]" value="<?php echo $value->part_warranty_status ;?>">
                     <?php } ?>

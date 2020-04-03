@@ -36,7 +36,7 @@ class booking_creation_lib {
         } else {
             $booking_history = $this->My_CI->booking_model->getbooking_history_by_appliance_id($appliance_id);
         }
-        if (!empty($booking_history)) {
+        if (!empty($booking_history) && !empty($booking_history[0]['partner_id']) && !empty($booking_history[0]['service_id'])) {
             $booking = $this->My_CI->booking_model->get_city_source();
             $booking['booking_history'] = $booking_history;
             $booking['unit_details'] = $this->My_CI->booking_model->getunit_details($booking_id, $appliance_id);
@@ -88,19 +88,14 @@ class booking_creation_lib {
                     $brand = $this->My_CI->partner_model->get_partner_specific_details($where, $select, "brand");
                     $where['brand'] = $value['brand'];
                     
-//                    $model_where = array(
-//                        'appliance_model_details.entity_id' => $booking_history[0]['partner_id'],
-//                        'appliance_model_details.entity_type' => _247AROUND_PARTNER_STRING,
-//                        'appliance_model_details.service_id' => $booking_history[0]['service_id'],
-//                        'inventory_model_mapping.active' => 1);
-//                    $model = $this->My_CI->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.model_number as model', $model_where);
                 
+                    // Show models of all brands of partner instead of models of booking brand, because while requesting spare we are showing all models.                    
                     $model_where = array(
                        "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
                        "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
                        "appliance_model_details.service_id" => $booking_history[0]['service_id'],
                        "appliance_model_details.active" => 1,
-                       "partner_appliance_details.brand" => $value['brand']
+//                       "partner_appliance_details.brand" => $value['brand']
                     );
                     $model = $this->My_CI->partner_model->get_model_number('appliance_model_details.model_number as model', $model_where);
                 } else {
