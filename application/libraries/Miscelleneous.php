@@ -5150,10 +5150,13 @@ function generate_image($base64, $image_name,$directory){
         $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         
         /* Load data & update spare parts details */
-        $spare_data = $this->load_data_to_cancel_micro_wh_part($spare_id, SPARE_DELIVERED_TO_SF, ''); // to be discussed
+        $spare_data = $this->load_data_to_cancel_micro_wh_part($spare_id, SPARE_DELIVERED_TO_SF, PART_NOT_CONSUMED_CANCELLATION_REASON_ID); 
         // update consumption reason.
+        $consumption_reason = NULL;
         if(!empty($consumption_reason_id)) {
             $spare_data['consumed_part_status_id'] = $consumption_reason_id;
+            /*get consumption reason name*/
+            $consumption_reason = $this->My_CI->reusable_model->get_search_result_data('spare_consumption_status', 'consumed_status', ['id' => $consumption_reason_id], NULL, NULL, NULL, NULL, NULL)[0]['consumed_status'];
         }
         $this->My_CI->service_centers_model->update_spare_parts(['id' => $spare_id], $spare_data);
         
@@ -5161,7 +5164,7 @@ function generate_image($base64, $image_name,$directory){
         $tracking_details = array(
             'spare_id' => $spare_id, 
             'action' => _247AROUND_CANCELLED, 
-            'remarks' => SPARE_RECIEVED_NOT_USED, 
+            'remarks' => $consumption_reason, 
             'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 
             'entity_id' => $this->My_CI->session->userdata('service_center_id'), 
             'entity_type' => _247AROUND_SF_STRING
@@ -5169,7 +5172,7 @@ function generate_image($base64, $image_name,$directory){
         $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
         
         /* insert state change. */
-        $this->My_CI->notify->insert_state_change($booking_id, SPARE_PARTS_CANCELLED, SPARE_DELIVERED_TO_SF, SPARE_RECIEVED_NOT_USED, $this->My_CI->session->userdata('service_center_agent_id'), $this->My_CI->session->userdata('service_center_agent_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $this->My_CI->session->userdata('service_center_id'), $spare_id);
+        $this->My_CI->notify->insert_state_change($booking_id, SPARE_PARTS_CANCELLED, SPARE_DELIVERED_TO_SF, $consumption_reason, $this->My_CI->session->userdata('service_center_agent_id'), $this->My_CI->session->userdata('service_center_agent_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $this->My_CI->session->userdata('service_center_id'), $spare_id);
         
         /* increase stock for cancel part */
         $data = array(

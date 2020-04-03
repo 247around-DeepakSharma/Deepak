@@ -2192,3 +2192,8 @@ ALTER TABLE `whatsapp_logs` ADD `json_response` TEXT NULL DEFAULT NULL AFTER `st
 ALTER TABLE `whatsapp_logs` ADD `message_type` VARCHAR(50) NULL DEFAULT NULL AFTER `created_on`, ADD `total_cost` VARCHAR(10) NULL DEFAULT NULL AFTER `message_type`, ADD `update_on` VARCHAR(50) NULL DEFAULT NULL AFTER `total_cost`;
 ALTER TABLE `whatsapp_logs` CHANGE `update_on` `update_on` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
  
+--Ankit 01-04-2020
+ALTER TABLE `courier_company_invoice_details` ADD column is_rto tinyint(1) NOT NULL DEFAULT 0;
+ALTER TABLE `courier_company_invoice_details` ADD column rto_file varchar(255) NULL DEFAULT NULL;
+--Ankit Rajvanshi 03-04-2020
+INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'Part Not Consumed', 'spare_parts', '0', CURRENT_TIMESTAMP);
