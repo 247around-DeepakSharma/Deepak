@@ -728,9 +728,9 @@ define('BOOKING_AGENT_Website', "website");
 //Constant for file upload history in bulk warrenty checker panel
 define("BULK_CHECK_WARRANTY_STATUS" , "bulk_check_warranty_status");
 define("_247AROUND_DEALER_STRING" , "dealer");
-define("RTO_CASE_CANCELLATION_REASON_ID" , "1026");
+define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 
 define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
-define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1027");
+define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
