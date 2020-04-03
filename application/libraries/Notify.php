@@ -664,21 +664,24 @@ class Notify {
                             $finalString = 'Your Brand Collateral ->   '.nl2br ("\n");
                             $index =1;
                             foreach($data as $collatralData){
-                                   if($collatralData['is_file']){
-                                    $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
-                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
-                                 }
-                                else{
-                                    $brand_coll_url = $collatralData['file'];
-                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                if(!empty($collatralData['file']) && !empty($collatralData['collateral_type']))
+                                {
+                                    if(isset($collatralData['is_file'])){
+                                        $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                                        $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                    }
+                                    else{
+                                        $brand_coll_url = $collatralData['file'];
+                                        $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                    }
+                                    //make tiny url
+                                    $brand_coll_tinyUrl = $this->My_CI->miscelleneous->getShortUrl($brand_coll_url);
+                                    $finalString .= ' '.$index.'.     ';
+                                    $finalString .= $collatralData['collateral_type'].'        ';
+                                    $finalString .=  '       '.$brand_coll_tinyUrl.'          ';
+                                    $finalString .=nl2br ("\n");
+                                    $index++;
                                 }
-                                //make tiny url
-                                $brand_coll_tinyUrl = $this->My_CI->miscelleneous->getShortUrl($brand_coll_url);
-                                $finalString .= ' '.$index.'.     ';
-                                $finalString .= $collatralData['collateral_type'].'        ';
-                                $finalString .=  '       '.$brand_coll_tinyUrl.'          ';
-                                $finalString .=nl2br ("\n");
-                                $index++;
                             }
                             $smsbody=$finalString;
                           //  $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
