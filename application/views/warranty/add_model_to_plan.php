@@ -34,7 +34,7 @@
                                 <div class="form-group">
                                     <label for="service_id" class="col-md-4">Plan *</label>
                                     <div class="col-md-6">
-                                        <select name="plan_id" class="form-control" id="plan_id"   required>
+                                        <select name="plan_id" class="form-control" id="plan_id" required onchange="getModels(this.value)">
                                             <option selected disabled="">Please Select Plan</option>
                                             <?php foreach ($warranty_plans as $value) { ?>
                                                 <option value="<?php echo $value->plan_id; ?>"  <?php
@@ -100,4 +100,21 @@
             return false;
         }
     }
+    
+    function getModels(plan_id) {
+         $.ajax({
+            method:'POST',
+            url:"<?php echo base_url(); ?>employee/warranty/getWarrantyPlanSpecificModels",
+            data:{
+                plan_id : plan_id
+            },
+            success:function(response){
+                var obj = JSON.parse(response);
+                if(obj.status !== false){
+                    $("#model_id").html(obj.msg);
+                }
+            }                           
+        });
+    }
+    
 </script>
