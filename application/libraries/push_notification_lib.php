@@ -23,8 +23,12 @@ class push_notification_lib {
             $subscriberListArray = Array();
             $subscriberListArray['subscriber_list'] = $subscriberArray;
             $subscriberListJsonString = json_encode($subscriberListArray);
+//IF constant is not defined //
+            if (defined('PUSH_NOTIFICATION_API_KEY')) {
             $apiToken = PUSH_NOTIFICATION_API_KEY;
             $curlUrl = PUSH_NOTIFICATION_SUBSCRIBER_LIST_SEND_NOTIFICATION_URL;
+            }
+
             $fields = array('title' => $title,'message' => $msg,'url' => $url,'subscriber_list' => $subscriberListJsonString,'autohide_notification'=>$autohide_notification);
             $httpHeadersArray = Array();
             $httpHeadersArray[] = 'Authorization: key='.$apiToken;
