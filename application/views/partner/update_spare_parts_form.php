@@ -170,13 +170,13 @@
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                 <div class="col-md-7">
-                                                    <select required="" class="form-control spare_parts shipped_parts_name shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]"  data-key="<?=$key?>">
+                                                    <select required="" class="form-control spare_parts shipped_parts_name shipped-part-name" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]"  data-key="<?=$key?>">
                                                     </select>
                                                     <span id="spinner" style="display:none"></span>
                                                 </div>
                                             <?php } else { ?> 
                                                 <div class="col-md-7">
-                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
+                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
                                                 </div>
                                             <?php } ?>
                                         </div>

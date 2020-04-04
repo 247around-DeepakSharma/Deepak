@@ -2460,7 +2460,7 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
-                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
+                    if (!empty($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
                         $data['original_inventory_id'] = $value['requested_inventory_id'];
                     }
@@ -6246,6 +6246,16 @@ class Service_centers extends CI_Controller {
                             $data = array();
                             $data['courier_pic_by_partner'] = (!empty($courier_image['status'])) ? $courier_image['message'] : NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
+                            /**
+                             * change defective part required flag in spare part details on the basis of shipped inventory id
+                             * @modifiedBy Ankit Rajvanshi
+                             */
+                            if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) { 
+                                $data['defective_part_required'] = 0;
+                            } else {
+                                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['shipped_inventory_id']);
+                            }
+                            
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
                             $data['parts_shipped'] = $part_details['shipped_parts_name'];
@@ -6342,7 +6352,7 @@ class Service_centers extends CI_Controller {
                                 /* Insert Spare Tracking Details */
                                 $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => SPARE_PARTS_SHIPPED_BY_WAREHOUSE, 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED_BY_WAREHOUSE, "Warehouse acknowledged to shipped spare parts, spare id : $spare_id", $actor, $next_action, "", $spare_id);
+                                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED_BY_WAREHOUSE, "Warehouse acknowledged to shipped spare parts, spare id : $spare_id", "", "", $spare_id);
                                 $post = array();
                                 $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, "spare_parts_details.partner_challan_number IS NULL" => NULL);
                                 $post['where_in'] = array();
