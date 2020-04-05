@@ -2460,7 +2460,7 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
-                    if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
+                    if (!empty($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
                         $data['original_inventory_id'] = $value['requested_inventory_id'];
                     }

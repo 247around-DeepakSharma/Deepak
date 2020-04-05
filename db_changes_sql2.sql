@@ -2125,3 +2125,23 @@ ALTER TABLE `courier_company_invoice_details` ADD column is_rto tinyint(1) NOT N
 ALTER TABLE `courier_company_invoice_details` ADD column rto_file varchar(255) NULL DEFAULT NULL;
 --Ankit Rajvanshi 03-04-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'Part Not Consumed', 'spare_parts', '0', CURRENT_TIMESTAMP);
+
+-- Prity 03-04-2020
+-- Other data correction queries are attached in Task : CRM-5926
+ALTER TABLE warranty_plan_model_mapping
+ADD CONSTRAINT uk_plan_model UNIQUE (plan_id,model_id);
+
+update warranty_plans set service_id = 46 where service_id = 0 and plan_description like '%led%';
+update warranty_plans set service_id = 37 where service_id = 0 and plan_description like '%ref%';
+update warranty_plans set service_id = 50 where service_id = 0 and plan_description like '% AC%';
+update warranty_plans set service_id = 28 where service_id = 0 and plan_description like '%WM%';
+update warranty_plans set service_id = 46 where service_id = 0 and plan_description like '%CTV%';
+update warranty_plans set service_id = 28 where service_id = 0 and plan_description like '%Motor%';
+update warranty_plans set service_id = 37 where service_id = 0 and plan_description like '%comp%';
+UPDATE `warranty_plans` SET `service_id` = '37' WHERE (`plan_id` = '195');
+UPDATE `warranty_plans` SET `service_id` = '28' WHERE (`plan_id` = '196');
+UPDATE `warranty_plans` SET `service_id` = '50' WHERE (`plan_id` = '197');
+UPDATE `warranty_plans` SET `service_id` = '46' WHERE (`plan_id` = '70');
+
+ALTER TABLE warranty_plans
+ADD CONSTRAINT uk_plan_partner_service UNIQUE (plan_name,plan_description,service_id,partner_id);
