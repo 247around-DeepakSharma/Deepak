@@ -391,7 +391,8 @@
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.service_id = entity_details.service_id,
                     d.is_show_all = entity_details.is_show_all_checked,
-                    d.is_admin_crm = is_admin_crm;
+                    d.is_admin_crm = is_admin_crm,
+                    d.return_new_part_to_partner = 1;
                 }
             }
         });
