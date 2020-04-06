@@ -18,17 +18,16 @@ class Site_Offline extends CI_Hooks {
     public function is_offline() {
         if (file_exists(APPPATH . 'config/config.php')) {
             include(APPPATH . 'config/config.php');
-            
             //Getting Base Url
             $base_url=(isset($_SERVER['HTTPS']) ? "https://" : "http://").$_SERVER['HTTP_HOST'];
             $base_url.= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
             $_247_CRM = explode('/',$_SERVER['REQUEST_URI'])[1];
             //&& $_247_CRM !="employee"
-            if (isset($config['is_offline']) && $config['is_offline'] === TRUE && $_247_CRM =="service_center" ) {
+            //if (isset($config['is_offline']) && $config['is_offline'] === TRUE ) {
                
                 $this->show_site_offline($base_url);
                 exit;
-            }
+           // }
         }
     }
 
@@ -45,6 +44,8 @@ class Site_Offline extends CI_Hooks {
 //                    margin:-5px 5px 5px 5px auto;">
 //           <span style="margin-left:35%">&nbsp;&nbsp;&nbsp;Regards, 247Around Team</span>
 //        </div></div></body></html>';
+        
+        //background-image: url("'.$base_url.'images/background_image.png");
 
         echo '<!DOCTYPE html>
 <html>
@@ -55,12 +56,11 @@ body, html {
 }
 
 .bgimg {
-    background-image: url("'.$base_url.'images/background_image.png");
     height: 100%;
     background-position: center;
     background-size: cover;
     position: relative;
-    color: white;
+    color: #000000;
     font-family: "Courier New", Courier, monospace;
     font-size: 25px;
 }
@@ -79,7 +79,7 @@ body, html {
 
 .middle {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
@@ -96,8 +96,10 @@ hr {
   <div class="topleft">
     <p><img src="'.$base_url.'images/logo_small.png" ></p>
   </div>
+  
   <div class="middle">
-    <h1 style="font-size:50px;">We will be back shortly!</h1>
+  <p><center><img src = "'.$base_url.'images/news_maintenance201302_small.jpg"></center></p>
+    <h1 style="font-size:50px; color:green">We will be back shortly!</h1>
     <h5>We are upgrading our CRM to make it better & stronger</h5>
     <hr>
     <p id="demo" style="font-size:30px"></p>
@@ -109,7 +111,7 @@ hr {
 
 <script>
 
-var countDownDate = new Date("June 15, 2018 21:00:00").getTime();
+var countDownDate = new Date("April 04, 2020 21:00:00").getTime();
 
 // Update the count down every 1 second
 var countdownfunction = setInterval(function() {

@@ -1884,7 +1884,7 @@
                 if(!empty($results['contact_persons'])){
                     ?>
             <div id="exist_documents">
-                <table class="table">
+                <table class="table table_8" id="partner_contact_persons_details">
                     <thead>
                         <tr>
                             <th>S.N</th>
@@ -1947,10 +1947,8 @@
                                      <?php } ?>
                             </td>
                         </tr>
-                        <tr>
-                            <?php
-                                }
-                                ?>
+                        <?php  }  ?>
+                        </tbody>
                 </table>
             </div>
             <?php
@@ -2871,7 +2869,7 @@
                 if(!empty($results['partner_am_mapping'])){
                     ?>
             <div id="exist_documents">
-                <table class="table">
+                <table class="table table_16" id="partner_account_manager_details">
                     <thead>
                         <tr>
                             <th>S.N</th>
@@ -2906,11 +2904,11 @@
                                 <input type="checkbox" class="checkbox_delete" id="checkbox_delete_<?php echo $value['id'];?>" value="<?php echo $value['id'];?>" style="width:18px;height:18px;vertical-align:middle;" />
                             </td>
                         </tr>
-                        <tr>
-                            <?php
+                        <?php
                                 }
                             }
                                 ?>
+                        </tbody>
                 </table>
             </div>
             <?php
@@ -4014,8 +4012,25 @@
               document.getElementById(i).style.background='#d9edf7';
              }
              else{
-                 document.getElementById("container_"+i).style.display='block';
-                 document.getElementById(i).style.background='#fff';
+                document.getElementById("container_"+i).style.display='block';
+                document.getElementById(i).style.background='#fff';
+                // create datatable in case of contact us and Account Manager tab    
+                if(i == 8 || i == 16){
+                    var title = $(".table_"+i).attr('id');
+                    $(".table_"+i).DataTable({
+                        dom: 'Bfrtip',
+                        destroy: true,
+                        "pageLength": 20,
+                        buttons: [{
+                            extend: 'excel',
+                            text: '<span class="fa fa-file-excel-o"></span> Export',
+                            pageSize: 'LEGAL',
+                            title: title,
+                        }]
+                    });
+                    // Shift Export Button the right
+                    $(".dt-buttons").css({"float" : "right"});
+                }                
              }
         }
 
