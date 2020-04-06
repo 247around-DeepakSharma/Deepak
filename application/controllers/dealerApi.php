@@ -646,7 +646,7 @@ function getStatesCities(){
             if (!empty($data['Bookings'])) {
                 $dealer_pincode = $requestData["dealer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
-                    if ($engineer_pincode) {
+                    if ($dealer_pincode) {
 /*  Make True if want calculation from google API */
                     $calculate_ddistance = FALSE;
                     $distance = "0"; 
