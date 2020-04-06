@@ -125,13 +125,22 @@ function send_remarks_multitab(review_status, is_partner) {
     var str = review_status+"_"+is_partner;
     var bookingID = $('#modal_booking_id_'+str).val();
     var postData = {};
+    
+    // Check whether remarks are filled or not
+    // If not, no dont allow to continue
+    if($.trim($('#textarea_'+str).val()) == "")
+    {
+        $("#remarks_msg_"+str).html("*Enter Remarks");
+        return false;
+    }
+    
     postData['booking_id'] = bookingID;
     postData['admin_remarks'] = $('#textarea_'+str).val();
     postData['rejected_by'] = $('#admin_id_'+str).val();
     postData['internal_booking_status'] = $("#internal_boking_status_"+str).val();
     console.log(postData);
     $('#loader_gif_'+str).show();
-    $('#btn_send_remarks_'+str).prop("disabled", true);
+    $('#btn_send_remarks_'+str).prop("disabled", true);    
     sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
         alert(data);
         $('#loader_gif_'+str).hide();
