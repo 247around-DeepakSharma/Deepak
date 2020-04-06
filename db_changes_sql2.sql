@@ -2145,3 +2145,8 @@ UPDATE `warranty_plans` SET `service_id` = '46' WHERE (`plan_id` = '70');
 
 ALTER TABLE warranty_plans
 ADD CONSTRAINT uk_plan_partner_service UNIQUE (plan_name,plan_description,service_id,partner_id);
+
+-- Ankit Rajvanshi 06-04-2020
+INSERT INTO `partner_booking_status_mapping` (`partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES
+(247034, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00'),
+(247001, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00');
