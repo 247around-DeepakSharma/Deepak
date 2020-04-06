@@ -380,18 +380,27 @@
 
                                                             <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"   />
+                                                            <?php
+                                                            if(!empty($price['serial_number_pic'])) {
+                                                                $price_unit=$price['unit_id'];
+                                                                $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$price['serial_number_pic']; ?>
+                                                                <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
+                                                                 <?php
+                                                            }
+                                                            elseif(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
+                                                                $price_unit=$price['unit_id'];
+                                                                $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$booking_history['spare_parts'][0]['serial_number_pic']; ?>
+                                                                <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">SF Serial Number Pic</a></p>
+                                                                 <?php
+                                                            }
+                                                            ?>
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
                                                                     $selected_model = (!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
-                                                                        $arrModels = array_map('strtoupper', $arrModels);
-                                                                        if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
-                                                                            <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                                                <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
-                                                                            </div>
-                                                                        <?php }
+                                                                        $arrModels = array_map('strtoupper', $arrModels);                                                                        
                                                                         ?>
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
@@ -403,20 +412,14 @@
                                                                             $isModelMandatory =1 ;
                                                                         ?>
                                                                             <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                                        <?php } 
-                                                                        if(!empty($price['serial_number_pic'])) {
-                                                                            $price_unit=$price['unit_id'];
-                                                                            $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$price['serial_number_pic']; ?>
-                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" class="<?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ $containsWrongSerialNumber = 1; echo "text-danger ";}?> target="_blank">SF Serial Number Pic</a></p>
-                                                                             <?php
-                                                                        }
-                                                                        elseif(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
-                                                                            $price_unit=$price['unit_id'];
-                                                                            $url="https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/'.$booking_history['spare_parts'][0]['serial_number_pic']; ?>
-                                                                            <p style="margin-top: 5px;"><a href="<?php echo $url; ?>" target="_blank">SF Serial Number Pic</a></p>
-                                                                             <?php
-                                                                        }
-                                                                     ?>
+                                                                        <?php }                                                                     ?>
+                                                                        <?php
+                                                                        if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
+                                                                            <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
+                                                                                <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
+                                                                            </div>
+                                                                        <?php }
+                                                                        ?>
                                                         </div>
                                                     </div>
                                                     <?php //} ?>
