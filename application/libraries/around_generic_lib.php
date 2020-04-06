@@ -102,7 +102,7 @@ class around_generic_lib {
 
     function getSpareDetailsOfBooking($booking_id){
 /*  If Shipped is empty or NULL Show Requested Data */
-        $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity,spare_parts_details.awb_by_partner,spare_parts_details.courier_name_by_partner,spare_parts_details.remarks_by_partner,spare_parts_details.awb_by_sf,spare_parts_details.courier_name_by_sf,spare_parts_details.challan_approx_value,spare_parts_details.awb_by_wh,spare_parts_details.courier_name_by_wh,spare_parts_details.status", array('booking_id' => $booking_id));
+        $sp_details = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.part_warranty_status,IFNULL(spare_parts_details.parts_shipped,spare_parts_details.parts_requested) as parts_shipped ,IF(spare_parts_details.shipped_parts_type=' ',spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type) as shipped_parts_type,spare_parts_details.status,IFNULL(spare_parts_details.shipped_quantity,spare_parts_details.quantity) as shipped_quantity,spare_parts_details.awb_by_partner,spare_parts_details.courier_name_by_partner,spare_parts_details.remarks_by_partner,spare_parts_details.awb_by_sf,spare_parts_details.courier_name_by_sf,spare_parts_details.challan_approx_value,spare_parts_details.awb_by_wh,spare_parts_details.courier_name_by_wh,spare_parts_details.status", array('booking_id' => $booking_id));
 
         return $sp_details;
     }
@@ -180,7 +180,7 @@ class around_generic_lib {
 
         $data = array();
         if (!empty($spare_id)) {
-            $data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date", array('spare_state_change_tracker.spare_id' => $spare_id), false);
+            $data['spare_history'] = $this->My_CI->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date", array('spare_state_change_tracker.spare_id' => $spare_id), false);
         }else{
             $data['spare_history'] = array();
         }
