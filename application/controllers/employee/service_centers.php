@@ -2460,7 +2460,7 @@ class Service_centers extends CI_Controller {
 
                     $data['part_requested_on_approval'] = 0;
 
-                    if (!empty($value['requested_inventory_id'])) {
+                    if (isset($value['requested_inventory_id'])) {
                         $data['requested_inventory_id'] = $value['requested_inventory_id'];
                         $data['original_inventory_id'] = $value['requested_inventory_id'];
                     }
@@ -6243,7 +6243,7 @@ class Service_centers extends CI_Controller {
 
                         if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
 
-                            $status = SPARE_PARTS_SHIPPED;
+                            $status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
 
                             $data = array();
                             $data['courier_pic_by_partner'] = (!empty($courier_image['status'])) ? $courier_image['message'] : NULL;
@@ -6280,7 +6280,7 @@ class Service_centers extends CI_Controller {
                             $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
-                            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                            $data['status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
 
                             if ($part_details['spare_id'] == "new") {
 
@@ -6467,10 +6467,10 @@ class Service_centers extends CI_Controller {
                     }
 
                     $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $sc_data['internal_status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                    $booking['internal_status'] = SPARE_PARTS_SHIPPED;
+                    $booking['internal_status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                     $actor = $next_action = 'not_define';
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
                     if (!empty($partner_status)) {

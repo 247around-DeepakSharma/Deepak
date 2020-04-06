@@ -513,7 +513,7 @@ class Around_scheduler_model extends CI_Model {
                     spare_parts_details
                     JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
                 WHERE
-                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= 45 
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= ".SPARE_PARTS_OOT_DAYS." 
                     and spare_parts_details.shipped_date is not null
                     and booking_details.service_center_closed_date is null 
                     and spare_parts_details.defective_part_shipped_date is null
