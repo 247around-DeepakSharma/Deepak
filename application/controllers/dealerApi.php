@@ -489,7 +489,7 @@ class dealerApi extends CI_Controller {
                 );  
             }
 
-            $this->dealer_model->update_dealer($update_dealer,array('id'=>$login[0]['entity_id']));
+            $this->dealer_model->update_dealer($update_dealer,array('dealer_id'=>$login[0]['entity_id']));
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
                 $this->sendJsonResponse(array('0000', 'success'));
