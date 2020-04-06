@@ -1366,11 +1366,11 @@
       var courier_charge = $('#charges').val();
       var reason = $.trim($('#spare_cancel_reason option:selected').text());
       var cancel_id = $('#spare_cancel_reason option:selected').val();
-      
-      if($.trim(reason) === "") {
-          alert("Please Enter Spare Cancellation Reason");
-          return false;
-      }
+
+        if(($('#spare_cancel_reason').parent("div").css('display') !== 'none') && ($('#spare_cancel_reason').length === 1) && !($.isNumeric(cancel_id))) {
+            alert("Please Enter Spare Cancellation Reason");
+            return false;
+        }
       
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
