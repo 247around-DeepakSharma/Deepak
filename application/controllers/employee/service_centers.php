@@ -6379,7 +6379,7 @@ class Service_centers extends CI_Controller {
                                 $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, "spare_parts_details.partner_challan_number IS NULL" => NULL);
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
-                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, spare_parts_details.shipped_quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
                                 $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
                                 if (!empty($part_details_challan)) {
                                     $this->generate_challan_to_sf($part_details_challan);
@@ -6564,12 +6564,13 @@ class Service_centers extends CI_Controller {
                     $spare_parts['booking_id'] = $value['booking_id'];
                     if(!empty($value['parts_shipped'])){
                         $spare_parts['parts_shipped'] = $value['parts_shipped']; // Generate challan on Shipped Part.
+                        $spare_parts['shipped_quantity'] = $value['shipped_quantity'];
                     }else{
                         $spare_parts['parts_shipped'] = $value['parts_requested'];
+                        $spare_parts['shipped_quantity'] = $value['quantity'];
                     }
                     $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                     $spare_parts['part_number'] = $value['part_number'];
-                    $spare_parts['shipped_quantity'] = $value['quantity'];
                     $spare_parts['inventory_id'] = $value['shipped_inventory_id'];
                     $spare_parts['consumption'] = $value['consumed_status']; 
                 }
