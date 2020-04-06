@@ -2197,9 +2197,3 @@ ALTER TABLE `courier_company_invoice_details` ADD column is_rto tinyint(1) NOT N
 ALTER TABLE `courier_company_invoice_details` ADD column rto_file varchar(255) NULL DEFAULT NULL;
 --Ankit Rajvanshi 03-04-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'Part Not Consumed', 'spare_parts', '0', CURRENT_TIMESTAMP);
-
--- Ankit Rajvanshi 06-04-2020
-INSERT INTO `partner_booking_status_mapping` (`partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES
-(247034, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00'),
-(247001, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00');
-
