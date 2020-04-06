@@ -3,9 +3,12 @@
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
 // this is used to avoid all booking related extra validations on change request type panel
-$allow_skip_validations = "";
 if(!empty($this->session->userdata('service_center_id')) || !empty($allow_skip_validations)){
     $allow_skip_validations = 1;
+}
+else
+{
+    $allow_skip_validations = "";
 }
 
 // get selected price tags
