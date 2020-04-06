@@ -198,3 +198,6 @@ define('InProcess_Courier_Lost','Courier Lost Approval Pending');
 define('LED_BAR', 'LED BAR');
 //Open cell Part Type
 define('OPEN_CELL_PART_TYPE', 'OPEN CELL');
+// spare parts out of tat days
+define('SPARE_PARTS_OOT_DAYS', '45');
+
