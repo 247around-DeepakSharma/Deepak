@@ -334,6 +334,45 @@
         </div>
     </div>
 </div>
+<div role="tabpanel" class="tab-pane" id="courier_approved_defective_parts">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="courier_approved_defective_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Status</th>
+                                        <th class="text-center" data-orderable="false">Age</th>
+                                        <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div role="tabpanel" class="tab-pane" id="defective_part_shipped_by_SF_approved">
     <div class="container-fluid">
         <div class="row" >
@@ -662,6 +701,50 @@
                                         <th class="text-center" data-orderable="true">Age Of Delivered</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div role="tabpanel" class="tab-pane" id="total_part_shipped_to_sf">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-1 pull-right" style="padding: 10px;">       
+                <a class="btn btn-success" id="download_total_shipped_part">Download</a><span class="badge" title="Download spare data"></span>     
+            </div> 
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="total_part_shipped_to_sf_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" data-orderable="false">No.</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">SF Name</th>
+                                        <th class="text-center" data-orderable="false">SF Status</th>
+                                        <th class="text-center" data-orderable="false">Partner Name</th>
+                                        <th class="text-center" data-orderable="false">Spare Status</th>
+                                        <th class="text-center" data-orderable="false">Spare Warranty Status</th>
+                                        <th class="text-center" data-orderable="false">NRN Status</th>
+                                        <th class="text-center" data-orderable="false">Service Center Closed Date</th>
+                                        <th class="text-center" data-orderable="false">Booking Request Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Model Number</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Number</th>
+                                        <th class="text-center" data-orderable="false">Spare Part Shipped Date</th>
+                                        <th class="text-center" data-orderable="true">Spare Shipped Age</th>
+                                        <th class="text-center" data-orderable="false">Partner AWB Number</th>
+                                        <th class="text-center" data-orderable="false">SF AWB Number</th>                                 
+                                        <th class="text-center" data-orderable="false">Parts Charge</th>
+                                        <th class="text-center" data-orderable="false">AWB Number Warehouse Dispatch Defective To Partner</th>
+                                        <th class="text-center" data-orderable="false">Spare Lost</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -1455,6 +1538,46 @@
             }
         });
         
+        courier_approved_defective_parts_table = $('#courier_approved_defective_parts_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[16, "desc"]], //Initial no order.
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       ccolumns: [ 1,2,3,4,5,6,7,8,9,10]
+                    },
+                    title: 'defective_part_shipped_by_SF_approved'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '17', status: '<?php echo DEFECTIVE_PARTS_SHIPPED; ?>', partner_id: '<?php echo $partner_id; ?>', approved_defective_parts_by_admin:1}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
+                    "orderable": false //set not orderable
+                },
+                {
+                    "targets": [16], //first column / numbering column
+                    "orderable": true //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+               $(".dataTables_filter").addClass("pull-right");
+            }
+        });
+        
         /*
         * @uses: Return Defective From Warehouse To Partner
         */
@@ -1524,6 +1647,50 @@
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
                 data: {type: '15', status: '<?php echo DEFECTIVE_PARTS_PENDING_OOT; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                 {
+                  "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $(".dataTables_filter").addClass("pull-right");
+            }
+        });
+        
+        
+        /*
+        * @desc: Used to load the Defective/Ok Part (OOT) tab data
+        */
+          total_part_shipped_to_sf_table = $('#total_part_shipped_to_sf_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[15, "asc"]], 
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,20]
+                    },
+                    title: 'total_part_shipped_to_sf'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '16', status: '<?php echo TOTAL_PARTS_SHIPPED_TO_SF; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1636,6 +1803,28 @@
                 data: { download_flag :true},
                 success: function (data) {
                     $('#download_spare_oot').html("Download").attr('disabled',false);
+                    var obj = JSON.parse(data); 
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+     });
+     
+     
+    /*
+     * @desc: Download the Total shipped part to SF data. 
+     */
+     $("#download_total_shipped_part").click(function (){
+        $('#download_total_shipped_part').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/spare_parts/download_total_spare_shipped_part_sf_data',
+                data: { download_flag :true},
+                success: function (data) {
+                    $('#download_total_shipped_part').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
                     if(obj['status']){
                         window.location.href = obj['msg'];

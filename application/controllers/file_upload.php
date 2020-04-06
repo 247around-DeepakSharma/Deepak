@@ -344,7 +344,7 @@ class File_upload extends CI_Controller {
                             (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
                             ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
 
-                        $where['hsn_code'] = $rowData['hsn_code'];
+                        $where['hsn_code'] = trim($rowData['hsn_code']);
 
                         $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
 
