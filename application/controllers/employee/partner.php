@@ -1,4 +1,4 @@
-<?php
+    <?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -2223,14 +2223,16 @@ class Partner extends CI_Controller {
         
         
         $shipped_part_details = $this->input->post("part");
-/* if parts empty no need to run loop */
-    if(!empty($shipped_part_details)){
-        foreach ($shipped_part_details as $key => $val) {
-            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+        /* if parts empty no need to run loop */
+        if(!empty($shipped_part_details)) {
+            foreach ($shipped_part_details as $key => $val) {
+                if (isset($val['spare_part_warranty_status'])) {
+                    if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    }
+                }
             }
-        }    
-    }
+        }
 
 
 
