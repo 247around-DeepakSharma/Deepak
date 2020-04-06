@@ -198,3 +198,5 @@ define('LED_BAR', 'LED BAR');
 define('OPEN_CELL_PART_TYPE', 'OPEN CELL');
 // Totala Parts shipped to SF
 define('TOTAL_PARTS_SHIPPED_TO_SF','Total Parts Shipped To SF');
+// spare parts out of tat days
+define('SPARE_PARTS_OOT_DAYS', '45');

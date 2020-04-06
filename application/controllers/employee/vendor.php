@@ -1011,7 +1011,8 @@ class vendor extends CI_Controller {
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
-                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           // This msg is already being sent from miscelleneous.php in assign_vendor_process function
+//                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
                            //End Push Notification
                             $count++;
 

@@ -175,7 +175,7 @@ function check_text(){
                 <div class="form-group <?php if( form_error('cancellation_reason_text') ) { echo 'has-error';} ?>">                
                   <label for="cancellation_reason" class="col-md-2">Remarks </label>
                   <div class="col-md-6">
-                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" placeholder="Please Enter Remarks" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" ></textarea>                            
+                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" placeholder="Please Enter Remarks" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" required></textarea>                            
                   </div>
                 </div>
                 <?php  //}?>

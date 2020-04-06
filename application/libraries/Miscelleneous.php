@@ -4499,9 +4499,9 @@ function generate_image($base64, $image_name,$directory){
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = '';
-            $track_partner_id = '';
-            $track_entity_type = '';
+            $agentid = $this->My_CI->session->userdata('id');
+            $track_partner_id = _247AROUND;
+            $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
 
         $tcount = 0;

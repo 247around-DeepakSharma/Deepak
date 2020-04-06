@@ -345,6 +345,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             <div class="modal-body">
                 <div class="col-md-12">
                     <center><img id="loader_gif_<?=$review_status?>_<?=$is_partner?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    <center><p id="remarks_msg_<?=$review_status?>_<?=$is_partner?>" style="color : red;"></p></center>
                 </div>
                 <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?>" value="">
                 <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?>"></textarea>
