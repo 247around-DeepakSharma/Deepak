@@ -3878,11 +3878,44 @@ class Inventory extends CI_Controller {
                 $data = date('Y-m-d', strtotime($data));
             }
             $booking_id = $this->input->post('booking_id');
-            $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            if($column!='shipped_date'){
+                $this->service_centers_model->update_spare_parts(array('id' => $id), array($column => $data));
+            }
             // if serial number is changed , update in booking_unit_details table also.
             if(!empty($booking_id) && $column == 'serial_number')
             {
                 $this->booking_model->update_booking_unit_details($booking_id, array($column => $data));
+            }
+            //Updating Shipment Date
+            if (!empty($this->input->post('awb_number')) && $column == 'shipped_date') {
+                $awb_number = $this->input->post('awb_number');
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $awb_number), array('shippment_date' => date('Y-m-d H:i:s', strtotime($data)))); // Update shipment Date on Courier company invoice detail table
+                $allSpares = $this->service_centers_model->get_spare_parts_booking(array('awb_by_partner' => $awb_number), "spare_parts_details.id,spare_parts_details.shipped_date"); // Get all Spare parts in same Awb number and update All spare parts
+                if (!empty($allSpares)) {
+                    if ($this->session->userdata('employee_id')) {
+                        $agent_id = $this->session->userdata('id');
+                        $agent_name = $this->session->userdata('employee_id');
+                        $entity_id = _247AROUND;
+                        $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                    } else if ($this->session->userdata('partner_id')) {
+                        $agent_id = $this->session->userdata('agent_id');
+                        $agent_name = $this->session->userdata('partner_name');
+                        $entity_id = $this->session->userdata('partner_id');
+                        $track_entity_type = _247AROUND_PARTNER_STRING;
+                    } else if ($this->session->userdata('service_center_id')) {
+                        $agent_id = $this->session->userdata('service_center_agent_id');
+                        $agent_name = $this->session->userdata('service_center_name');
+                        $entity_id = $this->session->userdata('service_center_id');
+                        $track_entity_type = _247AROUND_SF_STRING;
+                    }
+                    foreach ($allSpares as $key => $spare_ids) {
+                        if ($spare_ids['shipped_date'] != $data) {
+                            $this->service_centers_model->update_spare_parts(array('id' => $spare_ids['id']), array($column => $data));
+                            $tracking_details = array('spare_id' => $spare_ids['id'], 'action' => 'Shipment Date Changed to ' . $data, 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
+                        }
+                    }
+                }
             }
             echo "Success";
         } else {
@@ -3933,11 +3966,41 @@ class Inventory extends CI_Controller {
 
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
-            $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            if($spareColumn != 'courier_pic_by_partner'){
+                $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
+            }
             // if serial number image is changed , update in booking_unit_details table also.
             if(!empty($bookingID) && $spareColumn == 'serial_number_pic')
             {
                 $this->booking_model->update_booking_unit_details($bookingID, array($spareColumn => $defective_parts_pic));
+            }
+            if (!empty($this->input->post('awb_number')) && $spareColumn == 'courier_pic_by_partner') {
+                $awb_number = $this->input->post('awb_number');
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $awb_number), array('courier_invoice_file' => $defective_parts_pic)); // Update Courier file on Courier company invoice detail table
+                $allSpares = $this->service_centers_model->get_spare_parts_booking(array('awb_by_partner' => $awb_number), "spare_parts_details.id,spare_parts_details.shipped_date"); // Get all Spare parts in same Awb number and update All spare parts
+                if (!empty($allSpares)) {
+                    if ($this->session->userdata('employee_id')) {
+                        $agent_id = $this->session->userdata('id');
+                        $agent_name = $this->session->userdata('employee_id');
+                        $entity_id = _247AROUND;
+                        $track_entity_type = _247AROUND_EMPLOYEE_STRING;
+                    } else if ($this->session->userdata('partner_id')) {
+                        $agent_id = $this->session->userdata('agent_id');
+                        $agent_name = $this->session->userdata('partner_name');
+                        $entity_id = $this->session->userdata('partner_id');
+                        $track_entity_type = _247AROUND_PARTNER_STRING;
+                    } else if ($this->session->userdata('service_center_id')) {
+                        $agent_id = $this->session->userdata('service_center_agent_id');
+                        $agent_name = $this->session->userdata('service_center_name');
+                        $entity_id = $this->session->userdata('service_center_id');
+                        $track_entity_type = _247AROUND_SF_STRING;
+                    }
+                    foreach ($allSpares as $key => $spare_ids) {
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_ids['id']), array($spareColumn => $defective_parts_pic));
+                        $tracking_details = array('spare_id' => $spare_ids['id'], 'action' => 'Courier File Changed.', 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $track_entity_type);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
+                    }
+                }
             }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
