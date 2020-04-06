@@ -309,8 +309,8 @@
       var reason = $.trim($('#spare_cancel_reason option:selected').text());
       var cancel_id = $('#spare_cancel_reason option:selected').val();
       var table_type = $("#reload_table_id").val();
-      
-      if(($('#spare_cancel_reason').parent("div").css('display') !== 'none') && ($('#spare_cancel_reason').length === 1) && ($.trim(reason) === "")) {
+
+      if(($('#spare_cancel_reason').parent("div").css('display') !== 'none') && ($('#spare_cancel_reason').length === 1) && !($.isNumeric(cancel_id))) {
           alert("Please Enter Spare Cancellation Reason");
           return false;
       }
