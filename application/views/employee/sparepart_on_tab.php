@@ -692,6 +692,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">AWB Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -778,6 +779,7 @@
                                     <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Shipped Part</th>
                                     <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                    <th class="text-center" data-orderable="false">AWB Number</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
@@ -1315,7 +1317,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 ]
                     },
                     title: 'sf_received_part'
                 }
