@@ -2633,7 +2633,7 @@ class Inventory extends CI_Controller {
 
         $list = $this->inventory_model->get_inventory_master_list($post, $select);
 
-        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
+        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array()), 'public_name', 'id');
         $data = array();
         $no = $post['start'];
         foreach ($list as $stock_list) {
@@ -2651,7 +2651,7 @@ class Inventory extends CI_Controller {
     function get_inventory_master_list_table($stock_list, $no, $partners) {
         $row = array();
         if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
-            $stock_list->entity_public_name = $partners[$stock_list->entity_id];
+            $stock_list->entity_public_name = $partners[$stock_list->entity_id ];
         }
         $json_data = json_encode($stock_list);
 
