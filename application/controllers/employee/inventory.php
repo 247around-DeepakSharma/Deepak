@@ -3171,6 +3171,7 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_stocks_details() {
         $post = $this->get_post_data();
+        $return_new_part_flag = trim($this->input->post('return_new_part_to_partner'));
         if (($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))) {
             $post[''] = array();
             $post['column_order'] = array();
@@ -3207,7 +3208,7 @@ class Inventory extends CI_Controller {
             );
             foreach ($list as $inventory_list) {
                 $no++;
-                $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+                $row = $this->get_inventory_stocks_details_table($inventory_list, $no, $return_new_part_flag);
                 $data[] = $row;
 
                 $tSum = $this->get_inventory_stock_total($inventory_list);
@@ -3510,7 +3511,7 @@ class Inventory extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $inventory_list) {
             $no++;
-            $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+            $row = $this->get_inventory_stocks_details_table($inventory_list, $no, false);
             $data[] = $row;
         }
 
@@ -3523,9 +3524,10 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-    private function get_inventory_stocks_details_table($inventory_list, $sn) {
+
+
+    private function get_inventory_stocks_details_table($inventory_list, $sn, $return_new_part_flag) {
         $row = array();
-        
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
@@ -3546,8 +3548,11 @@ class Inventory extends CI_Controller {
 
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
+            if ($return_new_part_flag == 1) {
+                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price), 2) . '</span>';
+            } else {
+                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
+            }
         } else {
 
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
@@ -3559,8 +3564,11 @@ class Inventory extends CI_Controller {
 
             $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
 
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+            if ($return_new_part_flag == 1) {
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) round(($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100)), 2), 2, '.', '') . "</span>";
+            } else {
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+            }
         } else {
 
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
