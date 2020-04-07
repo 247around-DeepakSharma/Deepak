@@ -1701,7 +1701,7 @@ class invoices_model extends CI_Model {
 //            }
             // we have no gst number then we generte bill of supply.
             // If we have gst number but gst status is cancelled then we are not generating invoice
-            if (!empty($result['booking'][0]['gst_number']) && !empty($result['booking'][0]['gst_status']) && ($result[0]['gst_status'] != _247AROUND_CANCELLED)) {
+            if (!empty($result['booking'][0]['gst_number']) && !empty($result['booking'][0]['gst_status']) && (!empty($result[0]['gst_status']) && $result[0]['gst_status'] != _247AROUND_CANCELLED)) {
                 return $result;
                
             } else {
