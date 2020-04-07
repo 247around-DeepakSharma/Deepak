@@ -717,9 +717,8 @@ class Spare_parts extends CI_Controller {
         
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.spare_lost,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type,spare_parts_details.is_micro_wh, spare_parts_details.id, spare_parts_details.parts_requested_type,"
-
-                . "defective_part_required, partner_challan_file, parts_requested, inventory_master_list.part_number,im.part_number as shipped_part_number ";
-        $post['column_order'] = array(NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_shipped_date', NULL, NULL, NULL);
+                . "defective_part_required, partner_challan_file, parts_requested, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.awb_by_partner, spare_parts_details.courier_name_by_partner ";
+        $post['column_order'] = array(NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_shipped_date', NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -1226,6 +1225,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->shipped_quantity;
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->awb_by_partner . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->courier_name_by_partner . "</span>";
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
         if(!empty($spare_list->partner_challan_file)){
