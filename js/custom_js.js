@@ -203,8 +203,6 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['partner_id'] = $("#partner_id").val();;
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
-        // sending all prev. selected prices tags with ajax request, to select them again if price table changes
-        postData['selected_price_tags'] = (($("#selected_price_tags").val()) ? $("#selected_price_tags").val(): "");
         if(postData['is_repeat'] !== 1) {
             console.log("is_repeat");
             $('#submitform').attr('disabled', true);
@@ -228,7 +226,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                 $("#priceList_" + div_no[2]).html(data1.price_table);
                 $("#upcountry_data").val(data1.upcountry_data);
                 final_price();
-                if((postData['is_repeat'] == 1) || ($("input[type=checkbox]:checked").length > 0)) {
+                if(postData['is_repeat'] == 1) {
                     $('#submitform').attr('disabled', false);
                 }
             });
@@ -1340,10 +1338,8 @@ function getCapacityCategoryForModel(model_number, div_id) {
     postData['partner_id'] = $("#partner_id").val();
     sendAjaxRequest(postData, CategoryCapacityForModelUrl).done(function (data) {
         var obj = JSON.parse(data);
-        $("#appliance_brand_" + div_no[2]).val(obj[0]['brand']);
         $("#appliance_category_" + div_no[2]).val(obj[0]['category']);
         $("#appliance_capacity_" + div_no[2]).val(obj[0]['capacity']);
-        
         getPricesForCategoryCapacity(div_id,false);
     });
 }
