@@ -2614,7 +2614,7 @@ class Inventory extends CI_Controller {
 
         $list = $this->inventory_model->get_inventory_master_list($post, $select);
 
-        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1, 'partners.is_wh' => 1)), 'public_name', 'id');
+        $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array()), 'public_name', 'id');
         $data = array();
         $no = $post['start'];
         foreach ($list as $stock_list) {
@@ -2632,7 +2632,7 @@ class Inventory extends CI_Controller {
     function get_inventory_master_list_table($stock_list, $no, $partners) {
         $row = array();
         if ($stock_list->entity_type === _247AROUND_PARTNER_STRING) {
-            $stock_list->entity_public_name = $partners[$stock_list->entity_id];
+            $stock_list->entity_public_name = $partners[$stock_list->entity_id ];
         }
         $json_data = json_encode($stock_list);
 
@@ -3144,6 +3144,7 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_stocks_details() {
         $post = $this->get_post_data();
+        $return_new_part_flag = trim($this->input->post('return_new_part_to_partner'));
         if (($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type') && $this->input->post('sender_entity_id') && $this->input->post('sender_entity_type'))) {
             $post[''] = array();
             $post['column_order'] = array();
@@ -3180,7 +3181,7 @@ class Inventory extends CI_Controller {
             );
             foreach ($list as $inventory_list) {
                 $no++;
-                $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+                $row = $this->get_inventory_stocks_details_table($inventory_list, $no, $return_new_part_flag);
                 $data[] = $row;
 
                 $tSum = $this->get_inventory_stock_total($inventory_list);
@@ -3483,7 +3484,7 @@ class Inventory extends CI_Controller {
         $no = $post['start'];
         foreach ($list as $inventory_list) {
             $no++;
-            $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
+            $row = $this->get_inventory_stocks_details_table($inventory_list, $no, false);
             $data[] = $row;
         }
 
@@ -3497,9 +3498,9 @@ class Inventory extends CI_Controller {
         echo json_encode($output);
     }
 
-    private function get_inventory_stocks_details_table($inventory_list, $sn) {
+    private function get_inventory_stocks_details_table($inventory_list, $sn, $return_new_part_flag) {
         $row = array();
-
+       ///echo $return_new_part_flag;
         $row[] = $sn;
         $row[] = '<span id="services_' . $inventory_list->inventory_id . '">' . $inventory_list->services . '</span>';
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
@@ -3520,8 +3521,11 @@ class Inventory extends CI_Controller {
 
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
-
-            $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
+            if ($return_new_part_flag == 1) {
+                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price), 2) . '</span>';
+            } else {
+                $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . number_format(($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor)), 2) . '</span>';
+            }
         } else {
 
             $row[] = '<span id="basic_' . $inventory_list->inventory_id . '">' . round($inventory_list->price, 2) . '</span>';
@@ -3533,8 +3537,11 @@ class Inventory extends CI_Controller {
 
             $repair_oow_around_percentage_vendor = $inventory_list->oow_around_margin / 100;
 
-
-            $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+            if ($return_new_part_flag == 1) {
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) round(($inventory_list->price) + (($inventory_list->price) * ($inventory_list->gst_rate / 100)), 2), 2, '.', '') . "</span>";
+            } else {
+                $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory_list->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
+            }
         } else {
 
             $row[] = '<span id="total_amount_' . $inventory_list->inventory_id . '">' . number_format((float) ($inventory_list->price + ($inventory_list->price * ($inventory_list->gst_rate / 100))), 2, '.', '') . "</span>";
@@ -5410,7 +5417,7 @@ class Inventory extends CI_Controller {
 
         if ($data->is_wh_micro == 2) {
             $where['sell_invoice_id'] = $data->invoice_id;
-            $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '")'] = NULL;
+            $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
         }
 
         $update = array();
@@ -5532,7 +5539,7 @@ class Inventory extends CI_Controller {
                     'requested_inventory_id' => $data->inventory_id);
                 if ($data->is_wh_micro == 2) {
                     $where1['partner_id '] = $sender_entity_id;
-                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '")'] = NULL;
+                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
                     $where1['service_center_id'] = $receiver_entity_id;
                     $where1['spare_parts_details.entity_type IN ("' . _247AROUND_PARTNER_STRING . '","' . _247AROUND_SF_STRING . '")'] = NULL;
                 }
