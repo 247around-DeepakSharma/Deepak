@@ -48,7 +48,7 @@ td, th {
         </tr>
         <tr>
             <td><strong>Symptom</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['public_name'])){     echo $value['public_name'];} ?></strong></td>
+            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['symptom'])){     echo $value['symptom'];} ?></strong></td>
         </tr>
         <tr>
             <td style="border-right:none; height:55px;"><strong>SF/Eng Sign</strong></td>
