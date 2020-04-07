@@ -7696,7 +7696,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 foreach ($data as $key => $value) {
                     $foundedData[] = $value['awb_number'];
                     $html .= "<tr>";
-                    $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['invoice_id'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td><td>" . $value['update_date'] . "</td><td>" . $value['create_date'] . "</td>";
+                    $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td><td>" . $value['update_date'] . "</td><td>" . $value['create_date'] . "</td>";
                     $html .= "</tr>";
                 }
                 $returndata['status'] = "success";
