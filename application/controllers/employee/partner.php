@@ -1579,7 +1579,8 @@ class Partner extends CI_Controller {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-
+            // get booking request type
+            $booking_request_type = !empty($bookinghistory[0]['request_type']) ? $bookinghistory[0]['request_type'] : "";
             $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
             if (!empty($escalation_remarks)) {
                 $remarks = $escalation_reason[0]['escalation_reason'] . " -" .
@@ -1676,7 +1677,7 @@ class Partner extends CI_Controller {
                     $value['remarks'] = $escalation_remarks;
                     $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                     //Adding values in penalty on booking table
-                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
 
                     log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 }
