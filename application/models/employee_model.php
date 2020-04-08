@@ -118,14 +118,14 @@ class Employee_model extends CI_Model{
        * 
        */
       function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM]){
-          $this->db->select('employee.*, rm_region_mapping.region');
-          $this->db->join('rm_region_mapping', 'employee.id = rm_region_mapping.rm_id', 'left');
+          $this->db->select('employee.*, zones.zone');
+          $this->db->join('rm_zone_mapping', 'employee.id = rm_zone_mapping.rm_id', 'left');
+          $this->db->join('zones', 'rm_zone_mapping.zone_id = zones.id', 'left');
           $this->db->where_in('employee.groups', $arr_groups);
           $this->db->where('employee.active','1');
           $query = $this->db->get('employee');          
           return $query->result_array();
       }
-      
       
       /**
        * @Desc: This function is used to get RM's from employee table
@@ -407,9 +407,10 @@ class Employee_model extends CI_Model{
      * @date : 22-01-2020
     */
     function get_regions(){
-        $this->db->select('region,rm_id');
+        $this->db->select('zones.zone as region,rm_id');
         $this->db->distinct();
-        $query = $this->db->get('rm_region_mapping');
+        $this->db->join('zones', 'rm_zone_mapping.zone_id = zones.id');
+        $query = $this->db->get('rm_zone_mapping');
         return $query->result_array();
     }
     
@@ -423,7 +424,7 @@ class Employee_model extends CI_Model{
     function map_region_to_rm($region, $rm_id){
         $this->db->set("rm_id",$rm_id);
         $this->db->where('region', $region);
-        $this->db->update("rm_region_mapping");
+        $this->db->update("rm_zone_mapping");
     }
     
     function insertData_agent_state_mapping($insert)

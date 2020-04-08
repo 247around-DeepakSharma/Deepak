@@ -455,9 +455,9 @@ class Dashboard extends CI_Controller {
         }
         foreach ($rm_array as $value) {
             $rm_head = false;
-            if(!empty($value['region'])){
+            if(!empty($value['zone'])){
                 $rm_head = true;
-                $region[] = $value['region'];
+                $region[] = $value['zone'];
             }
             
             if($rm_head){
@@ -466,7 +466,7 @@ class Dashboard extends CI_Controller {
                     $sf_id = $sf_list[0]['service_centres_id'];
                     $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
                     // Add region name along with RM Name
-                    array_push($rm, $value['full_name']."<br/>(".$value['region'].")");
+                    array_push($rm, $value['full_name']."<br/>(".$value['zone'].")");
                     foreach ($region_data[0] as $key => $value) {
                         switch ($key) {
                             case 'Cancelled':
@@ -2043,18 +2043,18 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              if($this->session->userdata('partner_id') ){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
-                    $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
+                    $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
                             . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
                 else{
 			if($request_type == 'Repair_with_part'){
-                            $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
+                            $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
 		    	}
 		   	else {
-                            $select = "rm_region_mapping.region as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
-                                        . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                        }
+                            $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        }                
                 }
             }
             else{
@@ -2074,7 +2074,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
             }
             $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-            $conditionsArray['join']['rm_region_mapping'] = "service_centres.rm_id = rm_region_mapping.rm_id";
+            $conditionsArray['join']['rm_zone_mapping'] = "service_centres.rm_id = rm_zone_mapping.rm_id";
+            $conditionsArray['join']['zones'] = "rm_zone_mapping.zone_id = zones.id";
             if($agent_type == _247AROUND_RM)
             {
                 $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
@@ -2087,7 +2088,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             {
                 $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";
             }
-            $conditionsArray['joinType']['rm_region_mapping'] = 'left';
+            $conditionsArray['joinType']['rm_zone_mapping'] = 'left';
+            $conditionsArray['joinType']['zones'] = 'left';
 	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
@@ -2136,7 +2138,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * get id's of rm's who don't report to other rms
      */
     private function get_top_level_rm_ids(){
-        return $this->reusable_model->get_search_result_data("rm_region_mapping", "rm_region_mapping.rm_id as 'id'", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        return $this->reusable_model->get_search_result_data("rm_zone_mapping", "rm_zone_mapping.rm_id as 'id'", NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     }
     /**
      * get arm ids under rm

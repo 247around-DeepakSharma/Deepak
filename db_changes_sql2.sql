@@ -2279,7 +2279,7 @@ update state_code set zone_id = '2' where state_code = '36';
 
 --Ankit Rajvanshi 07-04-2020
 UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
- 
+
 -- Prity Sharma 08-04-2020
 ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
