@@ -7260,7 +7260,7 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
             . '('
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
@@ -7275,7 +7275,7 @@ class Partner extends CI_Controller {
         $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -7324,6 +7324,13 @@ class Partner extends CI_Controller {
                      $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                    
                     $tempArray[] = $row['remarks_defective_part_by_sf'];
+                    if($row['is_consumed'] == 1) {
+                        $tempArray[] = 'Yes'; 
+                    }else if($row['is_consumed'] == 0) {
+                        $tempArray[] = 'No'; 
+                    }else {
+                        $tempArray[] = ''; 
+                    }
                     if (!empty($row['defective_part_shipped'])) {
                             if(empty($row['defective_part_shipped'])){
                              $tempString5 = 'disabled="disabled"';
