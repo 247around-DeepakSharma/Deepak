@@ -129,6 +129,7 @@ class Employee_model extends CI_Model{
       
       
 <<<<<<< HEAD
+<<<<<<< HEAD
       function get_rm_region($region=null){
 <<<<<<< HEAD
         $this->db->select('employee.full_name, zones.zone');
@@ -159,6 +160,8 @@ class Employee_model extends CI_Model{
 >>>>>>> parent of ada10458d... CRM-5778: Add Confirmation box while changing RM Region
      }
      
+=======
+>>>>>>> parent of 9aac2f8ca... CRM-5778: Add Confirmation box while changing RM Region
       /**
        * @Desc: This function is used to get RM's from employee table
        * @params: void
