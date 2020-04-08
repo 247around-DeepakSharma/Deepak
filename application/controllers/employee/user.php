@@ -432,10 +432,10 @@ class User extends CI_Controller {
         $this->load->view('employee/rm_state_mapping', $data);
     }
 
-     function get_rm_from_region(){
-        $region = $this->input->post('region');
-        $data['employee_rm'] = $this->employee_model->get_rm_region($region);
+    function rm_state_unmap(){
+        $data['employee_rm'] = $this->employee_model->rm_detail_unmap();
         echo json_encode($data);
+
     }
     /**
      * @Desc: This function is used to process rm state mapping form

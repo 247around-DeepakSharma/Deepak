@@ -383,21 +383,22 @@
     $(".region_div .select2-selection__rendered").on('click',function(){
         selValue1 = $("#region").val()
     })
-    
+
     var name = $("#full_name").val();
     $("#region").change(function(){
         var selValue = $(this).val();
-        var sendData = {region:selValue};
         $.ajax({
             type:'POST',
-            data:sendData,
-            url: '<?php echo base_url(); ?>employee/user/get_rm_from_region',  
+            url: '<?php echo base_url(); ?>employee/user/rm_state_unmap',  
             async: false, 
             success: function(response) {
                 response = JSON.parse(response);
-                response = response['employee_rm'];
+                response = response['employee_rm']
+                
+                for (var i = 0; i < response.length; i++) {
 
-                        var r = confirm('This region is already mapped with '+ response[0].full_name +'. Are you sure you want to un-map ' + selValue1 +' from '+ name +'.');
+                    if(response[i].region == selValue){
+                        var r = confirm('This region is already mapped with '+ response[i].full_name+'. Are you sure you want to un-map ' + selValue1 +' from '+ name +'.');
                         if(r == true){
                             console.log('RM Changed')
                         }
@@ -407,9 +408,13 @@
                             $(".region_div .select2-selection__rendered").attr('title',selValue1);
                             console.log('RM not Changed')
                         }
+                        break;
+                    }               
+
                 }
+            }
         });
-     })
+    })
 
 
 </script>
