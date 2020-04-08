@@ -129,8 +129,14 @@ class Penalty_model extends CI_Model {
      * @param Array $value
      * @param Array $where
      */
-    function get_data_penalty_on_booking($value, $where) {
+    function get_data_penalty_on_booking($value, $where, $booking_request_type = "") {
         log_message('info', __FUNCTION__ . " value: " . print_r($value, TRUE) . " where: " . print_r($where, TRUE));
+        
+        // Do not add penalty, if Request type is of service-center visit
+        if(!empty($booking_request_type) && strpos(strtoupper(str_replace(" ","",$booking_request_type)), "SERVICECENTERVISIT") !== false){
+            return;   
+        }        
+        
         $penalty_details = $this->get_penalty_details($where);
         if ($penalty_details) {
             $data['booking_id'] = $value['booking_id'];
@@ -243,6 +249,10 @@ class Penalty_model extends CI_Model {
                     $booking_not_update = 0;
                     foreach ($booking_id_array as $booking_id) {
                         $data = $this->check_any_update_in_state_change($booking_id, $value['assigned_vendor_id']);
+                        // fetch booking request type
+                        // Penalty will not be added, if Request type is of service-center visit
+                        $booking_data = $this->booking_model->get_bookings_count_by_any('booking_details.request_type',array('booking_details.booking_id'=>$booking_id));
+                        $booking_request_type = !empty($booking_data[0]['request_type']) ? $booking_data[0]['request_type'] : "";
                         if (empty($data)) {
                             $data1['agent_id'] = _247AROUND_DEFAULT_AGENT;
                             $data1['remarks'] = 'Booking Not Updated On Time';
@@ -250,7 +260,7 @@ class Penalty_model extends CI_Model {
                             $data1['booking_id'] = $booking_id;
                             $data1['assigned_vendor_id'] = $value['assigned_vendor_id'];
                             $data1['agent_type'] = 'admin';
-                            $this->get_data_penalty_on_booking($data1, $where);
+                            $this->get_data_penalty_on_booking($data1, $where, $booking_request_type);
                             $booking_not_update++;
                         }
                     }

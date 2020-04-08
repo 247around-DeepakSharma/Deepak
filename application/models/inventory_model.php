@@ -3673,5 +3673,32 @@ class Inventory_model extends CI_Model {
         }
 
         return true;
-    }    
+    } 
+    
+    
+    /**
+     * @desc This function is used to get Spare Tag details
+     * @param: void
+     * @return: Array
+     */
+    
+    function get_spare_tag_details($select, $where) {
+
+        $this->db->from('spare_parts_details');
+        $this->db->select($select);
+
+        $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id', "left");
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
+        $this->db->join('partners', 'partners.id = booking_details.partner_id', "left");
+        $this->db->join('inventory_master_list as i', 'i.inventory_id = spare_parts_details.shipped_inventory_id', "left");
+        $this->db->join('symptom', 'spare_parts_details.spare_request_symptom = symptom.id', "left");
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
 }

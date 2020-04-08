@@ -5417,7 +5417,7 @@ class Inventory extends CI_Controller {
 
         if ($data->is_wh_micro == 2) {
             $where['sell_invoice_id'] = $data->invoice_id;
-            $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '")'] = NULL;
+            $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
         }
 
         $update = array();
@@ -5539,7 +5539,7 @@ class Inventory extends CI_Controller {
                     'requested_inventory_id' => $data->inventory_id);
                 if ($data->is_wh_micro == 2) {
                     $where1['partner_id '] = $sender_entity_id;
-                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '")'] = NULL;
+                    $where1['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
                     $where1['service_center_id'] = $receiver_entity_id;
                     $where1['spare_parts_details.entity_type IN ("' . _247AROUND_PARTNER_STRING . '","' . _247AROUND_SF_STRING . '")'] = NULL;
                 }
@@ -7636,7 +7636,7 @@ class Inventory extends CI_Controller {
                 foreach ($data as $key => $value) {
                     $foundedData[] = $value['awb_number'];
                     $html .= "<tr>";
-                    $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['invoice_id'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td><td>" . $value['update_date'] . "</td><td>" . $value['create_date'] . "</td>";
+                    $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td><td>" . $value['update_date'] . "</td><td>" . $value['create_date'] . "</td>";
                     $html .= "</tr>";
                 }
                 $returndata['status'] = "success";
