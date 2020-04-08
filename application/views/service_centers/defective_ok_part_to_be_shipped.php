@@ -26,6 +26,7 @@ if ($this->uri->segment(3)) {
                                         
                                         <th class="text-center">Consumption</th>
                                         <th class="text-center">Consumption Reason</th>
+                                        <th class="text-center" >Spare Tag<br><input type="checkbox" id="selectall_spare_tag" > </th>
                                         <th class="text-center" >Address<br><input type="checkbox" id="selectall_address" > </th>
                                         <th class="text-center" >Challan<br><input type="checkbox" id="selectall_challan_file" > </th>   
                                         <th class="text-center" >Bulk Send<br><input type="checkbox" id="selectall_send_courier" > </th>                          
@@ -72,6 +73,9 @@ if ($this->uri->segment(3)) {
                                                     echo 'No';
                                                 } ?></td>
                                             <td><?php echo $row['consumed_status']; ?></td>
+                                            <td>
+                                                <input type="checkbox" class="form-control checkbox_spare_tag" onclick="remove_all_spare_tag_all()" name="download_spare_tag[]"  value="<?php echo $row['id']; ?>" />
+                                            </td>
                                             <td>
                                                 <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id']; ?>" />
                                             </td>
@@ -470,6 +474,11 @@ if ($this->uri->segment(3)) {
         var flag = 0;
         //$('.checkbox_address').each(function (i) {
 
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m_s.length > 0) {
+            flag = 1;
+        }
+        
         var d_m = $('.checkbox_address:checked');
         if (d_m.length > 0) {
             flag = 1;
@@ -500,9 +509,12 @@ if ($this->uri->segment(3)) {
     $("#selectall_address").change(function () {
         var d_m = $('.checkbox_challan:checked');
         var d_mm = $('.checkbox_courier:checked');
-        if (d_m.length > 0 || d_mm.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_mm.length > 0 || d_m_s.length > 0) {
             $('.checkbox_challan').prop('checked', false);
             $('.checkbox_courier').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
             $('#selectall_send_courier').prop('checked', false);
         }
@@ -518,11 +530,13 @@ if ($this->uri->segment(3)) {
     $("#selectall_challan_file").change(function () {
         var d_m = $('.checkbox_address:checked');
         var d_mm = $('.checkbox_courier:checked');
-        if (d_m.length > 0 || d_mm.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_mm.length > 0 || d_m_s.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('.checkbox_courier').prop('checked', false);
             $('#selectall_address').prop('checked', false);
-            //  $('#selectall_challan_file').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
             $('#selectall_send_courier').prop('checked', false);
         }
         $(".checkbox_challan").prop('checked', $(this).prop("checked"));
@@ -536,10 +550,13 @@ if ($this->uri->segment(3)) {
     $("#selectall_send_courier").change(function () {
         var d_m = $('.checkbox_address:checked');
         var d_mm = $('.checkbox_challan:checked');
-        if (d_m.length > 0 || d_mm.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_mm.length > 0 || d_m_s.length > 0 ) {
 
             $('.checkbox_challan').prop('checked', false);
             $('.checkbox_address').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
             $('#selectall_address').prop('checked', false);
         }
@@ -548,33 +565,82 @@ if ($this->uri->segment(3)) {
         $("#button_send").attr("type", "button");
         $("#button_send").attr("data-target", "#courier_update");
     });
+    
+    
+    $("#selectall_spare_tag").change(function () {
+        var d_m = $('.checkbox_challan:checked');
+        var d_mm = $('.checkbox_courier:checked');
+        var d_ms = $('.checkbox_address:checked');
+        if (d_m.length > 0 || d_mm.length > 0 || d_ms.length > 0) {
+            $('.checkbox_challan').prop('checked', false);
+            $('.checkbox_courier').prop('checked', false);
+            $('.checkbox_address').prop('checked', false);
+            $('#selectall_challan_file').prop('checked', false);
+            $('#selectall_send_courier').prop('checked', false);
+            $('#selectall_address').prop('checked', false);
+        }
+
+        $(".checkbox_spare_tag").prop('checked', $(this).prop("checked"));
+        $("#button_send").val("Print Shipment Address");
+        $("#button_send").attr("type", "submit");
+        $("#button_send").removeAttr("data-target");
+
+
+    });
 
 
     function remove_select_all() {
         $('#selectall_address').prop('checked', false);
         $('#selectall_send_courier').prop('checked', false);
         $('#selectall_challan_file').prop('checked', false);
+        $('#selectall_spare_tag').prop('checked', false);
         var d_m = $('.checkbox_challan:checked');
         var d_m_d = $('.checkbox_courier:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_s.length > 0) {
             $('.checkbox_challan').prop('checked', false);
             $('.checkbox_courier').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
             $('#selectall_send_courier').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
         }
     }
+    
+    function remove_all_spare_tag_all() {
+        $('#selectall_spare_tag').prop('checked', false);
+        $('#selectall_address').prop('checked', false);
+        $('#selectall_send_courier').prop('checked', false);
+        $('#selectall_challan_file').prop('checked', false);
+        var d_m = $('.checkbox_challan:checked');
+        var d_m_d = $('.checkbox_courier:checked');
+        var d_m_addr = $('.checkbox_address:checked');
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_addr.length > 0) {
+            $('.checkbox_challan').prop('checked', false);
+            $('.checkbox_courier').prop('checked', false);
+            $('.checkbox_address').prop('checked', false);
+            $('#selectall_challan_file').prop('checked', false);
+            $('#selectall_send_courier').prop('checked', false);
+            $('#selectall_address').prop('checked', false);
+        }
+    }
+    
 
     function remove_select_all_challan() {
         $('#selectall_challan_file').prop('checked', false);
         $('#selectall_send_courier').prop('checked', false);
         $('#selectall_address').prop('checked', false);
+        $('#selectall_spare_tag').prop('checked', false);
         var d_m = $('.checkbox_address:checked');
         var d_m_d = $('.checkbox_courier:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_s.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('.checkbox_courier').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
             $('#selectall_address').prop('checked', false);
             $('#selectall_send_courier').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
         }
     }
 
@@ -582,13 +648,17 @@ if ($this->uri->segment(3)) {
         $('#selectall_send_courier').prop('checked', false);
         $('#selectall_challan_file').prop('checked', false);
         $('#selectall_address').prop('checked', false);
+        $('#selectall_spare_tag').prop('checked', false);
         var d_m = $('.checkbox_address:checked');
         var d_m_d = $('.checkbox_challan:checked');
-        if (d_m.length > 0 || d_m_d.length > 0) {
+        var d_m_s = $('.checkbox_spare_tag:checked');
+        if (d_m.length > 0 || d_m_d.length > 0 || d_m_s.length > 0) {
             $('.checkbox_address').prop('checked', false);
             $('.checkbox_challan').prop('checked', false);
+            $('.checkbox_spare_tag').prop('checked', false);
             $('#selectall_address').prop('checked', false);
             $('#selectall_challan_file').prop('checked', false);
+            $('#selectall_spare_tag').prop('checked', false);
         }
     }
 

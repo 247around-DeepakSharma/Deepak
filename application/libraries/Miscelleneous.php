@@ -2681,8 +2681,11 @@ class Miscelleneous {
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
                 //get account manager details
                 $am_email = "";
-                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state',array('booking_details.booking_id'=>$booking_id));
+                $booking_request_type = "";
+                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state, booking_details.request_type',array('booking_details.booking_id'=>$booking_id));
                 if(!empty($booking_data)){
+                    // get booking request type
+                    $booking_request_type = $booking_data[0]['request_type'];
                     $accountManagerData = $this->get_am_data($booking_data[0]['partner_id'],$booking_data[0]['state']);
                     
                     if(!empty($accountManagerData)){
@@ -2735,7 +2738,7 @@ class Miscelleneous {
                 $value['agent_type'] = 'admin';
                 $where = array('escalation_id' => $escalation_reason_id, 'active' => '1');
                 //Adding values in penalty on booking table
-                $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where);
+                $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
                 log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 return TRUE;
 	    }

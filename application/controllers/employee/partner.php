@@ -1577,7 +1577,8 @@ class Partner extends CI_Controller {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-
+            // get booking request type
+            $booking_request_type = !empty($bookinghistory[0]['request_type']) ? $bookinghistory[0]['request_type'] : "";
             $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
             if (!empty($escalation_remarks)) {
                 $remarks = $escalation_reason[0]['escalation_reason'] . " -" .
@@ -1674,7 +1675,7 @@ class Partner extends CI_Controller {
                     $value['remarks'] = $escalation_remarks;
                     $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                     //Adding values in penalty on booking table
-                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
 
                     log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 }
@@ -7461,10 +7462,14 @@ class Partner extends CI_Controller {
          }
          $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
          $whereIN['booking_details.partner_id'] = array($partner_id);
+         $where = array();
           if($this->input->post('state')){
            $where['booking_details.state ="'.$this->input->post('state').'"'] = NULL;
           }
-         $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+          // Show all Bookings pending for Review if review time limit not mentioned against partner.
+          if(!empty($statusData[0]['review_time_limit'])){
+            $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+          }
          if($this->input->post('booking_id')){
              $whereIN['booking_details.booking_id'] = array($this->input->post('booking_id'));
          }

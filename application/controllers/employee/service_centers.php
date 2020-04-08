@@ -3766,8 +3766,12 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
         $challan_booking_id = $this->input->post('download_challan');
+        $download_spare_tag = $this->input->post('download_spare_tag');
         if (!empty($booking_address)) {
             $this->print_partner_address();
+        } else if (!empty($download_spare_tag)) {
+            /* It's used to print the spare tags */
+           $this->print_spar_tag(); 
         } else if (!empty($challan_booking_id)) {
 
 
@@ -3924,6 +3928,36 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/print_partner_address', $booking_history);
     }
 
+    
+    /**
+     * @desc: This is used to print Spare tags
+     * @param:void 
+     */
+    function print_spar_tag() {
+        log_message('info', __METHOD__ . json_encode($_POST, true));
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        $download_spare_tag = $this->input->post('download_spare_tag');
+        $booking_history['details'] = array();
+        if (!empty($download_spare_tag)) {
+           
+            foreach ($download_spare_tag as $spare_id) {
+                if (!empty($spare_id)) {
+                    $select = "booking_details.booking_id, spare_parts_details.model_number, spare_parts_details.serial_number, spare_parts_details.shipped_quantity, i.part_number, i.part_name, partners.public_name, (CASE WHEN spare_parts_details.consumed_part_status_id = 5 THEN 'Ok Part' ELSE 'Defective' END) as consumed_part_status, symptom.symptom";
+                    $where = array('spare_parts_details.id' => $spare_id);
+                    $spare_tag_detail = $this->inventory_model->get_spare_tag_details($select, $where);
+                    if(!empty($spare_tag_detail)){
+                       $booking_history['details'][] = $spare_tag_detail[0];
+                    }
+                }
+            }
+        } else {
+            //Logging
+            log_message('info', __FUNCTION__ . ' No Download Spare Tag from POST');
+        }
+        $this->load->view('service_centers/print_spare_tag', $booking_history);
+    }
+    
     /**
      * @desc: This is used to print Concern Details
      */
