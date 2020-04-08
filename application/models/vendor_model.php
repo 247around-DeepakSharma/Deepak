@@ -80,6 +80,106 @@ class vendor_model extends CI_Model {
        return $query->result_array();
     }
 
+
+
+
+
+    function viewallvendor($post, $select){
+
+        $this->_get_viewallvendor_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+
+        $result = $query->result_array();
+
+
+        return $result;
+
+
+    }
+
+    /**
+     * @Desc: This function is used to get data of all service centers
+     * @params: $post array
+     * @Author : Abhishek Awasthi
+     * @return: Int
+     * 
+     */
+
+    function count_all_viewallvendor($post){
+         $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+
+    /**
+     *  @desc : This function is used to get total filtered service centers
+     *  @param : $post string
+     *  @Author : Abhishek Awasthi
+     *  @return: Int
+     */
+    function count_filtered_viewallvendor($post) {
+        $sfIDArray = array();
+        $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    /**
+     * @Desc: This function is used to get data for service centers
+     * @params: $post array
+     * @params: $select string
+     * @Author : Abhishek Awasthi
+     * @return: void
+     * 
+     */
+    function _get_viewallvendor_list($post, $select){
+
+
+         if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->join('account_holders_bank_details','account_holders_bank_details.entity_id=service_centres.id','left');
+        $this->db->from('service_centres');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('service_centres.id', 'ASC');
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+        if (isset($post['having']) && !empty($post['having'])) {
+            $this->db->having($post['having'], FALSE);
+        }
+
+    }
+
     /**
      * @desc: This function is to get the edit vendor form with vendor details
      *
