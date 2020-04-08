@@ -129,6 +129,7 @@ class Employee_model extends CI_Model{
       
       
       function get_rm_region($region=null){
+<<<<<<< HEAD
         $this->db->select('employee.full_name, zones.zone');
         $this->db->join('employee', 'rm_zone_mapping.rm_id = employee.id','left');
         $this->db->join('zones', 'rm_zone_mapping.zone_id = zones.id','left');
@@ -137,6 +138,15 @@ class Employee_model extends CI_Model{
         }
         $query = $this->db->get('rm_zone_mapping');
         return $query->result_array(); 
+=======
+        $this->db->select('employee.full_name, rm_region_mapping.*');
+        $this->db->join('employee', 'rm_region_mapping.rm_id = employee.id','left');
+        if(!empty($region)){
+            $this->db->where_in('rm_region_mapping.region',$region);
+            $query = $this->db->get('rm_region_mapping');
+            return $query->result_array(); 
+        }
+>>>>>>> parent of 4e15b3be3... CRM-5778: Add Confirmation box while changing RM Region
      }
      
       /**
