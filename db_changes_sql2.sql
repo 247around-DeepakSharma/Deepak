@@ -2216,4 +2216,8 @@ UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
 ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
 RENAME TABLE rm_region_mapping TO rm_zone_mapping;
 
+--Ankit Bhatt 2020-04-08
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'OOW Invoice By Partner', NULL, 'employee/invoice/partner_oow_invoice', 3, '63', 'accountmanager,admin,closure,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
 
