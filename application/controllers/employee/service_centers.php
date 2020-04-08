@@ -6658,6 +6658,8 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
         }
         
+        // We will return this array instead of sending mail from here, we will fetch this data to send mail later at once
+        $email_content = array();
         $post_data = $this->input->post();
         $this->validate_received_defective_part_pic_file();
         $receive_defective_pic_by_wh = $this->input->post("receive_defective_pic_by_wh");
@@ -6696,7 +6698,7 @@ class Service_centers extends CI_Controller {
             $is_inventory_handled_by_247 = $this->inventory_model->check_stock_handled_by_central_wh($booking_details, $spare_part_detail);
             if (!empty($is_inventory_handled_by_247) && !empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
                //send email
-                $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
+                $email_content = $this->send_mail_for_parts_received_by_warehouse($booking_id, $spare_id);
                 //update inventory stocks
                 $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
@@ -6788,24 +6790,27 @@ class Service_centers extends CI_Controller {
                 $this->asynchronous_lib->do_background_process($url, $async_data);
             }
 
+            $message = '';
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
-                echo 'Defective Spare Parts Received.';
-                exit;
+                $message = 'Defective Spare Parts Received.';
+            //    exit;
 //                $this->session->set_userdata($userSession);
 //                redirect(base_url() . "service_center/defective_spare_parts");
             }
+            echo json_encode(array($message, $email_content));
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts not updated  by SF ' . $this->session->userdata('service_center_id') .
                     " booking id " . $booking_id);
             if (empty($is_cron)) {
                 $userSession = array('success' => 'There is some error. Please try again.');
-                echo 'There is some error. Please try again.';
-                exit;
+                $message = 'There is some error. Please try again.';
+               // exit;
                 //return json_encode($userSession);
 //                $this->session->set_userdata($userSession);
 //                redirect(base_url() . "service_center/defective_spare_parts");
             }
+            echo json_encode(array($message, $email_content));
         }
         
     }
@@ -6832,13 +6837,37 @@ class Service_centers extends CI_Controller {
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array());
             $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $reason_text, $this->session->userdata('wh_name'), "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$results[0]['defective_parts_pic']));
-
-            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
+            return array($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
+        //    $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
         }
         else{
             log_message('info', __FUNCTION__ . '=> Email details not found for booking id=' . $booking_id);
         }
             
+    }
+    
+    /*
+     * @desc: This function is used to send mail when warehouse receive parts from SF
+     * @params: String $from
+     * @params: String $to
+     * @params: String $cc
+     * @params: String $bcc
+     * @params: String $subject
+     * @params: String $email_body
+     * @params: String $template
+     * @params: String $booking_id
+     * @return: Void
+     */
+    function send_email_acknowledge_received_defective_parts(){
+        $from = $this->input->post('from');
+        $to = $this->input->post('to');
+        $cc = $this->input->post('cc');
+        $bcc = $this->input->post('bcc');
+        $subject = $this->input->post('subject');
+        $emailBody = $this->input->post('email_body');
+        $template = $this->input->post('template');
+        $booking_id = $this->input->post('booking_id');
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $emailBody, "", $template, "", $booking_id);
     }
 
     /*

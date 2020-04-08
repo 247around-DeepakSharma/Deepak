@@ -330,20 +330,58 @@ if(flag) {
         $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}))
         $('#SpareConsumptionModal').modal('hide');
     
+        var send_email_for_part = 0;
+        var from = to = cc = bcc = subject = email_body = template = booking_id = "";
         for (var index in url){
             $.ajax({
                 type: "POST",
                 url: url[index],
                 data:formData,
+                async:false,  
                 contentType: false,
                 processData: false,
                 success: function(data){
+                    data = JSON.parse(data);
+                    var email_data = data[1];
                   $("#multiple_received").attr('disabled',false); 
                   $("#multiple_loader_gif").css('display','none');
                     console.log("Receiving");
+                    if(email_data.length > 0){
+                        send_email_for_part = 1;
+                        from = email_data[0];
+                        to = email_data[1];
+                        cc = email_data[2];
+                        bcc = email_data[3];
+                        subject = email_data[4];
+                        email_body = email_body + email_data[5] + "</br></br>";
+                        template = email_data[7];
+                        booking_id = booking_id + email_data[9] + ",";
+                        console.log(booking_id);
+                    }
+                    
                 }
             });
         }
+        if(send_email_for_part == 1){
+            booking_id = booking_id.replace(/,+$/, '');
+            //send email after warehouse acknowledges receiving part from SF
+            send_email(from, to, cc, bcc, subject, email_body, template, booking_id);
+        }
+        
+        
+        function send_email(from, to, cc, bcc, subject, email_body, template, booking_id){
+            $.ajax({
+                     type:'POST',
+                     url: "<?php echo base_url(); ?>employee/service_centers/send_email_acknowledge_received_defective_parts",
+                     data:{"from": from, "to": to, "cc": cc, "bcc": bcc, "subject" : subject,"email_body" : email_body, "template" : template,"booking_id" : booking_id},
+                     success:function(data){
+                     },
+                     error: function(data){
+                         console.log("error_while_sending_email");
+                         console.log(data);
+                     }
+                 });
+         }
     
      swal("Received!", "Your all selected spares are received !.", "success");
      $(".loader").css("display","none");
