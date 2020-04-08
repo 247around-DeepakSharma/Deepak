@@ -276,12 +276,12 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo $tab_class;?> <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
                                          <?php if($status == _247AROUND_COMPLETED){?> onchange="is_sn_correct_validation('<?php echo $value['booking_id']?>')"<?php } ?>></input></td>
                               <td>
-                                 <?php echo "<a class='btn btn-sm btn-primary' "
+                                 <?php echo "<a class='btn btn-sm btn-primary' style='margin-top:5px;' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
-                              <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
+                              <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Complete Booking"></i></a>
                               <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" onclick="open_admin_remarks_modal('<?php echo $value['booking_id']; ?>')"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
-                              <a style="margin-top:5px;position: relative;" class="btn btn-success" id='<?php echo 'comment_' . $count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i>
+                              <a style="margin-top:5px;position: relative;" class="btn btn-success btn-sm" id='<?php echo 'comment_' . $count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i>
                                       <?php
                                       if (isset($bookings_comment_count[$value['booking_id']]) && $bookings_comment_count[$value['booking_id']] > 0) {
                                           ?>
@@ -290,6 +290,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                         }
                                       ?>
                                   </a>
+<!--                                Added link that is redirecting to the Admin Booking cancellation form.-->
+                                <?php if($status == _247AROUND_CANCELLED){
+                                    $url_cancel_form =  base_url() . "employee/booking/get_cancel_form/".$value['booking_id'];
+                                    echo "<a class='btn btn-danger btn-sm' style='margin-top:5px;' href='".$url_cancel_form."' target='_blank' title='Cancel Booking'><i class='fa fa-pencil' aria-hidden='true'></i></a>";
+                                } ?>
                               </td>
                            
                             </tr>
