@@ -3161,9 +3161,9 @@ class Inventory_model extends CI_Model {
         $this->db->join('invoice_details as i', 'i.invoice_id = v.invoice_id');
         $this->db->join('inventory_master_list as im', 'im.inventory_id = i.inventory_id');
         $this->db->join('service_centres as sc', 'v.vendor_partner_id = sc.id','left');
-        $this->db->join('partners', 'im.entity_id = partners.id','left');
-        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
-        $this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
+        //$this->db->join('partners', 'im.entity_id = partners.id','left');
+        //$this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
+        //$this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
         
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
@@ -3703,5 +3703,46 @@ class Inventory_model extends CI_Model {
 
         $query = $this->db->get();
         return $query->result_array();
+    }
+    /**
+     * @desc This function is used to get the gst number details
+     * @param: $consumption_list(object)
+     * @return: Array
+     */
+    function get_gst_number_details($consumption_list) {
+        $gst_array = array();
+        if ($consumption_list->sub_category == MSL) {
+            $sf_details = $this->get_generic_table_details('service_centres', 'service_centres.id, service_centres.gst_no', array("service_centres.id" => $consumption_list->vendor_partner_id), array());
+            $entity_gst_details = $this->get_generic_table_details('entity_gst_details', 'entity_gst_details.id, entity_gst_details.gst_number', array("entity_gst_details.id" => $consumption_list->from_gst_number), array());
+
+            if (!empty($sf_details)) {
+                $gst_array['to_gst_number'] = $sf_details[0]['gst_no'];
+            } else {
+                $gst_array['to_gst_number'] = '';
+            }
+
+            if (!empty($entity_gst_details)) {
+                $gst_array['from_gst_number'] = $entity_gst_details[0]['gst_number'];
+            } else {
+                $gst_array['from_gst_number'] = '';
+            }
+        } else {
+            $sf_details = $this->get_generic_table_details('service_centres', 'service_centres.id, service_centres.gst_no', array("service_centres.id" => $consumption_list->vendor_partner_id), array());
+            $entity_gst_details = $this->get_generic_table_details('entity_gst_details', 'entity_gst_details.id, entity_gst_details.gst_number', array("entity_gst_details.id" => $consumption_list->from_gst_number), array());
+
+            if (!empty($sf_details)) {
+                $gst_array['from_gst_number'] = $sf_details[0]['gst_no'];
+            } else {
+                $gst_array['from_gst_number'] = '';
+            }
+
+            if (!empty($entity_gst_details)) {
+                $gst_array['to_gst_number'] = $entity_gst_details[0]['gst_number'];
+            } else {
+                $gst_array['to_gst_number'] = '';
+            }
+        }
+
+        return $gst_array;
     }
 }
