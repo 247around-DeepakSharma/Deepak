@@ -432,11 +432,6 @@ class User extends CI_Controller {
         $this->load->view('employee/rm_state_mapping', $data);
     }
 
-    /**
-    * @Desc: This function is used for getting rm from region
-    * @assumption funtion to be called by employee where group is regionalmanager or areasalesmanager
-    * @return: view
-     */
      function get_rm_from_region(){
         $region = $this->input->post('region');
         $data['employee_rm'] = $this->employee_model->get_rm_region($region);

@@ -377,18 +377,17 @@
             }
         });
     }
-    //to confirm whether you eant to change the RM from a region or not.
-    //current region 
+    
+
     var selValue1;
     $(".region_div .select2-selection__rendered").on('click',function(){
         selValue1 = $("#region").val()
     })
-    //name of RM of current region
+    
     var name = $("#full_name").val();
-
     $("#region").change(function(){
-        var selValue = $(this).val(); //change region 
-        var sendData = {region:selValue}; //send region data to controller
+        var selValue = $(this).val();
+        var sendData = {region:selValue};
         $.ajax({
             type:'POST',
             data:sendData,

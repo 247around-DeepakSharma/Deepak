@@ -127,12 +127,7 @@ class Employee_model extends CI_Model{
           return $query->result_array();
       }
       
-      /**
-       * @Desc: This function is used to get RM's name mapped with region from employee table and rm region mapping table
-       * @params: void
-       * @return: Array
-       * 
-       */
+      
       function get_rm_region($region=null){
         $this->db->select('employee.full_name, zones.zone');
         $this->db->join('employee', 'rm_zone_mapping.rm_id = employee.id','left');
