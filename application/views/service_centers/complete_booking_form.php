@@ -1031,12 +1031,6 @@
                 return false;
             }
         });
-        var is_sp_required = $("#spare_parts_required").val();
-        
-        if (Number(is_sp_required) === 1) {
-           
-            alert("Ship Defective Spare Parts");
-        }
     
         if (Number(upcountry_flag) === 1) {
             var upcountry_charges = $("#upcountry_charges").val();
@@ -1107,6 +1101,12 @@
             }
         });
 
+        // If spare Involved , show msg to ship defective parts before completion.
+        var is_sp_required = $("#spare_parts_required").val();        
+        if (Number(is_sp_required) === 1) {           
+            alert("Ship Defective Spare Parts");
+        }
+        
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
             return true;
