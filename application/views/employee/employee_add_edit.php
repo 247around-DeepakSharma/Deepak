@@ -378,4 +378,38 @@
         });
     }
     
+ //to confirm whether you eant to change the RM from a region or not.
+    //current region 
+    var selValue1;
+    $(".region_div .select2-selection__rendered").on('click',function(){
+        selValue1 = $("#region").val()
+    })
+    //name of RM of current region
+    var name = $("#full_name").val();
+
+    $("#region").change(function(){
+        var selValue = $(this).val(); //change region 
+        var sendData = {region:selValue}; //send region data to controller
+        $.ajax({
+            type:'POST',
+            data:sendData,
+            url: '<?php echo base_url(); ?>employee/user/get_rm_from_region',  
+            async: false, 
+            success: function(response) {
+                response = JSON.parse(response);
+                response = response['employee_rm'];
+
+                        var r = confirm('This region is already mapped with '+ response[0].full_name +'. Are you sure you want to un-map ' + selValue1 +' from '+ name +'.');
+                        if(r == true){
+                            console.log('RM Changed')
+                        }
+                        else {
+                            $("#region").val(selValue1);
+                            $(".region_div .select2-selection__rendered").html(selValue1);
+                            $(".region_div .select2-selection__rendered").attr('title',selValue1);
+                            console.log('RM not Changed')
+                        }
+                }
+        });
+     })
 </script>

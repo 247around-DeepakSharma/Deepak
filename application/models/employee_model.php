@@ -127,41 +127,17 @@ class Employee_model extends CI_Model{
           return $query->result_array();
       }
       
-      
-<<<<<<< HEAD
-<<<<<<< HEAD
-      function get_rm_region($region=null){
-<<<<<<< HEAD
-        $this->db->select('employee.full_name, zones.zone');
+  function get_rm_region($region=null){
+         $this->db->select('employee.full_name, zones.zone');
         $this->db->join('employee', 'rm_zone_mapping.rm_id = employee.id','left');
         $this->db->join('zones', 'rm_zone_mapping.zone_id = zones.id','left');
         if(!empty($region)){
             $this->db->where_in('zones.zone',$region);            
         }
         $query = $this->db->get('rm_zone_mapping');
-        return $query->result_array(); 
-=======
-        $this->db->select('employee.full_name, rm_region_mapping.*');
-        $this->db->join('employee', 'rm_region_mapping.rm_id = employee.id','left');
-        if(!empty($region)){
-            $this->db->where_in('rm_region_mapping.region',$region);
-            $query = $this->db->get('rm_region_mapping');
-            return $query->result_array(); 
-        }
->>>>>>> parent of 4e15b3be3... CRM-5778: Add Confirmation box while changing RM Region
-=======
-      function rm_detail_unmap(){
-
-        $this->db->select('*');
-        $this->db->from('employee');
-       $this->db->join('rm_region_mapping', 'rm_region_mapping.rm_id = employee.id');
-        $query = $this->db->get();
         return $query->result_array();
->>>>>>> parent of ada10458d... CRM-5778: Add Confirmation box while changing RM Region
-     }
-     
-=======
->>>>>>> parent of 9aac2f8ca... CRM-5778: Add Confirmation box while changing RM Region
+
+
       /**
        * @Desc: This function is used to get RM's from employee table
        * @params: void
