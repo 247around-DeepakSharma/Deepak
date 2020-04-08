@@ -1,4 +1,4 @@
-<?php
+    <?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -1577,7 +1577,8 @@ class Partner extends CI_Controller {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-
+            // get booking request type
+            $booking_request_type = !empty($bookinghistory[0]['request_type']) ? $bookinghistory[0]['request_type'] : "";
             $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
             if (!empty($escalation_remarks)) {
                 $remarks = $escalation_reason[0]['escalation_reason'] . " -" .
@@ -1674,7 +1675,7 @@ class Partner extends CI_Controller {
                     $value['remarks'] = $escalation_remarks;
                     $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
                     //Adding values in penalty on booking table
-                    $this->penalty_model->get_data_penalty_on_booking($value, $where);
+                    $this->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
 
                     log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 }
@@ -2223,14 +2224,16 @@ class Partner extends CI_Controller {
         
         
         $shipped_part_details = $this->input->post("part");
-/* if parts empty no need to run loop */
-    if(!empty($shipped_part_details)){
-        foreach ($shipped_part_details as $key => $val) {
-            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+        /* if parts empty no need to run loop */
+        if(!empty($shipped_part_details)) {
+            foreach ($shipped_part_details as $key => $val) {
+                if (isset($val['spare_part_warranty_status'])) {
+                    if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    }
+                }
             }
-        }    
-    }
+        }
 
 
 
@@ -7258,7 +7261,7 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'","'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'") ) OR '
             . '('
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
@@ -7273,7 +7276,7 @@ class Partner extends CI_Controller {
         $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
+                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -7322,6 +7325,13 @@ class Partner extends CI_Controller {
                      $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                    
                     $tempArray[] = $row['remarks_defective_part_by_sf'];
+                    if($row['is_consumed'] == 1) {
+                        $tempArray[] = 'Yes'; 
+                    }else if($row['is_consumed'] == 0) {
+                        $tempArray[] = 'No'; 
+                    }else {
+                        $tempArray[] = ''; 
+                    }
                     if (!empty($row['defective_part_shipped'])) {
                             if(empty($row['defective_part_shipped'])){
                              $tempString5 = 'disabled="disabled"';
@@ -7452,10 +7462,14 @@ class Partner extends CI_Controller {
          }
          $statusData = $this->reusable_model->get_search_result_data("partners","partners.booking_review_for,partners.review_time_limit",array("booking_review_for IS NOT NULL"=>NULL,"id"=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
          $whereIN['booking_details.partner_id'] = array($partner_id);
+         $where = array();
           if($this->input->post('state')){
            $where['booking_details.state ="'.$this->input->post('state').'"'] = NULL;
           }
-         $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+          // Show all Bookings pending for Review if review time limit not mentioned against partner.
+          if(!empty($statusData[0]['review_time_limit'])){
+            $where['DATEDIFF(CURRENT_TIMESTAMP,  sc.closed_date)<='.$statusData[0]['review_time_limit']] = NULL;
+          }
          if($this->input->post('booking_id')){
              $whereIN['booking_details.booking_id'] = array($this->input->post('booking_id'));
          }

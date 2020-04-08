@@ -5,7 +5,7 @@
     <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
-          <h2>Delivery On Challan Rejected By Partner</h2>
+          <h2>Rejected By Partner On Invoice</h2>
          <div class="panel panel-default">            
             <div class="panel-body">
                 <div class="success_msg_div" style="display:none;">
@@ -33,12 +33,12 @@
                                     <form class="form-inline" action="#" method="POST">
 
                                         <label for="partner_id">Select Partner</label>
-                                        <select class="form-control" id="partner_id2" name="partner_id" required="">
+                                        <select class="form-control" id="partner_id3" name="partner_id" required="">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                         <div id="partner_err"></div>
                                 </div>                              
-                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id2" style="margin-top: 22px;">Submit</button>                          
+                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id3" style="margin-top: 22px;">Submit</button>                          
                                 
                                    </form>                                
                             </div>
@@ -307,15 +307,15 @@
             ],
     });
     
-     $("#partner_search_id2").click(function(){         
-         var partner_id = $("#partner_id2").val();
+     $("#partner_search_id3").click(function(){         
+         var partner_id = $("#partner_id3").val();
        
          if(partner_id==null){
             $("#partner_err").html('Please Select Partner.').css({'color':'red'});
             return false;
          }else{
              $("#partner_err").html('');
-             load_view_send_to_partner('service_center/rejected_by_partner_on_challan', '#tabs-9',partner_id);
+             load_view_send_to_partner('service_center/rejected_by_partner_on_invoice', '#tabs-11',partner_id);
          }
          
      });
@@ -361,7 +361,7 @@
 </script>
 <script>
     
-    $('#partner_id2').select2({
+    $('#partner_id3').select2({
         placeholder:'Select Partner',
         allowClear:true
     });

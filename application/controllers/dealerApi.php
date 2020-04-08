@@ -461,7 +461,12 @@ class dealerApi extends CI_Controller {
         $this->sendJsonResponse(array($code, $status));
     }
 
-  
+   /*
+     * @Desc - This function is used to process the login of the dealer
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */ 
 
     function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -484,7 +489,7 @@ class dealerApi extends CI_Controller {
                 );  
             }
 
-            $this->dealer_model->update_dealer($update_dealer,array('id'=>$login[0]['entity_id']));
+            $this->dealer_model->update_dealer($update_dealer,array('dealer_id'=>$login[0]['entity_id']));
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
                 $this->sendJsonResponse(array('0000', 'success'));
@@ -599,7 +604,7 @@ function getStatesCities(){
 
   /*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
-     * @param - $engineer_id, $service_center_id, $search_value
+     * @param - $search_value
      * @response - json
      */
 
@@ -641,7 +646,7 @@ function getStatesCities(){
             if (!empty($data['Bookings'])) {
                 $dealer_pincode = $requestData["dealer_pincode"];
                 foreach ($data['Bookings'] as $key => $value) {
-                    if ($engineer_pincode) {
+                    if ($dealer_pincode) {
 /*  Make True if want calculation from google API */
                     $calculate_ddistance = FALSE;
                     $distance = "0"; 

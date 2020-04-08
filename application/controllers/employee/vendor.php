@@ -822,7 +822,169 @@ class vendor extends CI_Controller {
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
             'c2c' => $c2c,'saas_module' => $saas_module));
     }
-    
+
+
+    /**
+     * @Desc: This function is used to get data of all service centers
+     * @params: 
+     * @Author : Abhishek Awasthi
+     * @return: JSON
+     * 
+     */
+    function get_vendor_list_ajax() {
+        $post = $this->get_post_data();
+        // echo "<pre>";
+        // print_r($_POST);
+        $post[''] = array();
+        $post['column_order'] = array();
+        $post['column_search'] = array('service_centres.name', 'service_centres.company_name', 'state', 'district');
+
+
+        $post['where']['account_holders_bank_details.entity_type'] = 'SF';
+        $post['where']['account_holders_bank_details.is_active'] = 1;
+        if ($_POST['active'] == 1) {
+            $post['where']['service_centres.active'] = 1;
+        }
+
+        if (isset($_POST['state']) && !empty($_POST['state'])) {
+            $state = trim($_POST['state']);
+            $post['where']['service_centres.state'] = $state;
+        }
+
+        if (isset($_POST['city']) && !empty($_POST['city'])) {
+            $city = trim($_POST['city']);
+            $post['where']['service_centres.district'] = $city;
+        }
+
+        if (isset($_POST['sf_cp']) && !empty($_POST['sf_cp'])) {
+            $sf_cp = trim($_POST['sf_cp']);
+
+            if ($sf_cp == 'wh') {
+                $post['where']['service_centres.is_wh'] = 1;
+            } else if ($sf_cp == 'cp') {
+                $post['where']['service_centres.is_cp'] = 1;
+            } else {
+                $post['where']['service_centres.is_sf'] = 1;
+            }
+        }
+
+        $select = "service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
+                . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
+                . "account_holders_bank_details.is_verified";
+        $list = $this->vendor_model->viewallvendor($post, $select);
+        $data = array();
+        $no = $post['start'];
+
+        foreach ($list as $vendor_list) {
+            $no++;
+            $row = $this->get_viewallvendor_table($vendor_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->vendor_model->count_all_viewallvendor($post),
+            "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    /**
+     * @Desc: This function is used to make dynamic service center table 
+     * @params: $post array
+     * @Author : Abhishek Awasthi
+     * @return: Int
+     * 
+     */
+    function get_viewallvendor_table($vendor_list, $no) {
+        $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'employee/vendor/editvendor/' . $vendor_list['id'] . '"  >' . $vendor_list['name'] . '( ' . $vendor_list['id'] . ' )</a>';
+
+        if ($vendor_list['is_wh'] != 1) {
+            if ($vendor_list['active'] == 0) {
+                $disable = "disabled";
+            } else {
+                $disable = "";
+            }
+
+            $row[] = '<a href="javascript:void(0)" class="btn btn-md btn-success" onclick="return login_to_vendor(' . $vendor_list['id'] . ')"  ' . $disable . '  >Login</a>';
+        } else {
+            $row[] = "";
+        }
+
+        $row[] = '<a href="mailto:' . $vendor_list["primary_contact_email"] . ' data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"  >' . $vendor_list['primary_contact_email'] . '</a>';
+
+
+        if (!$c2c) {
+            $st1 = '<br><button type="button" onclick="outbound_call(' . $vendor_list["primary_contact_phone_1"] . ')"  class="btn btn-sm btn-info"><i class = "fa fa-phone fa-lg" aria-hidden = "true"></i></button>';
+        } else {
+
+            $st1 = '';
+        }
+
+        $row[] = $vendor_list['primary_contact_phone_1'] . $st1 . '<button style="margin-left:4px" type="button" onclick="model_for_sms(' . $vendor_list['primary_contact_phone_1'] . ', ' . $vendor_list['id'] . ')" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#msg_poc"><i class = "fa fa-envelope" aria-hidden = "true"></i></button>';
+
+        $row[] = '<a href="mailto:' . $vendor_list["owner_email"] . '" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"  >' . $vendor_list['owner_name'] . '</a>';
+
+
+        if (!$c2c) {
+            $st11 = '<br><button type="button" onclick="outbound_call(' . $vendor_list["owner_phone_1"] . ') " class="btn btn-sm btn-info"><i class = "fa fa-phone fa-lg" aria-hidden = "true"></i> </button>';
+        } else {
+
+            $st11 = '';
+        }
+
+        $row[] = $vendor_list['owner_phone_1'] . $st11;
+        $row[] = $vendor_list['district'] . ' / ' . $vendor_list['state'];
+        if ($vendor_list['is_upcountry'] == 1) {
+            $row[] = '<a style= "background-color: #fff;" target="_blank" class="btn btn-sm btn-primary" href="' . base_url() . 'employee/vendor/get_sc_upcountry_details/' . $vendor_list['id'] . '"><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i></a>';
+        } else {
+            $row[] = "";
+        }
+
+        $row[] = '<a style= " " target="_blank" class="btn btn-info" href="' . base_url() . 'employee/invoice/invoice_summary/vendor/' . $vendor_list['id'] . '">Invoice</i></a>';
+
+        if ($vendor_list['on_off'] == 1) {
+            if ($vendor_list["active"] == 0) {
+                $strm = "disabled";
+            } else {
+                $strm = "";
+            }
+            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "T" . ',' . $vendor_list["is_micro_wh"] . ')" ' . $strm . '>Off</a>';
+        } else {
+            if ($vendor_list["active"] == 0) {
+                $strm2 = "disabled";
+            } else {
+                $strm2 = "";
+            }
+            $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
+        }
+
+
+        if ($vendor_list['active'] == 1) {
+            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "P" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
+        } else {
+            if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
+                $row[] = '<a class="btn btn-small btn-primary" onclick="alert("Please Enter PAN Details of Vendor to allow Activation");" title="Save PAN Details of Vendor to allow Activation">Activate</a>';
+            } else {
+                $row[] = '<a id="edit" class="btn btn-small btn-primary" href="' . base_url() . 'employee/vendor/vendor_activate_deactivate/' . $vendor_list["id"] . '/1">Activate</a>';
+            }
+        }
+
+        $row[] = '<button type="button" class="btn btn-small btn-success" id="' . $vendor_list["id"] . '" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id, "' . $vendor_list["name"] . '")>Pin Code</button>';
+
+        $row[] = '<a class="btn btn-warning" href="' . base_url() . 'employee/vendor/resend_login_details/vendor/' . $vendor_list["id"] . '">Resend Login Details</a>';
+
+        $row[] = '<button type="button" class="btn btn-info btn-lg fa fa-history" data-toggle="modal" data-target="#on_off_history_view" onclick="get_on_off_history_view(' . $vendor_list["id"] . ')" style="padding: 11px 6px;margin: 0px 10px;"></button>';
+
+        return $row;
+    }
+
     function get_filterd_sf_cp_data(){
         $this->checkUserSession();
         if($this->input->post()){
@@ -1011,7 +1173,8 @@ class vendor extends CI_Controller {
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
-                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           // This msg is already being sent from miscelleneous.php in assign_vendor_process function
+//                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
                            //End Push Notification
                             $count++;
 

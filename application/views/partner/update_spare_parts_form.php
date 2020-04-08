@@ -162,7 +162,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-7">
                                             <input required="" type="hidden" id="<?php echo "shippedmodelnumberid_".$key;?>" class="shipped_model_number_id" name="part[<?php echo $key; ?>][shipped_model_number_id]">
-                                            <input type="text" class="form-control spare_parts" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]" value = "<?php echo $value->model_number;?>" placeholder="Shipped Model Number">
+                                            <input type="text" class="form-control spare_parts" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]" value = "<?php echo $value->model_number;?>" placeholder="Shipped Model Number" required>
                                         </div>
                                         <?php } ?>
                                     </div>                                     

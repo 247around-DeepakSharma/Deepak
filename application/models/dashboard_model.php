@@ -442,17 +442,19 @@ class dashboard_model extends CI_Model {
     //Create Join  Array For escalation and Booking (JOIN With employee Relation to get RM)
     $escalation_join = array("service_centres"=>"vendor_escalation_log.vendor_id = service_centres.id",
         "booking_details"=>"booking_details.booking_id = vendor_escalation_log.booking_id","employee"=>"employee.id = service_centres.rm_id",
-        "rm_region_mapping"=>"service_centres.rm_id = rm_region_mapping.rm_id");
-    $escalation_joinType = array("rm_region_mapping" => 'left');
+        "rm_zone_mapping"=>"service_centres.rm_id = rm_zone_mapping.rm_id",
+        "zones"=>"rm_zone_mapping.zone_id = zones.id");
+    $escalation_joinType = array("rm_zone_mapping" => 'left', "zones" => 'left');
     $booking_join = array("service_centres"=>"booking_details.assigned_vendor_id = service_centres.id","employee"=>"employee.id = service_centres.rm_id",
-        "rm_region_mapping"=>"service_centres.rm_id = rm_region_mapping.rm_id");
-    $booking_joinType = array("rm_region_mapping" => 'left');
+        "rm_zone_mapping"=>"service_centres.rm_id = rm_zone_mapping.rm_id",
+        "zones"=>"rm_zone_mapping.zone_id = zones.id");
+    $booking_joinType = array("rm_zone_mapping" => 'left', "zones" => 'left');
     //Create Select String for booking and escalation
     $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,service_centres.rm_id as rm_id,'
-            . 'rm_region_mapping.region as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,'
+            . 'zones.zone as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,'
             . 'YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
     $escalation_select = $escalation_select_sub.',vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
-            . 'service_centres.rm_id as rm_id,employee.full_name as rm_name,rm_region_mapping.region as region,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
+            . 'service_centres.rm_id as rm_id,employee.full_name as rm_name,zones.zone as region,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
     if($rm_id){
        $escalation_where['service_centres.rm_id'] = $rm_id;
