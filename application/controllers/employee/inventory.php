@@ -8632,8 +8632,7 @@ class Inventory extends CI_Controller {
         $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
 
-        // print_r($list);  exit;
-
+        
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
@@ -9074,7 +9073,7 @@ class Inventory extends CI_Controller {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
             $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') AND v.vendor_partner_id = " . $service_centers_id;
-            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type,i.from_gst_number, i.to_gst_number,v.vendor_partner_id, v.sub_category";
             $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -9110,8 +9109,9 @@ class Inventory extends CI_Controller {
         $row[] = $consumption_list->gst_tax_amount;
         $row[] = $consumption_list->total_amount;
         //$row[] = $consumption_list->type;
-        //$row[] = $consumption_list->from_gst;
-        //$row[] = $consumption_list->to_gst;
+        $gst_array = $this->inventory_model->get_gst_number_details($consumption_list);
+        $row[] = $gst_array['from_gst_number'];
+        $row[] = $gst_array['to_gst_number'];
         $row[] = $consumption_list->sub_category;
 
         return $row;
