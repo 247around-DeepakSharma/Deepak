@@ -52,6 +52,7 @@
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Send Email</th>                            
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">Consumption</th>
                             <th class="text-center">Receive</th>
                             <th class="text-center">Reject</th>
                         </tr>

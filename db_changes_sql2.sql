@@ -2203,3 +2203,17 @@ update state_code set zone_id = '3' where state_code = '35';
 update state_code set zone_id = '3' where state_code = '21';
 update state_code set zone_id = '1' where state_code = '5';
 update state_code set zone_id = '2' where state_code = '36';
+
+--Ankit Rajvanshi 07-04-2020
+UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
+
+-- Prity Sharma 08-04-2020
+ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
+UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
+UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
+UPDATE `rm_region_mapping` set region = 3 WHERE rm_id = '38';
+UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
+ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
+RENAME TABLE rm_region_mapping TO rm_zone_mapping;
+
+
