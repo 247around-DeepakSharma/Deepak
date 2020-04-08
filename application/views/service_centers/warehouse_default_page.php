@@ -61,6 +61,11 @@
                                 </a>
                             </li>
 
+                            <li role="presentation">
+                                <a href="#tabs-11" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/rejected_by_partner_on_invoice">
+                                    Rejected By Partner On Invoice
+                                </a>
+                            </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>
@@ -70,6 +75,7 @@
                             <div class="tab-pane" id="tabs-8"></div>
                             <div class="tab-pane" id="tabs-9"></div>
                             <div class="tab-pane" id="tabs-10"></div>
+                            <div class="tab-pane" id="tabs-11"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
