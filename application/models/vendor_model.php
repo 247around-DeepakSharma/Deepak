@@ -81,10 +81,14 @@ class vendor_model extends CI_Model {
     }
 
 
-
-
-
-    function viewallvendor($post, $select){
+    /**
+     * @Desc: This function is used to get data of all service centers
+     * @params: $post array, $select
+     * @Author : Abhishek Awasthi
+     * @return: Int
+     * 
+     */
+    function viewallvendor($post, $select) {
 
         $this->_get_viewallvendor_list($post, $select);
         if ($post['length'] != -1) {
@@ -96,27 +100,23 @@ class vendor_model extends CI_Model {
 
 
         return $result;
-
-
     }
 
     /**
-     * @Desc: This function is used to get data of all service centers
+     * @Desc: This function is used to get data of all service centers count
      * @params: $post array
      * @Author : Abhishek Awasthi
      * @return: Int
      * 
      */
-
-    function count_all_viewallvendor($post){
-         $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
+    function count_all_viewallvendor($post) {
+        $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
 
-
     /**
-     *  @desc : This function is used to get total filtered service centers
+     *  @desc : This function is used to get total filtered service centers count
      *  @param : $post string
      *  @Author : Abhishek Awasthi
      *  @return: Int
@@ -136,15 +136,15 @@ class vendor_model extends CI_Model {
      * @return: void
      * 
      */
-    function _get_viewallvendor_list($post, $select){
+    function _get_viewallvendor_list($post, $select) {
 
 
-         if (empty($select)) {
+        if (empty($select)) {
             $select = '*';
         }
         $this->db->distinct();
         $this->db->select($select, FALSE);
-        $this->db->join('account_holders_bank_details','account_holders_bank_details.entity_id=service_centres.id','left');
+        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id=service_centres.id', 'left');
         $this->db->from('service_centres');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
@@ -177,7 +177,6 @@ class vendor_model extends CI_Model {
         if (isset($post['having']) && !empty($post['having'])) {
             $this->db->having($post['having'], FALSE);
         }
-
     }
 
     /**
@@ -2371,6 +2370,44 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('sms_template');
         return $query->result();
     }
+
+        /**
+     * 
+     * @Desc: This function is used to get the list of all reassign reasons
+     * @params:  $select,$where
+     * @return: Array or Empty
+     * @author : Abhishek Awasthi
+     * @date : 08-04-2020
+     */
+
+    function getReassignReason($select,$where){
+
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->order_by('reason','DESC');
+        $query = $this->db->get('booking_cancellation_reasons');
+        return $query->result_array();
+
+    }
+
+
+    /**
+     * 
+     * @Desc: This function is used to save reassign reasons and other details
+     * @params:  
+     * @return: Boolean
+     * @author : Abhishek Awasthi
+     * @date : 08-04-2020
+     */
+
+    function saveReassignVendor($data){
+        $this->db->insert('reassign_bookings',$data);
+        return $this->db->insert_id();
+
+    }
+
+
+  
     
     /**
      * 
