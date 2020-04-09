@@ -143,11 +143,11 @@ class Engineer extends CI_Controller {
         $post = $this->get_post_data();
         $post[''] = array();
         // $post['group_by'] = 'destination';          
-        $where['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
+        $post['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
-        $where['column_search'] = array("engineer_booking_action.booking_id");
+        $post['column_search'] = array("engineer_booking_action.booking_id");
 
-        $list = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
+        $list = $this->engineer_model->get_engineer_action_table_list($post, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
                 . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
                 . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_table_sign.remarks");
 
