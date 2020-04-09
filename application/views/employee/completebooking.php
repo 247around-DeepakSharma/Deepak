@@ -408,11 +408,6 @@
                                                                             <option value="<?php echo $m['model_number'];?>" <?php if(trim(strtoupper($m['model_number'])) == trim(strtoupper($selected_model))){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
-                                                                        <?php }  else { 
-                                                                            $isModelMandatory =1 ;
-                                                                        ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                                        <?php }                                                                     ?>
                                                                         <?php
                                                                         if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
@@ -420,6 +415,11 @@
                                                                             </div>
                                                                         <?php }
                                                                         ?>
+                                                                        <?php }  else { 
+                                                                            $isModelMandatory =1 ;
+                                                                        ?>
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                                        <?php } ?>                                                                        
                                                         </div>
                                                     </div>
                                                     <?php //} ?>
@@ -690,7 +690,7 @@
                                     <textarea class="form-control" rows="5" name="rating_comments" placeholder ="Rating Comment"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                                 </div>
                                 <div class="col-md-4" >
-                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks" placeholder ="Admin Remarks"></textarea>
+                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks" placeholder ="Admin Remarks" minlength="40"required></textarea>
                                 </div>
                                 <div class="col-md-4" >
                                     <textarea class="form-control" id="sn_remarks" rows="5" name="sn_remarks" placeholder ="Serial Number Remarks"></textarea>
@@ -1172,10 +1172,10 @@
     #booking_form .form-group label.error {
     color: #FB3A3A;
     display: inline-block;
-    margin: 0px 0 0px 125px;
+    margin: 0px 0 0px 0px !important;
     padding: 0;
     text-align: left;
-    width: 220px;
+    width: 300px;
     position: absolute;
     }
 </style>
