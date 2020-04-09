@@ -2197,4 +2197,104 @@ ALTER TABLE `courier_company_invoice_details` ADD column is_rto tinyint(1) NOT N
 ALTER TABLE `courier_company_invoice_details` ADD column rto_file varchar(255) NULL DEFAULT NULL;
 --Ankit Rajvanshi 03-04-2020
 INSERT INTO booking_cancellation_reasons (id, reason, reason_of, show_on_app, create_date) VALUES (NULL, 'Part Not Consumed', 'spare_parts', '0', CURRENT_TIMESTAMP);
+ 
+-- Prity 03-04-2020
+-- Other data correction queries are attached in Task : CRM-5926
+ALTER TABLE warranty_plan_model_mapping
+ADD CONSTRAINT uk_plan_model UNIQUE (plan_id,model_id);
 
+update warranty_plans set service_id = 46 where service_id = 0 and plan_description like '%led%';
+update warranty_plans set service_id = 37 where service_id = 0 and plan_description like '%ref%';
+update warranty_plans set service_id = 50 where service_id = 0 and plan_description like '% AC%';
+update warranty_plans set service_id = 28 where service_id = 0 and plan_description like '%WM%';
+update warranty_plans set service_id = 46 where service_id = 0 and plan_description like '%CTV%';
+update warranty_plans set service_id = 28 where service_id = 0 and plan_description like '%Motor%';
+update warranty_plans set service_id = 37 where service_id = 0 and plan_description like '%comp%';
+UPDATE `warranty_plans` SET `service_id` = '37' WHERE (`plan_id` = '195');
+UPDATE `warranty_plans` SET `service_id` = '28' WHERE (`plan_id` = '196');
+UPDATE `warranty_plans` SET `service_id` = '50' WHERE (`plan_id` = '197');
+UPDATE `warranty_plans` SET `service_id` = '46' WHERE (`plan_id` = '70');
+
+ALTER TABLE warranty_plans
+ADD CONSTRAINT uk_plan_partner_service UNIQUE (plan_name,plan_description,service_id,partner_id);
+
+-- Ankit Rajvanshi 06-04-2020
+INSERT INTO `partner_booking_status_mapping` (`partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES
+(247034, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00'),
+(247001, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00');
+
+-- Prity Sharma 06-04-2020
+CREATE TABLE `zones` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `zone` varchar(25) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `zones` (`zone`) VALUES ('North');
+INSERT INTO `zones` (`zone`) VALUES ('South');
+INSERT INTO `zones` (`zone`) VALUES ('East');
+INSERT INTO `zones` (`zone`) VALUES ('West');
+
+ALTER TABLE state_code add column zone_id int NOT NULL;
+
+update state_code set zone_id = '1' where state_code = '1';
+update state_code set zone_id = '1' where state_code = '2';
+update state_code set zone_id = '1' where state_code = '3';
+update state_code set zone_id = '1' where state_code = '4';
+update state_code set zone_id = '1' where state_code = '6';
+update state_code set zone_id = '1' where state_code = '7';
+update state_code set zone_id = '1' where state_code = '8';
+update state_code set zone_id = '1' where state_code = '9';
+update state_code set zone_id = '3' where state_code = '10';
+update state_code set zone_id = '3' where state_code = '11';
+update state_code set zone_id = '3' where state_code = '12';
+update state_code set zone_id = '3' where state_code = '13';
+update state_code set zone_id = '3' where state_code = '14';
+update state_code set zone_id = '3' where state_code = '15';
+update state_code set zone_id = '3' where state_code = '16';
+update state_code set zone_id = '3' where state_code = '17';
+update state_code set zone_id = '3' where state_code = '18';
+update state_code set zone_id = '3' where state_code = '19';
+update state_code set zone_id = '3' where state_code = '20';
+update state_code set zone_id = '4' where state_code = '22';
+update state_code set zone_id = '4' where state_code = '23';
+update state_code set zone_id = '4' where state_code = '24';
+update state_code set zone_id = '4' where state_code = '25';
+update state_code set zone_id = '4' where state_code = '26';
+update state_code set zone_id = '4' where state_code = '27';
+update state_code set zone_id = '2' where state_code = '28';
+update state_code set zone_id = '2' where state_code = '29';
+update state_code set zone_id = '4' where state_code = '30';
+update state_code set zone_id = '2' where state_code = '31';
+update state_code set zone_id = '2' where state_code = '32';
+update state_code set zone_id = '2' where state_code = '33';
+update state_code set zone_id = '2' where state_code = '34';
+update state_code set zone_id = '3' where state_code = '35';
+update state_code set zone_id = '3' where state_code = '21';
+update state_code set zone_id = '1' where state_code = '5';
+update state_code set zone_id = '2' where state_code = '36';
+
+--Ankit Rajvanshi 07-04-2020
+UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
+ 
+-- Prity Sharma 08-04-2020
+ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
+UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
+UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
+UPDATE `rm_region_mapping` set region = 3 WHERE rm_id = '38';
+UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
+ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
+RENAME TABLE rm_region_mapping TO rm_zone_mapping;
+
+--Ankit Bhatt 2020-04-08
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'OOW Invoice By Partner', NULL, 'employee/invoice/partner_oow_invoice', 3, '63', 'accountmanager,admin,closure,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+
+--Abhishek --08-04-2020
+CREATE TABLE `247around`.`reassign_bookings` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_details_id` INT(11) NOT NULL ,  `reason` INT(11) NULL DEFAULT NULL ,  `remark` VARCHAR(500) NULL DEFAULT NULL ,  `old_sf` INT(11) NULL DEFAULT NULL ,  `new_sf` INT(11) NULL DEFAULT NULL ,  `rm_flag` INT(4) NULL DEFAULT '0' ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ ALTER TABLE `reassign_bookings` CHANGE `rm_flag` `rm_responsible_flag` INT(4) NULL DEFAULT '0';
+ ALTER TABLE `reassign_bookings` CHANGE `created_on` `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ 

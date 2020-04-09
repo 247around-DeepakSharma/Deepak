@@ -7,6 +7,70 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= $arr_bookings; ?>'>
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
+
+
+
+
+      <div id="booking_reassign" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+               <h4 class="modal-title" id="modal_title_reassign">Transfer Booking </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                           <select class="form-control" id="service_center_reassign" name="service" required="">
+                                        <option selected disabled>Transfer Call To</option>
+                                            <?php foreach ($service_centers as $key => $values) { ?>
+                                            <option  value="<?php echo $values['id']; ?>">
+                                                <?php
+                                                echo $values['name'];
+                                            }
+                                            ?>
+                                        </option>
+                                    
+                       </select>
+
+                </div>
+                <div class="col-md-12">
+
+
+                   <select class="form-control" id="reason_of_reassign" name="service" required="">
+                                        <option selected disabled>Reason Of Transfer</option>
+                                            <?php foreach ($service_centers as $key => $values) { ?>
+                                            <option  value="<?php echo $values['id']; ?>">
+                                                <?php
+                                                echo $values['name'];
+                                            }
+                                            ?>
+                                        </option>
+                                    
+                       </select>
+
+                </div>
+                <input type="hidden" name="modal_booking_id" id="modal_booking_id_reassign" value="">
+                <div class="col-md-12">
+                <textarea rows="8" name="remarks" class="form-control textarea" id="textarea_assign"></textarea>
+                </div>
+                <div class="col-md-12">
+                <input type="checkbox" name="acceptrmam" id="modal_acceptrmam_reassign" value="1"> RM/AM will take care of spare parts if shipped.
+              </div>
+            </div>
+             
+           
+            <div class="modal-footer">
+               <button type="button" class="btn btn-success" onclick="transfer_call_to_other_sf()" id="reassign_process">Transfer</button>
+               <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
 <div class="" style="margin-top: 30px;">
          <div class="row">
                 <?php if($status == 'Completed') { ?>
@@ -290,6 +354,16 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                         }
                                       ?>
                                   </a>
+ 
+<!--                                Added link that is redirecting to the Admin Booking cancellation form.-->
+                                <?php if($status == _247AROUND_CANCELLED){
+                                    $url_cancel_form =  base_url() . "employee/booking/get_cancel_form/".$value['booking_id'];
+                                    echo "<a class='btn btn-danger btn-sm' style='margin-top:5px;' href='".$url_cancel_form."' target='_blank' title='Cancel Booking'><i class='fa fa-pencil' aria-hidden='true'></i></a>";
+                                } ?>
+ 
+                              <button style="margin-top:5px;" type="button"  class="btn btn-danger btn-sm open-adminremarks_transfer" ><a style="color:white;" target="_blank" href="<?php echo base_url(); ?>employee/vendor/get_reassign_vendor_form/<?php echo $value['booking_id']; ?>">Transfer</a></button>
+ 
+
                               </td>
                            
                             </tr>
@@ -367,6 +441,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
          </div>
       </div>
    </div>
+
+
+
 <style>
     .comment_count
     {
@@ -377,6 +454,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         height: 20px;
         background: #df4848;
         border-radius: 10px;
+    }
+    .select2-container--default{
+      width:100% !important;
     }
 </style>
 <script>
@@ -517,6 +597,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?>').val(booking_id);
         $('#modal-title-<?=$review_status?>_<?=$is_partner?>').html(booking_id);
     }
+
+
+    function open_admin_remarks_modal_assign(booking_id) {
+        $('#modal_title_assign').text("");
+        $('#textarea_assign').text("Transfer Booking to Other SF");
+        $('#modal_booking_id_reassign').val(booking_id);
+
+        $('#booking_reassign').modal();     
+    }
     
     function getcommentbox(type_val, booking_id){
         $.ajax({
@@ -538,6 +627,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             }
         });
     }
+
+    $('#service_center_reassign').select2();
+    $('#reason_of_reassign').select2();
+
+    
     
     function load_comment_area(){
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').show();
@@ -659,4 +753,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 //            var type_val = 1;   
 //            getcommentbox(type_val);        
         }  
+
+
+
+
+
+
    </script> 
