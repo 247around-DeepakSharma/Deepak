@@ -112,11 +112,13 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>Partner Name</th>
+                        <th>Partner</th>
                         <th>Invoice ID</th>
                         <th>Booking ID</th>
                         <th>Invoice Date</th>
-                        <th>Invoice Amount</th>
+                        <th>GST Charges</th>
+                        <th>Basic Charges</th>
+                        <th>Total Invoice Charges</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -178,7 +180,8 @@
                                     <div class='rect2' style='background-color:#4885ed'></div>\n\
                                     <div class='rect3' style='background-color:#f4c20d'></div>\n\
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
-                                </div>"
+                                </div>",
+                searchPlaceholder: "Partner, Invoice ID"
             },
             select: {
                 style: 'multi'
@@ -194,7 +197,7 @@
                     pageSize: 'LEGAL',
                     title: 'Partner_OOW_Invoice_List',
                     exportOptions: {
-                       columns: [1,2,3,4,5],
+                       columns: [1,2,3,4,5,6,7],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
