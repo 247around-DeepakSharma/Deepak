@@ -408,11 +408,6 @@
                                                                             <option value="<?php echo $m['model_number'];?>" <?php if(trim(strtoupper($m['model_number'])) == trim(strtoupper($selected_model))){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
-                                                                        <?php }  else { 
-                                                                            $isModelMandatory =1 ;
-                                                                        ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                                        <?php }                                                                     ?>
                                                                         <?php
                                                                         if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
@@ -420,6 +415,11 @@
                                                                             </div>
                                                                         <?php }
                                                                         ?>
+                                                                        <?php }  else { 
+                                                                            $isModelMandatory =1 ;
+                                                                        ?>
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                                        <?php } ?>                                                                        
                                                         </div>
                                                     </div>
                                                     <?php //} ?>
