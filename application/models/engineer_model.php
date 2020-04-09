@@ -97,8 +97,22 @@ class Engineer_model extends CI_Model {
 
         return $query->result();
     }
-    
-   
+ 
+     function count_all_review_engineer_action($post) {
+        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+
+
+    function count_filtered_review_engineer_action($post) {
+        $sfIDArray = array();
+        $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+ 
     public function _get_engineer_action_table_list($post, $select) {
         $this->db->from('engineer_booking_action');
         $this->db->distinct();
