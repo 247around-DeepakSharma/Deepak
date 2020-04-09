@@ -291,6 +291,7 @@ $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_center
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 $route['service_center/send_to_partner_on_challan'] = 'employee/service_centers/warehouse_send_to_partner_on_challan';
 $route['service_center/rejected_by_partner_on_challan'] = 'employee/service_centers/warehouse_rejected_by_partner_on_challan';
+$route['service_center/rejected_by_partner_on_invoice'] = 'employee/service_centers/warehouse_rejected_by_partner_on_invoice';
 $route['service_center/get_rejected_msl'] = 'employee/service_centers/get_rejected_msl';
 $route['service_centers/spare_assigned_to_partner'] = 'employee/service_centers/spare_assigned_to_partner';
 $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
@@ -314,6 +315,7 @@ $route['service_center/parts_delivered_to_sf'] = 'employee/service_centers/parts
 $route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_centers/parts_delivered_to_sf/$1';
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
+$route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

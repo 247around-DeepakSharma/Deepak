@@ -34,9 +34,6 @@
                                 <th>Appliance</th>
                                 <th>Booking Date</th>
                                 <th>Booking Timeslot</th>
-                                <th>Purchase Date</th>
-                                <th>Booking Warranty Status</th>
-                                <th>Current Warranty Status</th>
                                 <th>Status</th>
                                 <th>View</th>
                                 <th>Go To Booking </th>
@@ -52,9 +49,6 @@
                             <td><?php echo $row->services;?></td>
                             <td><?php echo date("d-M-Y", strtotime($row->booking_date));?></td>
                             <td><?php echo $row->booking_timeslot;?></td>
-                            <td><?php if(!empty($warrenty_status[$row->booking_id]['purchase_date'])){echo $warrenty_status[$row->booking_id]['purchase_date'];}?></td>
-                            <td><?php if(!empty($warrenty_status[$row->booking_id]['booking_warrenty_sratus'])){echo $warrenty_status[$row->booking_id]['booking_warrenty_sratus'];}?></td>
-                            <td><?php if(!empty($warrenty_status[$row->booking_id]['current_warrenty_sratus'])){echo $warrenty_status[$row->booking_id]['current_warrenty_sratus'];}?></td>
                             <td><?php echo $row->current_status;?></td>
                             <td>
                                 <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row->booking_id;?>"

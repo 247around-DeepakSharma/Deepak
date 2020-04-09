@@ -152,11 +152,19 @@
                 contentType: false,
                 processData: false,
                 success:function(data){
-                    alert(data);
+                  //  console.log(data);
+                    data = JSON.parse(data);
+                    var message = data[0];
+                    var email_data = data[1];
+                    alert(message);
                     $("#loader_gif").css('display','none');
                     $('#received_button').removeAttr("disabled");
                     $('#SpareConsumptionModal').modal('hide');
                     inventory_spare_table.ajax.reload();
+                    if(email_data.length > 0){
+                        //send email after warehouse acknowledges receiving part from SF
+                        send_email(email_data);
+                    }
                 },
                 error: function(data){
                     console.log("error");
@@ -168,6 +176,20 @@
     $("#ImageBrowse").on("change", function() {
         $("#imageUploadForm").submit();
     });
+    
+    function send_email(email_data){
+       $.ajax({
+                type:'POST',
+                url: "<?php echo base_url(); ?>employee/service_centers/send_email_acknowledge_received_defective_parts",
+                data:{"from": email_data[0], "to": email_data[1], "cc": email_data[2], "bcc": email_data[3], "subject" : email_data[4],"email_body" : email_data[5], "template" : email_data[7],"booking_id" : email_data[9]},
+                success:function(data){
+                },
+                error: function(data){
+                    console.log("error_while_sending_email");
+                    console.log(data);
+                }
+            });
+    }
 });
 
 
