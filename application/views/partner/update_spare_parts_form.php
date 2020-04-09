@@ -85,7 +85,7 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2 class="col-md-12">Update Spare Part <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h2>
+                        <h2 class="col-md-12">Update Spare Part <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button> <?php }else{ ?><button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?></h2>
                         <div class="clearfix"></div>
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
