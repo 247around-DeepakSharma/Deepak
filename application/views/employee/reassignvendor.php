@@ -143,6 +143,8 @@
                                 <th>Serial No.</th>
                                 <th>Booking Id</th>
                                 <th>Service Center</th>
+                                <th>Select Reason</th>
+                                <th>RM Responsible</th>
                                 <th>Remarks</th>
                             </tr>
                             <?php $count = 1; ?>		
@@ -168,6 +170,29 @@
                                     <?php echo form_error('service_center'); ?>
                                     </select>
                                 </td>
+
+                                <td>
+                                    <select class="form-control" id="service_center" name="reason" required="">
+                                        <option selected disabled>Select Reason</option>
+                                            <?php foreach ($reassign_reasons as $key => $values) { ?>
+                                            <option  value="<?php echo $values['id']; ?>">
+                                                <?php
+                                                echo $values['reason'];
+                                            }
+                                            ?>
+                                        </option>
+                                    <?php echo form_error('service_center'); ?>
+                                    </select>
+                                </td>
+
+                                 <td>
+
+                                 <?php if(!empty($spare)){ ?>
+                                   <input type="checkbox" name="rm_responsible" value="1"   /> RM/AM Will take care of spare
+                                 <?php }  ?>
+                                    
+                                </td>
+
                                 <td>
                                     <textarea class="form-control" name="remarks" id="remarks" required=""></textarea>
                                 </td>
