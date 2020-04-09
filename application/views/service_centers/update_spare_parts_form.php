@@ -115,7 +115,7 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h3>Spare Part Details <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h3>
+                        <h3>Spare Part Details <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?><button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button><?php }else{ ?> <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?> </h3>
                         <hr>
                         <div class="clearfix"></div>
                     </div>
