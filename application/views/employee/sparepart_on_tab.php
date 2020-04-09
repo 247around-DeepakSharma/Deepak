@@ -529,6 +529,7 @@
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Rejected By</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Rejected Image</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -1367,7 +1368,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
                     },
                     title: 'defective_part_rejected_wh'
                 }
