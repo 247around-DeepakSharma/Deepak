@@ -42,9 +42,6 @@
                                 
                                    </form>                                
                             </div>
-                            <div class="approved pull-right hide">
-                                <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare_on_challan();">Send spare to partner</div>
-                            </div>
                         </div>
                     </section>
                 </div>
@@ -54,7 +51,7 @@
                 <?php if(!empty($spare_parts)) { ?>
                 <div class="table-responsive">
                     <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/process_partner_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                    <table class="table table-bordered table-hover table-striped" id="defective_parts_reject_by_artner_on_challan">
+                    <table class="table table-bordered table-hover table-striped" id="defective_parts_reject_by_artner_on_invoice">
                         <thead>
                            <tr>
                             <th class="text-center">No</th>
@@ -162,114 +159,6 @@
          </div>
       </div>
     
-    <!-- courier Information when warehouse Shipped defective parts to partner -->
-    <div class="courier_model">
-        <div id="courier_model_id" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg">
-
-              <!-- Modal content-->
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">Please Provide Courier Details</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" id="courier_model_form" method="post" novalidate="novalidate">
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="awb_by_wh" class="col-md-4">AWB *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" onblur="check_awb_exist_details()" class="form-control"  id="awb_by_wh_id" name="awb_by_wh" placeholder="Please Enter AWB" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
-                                    <label for="courier_name_by_wh" class="col-md-4">Courier Name *</label>
-                                    <div class="col-md-8">
-<!--                                        <input type="text"  class="form-control"  id="courier_name_by_wh" name="courier_name_by_wh" placeholder="Please Enter Courier Name" required>-->
-                                        <select class="form-control" id="courier_name_by_wh_id" name="courier_name_by_wh" required="">
-                                            <option selected="" disabled="" value="">Select Courier Name</option>
-                                            <?php foreach ($courier_details as $value1) { ?> 
-                                                <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <?php echo form_error('courier_name'); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="courier_price_by_wh" class="col-md-4">Courier Price *</label>
-                                    <div class="col-md-8">
-                                        <input type="number" class="form-control"  id="courier_price_id" name="courier_price_by_wh" placeholder="Please Enter Courier Price" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_id" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">No Of Boxes *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
-                                            <option selected="" disabled="" value="">Select Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
-                                                <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
-                                    <div class="col-md-8">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Courier Pic *</label>
-                                    <div class="col-md-8">
-                                        <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
-                                        <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="text-center">
-                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="submit_courier_form_id">Submit</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-    </div>
    </div>
 
 <script>
@@ -286,11 +175,12 @@
                 alert(data);
             }).success(function(data){
                alert('Part has been resend successfully.'); 
+               $('#spare_'+spare_id).hide();
             });
         } 
     });
     
-    $('#defective_parts_reject_by_artner_on_challan').DataTable({
+    $('#defective_parts_reject_by_artner_on_invoice').DataTable({
         "pageLength": 100,
             dom: 'Bfrtip',
             // Configure the drop down options.
@@ -365,10 +255,7 @@
         placeholder:'Select Partner',
         allowClear:true
     });
-    $('#courier_name_by_wh_id').select2({
-        placeholder:'Select Courier Name',
-        allowClear:true
-    });
+    
     
     $('document').ready(function(){
         get_partner_ack();
@@ -388,174 +275,6 @@
         }
     });
     
-    function process_send_all_spare_on_challan(){
-        
-        var tmp_arr = {};
-        var flag = false;
-        $(".check_single_row:checked").each(function (key) {
-            tmp_arr[key] = {};
-            tmp_arr[key]['inventory_id'] = $(this).attr('data-shipped_inventory_id');
-            tmp_arr[key]['is_micro_wh'] = $(this).attr('data-is_micro_wh');
-            tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
-            tmp_arr[key]['partner_id'] = $(this).attr('data-partner_id');
-            tmp_arr[key]['defective_return_to_entity_id'] = $(this).attr('data-defective_return_to_entity_id');
-            tmp_arr[key]['defective_return_to_entity_type'] = $(this).attr('data-defective_return_to_entity_type');
-            tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
-            tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
-            tmp_arr[key]['service_center_id'] = $(this).attr('data-service_center_id');
-            tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');
-            tmp_arr[key]['model'] = $(this).attr('data-model');
-            tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
-            tmp_arr[key]['shipping_quantity'] = $("#spare"+$(this).attr('data-spare_id')).val();
-            flag = true;
-        });
-        
-        postData['data'] = JSON.stringify(tmp_arr);
-        postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
-        postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
-        postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
-        postData['receiver_partner_id'] = $("#partner_id").val();
-        
-        if(flag){
-            if(postData['receiver_partner_id']){
-                $('#courier_model_id').modal('toggle');
-            }else{
-                alert("Please Select Partner");
-            }
-        }else{
-            alert("Please Select At Least One Checkbox");
-        }
-    }
-    
-    $('#submit_courier_form_id').on('click',function(){
-        $(".check_single_row").prop('checked', false);
-        $("#send_spare_to_partner").attr('disabled',true);
-       
-        postData['awb_by_wh'] = $('#awb_by_wh_id').val();
-        postData['courier_name_by_wh'] = $('#courier_name_by_wh_id').val();
-        postData['courier_price_by_wh'] = $('#courier_price_id').val();
-        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_id').val();
-        postData['exist_courier_image'] = $('#exist_courier_image').val();
-        //postData['from_gst_number'] = $('#from_gst_number').val();
-        //postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
-        //postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
-        postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val();
-        postData['shipped_spare_parts_weight_in_kg'] = $('#shipped_spare_parts_weight_in_kg').val();
-        postData['shipped_spare_parts_weight_in_gram'] = $('#shipped_spare_parts_weight_in_gram').val();
-        
-        var exist_courier_image = $("#exist_courier_image").val();       
-        
-        //Declaring new Form Data Instance  
-        var formData = new FormData();
-                
-        //Getting Files Collection
-        var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
-        
-        //var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
-        
-        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-        for (var i = 0; i < files.length; i++) {
-            formData.append('file', files[i]);
-        }
-        
-        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-//        for (var i = 0; i < eway_files.length; i++) {
-//            formData.append('eway_file', eway_files[i]);
-//        }
-        
-        var is_exist_file = false;
-        if(exist_courier_image){
-            is_exist_file = true;
-        }
-        
-        if(files.length >= 1){
-            is_exist_file = true;
-        }
-        //Now Looping the parameters for all form input fields and assigning them as Name Value pairs. 
-        $.each(postData, function(index, element) {
-            formData.append(index, element);
-        });
-
-        if(!/^\d+(\.\d+)?$/g.test(postData['courier_price_by_wh'])){              //should be number only with one decimal 
-            $('#submit_courier_form_id').html("Submit").attr('disabled',false);
-            alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
-            return false;
-        }
-        var courier_price= parseFloat(postData['courier_price_by_wh']);
-        if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
-            $('#submit_courier_form_id').html("Submit").attr('disabled',false);
-            alert('Courier price should be in between 0 and 2000.');
-            return false;
-        }
-        
-        if(!postData['awb_by_wh']){
-          alert('AWB Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!postData['courier_name_by_wh']){
-          alert('Courier Name Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!postData['defective_parts_shippped_date_by_wh']){
-          alert('Defective Part Shippped Date Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!postData['shipped_spare_parts_boxes_count']){
-          alert('Boxes Count Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!postData['shipped_spare_parts_weight_in_kg']){
-          alert('Weight In KG Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!postData['shipped_spare_parts_weight_in_gram']){
-          alert('Weight In Gram Should Not Be Blank.'); 
-          return false;
-        }
-        
-        if(!is_exist_file){
-          alert('Please Choose Courier File.'); 
-          return false;
-        }
-        
-        $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
-        
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/send_defective_to_partner_from_wh_on_challan',
-                data:formData,
-                contentType: false,
-                processData: false,
-                success:function(response){
-                    $("#send_spare_to_partner").attr('disabled',false);
-                    $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-                    $('#courier_model_id').modal('toggle');
-                    obj = JSON.parse(response);
-                    if(obj.status){
-                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                        $('#success_msg').html(obj.message);
-                        alert(obj.message);
-                        window.location.reload();
-                    }else{
-                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                        $('#error_msg').html(obj.message);
-                    }
-                }
-            });
-        }else{
-            $("#send_spare_to_partner").attr('disabled',false);
-            $('#submit_courier_form_id').html('Submit').attr('disabled',false);
-            alert("Please enter all required field");
-        }
-        
-    });
-    
     function get_partner_ack(){
         $.ajax({
             type:'POST',
@@ -566,13 +285,13 @@
                     
                 } else {
                     $('#partner_id2').html(response);
-                    var option_length = $('#partner_id2').children('option').length;
+                    var option_length = $('#partner_id3').children('option').length;
                     if(option_length == 2){
-                        $("#partner_id2").change();   
+                        $("#partner_id3").change();   
                     }
                      <?php if(isset($filtered_partner)) { ?> 
-                    $('#partner_id2').val('<?php echo $filtered_partner?>'); 
-                    $('#partner_id2').trigger('change');
+                    $('#partner_id3').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id3').trigger('change');
                     <?php } ?>
                 }
                 
@@ -581,71 +300,6 @@
         });
     }
     
-    function check_awb_exist_details(){
-            var awb = $("#awb_by_wh_id").val();
-            if(awb){
-                    $.ajax({
-                    type: 'POST',
-                    beforeSend: function(){
-
-                        $('body').loadingModal({
-                        position: 'auto',
-                        text: 'Loading Please Wait...',
-                        color: '#fff',
-                        opacity: '0.7',
-                        backgroundColor: 'rgb(0,0,0)',
-                        animation: 'wave'
-                    });
-
-                        },
-                    url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_awb_exist',
-                    data:{awb:awb},
-                    success: function (response) {
-                        console.log(response);
-                        var data = jQuery.parseJSON(response);
-                        if(data.code === 247){
-                            alert("This AWB already used same price will be added");
-                            $("#same_awb").css("display","block");
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
-                            $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_id").val("0");
-                            $("#courier_price_id").css("display","none");
-                            if(data.message[0].courier_invoice_file){
-                                $("#exist_courier_image").val(data.message[0].courier_invoice_file);
-                                $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
-                            }
-                            $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
-                            if (data.message[0]['box_count'] === 0) {
-                                $('#shipped_spare_parts_boxes_count').val("");
-
-                            } else {
-                                $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
-
-                            }                            
-                            var wt = Number(data.message[0]['billable_weight']);
-                            if(wt > 0){
-                            var wieght = data.message[0]['billable_weight'].split(".");
-                                $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
-                                $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
-                            }
-
-                        } else {
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
-                            $("#courier_price_id").css("display","block");
-                            $("#same_awb").css("display","none");
-                            $("#exist_courier_image").val("");
-                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
-                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
-                        }
-
-                    }
-                });
-            }
-            
-        }
-        
     function remove_select_all_challan(){
         $('#selectall_challan_file').prop('checked', false); 
         $('#send_all').prop('checked', false); 
@@ -654,161 +308,6 @@
             $('.check_single_row').prop('checked', false);
         }
     }
-    
-    
-    function check_checkbox(){
-
-        var flag =0;
-
-           if(flag === 0){
-               var d_m = $('.checkbox_challan:checked');
-               if(d_m.length > 0){
-                   flag = 1;  
-               }
-           }
-
-
-
-
-
-        if(flag ===0 ){
-            alert("Please Select Atleast One Checkbox To Download Challan");
-            return false;
-        }else{
-
-           var wh =  $("#warehouse_select").val();
-            if (wh=="") {
-                alert("Please select Partner");
-            }else{
-
-            $('#myModal22').modal('show');
-            var partner_id= $("#partner_id").val();
-            $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/service_centers/get_warehouse_partner_list',
-            data:{partner:partner_id},
-            success:function(response){
-            
-            console.log(response); 
-            $("#warehouse_select").select2();
-            $("#warehouse_select").html(response).change();      
-               
-            }
-
-
-        });
-        }
-        }
-    }
-    
-    $(".check_single_row").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    $("#send_all").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    
-    $("#selectall_challan_file").click(function(){
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.check_single_row:checked');
-        if (d_m.length > 0) {
-            $('.check_single_row').prop('checked', false);
-        }
-        
-    });
-        
-    $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true))
-        {
-            $(".checkbox_challan").prop('checked', true);
-        }
-        else
-        {
-            $(".checkbox_challan").prop('checked', false);
-        }
-    });
-    
-     $("#shipped_spare_parts_weight_in_kg").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    
-    
-    $("#shipped_spare_parts_weight_in_gram").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
-        switch (event.keyCode) {
-            case 8:  // Backspace
-            case 9:  // Tab
-            case 13: // Enter
-            case 37: // Left
-            case 38: // Up
-            case 39: // Right
-            case 40: // Down
-                break;
-            default:
-                var regex = new RegExp("^[a-zA-Z0-9,]+$");
-                var key = event.key;
-                if (!regex.test(key)) {
-                    event.preventDefault();
-                    return false;
-                }
-                break;
-        }
-    });
     
 </script>
 
