@@ -1455,14 +1455,18 @@ class service_centre_charges extends CI_Controller {
                         $this->notify->insert_state_change($booking_id, NEW_CHARGES_ADDED,  _247AROUND_PENDING, $remarks, 
                                 $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     $actor, $next_action, _247AROUND);
-                        
+
                         $email_template = $this->booking_model->get_booking_email_template(MISC_CHARGES_DETAILS_ON_EMAIL);
                         if(!empty($email_template)){
 
-                            
                             $to = $email_template[1]. ", ".$this->session->userdata('official_email'). ", ". $this->employee_model->getemployeeManagerDetails("employee.official_email",array('employee_hierarchy_mapping.employee_id' => $this->session->userdata('employee_id')))[0][0];
                             $subject = vsprintf($email_template[4], array($booking_id));
-                            $cc = (!empty($email_template[3]) ? $email_template[3] : "");
+                            //rm email from db using sf id
+                             $rm_email_id =  $this->vendor_model->get_rm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']); 
+                            $rm_email=(!empty($rm_email_id[0]['official_email']) ? $rm_email_id[0]['official_email'] : "");      
+                            $cc = (!empty($rm_email)?(!empty($email_template[3]) ? $email_template[3] : ""). "," .$rm_email :
+                            (!empty($email_template[3]) ? $email_template[3] : ""));
+
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";

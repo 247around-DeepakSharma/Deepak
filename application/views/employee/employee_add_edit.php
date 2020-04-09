@@ -377,7 +377,7 @@
             }
         });
     }
-    //to confirm whether you eant to change the RM from a region or not.
+ //to confirm whether you eant to change the RM from a region or not.
     //current region 
     var selValue1;
     $(".region_div .select2-selection__rendered").on('click',function(){
@@ -411,6 +411,5 @@
                 }
         });
      })
-
-
+   
 </script>
