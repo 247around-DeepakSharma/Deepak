@@ -187,8 +187,8 @@ class Engineer extends CI_Controller {
         $post['length'] = -1;
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => count($data),
-            "recordsFiltered" => count($data),
+            "recordsTotal" => $this->engineer_model->count_all_review_engineer_action($post),
+            "recordsFiltered" => $this->engineer_model->count_filtered_review_engineer_action($post),
             "data" => $data,
         );
 
