@@ -229,6 +229,7 @@ $route['partner/upcountry_report'] = 'employee/partner/download_upcountry_report
 $route['partner/download_waiting_defective_parts'] = 'employee/partner/download_waiting_defective_parts';
 $route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/download_waiting_upcountry_bookings';
 $route['partner/download_all_spare_parts'] = 'employee/partner/download_all_spare_parts';
+$route['partner/download_mwh_msl_data'] = 'employee/spare_parts/get_msl_data/2';
 $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';

@@ -194,7 +194,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <?php 
-                                                        $rows = ['Download Upcountry Details' => 'partner/upcountry_report', 'Download All Spare Parts' => 'partner/download_all_spare_parts', 'Download All Spare Issued to SF' => 'partner/download_spare_part_shipped_by_partner','Download Sale and Purchase MSL Invoice' =>'employee/inventory/download_sale_purchage_invoice_data']; 
+                                                        $rows = ['Download Upcountry Details' => 'partner/upcountry_report', 'Download All Spare Parts' => 'partner/download_all_spare_parts', 'Download All Spare Issued to SF' => 'partner/download_spare_part_shipped_by_partner','Download Sale and Purchase MSL Invoice' =>'employee/inventory/download_sale_purchage_invoice_data','Download MWH Part Consumption' =>'partner/download_mwh_msl_data']; 
                                                         $sno = 1;
                                                         foreach($rows as $description => $link) {?>
                                                     <tr>

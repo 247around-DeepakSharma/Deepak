@@ -2671,7 +2671,7 @@ class Inventory_model extends CI_Model {
      * @param int $inventory_id
      * @return Array
      */
-    function get_microwarehouse_msl_data($date, $inventory_id = ""){
+    function get_microwarehouse_msl_data($date, $inventory_id = "", $where){
         $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
@@ -2685,6 +2685,11 @@ class Inventory_model extends CI_Model {
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
+        
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.is_micro_wh','1');
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
