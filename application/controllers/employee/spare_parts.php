@@ -300,7 +300,7 @@ class Spare_parts extends CI_Controller {
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped, rejected_defective_part_pic_by_wh,"
-                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value, spare_parts_details.approved_defective_parts_by_admin ";
 
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_defective_part_shipped_date', NULL, NULL, NULL, NULL, NULL);
 
@@ -371,6 +371,15 @@ class Spare_parts extends CI_Controller {
         $row[] = (empty($spare_list->age_defective_part_shipped_date)) ? '0 Days' : $spare_list->age_defective_part_shipped_date . " Days";
         $row[] = $spare_list->remarks_defective_part_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_partner;
+        /**
+         * Shows part rejection or courier rejection
+         * @modified By Ankit Rajvanshi
+         */
+        if(!empty($spare_list->approved_defective_parts_by_admin)) {
+            $row[] = SPARE_ACKNOWLEDGE_TEAM;
+        } else {
+            $row[] = COURIER_AUDIT_TEAM;
+        }        
         $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->defective_courier_receipt . '" target="_blank">Click Here</a>';
         
         if(!empty($spare_list->rejected_defective_part_pic_by_wh)){
@@ -1404,23 +1413,6 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
 
-        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
-
-            if ($spare_list->defective_part_required == '0') {
-                $required_parts = 'REQUIRED_PARTS';
-                $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
-                $cl = "btn-primary";
-            } else {
-                $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
-                $required_parts = 'NOT_REQUIRED_PARTS';
-                $cl = "btn-danger";
-            }
-            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
-        } else {
-
-            $row[] = "";
-        }
-
         if (!empty($spare_list->sell_invoice_id)) {
             $row[] = $spare_list->sell_invoice_id;
         } else {
@@ -1827,18 +1819,6 @@ class Spare_parts extends CI_Controller {
 
 
         $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
-
-        if ($spare_list->defective_part_required == '0') {
-            $required_parts = 'REQUIRED_PARTS';
-            $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
-            $cl = "btn-primary";
-        } else {
-            $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
-            $required_parts = 'NOT_REQUIRED_PARTS';
-            $cl = "btn-danger";
-        }
-        $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
-
 
         $c_tag = ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $spare_list->status != SPARE_PARTS_REQUESTED) ? "QUOTE_REQUEST_REJECTED" : "CANCEL_PARTS";
         $row[] = '<button type="button" data-keys="spare_parts_cancel" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $c_tag . '" class="btn btn-danger btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-remove-sign" style="font-size: 17px;"></i></button>';
