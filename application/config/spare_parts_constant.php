@@ -200,3 +200,7 @@ define('OPEN_CELL_PART_TYPE', 'OPEN CELL');
 define('TOTAL_PARTS_SHIPPED_TO_SF','Total Parts Shipped To SF');
 // spare parts out of tat days
 define('SPARE_PARTS_OOT_DAYS', '45');
+// spare acknowledge team
+define('SPARE_ACKNOWLEDGE_TEAM', 'Defective/Ok Acknowledge Team');
+// courier audit team
+define('COURIER_AUDIT_TEAM', 'Courier Audit Team');

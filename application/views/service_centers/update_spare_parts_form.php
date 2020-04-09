@@ -115,7 +115,7 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h3>Spare Part Details <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h3>
+                        <h3>Spare Part Details <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?><button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button><?php }else{ ?> <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?> </h3>
                         <hr>
                         <div class="clearfix"></div>
                     </div>
@@ -339,9 +339,9 @@
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts"  id="shippedmodelnumberid" >
                                                     <option value="" disabled="" selected="">Select Model Number</option>
-                                                    <?php foreach ($inventory_details as $key => $value) { ?> 
+                                                    <?php if(!empty($inventory_details)){foreach ($inventory_details as $key => $value) { ?>
                                                         <option value="<?php echo $value['id']; ?>" ><?php echo $value['model_number']; ?></option>
-                                                    <?php } ?>
+                                                    <?php }} ?>
                                                 </select>
                                                 <input type="hidden" id="requestedParts" >
                                                 <input type="hidden" id="requestedPartsType" >
@@ -498,9 +498,9 @@
                                     <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
                                         <option selected="" disabled="" value="">Select Courier Name</option>
-                                        <?php foreach ($courier_details as $value) { ?> 
+                                        <?php if(!empty($courier_details)){foreach ($courier_details as $value) { ?>
                                             <option value="<?php echo $value['courier_code'] ?>"><?php echo $value['courier_name'] ?></option>
-                                        <?php } ?>
+                                        <?php }} ?>
                                     </select>
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
@@ -754,7 +754,7 @@
             $.ajax({
                 method: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: {model_number_id: model_number_id, requested_inventory_id: requested_inventory_id, entity_id: '<?php echo $spare_parts[0]->partner_id; ?>', entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>', service_id: '<?php echo $spare_parts[0]->service_id; ?>', part_type: part_type, is_option_selected: true},
+                data: {model_number_id: model_number_id, requested_inventory_id: requested_inventory_id, entity_id: '<?php if(!empty($spare_parts[0]->partner_id)){echo $spare_parts[0]->partner_id;} ?>', entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>', service_id: '<?php if(!empty($spare_parts[0]->service_id)){echo $spare_parts[0]->service_id;} ?>', part_type: part_type, is_option_selected: true},
                 success: function (data) {
                     console.log(data);
                     $('#shippedpartsname_' + sp_id).val('val', "");
@@ -790,9 +790,9 @@
                         data: {
                             model_number_id: model_number_id,
                             requested_inventory_id: requested_inventory_id,
-                            entity_id: '<?php echo $spare_parts[0]->partner_id; ?>',
+                            entity_id: '<?php if(!empty($spare_parts[0]->partner_id)){echo $spare_parts[0]->partner_id;} ?>',
                             entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>',
-                            service_id: '<?php echo $spare_parts[0]->service_id; ?>',
+                            service_id: '<?php if(!empty($spare_parts[0]->service_id)){echo $spare_parts[0]->service_id;} ?>',
                             part_type: part_type,
                             is_option_selected: true,
                             part_name: part_name
@@ -826,7 +826,7 @@
             $.ajax({
                 method: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/get_inventory_price',
-                data: {part_name: part_name, model_number_id: model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id; ?>', entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>', service_id: '<?php echo $spare_parts[0]->service_id; ?>'},
+                data: {part_name: part_name, model_number_id: model_number_id, entity_id: '<?php if(!empty($spare_parts[0]->partner_id)){echo $spare_parts[0]->partner_id;} ?>', entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>', service_id: '<?php if(!empty($spare_parts[0]->service_id)){echo $spare_parts[0]->service_id;} ?>'},
                 success: function (data) {
                     //console.log(data);
                     var obj = JSON.parse(data);

@@ -6471,4 +6471,109 @@ exit();
             return false;
         }
     }
+    /**
+     * @desc : This function is used to get list of invoices by partner for OOW spare parts 
+     * @return : Void
+     * @author Ankit Bhatt
+     * @date : 07-04-2020
+     */
+    function get_partner_oow_parts_invoice_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/partner_oow_parts_invoice_list');
+    }
+    
+    
+    /**
+     * @desc : This function is used to get list of invoices by partner for OOW spare parts 
+     * @param : Integer $partner_id
+     * @param : String $start_date
+     * @param : String $end_date
+     * @return : Void
+     * @author Ankit Bhatt
+     * @date : 07-04-2020
+     */
+    function get_partner_oow_parts_data() {
+        $data = $this->get_partner_oow_parts_list();
+        $post = $data['post'];
+        $total_records = $this->invoices_model->count_partner_oow_parts_invoice_list($post);
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $total_records, 
+            "recordsFiltered" => $total_records,
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+
+     /**
+     *  @desc : This function is used to get list of warranty plans
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_oow_parts_list() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('p.company_name', 'vpi.invoice_id');
+
+        $where = array();
+        $partner_id = $this->input->post('partner_id');
+        $start_date = date("Y-m-d", strtotime($this->input->post('from_date')));
+        $end_date = $this->input->post('to_date');
+        $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
+        //adding partner filter for query     
+        if($partner_id != 0){
+            $where['p.id'] = $partner_id;
+        }
+        //adding start date and end date filter for query     
+        $where['vpi.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vpi.invoice_date < "'.$end_date.'"'] = null;
+        $where['vpi.vendor_partner'] = _247AROUND_PARTNER_STRING;
+        $where["vpi.sub_category in ('".OUT_OF_WARRANTY."')"] = null;
+        
+        $post['where'] = $where;
+
+        $select = "vpi.invoice_id, vpi.invoice_date, spd.booking_id,p.public_name, vpi.total_amount_collected as invoice_amount, vpi.sgst_tax_amount, vpi.cgst_tax_amount, vpi.igst_tax_amount ";
+        $list = $this->invoices_model->get_partner_oow_parts_invoice_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_partner_oow_invoice_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     /**
+     *  @desc : This function is used to get rows for partner oow parts invoice table
+     *  @param : Array $model_list
+     *  @param : Integer $no
+     *  @return : Array
+     */
+     function get_partner_oow_invoice_table($model_list, $no) {
+        $total_tax_amount = $model_list->sgst_tax_amount + $model_list->cgst_tax_amount + $model_list->igst_tax_amount;
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->public_name;
+        $row[] = $model_list->invoice_id;
+        $row[] = $model_list->booking_id;
+        $row[] = $model_list->invoice_date;
+        $row[] = $total_tax_amount;
+        $row[] = $model_list->invoice_amount - $total_tax_amount;
+        $row[] = $model_list->invoice_amount;
+        return $row;
+    }
+    
 }
