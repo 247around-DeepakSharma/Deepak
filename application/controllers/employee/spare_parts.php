@@ -3656,7 +3656,7 @@ class Spare_parts extends CI_Controller {
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-
+        $where = array();        
         if ($icwh == 1) {
             $tmp_subject = "CWH ";
             $temp_function = 'get_msl_data';
@@ -3665,27 +3665,31 @@ class Spare_parts extends CI_Controller {
             $tmp_subject = "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
             $template = "mwh_msl_data.xlsx";
-        }
-        $data = $this->inventory_model->$temp_function($date_365);
 
+            if ($this->session->userdata('userType') == 'partner') {
+                $where["im.entity_id"] = $this->session->userdata('partner_id');
+                $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
+            }
+        }
+        $data = $this->inventory_model->$temp_function($date_365, '', $where);
         if (!empty($data)) {
             foreach ($data as $key => $value) {
 
-                $day_45 = $this->inventory_model->$temp_function($date_45, $value['inventory_id']);
+                $day_45 = $this->inventory_model->$temp_function($date_45, $value['inventory_id'], $where);
                 if (!empty($day_45)) {
                     $data[$key]['consumption_45_days'] = $day_45[0]['consumption'];
                 } else {
                     $data[$key]['consumption_45_days'] = 0;
                 }
 
-                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id']);
+                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id'], $where);
                 if (!empty($day_30)) {
                     $data[$key]['consumption_30_days'] = $day_30[0]['consumption'];
                 } else {
                     $data[$key]['consumption_30_days'] = 0;
                 }
 
-                $day_15 = $this->inventory_model->$temp_function($date_15, $value['inventory_id']);
+                $day_15 = $this->inventory_model->$temp_function($date_15, $value['inventory_id'], $where);
                 if (!empty($day_15)) {
                     $data[$key]['consumption_15_days'] = $day_15[0]['consumption'];
                 } else {
