@@ -30,7 +30,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
 
                                 </tr>
@@ -73,7 +73,6 @@
                                 <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                 <th class="text-center" data-orderable="false">Courier Charges</th>
                                 <th class="text-center" data-orderable="false">Challan File</th>
-                                <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                 <th class="text-center" data-orderable="false">Sale Invoice ID</th>
                                 <th class="text-center" data-orderable="false">Purchase Invoice PDF </th>
                                 <th class="text-center" data-orderable="false">Defective Front Part Image</th>
@@ -113,7 +112,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 
                                 </tr>
@@ -254,7 +253,6 @@
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
  
                                 </tr>
