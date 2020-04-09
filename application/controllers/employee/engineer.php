@@ -187,8 +187,8 @@ class Engineer extends CI_Controller {
         $post['length'] = -1;
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => count($data),
-            "recordsFiltered" => count($data),
+            "recordsTotal" => $this->engineer_model->count_all_review_engineer_action($post),
+            "recordsFiltered" => $this->engineer_model->count_filtered_review_engineer_action($post),
             "data" => $data,
         );
 
@@ -206,11 +206,18 @@ class Engineer extends CI_Controller {
 
 function get_review_engineer_action_by_admin_list_table($review_list, $no){
 
+
         $row = array();
         $row[] = $no;
         $row[] = $review_list->booking_id;
         $row[] = $review_list->sf_name;
-        $row[] = $review_list->engineer_name[0]['name'];
+        if(isset($review_list->engineer_name[0]['name']) && !empty($review_list->engineer_name[0]['name'])){
+         $row[] = $review_list->engineer_name[0]['name'];
+        }else{
+         $row[] = "-";
+
+        }
+        
         $row[] = $review_list->amount_due;
         $row[] = $review_list->amount_paid;
         if($review_list->is_broken==1){
