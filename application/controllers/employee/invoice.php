@@ -6546,7 +6546,7 @@ exit();
         
         $post['where'] = $where;
 
-        $select = "vpi.invoice_id, vpi.invoice_date, spd.booking_id,p.company_name, vpi.total_amount_collected as invoice_amount ";
+        $select = "vpi.invoice_id, vpi.invoice_date, spd.booking_id,p.public_name, vpi.total_amount_collected as invoice_amount, vpi.sgst_tax_amount, vpi.cgst_tax_amount, vpi.igst_tax_amount ";
         $list = $this->invoices_model->get_partner_oow_parts_invoice_list($post, $select);
         $data = array();
         $no = $post['start'];
@@ -6570,12 +6570,15 @@ exit();
      *  @return : Array
      */
      function get_partner_oow_invoice_table($model_list, $no) {
+        $total_tax_amount = $model_list->sgst_tax_amount + $model_list->cgst_tax_amount + $model_list->igst_tax_amount;
         $row = array();
         $row[] = $no;
-        $row[] = $model_list->company_name;
+        $row[] = $model_list->public_name;
         $row[] = $model_list->invoice_id;
         $row[] = $model_list->booking_id;
         $row[] = $model_list->invoice_date;
+        $row[] = $total_tax_amount;
+        $row[] = $model_list->invoice_amount - $total_tax_amount;
         $row[] = $model_list->invoice_amount;
         return $row;
     }
