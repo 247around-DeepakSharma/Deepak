@@ -671,6 +671,7 @@ function getStatesCities(){
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
+                        $data['Bookings'][$key]['unit_details'] =  $unit_data; // Unit Details Data
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {

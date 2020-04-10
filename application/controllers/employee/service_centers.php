@@ -1698,7 +1698,9 @@ class Service_centers extends CI_Controller {
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
-                            array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            if($is_est_approved == false) {
+                                array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            }
                             $data['bookinghistory']['allow_estimate_approved'] = true;
                             $is_est_approved = true;
                         }
@@ -6767,7 +6769,7 @@ class Service_centers extends CI_Controller {
                 'spare_parts_details.part_warranty_status' => 2,
                 'defective_part_required' => 1,
                 '(approved_defective_parts_by_partner = 1 or defective_part_received_by_wh = 1)' => NULL,
-                'status IN ("' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . DEFECTIVE_PARTS_RECEIVED . '")' => NULL,
+                'status IN ("' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . DEFECTIVE_PARTS_RECEIVED . '", "'.Ok_PARTS_RECEIVED.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'")' => NULL,
                 '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL), true);
             if (!empty($is_oow_return)) {
                 sleep(40);
