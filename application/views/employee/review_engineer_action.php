@@ -77,12 +77,7 @@
                 },
             ],
             "language": {
-                "processing": "<div class='spinner'>\n\
-                                        <div class='rect1' style='background-color:#db3236'></div>\n\
-                                        <div class='rect2' style='background-color:#4885ed'></div>\n\
-                                        <div class='rect3' style='background-color:#f4c20d'></div>\n\
-                                        <div class='rect4' style='background-color:#3cba54'></div>\n\
-                                    </div>",
+                searchPlaceholder: "Search Boooking ID",
                 "emptyTable": "No Data Found"
             },
 
