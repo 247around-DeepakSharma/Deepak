@@ -256,6 +256,10 @@ $route['partner/inventory/download_part_master'] = 'employee/partner/show_downlo
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
+$route['partner/add_nrn_details'] = 'partner/add_nrn_details';
+$route['partner/list_nrn_records'] = 'partner/list_nrn_records';
+$route['partner/edit_nrn_details'] = 'partner/edit_nrn_details';
+$route['partner/edit_nrn_details/edit/(:num)'] = 'partner/edit_nrn_details/$1';
 
 
 
