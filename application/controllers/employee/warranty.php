@@ -12,6 +12,8 @@ class Warranty extends CI_Controller {
 
         parent::__Construct();
         $this->load->model('warranty_model');
+        $this->load->model('partner_model');
+        $this->load->model('booking_model');
         $this->load->library("session");
         $this->load->library('miscelleneous');
         $this->load->library('warranty_utilities');
@@ -191,8 +193,23 @@ class Warranty extends CI_Controller {
     
     public function plan_model_mapping() {
         $this->miscelleneous->load_nav_header();
+        $partner_id = "";
+        $service_id = "";
         
-        $where = "";
+        // Add filter of Partner
+        if(!empty($this->input->post('partner_id')))
+        {
+            $partner_id = $this->input->post('partner_id');
+        }
+        
+        // Add filter of Product
+        if(!empty($this->input->post('service_id')))
+        {
+            $service_id = $this->input->post('service_id');
+        }
+        
+        //set select and where conditions
+        $where = "warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."'";
         $select = "warranty_plans.plan_id, warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active, warranty_plans.is_active as is_active_plan";        
         $order_by = "warranty_plans.plan_name,appliance_model_details.model_number";
         $join['services']  = 'warranty_plans.service_id = services.id';
@@ -200,14 +217,21 @@ class Warranty extends CI_Controller {
         $join['warranty_plan_model_mapping']  = 'warranty_plans.plan_id = warranty_plan_model_mapping.plan_id';
         $join['appliance_model_details']  = 'warranty_plan_model_mapping.model_id = appliance_model_details.id';
         
+        // fetch Data to show on view
         $data['plan_data'] = $this->warranty_model->getPlanWiseModels($where, $select, $order_by, NULL, $join, NULL, $result_array = false);        
+        $data['partners'] = $this->partner_model->getpartner();
+        $data['services'] = $this->booking_model->selectservice(true);
+        $data['selected_partner_id'] = $partner_id;
+        $data['selected_service_id'] = $service_id;
+        
+        // load view
         $this->load->view('warranty/plan_wise_models_view', $data);
     }
     
     public function add_model_to_plan() {
         $arr_post = $this->input->post();
         $warranty_plans = $this->warranty_model->selectPlans();
-        $appliance_models = $this->warranty_model->selectModels();
+        $appliance_models = [];
         $this->miscelleneous->load_nav_header();
         if(!empty($arr_post['plan_id']) && !empty($arr_post['model_id'])) 
         {
@@ -1228,5 +1252,48 @@ class Warranty extends CI_Controller {
             $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
             redirect(base_url().'employee/warranty/warranty_plan_details/'.$plan_id);
         }
+    }
+    
+    /**
+     * This function is used to get all Models that can be associated with the given plan on the basis of its partner Id and service Id
+     * @param int plan_id
+     * @author : Prity Sharma
+     * @date : 03-04-2020
+     */
+    function getWarrantyPlanSpecificModels(){
+        $plan_id = $this->input->post('plan_id');  
+        $select = 'appliance_model_details.id, appliance_model_details.model_number, partner_appliance_details.service_id';
+        $order_by = 'appliance_model_details.model_number';
+        $where = array ('warranty_plans.plan_id' => $plan_id,
+                        'partner_appliance_details.active' => 1,
+                        'appliance_model_details.active' => 1, 
+        );
+        $join['partner_appliance_details']  = 'partner_appliance_details.service_id = warranty_plans.service_id AND partner_appliance_details.partner_id = warranty_plans.partner_id';
+        $join['appliance_model_details']  = 'partner_appliance_details.model = appliance_model_details.id';
+               
+        $result = $this->warranty_model->getPlanWiseModels($where, $select, $order_by, NULL, $join, NULL, $result_array = true);        
+        
+        if(!empty($result)){
+            $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
+            foreach ($result as $value) {
+                if(!empty(trim($value['model_number']))){
+                    $flag = true;
+                    $option .= "<option value='".$value['id']."###".$value['service_id']."'>".$value['model_number']."</option>";
+                }                
+            }
+            if($flag)  {
+                $res['status'] = TRUE;
+                $res['msg'] = $option;
+            } else {
+                $res['status'] = FALSE;
+                $res['msg'] = 'no data found';
+            }
+            
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'no data found';
+        }
+        echo json_encode($res);        
     }
 }

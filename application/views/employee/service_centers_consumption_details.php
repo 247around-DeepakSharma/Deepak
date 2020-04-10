@@ -108,6 +108,8 @@
                         <th>GST Rate</th>
                         <th>GST Tax Amount</th>
                         <th>Total Amount</th>
+                        <th>From GST Number</th>
+                        <th>To GST Number</th>
                         <th>Sub Category</th>
                     </tr>
                 </thead>
@@ -192,7 +194,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13 ]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13,14,15 ]
                     },
                     title: 'service_centers_consumption_'+time,
                     action: newExportAction

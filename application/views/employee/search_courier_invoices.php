@@ -6,7 +6,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <form method="POST" action="<?php echo base_url();?>employee/inventory/search_courier_invoices">
+                    <form method="POST" action="<?php echo base_url();?>employee/inventory/search_courier_invoices" id='fileinfo'>
                         <div class="form-group">
                             <label for="model_number" >Docket Number *</label>
                             <textarea class="form-control" rows="5" id="bulk_input" name="bulk_input" placeholder="Enter Docket Number"></textarea>

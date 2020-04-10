@@ -7,6 +7,70 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= $arr_bookings; ?>'>
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
+
+
+
+
+      <div id="booking_reassign" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+               <h4 class="modal-title" id="modal_title_reassign">Transfer Booking </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                           <select class="form-control" id="service_center_reassign" name="service" required="">
+                                        <option selected disabled>Transfer Call To</option>
+                                            <?php foreach ($service_centers as $key => $values) { ?>
+                                            <option  value="<?php echo $values['id']; ?>">
+                                                <?php
+                                                echo $values['name'];
+                                            }
+                                            ?>
+                                        </option>
+                                    
+                       </select>
+
+                </div>
+                <div class="col-md-12">
+
+
+                   <select class="form-control" id="reason_of_reassign" name="service" required="">
+                                        <option selected disabled>Reason Of Transfer</option>
+                                            <?php foreach ($service_centers as $key => $values) { ?>
+                                            <option  value="<?php echo $values['id']; ?>">
+                                                <?php
+                                                echo $values['name'];
+                                            }
+                                            ?>
+                                        </option>
+                                    
+                       </select>
+
+                </div>
+                <input type="hidden" name="modal_booking_id" id="modal_booking_id_reassign" value="">
+                <div class="col-md-12">
+                <textarea rows="8" name="remarks" class="form-control textarea" id="textarea_assign"></textarea>
+                </div>
+                <div class="col-md-12">
+                <input type="checkbox" name="acceptrmam" id="modal_acceptrmam_reassign" value="1"> RM/AM will take care of spare parts if shipped.
+              </div>
+            </div>
+             
+           
+            <div class="modal-footer">
+               <button type="button" class="btn btn-success" onclick="transfer_call_to_other_sf()" id="reassign_process">Transfer</button>
+               <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
 <div class="" style="margin-top: 30px;">
          <div class="row">
                 <?php if($status == 'Completed') { ?>
@@ -276,12 +340,12 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo $tab_class;?> <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
                                          <?php if($status == _247AROUND_COMPLETED){?> onchange="is_sn_correct_validation('<?php echo $value['booking_id']?>')"<?php } ?>></input></td>
                               <td>
-                                 <?php echo "<a class='btn btn-sm btn-primary' "
+                                 <?php echo "<a class='btn btn-sm btn-primary' style='margin-top:5px;' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
-                              <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
+                              <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Complete Booking"></i></a>
                               <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" onclick="open_admin_remarks_modal('<?php echo $value['booking_id']; ?>')"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
-                              <a style="margin-top:5px;position: relative;" class="btn btn-success" id='<?php echo 'comment_' . $count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i>
+                              <a style="margin-top:5px;position: relative;" class="btn btn-success btn-sm" id='<?php echo 'comment_' . $count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i>
                                       <?php
                                       if (isset($bookings_comment_count[$value['booking_id']]) && $bookings_comment_count[$value['booking_id']] > 0) {
                                           ?>
@@ -290,6 +354,14 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                         }
                                       ?>
                                   </a>
+<!--                                Added link that is redirecting to the Admin Booking cancellation form.-->
+                                <?php if($status == _247AROUND_CANCELLED){
+                                    $url_cancel_form =  base_url() . "employee/booking/get_cancel_form/".$value['booking_id'];
+                                    echo "<a class='btn btn-danger btn-sm' style='margin-top:5px;' href='".$url_cancel_form."' target='_blank' title='Cancel Booking'><i class='fa fa-pencil' aria-hidden='true'></i></a>";
+                                } ?>
+ 
+                              <button style="margin-top:5px;" type="button"  class="btn btn-danger btn-sm open-adminremarks_transfer" ><a style="color:white;" target="_blank" href="<?php echo base_url(); ?>employee/vendor/get_reassign_vendor_form/<?php echo $value['booking_id']; ?>">Transfer</a></button>
+ 
                               </td>
                            
                             </tr>
@@ -345,6 +417,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             <div class="modal-body">
                 <div class="col-md-12">
                     <center><img id="loader_gif_<?=$review_status?>_<?=$is_partner?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    <center><p id="remarks_msg_<?=$review_status?>_<?=$is_partner?>" style="color : red;"></p></center>
                 </div>
                 <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?>" value="">
                 <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?>"></textarea>
@@ -369,6 +442,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
          </div>
       </div>
    </div>
+
+
+
 <style>
     .comment_count
     {
@@ -379,6 +455,9 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         height: 20px;
         background: #df4848;
         border-radius: 10px;
+    }
+    .select2-container--default{
+      width:100% !important;
     }
 </style>
 <script>
@@ -519,6 +598,15 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?>').val(booking_id);
         $('#modal-title-<?=$review_status?>_<?=$is_partner?>').html(booking_id);
     }
+
+
+    function open_admin_remarks_modal_assign(booking_id) {
+        $('#modal_title_assign').text("");
+        $('#textarea_assign').text("Transfer Booking to Other SF");
+        $('#modal_booking_id_reassign').val(booking_id);
+
+        $('#booking_reassign').modal();     
+    }
     
     function getcommentbox(type_val, booking_id){
         $.ajax({
@@ -540,6 +628,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             }
         });
     }
+
+    $('#service_center_reassign').select2();
+    $('#reason_of_reassign').select2();
+
+    
     
     function load_comment_area(){
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').show();
@@ -661,4 +754,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 //            var type_val = 1;   
 //            getcommentbox(type_val);        
         }  
+
+
+
+
+
+
    </script> 

@@ -2681,8 +2681,11 @@ class Miscelleneous {
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
                 //get account manager details
                 $am_email = "";
-                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state',array('booking_details.booking_id'=>$booking_id));
+                $booking_request_type = "";
+                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state, booking_details.request_type',array('booking_details.booking_id'=>$booking_id));
                 if(!empty($booking_data)){
+                    // get booking request type
+                    $booking_request_type = $booking_data[0]['request_type'];
                     $accountManagerData = $this->get_am_data($booking_data[0]['partner_id'],$booking_data[0]['state']);
                     
                     if(!empty($accountManagerData)){
@@ -2735,7 +2738,7 @@ class Miscelleneous {
                 $value['agent_type'] = 'admin';
                 $where = array('escalation_id' => $escalation_reason_id, 'active' => '1');
                 //Adding values in penalty on booking table
-                $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where);
+                $this->My_CI->penalty_model->get_data_penalty_on_booking($value, $where, $booking_request_type);
                 log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
                 return TRUE;
 	    }
@@ -4499,9 +4502,9 @@ function generate_image($base64, $image_name,$directory){
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = '';
-            $track_partner_id = '';
-            $track_entity_type = '';
+            $agentid = $this->My_CI->session->userdata('id');
+            $track_partner_id = _247AROUND;
+            $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
 
         $tcount = 0;
@@ -5171,10 +5174,13 @@ function generate_image($base64, $image_name,$directory){
         $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         
         /* Load data & update spare parts details */
-        $spare_data = $this->load_data_to_cancel_micro_wh_part($spare_id, SPARE_DELIVERED_TO_SF, ''); // to be discussed
+        $spare_data = $this->load_data_to_cancel_micro_wh_part($spare_id, SPARE_DELIVERED_TO_SF, PART_NOT_CONSUMED_CANCELLATION_REASON_ID); 
         // update consumption reason.
+        $consumption_reason = NULL;
         if(!empty($consumption_reason_id)) {
             $spare_data['consumed_part_status_id'] = $consumption_reason_id;
+            /*get consumption reason name*/
+            $consumption_reason = $this->My_CI->reusable_model->get_search_result_data('spare_consumption_status', 'consumed_status', ['id' => $consumption_reason_id], NULL, NULL, NULL, NULL, NULL)[0]['consumed_status'];
         }
         $this->My_CI->service_centers_model->update_spare_parts(['id' => $spare_id], $spare_data);
         
@@ -5182,7 +5188,7 @@ function generate_image($base64, $image_name,$directory){
         $tracking_details = array(
             'spare_id' => $spare_id, 
             'action' => _247AROUND_CANCELLED, 
-            'remarks' => SPARE_RECIEVED_NOT_USED, 
+            'remarks' => $consumption_reason, 
             'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 
             'entity_id' => $this->My_CI->session->userdata('service_center_id'), 
             'entity_type' => _247AROUND_SF_STRING
@@ -5190,7 +5196,7 @@ function generate_image($base64, $image_name,$directory){
         $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
         
         /* insert state change. */
-        $this->My_CI->notify->insert_state_change($booking_id, SPARE_PARTS_CANCELLED, SPARE_DELIVERED_TO_SF, SPARE_RECIEVED_NOT_USED, $this->My_CI->session->userdata('service_center_agent_id'), $this->My_CI->session->userdata('service_center_agent_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $this->My_CI->session->userdata('service_center_id'), $spare_id);
+        $this->My_CI->notify->insert_state_change($booking_id, SPARE_PARTS_CANCELLED, SPARE_DELIVERED_TO_SF, $consumption_reason, $this->My_CI->session->userdata('service_center_agent_id'), $this->My_CI->session->userdata('service_center_agent_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, NULL, $this->My_CI->session->userdata('service_center_id'), $spare_id);
         
         /* increase stock for cancel part */
         $data = array(

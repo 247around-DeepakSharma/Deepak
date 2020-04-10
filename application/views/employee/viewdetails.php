@@ -980,7 +980,7 @@
                                                     ?></td>
                                         <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" />
                                             <?php //echo date("d-m-Y", strtotime($sp['shipped_date'])); ?>
-                                           <span class="shipdate_no_text" id="<?php echo $sp['id']."_spare_shipped_date";?>" data_booking_id='' line_item_id='<?php echo $sp['id']; ?>'><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></span>
+                                           <span class="shipdate_no_text shipment_date_awb" id="<?php echo $sp['id']."_spare_shipped_date";?>" data_booking_id='' line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_partner'])){echo $sp['awb_by_partner'];} ?>"><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></span>
                                             <span class="shipdate_no_text_approval" style='display:none'><?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){echo $sp['spare_approval_date'];}else{echo $sp['date_of_request'];} ?></span>
                                             <span class="shipdate_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <span id=<?php echo "shipment_date_edit".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
@@ -1009,7 +1009,7 @@
                                             <?php if(!empty($sp['courier_pic_by_partner'])){ ?>
                                             <div class="progress-bar progress-bar-success myprogress" id="myprogresscourier_pic_by_partner<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>
                                             <!--<a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>-->
-                                            <a href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank" id="<?php echo "a_courier_pic_by_partner_".$sp['id']; ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "courier_pic_by_partner_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','courier_pic_by_partner');"></i>
+                                            <a class='courier_pic_by_partner' href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank" id="<?php echo "a_courier_pic_by_partner_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_partner'])){echo $sp['awb_by_partner'];} ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "courier_pic_by_partner_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','courier_pic_by_partner');"></i>
                                                <?php } ?>
                                         </td>
                                         <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
@@ -2331,6 +2331,7 @@ function uploadfile(){
             return;
         }
     }
+    var awb_number_file = $("span[id='"+spareID+"|awb_by_partner']").text();
     
     if(spareFileColumn=='partner_challan_file' || spareFileColumn=='courier_pic_by_partner'){
         directory_name = 'vendor-partner-docs';
@@ -2345,6 +2346,7 @@ function uploadfile(){
             formData.append('spareID', spareID);
             formData.append('spareColumn', spareFileColumn);
             formData.append('directory_name', directory_name);
+            formData.append('awb_number', awb_number_file);
             formData.append('booking_id', '<?php echo $booking_history[0]['booking_id'];?>');
             
             $.ajax({
@@ -2373,7 +2375,17 @@ function uploadfile(){
                     
                     if(obj.code === "success"){
                         if(directory_name!=''){
-                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);                        
+                        $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);
+                        if(spareFileColumn=='courier_pic_by_partner'){
+                            $(".courier_pic_by_partner").each(function(){
+                                var LineItemID = $(this).attr('line_item_id');
+                                var AwbNumber = $(this).attr('awb_number');
+                                var awb_number_changed = $("span[id='"+LineItemID+"|awb_by_partner']").text();
+                                if(awb_number_file == awb_number_changed){
+                                    $(this).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);
+                                }
+                            });
+                        }
                         }else{
                          $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   
                         }
@@ -2455,9 +2467,18 @@ $(".shipdate_no_edit").click(function() {
         var text_id = $(this).siblings(".shipdate_no_text").attr('id');
         var booking_id = $(this).siblings(".shipdate_no_text").attr('data_booking_id');
         var line_item_id = $(this).siblings(".shipdate_no_text").attr('line_item_id');
+        var awb_number = $("span[id='"+line_item_id+"|awb_by_partner']").text();
         var data_value = $(this).siblings(".dateinput").val();
         $(this).siblings(".shipdate_no_text").text($(this).siblings(".dateinput").val());
-        $(this).siblings(".shipdate_no_text_r").text($(this).siblings(".dateinput").val());
+        var date_changed = $(this).siblings(".dateinput").val();
+        $(".shipment_date_awb").each(function(){
+            var LineItemID = $(this).attr('line_item_id');
+            var AwbNumber = $(this).attr('awb_number');
+            var awb_number_changed = $("span[id='"+LineItemID+"|awb_by_partner']").text();
+            if(awb_number == awb_number_changed){
+                $(this).text(date_changed);
+            }
+        });
         var column = 'shipped_date';
         if(data_value == ''){
           alert("Detail should not be blank.");
@@ -2469,7 +2490,7 @@ $(".shipdate_no_edit").click(function() {
             beforeSend: function(){
                  prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
              },
-            data: { data: data_value, id: line_item_id, booking_id:booking_id,column:column},
+            data: { data: data_value, id: line_item_id, booking_id:booking_id,column:column,awb_number:awb_number},
             success: function (data) {
                 data = $.trim(data);
                 if(data.toLowerCase() === "success"){
@@ -2486,7 +2507,6 @@ $(".shipdate_no_edit").click(function() {
         var text = $(this).siblings(".shipdate_no_text").text();
         var text_id = $(this).siblings(".shipdate_no_text").attr('id');
         var text_min = $(this).siblings(".shipdate_no_text_approval").text();
-        //var newDate = text_min.toDate('dd-MM-yy');
         var min_date ='';
         if(text_min!='0000-00-00' && text_min!=''){
         text_min=text_min.split("-")

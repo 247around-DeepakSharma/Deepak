@@ -3717,11 +3717,11 @@ class Booking extends CI_Controller {
                 if(($this->session->userdata('is_am') == '1') || ($this->session->userdata('user_group') == _247AROUND_RM) || ($this->session->userdata('user_group') == _247AROUND_ASM)){
                     $post['where']  = array("(booking_details.current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
-                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
+                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_PARTS_SHIPPED_BY_WAREHOUSE,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 else{
                     $post['where']  = array("booking_details.current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
-                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
+                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_PARTS_SHIPPED_BY_WAREHOUSE,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 $post['order_performed_on_count'] = TRUE;
             }

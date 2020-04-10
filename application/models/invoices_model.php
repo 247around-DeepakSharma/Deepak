@@ -1716,7 +1716,7 @@ class invoices_model extends CI_Model {
 //            }
             // we have no gst number then we generte bill of supply.
             // If we have gst number but gst status is cancelled then we are not generating invoice
-            if (!empty($result['booking'][0]['gst_number']) && !empty($result['booking'][0]['gst_status']) && ($result[0]['gst_status'] != _247AROUND_CANCELLED)) {
+            if (!empty($result['booking'][0]['gst_number']) && !empty($result['booking'][0]['gst_status']) && (!empty($result[0]['gst_status']) && $result[0]['gst_status'] != _247AROUND_CANCELLED)) {
                 return $result;
                
             } else {
@@ -3299,7 +3299,7 @@ class invoices_model extends CI_Model {
         $this->db->where('s.part_requested_on_approval', 1);
         $this->db->where('ud.booking_status NOT IN ("'._247AROUND_COMPLETED.'", "'._247AROUND_CANCELLED.'") ', NULL);
         $this->db->where('ud.partner_net_payable > 0', NULL);
-        $this->db->where("DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= partners.oot_spare_to_be_shipped ", NULL);
+        $this->db->where("DATEDIFF(STR_TO_DATE('".date('Y-m-01')."', '%Y-%m-%d'), STR_TO_DATE(date_of_request, '%Y-%m-%d')) >= partners.oot_spare_to_be_shipped ", NULL);
         $this->db->where('ud.partner_id', $partner_id);
         $query = $this->db->get();
         return  $query->result_array();
@@ -3606,4 +3606,85 @@ class invoices_model extends CI_Model {
     function insert_msl_packaging_data($data){
         $this->db->insert('billed_msl_package', $data);
     }
+    
+    
+     /**
+     *  @desc : This function is used to get partner OOW invoice data
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_partner_oow_parts_invoice_list($post, $select = "",$is_array = false) {
+        $this->_get_partner_oow_parts_invoice_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+     //   echo $this->db->last_query();
+        log_message('info', __METHOD__. " ".$this->db->last_query());
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get data from table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_partner_oow_parts_invoice_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('vendor_partner_invoices as vpi');
+        $this->db->join('spare_parts_details as spd', 'vpi.invoice_id = spd.purchase_invoice_id');
+        $this->db->join('partners as p', 'vpi.vendor_partner_id = p.id ');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('vpi.invoice_date','DESC');
+        }
+    }
+    
+    
+     /**
+     *  @desc : This function is used to get total OOW parts partner invoice data
+     *  @param : Array $post
+     *  @return: Array()
+     */
+    public function count_partner_oow_parts_invoice_list($post) {
+        $this->_get_partner_oow_parts_invoice_list($post, 'count(distinct(vpi.invoice_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
 }

@@ -664,21 +664,24 @@ class Notify {
                             $finalString = 'Your Brand Collateral ->   '.nl2br ("\n");
                             $index =1;
                             foreach($data as $collatralData){
-                                   if($collatralData['is_file']){
-                                    $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
-                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
-                                 }
-                                else{
-                                    $brand_coll_url = $collatralData['file'];
-                                    $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                if(!empty($collatralData['file']) && !empty($collatralData['collateral_type']))
+                                {
+                                    if(isset($collatralData['is_file'])){
+                                        $brand_coll_url = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$collatralData['file'];
+                                        $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                    }
+                                    else{
+                                        $brand_coll_url = $collatralData['file'];
+                                        $brand_coll_url=str_replace(" ", "%20", $brand_coll_url);
+                                    }
+                                    //make tiny url
+                                    $brand_coll_tinyUrl = $this->My_CI->miscelleneous->getShortUrl($brand_coll_url);
+                                    $finalString .= ' '.$index.'.     ';
+                                    $finalString .= $collatralData['collateral_type'].'        ';
+                                    $finalString .=  '       '.$brand_coll_tinyUrl.'          ';
+                                    $finalString .=nl2br ("\n");
+                                    $index++;
                                 }
-                                //make tiny url
-                                $brand_coll_tinyUrl = $this->My_CI->miscelleneous->getShortUrl($brand_coll_url);
-                                $finalString .= ' '.$index.'.     ';
-                                $finalString .= $collatralData['collateral_type'].'        ';
-                                $finalString .=  '       '.$brand_coll_tinyUrl.'          ';
-                                $finalString .=nl2br ("\n");
-                                $index++;
                             }
                             $smsbody=$finalString;
                           //  $status  = $this->My_CI->notify->sendTransactionalSmsMsg91($query1[0]['booking_primary_contact_no'],$smsbody, SMS_WITHOUT_TAG);
@@ -1320,6 +1323,86 @@ class Notify {
             if($insert_id){
 
                 return TRUE;
+            }else{
+                return FALSE;
+            }
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
+        }
+
+
+   }
+
+
+
+    /**
+     * @desc: Function to send whatsapp message to any number
+     * @parameters $phone_number,$message
+     * @retun:boolean()
+     */
+
+   function send_whatsapp_to_any_number($phone_number, $message){
+    $phone_number = "+".$phone_number;
+    $payloadName = '{
+       "channel": "'.API_KARIX_CHANNEL.'",
+       "source": "'.API_KARIX_SOURCE.'",
+       "destination": [
+       "'.$phone_number.'"
+       ],
+       "content": {
+       "text": "'.$message.'"
+      } 
+     }';
+     $headers = array(
+    'Content-Type:application/json',
+    'Authorization: Basic '. API_KARIX_PASSWORD // <---
+     );
+     $additionalHeaders ="";
+     $ch = curl_init(KARIX_HOST);
+     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
+//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+     curl_setopt($ch, CURLOPT_HEADER, 0);
+     curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
+     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+     curl_setopt($ch, CURLOPT_POST, 1);
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+     $return = curl_exec($ch);
+     curl_close($ch);
+     $data = json_decode($return);
+     $total_cost = $data->meta->credits_charged;
+     $channel = $data->objects[0]->channel;
+     $source = $data->objects[0]->source;
+     $destination = $data->objects[0]->destination;
+     $direction = $data->objects[0]->direction;
+     $content = $data->objects[0]->content->text;
+     $content_type  = $data->objects[0]->content_type;
+     $whatsapp_profile  = '247Around';
+     $status = $data->objects[0]->status;
+     $type = 'message';
+     $message_type = $data->objects[0]->channel_details->whatsapp->type;
+     $response = $return;
+    // echo $channel;
+            $whatsapp = array(
+            'source' => $source,
+            'destination' => $destination,
+            'channel' => 'whatsapp',
+            'direction' => $direction,
+            'content' => $content,
+            'content_type' => $content_type,
+            'source_profile' => $whatsapp_profile,
+            'status' => $status,
+            'type' => trim($type),
+            'total_cost' => $total_cost,
+            'message_type' => $message_type,
+            'json_response' => $response
+        );
+       $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
+        try {
+            if($insert_id){
+
+                return $status;
             }else{
                 return FALSE;
             }

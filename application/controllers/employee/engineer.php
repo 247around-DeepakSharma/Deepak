@@ -112,15 +112,46 @@ class Engineer extends CI_Controller {
     }
 
     function review_engineer_action_by_admin() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/review_engineer_action');
+    }
 
-        $where['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
+
+    /**
+     *  @desc : This function is used to get the post data for chat
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    private function get_post_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+        $post['draw'] = $this->input->post('draw');
+
+        return $post;
+    }
+
+  /**
+     *  @desc : This function is used to get the review_engineer_action_by_admin_list
+     *  @param : void()
+     *  @return : JSON
+     *  @Author : Abhishek Awasthi
+     */
+    function review_engineer_action_by_admin_list(){
+        $post = $this->get_post_data();
+        $post[''] = array();
+        // $post['group_by'] = 'destination';          
+        $post['where_in'] = array("engineer_booking_action.current_status" => array("InProcess", "Completed", "Cancelled"),
             "booking_details.current_status" => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
+        $post['column_search'] = array("engineer_booking_action.booking_id");
 
-        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
+        $list = $this->engineer_model->get_engineer_action_table_list($post, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid,"
                 . "engineer_table_sign.pincode as en_pincode, engineer_table_sign.address as en_address, "
                 . "booking_details.booking_pincode, booking_details.assigned_vendor_id, booking_details.booking_address, engineer_table_sign.remarks");
 
-        foreach ($data as $key => $value) {
+        foreach ($list as $key => $value) {
             $is_broken = false;
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
             $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,engineer_booking_action.is_broken", $unitWhere);
@@ -134,19 +165,77 @@ class Engineer extends CI_Controller {
                 }
             }
 
-            $data[$key]->status = $status;
-            $data[$key]->is_broken = $is_broken;
+            $list[$key]->status = $status;
+            $list[$key]->is_broken = $is_broken;
             if (!empty($ac_data[0]['engineer_id'])) {
-                $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
+                $list[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
             } else {
-                $data[$key]->engineer_name = "";
+                $list[$key]->engineer_name = "";
             }
 
-            $data[$key]->sf_name = $this->vendor_model->getVendorDetails("name", array("id" => $data[0]->assigned_vendor_id))[0]['name'];
+            $list[$key]->sf_name = $this->vendor_model->getVendorDetails("name", array("id" => $list[0]->assigned_vendor_id))[0]['name'];
         }
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/review_engineer_action', array("data" => $data));
+
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $review_list) {
+            $no++;
+            $row = $this->get_review_engineer_action_by_admin_list_table($review_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->engineer_model->count_all_review_engineer_action($post),
+            "recordsFiltered" => $this->engineer_model->count_filtered_review_engineer_action($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+
     }
+
+  /**
+     *  @desc : This function is used to get the review_engineer_action_by_admin_list
+     *  @param : void()
+     *  @return : Array
+     *  @Author : Abhishek Awasthi
+     */
+
+
+function get_review_engineer_action_by_admin_list_table($review_list, $no){
+
+
+        $row = array();
+        $row[] = $no;
+        $row[] = $review_list->booking_id;
+        $row[] = $review_list->sf_name;
+        if(isset($review_list->engineer_name[0]['name']) && !empty($review_list->engineer_name[0]['name'])){
+         $row[] = $review_list->engineer_name[0]['name'];
+        }else{
+         $row[] = "-";
+
+        }
+        
+        $row[] = $review_list->amount_due;
+        $row[] = $review_list->amount_paid;
+        if($review_list->is_broken==1){
+        $row[] = "Yes";
+        }else{
+        $row[] = "No";
+        }
+        $row[] = $review_list->remarks;
+        $row[] = $review_list->status;
+        $row[] = $review_list->booking_address;
+        
+    
+        return $row;
+
+}
+
+
+
 
     function get_service_based_engineer() {
         $response = array();
