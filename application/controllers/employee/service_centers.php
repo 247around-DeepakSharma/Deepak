@@ -1698,7 +1698,9 @@ class Service_centers extends CI_Controller {
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
-                            array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            if($is_est_approved == false) {
+                                array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
+                            }
                             $data['bookinghistory']['allow_estimate_approved'] = true;
                             $is_est_approved = true;
                         }
