@@ -2298,4 +2298,21 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 CREATE TABLE `247around`.`reassign_bookings` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_details_id` INT(11) NOT NULL ,  `reason` INT(11) NULL DEFAULT NULL ,  `remark` VARCHAR(500) NULL DEFAULT NULL ,  `old_sf` INT(11) NULL DEFAULT NULL ,  `new_sf` INT(11) NULL DEFAULT NULL ,  `rm_flag` INT(4) NULL DEFAULT '0' ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `reassign_bookings` CHANGE `rm_flag` `rm_responsible_flag` INT(4) NULL DEFAULT '0';
  ALTER TABLE `reassign_bookings` CHANGE `created_on` `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+--Gorakh 10-04-2020
+
+CREATE TABLE `courier_serviceable_area` (
+  `id` int(11) NOT NULL,
+  `courier_company_name` varchar(255) NOT NULL,
+  `pincode` varchar(255) NOT NULL,
+  `status` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `courier_serviceable_area`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `courier_serviceable_area`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
  
