@@ -92,14 +92,6 @@
                                     <option>3</option>
                                     <option>4</option>
                                     <option>5</option>
-                                    <Select type="text" class="form-control"  name="rating_star" id="rating_star" value="<?php echo set_value('rating_star'); ?>" style="margin-left: 117px;width: 96%;" onchange="return dissatisfactory_reasons();">
-                                    <option value ="">Select Rating Star</option>
-                                      <?php  
-
-                                      foreach($rating_star as $rating){
-                                      echo "<option value='".$rating['rating_id']."'>".$rating['rating']."</option>";                              
-                                      }
-                                    ?>
                                     </Select>
                                 </div>
             </div>
@@ -115,23 +107,6 @@
                             </div>
                 </div>
             </div>
-
-            <!-- Div section for rating_dissatisfactory_reason -->
-            <div class="col-md-12">
-            <div class="col-md-6">
-           
-                <div class="form-group" style="display:none;" id="rating_dissatisfactory">
-                    <label for="rating_dissatisfactory_reason" class="col-md-2" style="margin-left: 13px;" >Dissatisfactory Reason</label>
-                                <div class="col-md-6" >                                    
-                                      <select type="text" class="form-control"  name="rating_dissatisfactory_reason" id="rating_dissatisfactory_reason" style="margin-left: 117px;width: 96%;">
-                                      <option> Select Reason </option>
-                                    </select>
-                                </div>
-           
-                 </div>
-             </div>
-           </div>
-
         <div class="col-md-12">
             <div class="col-md-6">
                 <div class="form-group <?php if( form_error('rating_comments') ) { echo 'has-error';} ?>">
@@ -159,36 +134,6 @@
 </div>
 <script type="text/javascript">
     
-
-//function to fetch Dissatisfactory reason on rating selection
-function dissatisfactory_reasons(){
-  $('#rating_star').change(function(){ 
-                var rating_id =$("#rating_star option:selected" ).val();
-                if(rating_id === "" || rating_id <5){
-
-                $.ajax({
-                    url : "<?php echo base_url();?>employee/booking/fetch_dissatisfactory_reasons",
-                    method : "POST",
-                    data : {rating_id: rating_id},
-                    dataType : 'json',
-                    success: function(data){
-                        
-                        var html = '';
-                        var i;
-                        for(i=0; i<data.length; i++){
-                            html += '<option value='+data[i].reason_id+'>'+data[i].reason+'</option>';
-                        }
-                        $('#rating_dissatisfactory_reason').html(html)
-                       $("#rating_dissatisfactory").show();
-                      }
-                    });
-                  }
-                  else{
-                    $("#rating_dissatisfactory").hide();
-                  }
-                });
-              } 
-
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
 
