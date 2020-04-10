@@ -8038,6 +8038,7 @@ class Inventory extends CI_Controller {
         } else {
             $row[] = "<span>Not Available</span>";
         }
+        $row[] = $model_list->services;
         $row[] = $model_list->brand;
         $row[] = $model_list->category;
         $row[] = $model_list->capacity;
