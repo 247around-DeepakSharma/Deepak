@@ -229,6 +229,7 @@ $route['partner/upcountry_report'] = 'employee/partner/download_upcountry_report
 $route['partner/download_waiting_defective_parts'] = 'employee/partner/download_waiting_defective_parts';
 $route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/download_waiting_upcountry_bookings';
 $route['partner/download_all_spare_parts'] = 'employee/partner/download_all_spare_parts';
+$route['partner/download_mwh_msl_data'] = 'employee/spare_parts/get_msl_data/2';
 $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
@@ -295,6 +296,7 @@ $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_center
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 $route['service_center/send_to_partner_on_challan'] = 'employee/service_centers/warehouse_send_to_partner_on_challan';
 $route['service_center/rejected_by_partner_on_challan'] = 'employee/service_centers/warehouse_rejected_by_partner_on_challan';
+$route['service_center/rejected_by_partner_on_invoice'] = 'employee/service_centers/warehouse_rejected_by_partner_on_invoice';
 $route['service_center/get_rejected_msl'] = 'employee/service_centers/get_rejected_msl';
 $route['service_centers/spare_assigned_to_partner'] = 'employee/service_centers/spare_assigned_to_partner';
 $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
@@ -318,6 +320,7 @@ $route['service_center/parts_delivered_to_sf'] = 'employee/service_centers/parts
 $route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_centers/parts_delivered_to_sf/$1';
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
+$route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -636,6 +636,13 @@ function getStatesCities(){
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
                 $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
+                if($requestData['entity_type']==_247AROUND_DEALER_STRING){
+                $post['where']['booking_details.dealer_id'] = $requestData['entity_id']; // if dealer then search for dealer ID 
+                }else{
+                $post['where']['booking_details.partner_id'] = $requestData['entity_id']; // IF partner then search for partner ID
+                }
+                
+                
 
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
@@ -664,6 +671,7 @@ function getStatesCities(){
                         // Abhishek Send Spare Details of booking //
                         $spares_details = $this->around_generic_lib->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
+                        $data['Bookings'][$key]['unit_details'] =  $unit_data; // Unit Details Data
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {

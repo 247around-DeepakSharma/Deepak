@@ -732,6 +732,12 @@ define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 
 define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
 define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
+
 define("_247AROUND", "247001");
+
+
+// Remarks for Bookings that are approved in Bulk from Admin Panel
+define("BULK_APPROVAL_REMARKS" , "Booking reviewed by 247Around");
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

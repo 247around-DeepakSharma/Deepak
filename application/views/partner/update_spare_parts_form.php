@@ -85,7 +85,7 @@
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2 class="col-md-12">Update Spare Part <button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button></h2>
+                        <h2 class="col-md-12">Update Spare Part <?php if(isset($spare_parts[0]->request_type) && $spare_parts[0]->request_type == REPAIR_OOW_TAG){ ?> <button type="button" class="btn btn-primary pull-right" disabled="">Ship More Parts</button> <?php }else{ ?><button type="button" class="btn btn-primary pull-right addButton">Ship More Parts</button><?php } ?></h2>
                         <div class="clearfix"></div>
                     </div>
                     <input type="hidden" name="request_type" value="<?php echo ((isset($spare_parts[0]->request_type)) ? $spare_parts[0]->request_type : '')?>"/>
@@ -1127,7 +1127,7 @@
                 .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr('class','courier_shipping').attr("required", true).end()
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
-                .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
+                .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).attr("required", true).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').data("key",partIndex).attr('id','shippedpartsname_'+partIndex).attr("required", true).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()

@@ -2203,3 +2203,25 @@ update state_code set zone_id = '3' where state_code = '35';
 update state_code set zone_id = '3' where state_code = '21';
 update state_code set zone_id = '1' where state_code = '5';
 update state_code set zone_id = '2' where state_code = '36';
+
+--Ankit Rajvanshi 07-04-2020
+UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
+ 
+-- Prity Sharma 08-04-2020
+ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
+UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
+UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
+UPDATE `rm_region_mapping` set region = 3 WHERE rm_id = '38';
+UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
+ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
+RENAME TABLE rm_region_mapping TO rm_zone_mapping;
+
+--Ankit Bhatt 2020-04-08
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'OOW Invoice By Partner', NULL, 'employee/invoice/partner_oow_invoice', 3, '63', 'accountmanager,admin,closure,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+
+--Abhishek --08-04-2020
+CREATE TABLE `247around`.`reassign_bookings` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_details_id` INT(11) NOT NULL ,  `reason` INT(11) NULL DEFAULT NULL ,  `remark` VARCHAR(500) NULL DEFAULT NULL ,  `old_sf` INT(11) NULL DEFAULT NULL ,  `new_sf` INT(11) NULL DEFAULT NULL ,  `rm_flag` INT(4) NULL DEFAULT '0' ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ ALTER TABLE `reassign_bookings` CHANGE `rm_flag` `rm_responsible_flag` INT(4) NULL DEFAULT '0';
+ ALTER TABLE `reassign_bookings` CHANGE `created_on` `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
