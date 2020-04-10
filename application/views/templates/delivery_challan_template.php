@@ -33,7 +33,7 @@
         <tr>
             <td colspan="5" align="left" style="border-bottom: hidden;"><p>To,</p><?php echo $excel_data['sf_name']; ?></td>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td  colspan="5" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
+            <td  colspan="7" align="left" style="border-bottom: hidden;"><b>Challan No: </b><?php echo $excel_data['sf_challan_no']; ?></td>
         </tr>
         <tr>
             <td  colspan="5" rowspan="2" align="left" style="border-bottom: hidden;"><b>Address:</b> <?php if(!empty($excel_data['sf_contact_person_name'])){ echo 'C/o '.$excel_data['sf_contact_person_name'].", ";} echo $excel_data['sf_address']; ?> 
@@ -46,16 +46,16 @@
                             
             </td>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="5" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
+            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Ref No: </b><?php echo $excel_data['partner_challan_no']; ?></td>
         </tr>
         <tr>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="5" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
+            <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
         </tr>
         <tr>
             <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
             <td style="border-right: hidden;"></td>
-            <td colspan="5"></td>
+            <td colspan="7"></td>
         </tr>
         <tr class="blank_row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
             <td></td><td></td><td></td><td></td><td style="border-right: solid 1px;"></td>
@@ -63,10 +63,11 @@
         <tr  style="text-align: center;width:100%;">
             <td style="text-align: center"><b>S No</b></td>
             <td colspan="1" style="text-align: center;"><b>Part Name</b></td>
-            <td colspan="2" style="text-align: center"><b>Part Number</b></td>
+            <td colspan="1" style="text-align: center"><b>Part Number</b></td>
             <td colspan="1" style="text-align: center; width: 50px;"><b>Qty</b></td>
             <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
+            <td colspan="1" style="text-align: center;"><b>Courier Name</b></td>
             <td colspan="6" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
@@ -74,12 +75,13 @@
         $total_qty = 0;
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
-            echo "<tr style='width:100%;text-align:center;'>	<td style='width:6.67%;' align=" . "\"center\"" . ">" . $i++ . "
+            echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
-                                                        <td colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
+                                                        <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
-                            <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
+                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
+                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['courier_name'] . "
 							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "6" . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
             $total_qty +=$info['qty'];
@@ -88,10 +90,10 @@
         ?>
         <tr  style="font-weight: bold;">
             <td ></td>
-            <td colspan="3" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
+            <td colspan="2" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
             <td colspan="1" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
-            <td colspan="4" style="text-align: center"><b><?php echo $total_value; ?></b></td>
+            <td colspan="3" style="text-align: center"><b>Total Amount </b></td>
+            <td colspan="7" style="text-align: center"><b><?php echo $total_value; ?></b></td>
         </tr>
         <tr>
             <td style="text-align: right;padding-top: 3%; padding-bottom: 3%;padding-right: 2%" colspan="13">For <?php echo $excel_data['sf_name']; ?></td>
