@@ -246,6 +246,49 @@ class dashboard_model extends CI_Model {
     }
     
     /**
+     * @desc: This function is used to get excel data for review completed bookings by closure team
+     * @param $startDate, $endDate
+     * @return array
+     */
+    function get_completed_booking_excel_data($startDate, $endDate){
+        $this->db->_protect_identifiers = FALSE;
+        
+        // set select statement
+        $select = "employee.full_name as 'Agent Name',
+                    booking_details.booking_id as 'Booking Id',
+                    service_centres.name as 'Vendor Name',
+                    booking_details.request_type as 'Request Type',
+                    partners.public_name as Partner,
+                    services.services as Product,
+                    SUM(IF(new_state = 'Completed_Rejected', 1, 0)) AS 'Rejected Bookings',
+                    SUM(IF(new_state = 'Completed_Approved', 1, 0)) AS 'Directly Approved Bookings',
+                    (SUM(IF(new_state = 'Completed', 1, 0)) - SUM(IF(new_state = 'Completed_Approved', 1,0))) AS 'Approved With Edit Bookings',
+                    (SUM(IF(new_state = 'Completed_Rejected', 1, 0)) + SUM(IF(new_state = 'Completed', 1, 0))) AS 'Total Bookings'";
+        
+        // set where condition
+        $where = "employee.groups = 'closure'
+                    AND bsc.create_date >= '$startDate'
+                    AND bsc.create_date <= '$endDate'
+                    AND bsc.partner_id = '"._247AROUND."'";
+        
+        // Query here
+        $this->db->select($select);
+        $this->db->from('booking_state_change AS bsc');
+        $this->db->join('booking_details', 'bsc.booking_id = booking_details.booking_id');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('services', 'booking_details.service_id = services.id');
+        $this->db->join('employee', 'bsc.agent_id = employee.id');
+        $this->db->where($where);
+        $this->db->order_by('employee.id');
+        $this->db->group_by('bsc.booking_id');
+        
+        // return query object
+        $query = $this->db->get();
+        return $query;
+    }
+    
+    /**
      * @desc: This function is used to get graph data for review canceled bookings by closure team
      * @param $startDate, $endDate
      * @return array
@@ -261,6 +304,50 @@ class dashboard_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     * @desc: This function is used to get excel data for review cancelled bookings by closure team
+     * @param $startDate, $endDate
+     * @return array
+     */
+    function get_cancelled_booking_excel_data($startDate, $endDate){
+        $this->db->_protect_identifiers = FALSE;
+        
+        // set select statement
+        $select = "employee.full_name as 'Agent Name',
+                    booking_details.booking_id as 'Booking Id',
+                    service_centres.name as 'Vendor Name',
+                    booking_details.request_type as 'Request Type',
+                    partners.public_name as Partner,
+                    services.services as Product,
+                    SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) as 'Rejected Bookings',
+                    SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) as 'Directly Approved Bookings',
+                    SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) as 'Cancelled to Completed Bookings',
+                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0))) as 'Total Bookings'";
+        
+        // set where condition
+        $where = "employee.groups = 'closure'
+                    AND bsc.create_date >= '$startDate'
+                    AND bsc.create_date <= '$endDate'
+                    AND bsc.partner_id = '"._247AROUND."'";
+        
+        // Query here
+        $this->db->select($select);
+        $this->db->from('booking_state_change AS bsc');
+        $this->db->join('booking_details', 'bsc.booking_id = booking_details.booking_id');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('services', 'booking_details.service_id = services.id');
+        $this->db->join('employee', 'bsc.agent_id = employee.id');
+        $this->db->where($where);
+        $this->db->order_by('employee.id');
+        $this->db->group_by('bsc.booking_id');
+        
+        // return query object
+        $query = $this->db->get();
+        echo '<pre>';print_r($this->db->last_query());exit;        
+        return $query;
+    }
+        
     /**
      * @desc: This function is used to get booking entered and scheduled data
      * @param string

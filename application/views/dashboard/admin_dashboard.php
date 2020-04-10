@@ -1128,11 +1128,14 @@
      <!-- Closure Team Graph -->
     <div class="row" style="margin-top:10px;">
         <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important; padding-left: 0px !important;">
+            <form action="<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Completed/excel" method="post">            
+            <input type="hidden" name="sDate" id="sDate5" value="">
+            <input type="hidden" name="eDate" id="eDate5" value="">
             <div class="x_panel">
                 <div class="x_title">
                     <div class="col-md-6" style="padding: 0px;"><h2>Review Completed Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Bookings = Rejected Bookings + Direct Approved Bookings + Approved with Edit Bookings">?</button></h2></div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <small>
                         <div class="nav navbar-right panel_toolbox">
                             <div id="reportrange5" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
@@ -1142,7 +1145,11 @@
                         </div>
                         </small>
                     </div>
-                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#completed_booking_closure_chart_div" data-toggle="collapse" onclick="get_completed_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="col-md-2" style="padding-right: 0px;">
+                        <!--Adding Button to Download Agent wise Completed Bookings data in Excel-->
+                        <button type="submit" class="btn btn-success btn-xs" style="margin-left:5px;" title="Download Agent wise completed Bookings">Excel</button>
+                        <span class="collape_icon" href="#completed_booking_closure_chart_div" data-toggle="collapse" onclick="get_completed_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -1152,13 +1159,17 @@
                     <div id="completed_booking_closure_chart"></div>
                 </div>
             </div>
+            </form>
         </div>
         <div class="col-md-6 col-sm-12 col-xs-12" id="cancelled_booking_closure_status" style="padding-right:0px !important;">
+            <form action="<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled/excel" method="post">            
+            <input type="hidden" name="sDate" id="sDate6" value="">
+            <input type="hidden" name="eDate" id="eDate6" value="">
             <div class="x_panel">
                 <div class="x_title">
                     <div class="col-md-6" style="padding: 0px;"><h2>Review Cancelled Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
     color: #fff;border: none;" data-toggle="tooltip"data-placement="right"title="Total Bookings = Rejected Bookings + Direct Approved Bookings + Cancelled to Completed Bookings">?</button></h2></div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <small>
                         <div class="nav navbar-right panel_toolbox">
                             <div id="reportrange6" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
@@ -1168,7 +1179,11 @@
                         </div>
                         </small>
                     </div>
-                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#cancelled_booking_closure_chart_div" data-toggle="collapse" onclick="get_cancelled_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="col-md-2" style="padding-right: 0px;">
+                        <!--Adding Button to Download Agent wise Cancelled Bookings data in Excel-->
+                        <button type="submit" class="btn btn-success btn-xs" style="margin-left:5px;" title="Download Agent wise cancelled Bookings">Excel</button>
+                        <span class="collape_icon" href="#cancelled_booking_closure_chart_div" data-toggle="collapse" onclick="get_cancelled_bookings_data()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
@@ -1177,7 +1192,7 @@
                 <div class="x_content collapse" id="cancelled_booking_closure_chart_div">
                     <div id="cancelled_booking_closure_chart"></div>
                 </div>
-            </div>
+            </div></form>
         </div>
     </div>
     <!-- Closure Team Graph -->
@@ -1681,6 +1696,8 @@
         $('#completed_booking_closure_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
+        $("#sDate5").val(startDate);
+        $("#eDate5").val(endDate);
         url = baseUrl + '/employee/dashboard/get_completed_cancelled_booking_by_closure/Completed';
         var data = {sDate: startDate, eDate: endDate};
         
@@ -1700,6 +1717,8 @@
         $('#cancelled_booking_closure_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
+        $("#sDate6").val(startDate);
+        $("#eDate6").val(endDate);
         url = baseUrl + '/employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
         var data = {sDate: startDate, eDate: endDate};
         

@@ -28,7 +28,8 @@ class Dashboard extends CI_Controller {
         $this->load->library('booking_utilities');
 
         $this->load->library('table');
-
+        $this->load->dbutil();
+        $this->load->helper(array('file'));
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner' || $this->session->userdata('userType') == 'service_center')) {
             return TRUE;
         } else {
@@ -346,10 +347,11 @@ class Dashboard extends CI_Controller {
      /**
      * @desc: This function is used to get review completed booking data for graph
      * @param void
+     * @param $type string : define whether data is for graph/excel
      * @return json
      */
-    function get_completed_cancelled_booking_by_closure($status) {
-        if($this->input->post('sDate') && $this->input->post('eDate')){
+    function get_completed_cancelled_booking_by_closure($status, $type = "") {
+        if(!empty($this->input->post('sDate')) && !empty($this->input->post('eDate'))){
             $sDate = $this->input->post('sDate');
             $eDate = $this->input->post('eDate');
             $startDate = date('Y-m-d 00:00:00', strtotime($sDate));
@@ -359,7 +361,15 @@ class Dashboard extends CI_Controller {
             $endDate = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime('+1 days'))));
             $startDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('-7 days'))));
         }
-        $this->completed_booking_by_closure_graph_data($startDate, $endDate, $status);
+        // Here Booking wise data is fetched
+        if($type == "excel"){
+            $this->completed_booking_by_closure_excel_data($startDate, $endDate, $status);
+        }
+        // here agent wise data is fetched
+        else
+        {
+            $this->completed_booking_by_closure_graph_data($startDate, $endDate, $status);
+        }
     }
     /**
      * @desc: This function is used to get review completed booking data for graph and helping function get_completed_booking_by_closure
@@ -433,6 +443,49 @@ class Dashboard extends CI_Controller {
         else{
             echo false;
         }
+    }
+    
+    /**
+     * @desc: This function is used to get review completed booking data for excel
+     * @param $startDate, $endDate
+     * @return json
+     */
+    function completed_booking_by_closure_excel_data($startDate, $endDate, $status){
+        $excel_data = array();
+        if($status == "Completed"){
+            $excel_data = $this->dashboard_model->get_completed_booking_excel_data($startDate, $endDate);
+        }
+        else if($status == "Cancelled"){
+            $excel_data = $this->dashboard_model->get_cancelled_booking_excel_data($startDate, $endDate);
+        }
+        $this->download_closure_report($excel_data, $startDate, $endDate, $status);
+    }
+    
+    /*
+     * This function generates excel of the completed/cancelled bookings from review panel
+     * @author : Prity Sharma
+     * @date : 10-04-2020
+     */
+    function download_closure_report($report, $startDate, $endDate, $status = ""){        
+        $closureCsv = $status."_Closure_Report_" . date("Y-m-d", strtotime($startDate)) . "_to_".date("Y-m-d", strtotime($endDate)).".csv";
+        $csv = TMP_FOLDER . $closureCsv;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        if(file_exists($csv)){
+            unlink($csv);
+        }     
+        exit;
     }
     
     /**
