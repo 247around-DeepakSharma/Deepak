@@ -962,7 +962,7 @@ class vendor extends CI_Controller {
             } else {
                 $strm2 = "";
             }
-            $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
+            $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'employee/vendor/temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
         }
 
 
