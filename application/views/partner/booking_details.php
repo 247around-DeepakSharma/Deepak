@@ -1058,6 +1058,7 @@
             } else{
                 $("#misc_charge_loader").css('display','none');
                $("#misc_charge_div").css('display', 'block');
+               $("#misc_charge_div").css('max-width', '100%');
                $("#misc_charge").html(response);
               
             }
