@@ -30,8 +30,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="true">Edit Model No.</th>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
 
                                 </tr>
@@ -74,7 +73,6 @@
                                 <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                 <th class="text-center" data-orderable="false">Courier Charges</th>
                                 <th class="text-center" data-orderable="false">Challan File</th>
-                                <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                 <th class="text-center" data-orderable="false">Sale Invoice ID</th>
                                 <th class="text-center" data-orderable="false">Purchase Invoice PDF </th>
                                 <th class="text-center" data-orderable="false">Defective Front Part Image</th>
@@ -114,8 +112,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="true">Edit Model No.</th>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 
                                 </tr>
@@ -256,7 +253,6 @@
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
  
                                 </tr>
@@ -572,6 +568,7 @@
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
                                         <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Rejected By</th>
                                         <th class="text-center" data-orderable="false">Courier Invoice</th>
                                         <th class="text-center" data-orderable="false">Rejected Image</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
@@ -696,6 +693,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">AWB Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -782,6 +780,7 @@
                                     <th class="text-center" data-orderable="false">Requested Quantity</th>
                                     <th class="text-center" data-orderable="false">Shipped Part</th>
                                     <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                    <th class="text-center" data-orderable="false">AWB Number</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
@@ -1319,7 +1318,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 ]
                     },
                     title: 'sf_received_part'
                 }
@@ -1438,7 +1437,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
                     },
                     title: 'defective_part_rejected_wh'
                 }
