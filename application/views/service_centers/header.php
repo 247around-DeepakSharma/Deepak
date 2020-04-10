@@ -346,6 +346,20 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i ></i> CRM Training <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="https://www.youtube.com/playlist?list=PL7xFReqICvbD1qIIUCWuLlSpkYHZcj0Pb" class="dropdown-toggle" target="_blank"><b>&nbsp;Training Videos&nbsp;</b></a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="https://drive.google.com/open?id=1Ri7PZJCuCaSSWt-Bv1InrHiQgtb79Hlp" target="_blank"><b>&nbsp;Training Documents&nbsp;</b></a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
