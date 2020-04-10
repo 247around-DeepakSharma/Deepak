@@ -1462,7 +1462,14 @@ class service_centre_charges extends CI_Controller {
                             
                             $to = $email_template[1]. ", ".$this->session->userdata('official_email'). ", ". $this->employee_model->getemployeeManagerDetails("employee.official_email",array('employee_hierarchy_mapping.employee_id' => $this->session->userdata('employee_id')))[0][0];
                             $subject = vsprintf($email_template[4], array($booking_id));
-                            $cc = (!empty($email_template[3]) ? $email_template[3] : "");
+                            //fetch rm email from corresponding sf
+                             $rm_details =  $this->vendor_model->get_rm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                            $rm_email=(!empty($rm_details[0]['official_email']) ? $rm_details[0]['official_email'] : "");  
+                            //if we have rm_email id then mail is sent to email_template[3] and rm_email in cc otherwise the mail is sent to email_template[3] in cc.
+                            if(!empty($rm_email){
+                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: ""); }
+                            else{
+                                $cc= (!empty($email_template[3]) ? $email_template[3] : ""); } 
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
