@@ -30,12 +30,13 @@
 
 
 
-        function createPinCodeForm(id, name) {
+        function createPinCodeForm(id) {
             // document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
+            //alert();
             $('#download_pin_code').attr('data-vendor_id', id);
             document.getElementById("upload_pin_code").href = "<?php echo base_url(); ?>employee/vendor/upload_pin_code_vendor/" + id;
             document.getElementById("download_pin_code").href = "<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/" + id;
-            document.getElementById("v_name").innerHTML = name;
+            document.getElementById("v_name").innerHTML = $("#"+id).attr("data-vendor_name");
         }
     </script>
     <script>
