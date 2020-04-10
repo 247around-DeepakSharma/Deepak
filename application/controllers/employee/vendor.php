@@ -917,7 +917,7 @@ class vendor extends CI_Controller {
             $row[] = "";
         }
 
-        $row[] = '<a href="mailto:' . $vendor_list["primary_contact_email"] . ' data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"  >' . $vendor_list['primary_contact_email'] . '</a>';
+        $row[] = '<a href="mailto:' . $vendor_list["primary_contact_email"] . ' data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"  >' . $vendor_list['primary_contact_name'] . '</a>';
 
 
         if (!$c2c) {
@@ -955,19 +955,19 @@ class vendor extends CI_Controller {
             } else {
                 $strm = "";
             }
-            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "T" . ',' . $vendor_list["is_micro_wh"] . ')" ' . $strm . '>Off</a>';
+            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'T'" . ',' . $vendor_list["is_micro_wh"] . ')" ' . $strm . '>Off</a>';
         } else {
             if ($vendor_list["active"] == 0) {
                 $strm2 = "disabled";
             } else {
                 $strm2 = "";
             }
-            $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
+            $row[] = '<a id="edit" class="btn btn-small btn-success" href="' . base_url() . 'employee/vendor/temporary_on_off_vendor/' . $vendor_list['id'] . '/1 "  ' . $strm2 . '>On</a>';
         }
 
 
         if ($vendor_list['active'] == 1) {
-            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "P" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
+            $row[] = '<a id="edit" class="btn btn-small btn-danger" onclick="pendingBookings(' . $vendor_list["id"] . ',' . "'P'" . ',' . $vendor_list["is_micro_wh"] . ')" >Deactivate</a>';
         } else {
             if (empty($vendor_list['pan_no']) || empty($vendor_list['pan_file'])) {
                 $row[] = '<a class="btn btn-small btn-primary" onclick="alert("Please Enter PAN Details of Vendor to allow Activation");" title="Save PAN Details of Vendor to allow Activation">Activate</a>';
@@ -976,7 +976,7 @@ class vendor extends CI_Controller {
             }
         }
 
-        $row[] = '<button type="button" class="btn btn-small btn-success" id="' . $vendor_list["id"] . '" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id, "' . $vendor_list["name"] . '")>Pin Code</button>';
+        $row[] = '<button type="button" class="btn btn-small btn-success"  data-vendor_name="' . $vendor_list["name"] . '"  data-vendor_id="' . $vendor_list["id"] . '"  id="' . $vendor_list["id"] . '" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id)">Pin Code</button>';
 
         $row[] = '<a class="btn btn-warning" href="' . base_url() . 'employee/vendor/resend_login_details/vendor/' . $vendor_list["id"] . '">Resend Login Details</a>';
 
