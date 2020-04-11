@@ -4067,11 +4067,9 @@ class Service_centers extends CI_Controller {
                 $post = array();
                 $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
-                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
-                /*   Abhishek Getting Consumption reason */
+                $select = 'booking_details.booking_id, booking_details.assigned_vendor_id, spare_parts_details.id,spare_parts_details.requested_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
-
-
+                
 
                 if (!empty($part_details)) {
                     $spare_details = array();
@@ -4086,13 +4084,20 @@ class Service_centers extends CI_Controller {
                             $spare_parts['shipped_quantity'] = $value['quantity'];
                             $spare_parts['inventory_id'] = $value['requested_inventory_id'];
                             $spare_parts['consumed_status'] = $value['consumed_status']; 
-                            /*  By: Abhishek : Consumption status  on Challan */
-//                            if(!empty($value['consumed_status'])){
-//                            $spare_parts['consumption'] = $value['consumed_status']; 
-//                            }else{
-//                            $spare_parts['consumption'] = 'NA'; 
-//                            }
-
+                            if (!empty($value['assigned_vendor_id'])) {
+                                $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
+                                if (!empty($vendor_details)) {
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                                    if (!empty($serviceable_area)) {
+                                        $couriers_name = implode(', ', array_map(function ($entry) {
+                                                    return $entry['courier_company_name'];
+                                                }, $serviceable_area));
+                                    } else {
+                                        $couriers_name = 'NA';
+                                    }
+                                }
+                            }
+                            $spare_parts['courier_name'] = $couriers_name;  
                         }
                         $spare_details[][] = $spare_parts;
                     }
@@ -4193,7 +4198,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+    
     /**
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
@@ -7011,7 +7016,7 @@ class Service_centers extends CI_Controller {
         $booking_manifest = $this->input->post('download_courier_manifest');
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
-
+        
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);
@@ -9109,7 +9114,9 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array (
-            "status IN ('" . SPARE_DELIVERED_TO_SF . "')  " => NULL,
+            "status NOT IN ('" . _247AROUND_CANCELLED . "', '"._247AROUND_COMPLETED."')  " => NULL,
+            "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
+            "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
         );
 
         $select = "booking_details.service_center_closed_date,booking_details.create_date,booking_details.booking_primary_contact_no as mobile, spare_parts_details.*, "
@@ -9135,6 +9142,30 @@ class Service_centers extends CI_Controller {
         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/delivered_parts', $data);
+    }
+    
+    /**
+     * @desc : Method is used to update consumption reason by sf
+     * @author Ankit Rajvanshi
+     */
+    function change_consumption_by_sf() {
+        
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_id'];
+        
+        $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        
+        if (!empty($post_data['change'])) {
+            $data = [];
+            $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
+            $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
+            $this->miscelleneous->update_spare_consumption_status($data, $post_data['booking_id']);
+            
+            return true;
+        }
+        
+        $this->load->view('service_centers/change_consumption_by_sf', $data);
     }
     
     /**
