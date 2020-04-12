@@ -372,6 +372,13 @@ class Inventory_model extends CI_Model {
         if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
             $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
+
+
+        /* JOIN with symtom to get the symptom  */ 
+        if (!empty($post['symptom'])) {
+            $this->db->join('symptom', 'spare_parts_details.symptom = symptom.id', 'left');
+        } 
+
         
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
