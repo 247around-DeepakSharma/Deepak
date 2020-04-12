@@ -2242,3 +2242,5 @@ ALTER TABLE `courier_serviceable_area`
 ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
