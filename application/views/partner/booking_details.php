@@ -317,6 +317,8 @@
                                                             <th >Final Requested Parts </th>
                                                             <th >Requested Parts type </th>
                                                             <th>Requested Quantity</th>
+                                                            <th>Symptom</th>
+                                                            <th>Defect Pic</th>
                                                             <th >Requested Date</th>
                                                             <th>Approval Date</th>
                                                             <th >Date Of Purchase</th>
@@ -354,7 +356,22 @@
                                                                 <td>
                                                                     <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                                                 </td>
-                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                                                <!--   Show spare Part Symptom and Picture --->
+                                                                 <td><?php 
+                                                                 if(!empty($sp['symptom_text'])){
+                                                                   echo $sp['symptom_text']; 
+                                                                 }
+                                                                  ?></td> 
+                                                                  <td>
+                                                                    <?php 
+                                                                    if(!empty($sp['defect_pic'])){ ?>
+
+                                                                    <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['defect_pic']; ?> " target="_blank" id="<?php echo "defect_pic_".$sp['id']; ?>">Click Here</a>
+                                                                      
+                                                                    <?php }?>
+                                                                    
+                                                                </td> 
+                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-M-Y h:i:A'); ?></td>
                                                             <!--   Show spare Apprival Date --->
                                                                 <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00' ){ ?>
                                                                 <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>

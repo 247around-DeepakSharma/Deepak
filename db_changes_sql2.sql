@@ -2319,6 +2319,7 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
+ 
 ---Gorakh 01 Apr 2020
 UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
 
@@ -2463,3 +2464,6 @@ CREATE TABLE review_booking_checklist (
   ENGINE=InnoDB AUTO_INCREMENT=1; 
 ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 
+
+ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
+ 

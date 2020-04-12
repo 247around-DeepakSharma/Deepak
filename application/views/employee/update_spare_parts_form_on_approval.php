@@ -214,6 +214,36 @@
                                     </div>
                                     </div>
 
+<!-- Symptom and defect pic --->
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <div class="col-md-6">
+                                                <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
+                                                        <option selected disabled>Select Symptom</option>
+                                                        <?php foreach($technical_problem as $problem){ ?>
+                                                            <option <?php if($problem['id']==$spare_parts_details['symptom']){ echo 'selected';} ?>  value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
+
+                                                        <?php }  ?>
+
+                                                    </select>  
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                      <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
+                                                <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defect_pic']; ?> " target="_blank" id="<?php echo "defect_pic_".$spare_parts_details['id']; ?>">Click Here</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
 
                            
                                 </div>
@@ -259,7 +289,8 @@
 <?php if(empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){ 
-    defults_inventory_part_type();  
+    defults_inventory_part_type();
+    $('#symptom_0').select2();  
     function defults_inventory_part_type(){
         $.ajax({
                 method:'POST',
