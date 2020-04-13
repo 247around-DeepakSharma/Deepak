@@ -1704,4 +1704,20 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
 
         return $financial_year ;
     }
+    
+    /**
+     *  @desc : This function is used to get total number of days between 2 dates
+     *  @param : String $start_date
+     *  @param : String $end_date
+     *  @author Ankit Bhatt
+     *  @date : 10-04-2020
+     */
+    function get_no_of_days_between_dates($start_date, $end_date){
+        // Calulating the difference in timestamps 
+        $diff = strtotime($end_date) - strtotime($start_date); 
+
+        // 1 day = 24 hours 
+        // 24 * 60 * 60 = 86400 seconds 
+        return abs(round($diff / 86400)); 
+    }
 }
