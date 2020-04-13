@@ -37,7 +37,8 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
-define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
+//define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
+define('ACCOUNTANT_EMAILID',"billing@247around.com" );
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
 // Default PAYTM UPCOUNTRY DISTRICT
