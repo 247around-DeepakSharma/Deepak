@@ -2244,3 +2244,7 @@ ALTER TABLE `courier_serviceable_area`
 COMMIT;
 
 ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
+
+--Ankit Rajvanshi 13-04-2020
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('part_to_be_billed', NULL, ' ', NULL, 'ankitr@247around.com', 'ankitr@247around.com', 'ankitr@247around.com', '', '1', '2020-04-13 10:01:27');
