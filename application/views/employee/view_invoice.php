@@ -198,11 +198,20 @@
                                         $total_quantity = $total_taxablevalue = $total_igst_amount = $total_sgst_amount = $total_cgst_amount = $toatl_amount_charge = 0;
                                         foreach ($invoice_breakup as $key => $value) {
                                             $total_quantity = $total_quantity + $value['qty'];
-                                            $total_taxablevalue = $total_taxablevalue + $value['taxable_value'];
-                                            $total_igst_amount = $total_igst_amount + $value['igst_tax_amount'];
-                                            $total_sgst_amount = $total_sgst_amount + $value['sgst_tax_amount'];
-                                            $total_cgst_amount = $total_cgst_amount + $value['cgst_tax_amount'];
-                                            $toatl_amount_charge = $toatl_amount_charge + $value['total_amount'];
+                                            if($value['product_or_services'] == PENALTY_DISCOUNT || $value['product_or_services'] == DEBIT_PENALTY){
+                                                //We need to subtract values in case of debit peanlty and penalty discount 
+                                                $total_taxablevalue = $total_taxablevalue - $value['taxable_value'];
+                                                $total_igst_amount = $total_igst_amount - $value['igst_tax_amount'];
+                                                $total_sgst_amount = $total_sgst_amount - $value['sgst_tax_amount'];
+                                                $total_cgst_amount = $total_cgst_amount - $value['cgst_tax_amount'];
+                                                $toatl_amount_charge = $toatl_amount_charge - $value['total_amount'];
+                                            }else{
+                                                $total_taxablevalue = $total_taxablevalue + $value['taxable_value'];
+                                                $total_igst_amount = $total_igst_amount + $value['igst_tax_amount'];
+                                                $total_sgst_amount = $total_sgst_amount + $value['sgst_tax_amount'];
+                                                $total_cgst_amount = $total_cgst_amount + $value['cgst_tax_amount'];
+                                                $toatl_amount_charge = $toatl_amount_charge + $value['total_amount'];
+                                            }   
                                         ?>
                                         <tr>
                                             <td><?php echo ($key +1);?></td>
