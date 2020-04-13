@@ -2251,3 +2251,5 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`
 --Ankit Bhatt 2020-04-10
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_List', 2, '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
