@@ -3161,7 +3161,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('invoice_details as i', 'i.invoice_id = v.invoice_id');
         $this->db->join('inventory_master_list as im', 'im.inventory_id = i.inventory_id');
         $this->db->join('service_centres as sc', 'v.vendor_partner_id = sc.id','left');
-        //$this->db->join('partners', 'im.entity_id = partners.id','left');
+        $this->db->join('partners', 'im.entity_id = partners.id','left');
         //$this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
         //$this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
         
