@@ -358,7 +358,7 @@
                                         <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Age</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
-                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <!--<th class="text-center" data-orderable="false">IS Defective Parts Required</th>-->
                                     </tr>
                                 </thead>
                             </table>
@@ -396,8 +396,8 @@
                                         <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Age</th>
-                                        <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
-                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <!--    <th class="text-center" data-orderable="false">Cancel Part</th>-->
+                                        <!--  <th class="text-center" data-orderable="false">IS Defective Parts Required</th>-->
                                     </tr>
                                 </thead>
                             </table>
@@ -912,7 +912,7 @@
 </style>
 <script>
     var spare_parts_requested_table;
-     var spare_parts_requested_table_approved;
+    var spare_parts_requested_table_approved;
     var partner_shipped_part_table;
     var sf_received_part_table;
     var defective_part_pending_table;
