@@ -2797,21 +2797,33 @@ exit();
                 //Negative Amount Invoice
                 $this->session->set_userdata(array('error' => "Vendor has negative invoice amount"));
                 if($invoice_type == "final"){
-                    $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
-                    $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
-                    $message = $email_template[0];
-                    $email_from = $email_template[2];
-                    $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-                    $rem_email_id = "";
-                    if (!empty($rm_details)) {
-                        $rem_email_id = ", " . $rm_details[0]['official_email'];
-                    }
-                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
-                    echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
-                    log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
+                    //check when we last send FOC invoice negative amount mail to SF
+                    $last_foc_mail_details = $this->vendor_model->getVendorDetails("service_centres.last_foc_mail_send_date", array("id" => $vendor_id));
+                    if(count($last_foc_mail_details)>0){
+                        $last_mail_date = $last_foc_mail_details[0]['last_foc_mail_send_date'];
+                        //Finding number of days between last time we sent negative FOC email and current date
+                        $no_of_days_passed = $this->invoice_lib->get_no_of_days_between_dates($last_mail_date, date("Y-m-d"));
+                        if($no_of_days_passed >= NEGATIVE_FOC_MAIL_PERIOD){
+                            //Send mail
+                            $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
+                            $message = $email_template[0];
+                            $email_from = $email_template[2];
+                            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                            $rem_email_id = "";
+                            if (!empty($rm_details)) {
+                                $rem_email_id = ", " . $rm_details[0]['official_email'];
+                            }
+                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+                            echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
+                            log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
-                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $this->vendor_model->edit_vendor(array("last_foc_mail_send_date" => date("Y-m-d H:i:s")), $vendor_id);
+                        }
+                        
+                    }
                 }
                 
                 
@@ -6574,6 +6586,159 @@ exit();
         $row[] = $model_list->invoice_amount - $total_tax_amount;
         $row[] = $model_list->invoice_amount;
         return $row;
+    }
+    
+    
+    /**
+     * @desc : This function is used to get list of FNF security amount paid by SF 
+     * @return : Void
+     * @author Ankit Bhatt
+     * @date : 09-04-2020
+     */
+    function get_security_amount_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/security_amount');
+    }
+    
+    
+    /**
+     * @desc : This function is used to get list of FNF security amount paid by SF 
+     * @param : String $start_date
+     * @param : String $end_date
+     * @return : String
+     * @author Ankit Bhatt
+     * @date : 09-04-2020
+     */
+    function get_security_amount_data() {
+        $data = $this->get_security_amount_list_data();
+        $post = $data['post'];
+        $total_records = $this->invoices_model->count_security_amount_list($post);
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $total_records, 
+            "recordsFiltered" => $total_records,
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+
+     /**
+     *  @desc : This function is used to get list of security amount payment
+     *  @param : void
+     *  @return : void
+     */
+    function get_security_amount_list_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('sc.name', 'vpi.invoice_id');
+        $id = $this->session->userdata('id');   
+        //To get SF data if login user is RM or ASM
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        
+        $where = array();
+        $service_centre_id = $this->input->post('service_centre_id');
+        $start_date = date("Y-m-d", strtotime($this->input->post('from_date')));
+        $end_date = $this->input->post('to_date');
+        $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
+        //adding start date and end date filter for query     
+        $where['vpi.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vpi.invoice_date < "'.$end_date.'"'] = null;
+        $where['vpi.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vpi.settle_amount'] = 0;
+        $where["vpi.sub_category"] = FNF;
+        //Received SF for curent RM or ASM
+        if($sf_list != ""){
+            $where["sc.id  IN (" .trim($sf_list, ',').")"] = null;
+        }
+        
+        //adding SF filter for query     
+        if($service_centre_id != 0){
+            $where['sc.id'] = $service_centre_id;
+        }
+        
+        $post['where'] = $where;
+
+        $select = "vpi.invoice_id, vpi.invoice_date, sc.name, vpi.total_amount_collected as invoice_amount, vpi.sgst_tax_amount, vpi.cgst_tax_amount, vpi.igst_tax_amount  ";
+        $list = $this->invoices_model->get_security_amount_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_security_amount_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     /**
+     *  @desc : This function is used to get rows for security amount table
+     *  @param : Array $model_list
+     *  @param : Integer $no
+     *  @return : Array
+     */
+     function get_security_amount_table($model_list, $no) {
+        $total_tax_amount = $model_list->sgst_tax_amount + $model_list->cgst_tax_amount + $model_list->igst_tax_amount;
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->name;
+        $row[] = $model_list->invoice_id;
+        $row[] = $model_list->invoice_date;
+        $row[] = $total_tax_amount;
+        $row[] = $model_list->invoice_amount - $total_tax_amount;
+        $row[] = $model_list->invoice_amount;
+        return $row;
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get options for service centre dropdown
+     *  @param : Void
+     *  @return : String
+     */
+    function get_service_centre_list_dropdown()
+    {
+        try
+        {
+            $where = array();
+            $id = $this->session->userdata('id');   
+            //To get SF data if login user is RM or ASM
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                    $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            //Received SF for curent RM or ASM
+            if($sf_list != ""){
+                $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
+            }
+            $data = '<option value="0" selected>Select</option>';
+            $select = "service_centres.name, service_centres.id";
+            $all_vendors = $this->vendor_model->getVendorDetails($select, $where);
+            foreach($all_vendors as $row)
+            {
+                $data.= "<option value='".$row['id']."'>".$row['name']."</option>";
+            }
+            echo $data;
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
     }
     
 }
