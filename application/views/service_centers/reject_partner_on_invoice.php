@@ -5,7 +5,7 @@
     <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
-          <h2>Delivery On Challan Rejected By Partner</h2>
+          <h2>Rejected By Partner On Invoice</h2>
          <div class="panel panel-default">            
             <div class="panel-body">
                 <div class="success_msg_div" style="display:none;">
@@ -33,17 +33,14 @@
                                     <form class="form-inline" action="#" method="POST">
 
                                         <label for="partner_id">Select Partner</label>
-                                        <select class="form-control" id="partner_id2" name="partner_id" required="">
+                                        <select class="form-control" id="partner_id3" name="partner_id" required="">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                         <div id="partner_err"></div>
                                 </div>                              
-                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id2" style="margin-top: 22px;">Submit</button>                          
+                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id3" style="margin-top: 22px;">Submit</button>                          
                                 
                                    </form>                                
-                            </div>
-                            <div class="approved pull-right hide">
-                                <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare_on_challan();">Send spare to partner</div>
                             </div>
                         </div>
                     </section>
@@ -54,7 +51,7 @@
                 <?php if(!empty($spare_parts)) { ?>
                 <div class="table-responsive">
                     <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/process_partner_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                    <table class="table table-bordered table-hover table-striped" id="defective_parts_reject_by_artner_on_challan">
+                    <table class="table table-bordered table-hover table-striped" id="defective_parts_reject_by_artner_on_invoice">
                         <thead>
                            <tr>
                             <th class="text-center">No</th>
@@ -70,13 +67,13 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Quantity</th>
-                            <th class="text-center" colspan="2">Action</th>
+                            <th>Status</th>
 <!--                             <th class="text-center">Download Challan<input type="checkbox" id="selectall_challan_file"></th>
                             <th class="text-center">
                                 Send To Partner
                                 <input type="checkbox" id="send_all">
                             </th> -->
-                            <!--<th>Action</th>-->
+                            <th>Action</th>
                            </tr>
                         </thead>
                         <tbody>
@@ -106,7 +103,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -126,9 +123,7 @@
                                      <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
 
                                      </td>
-                                     <td>
-                                        <a href="javascript:void(0);" class="btn btn-primary justified btn-sm" data-spare_id="<?php echo $row['id']; ?>">Justified</a>
-                                     </td>
+                                     <td><span style="color:#f90808;font-weight: 900;">Rejected</span></td>
 <!--                                      <td>
                                              <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php //echo $row['defective_return_to_entity_id'];  ?>][]"  value="<?php //echo $row['id']?>" />
                                     </td>
@@ -138,7 +133,7 @@
                                         <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php //echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php //echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php //echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php //echo $row['entity_type']; ?>" data-service_center_id ="<?php //echo $row['service_center_id']; ?>" data-part_name ="<?php //echo $row['defective_part_shipped']; ?>" data-model="<?php //echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php //echo $row['shipped_inventory_id']?>" data-booking_id ="<?php //echo $row['booking_id']?>" data-partner_id = "<?php //echo $row['partner_id']?>" data-spare_id = "<?php //echo $row['id']?>" data-booking_partner_id = "<?php //echo $row['booking_partner_id']?>">
                                     </td> -->
                                     <td>
-                                        <a href="javascript:void(0);" class="btn btn-success resend btn-sm" data-spare_id="<?php echo $row['id']; ?>">Resend</a>
+                                        <a href="javascript:void(0);" class="btn btn-primary resend" data-spare_id="<?php echo $row['id']; ?>">Resend</a>
                                     </td>
                             </tr>
                             
@@ -184,25 +179,8 @@
             });
         } 
     });
-
-    $('.justified').on('click', function(){
-        if(confirm('Are you sure you want to proceed?')) {
-            
-            var spare_id = $(this).attr('data-spare_id');
-            $.ajax({
-                url : '<?php echo base_url(); ?>employee/inventory/justify_delivery_on_challan',
-                method : "post",
-                data:{spare_id}
-            }).fail(function(data){
-                alert(data);
-            }).success(function(data){
-               alert('Part has been accepted successfully.'); 
-               $('#spare_'+spare_id).hide();
-            });
-        } 
-    });
-
-    $('#defective_parts_reject_by_artner_on_challan').DataTable({
+    
+    $('#defective_parts_reject_by_artner_on_invoice').DataTable({
         "pageLength": 100,
             dom: 'Bfrtip',
             // Configure the drop down options.
@@ -219,15 +197,15 @@
             ],
     });
     
-     $("#partner_search_id2").click(function(){         
-         var partner_id = $("#partner_id2").val();
+     $("#partner_search_id3").click(function(){         
+         var partner_id = $("#partner_id3").val();
        
          if(partner_id==null){
             $("#partner_err").html('Please Select Partner.').css({'color':'red'});
             return false;
          }else{
              $("#partner_err").html('');
-             load_view_send_to_partner('service_center/rejected_by_partner_on_challan', '#tabs-9',partner_id);
+             load_view_send_to_partner('service_center/rejected_by_partner_on_invoice', '#tabs-11',partner_id);
          }
          
      });
@@ -273,14 +251,11 @@
 </script>
 <script>
     
-    $('#partner_id2').select2({
+    $('#partner_id3').select2({
         placeholder:'Select Partner',
         allowClear:true
     });
-    $('#courier_name_by_wh_id').select2({
-        placeholder:'Select Courier Name',
-        allowClear:true
-    });
+    
     
     $('document').ready(function(){
         get_partner_ack();
@@ -300,7 +275,6 @@
         }
     });
     
-   
     function get_partner_ack(){
         $.ajax({
             type:'POST',
@@ -311,13 +285,13 @@
                     
                 } else {
                     $('#partner_id2').html(response);
-                    var option_length = $('#partner_id2').children('option').length;
+                    var option_length = $('#partner_id3').children('option').length;
                     if(option_length == 2){
-                        $("#partner_id2").change();   
+                        $("#partner_id3").change();   
                     }
                      <?php if(isset($filtered_partner)) { ?> 
-                    $('#partner_id2').val('<?php echo $filtered_partner?>'); 
-                    $('#partner_id2').trigger('change');
+                    $('#partner_id3').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id3').trigger('change');
                     <?php } ?>
                 }
                 
@@ -326,71 +300,6 @@
         });
     }
     
-    function check_awb_exist_details(){
-            var awb = $("#awb_by_wh_id").val();
-            if(awb){
-                    $.ajax({
-                    type: 'POST',
-                    beforeSend: function(){
-
-                        $('body').loadingModal({
-                        position: 'auto',
-                        text: 'Loading Please Wait...',
-                        color: '#fff',
-                        opacity: '0.7',
-                        backgroundColor: 'rgb(0,0,0)',
-                        animation: 'wave'
-                    });
-
-                        },
-                    url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_awb_exist',
-                    data:{awb:awb},
-                    success: function (response) {
-                        console.log(response);
-                        var data = jQuery.parseJSON(response);
-                        if(data.code === 247){
-                            alert("This AWB already used same price will be added");
-                            $("#same_awb").css("display","block");
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
-                            $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_id").val("0");
-                            $("#courier_price_id").css("display","none");
-                            if(data.message[0].courier_invoice_file){
-                                $("#exist_courier_image").val(data.message[0].courier_invoice_file);
-                                $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
-                            }
-                            $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
-                            if (data.message[0]['box_count'] === 0) {
-                                $('#shipped_spare_parts_boxes_count').val("");
-
-                            } else {
-                                $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
-
-                            }                            
-                            var wt = Number(data.message[0]['billable_weight']);
-                            if(wt > 0){
-                            var wieght = data.message[0]['billable_weight'].split(".");
-                                $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
-                                $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
-                            }
-
-                        } else {
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
-                            $("#courier_price_id").css("display","block");
-                            $("#same_awb").css("display","none");
-                            $("#exist_courier_image").val("");
-                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
-                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
-                        }
-
-                    }
-                });
-            }
-            
-        }
-        
     function remove_select_all_challan(){
         $('#selectall_challan_file').prop('checked', false); 
         $('#send_all').prop('checked', false); 
@@ -399,161 +308,6 @@
             $('.check_single_row').prop('checked', false);
         }
     }
-    
-    
-    function check_checkbox(){
-
-        var flag =0;
-
-           if(flag === 0){
-               var d_m = $('.checkbox_challan:checked');
-               if(d_m.length > 0){
-                   flag = 1;  
-               }
-           }
-
-
-
-
-
-        if(flag ===0 ){
-            alert("Please Select Atleast One Checkbox To Download Challan");
-            return false;
-        }else{
-
-           var wh =  $("#warehouse_select").val();
-            if (wh=="") {
-                alert("Please select Partner");
-            }else{
-
-            $('#myModal22').modal('show');
-            var partner_id= $("#partner_id").val();
-            $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/service_centers/get_warehouse_partner_list',
-            data:{partner:partner_id},
-            success:function(response){
-            
-            console.log(response); 
-            $("#warehouse_select").select2();
-            $("#warehouse_select").html(response).change();      
-               
-            }
-
-
-        });
-        }
-        }
-    }
-    
-    $(".check_single_row").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    $("#send_all").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    
-    $("#selectall_challan_file").click(function(){
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.check_single_row:checked');
-        if (d_m.length > 0) {
-            $('.check_single_row').prop('checked', false);
-        }
-        
-    });
-        
-    $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true))
-        {
-            $(".checkbox_challan").prop('checked', true);
-        }
-        else
-        {
-            $(".checkbox_challan").prop('checked', false);
-        }
-    });
-    
-     $("#shipped_spare_parts_weight_in_kg").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    
-    
-    $("#shipped_spare_parts_weight_in_gram").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
-        switch (event.keyCode) {
-            case 8:  // Backspace
-            case 9:  // Tab
-            case 13: // Enter
-            case 37: // Left
-            case 38: // Up
-            case 39: // Right
-            case 40: // Down
-                break;
-            default:
-                var regex = new RegExp("^[a-zA-Z0-9,]+$");
-                var key = event.key;
-                if (!regex.test(key)) {
-                    event.preventDefault();
-                    return false;
-                }
-                break;
-        }
-    });
     
 </script>
 
