@@ -2873,6 +2873,10 @@ class Inventory_model extends CI_Model {
         if (!empty($where)) {
             $this->db->where($where);
         }
+        
+
+        $this->db->order_by("invoice_details.create_date", "DESC");
+
 
        if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
