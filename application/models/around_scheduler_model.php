@@ -550,5 +550,59 @@ class Around_scheduler_model extends CI_Model {
                     and sf_challan_file IS NULL";
         return $this->db->query($sql)->result_array();
     }
+    
+    /**
+     * @desc : Get all spares which are pending now for greater than 15 days after booking completion.
+     * @author : Ankit Rajvanshi
+     */
+    function get_parts_to_be_billed_pending_for_15_days() {
 
-}
+        $sql = "SELECT
+                    booking_details.booking_id,
+                    spare_parts_details.id,
+                    parts_shipped,
+                    inventory_master_list.part_number,
+                    challan_approx_value
+                FROM
+                    spare_parts_details
+                    JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
+                    JOIN inventory_master_list ON(spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id)
+                WHERE
+                    DATEDIFF(CURDATE(), booking_details.service_center_closed_date) > ".PART_TO_BE_BILLED_OOT_DAYS." 
+                    AND spare_parts_details.reverse_sale_invoice_id IS NULL 
+                    and spare_parts_details.status IN('".DEFECTIVE_PARTS_PENDING."', '".OK_PART_TO_BE_SHIPPED."')
+                    AND spare_parts_details.defective_part_shipped_date IS NULL
+                    AND spare_parts_details.shipped_date IS NOT NULL ";
+        
+        $data = $this->db->query($sql)->result_array();        
+        
+        if(!empty($data)) {
+            $table = "<table border='1' style='border-collapse:collapse'>";
+            $table .= "<thead><tr>";
+            $table .= "<th>S. No.</th>";
+            $table .= "<th>Booking ID</th>";
+            $table .= "<th>Spare ID</th>";
+            $table .= "<th>Part Name.</th>";
+            $table .= "<th>Part Number</th>";
+            $table .= "<th>Amount</th>";
+            $table .= "</tr></thead>";
+            
+            $table .= "<tbody>";
+            foreach($data as $key => $spare_data) {
+                $table .= "<tr>";
+                $table .= "<td>".++$key."</td>";
+                $table .= "<td>".$spare_data['booking_id']."</td>";
+                $table .= "<td>".$spare_data['id']."</td>";
+                $table .= "<td>".$spare_data['parts_shipped']."</td>";
+                $table .= "<td>".$spare_data['part_number']."</td>";
+                $table .= "<td>".$spare_data['challan_approx_value']."</td>";
+                $table .= "</tr>";
+            }
+            $table .= "</tbody>";
+            $table .= "</table>";
+        }
+        
+        return $table;
+    }
+}    
+
