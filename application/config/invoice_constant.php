@@ -116,11 +116,6 @@ define('LARGE_MSL_BOX', 'LARGE_MSL_BOX');
 define('SMALL_MSL_BOX', 'SMALL_MSL_BOX');
 //message to display when invoice update time is expired
 define('INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME', 'Cannot update invoice after 8th of next month.')
-define('INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME', 'Cannot update invoice after 8th of next month.');
-//debit penalty
-define('DEBIT_PENALTY', 'Debit Penalty');
-//Penalty Discount
-define('PENALTY_DISCOUNT', 'Penalty Discount');
 //days after which we will send negative FOC email to SF after last sent negative FOC email
 define('NEGATIVE_FOC_MAIL_PERIOD', 30);
 ?>
