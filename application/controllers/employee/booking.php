@@ -5535,7 +5535,7 @@ class Booking extends CI_Controller {
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
-        if(!$booking_id) {
+        if(empty($booking_id)) {
             $booking_id  = NULL;
         }
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
@@ -5560,11 +5560,19 @@ class Booking extends CI_Controller {
             $whereIN['sc.added_by_SF'] = [1];
         }
         
-        if(!empty($cancellation_reason_id)){
-           $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
-           $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
-        }
-        $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
+        //Wrong area bookings will be shown in seperate TAB
+        if($review_status == _247AROUND_CANCELLED) {
+            if(!empty($cancellation_reason_id)){
+                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+            }
+            else {
+                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+            }
+        }        
+        
+        $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id <> '.CANCELLATION_REASON_WRONG_AREA_ID => NULL), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason_id;
         
         if(!empty($state_code)) {
@@ -5642,8 +5650,8 @@ class Booking extends CI_Controller {
         $post_data = $this->input->get();
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
-        $whereIN = $having = [];
-        
+        $whereIN = $having = $where = [];
+
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -5675,12 +5683,19 @@ class Booking extends CI_Controller {
            $whereIN['booking_details.state'] = [$state];
         }
 
-        if(!empty($post_data['cancellation_reason_id'])) {
-           $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
-           $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
-        }
+        // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
+        //Wrong area bookings will be shown in seperate TAB
+        if($review_status == _247AROUND_CANCELLED) {
+            if(!empty($post_data['cancellation_reason_id'])){
+                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+            }
+            else {
+                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+            }
+        } 
         
-        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having);
+        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where);
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
