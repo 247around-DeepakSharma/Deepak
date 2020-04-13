@@ -243,6 +243,9 @@ class Partner extends CI_Controller {
                         $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
                     }
                 }
+                /* getting symptom  and push in array*/
+                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['symptom']));
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
             }
         }
 
@@ -9396,6 +9399,57 @@ class Partner extends CI_Controller {
                     echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
                 }
             }
+    }
+    /**
+     * @desc: This Function is used to load view for search docket
+     * @param: void
+     * @return : void
+     * @author: Ghanshyam
+     */
+    function search_docket() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/search_docket');
+        $this->load->view('partner/partner_footer');
+    }
+    /**
+     * @desc: This Function is used to process search the docket number
+     * @param: awb_number
+     * @return : json
+     * @author: Ghanshyam
+     */
+    function process_search_docket() {
+        $docket_no = $this->input->post("docket_no");
+        $html = "";
+        $partner_id = $this->session->userdata('partner_id');
+        $notFoundData = array();
+        if (!empty($docket_no)) {
+            $docket_no = explode(",", $docket_no);
+            $docket_no_array = array_filter($docket_no);
+            $where_in = array('awb_number' => $docket_no_array);
+            $data = $this->partner_model->get_docket_information($partner_id, $where_in);
+            //print_r($array_Consolidated);
+            $i = 1;
+            foreach ($data as $key => $value) {
+                $foundedData[] = $value['awb_number'];
+                $html .= "<tr>";
+                $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
+                if (!empty($value['courier_invoice_file'])) {
+                    $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
+                } else {
+                    $html .= "<td></td>";
+                }
+                $html .= "</td><td>" . $value['create_date'] . "</td>";
+                $html .= "</tr>";
+            }
+            $returndata['status'] = "success";
+            $returndata['html'] = $html;
+            $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+            echo json_encode($returndata);
+        } else {
+            $returndata['status'] = "error";
+            echo json_encode($returndata);
+        }
     }
 
 }
