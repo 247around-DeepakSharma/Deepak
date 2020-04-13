@@ -2798,5 +2798,35 @@ class Around_scheduler extends CI_Controller {
             echo 'No data found.';
         }    
     }
+    
+    /**
+     * Send mail to respective team for parts to be shipped which are pending to be billed for more than 15 days after booking completion 
+     * @author Ankit Rajvanshi
+     */
+    function notify_parts_to_be_billed() {
+        
+        // fetch data from spare parts details.
+        $spare_part_details = $this->around_scheduler_model->get_parts_to_be_billed_pending_for_15_days();
+        
+        /**
+         * If data found then send mail to respective team.
+         */
+        if(!empty($spare_part_details)) {
+            
+            // get email template
+            $email_template = $this->booking_model->get_booking_email_template(PART_TO_BE_BILLED_PENDING_MORE_THAN_15_DAYS);
+        
+            // prepare mail
+            $to = $email_template[1];
+            $from = $email_template[2];
+            $cc = $email_template[3];
+            $subject = 'Part To Be Billed';
 
+            $body = '<p>Hi Team,<br />
+                    Please find below list of parts to be billed which are pending for more than 15 days.';
+            $body .= $spare_part_details; 
+
+            $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
+        }
+    }
 }

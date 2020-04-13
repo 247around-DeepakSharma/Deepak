@@ -33,11 +33,12 @@
                                    Service Category Changed By SF(Completed)
                                 </a>
                             </li>
-<!--                            <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed/0/1">
-                                   Completed Bookings Under Partner Review
+                            <!--Added Tab for calls cancelled due to Wrong Area-->  
+                            <li role="presentation">
+                                <a href="#tabs-6" data-id="wrong_area_cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0/0/0/<?php echo CANCELLATION_REASON_WRONG_AREA_ID ?>">
+                                    Wrong Area Bookings
                                 </a>
-                            </li>-->
+                            </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1"></div>
@@ -45,6 +46,7 @@
                             <div class="tab-pane" id="tabs-3"></div>
                             <div class="tab-pane" id="tabs-4"></div>
                             <div class="tab-pane" id="tabs-5"></div>
+                            <div class="tab-pane" id="tabs-6"></div>
                         </div>
                     </div>
                 </div>
