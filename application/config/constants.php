@@ -619,6 +619,7 @@ define('WAREHOUSE','Warehouse');
 define('_247AROUND_QUERY','Query');
 //Sf Select Wrong Call Area
 define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
+define('CANCELLATION_REASON_WRONG_AREA_ID', 19);
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
