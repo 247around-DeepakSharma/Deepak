@@ -361,7 +361,7 @@
                                         <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Age</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
-                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <!--<th class="text-center" data-orderable="false">IS Defective Parts Required</th>-->
                                     </tr>
                                 </thead>
                             </table>
@@ -399,8 +399,8 @@
                                         <th class="text-center" data-orderable="false">Defective/Ok Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Age</th>
-                                        <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
-                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <!--    <th class="text-center" data-orderable="false">Cancel Part</th>-->
+                                        <!--  <th class="text-center" data-orderable="false">IS Defective Parts Required</th>-->
                                     </tr>
                                 </thead>
                             </table>

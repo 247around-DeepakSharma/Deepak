@@ -216,9 +216,10 @@
                     contentType: false 
                 }).done(function () {
                     //console.log(data);
+                    window.location.href=window.location.href; // Refresh Page on Successfully get response
                 });
                 alert('File validation is in progress, please wait....');
-            
+                return false;
         }else{
             alert("Please Select Partner and Appliance both ");
             return false;

@@ -8630,9 +8630,8 @@ class Inventory extends CI_Controller {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
-        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
-
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
         
         $no = $post['start'];
         $data = array();
