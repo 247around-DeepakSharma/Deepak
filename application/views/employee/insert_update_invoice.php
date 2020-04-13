@@ -573,6 +573,7 @@
     });
     
     var partIndex = 0;
+    partIndex = '<?php echo isset($invoice_breakup) && count($invoice_breakup) > 0 ? count($invoice_breakup) : 0; ?>';
     $(function() {
         $('input[name="from_date"]').daterangepicker({
             locale: {
@@ -954,6 +955,10 @@
             document.getElementById("type_code").options[4].disabled = false;
             document.getElementById("type_code").options[6].disabled = false;
         }
+        
+        $('#type_code').select2({
+            placeholder:'Select Invoice Type'
+        });
     }
     
     function change_prices(id){
