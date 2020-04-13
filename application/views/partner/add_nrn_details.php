@@ -62,13 +62,14 @@
                                             <div class="form-group">
                                                 <label for="crm_name" class="col-md-4">CRM *</label>
                                                 <div class="col-md-6">
-                                                    <?php 
+                                                    <?php
                                                     $selected = (set_value('crm_name') != '' ) ? set_value('crm_name') : '';
                                                     $extra = 'class="form-control" id="crm_name" required=""';
-                                                    echo form_dropdown('crm_name', $crm_name, $selected,$extra); ?>
+                                                    echo form_dropdown('crm_name', $crm_name, $selected, $extra);
+                                                    ?>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group">
                                                 <label class="col-md-4">Product * </label>
                                                 <div class="col-md-6">
@@ -170,7 +171,7 @@
                                                     <span id="error_nrn_month" class="error" style="color: red;"></span>  
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group">
                                                 <label for="tr_reporting_date" class="col-md-4">TR Reporting Date *</label>
                                                 <div class="col-md-6">
@@ -746,9 +747,29 @@
                 $('#replacement_remark').val('');
             }
         });
-         $('#btn_cancel').on('click', function () {
+        $('#btn_cancel').on('click', function () {
             if (confirm('Do you want to discard the changes')) {
                 window.location.href = '<?php echo base_url("partner/list_nrn_records") ?>';
+            }
+        });
+        $('#booking_id').on('change keyup paste', function () {
+            var _booking_id = $('#booking_id').val();
+            if (_booking_id != '') {
+                
+                $('form').submit();
+                
+
+               /* $.ajax({
+                    type: 'GET',
+                    url: '<?php //echo base_url().'employee/user/finduser?search_value='; ?>'+ _booking_id,
+                    dataType: 'json',
+                    success: function(responce){
+                        if(responce){
+                            var data = JSON.parse(responce);
+                            
+                        }
+                    }
+                });*/
             }
         });
     </script>
