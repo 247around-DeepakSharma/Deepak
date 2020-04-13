@@ -34,6 +34,7 @@
           }
        });
     }
+
     function booking_cancelled_rejected_count(booking_id){
         $.ajax({
            type: 'post',
