@@ -2253,3 +2253,6 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_List', 2, '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
 
 ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
+
+---Ghanshyam 2020-04-13
+INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
