@@ -1299,9 +1299,10 @@ class User extends CI_Controller {
         }
         $reqDistrict = array();
         $selDistrict = array();
+        if(!empty($district)){
         foreach ($district as $key => $value) {
             array_push($reqDistrict, $value);
-        }
+        }}
         $reqDistrictString = implode("','", $reqDistrict);
         
         if(empty($district))
