@@ -1194,7 +1194,7 @@ class Inventory extends CI_Controller {
                         $old_state = OK_PARTS_SHIPPED;
                     }                    
                     
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'defective_part_shipped_date' => NULL, 'remarks_defective_part_by_sf' => $remarks);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -8630,9 +8630,8 @@ class Inventory extends CI_Controller {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
-        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
-
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
         
         $no = $post['start'];
         $data = array();
@@ -9748,6 +9747,44 @@ class Inventory extends CI_Controller {
         $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
         
         return true;
+    }
+/**
+     * @desc This function is used to get success message when spare cancelled with cancelled reason
+     * @param String $booking_id
+     * @response json
+     * @author: Ghanshyam
+     */
+    function get_spare_cancelled_status_with_reason($booking_id) {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+        $data['spare_cancel_reason'] = true;
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status,booking_cancellation_reasons.reason', array('spare_parts_details.booking_id' => $booking_id),'','','',$data);
+        $status = '';
+        $cancellation_reason = array();
+        if (!empty($spare)) {
+            $is_cancelled = false;
+            $not_can = false;
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
+                    $is_cancelled = true;
+                    $cancellation_reason[] = $value['reason'];
+                } else {
+                    $not_can = true;
+                }
+            }
+
+            if ($not_can) {
+                $status = "Not Exist";
+            } else if ($is_cancelled) {
+                $status = "success";
+            } else {
+                $status = "Not Exist";
+            }
+        } else {
+            $status = "Not Exist";
+        }
+        $response['status'] = $status;
+        $response['reason'] = implode('<br>',array_filter($cancellation_reason));
+        echo json_encode($response);
     }    
  
 }
