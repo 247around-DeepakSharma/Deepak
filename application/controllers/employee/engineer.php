@@ -277,6 +277,12 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         }
     }
 
+    /*
+     * @Desc - This function is used to get the engineer details in jSON
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */ 
     function get_engineer_details() {
         $data = $this->get_engineer_details_data();
         $post = $data['post'];
@@ -290,6 +296,12 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         die();
     }
 
+    /*
+     * @Desc - This function is used to get the engineer detail row
+     * @param - 
+     * @response - Array
+     * @Author  - Abhishek Awasthi
+     */ 
     function get_engineer_details_data() {
         $service_center_id = "";
         if ($this->input->post("service_center_id")) {
@@ -340,6 +352,13 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
             'post' => $post
         );
     }
+
+    /*
+     * @Desc - This function is used to get the engineer details table structure
+     * @param - 
+     * @response - Array
+     * @Author  - Abhishek Awasthi
+     */ 
 
     function get_engineer_details_table($engineer_list, $no) {
         $row = array();
@@ -416,7 +435,78 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         }else{
             $row[] = "<span class='label label-danger'>UnInstalled</span>";
         }
+ 
+        $row[] = "<a id='' target='_blank' class=' ' href=" . base_url() . "employee/engineer/getEngineerHistory/" . $engineer_list->id . "><span class='label label-info'>History</span></a>";
 
+        return $row;
+    }
+
+
+    /*
+     * @Desc - This function is used to get the engineer history
+     * @param - 
+     * @response - View
+     * @Author  - Abhishek Awasthi
+     */
+    function getEngineerHistory($engineer_id){
+   
+        $this->miscelleneous->load_nav_header();
+        $data['engineer'] = $engineer_id;
+        $this->load->view('employee/view_engineer_history',$data);
+    }
+
+
+    /*
+     * @Desc - This function is used to get the engineer history
+     * @param - 
+     * @response - View
+     * @Author  - Abhishek Awasthi
+     */
+
+    function get_engineer_history($engineer){
+
+        $post = $this->get_post_data();
+        $post[''] = array();
+        $post['column_order'] = array();
+                echo "<pre>";
+        $post['column_search'] = array('booking_id', 'service_centres.name', 'engineer_details.name');
+        $select = "booking_details.id,booking_details.booking_id,booking_details.assigned_vendor_id,booking_details.assigned_engineer_id,service_centres.name as service_center_name,engineer_details.name as engineer_name";
+        $post['where']['booking_details.assigned_engineer_id'] = $engineer;
+        $list = $this->engineer_model->get_engineer_history_list($post, $select);
+
+        $data = array();
+        $no = $post['start'];
+
+        foreach ($list as $booking) {
+            $no++;
+            $row = $this->get_engineer_history_table($booking, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->engineer_model->count_all_engineer_history($post),
+            "recordsFiltered" => $this->engineer_model->count_filtered_engineer_history($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+
+
+    }
+
+
+    /**
+     * @desc this is used to generate  table
+     * @Author Abhishek AWasthi
+     */
+    private function get_engineer_history_table($booking, $sn) {
+        $row = array();
+        $row[] = $sn;
+        $row[] = $booking['service_center_name'];
+        $row[] = $booking['engineer_name'];
+        $row[] = $booking['booking_id']
         return $row;
     }
 
