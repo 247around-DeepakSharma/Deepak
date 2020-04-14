@@ -26,7 +26,6 @@ class User extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('notify');
         $this->load->library('booking_utilities');
-        $this->load->library('warranty_utilities');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
@@ -127,52 +126,6 @@ class User extends CI_Controller {
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
         } 
-        $bookingIDarray = array();
-        if (!empty($data['Bookings'])) {
-            foreach ($data['Bookings'] as $key => $value) {
-                $bookingIDarray[] = $value->booking_id;
-            }
-            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($bookingIDarray);
-            foreach ($arrBookings as $key => $val) {
-                $warrentyStatus['warrenty_status'][$arrBookings[$key]['booking_id']]['purchase_date'] = $arrBookings[$key]['purchase_date'];
-            }
-            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
-            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
-            foreach ($arrBookings as $key => $value) {
-                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
-                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
-                }
-                $warrentyStatus_pre['warrenty_status'][$value['booking_id']] = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
-            }
-            foreach ($bookingIDarray as $key => $value) {
-                if (!empty($warrentyStatus_pre['warrenty_status'][$value])) {
-                    $warrentyStatus['warrenty_status'][$value]['booking_warrenty_sratus'] = $warrentyStatus_pre['warrenty_status'][$value];
-                } else {
-                    $warrentyStatus['warrenty_status'][$value]['booking_warrenty_sratus'] = "";
-                }
-            }
-            foreach ($arrBookings as $key => $val) {
-                $arrBookings[$key]['booking_create_date'] = date('Y-m-d');
-            }
-            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
-            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
-            foreach ($arrBookings as $key => $value) {
-                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
-                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
-                }
-                $warrentyStatus_pre['warrenty_status'][$value['booking_id']] = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
-            }
-
-            foreach ($bookingIDarray as $key => $value) {
-                if (!empty($warrentyStatus_pre['warrenty_status'][$value])) {
-                    $warrentyStatus['warrenty_status'][$value]['current_warrenty_sratus'] = $warrentyStatus_pre['warrenty_status'][$value];
-                } else {
-                    $warrentyStatus['warrenty_status'][$value]['current_warrenty_sratus'] = "";
-                }
-            }
-            $data['warrenty_status'] = $warrentyStatus['warrenty_status'];
-        }
-
 
         if(!empty($phone_number) && empty($data['Bookings'])){
           //  $output['phone_number'] = $phone_number;
