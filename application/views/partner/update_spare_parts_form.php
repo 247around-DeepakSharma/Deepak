@@ -523,7 +523,7 @@
                             </div>
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
-                                <label for="defective_parts_shipped_boxes_count" class="col-md-4">No Of Boxes *</label>
+                                <label for="defectivePartsShippedBoxesCount" class="col-md-4">No Of Boxes *</label>
                                 <div class="col-md-6">
                                     <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required>
                                         <option selected="" disabled="" value="">Select Boxes</option>
@@ -540,7 +540,6 @@
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
                                 <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
-                                    <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
                                         <option selected="" disabled="" value="">Select Courier Name</option>
                                         <?php foreach ($courier_details as $value1) { ?> 
@@ -706,16 +705,18 @@
                     required: true,
                     maxlength: 100000
                 },
+                defective_parts_shipped_boxes_count:'required',
                 courier_price_by_partner:{
                     digits:true,
                     range:[0,2000]
                 }
                 },
                 messages: {
-                courier_name: "Please Courier Name",
+                courier_name: "Please Select Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
                 approx_value :"Please Enter Valid Approx Value.",
+                defective_parts_shipped_boxes_count : "Please Select Boxes Count",
                 courier_price_by_partner:{
                     digits: "Courier Price can only be Numeric.",
                     range: "Courier price should be in between 0 to 2000."
@@ -1198,7 +1199,12 @@
             $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
         });
         
-        
+        $("#courier_name").on('change',function(){
+            $('label[for="courier_name"]').css('display', 'none');
+        });
+        $("#defective_parts_shipped_boxes_count").on('change',function(){
+            $('label[for="defective_parts_shipped_boxes_count"]').css('display', 'none');
+        });
         
 </script>
 <?php if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
