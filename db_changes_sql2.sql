@@ -2475,6 +2475,7 @@ CREATE TABLE review_booking_checklist (
 ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 
 
+
 ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
  
 ---Abhishek -- 15-04-2020
@@ -2494,4 +2495,8 @@ CREATE TABLE non_inventory_partners_part_type (
     CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
     CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
 );
+
+
+---Ghanshyam 2020-04-13
+INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
