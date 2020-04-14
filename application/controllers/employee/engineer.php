@@ -504,9 +504,9 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
     private function get_engineer_history_table($booking, $sn) {
         $row = array();
         $row[] = $sn;
-        $row[] = $log_list['service_center_name'];
-        $row[] = $log_list['engineer_name'];
-        $row[] = $log_list['booking_id']
+        $row[] = $booking['service_center_name'];
+        $row[] = $booking['engineer_name'];
+        $row[] = $booking['booking_id']
         return $row;
     }
 
