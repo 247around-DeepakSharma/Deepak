@@ -7304,6 +7304,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                 //if warehouse is selected then get data from courier details table else get data from spare part table
                 if ($search_by === 'wh') {
+                    $select = "courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.actual_weight,courier_company_invoice_details.box_count, inventory_ledger.invoice_id";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -7314,7 +7315,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                     }
 
                     if (!empty($from_date) && !empty($to_date)) {
-                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date <='" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                     }
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
@@ -7331,11 +7332,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                     if (!empty($from_date) && !empty($to_date)) {
                         if ($search_by == 'awb_by_partner') {
-                            $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                            $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date <= '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
-                            $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                            $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date <='" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }else if ($search_by == 'awb_by_wh') {
-                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date <= '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
                         
                     }

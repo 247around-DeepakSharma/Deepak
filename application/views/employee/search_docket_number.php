@@ -37,7 +37,7 @@
             <section id="search_docket_number_details_div">
                 <div class="docket_number_details" style="display: none;">
                     <table  class="table table-response table-bordered" style="padding-top: 20px;" id="docket_number_table">
-                        <thead>
+                        <thead id="other_header">
                             <th>Sr No</th>
                             <th>Booking Id</th>
                             <th>SF Name</th>
@@ -53,6 +53,15 @@
                             <th>Part Type</th>
                             <th>Price</th>
                             <th>GST</th>
+                        </thead>
+                        <thead id="msl_header">
+                            <th>Sr No</th>
+                            <th> Invoice Id</th>
+                            <th> AWB Number</th>
+                            <th>Courier company_name</th>
+                            <th>Weight</th>
+                            <th>No. Of Boxes</th>
+                            <th>Price</th>
                         </thead>
                         <tbody id="docket_number_details_body"></tbody>
                     </table>
@@ -137,8 +146,12 @@
                         success: function (response) {
                             var obj = JSON.parse(response);
                             if(obj.status){
-                                $('#loader').hide();
-                                create_table(obj.msg);
+                                $("#loader").hide();
+                                if(search_by == 'wh'){
+                                    create_table_search_msl(obj.msg);
+                                }else{
+                                    create_table(obj.msg);
+                                }
                             }else{
                                 $('#loader').hide();
                                 $('.docket_number__not_found_div').show();
@@ -272,6 +285,74 @@
         });
         
         $('.docket_number_details').show();
+        $('#msl_header').hide();
+        $("#other_header").show();
+        $('#docket_number_details_body').html(table_body);
+        $('.docket_number__not_found_div').hide();
+        $("#docket_number_table").dataTable({
+            dom: 'Bfrtip',
+            pageLength: 50,
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    title: 'docket_number' + time
+                }
+            ]
+        });
+    }
+    
+    function create_table_search_msl(table_data){
+        $("#docket_number_table").dataTable().fnDestroy();
+        var table_body = "";
+        $.each(table_data, function (index,val) {
+            table_body += "<tr>";
+            table_body += '<td>' + (Number(index)+1) +'</td>';
+           
+            if(val['invoice_id']){
+                table_body += '<td>' + val['invoice_id'] +'</td>';
+            }else{
+                 table_body += '<td></td>';
+            }
+            
+            if(val['awb_number']){
+                table_body += '<td>' + val['awb_number'] +'</td>';
+            }else{
+                 table_body += '<td></td>';
+            }
+            
+            if(val['company_name']){
+                table_body += '<td>' + val['company_name'] +'</td>';
+            }else{
+                 table_body += '<td></td>';
+            }
+           
+
+
+            if(val['actual_weight'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['actual_weight'] +'</td>';
+            }
+            
+            if(val['box_count'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['box_count'] +'</td>';
+            }
+           
+            if(val['courier_charge'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['courier_charge'] +'</td>';
+            }
+                       
+            table_body += "</tr>";
+        });
+        
+        $('.docket_number_details').show();
+        $('#msl_header').show();
+        $("#other_header").hide();
         $('#docket_number_details_body').html(table_body);
         $('.docket_number__not_found_div').hide();
         $("#docket_number_table").dataTable({
