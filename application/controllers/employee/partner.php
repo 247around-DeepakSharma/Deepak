@@ -170,14 +170,14 @@ class Partner extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
-        if($data['booking_history'][0]['dealer_id']){ 
+        if(!empty($data['booking_history'][0]['dealer_id'])){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
             $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
         }
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-        if (!is_null($data['booking_history'][0]['sub_vendor_id'])) {
+        if (!empty($data['booking_history'][0]['sub_vendor_id'])) {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
             if(!empty($data['dhq'])){
                 $dis = $this->vendor_model->getDistrict_from_india_pincode("",$data['dhq'][0]['pincode'] );
@@ -227,7 +227,7 @@ class Partner extends CI_Controller {
         else {
             $data['symptom'][0] = array("symptom" => "Default");
             
-            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+            if(!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
                 $data['completion_symptom'][0] = array("symptom" => "Default");
                 $data['technical_defect'][0] = array("defect" => "Default");
                 $data['technical_solution'][0] = array("technical_solution" => "Default");
@@ -274,7 +274,9 @@ class Partner extends CI_Controller {
         //$data['spare_history'] = $this->partner_model->get_spare_state_change_tracking("spare_state_change_tracker.id,spare_state_change_tracker.spare_id,spare_state_change_tracker.action,spare_state_change_tracker.remarks,spare_state_change_tracker.agent_id,spare_state_change_tracker.entity_id,spare_state_change_tracker.entity_type, spare_state_change_tracker.create_date, spare_parts_details.parts_requested",array('spare_parts_details.booking_id' => $booking_id), true);
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/booking_details', $data);
+        if(!empty($data['booking_history'])){
+            $this->load->view('partner/booking_details', $data);
+        }
         $this->load->view('partner/partner_footer');
     }
 
@@ -5415,8 +5417,10 @@ class Partner extends CI_Controller {
                 header('Pragma: public');
                 header('Content-Length: ' . filesize(TMP_FOLDER . $pdf_details['file_name']));
                 readfile(TMP_FOLDER . $pdf_details['file_name']);
-
-                unlink(TMP_FOLDER . $pdf_details['file_name']);
+                if(file_exists(TMP_FOLDER . $pdf_details['file_name']))
+                {
+                    unlink(TMP_FOLDER . $pdf_details['file_name']);
+                }
             }
             log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
         }else{
@@ -5497,7 +5501,10 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv))
+        {
+            unlink($csv);
+        }
      }
     
     
