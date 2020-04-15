@@ -87,7 +87,11 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td>
-                                         <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php if (!empty($this->session->userdata('service_center_id'))) { ?>
+                                        <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php } else { ?>
+                                        <a  href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php } ?>                                         
                                     </td>
                                      <td>
                                         <?php echo $row['name']; ?>
@@ -433,7 +437,7 @@
         });
         
         postData['data'] = JSON.stringify(tmp_arr);
-        postData['sender_entity_id'] =  '<?php echo $this->session->userdata('service_center_id')?>';
+        postData['sender_entity_id'] =  '<?php echo $sf_id?>';
         postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['wh_name'] = '<?php echo $this->session->userdata('wh_name')?>';
         postData['receiver_partner_id'] = $("#partner_id").val();

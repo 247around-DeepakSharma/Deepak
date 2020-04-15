@@ -4,13 +4,16 @@
     }
     div.dt-buttons {
     float: left;
-    margin-top: 35px;
+   // margin-top: 35px;
     margin-bottom: 5px;
     margin-left: 5px;
     }
     
     #datatable1_wrapper{
         margin-top: 20px;
+    }
+    .dataTables_filter {
+        float:right;
     }
 </style>
 <div class="right_col" role="main">
@@ -171,7 +174,7 @@
         var data = {
             'sender_entity_id': $('#partner_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
-            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id');?>',
+            'receiver_entity_id': '<?php echo $sf_id;?>',
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
             'is_wh_ack':2,
             'is_wh_micro':'<?php echo $this->session->userdata('is_micro_wh');?>'
@@ -223,7 +226,7 @@
         postData['data'] = JSON.stringify(tmp_arr);
         postData['sender_entity_id'] =  $('#partner_id').val();
         postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
-        postData['receiver_entity_id'] = '<?php echo $this->session->userdata('service_center_id')?>';
+        postData['receiver_entity_id'] = '<?php echo $sf_id?>';
         postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['sender_entity_name'] = $('#partner_id option:selected').text();
         postData['receiver_entity_name'] = '<?php echo $this->session->userdata('wh_name')?>';
@@ -255,3 +258,4 @@
     }
 
 </script>
+
