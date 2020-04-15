@@ -72,10 +72,22 @@ class NRN_TR extends CI_Controller {
             $this->session->set_flashdata('error', 'Invalid partner');
             redirect('partner/list_nrn_records');
         }
-        // Create dropdown options data array 
+        //$data['service_id'] = 46;
         $data['partner_id'] = $partner_details['partner_id'];
         $data['brand'] = $partner_details['partner_name'];
         $data['partner_type'] = 'OEM';
+
+        
+        //$result = $this->nrn_model->get_category_capacity_model($service_id, $partner_id);
+
+        
+        //foreach ($result as $category) {
+//            $model = array('id'=>$category['id'],'model'=>$category['model'],'model_number'=>$category['model_number']);
+//            $data['products'][$category['category']][$category['capacity']]['models'][] = $model;
+//            
+//        }
+
+
         $data['crm_name'] = array('' => 'Select CRM', '247' => '247', 'AKAI' => 'AKAI');
         $data['owners'] = array('' => 'Select Owner', 'Customer' => 'Customer', 'Sub-Dealer' => 'Sub-Dealer', 'Dealer' => 'Dealer');
         $data['physical_status'] = array('' => 'Select Physical Status', 'Defective' => 'Defective', 'DOA' => 'DOA', 'Damage' => 'Damage');
