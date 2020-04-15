@@ -9382,7 +9382,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                                     $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                                     if (!empty(array_filter($sanitizes_row_data))) {
                                         $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                                        $bookingID[] = $rowData['booking_id'];
+                                        $bookingID[] = trim($rowData['booking_id']);
                                     }
                                 }
                                 $uploadSuccess = 1;
@@ -9393,9 +9393,19 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             $errormessage = "Uploaded File format not matches with required file format";
                         }
                         if (!empty($bookingID)) {
-                            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($bookingID);
-                            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
-                            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+                            $bookingID_chunks = array_chunk($bookingID, 150); // Divide Bookings in group of 150 to get warranty specific Data
+                            $arrBookings = array();
+                            $arrWarrantyData = array();
+                            $arrModelWiseWarrantyData = array();
+                            foreach($bookingID_chunks as $key => $booking_chunks){
+                                $arrBookings_chunk = $this->warranty_utilities->get_warranty_specific_data_of_bookings($booking_chunks);
+                                $arrWarrantyData_chunk = $this->warranty_utilities->get_warranty_data($arrBookings_chunk, true);
+                                $arrModelWiseWarrantyData_chunk = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData_chunk);
+
+                                $arrBookings = array_merge($arrBookings_chunk,$arrBookings);
+                                $arrWarrantyData = array_merge($arrWarrantyData_chunk,$arrWarrantyData);
+                                $arrModelWiseWarrantyData = array_merge($arrModelWiseWarrantyData_chunk,$arrModelWiseWarrantyData);
+                            }
                             foreach ($arrBookings as $key => $value) {
                                 if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
                                     $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
@@ -9416,10 +9426,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
             }
         }
         $partner_id = $this->session->userdata('partner_id');
-        if ($uploadSuccess == 1) {
+        if ($uploadSuccess == 1 && !empty($bookingID)) {
             foreach ($bookingID as $key => $value) {
 
-                $where = array('booking_id' => $value, 'partner_id' => $partner_id);
+                $where = array('booking_id' => trim($value), 'partner_id' => $partner_id);
                 $validBooking = $this->booking_model->get_bookings_count_by_any('booking_id', $where);
                 if (!empty($validBooking)) {
                     if (!empty($warrentyStatus_pre['warrenty_status'][$value])) {
