@@ -607,7 +607,6 @@ class Spare_parts extends CI_Controller {
             
         );
 
-        header('Content-type: application/json');
         echo json_encode($output);
     }
 
