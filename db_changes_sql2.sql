@@ -2028,6 +2028,8 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
+ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
+
 -------------------------------------------------------------
 
 -- Ankit Rajvanshi 18-03-2020
@@ -2152,6 +2154,7 @@ INSERT INTO `partner_booking_status_mapping` (`partner_id`, `247around_current_s
 (247001, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00');
 
 -- Prity Sharma 06-04-2020
+-- 73 Branch
 CREATE TABLE `zones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `zone` varchar(25) NOT NULL,
@@ -2208,6 +2211,7 @@ update state_code set zone_id = '2' where state_code = '36';
 UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
  
 -- Prity Sharma 08-04-2020
+-- 73 Branch
 ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
 UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
