@@ -3653,7 +3653,7 @@ class Inventory_model extends CI_Model {
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
         // entry in booking state change.
-        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', $spare_part_detail['partner_id'], NULL, $spare_id);
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
 
         //check other spares state and update booking internal status 
         $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
