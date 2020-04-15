@@ -489,6 +489,12 @@ class engineerApi extends CI_Controller {
                 $this->getgetAccessoriesList();  //// Getting parents
                 break;
 
+            /*   this API used to All Acceceries */
+            case 'getAccessories':
+                $this->getgetAccessoriesList();  //// Getting parents
+                break;
+
+
             default:
                 break;
         }
@@ -4536,6 +4542,7 @@ function submitPreviousPartsConsumptionData(){
             $this->sendJsonResponse(array("0099", 'No parents  Found'));
         }
     }
+
 
  
    /**
