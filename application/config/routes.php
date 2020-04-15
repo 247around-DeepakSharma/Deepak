@@ -255,6 +255,9 @@ $route['partner/list_nrn_records'] = 'employee/NRN_TR/list_nrn_records';
 $route['partner/edit_nrn_details'] = 'employee/NRN_TR/edit_nrn_details';
 $route['partner/edit_nrn_details/edit/(:num)'] = 'employee/NRN_TR/edit_nrn_details/$1';
 $route['partner/nrn_tr/index'] = 'employee/NRN_TR/index';
+$route['partner/getCategoryForService'] = 'employee/NRN_TR/getCategoryForService';
+$route['partner/getCapacityForCategory'] = 'employee/NRN_TR/getCapacityForCategory';
+$route['partner/getModelForService'] = 'employee/NRN_TR/getModelForService';
 
 
 
