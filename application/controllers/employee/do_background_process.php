@@ -226,15 +226,15 @@ class Do_background_process extends CI_Controller {
                             $upcountry_charges = $value['upcountry_charges'];
                         }
 
-                        // save default Admin remarks also, to make it clear that it is a bulk approval.
-                        $service_center['closing_remarks'] = BULK_APPROVAL_REMARKS;
                         if (!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])) {
-                            $service_center['closing_remarks'] .= " | Service Center Remarks:- " . $value['service_center_remarks'] .
-                                    "  |  Admin Remarks:-  " . $value['admin_remarks'];
+                            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
+                                    "   Admin:-  " . $value['admin_remarks'];
                         } else if (!empty($value['service_center_remarks']) && empty($value['admin_remarks'])) {
-                            $service_center['closing_remarks'] .= " | Service Center Remarks:- " . $value['service_center_remarks'];
+                            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
                         } else if (empty($value['service_center_remarks']) && !empty($value['admin_remarks'])) {
-                            $service_center['closing_remarks'] .= " | Admin Remarks:-  " . $value['admin_remarks'];
+                            $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
+                        } else {
+                            $service_center['closing_remarks'] = "";
                         }
 
                         $service_center['current_status'] = $current_status1;
