@@ -284,6 +284,10 @@ $route['partner/inventory/download_part_master'] = 'employee/partner/show_downlo
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
+$route['partner/add_nrn_details'] = 'partner/add_nrn_details';
+$route['partner/list_nrn_records'] = 'partner/list_nrn_records';
+$route['partner/edit_nrn_details'] = 'partner/edit_nrn_details';
+$route['partner/edit_nrn_details/edit/(:num)'] = 'partner/edit_nrn_details/$1';
 
 
 
@@ -351,6 +355,7 @@ $route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_center
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 $route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
+$route['partner/search_docket'] = 'employee/partner/search_docket';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

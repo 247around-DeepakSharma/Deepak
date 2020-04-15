@@ -372,6 +372,13 @@ class Inventory_model extends CI_Model {
         if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
             $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
+
+
+        /* JOIN with symtom to get the symptom  */ 
+        if (!empty($post['symptom'])) {
+            $this->db->join('symptom', 'spare_parts_details.symptom = symptom.id', 'left');
+        } 
+
         
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
@@ -1574,14 +1581,15 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_spare_courier_details($select,$where){
+        $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where,false);
         }
         $this->db->from('inventory_ledger');
         $this->db->join('courier_company_invoice_details','inventory_ledger.courier_id = courier_company_invoice_details.id');
-        $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
-        $this->db->join('inventory_master_list as im', 'spare_parts_details.shipped_inventory_id = im.inventory_id');
+        //$this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        //$this->db->join('inventory_master_list as im', 'spare_parts_details.shipped_inventory_id = im.inventory_id');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2873,6 +2881,10 @@ class Inventory_model extends CI_Model {
         if (!empty($where)) {
             $this->db->where($where);
         }
+        
+
+        $this->db->order_by("invoice_details.create_date", "DESC");
+
 
        if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -3161,7 +3173,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('invoice_details as i', 'i.invoice_id = v.invoice_id');
         $this->db->join('inventory_master_list as im', 'im.inventory_id = i.inventory_id');
         $this->db->join('service_centres as sc', 'v.vendor_partner_id = sc.id','left');
-        //$this->db->join('partners', 'im.entity_id = partners.id','left');
+        $this->db->join('partners', 'im.entity_id = partners.id','left');
         //$this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
         //$this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
         

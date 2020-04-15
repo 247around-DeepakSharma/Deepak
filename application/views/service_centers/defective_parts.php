@@ -57,7 +57,18 @@
 <div class="custom_pagination" style="margin-left: 16px;" > <?php if (isset($links)) echo $links; ?></div>
 </div>
 
-
+<style>
+    @keyframes blink {
+    50% { opacity: 0.0; }
+    }
+    @-webkit-keyframes blink {
+    50% { opacity: 0.0; }
+    }    
+    .blink {
+        animation: blink 1s step-start 0s infinite;
+        -webkit-animation: blink 1s step-start 0s infinite;
+    }
+</style>
 
 <script type="text/javascript">
 

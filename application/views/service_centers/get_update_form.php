@@ -320,14 +320,55 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"  required=""   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
-                                                <span id="error_span_0" style="color:red;" class="hide"></span>
+                                                
+                                                 <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
+                                                        <option selected disabled>Select Part Name</option>
+                                                    </select>
 
                                             </div>
 
                                         </div>
                                     </div>
                                 </div>
+
+
+
+                                    <div class="row">
+
+
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <div class="col-md-6">
+                                                <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
+                                                        <option selected disabled>Select Symptom</option>
+                                                        <?php foreach($technical_problem as $problem){ ?>
+
+                                                            <option value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
+
+                                                        <?php }  ?>
+
+                                                    </select>  
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                      <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+
+
                             </div>
                         </div>
                         <div id="template" class="hide">
@@ -443,6 +484,38 @@
                                             </div>
                                         </div>
                                     </div>
+
+
+                                    <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <div class="col-md-6">
+                                                <select class="form-control symptom " id="symptom" name="part[0][symptom]" >
+                                                        <option selected disabled>Select Symptom</option>
+                                                        <?php foreach($technical_problem as $problem){ ?>
+
+                                                            <option value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
+
+                                                        <?php }  ?>
+
+                                                    </select>  
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                      <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control defect_pic" id="defect_pic" name="defect_pic[0]" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 </div>
                             </div>
                         </div>
@@ -543,6 +616,7 @@
 </div>
 <script type="text/javascript">
     $(".spare_consumption_status").select2();
+    $('#symptom_0').select2();
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 function alpha(e) {
    var k;
@@ -1059,6 +1133,10 @@ function alpha(e) {
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')") error_span
                         .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','parts_quantity_'+partIndex).attr("required", true).end()
+
+                        .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
+
+                        .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
                         .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()                
@@ -1073,6 +1151,11 @@ function alpha(e) {
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
                    .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','parts_quantity_'+partIndex).attr("required", true).end()
+
+                   .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
+
+                   .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
+
                    .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()

@@ -756,12 +756,12 @@ class Invoice_lib {
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
                 $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
-                /* Abhishek Check for consume status comes or not */
                 if(isset($value2[0]['consumed_status']) && !empty($value2[0]['consumed_status'])){
                     $tmp_arr['consumption'] = $value2[0]['consumed_status'];
                 }else{
                     $tmp_arr['consumption'] = 'NA';
                 }
+                $tmp_arr['courier_name'] = $value2[0]['courier_name'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -956,7 +956,7 @@ class Invoice_lib {
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
             /* Consumption reason in Partner on DC  */
-            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
+            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id, booking_details.assigned_vendor_id, IF(spare_consumption_status.consumed_status !="" , spare_consumption_status.consumed_status, "NA") as consumed_status';
             $where = array('spare_parts_details.id' => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'defective_part_required' => 1);
             $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where, true);
         }
@@ -990,15 +990,23 @@ class Invoice_lib {
                 }
 
 
-            /*  By: Abhishek : Consumption status  on Challan */
-//            if(!empty($spare_parts_details_value[0]['consumed_status'])){
-//                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
-//            }else{
-//                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
-//            }
-
+                if (!empty($spare_parts_details_value[0]['assigned_vendor_id'])) {
+                   
+                    $vendor_details = $this->ci->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $spare_parts_details_value[0]['assigned_vendor_id']), 'name', array(), array(), array());
+                    if (!empty($vendor_details)) {
+                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                        if (!empty($serviceable_area)) {
+                            $couriers_name = implode(', ', array_map(function ($entry) {
+                                        return $entry['courier_company_name'];
+                                    }, $serviceable_area));
+                        } else {
+                            $couriers_name = 'NA';
+                        }
+                    }
+                }
+                $spare_parts_details[$spare_key][0]['courier_name'] = $couriers_name; 
             }
-
+           
             $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
 
 //            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
@@ -1709,5 +1717,21 @@ class Invoice_lib {
         }
 
         return $financial_year ;
+    }
+    
+    /**
+     *  @desc : This function is used to get total number of days between 2 dates
+     *  @param : String $start_date
+     *  @param : String $end_date
+     *  @author Ankit Bhatt
+     *  @date : 10-04-2020
+     */
+    function get_no_of_days_between_dates($start_date, $end_date){
+        // Calulating the difference in timestamps 
+        $diff = strtotime($end_date) - strtotime($start_date); 
+
+        // 1 day = 24 hours 
+        // 24 * 60 * 60 = 86400 seconds 
+        return abs(round($diff / 86400)); 
     }
 }

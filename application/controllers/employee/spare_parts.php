@@ -730,11 +730,12 @@ class Spare_parts extends CI_Controller {
      */
     function get_approval_pending($post) {
         log_message('info', __METHOD__);
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        /* getting symptom and show in table */
+        $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
 
-        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL, NULL, NULL);
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request', NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
         $post['where']['partners.spare_approval_by_partner'] = 0;
@@ -927,7 +928,7 @@ class Spare_parts extends CI_Controller {
                 $required_parts = 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING';
                 $cl = "btn-danger";
             }
-            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+            //$row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
         } else {
             $row[] = "";
         }
@@ -1711,6 +1712,18 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
         $row[] = $spare_list->quantity;
+        if(!empty($spare_list->symptom_text)){
+        $row[] = $spare_list->symptom_text;
+        }else{
+        $row[] = '-';
+        }
+
+        if(!empty($spare_list->defect_pic)){
+        $row[] = '<a  class="btn btn-success" href="' . S3_WEBSITE_URL. 'misc-images/'.$spare_list->defect_pic.'" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>';
+        }else{
+        $row[] = '<a  class="btn btn-danger" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        }
+        
         $row[] = $spare_list->request_type;
         if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $part_status_text = REPAIR_OOW_TAG;
@@ -1839,6 +1852,8 @@ class Spare_parts extends CI_Controller {
         $post['type'] = $this->input->post('type');
         $post['order'] = $this->input->post('order');
         $post['is_inventory'] = 1;
+        /*  Flag for getting symptom */
+        $post['symptom'] = 1;
 
 
         if ($this->input->post("status") == SPARE_PARTS_REQUESTED) {
@@ -3880,15 +3895,34 @@ class Spare_parts extends CI_Controller {
         // $this->checkUserSession();
         $spare_id = base64_decode(urldecode($code));
         $where = array('spare_parts_details.id' => $spare_id);
-        $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        /*  Getting spare and symptom data */
+        //$post = array('symptom'=>1);
+        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id';
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false,$post);
         $data['spare_parts_details'] = $spare_parts_details[0];
         $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
+
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
+        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+        $price_tags_symptom = array();
+        foreach ($unit_details as $value) {
+         $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
+         $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+         array_push($price_tags_symptom, $price_tags2);
+
+        }
+
+        /*  getting symptom */
+        if (!empty($price_tags_symptom)) {
+        $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
+        }
+
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
     }

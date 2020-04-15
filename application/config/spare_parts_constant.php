@@ -143,6 +143,7 @@ define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel uploa
 define('UPLOAD_MSL_EXCEL_FILE', 'Upload msl excel file');
  
 define('NRN_APPROVED_BY_PARTNER', 'NRN Approved By Partner');
+define('NRN_REVERSE_BY_PARTNER', 'NRN Reverse');
 define('NRN_TO_BE_APPROVED_BY_PARTNER', 'NRN To Be Approved By Partner');
 define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
  
@@ -204,3 +205,5 @@ define('SPARE_PARTS_OOT_DAYS', '45');
 define('SPARE_ACKNOWLEDGE_TEAM', 'Defective/Ok Acknowledge Team');
 // courier audit team
 define('COURIER_AUDIT_TEAM', 'Courier Audit Team');
+// part to be billed days
+define('PART_TO_BE_BILLED_OOT_DAYS', 15);

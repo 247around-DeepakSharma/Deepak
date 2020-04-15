@@ -2028,6 +2028,8 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
+ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
+
 -------------------------------------------------------------
 
 -- Ankit Rajvanshi 18-03-2020
@@ -2152,6 +2154,7 @@ INSERT INTO `partner_booking_status_mapping` (`partner_id`, `247around_current_s
 (247001, 'Pending', 'Spare Parts Shipped by Warehouse', 'Booking In Progress', 'Spare Parts Shipped by Warehouse', 'Vendor', 'Acknowledge the Received Part', '0000-00-00 00:00:00');
 
 -- Prity Sharma 06-04-2020
+-- 73 Branch
 CREATE TABLE `zones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `zone` varchar(25) NOT NULL,
@@ -2208,6 +2211,7 @@ update state_code set zone_id = '2' where state_code = '36';
 UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `header_navigation`.`id` = 136;
  
 -- Prity Sharma 08-04-2020
+-- 73 Branch
 ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
 UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
@@ -2225,3 +2229,34 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 CREATE TABLE `247around`.`reassign_bookings` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_details_id` INT(11) NOT NULL ,  `reason` INT(11) NULL DEFAULT NULL ,  `remark` VARCHAR(500) NULL DEFAULT NULL ,  `old_sf` INT(11) NULL DEFAULT NULL ,  `new_sf` INT(11) NULL DEFAULT NULL ,  `rm_flag` INT(4) NULL DEFAULT '0' ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,  `updated_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `reassign_bookings` CHANGE `rm_flag` `rm_responsible_flag` INT(4) NULL DEFAULT '0';
  ALTER TABLE `reassign_bookings` CHANGE `created_on` `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+--Gorakh 10-04-2020
+
+CREATE TABLE `courier_serviceable_area` (
+  `id` int(11) NOT NULL,
+  `courier_company_name` varchar(255) NOT NULL,
+  `pincode` varchar(255) NOT NULL,
+  `status` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `courier_serviceable_area`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `courier_serviceable_area`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
+
+--Ankit Rajvanshi 13-04-2020
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('part_to_be_billed', NULL, ' ', NULL, 'ankitr@247around.com', 'ankitr@247around.com', 'ankitr@247around.com', '', '1', '2020-04-13 10:01:27');
+--Ankit Bhatt 2020-04-10
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_List', 2, '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
+
+---Ghanshyam 2020-04-13
+INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);

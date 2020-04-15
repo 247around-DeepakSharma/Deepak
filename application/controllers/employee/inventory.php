@@ -1194,7 +1194,7 @@ class Inventory extends CI_Controller {
                         $old_state = OK_PARTS_SHIPPED;
                     }                    
                     
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'defective_part_shipped_date' => NULL, 'remarks_defective_part_by_sf' => $remarks);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -7322,6 +7322,7 @@ class Inventory extends CI_Controller {
 
                 //if warehouse is selected then get data from courier details table else get data from spare part table
                 if ($search_by === 'wh') {
+                    $select = "courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.actual_weight,courier_company_invoice_details.box_count, inventory_ledger.invoice_id";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -7332,7 +7333,7 @@ class Inventory extends CI_Controller {
                     }
 
                     if (!empty($from_date) && !empty($to_date)) {
-                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                        $where["courier_company_invoice_details.shippment_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND courier_company_invoice_details.shippment_date <='" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                     }
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
@@ -7349,11 +7350,11 @@ class Inventory extends CI_Controller {
 
                     if (!empty($from_date) && !empty($to_date)) {
                         if ($search_by == 'awb_by_partner') {
-                            $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
+                            $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date <= '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
-                            $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
-                        } else if ($search_by == 'awb_by_wh') {
-                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                            $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date <='" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                        }else if ($search_by == 'awb_by_wh') {
+                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date <= '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
                     }
                     $post['is_inventory'] = TRUE;
@@ -8630,9 +8631,8 @@ class Inventory extends CI_Controller {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
-        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
-
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
         
         $no = $post['start'];
         $data = array();
@@ -9352,7 +9352,7 @@ class Inventory extends CI_Controller {
                                     $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                                     if (!empty(array_filter($sanitizes_row_data))) {
                                         $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                                        $bookingID[] = $rowData['booking_id'];
+                                        $bookingID[] = trim($rowData['booking_id']);
                                     }
                                 }
                                 $uploadSuccess = 1;
@@ -9363,9 +9363,19 @@ class Inventory extends CI_Controller {
                             $errormessage = "Uploaded File format not matches with required file format";
                         }
                         if (!empty($bookingID)) {
-                            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($bookingID);
-                            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
-                            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+                            $bookingID_chunks = array_chunk($bookingID, 150); // Divide Bookings in group of 150 to get warranty specific Data
+                            $arrBookings = array();
+                            $arrWarrantyData = array();
+                            $arrModelWiseWarrantyData = array();
+                            foreach($bookingID_chunks as $key => $booking_chunks){
+                                $arrBookings_chunk = $this->warranty_utilities->get_warranty_specific_data_of_bookings($booking_chunks);
+                                $arrWarrantyData_chunk = $this->warranty_utilities->get_warranty_data($arrBookings_chunk, true);
+                                $arrModelWiseWarrantyData_chunk = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData_chunk);
+
+                                $arrBookings = array_merge($arrBookings_chunk,$arrBookings);
+                                $arrWarrantyData = array_merge($arrWarrantyData_chunk,$arrWarrantyData);
+                                $arrModelWiseWarrantyData = array_merge($arrModelWiseWarrantyData_chunk,$arrModelWiseWarrantyData);
+                            }
                             foreach ($arrBookings as $key => $value) {
                                 if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
                                     $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
@@ -9380,10 +9390,10 @@ class Inventory extends CI_Controller {
             }
         }
         $partner_id = $this->session->userdata('partner_id');
-        if ($uploadSuccess == 1) {
+        if ($uploadSuccess == 1 && !empty($bookingID)) {
             foreach ($bookingID as $key => $value) {
 
-                $where = array('booking_id' => $value, 'partner_id' => $partner_id);
+                $where = array('booking_id' => trim($value), 'partner_id' => $partner_id);
                 $validBooking = $this->booking_model->get_bookings_count_by_any('booking_id', $where);
                 if (!empty($validBooking)) {
                     if (!empty($warrentyStatus_pre['warrenty_status'][$value])) {
@@ -9748,6 +9758,44 @@ class Inventory extends CI_Controller {
         $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
         
         return true;
+    }
+/**
+     * @desc This function is used to get success message when spare cancelled with cancelled reason
+     * @param String $booking_id
+     * @response json
+     * @author: Ghanshyam
+     */
+    function get_spare_cancelled_status_with_reason($booking_id) {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+        $data['spare_cancel_reason'] = true;
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status,booking_cancellation_reasons.reason', array('spare_parts_details.booking_id' => $booking_id),'','','',$data);
+        $status = '';
+        $cancellation_reason = array();
+        if (!empty($spare)) {
+            $is_cancelled = false;
+            $not_can = false;
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
+                    $is_cancelled = true;
+                    $cancellation_reason[] = $value['reason'];
+                } else {
+                    $not_can = true;
+                }
+            }
+
+            if ($not_can) {
+                $status = "Not Exist";
+            } else if ($is_cancelled) {
+                $status = "success";
+            } else {
+                $status = "Not Exist";
+            }
+        } else {
+            $status = "Not Exist";
+        }
+        $response['status'] = $status;
+        $response['reason'] = implode('<br>',array_filter($cancellation_reason));
+        echo json_encode($response);
     }    
  
 }

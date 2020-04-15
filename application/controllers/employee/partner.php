@@ -243,6 +243,9 @@ class Partner extends CI_Controller {
                         $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
                     }
                 }
+                /* getting symptom  and push in array*/
+                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['symptom']));
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
             }
         }
 
@@ -9205,15 +9208,29 @@ class Partner extends CI_Controller {
             $partner_id = $this->session->userdata('partner_id');
             $where = array('booking_id' => $booking_id, 'nrn_approved' => 1, 'partner_id' => $partner_id);
             $data = $this->booking_model->get_bookings_count_by_any($select, $where);
-
             if (count($data) > 0) {
                 $booking['nrn_approved'] = 0;
+                /* Change status of booking details table start here */
+                $booking['internal_status'] = NRN_REVERSE_BY_PARTNER;
+                $booking['current_status'] = _247AROUND_PENDING;
+                $actor = "";
+                $next_action = "";
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, NRN_REVERSE_BY_PARTNER, $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                /*Change status of booking details table ends here*/
                 $this->booking_model->update_booking($booking_id, $booking);
                 $data_service_center = array(
                     'current_status' => "InProcess",
                     'internal_status' => "InProcess",
                 );
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+                $new_state = NRN_REVERSE_BY_PARTNER;
+                $this->notify->insert_state_change($booking_id, $new_state, NRN_APPROVED_BY_PARTNER, NRN_REVERSE_BY_PARTNER, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, $partner_id);
                 echo 1;
             } else {
                 echo 0;
@@ -9396,6 +9413,57 @@ class Partner extends CI_Controller {
                     echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
                 }
             }
+    }
+    /**
+     * @desc: This Function is used to load view for search docket
+     * @param: void
+     * @return : void
+     * @author: Ghanshyam
+     */
+    function search_docket() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/search_docket');
+        $this->load->view('partner/partner_footer');
+    }
+    /**
+     * @desc: This Function is used to process search the docket number
+     * @param: awb_number
+     * @return : json
+     * @author: Ghanshyam
+     */
+    function process_search_docket() {
+        $docket_no = $this->input->post("docket_no");
+        $html = "";
+        $partner_id = $this->session->userdata('partner_id');
+        $notFoundData = array();
+        if (!empty($docket_no)) {
+            $docket_no = explode(",", $docket_no);
+            $docket_no_array = array_filter($docket_no);
+            $where_in = array('awb_number' => $docket_no_array);
+            $data = $this->partner_model->get_docket_information($partner_id, $where_in);
+            //print_r($array_Consolidated);
+            $i = 1;
+            foreach ($data as $key => $value) {
+                $foundedData[] = $value['awb_number'];
+                $html .= "<tr>";
+                $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
+                if (!empty($value['courier_invoice_file'])) {
+                    $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
+                } else {
+                    $html .= "<td></td>";
+                }
+                $html .= "</td><td>" . $value['create_date'] . "</td>";
+                $html .= "</tr>";
+            }
+            $returndata['status'] = "success";
+            $returndata['html'] = $html;
+            $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+            echo json_encode($returndata);
+        } else {
+            $returndata['status'] = "error";
+            echo json_encode($returndata);
+        }
     }
 
 }
