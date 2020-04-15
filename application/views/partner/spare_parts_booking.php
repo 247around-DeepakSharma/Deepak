@@ -459,12 +459,17 @@ $("#idForm")[0].reset();
     var ext = this.value.match(/\.(.+)$/)[1];
     switch (ext) {
         case 'jpg':
+        case 'JPG':
         case 'jpeg':
         case 'png':
+        case 'PNG':
         case 'pdf':
+        case 'PDF':
         case 'doc':
-        case 'jpeg':
+        case 'DOC':
+        case 'JPEG':
         case 'docx':
+        case 'DOCX':
         case 'gif':
             $('#uploadButton').attr('disabled', false);
             break;
