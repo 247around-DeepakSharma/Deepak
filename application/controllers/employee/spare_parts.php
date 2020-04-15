@@ -1291,7 +1291,7 @@ class Spare_parts extends CI_Controller {
 
     function courier_lost_spare_parts_table_data($spare_list, $no, $request_type) {
         $row = array();
-        if ($spare_list->booking_id != '') {
+       
             $row[] = $no;
             $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
             if ($spare_list->is_micro_wh == 1) {
@@ -1332,9 +1332,9 @@ class Spare_parts extends CI_Controller {
             if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
                 $row[] = '<button type="button" onclick="handle_rto_case(' . $spare_list->id . ', 12)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
             } else {
-                $row = '';
+                $row[] = '';
             }
-        }
+       
         return $row;
     }
     
