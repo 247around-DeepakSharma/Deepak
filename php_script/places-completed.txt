@@ -1,0 +1,721 @@
+G.T.B. Hospital
+IP Extension
+Jagjit Nagar
+Jhilmil Tahirpur
+Mayur Vihar Ph-III
+New Usmanpur
+Surajmal Vihar
+Trilok Puri
+Yozna Vihar
+Balbir Nagar
+Dilshad Garden
+Gandhi Nagar
+Geeta Colony
+Jhilmil
+Johripur
+Khazuri Khas
+Man Sarovar Park
+Patparganj
+Rajgarh Colony
+Rohtash Nagar
+Sonia Vihar
+Anand Vihar
+Karawal Nagar
+Laxmi Nagar
+Mandawali Fazalpur
+Maujpur
+Shakarpur
+Shivaji Park
+Vishwas Nagar
+Bhajan Pura
+Gokal Puri
+Harsh Vihar
+Ram Nagar
+Shastri Nagar
+V.K. Nagar
+Azad Nagar
+Gandhi Nagar Bazar
+Kailash Nagar
+Kalyanvas
+Loni Road Housing Complex
+Mayur Vihar Ph-I
+Nand Nagri
+New Seemapuri
+Seelampur
+Yamuna Vihar
+Bhola Nath Nagar
+Distt. Court
+Ghazipur
+Goverdhan Bihari Colony
+Krishna Nagar
+Telewara
+Brahampuri
+Govind Pura
+Himmatpuri
+Jafrabad
+Loni Road
+Nirman Vihar
+Raghubar Pura
+Shahdara Mandi
+Shahdara
+Vasundhra Enclave
+Chilla
+Ghonda
+Kalyanpuri
+Old Seemapuri
+Vivek Vihar
+Delhi High Court
+Election Commission
+Nirman Bhawan
+Pragati Maidan Camp
+Rail Bhawan
+Rashtrapati Bhawan
+Secretariat North
+Ajmeri Gate Extn.
+Inderpuri
+Lady Harding Medical College
+Parliament House
+Pragati Maidan
+Supreme Court
+Udyog Bhawan
+A.G.C.R.
+Anand Parbat Indl. Area
+Constitution House
+Delhi High Court Extension Counter
+Bank Street
+Bengali Market
+Dada Ghosh Bhawan
+Darya Ganj
+I.P.Estate
+Master Prithvi Nath Marg
+Patel Nagar South
+Patel Nagar West
+Sansad Marg
+Shastri Bhawan
+Anand Parbat
+Baroda House
+Desh Bandhu Gupta Road
+Guru Gobind Singh Marg
+Hauz Qazi
+Minto Road
+Sansadiya Soudh
+Connaught Place
+Gandhi Smarak Nidhi
+Karol Bagh
+Krishi Bhawan
+North Avenue
+Sat Nagar
+South Avenue
+A.K.Market
+Bhagat Singh Market
+Indraprastha
+Janpath
+Multani Dhanda
+National Physical Laboratory
+Pandara Road
+Patel Nagar
+Patiala House
+Union Public Service Commission
+I.A.R.I.
+Jama Masjid
+Pahar Ganj
+Patel Nagar East
+Rajender Nagar
+Swami Ram Tirth Nagar
+New Delhi G.P.O. 
+Ali
+Chittranjan Park
+Dakshinpuri Phase-II
+Defence Colony
+Deoli
+East Of Kailash
+Golf Links
+Greater Kailash
+Hazrat Nizamuddin
+Lajpat Nagar
+MMTC/STC Colony
+Nehru Nagar
+Pragati Vihar
+Tugalkabad Railway Colony
+Air Force Station Tugalkabad
+Amar Colony
+Badarpur
+BTPS
+Jamia Nagar
+Kasturba Nagar
+Molarband
+Okhla Industrial Estate
+Sadiq Nagar
+Sarita Vihar
+Sarvodya Enclave
+C G O Complex
+East Of Kailash Phase-I
+Hamdard Nagar
+Jungpura
+Krishna Market
+Malviya Nagar
+Zakir Nagar
+Abul Fazal Enclave-I
+Alaknanda
+Hari Nagar Ashram
+Jaitpur
+Kalkaji
+New Friends Colony
+Pushpa Bhawan
+Safdarjung Air Port
+Sukhdev Vihar
+Aliganj
+C R R I
+Dakshinpuri Phase-III
+F F C Okhla
+Gautam Nagar
+Lodi Road
+Masjid Moth
+Nehru Place
+New Delhi South Ext-II
+Pratap Market
+Tehkhand
+Andrewsganj
+Dakshinpuri Phase-I
+Dargah Sharif
+Jeevan Nagar
+Kailash Colony
+Madanpur Khadar
+Pul Pahladpur
+Saket
+Sant Nagar
+Sriniwaspuri
+BSF Camp Tigri
+Distt. Court Complex Saket
+Dr. Ambedkar Nagar
+Gulmohar Park
+Lal Kuan
+Okhla Industrial Area Phase-i
+Sahpurjat
+Sangam Vihar
+Talimabad
+Khanpur
+Panchsheel Enclave
+Pushp Vihar
+South Malviya Nagar
+Tugalkabad
+Haiderpur
+Model Town II
+Narela
+Bhorgarh
+Delhi University
+District Courts
+Jharoda Majraa
+Model Town III
+Satyawati Nagar
+Shalamar
+Adrash Nagar
+Ganeshpura
+Singhu
+Wazir Pur III
+Bankner
+Burari
+Gujranwala Colony
+Lampur
+N.S.Mandi
+Timarpur
+Jahangir Puri H Block
+Kanya Gurukul
+Keshav Puram
+Nimri
+R.C.A.O.
+Shakti Nagar
+Aruna Nagar
+Ashok Vihar
+Gulabi Bagh
+Jagatpur
+Jahangir Puri D Block
+Jawahar Nagar
+Kadipur
+Khera Kalan
+Nirankari Colony
+Roshan Ara Road
+Wazirabad Village
+Onkar Nagar
+Power House
+Bhalaswa
+C.C.I.
+Civil Lines
+Dr.Mukerjee Nagar
+G.T.B.Nagar
+Jahangir Puri A Block
+Kamla Nagar
+Alipur
+Bakoli
+Mukhmelpur
+Bakhtawar Pur
+Khampur
+Tajpur Kalan
+Hiranki
+Nangal Poona
+Baslambi
+Dhankot
+Ferozepur Jhirka
+Ferozepur Namak
+Gurgaon South City I
+Haillymandi
+Kakoria
+Khandewia
+Kherla
+KherliLala
+Lohinga Kalan
+Malab
+Mankdola
+Nsg Camp Manesar
+Pahari
+Paltra
+Railwary Road
+Raisina
+Rawli
+Sikrawa
+Sohna
+Tauru
+Baghanki
+Bhirauti
+Cheelarh
+Daulah
+Dhani Chitarsain
+DLF Ph-III
+Ghungola
+Gulalta
+Gurgaon
+Gurgaon Sector 45
+Gurgaon Sector 56
+Jataula
+Jatauli
+Jawasi
+Khatauli
+Kiranj
+Naheda
+Nanukalan
+Narsinghpur
+Nuh
+Sikohpur
+Smaspur
+Tain
+Teekli
+Urban Estate
+Baded
+Bhondsi
+Bichhor
+Bisru
+Daultabad
+DLF Ph-II
+DLF QE
+Doha
+Dungerwas
+Ghamroj
+Hirwari
+Indir Mewat
+Industrial Complex Dundahera
+Jharsa
+Karola
+Khor
+Lokra
+Mohamadpur Ahir
+Nai
+Pathreri
+Rathiwas
+Rethath
+Badshahpur
+Basai Road
+Chakkarpur
+Farrukh Nagar
+IMT Manesar
+Kasan
+Manesar
+Maruthi Kunj
+Nagina
+Nathupur
+Palam Road
+Palam Vihar
+Rithoj
+Rojka Meo
+Sihri Singhalheri
+Sundh
+Akhera
+Bewan
+Bhorakalan
+Dulawat
+Fazilpur
+Galleria DLF-IV
+Garhi Harsaru
+Gurgaon Kty.
+Jagat
+Jamalpur
+Kankarwali Rewari
+Khandsa
+Khandsa Road
+Lakhnaula
+New Colony
+Pataudi
+Ramgarh
+Rewasan
+Sarhaul
+Shivaji Nagar
+Tapkan
+Tatarpur
+Agon
+Basai
+Budarpur
+Chapera
+Gurgaon South City II
+Hasanpur
+Industrial Estate
+Mandikhera
+Mini Sectt.
+Moolthan
+Narhera
+Pachgaon
+Patil R.S.
+Sakras
+Sidhrawali
+Singar
+Sohna Adda
+Ujina
+Arjun Nagar
+Badli
+Baspadamka
+Bhangrola
+Carterpuri
+Damdama
+Gurgaon Sector 17
+Gurgaon Village
+Janaula
+Jant
+Jhamuwas
+Khalilpur
+Khera Khurampur
+Kurthala
+Mirpur
+Pingwan
+Punhana
+Sewari
+Shahchokha
+Sherpur
+Sikanderpur
+Sudaka
+Syed Shahpur
+Unchamajra
+Wazipur
+Wazirabad
+Air Force
+Bhadas
+Bilaspur Khurd
+Budhera
+Dundahera
+Ghasera
+Gwal Pahari
+Inchhapuri
+Jamalgarh
+Kalwari
+Kherki Daula
+Mehchana
+Moklawas
+Noorgarh
+Sultanpur
+Turkiawas
+Umra
+Faridabad NIT
+Faridabad Sector 12
+Faridabad Sector 15
+Faridabad Sector 29
+Nhpc Colony Faridabad
+Sector-21D 
+Bhaskola
+Factory Area Faridabad
+Faridabad City
+Industrial Area Faridabad
+Jawahar Colony Faridabad
+N.I.F.M. Faridabad
+Kheri Kalan
+Sec-91
+Anangpur
+Escortsnagar Faridabad
+Faridabad Sector 16a 
+Faridabad Sector 18
+Faridabad Sector 22
+Mathura Road Faridabad
+Nh-2 Faridabad
+Nh-3 Faridabad
+Amarnagar
+Nh-4 Faridabad
+Faridabad Sector 16
+Gurukul Indraprashtha
+Surajkund Faridabad
+Tilpat
+Feroz Gandhi Nagar Faridabad
+Sabhapur
+Delhi G.P.O. 
+Anandvas Shakurpur
+Avantika
+Maurya Enclave
+Rani Bagh
+Delhi Sadar Bazar
+Shakur Pur I  Block
+Siraspur
+Mangolpuri A Block
+Prashant Vihar
+Delhi Engg. College
+Shalimar Bagh
+Sri Nagar Colony
+Dareeba
+Saraswati Vihar
+Chawri Bazar
+Rithala
+Rohini Courts
+Rohini Sector-7
+Samai Pur
+Chandni Chowk
+Pehlad Pur
+Rohini sec-11
+Rohini Sector 15
+Mangolpuri I  Block
+Mangolpuri N Block
+Rohini Sector 5
+S.T. Road
+Shakur Basti Depot
+Hareveli
+Khera Khurd
+Mubarak Pur Dabas
+Nangal Thakran
+Pooth Kalan
+Qutabagarh
+Rani Khera
+Nizampur
+Pooth Khurd
+Begumpur
+Lad Pur
+Karala
+Naya Bans
+Gheora
+Jaunti
+Punjab Khor
+Sultanpuri C Block
+Budh Vihar
+Ghoga
+Holambi Kalan
+Jat Khore
+Sultanpuri B Block
+Barwala
+Kanjhawla
+Auchandi
+Bawana
+Chand Pur
+Katewara
+Majra Dabas
+Sultanpuri F Block
+Mitraon
+Papravat
+Daulatpur
+Dichaun Kalan
+Kakrola
+Baprola
+Najafgarh
+Rewla Khanpur
+Tilangpur Kotla
+D C Nangli Sakravati
+Pandwala Kalan
+Surehra
+Dindarpur
+Jhatikara
+Rampura
+Sarai Rohilla
+A F Palam
+Dhaula Kuan
+Station Road
+Aps Colony
+Bazar Road
+C.V.D.
+Signal Enclave
+Subroto Park
+Kirby Place
+R R Hospital
+Nangal Dewat
+Palam Airport
+Pinto Park
+COD
+IGI Airport
+Delhi Cantt
+Gurgaon Road
+505 A B Workshop
+Ansari Nagar
+Kapashera
+Samalkha
+Ashoka Park Extn.
+District Court Complex Dwarka
+Hari Nagar BE Block
+Madipur Slum Quarter
+Mundka
+Punjabi Bagh Sec - III
+Rajouri Market
+Ramesh Nagar
+Sunder Vihar
+Amberhai
+Hari Nagar Dadb Block
+Hirankudna
+Jail Road
+Janakpuri B-1
+Janta Market
+Mahabir Nagar
+Subhash Nagar West
+Tilak Nagar East
+Fateh Nagar
+Hari Nagar
+Hastal Village
+Janakpuri C-4
+Kair
+Karam Pura
+Punjabi Bagh
+Distt. Court Complex Dwarka
+Indira Park
+Jeevan Park
+Jwala Puri
+Madipur Village
+Mansarover Garden
+Nangal Raya
+Nangloi
+Nasirpur
+Nilothi
+Palam Village
+Ranhola
+Vikas Puri
+Janakpuri A-3
+Jawala Heri
+Khaira
+N.S.I.T. Dwarka
+Nangloi - II
+Paschim Vihar
+Subhash Nagar
+Tikri Kalan
+Zakhira
+Chand Nagar
+Dabri
+Delhi Industrial Area
+ESI
+GGSIP University
+Jharoda Kalan
+Khyala Phase - II
+Maya Puri
+Nangloi - III
+Naraina Industrial Estate
+Sagarpur
+Tagore Garden
+Tilak Nagar
+Vishnu Garden
+Ashok Nagar
+Bakkarwala
+Chaukhandi
+CRPF Jharoda Kalan
+D. K. Mohan Garden
+D.E.S.U. Colony
+Matiala
+Peeragarhi
+Rajouri Garden J-6
+Khyala Phase -  I
+L. M. Nagar Indl. Area
+M.B.S. Nagar
+Mayapuri Shopping Centre
+N.I.Area
+Naraina Village
+Palam Extn Harijan Basti
+Paschim Vihar B Block
+Uttam Nagar
+Noida Sector 62
+Noida Sector 34
+Noida Sector 55
+Alpha Greater Noida
+Noida
+Noida Sector 12
+Noida Sector 30
+Noida Sector 45
+Noida Sector 16
+Noida Sector 37
+Noida Sector 27
+Noida Sector 41
+I.A. Surajpur
+Bisrakh
+Kulesra
+Sakipur
+Tilapta Karanwas
+Dayalpur
+Shaheed Bhagat Singh Colony
+Sunder Nagari
+Mandoli Saboli
+Babarpur
+Shriram Colony Rajeev Nagar
+Mangolpuri S Block
+Nauroji Nagar
+Basantpur Sainthli
+Abupur
+Arya Nagar
+Bhadoli
+Bharat Nagar
+Bhikanpur
+Chander Nagar
+Chikamberpur
+Crossing Republik
+Dasna
+Dasna Gate Ed
+Dasna R.S.
+Didoli
+Duhai
+Ghaziabad City
+Ghaziabad
+Govindpuram
+Hasanpur Bhowapur
+Hassanpur
+Hindan Nagar
+Hindon Air Field
+I.E.Sahibabad
+Jalalabad
+Jalalpur Dhindar
+Jindal Nagar
+Kaila
+Kakra
+Kamla Nehru Nagar
+Kanauja
+Kaushambi
+Kavi Nagar
+Khimawati
+Kumhera
+Kushlia
+Makanpur
+Meerut Road
+Model Town
+Mohan Nagar
+Murad Nagar Bazar
+Murad Nagar
+Nahal
+New Market Pilkhauwa
+New Raj Nagar
+Pilkhauwa Post Office
+Police Line Harsaon
+Postal Staff College
+Raispur
+Raj Nagar Extension
+Ramte Ram Road
+Raoli Kalan
+Sahibabad
+Shahpur
+Shipra Sun City
+Surana
+Vaishali
+Vasundhra
+Vijai Nagar
+East Delhi
+North East Delhi
+Central Delhi
+New Delhi
+South Delhi
+North West Delhi
+North Delhi
+Faridabad
+South West Delhi
+West Delhi
+Delhi
