@@ -2180,6 +2180,22 @@ class vendor extends CI_Controller {
                     $data['active'] = "1";
                     $data['create_date'] = date("Y-m-d H:i:s");
 
+                    if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
+
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
@@ -2322,6 +2338,22 @@ class vendor extends CI_Controller {
                     $service_id = $this->input->post('service_id');
 
                     $data['update_date'] = date("Y-m-d H:i:s");
+
+                   if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
 
                     $where = array('id' => $engineer_id);
                     $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
