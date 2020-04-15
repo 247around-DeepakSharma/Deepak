@@ -1381,8 +1381,8 @@ class vendor extends CI_Controller {
                 $rm_responsible = $this->input->post('rm_responsible');
                 $reason = $this->input->post('reason');
                 $reason_row =  $this->vendor_model->getReassignReason("*",array('id'=>$reason));
-
-                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks." - ".$reason_row[0]->reason, $this->session->userdata('id'), 
+                $str_reason = !empty($reason_row[0]->reason) ? $reason_row[0]->reason : "";
+                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks." - ".$str_reason, $this->session->userdata('id'), 
                         $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
                 foreach($spare_data as $spare){
