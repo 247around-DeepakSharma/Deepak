@@ -696,7 +696,7 @@ class Courier_tracking extends CI_Controller {
                         });
                         if (!empty($matches)) {
                             $matches = array_values($matches);
-                            echo $image_to_copy = $matches[0];
+                            $image_to_copy = $matches[0];
                             file_put_contents(TMP_FOLDER . $image_name, file_get_contents($image_to_copy));
                             $file = 1;
                         }
