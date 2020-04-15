@@ -79,12 +79,12 @@ class NRN_TR extends CI_Controller {
             $this->session->set_flashdata('error', 'Invalid partner');
             redirect('partner/list_nrn_records');
         }
-        $data['service_id'] = 46;
+        //$data['service_id'] = 46;
         $data['partner_id'] = $partner_details['partner_id'];
         $data['brand'] = $partner_details['partner_name'];
         $data['partner_type'] = 'OEM';
 
-
+        
         //$result = $this->nrn_model->get_category_capacity_model($service_id, $partner_id);
 
         
@@ -228,7 +228,7 @@ class NRN_TR extends CI_Controller {
             $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
-            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,partners.*,spare_parts_details.*";
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id";
             if (!empty($booking_id)) {
                 $post['search_value'] = $booking_id;
                 $post['column_search'] = array('booking_details.booking_id');
@@ -237,7 +237,7 @@ class NRN_TR extends CI_Controller {
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
             }
-            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select,array(),0,1,1);
+            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
             
             if (!empty($data['Bookings'])) {
@@ -344,9 +344,57 @@ class NRN_TR extends CI_Controller {
             $res['status'] = FALSE;
             $res['msg'] = 'no data found';
         }
-        echo json_encode($res);
+        echo $res;
         
     }
-    
+     function get_appliances($selected_service_id = NULL) {
+        $partner_id = $this->input->post('partner_id');
+        $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
+                . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
+                . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
+        
+        $prepaid['active'] = true;
+        $prepaid['is_notification'] = false;
+        
+        $data = array();
+        
+        if(!empty($partner_details)) {
+            if($partner_details[0]['is_prepaid'] == 1){
+                $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
+            } else  if($partner_details[0]['is_prepaid'] == 0){
+
+                $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
+            }
+            
+            if ($partner_details[0]['partner_type'] == OEM) {
+                $services = $this->partner_model->get_partner_specific_services($partner_id);
+            } else {
+                $services = $this->booking_model->selectservice();
+            }
+            
+            $data['partner_type'] = $partner_details[0]['partner_type'];
+            $data['partner_id'] = $partner_id;
+            $data['active'] = $prepaid['active'];
+            if($prepaid['is_notification']){
+                $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
+
+            } else {
+                $data['prepaid_msg'] = "";
+            }
+            $data['services'] = "<option selected disabled value=''>Select Product</option>";
+            foreach ($services as $appliance) {
+                $data['services'] .= "<option ";
+                if ($selected_service_id == $appliance->id) {
+                    $data['services'] .= " selected ";
+                } else if (count($services) == 1) {
+                    $data['services'] .= " selected ";
+                }
+                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+            }
+        }
+        
+        echo $data['services'];
+        
+    }
 
 }

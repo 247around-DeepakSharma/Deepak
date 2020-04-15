@@ -258,6 +258,7 @@ $route['partner/nrn_tr/index'] = 'employee/NRN_TR/index';
 $route['partner/getCategoryForService'] = 'employee/NRN_TR/getCategoryForService';
 $route['partner/getCapacityForCategory'] = 'employee/NRN_TR/getCapacityForCategory';
 $route['partner/getModelForService'] = 'employee/NRN_TR/getModelForService';
+$route['partner/get_appliances'] = 'employee/NRN_TR/get_appliances';
 
 
 
