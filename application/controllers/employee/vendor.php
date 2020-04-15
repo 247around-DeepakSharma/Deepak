@@ -820,7 +820,7 @@ class vendor extends CI_Controller {
         $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
-            'c2c' => $c2c,'saas_module' => $saas_module));
+            'c2c' => $c2c,'saas_module' => $saas_module,'id'=>$vendor_id));
     }
 
 
@@ -849,6 +849,10 @@ class vendor extends CI_Controller {
         if (isset($_POST['state']) && !empty($_POST['state'])) {
             $state = trim($_POST['state']);
             $post['where']['service_centres.state'] = $state;
+        }
+         if (isset($_POST['id']) && !empty($_POST['id'])) {
+            $id = trim($_POST['id']);
+            $post['where']['service_centres.id'] = $id;
         }
 
         if (isset($_POST['city']) && !empty($_POST['city'])) {
@@ -887,8 +891,8 @@ class vendor extends CI_Controller {
             "recordsTotal" => $this->vendor_model->count_all_viewallvendor($post),
             "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
             "data" => $data,
-        );
 
+        );
         echo json_encode($output);
     }
 
@@ -982,7 +986,11 @@ class vendor extends CI_Controller {
 
         $row[] = '<button type="button" class="btn btn-info btn-lg fa fa-history" data-toggle="modal" data-target="#on_off_history_view" onclick="get_on_off_history_view(' . $vendor_list["id"] . ')" style="padding: 11px 6px;margin: 0px 10px;"></button>';
 
+       
+
+
         return $row;
+
     }
 
     function get_filterd_sf_cp_data(){
