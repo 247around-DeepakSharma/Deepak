@@ -450,12 +450,11 @@ class Notify {
 			//Send internal mails now
 			$this->send_email($email_data);
 		    } else {
-
+                        $call_type = explode(" ", $query1[0]['request_type']);                            
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
                             $this->vediocon_cancelled_booking_sms($query1[0]);  
                         }
                         else{
-                            $call_type = explode(" ", $query1[0]['request_type']);
                             $sms['smsData']['service'] = $query1[0]['services'];
                             $sms['smsData']['call_type'] = $call_type[0];
                             $sms['tag'] = "cancel_booking";
