@@ -479,6 +479,12 @@ class engineerApi extends CI_Controller {
                 $this->getBookingParents();  //// Getting parents
                 break;
 
+            /*   this API used to All Acceceries */
+            case 'getAccessories':
+                $this->getgetAccessoriesList();  //// Getting parents
+                break;
+
+
             default:
                 break;
         }
@@ -4460,4 +4466,28 @@ class engineerApi extends CI_Controller {
         }
     }
 
+    /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+
+    function getgetAccessoriesList(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            /* Getting Accessories from DB */
+            $accessories = $this->accessories_model->show_accessories_list();  
+         $this->jsonResponseString['response'] = $accessories; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
 }
