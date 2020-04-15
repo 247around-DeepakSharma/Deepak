@@ -703,9 +703,9 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <th class="text-center" data-orderable="true">Approve</th>
-                                    <th class="text-center" data-orderable="true">Reject</th>
-                                    <th class="text-center" data-orderable="true">Mark RTO Case</th>
+                                    <th class="text-center" data-orderable="false">Approve</th>
+                                    <th class="text-center" data-orderable="false">Reject</th>
+                                    <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1051,7 +1051,7 @@
     courier_lost_spare_parts_table = $('#courier_lost_spare_parts_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[ 15, "desc" ]],
+            order:[[ 18, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -1059,13 +1059,13 @@
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
-//                    exportOptions: {
-//                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
-//                         modifier : {
-//                            // DataTables core
-//                            page : 'All',      // 'all',     'current'
-//                        }
-//                    },
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22 ],
+                         modifier : {
+                            // DataTables core
+                            page : 'All',      // 'all',     'current'
+                        }
+                    },
                     title: 'courier_lost_spare_parts'
                 }
             ],
@@ -1082,13 +1082,9 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [17], //first column / numbering column
+                    "targets": [18], //first column / numbering column
                     "orderable": true //set not orderable
-                },
-                {
-                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19], //first column / numbering column
-                    "orderable": false //set not orderable
-                }
+                }                
             ],
             "fnInitComplete": function (oSettings, response) {                
                 $(".dataTables_filter").addClass("pull-right");                
