@@ -79,27 +79,20 @@ class NRN_TR extends CI_Controller {
             $this->session->set_flashdata('error', 'Invalid partner');
             redirect('partner/list_nrn_records');
         }
-        $service_id = 46;
-        $partner_id = $partner_details['partner_id'];
-        $brand = $partner_details['partner_name'];
-        $partner_type = 'OEM';
+        $data['service_id'] = 46;
+        $data['partner_id'] = $partner_details['partner_id'];
+        $data['brand'] = $partner_details['partner_name'];
+        $data['partner_type'] = 'OEM';
 
 
-        $result = $this->nrn_model->get_category_capacity_model($service_id, $partner_id);
+        //$result = $this->nrn_model->get_category_capacity_model($service_id, $partner_id);
 
-        $data['products'][''] = 'Select Product';
-        foreach ($result as $category) {
-            $data['products'][$category['category']]['category'] = $category['category'];
-            $data['products'][$category['category']]['capacity'] = $category['capacity'];
-            $model = array('id'=>$category['id'],'model'=>$category['model'],'model_number'=>$category['model_number']);
-            $data['products'][$category['category']][$category['capacity']]['models'][] = $model;
-            
-        }
-
-
-        echo "<pre>";
-        print_r($data['products']);
-        die;
+        
+        //foreach ($result as $category) {
+//            $model = array('id'=>$category['id'],'model'=>$category['model'],'model_number'=>$category['model_number']);
+//            $data['products'][$category['category']][$category['capacity']]['models'][] = $model;
+//            
+//        }
 
 
         $data['crm_name'] = array('' => 'Select CRM', '247' => '247', 'AKAI' => 'AKAI');
@@ -229,12 +222,13 @@ class NRN_TR extends CI_Controller {
 
     function finduser() {
         if ($this->input->is_ajax_request()) {
+            
             $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '', trim($this->input->get('search_value')));
             $post['length'] = -1;
             $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
-            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id";
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,partners.*,spare_parts_details.*";
             if (!empty($booking_id)) {
                 $post['search_value'] = $booking_id;
                 $post['column_search'] = array('booking_details.booking_id');
@@ -243,12 +237,116 @@ class NRN_TR extends CI_Controller {
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
             }
-            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select);
+            $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select,array(),0,1,1);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
+            
             if (!empty($data['Bookings'])) {
-                echo json_encode($data);
+                echo json_encode($data,true);
             }
         }
     }
+    
+    function getCategoryForService() {
+
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        $partner_type = $this->input->post('partner_type');
+            
+        $partner_id = $this->input->post('partner_id');
+        if ($partner_type == OEM) {
+            $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
+        } else {
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
+            "service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                $whiteListBrand = $brand;
+            }
+            $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $isWbrand);
+        }
+
+        echo "<option selected disabled>Select Appliance Category</option>";
+        foreach ($result as $category) {
+            echo "<option>$category[category]</option>";
+        }
+    } 
+    
+      function getCapacityForCategory() {
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $brand = $this->input->post('brand');
+        $partner_id = $this->input->post('partner_id');
+        $partner_type = $this->input->post('partner_type');
+
+        
+        if ($partner_type == OEM) {
+            $result = $this->booking_model->getCapacityForCategory($service_id, $category, $brand, $partner_id);
+        } else {
+            $isWbrand = "";
+            $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
+            "service_id" => $service_id, "whitelist" => 1), "*");
+            if(!empty($whiteListBrand)){
+                $isWbrand = $brand;
+            }
+            $result = $this->booking_model->getCapacityForCategory($service_id, $category, $isWbrand, $partner_id);
+        }
+
+        foreach ($result as $capacity) {
+            echo "<option>$capacity[capacity]</option>";
+        }
+    }
+    
+    function getModelForService(){
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $brand = $this->input->post('brand');
+        $partner_id = $this->input->post('partner_id');
+        $capacity = $this->input->post('capacity');
+        $partner_type = $this->input->post('partner_type');
+        
+        $where = array ('partner_appliance_details.service_id' => $service_id,
+                        'partner_appliance_details.partner_id' => $partner_id,
+                        'partner_appliance_details.category' => $category,
+                        'partner_appliance_details.active' => 1,
+                        'appliance_model_details.active' => 1, 
+            );
+        
+        if(!empty($capacity)){
+            $where['partner_appliance_details.capacity'] = $capacity;
+        }
+        
+        if ($partner_type == OEM) {
+            $where['partner_appliance_details.brand'] = $brand;
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
+        } else {
+            $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
+        }
+        
+        if(!empty($result)){
+            $flag = false;
+            $option = "<option selected disabled>Select Model Number</option>";
+            foreach ($result as $value) {
+                if(!empty(trim($value['model']))){
+                    $flag = true;
+                    $option .= "<option value='".$value['model_number']."'>".$value['model_number']."</option>";
+                }
+                
+            }
+            if($flag)  {
+                $res['status'] = TRUE;
+                $res['msg'] = $option;
+            } else {
+                $res['status'] = FALSE;
+                $res['msg'] = 'no data found';
+            }
+            
+        }else{
+            $res['status'] = FALSE;
+            $res['msg'] = 'no data found';
+        }
+        echo json_encode($res);
+        
+    }
+    
 
 }
