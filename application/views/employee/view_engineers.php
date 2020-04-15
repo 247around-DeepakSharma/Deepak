@@ -63,6 +63,7 @@
                 <th>Edit</th>
                 <th>Status</th> <!-- Show Status Active/Inactive -->
                 <th>Install/UnInstall</th> <!-- Show  Install/Uninstall -->
+                <th>History</th> <!-- Show  engg history -->
             </tr>
             </thead>
             <tbody></tbody>

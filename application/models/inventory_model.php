@@ -1581,14 +1581,15 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_spare_courier_details($select,$where){
+        $this->db->distinct();
         $this->db->select($select);
         if(!empty($where)){
             $this->db->where($where,false);
         }
         $this->db->from('inventory_ledger');
         $this->db->join('courier_company_invoice_details','inventory_ledger.courier_id = courier_company_invoice_details.id');
-        $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
-        $this->db->join('inventory_master_list as im', 'spare_parts_details.shipped_inventory_id = im.inventory_id');
+        //$this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        //$this->db->join('inventory_master_list as im', 'spare_parts_details.shipped_inventory_id = im.inventory_id');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2880,6 +2881,10 @@ class Inventory_model extends CI_Model {
         if (!empty($where)) {
             $this->db->where($where);
         }
+        
+
+        $this->db->order_by("invoice_details.create_date", "DESC");
+
 
        if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -3664,7 +3669,7 @@ class Inventory_model extends CI_Model {
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
         // entry in booking state change.
-        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', $spare_part_detail['partner_id'], NULL, $spare_id);
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], SPARE_PARTS_CANCELLED, '', $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', _247AROUND, NULL, $spare_id);
 
         //check other spares state and update booking internal status 
         $check_spare_parts_details = $this->partner_model->get_spare_parts_by_any('*', array('spare_parts_details.booking_id' => $spare_part_detail['booking_id'], 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'

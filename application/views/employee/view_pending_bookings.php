@@ -18,6 +18,21 @@
        });
     }
     get_filter_data();
+    function load_cancelled_status_admin(booking_id){
+        $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status_with_reason/' + booking_id,
+           success: function (response) {
+               var obj = JSON.parse(response);
+              if(obj.status=='success'){
+                $("#cancelled_reason_"+booking_id).html('<a href="javascript:void(0)" data-toggle="popover" data-html="true" data-trigger="hover" data-content="'+obj.reason+'"><img style="width: 70%;margin-top:10px" src="<?php echo base_url();?>images/spare_cancelled.png"></a>');
+                $('[data-toggle="popover"]').popover();
+              }else{
+                  $("#cancelled_reason_"+booking_id).html('');
+              }
+          }
+       });
+    }
 </script>
 <style>
     #datatable1_filter{

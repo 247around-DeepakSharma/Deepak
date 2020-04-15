@@ -479,6 +479,12 @@ class engineerApi extends CI_Controller {
                 $this->getBookingParents();  //// Getting parents
                 break;
 
+            /*   this API used to All Acceceries */
+            case 'getAccessories':
+                $this->getgetAccessoriesList();  //// Getting parents
+                break;
+
+
             default:
                 break;
         }
@@ -2373,11 +2379,18 @@ class engineerApi extends CI_Controller {
         }
     }
 
+     /**
+     * @Desc: This function is to used get spare bparts order related data such as models , symptoms ,etc
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
     function getEngineerSparePartOrder() {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        if (!empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
+        if (!empty($requestData["partner_id"]) && !empty($requestData["service_id"]) && !empty($requestData["booking_id"])) {
             $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
             $model_detail = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
             if (!empty($model_detail)) {
@@ -2391,6 +2404,25 @@ class engineerApi extends CI_Controller {
                 $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('inventory_parts_type.service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
                 $response['sparePartsOrder']['getPartOnModel'] = false;
+            }
+            /* getting booking and unit details and finding price tags for getting symptoom */
+            $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            $price_tags_symptom = array();
+            foreach ($unit_details as $value) {
+                $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
+                $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                array_push($price_tags_symptom, $price_tags2);
+            }
+
+            if (!empty($price_tags_symptom)) {
+                $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['booking_history'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
+            }
+
+            if (!empty($data['technical_problem'])) {
+                $response['sparePartsOrder']['symptoms'] = $data['technical_problem'];
+            } else {
+                $response['sparePartsOrder']['symptoms'] = array();
             }
 
             if (isset($requestData["booking_id"])) {
@@ -2494,6 +2526,15 @@ class engineerApi extends CI_Controller {
                         $defective_back_part_pic = "Defective_Parts_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
                         $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
+                    }
+
+                    //upload defect pic
+                    if ($value["defect_pic"]) {
+                        $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
+                        $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
+                        $requestData['part'][$key]['defect_pic'] = $defect_pic;
+                    }else{
+                       $requestData['part'][$key]['defect_pic'] = NULL;  // We have to set so that key mismatch does not occur
                     }
                 }
 
@@ -4425,4 +4466,28 @@ class engineerApi extends CI_Controller {
         }
     }
 
+    /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+
+    function getgetAccessoriesList(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            /* Getting Accessories from DB */
+            $accessories = $this->accessories_model->show_accessories_list();  
+         $this->jsonResponseString['response'] = $accessories; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
 }

@@ -1390,8 +1390,8 @@ class vendor extends CI_Controller {
                 $rm_responsible = $this->input->post('rm_responsible');
                 $reason = $this->input->post('reason');
                 $reason_row =  $this->vendor_model->getReassignReason("*",array('id'=>$reason));
-
-                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks." - ".$reason_row[0]->reason, $this->session->userdata('id'), 
+                $str_reason = !empty($reason_row[0]->reason) ? $reason_row[0]->reason : "";
+                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks." - ".$str_reason, $this->session->userdata('id'), 
                         $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
                 foreach($spare_data as $spare){
@@ -2188,6 +2188,22 @@ class vendor extends CI_Controller {
                     $data['active'] = "1";
                     $data['create_date'] = date("Y-m-d H:i:s");
 
+                    if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
+
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
@@ -2330,6 +2346,22 @@ class vendor extends CI_Controller {
                     $service_id = $this->input->post('service_id');
 
                     $data['update_date'] = date("Y-m-d H:i:s");
+
+                   if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
 
                     $where = array('id' => $engineer_id);
                     $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
