@@ -69,7 +69,21 @@
                                                     ?>
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                <label class="col-md-4">Appliance * </label>
+                                                <div class="col-md-6">
+                                                    <?php
+                                                    $selected_service = (set_value('service_id') != '' ) ? set_value('service_id') : '';
+                                                    //$extra = 'class="form-control" id="product_id" required=""';
+                                                    //echo form_dropdown('product_id', $products, $selected, $extra);
+                                                    ?>
+                                                    <select class="form-control" id="service_id" name="service_id" required="">
+                                                        <option disabled="" selected="">Select Appliance</option>
 
+                                                    </select>
+                                                    <span id="error_service_id" class="error" style="color: red;"></span>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label class="col-md-4">Product * </label>
                                                 <div class="col-md-6">
@@ -692,7 +706,6 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-xs-12 col-md-4 col-md-offset-4">
-                                    <input type="hidden" name="service_id" id="service_id" value="<?php echo $service_id; ?>"/>
                                     <input type="hidden" name="brand" id="brand" value="<?php echo $brand; ?>"/>
                                     <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type; ?>"/>
                                     <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $partner_id; ?>"/>
@@ -799,21 +812,39 @@
         });
 
         $(document).ready(function () {
-            var service_id = $('#service_id').val();
-            var brand = $('#brand').val();
             var partner_type = $('#partner_type').val();
             var partner_id = $('#partner_id').val();
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url('partner/getCategoryForService'); ?>',
+                url: '<?php echo base_url('partner/get_appliances'); ?>',
                 //dataType:'text/html',
-                data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id},
+                data: {partner_type: partner_type, partner_id: partner_id},
                 success: function (responce) {
-                    $('#product_id').html(responce);
+                    $('#service_id').html(responce);
                 }
+            });
+            $('#service_id').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url('partner/getCategoryForService'); ?>',
+                    //dataType:'text/html',
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id},
+                    success: function (responce) {
+                        $('#product_id').html(responce);
+                    }
+                });
             });
 
             $('#product_id').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
                 $.ajax({
                     type: 'POST',
@@ -827,6 +858,10 @@
             });
 
             $('#product_capacity').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
                 var capacity = $('#product_capacity').val();
                 $.ajax({
