@@ -9625,6 +9625,8 @@ class Inventory extends CI_Controller {
         $post['where']['spare_parts_details.status !="' . _247AROUND_CANCELLED . '"'] = NULL;
         $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
+        $post['where']['spare_parts_details.shipped_inventory_id IS NOT NULL'] = NULL;
+        $post['where_in']['spare_parts_details.is_micro_wh'] = array(1,2);
 
         $list = $this->inventory_model->get_spare_parts_query($post);
 
