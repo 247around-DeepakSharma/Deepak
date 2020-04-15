@@ -2150,6 +2150,7 @@ class Booking_model extends CI_Model {
                 SELECT DISTINCT brand_name
                 FROM appliance_brands
                 WHERE LOWER( brand_name ) = LOWER( brand ) 
+                AND brand_name <> ""
                 AND ap.service_id = appliance_brands.service_id
                 )';
         $query = $this->db->query($sql);
