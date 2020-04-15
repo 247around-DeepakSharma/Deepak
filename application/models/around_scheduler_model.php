@@ -568,11 +568,33 @@ class Around_scheduler_model extends CI_Model {
                     JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
                     JOIN inventory_master_list ON(spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id)
                 WHERE
-                    DATEDIFF(CURDATE(), booking_details.service_center_closed_date) > ".PART_TO_BE_BILLED_OOT_DAYS." 
-                    AND spare_parts_details.reverse_sale_invoice_id IS NULL 
-                    and spare_parts_details.status IN('".DEFECTIVE_PARTS_PENDING."', '".OK_PART_TO_BE_SHIPPED."')
-                    AND spare_parts_details.defective_part_shipped_date IS NULL
-                    AND spare_parts_details.shipped_date IS NOT NULL ";
+                    DATEDIFF(CURDATE(), booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS." 
+                    AND spare_parts_details.defective_part_required = 1
+                    AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')
+                    AND spare_parts_details.consumed_part_status_id is not null ";
+        
+        $sql .= " UNION ";
+        
+        $sql .= "SELECT
+                    booking_details.booking_id,
+                    spare_parts_details.id,
+                    parts_shipped,
+                    inventory_master_list.part_number,
+                    challan_approx_value
+                FROM
+                    spare_parts_details
+                    JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
+                    JOIN inventory_master_list ON(spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id)
+                WHERE
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= ".SPARE_PARTS_OOT_DAYS." 
+                    and spare_parts_details.shipped_date is not null
+                    and booking_details.service_center_closed_date is null 
+                    and spare_parts_details.defective_part_shipped_date is null
+                    and spare_parts_details.is_micro_wh != 1
+                    and spare_parts_details.defective_part_required = 1
+                    and spare_parts_details.part_warranty_status = ".SPARE_PART_IN_WARRANTY_STATUS." 
+                    and spare_parts_details.status NOT IN ('"._247AROUND_CANCELLED."', '".OK_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."')
+                    and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id != 2);";
         
         $data = $this->db->query($sql)->result_array();        
         
