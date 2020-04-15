@@ -192,6 +192,64 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="panel panel-info" style="margin-top:20px;">
+                <div class="panel-heading">Qualification Details</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="identity proof" class="col-md-4">Educational Qualification </label>
+                                    <div class="col-md-6">
+                                         <input type="text" class="form-control" placeholder="Enter Educational Qualification" value="<?php if(isset($data[0]['edu_qualification'])){ echo $data[0]['edu_qualification'];} ?>" name="edu_qualification" >
+                                    </div>
+                                     
+                                </div>
+
+
+                                 <div class="form-group ">
+                                    <label for="Identity Picture" class="col-md-4">Professional Qualification</label>
+                                    <div class="col-md-6" >
+                                       <input type="text" class="form-control" placeholder="Enter Professional Qualification" value="<?php if(isset($data[0]['pro_qualification'])){ echo $data[0]['pro_qualification'];} ?>" name="pro_qualification" >
+                                    </div>
+                                    <div class='col-md-2'>
+                                      
+                                    </div>
+
+                                </div>
+                                 
+
+                            </div>
+                            <!-- end -->
+                            <div class="col-md-6 ">
+                             <div class="form-group">
+                                    <label for="overall_exp" class="col-md-4">Overall Experiance</label>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="overall_exp" name="overall_exp" value = "<?php if(isset($data[0]['overall_exp'])){ echo $data[0]['overall_exp'];} ?>" placeholder="Enter Overall Exp" >
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                         <div class="col-md-6 ">
+                             <div class="form-group">
+                                    <label for="around_exp" class="col-md-4">247Around Experiance</label>
+                                    <div class="col-md-6">
+                                    <input type="text" class="form-control"  id="around_exp" name="around_exp" value = "<?php if(isset($data[0]['around_exp'])){ echo $data[0]['around_exp'];} ?>" placeholder="Enter 247Around Exp" >
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <!-- end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 <!--             <div class="panel panel-info" style="margin-top:20px;">
                 <div class="panel-heading">Bank Account Details</div>
                 <div class="panel-body">
