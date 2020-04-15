@@ -1236,7 +1236,7 @@
         sf_received_part_table = $('#sf_received_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[18, "desc"]], //Initial no order.
+            order: [[19, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1259,7 +1259,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,18], //first column / numbering column
+                    "targets": [1,5,19], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
