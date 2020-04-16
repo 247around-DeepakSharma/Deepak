@@ -75,12 +75,12 @@ class engineerApi extends CI_Controller {
             $requestData = json_decode($jsonRequestData, true);
 
             $this->token = $requestData['token'];
-// temporary check for version update check for key also for older version apps///
-            // if(!isset($requestData["app_version"])  || $requestData["app_version"]!= APP_VERSION ){
-            // log_message('info', "Force update error");
-            // $this->sendJsonResponse(array(APP_VERSION_RESPONSE_CODE, 'Please update your app , then try again !'));
-            // exit;
-            // }
+            /// checkif Engineer is Active for every API hit ///
+            if(!isset($requestData["engineer_id"])  || empty($requestData["engineer_id"]) ){
+            log_message('info', "Inactive Error ");
+            $this->sendJsonResponse(array('00102', 'You are not active !'));
+            exit;
+            }
             //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
                 $this->user = $requestData['username'];
