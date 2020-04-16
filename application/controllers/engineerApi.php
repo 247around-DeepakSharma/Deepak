@@ -76,10 +76,15 @@ class engineerApi extends CI_Controller {
 
             $this->token = $requestData['token'];
             /// checkif Engineer is Active for every API hit ///
-            if(!isset($requestData["engineer_id"])  || empty($requestData["engineer_id"]) ){
+            if(isset($requestData["engineer_id"])  && !empty($requestData["engineer_id"]) ){
+            /*  Getting Eng Details with Active Flag */
+            $engineer = $this->engineer_model->get_engineers_details(array("id" => $requestData["engineer_id"], "active" => 1), "service_center_id, name");
+            if(empty($engineer)){
             log_message('info', "Inactive Error ");
             $this->sendJsonResponse(array('00102', 'You are not active !'));
-            exit;
+            exit; 
+            }
+
             }
             //username is user email address, not her name
             if (array_key_exists("username", $requestData)) {
