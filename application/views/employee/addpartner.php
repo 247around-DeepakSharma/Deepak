@@ -1586,7 +1586,7 @@
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
-                            <th>Delete <button onclick="delete_collatrals()"><i class="fa fa-trash" aria-hidden="true"></i></button></th>
+                            <th>Delete <button  class="btn-danger" onclick="delete_collatrals()"><i class=" fa fa-trash" aria-hidden="true"></i></button></th>
                             <th>Date</th>
                         </tr>
                     </thead>
