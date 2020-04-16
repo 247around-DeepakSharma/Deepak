@@ -9465,7 +9465,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             $errormessage = "Uploaded File format not matches with required file format";
                         }
                         if (!empty($bookingID)) {
-                            $bookingID_chunks = array_chunk($bookingID, 150); // Divide Bookings in group of 150 to get warranty specific Data
+                            $bookingID_chunks = array_chunk($bookingID, 50); // Divide Bookings in group of 50 to get warranty specific Data
                             $arrBookings = array();
                             $arrWarrantyData = array();
                             $arrModelWiseWarrantyData = array();
