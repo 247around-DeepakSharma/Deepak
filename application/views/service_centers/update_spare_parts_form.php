@@ -470,7 +470,7 @@
                             ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  autocomplete="off" placeholder="Select Courier Shipment Date" readonly=""  style="background-color:#FFF;" onkeydown="return false;">
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                             </div>
@@ -567,21 +567,41 @@
     </form>
 </div>
 <script type="text/javascript">
-    $('#shipment_date').daterangepicker({
+//    $('#shipment_date').daterangepicker({
+//        autoUpdateInput: false,
+//        singleDatePicker: true,
+//        showDropdowns: true,
+//        minDate:false,
+//        locale:{
+//            format: 'YYYY-MM-DD'
+//        }
+//    });
+//            
+//    $('#shipment_date').on('apply.daterangepicker', function(ev, picker) {
+//        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+//    });
+//    
+//    $('#shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+//        $(this).val('');
+//    });
+//    
+        $('#shipment_date').daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
-        locale: {
-            format: 'YYYY-MM-DD'
+        minDate: new Date(), //date_before_15_days,
+        maxDate: false,//'today',
+        locale:{
+            format: 'DD/MM/YYYY'
         }
     });
 
-    $('#shipment_date').on('apply.daterangepicker', function (ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+
+    $('#shipment_date').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
     });
 
-    $('#shipment_date').on('cancel.daterangepicker', function (ev, picker) {
+    $('#shipment_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
 
