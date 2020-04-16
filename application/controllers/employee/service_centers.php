@@ -1823,8 +1823,6 @@ class Service_centers extends CI_Controller {
 /*  getting symptom */
                 if (!empty($price_tags_symptom)) {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
-                  // print_r($this->db->last_query());
-                  //  print_r($data['technical_problem']);  exit;
                  }
 
 
@@ -1928,7 +1926,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                 }
             }
         }
@@ -2483,7 +2481,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
