@@ -37,7 +37,8 @@ define("QC_HSN_CODE", 998397);
 define("HSN_CODE", "998715");
 define("STAND_HSN_CODE", "8302");
 define("COMMISION_CHARGE_HSN_CODE", "996111");
-define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
+//define('ACCOUNTANT_EMAILID',"accounts@247around.com" );
+define('ACCOUNTANT_EMAILID',"billing@247around.com" );
 //Default Municipal limit for Paytm
 define("DEFAULT_PAYTM_MUNICIPAL_LIMIT", 15);
 // Default PAYTM UPCOUNTRY DISTRICT
@@ -115,4 +116,6 @@ define('LARGE_MSL_BOX', 'LARGE_MSL_BOX');
 define('SMALL_MSL_BOX', 'SMALL_MSL_BOX');
 //message to display when invoice update time is expired
 define('INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME', 'Cannot update invoice after 8th of next month.');
+//days after which we will send negative FOC email to SF after last sent negative FOC email
+define('NEGATIVE_FOC_MAIL_PERIOD', 30);
 ?>

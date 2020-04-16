@@ -2797,21 +2797,33 @@ exit();
                 //Negative Amount Invoice
                 $this->session->set_userdata(array('error' => "Vendor has negative invoice amount"));
                 if($invoice_type == "final"){
-                    $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
-                    $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
-                    $message = $email_template[0];
-                    $email_from = $email_template[2];
-                    $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-                    $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-                    $rem_email_id = "";
-                    if (!empty($rm_details)) {
-                        $rem_email_id = ", " . $rm_details[0]['official_email'];
-                    }
-                    $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
-                    echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
-                    log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
+                    //check when we last send FOC invoice negative amount mail to SF
+                    $last_foc_mail_details = $this->vendor_model->getVendorDetails("service_centres.last_foc_mail_send_date", array("id" => $vendor_id));
+                    if(count($last_foc_mail_details)>0){
+                        $last_mail_date = $last_foc_mail_details[0]['last_foc_mail_send_date'];
+                        //Finding number of days between last time we sent negative FOC email and current date
+                        $no_of_days_passed = $this->invoice_lib->get_no_of_days_between_dates($last_mail_date, date("Y-m-d"));
+                        if($no_of_days_passed >= NEGATIVE_FOC_MAIL_PERIOD){
+                            //Send mail
+                            $email_template = $this->booking_model->get_booking_email_template(NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $subject = vsprintf($email_template[4], array($invoices['meta']['company_name'],$invoices['meta']['sd'],$invoices['meta']['ed']));
+                            $message = $email_template[0];
+                            $email_from = $email_template[2];
+                            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
+                            $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+                            $rem_email_id = "";
+                            if (!empty($rm_details)) {
+                                $rem_email_id = ", " . $rm_details[0]['official_email'];
+                            }
+                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+                            echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
+                            log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
-                    $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "",NEGATIVE_FOC_INVOICE_FOR_VENDORS_EMAIL_TAG);
+                            $this->vendor_model->edit_vendor(array("last_foc_mail_send_date" => date("Y-m-d H:i:s")), $vendor_id);
+                        }
+                        
+                    }
                 }
                 
                 
