@@ -1389,44 +1389,49 @@ class Spare_parts extends CI_Controller {
     }
 
     function courier_lost_spare_parts_table_data($spare_list, $no, $request_type) {
-        $row = array();
-        $row[] = $no;
-        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
-        if ($spare_list->is_micro_wh == 1) {
-            $spare_pending_on = 'Micro-warehouse';
-        } elseif ($spare_list->is_micro_wh == 2) {
-            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
-            if(!empty($wh_details)){
-            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+        $row = array();      
+            $row[] = $no;
+            $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+            if ($spare_list->is_micro_wh == 1) {
+                $spare_pending_on = 'Micro-warehouse';
+            } elseif ($spare_list->is_micro_wh == 2) {
+                $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+                if (!empty($wh_details)) {
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+                }
+            } else {
+                $spare_pending_on = 'Partner';
             }
-        } else {
-            $spare_pending_on = 'Partner';
-        }
-        $row[] = $spare_pending_on;
-        $row[] = $spare_list->name;
-        $row[] = $spare_list->booking_primary_contact_no;
-        $row[] = $spare_list->sc_name;
-        $row[] = $spare_list->source;
-        $row[] = '<center>'.$spare_list->state.'</center>';
-        $row[] = "<span class='line_break'>" . $spare_list->model_number . "</span>";
-        $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
-        $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
-        $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
-        $row[] = $spare_list->quantity;
-        $row[] = $spare_list->parts_shipped;
-        $row[] = $spare_list->shipped_quantity;
-        $row[] = $spare_list->awb_by_partner;
-        $row[] = $spare_list->request_type;
-        if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-            $part_status_text = REPAIR_OOW_TAG;
-        } else {
-            $part_status_text = REPAIR_IN_WARRANTY_TAG;
-        }
-        $row[] = $part_status_text;
-        $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
-        
-        $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-ok"></span></a>';
-        $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-remove"></span></a>';
+            $row[] = $spare_pending_on;
+            $row[] = $spare_list->name;
+            $row[] = $spare_list->booking_primary_contact_no;
+            $row[] = $spare_list->sc_name;
+            $row[] = $spare_list->source;
+            $row[] = '<center>' . $spare_list->state . '</center>';
+            $row[] = "<span class='line_break'>" . $spare_list->model_number . "</span>";
+            $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
+            $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
+            $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
+            $row[] = $spare_list->quantity;
+            $row[] = $spare_list->parts_shipped;
+            $row[] = $spare_list->shipped_quantity;
+            $row[] = $spare_list->awb_by_partner;
+            $row[] = $spare_list->request_type;
+            if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                $part_status_text = REPAIR_OOW_TAG;
+            } else {
+                $part_status_text = REPAIR_IN_WARRANTY_TAG;
+            }
+            $row[] = $part_status_text;
+            $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
+            $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
+            $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
+
+            if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
+                $row[] = '<button type="button" onclick="handle_rto_case(' . $spare_list->id . ', 12)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+            } else {
+                $row[] = '';
+            }
         return $row;
     }
     
