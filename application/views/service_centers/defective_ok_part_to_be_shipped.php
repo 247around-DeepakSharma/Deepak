@@ -88,7 +88,7 @@ if ($this->uri->segment(3)) {
                                             <td>
 
                                         <?php if (!$partner_on_saas) { ?>
-                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" />
+                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" <?php if(empty($row['challan_file'])){echo 'disabled';} ?>/>
                                         <?php } else { ?>
 
                                                     <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]" id="download_challan_<?php echo $i; ?>" value="<?php echo $row['id'] ?>" />
