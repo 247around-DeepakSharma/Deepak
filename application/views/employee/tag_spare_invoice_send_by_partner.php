@@ -1221,17 +1221,17 @@
         $(this).val('');
     });
     
-    $('#on_courier_shipment_date').daterangepicker({
+     $('#on_courier_shipment_date').daterangepicker({
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: date_before_15_days,
-            maxDate:'today',
+            minDate: new Date(), //date_before_15_days,
+            maxDate: false,//'today',
             locale:{
                 format: 'DD/MM/YYYY'
             }
-        });
-    
+    });
+        
     $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY'));
     });
