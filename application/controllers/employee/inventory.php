@@ -9587,6 +9587,7 @@ class Inventory extends CI_Controller {
         return true;
     }
  
+ 
   /**
      *  @desc : This function is used to get the view of table for non return part from SF
      *  @param : void()
@@ -9601,7 +9602,7 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/show_non_return_part_sf");
 
     }
-
+ 
 
   /**
      *  @desc : This function is used to get the get_get_spare_parts
@@ -9650,6 +9651,7 @@ class Inventory extends CI_Controller {
         echo json_encode($output);
     }
 
+
     /**
      *  @desc : This function is used to get the get_get_spare_parts_query_list_table
      *  @param : void()
@@ -9674,7 +9676,7 @@ class Inventory extends CI_Controller {
         return $row;
     }
  
-    
+  
     /**
      * @desc : Method is used to accept the parts which was rejected by partner on delivery challan.
      * After this action part will show on Delivery on challan send to partner tab
@@ -9799,5 +9801,6 @@ class Inventory extends CI_Controller {
         $response['reason'] = implode('<br>',array_filter($cancellation_reason));
         echo json_encode($response);
     }    
- 
+
+
 }
