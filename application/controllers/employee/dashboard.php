@@ -3618,6 +3618,44 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
+        
+    function get_booking_cancellation_reasons(){
+
+        $sdate = date('Y-m-d', strtotime($this->input->post('sDate')));
+        $edate = date('Y-m-d', strtotime($this->input->post('eDate')));
+        log_message('info', __METHOD__. $sdate. "  .... ". $edate);
+
+        //fetching click count of account manager from agent_action_table
+        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate,$edate);
+        if (!empty($data)) {
+            $graph = array();
+            $data_report = array();
+            
+            //create array  by indexing hour basis
+            foreach ($data as $value) {
+                $graph[$value['cancellation_reason']] = $value['count'];
+            }
+            $data_report['series']['name'] = 'reason';
+            $data_report['series']['colorByPoint'] = true;
+            
+            //Creating series for the Graph
+            foreach ($graph as $key => $value) {
+                
+                $data_report['series']['data'][] = array(
+                      'name'=> $key,
+                      'y'=> $value,
+                      );
+            }
+
+            
+            trim(ob_get_clean()); 
+            echo json_encode($data_report, TRUE);
+        }else{
+            trim(ob_get_clean());
+            echo false; 
+        }
+    }
+    
 }
 
 
