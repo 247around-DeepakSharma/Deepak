@@ -243,6 +243,18 @@ class Partner extends CI_Controller {
                         $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
                     }
                 }
+
+                /* getting symptom  and push in array*/
+                if(!empty($val['spare_request_symptom'])){
+                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['spare_request_symptom']));
+                if(!empty($symptom)){
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
+                }else{
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => '-')); 
+                }
+                
+                }
+
             }
         }
 

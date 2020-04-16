@@ -3857,10 +3857,13 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
  
     function update_spare_parts_on_approval($code) {
         log_message('info', __FUNCTION__ . " Spare Parts ID: " . base64_decode(urldecode($code)));
-       // $this->checkUserSession();
-        $spare_id = base64_decode(urldecode($code));       
-        $where = array('spare_parts_details.id'=>$spare_id);
-        $select = 'spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+
+        // $this->checkUserSession();
+        $spare_id = base64_decode(urldecode($code));
+        $where = array('spare_parts_details.id' => $spare_id);
+        /*  Getting spare and symptom data */
+        //$post = array('symptom'=>1);
+        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'

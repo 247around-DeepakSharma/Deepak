@@ -1814,7 +1814,12 @@ class Service_centers extends CI_Controller {
 
                 $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
                 $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-                
+
+/*  getting symptom */
+                if (!empty($price_tags_symptom)) {
+                 $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
+                 }
+
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -1909,6 +1914,14 @@ class Service_centers extends CI_Controller {
 
                 if (isset($value['quantity'])) {
                     $data['quantity'] = $value['quantity'];
+                }
+
+                if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
+                        $data['defect_pic'] = $value['defect_pic'];
+                }
+
+                if(isset($value['symptom']) && !empty($value['symptom'])){
+                       $data['spare_request_symptom'] = $value['symptom']; 
                 }
             }
         }
@@ -2456,6 +2469,15 @@ class Service_centers extends CI_Controller {
 
                     if ($value['defective_back_parts_pic']) {
                         $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
+                    }
+
+
+                    if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
+                        $data['defect_pic'] = $value['defect_pic'];
+                    }
+
+                    if(isset($value['symptom']) && !empty($value['symptom'])){
+                       $data['spare_request_symptom'] = $value['symptom']; 
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
