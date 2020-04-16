@@ -2262,3 +2262,6 @@ ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 ---Abhishek -- 15-04-2020
 ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `bank_holder_name`, ADD `pro_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `edu_qualification`, ADD `overall_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `pro_qualification`, ADD `around_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `overall_exp`;
+
+---Ghanshyam 2020-04-15
+ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
