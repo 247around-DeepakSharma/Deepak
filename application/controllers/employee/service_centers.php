@@ -2298,7 +2298,7 @@ class Service_centers extends CI_Controller {
                 // in case of courier lost .
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $courier_lost_spare[] = $spare_part_detail;
-                    $update_data['status'] = COURIER_LOST;
+                    $update_data['status'] = InProcess_Courier_Lost;
                 }
                 // set defective part return for part consumed.
                 if($consumption_status_tag == PART_CONSUMED_TAG) {
