@@ -1823,8 +1823,6 @@ class Service_centers extends CI_Controller {
 /*  getting symptom */
                 if (!empty($price_tags_symptom)) {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
-                  // print_r($this->db->last_query());
-                  //  print_r($data['technical_problem']);  exit;
                  }
 
 
@@ -1928,7 +1926,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                 }
             }
         }
@@ -2483,7 +2481,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
@@ -3854,37 +3852,15 @@ class Service_centers extends CI_Controller {
         $challan = $this->input->post('download_challan');
         $delivery_challan_file_name_array = array();
         $challan_file = 'challan_file' . date('dmYHis');
-
-        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
-        }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
             foreach ($explode as $value) {
                 if (copy(S3_WEBSITE_URL . "vendor-partner-docs/" . trim($value), TMP_FOLDER . $value)) {
-                    $zip .= TMP_FOLDER . $value . " ";
                     array_push($delivery_challan_file_name_array, $value);
                 }
             }
         }
-
-        $challan_file_zip = $challan_file . ".zip";
-        $res = 0;
-        system($zip, $res);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
-
-        $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
-        readfile(TMP_FOLDER . $challan_file . '.zip');
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
-            foreach ($delivery_challan_file_name_array as $value_unlink) {
-                unlink(TMP_FOLDER . $value_unlink);
-            }
-        }
+        $this->booking_creation_lib->create_and_download_zip_file($challan_file . '.zip',$delivery_challan_file_name_array);
     }
 
     /**

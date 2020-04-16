@@ -244,8 +244,15 @@ class Partner extends CI_Controller {
                     }
                 }
                 /* getting symptom  and push in array*/
-                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['symptom']));
+                if(!empty($val['spare_request_symptom'])){
+                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['spare_request_symptom']));
+                if(!empty($symptom)){
                 $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
+                }else{
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => '-')); 
+                }
+                
+                }
             }
         }
 

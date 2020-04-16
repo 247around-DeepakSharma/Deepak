@@ -376,7 +376,7 @@ class Inventory_model extends CI_Model {
 
         /* JOIN with symtom to get the symptom  */ 
         if (!empty($post['symptom'])) {
-            $this->db->join('symptom', 'spare_parts_details.symptom = symptom.id', 'left');
+            $this->db->join('symptom', 'spare_parts_details.spare_request_symptom = symptom.id', 'left');
         } 
 
         

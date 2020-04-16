@@ -2247,7 +2247,7 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
+ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`;
 
 --Ankit Rajvanshi 13-04-2020
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
