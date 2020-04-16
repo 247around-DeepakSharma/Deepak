@@ -56,9 +56,9 @@ class Dashboard extends CI_Controller {
             else {
                 $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             }
-            if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
-                redirect(base_url().'employee/invoice/invoice_partner_view');
-            }else{
+//            if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
+//                redirect(base_url().'employee/invoice/invoice_partner_view');
+//            }else{
                 $is_am = 0;
                 if($this->session->userdata('user_group') == _247AROUND_AM){
 //                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
@@ -75,7 +75,7 @@ class Dashboard extends CI_Controller {
                 $data['am_data']=$am_data;
 
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
-            }
+         //   }
             $this->load->view('dashboard/dashboard_footer');
             if(isset($data['saas_flag']) && (!$data['saas_flag']))
                 $this->load->view('employee/header/push_notification');
@@ -95,7 +95,10 @@ class Dashboard extends CI_Controller {
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_RM."%'" => NULL);
         }else if($this->session->userdata('user_group') == _247AROUND_AM){
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_AM."%'" => NULL);
-        }else{
+        }else if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_ACCOUNTANT."%'" => NULL);
+        }
+        else{
             $where = array('active' => 1,'type'=> 'service');
         }
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries($where);
