@@ -2540,7 +2540,7 @@ class Spare_parts extends CI_Controller {
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
         $part_warranty_status = $this->input->post('part_warranty_status');
-        $where = array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != 'Cancelled'" => NULL, "sell_invoice_id IS NULL" => NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL" => NULL, "part_warranty_status" => $part_warranty_status);
+        $where = array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != 'Cancelled'" => NULL, "sell_invoice_id IS NULL" => NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL" => NULL, "part_warranty_status" => $part_warranty_status, 'defective_part_shipped IS NULL' => NULL);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
         if (count($data['data']) > 0) {
@@ -3900,7 +3900,7 @@ class Spare_parts extends CI_Controller {
         $where = array('spare_parts_details.id' => $spare_id);
         /*  Getting spare and symptom data */
         //$post = array('symptom'=>1);
-        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'

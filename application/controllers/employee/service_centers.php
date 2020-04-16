@@ -1823,8 +1823,6 @@ class Service_centers extends CI_Controller {
 /*  getting symptom */
                 if (!empty($price_tags_symptom)) {
                  $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
-                  // print_r($this->db->last_query());
-                  //  print_r($data['technical_problem']);  exit;
                  }
 
 
@@ -1928,7 +1926,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                 }
             }
         }
@@ -2320,7 +2318,7 @@ class Service_centers extends CI_Controller {
                 // in case of courier lost .
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $courier_lost_spare[] = $spare_part_detail;
-                    $update_data['status'] = COURIER_LOST;
+                    $update_data['status'] = InProcess_Courier_Lost;
                 }
                 // set defective part return for part consumed.
                 if($consumption_status_tag == PART_CONSUMED_TAG) {
@@ -2483,7 +2481,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     if(isset($value['symptom']) && !empty($value['symptom'])){
-                       $data['symptom'] = $value['symptom']; 
+                       $data['spare_request_symptom'] = $value['symptom']; 
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
@@ -6994,7 +6992,6 @@ class Service_centers extends CI_Controller {
             'remarks_defective_part_by_wh' => $rejection_reason,
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
-            'approved_defective_parts_by_admin' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh'),
             'defective_part_shipped_date'=> NULL
         );
