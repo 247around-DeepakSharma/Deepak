@@ -127,11 +127,11 @@ class Employee_model extends CI_Model{
           return $query->result_array();
       }
       
-      
     /**
-    * @Desc: This function is used for getting rm region
-    * @assumption funtion to be called by employee where group is regionalmanager
-    * @return: Array
+       * @Desc: This function is used to get RM's name mapped with region from employee table and rm region mapping table
+       * @params: void
+       * @return: Array
+       * 
     */
       function get_rm_region($region=null){
         $this->db->select('employee.full_name, zones.zone');

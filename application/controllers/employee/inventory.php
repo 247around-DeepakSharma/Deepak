@@ -5262,7 +5262,7 @@ class Inventory extends CI_Controller {
         $row = array();
 
         $row[] = $no;
-        if ($this->session->userdata('service_center_id')) {
+        if (!empty($this->session->userdata('service_center_id'))) {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
@@ -5637,7 +5637,11 @@ class Inventory extends CI_Controller {
      */
     function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-        $this->check_WH_UserSession();
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkUserSession();
+        } else {
+            $this->check_WH_UserSession();
+        }
         $is_r = $this->is_reverse_purchase_invoice_generated();
         if (!empty($is_r)) {
             $res['status'] = false;
@@ -5854,7 +5858,14 @@ class Inventory extends CI_Controller {
      */
     function send_defective_to_partner_from_wh_on_challan() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-        $this->check_WH_UserSession();
+        
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
         $awb_by_wh = $this->input->post('awb_by_wh');
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
@@ -5965,7 +5976,7 @@ class Inventory extends CI_Controller {
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
-                    $service_center_id = $this->session->userdata('service_center_id');
+                    $service_center_id = $sf_id;
                     /* Insert Spare Tracking Details */
                     $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);

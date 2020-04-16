@@ -52,9 +52,9 @@ if ($this->uri->segment(3)) {
                                                     $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
                                                     echo $age_shipped->days . " Days";
                                                     
-                                                    if($age_shipped->days <= PART_TO_BE_BILLED_OOT_DAYS) {
+                                                    if($age_shipped->days <= SF_SPARE_OOT_DAYS) {
                                                 ?>
-                                                <div class="blink text-danger" style="font-size:15px;">Part To Be Billed</div>
+                                                <div class="blink text-danger" style="font-size:15px;"><?php echo PART_TO_BE_BILLED; ?></div>
                                                 <?php } }?>
                                             </td>
                                             <td style="word-break: break-all;">

@@ -64,7 +64,7 @@ class Login extends CI_Controller {
                 if($login[0]['groups'] == 'accountmanager'){
                     $is_am = 1;
                 }
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am,$login[0]['warehouse_id']);
                 $this->miscelleneous->set_header_navigation_in_cache('247Around');
                 $this->push_notification_lib->get_unsubscribers_by_cookies();
                 //Saving Login Details in Database
@@ -147,7 +147,7 @@ class Login extends CI_Controller {
      *  @param : employee_id- id of employee for whom session is created
      *  @return : void
      */
-    function setSession($employee_id, $id, $phone,$official_email,$emp_name,$is_am) {
+    function setSession($employee_id, $id, $phone,$official_email,$emp_name,$is_am, $warehouse_id = NULL) {
         // Getting values for Groups of particular employee
         if(!empty($id))
         $groups = $this->employeelogin->get_employee_group_name($id);
@@ -164,7 +164,8 @@ class Login extends CI_Controller {
             'official_email'=>$official_email,
             'emp_name' => $emp_name,
             'is_am' => $is_am,
-            'user_source' => BOOKING_SOURCE_CRM
+            'user_source' => BOOKING_SOURCE_CRM,
+            'warehouse_id' => $warehouse_id
         );
         
 //        if($this->db->login_partner_id){
