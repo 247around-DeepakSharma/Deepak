@@ -856,16 +856,22 @@ class File_upload extends CI_Controller {
 
                         if (!empty($rowData['appliance']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['gst_rate'])) {
 
-                            $select = 'inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
+                            $select = 'services.services, inventory_master_list.inventory_id, inventory_master_list.service_id, inventory_master_list.part_number, inventory_master_list.part_name, inventory_master_list.description, inventory_master_list.size, inventory_master_list.price, inventory_master_list.type, inventory_master_list.oow_vendor_margin, inventory_master_list.oow_around_margin, inventory_master_list.entity_id, inventory_master_list.entity_type, inventory_master_list.hsn_code, inventory_master_list.gst_rate';
 
-                            $part_details = $this->inventory_model->get_inventory_master_list_data($select, array('inventory_master_list.part_number' => $rowData['part_code'], 'inventory_master_list.entity_id' => $this->input->post("partner_id"), 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING), array());
-
+                            $part_details = $this->inventory_model->get_inventory_without_model_mapping_data($select, array('inventory_master_list.part_number' => $rowData['part_code'], 'inventory_master_list.entity_id' => $this->input->post("partner_id"), 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING), array());
+                           
                             if (empty($part_details)) {
                                 $error_type = "Part not found in inventory";
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
-
+                            
+                            if (!empty($part_details) && strcasecmp($part_details[0]['services'], $rowData['appliance']) != 0) {
+                                $error_type = "Appliance name mismatch as our system";
+                                $error_array[] = $error_type;
+                                $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                            }
+                                                       
                             if (!empty($part_details) && $part_details[0]['price'] != $rowData['basic_price']) {
                                 $error_type = "Basic price details mismatch";
                                 $error_array[] = $error_type;
@@ -977,7 +983,7 @@ class File_upload extends CI_Controller {
         } else {
             $response['status'] = FALSE;
             $response['message'] = $err_msg;
-            $response['redirect_to'] = 'inventory/upload_msl_excel_file';
+            $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
             // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/msl_excel_upload_errors', $response);
