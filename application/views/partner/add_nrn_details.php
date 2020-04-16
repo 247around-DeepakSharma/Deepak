@@ -62,37 +62,60 @@
                                             <div class="form-group">
                                                 <label for="crm_name" class="col-md-4">CRM *</label>
                                                 <div class="col-md-6">
-                                                    <?php 
+                                                    <?php
                                                     $selected = (set_value('crm_name') != '' ) ? set_value('crm_name') : '';
                                                     $extra = 'class="form-control" id="crm_name" required=""';
-                                                    echo form_dropdown('crm_name', $crm_name, $selected,$extra); ?>
+                                                    echo form_dropdown('crm_name', $crm_name, $selected, $extra);
+                                                    ?>
                                                 </div>
                                             </div>
-                                            
+                                            <div class="form-group">
+                                                <label class="col-md-4">Appliance * </label>
+                                                <div class="col-md-6">
+                                                    <?php
+                                                    $selected_service = (set_value('service_id') != '' ) ? set_value('service_id') : '';
+                                                    //$extra = 'class="form-control" id="product_id" required=""';
+                                                    //echo form_dropdown('product_id', $products, $selected, $extra);
+                                                    ?>
+                                                    <select class="form-control" id="service_id" name="service_id" required="">
+                                                        <option disabled="" selected="">Select Appliance</option>
+
+                                                    </select>
+                                                    <span id="error_service_id" class="error" style="color: red;"></span>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <label class="col-md-4">Product * </label>
                                                 <div class="col-md-6">
                                                     <?php
-                                                    $selected = (set_value('product_id') != '' ) ? set_value('product_id') : '';
-                                                    $extra = 'class="form-control" id="product_id" required=""';
-                                                    echo form_dropdown('product_id', $products, $selected, $extra);
+                                                    $selected_product = (set_value('product_id') != '' ) ? set_value('product_id') : '';
+                                                    //$extra = 'class="form-control" id="product_id" required=""';
+                                                    //echo form_dropdown('product_id', $products, $selected, $extra);
                                                     ?>
+                                                    <select class="form-control" id="product_id" name="product_id" required="">
+                                                        <option disabled="" selected="">Select Product</option>
 
+                                                    </select>
                                                     <span id="error_product_id" class="error" style="color: red;"></span>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="product_model_no" class="col-md-4">Product Model No *</label>
-                                                <div class="col-md-6">
-                                                    <input placeholder="Enter Product Model no" type="text" class="form-control" name="product_model_no" id="product_model_no" required="" value="<?php echo (set_value('product_model_no') != '' ) ? set_value('product_model_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="product_capacity" class="col-md-4">Product capacity *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Product Capacity" type="text" class="form-control" name="product_capacity" id="product_capacity" required="" value="<?php echo (set_value('product_capacity') != '' ) ? set_value('product_capacity') : ''; ?>"/>
+                                                    <select class="form-control" name="product_capacity" id="product_capacity" required="">
+                                                        <option disabled="" selected="">Select Product capacity</option>
+                                                    </select>
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="product_model_no" class="col-md-4">Product Model No *</label>
+                                                <div class="col-md-6">
+                                                    <select class="form-control" name="product_model_no" id="product_model_no" required="">
+                                                        <option disabled="" selected="">Select Product Model no</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group">
                                                 <label for="product_serial_no" class="col-md-4">Product Serial No. *</label>
                                                 <div class="col-md-6">
@@ -170,7 +193,7 @@
                                                     <span id="error_nrn_month" class="error" style="color: red;"></span>  
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group">
                                                 <label for="tr_reporting_date" class="col-md-4">TR Reporting Date *</label>
                                                 <div class="col-md-6">
@@ -683,6 +706,9 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-xs-12 col-md-4 col-md-offset-4">
+                                    <input type="hidden" name="brand" id="brand" value="<?php echo $brand; ?>"/>
+                                    <input type="hidden" name="partner_type" id="partner_type" value="<?php echo $partner_type; ?>"/>
+                                    <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $partner_id; ?>"/>
                                     <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                                     <button type="button" class="btn btn-default" id="btn_cancel">Cancel</button>
                                 </div>
@@ -746,9 +772,107 @@
                 $('#replacement_remark').val('');
             }
         });
-         $('#btn_cancel').on('click', function () {
+        $('#btn_cancel').on('click', function () {
             if (confirm('Do you want to discard the changes')) {
                 window.location.href = '<?php echo base_url("partner/list_nrn_records") ?>';
             }
+        });
+        $('#booking_id').on('change', function () {
+            var _booking_id = $('#booking_id').val();
+            if (_booking_id != '') {
+
+
+                $.ajax({
+                    type: 'GET',
+                    url: '<?php echo base_url() . 'employee/NRN_TR/finduser?search_value=+'; ?>' + _booking_id,
+                    dataType: 'json',
+                    success: function (responce) {
+                        if (responce) {
+                            $('#customer_name').val(responce.Bookings[0].customername);
+                            $('#customer_location').val(responce.Bookings[0].booking_address);
+                            $('#state').val(responce.Bookings[0].state);
+                            $('#distributor_name').val(responce.Bookings[0].service_centre_name);
+                            $('#asf_name').val(responce.Bookings[0].primary_contact_name);
+                            $('#physical_status option').each(function (val) {
+                                //alert($(this).val());
+                                if (responce.Bookings[0].current_status === $(this).val()) {
+                                    $(this).attr('selected');
+                                }
+                            });
+                            var dateAr = responce.Bookings[0].booking_date.split('-');
+                            var newDate = dateAr[0] + '/' + dateAr[1] + '/' + dateAr[2];
+                            var newMonth = dateAr[1] + '/' + dateAr[2];
+                            $('#booking_date').data('daterangepicker').setStartDate(newDate);
+                            $('#booking_date').val(newDate);
+                            $('#nrn_month').val(newMonth);
+                        }
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            var partner_type = $('#partner_type').val();
+            var partner_id = $('#partner_id').val();
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url('partner/get_appliances'); ?>',
+                //dataType:'text/html',
+                data: {partner_type: partner_type, partner_id: partner_id},
+                success: function (responce) {
+                    $('#service_id').html(responce);
+                }
+            });
+            $('#service_id').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url('partner/getCategoryForService'); ?>',
+                    //dataType:'text/html',
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id},
+                    success: function (responce) {
+                        $('#product_id').html(responce);
+                    }
+                });
+            });
+
+            $('#product_id').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
+                var category = $('#product_id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url('partner/getCapacityForCategory'); ?>',
+                    //dataType:'text/html',
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category},
+                    success: function (responce) {
+                        $('#product_capacity').html(responce);
+                    }
+                });
+            });
+
+            $('#product_capacity').on('change', function () {
+                var partner_type = $('#partner_type').val();
+                var partner_id = $('#partner_id').val();
+                var brand = $('#brand').val();
+                var service_id = $('#service_id').val();
+                var category = $('#product_id').val();
+                var capacity = $('#product_capacity').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url('partner/getModelForService'); ?>',
+                    //dataType:'text/html',
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category, capacity: capacity},
+                    success: function (responce) {
+                        $('#product_model_no').html(responce);
+                    }
+                });
+            });
         });
     </script>
