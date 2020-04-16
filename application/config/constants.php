@@ -718,6 +718,11 @@ define( 'API_KARIX_CHANNEL','whatsapp');  // Use "sms" or "whatsapp"
 define( 'MSG_PARTNER_INVOICED','*Booking already invoiced to Partner, selected services can not be un-checked.'); 
 define('MSG_PARTNER_INVOICED_APP','*Booking already invoiced to Partner.');
 
+// Remarks for Bookings that are approved in Bulk from Admin Panel
+define("BULK_APPROVAL_REMARKS" , "Booking reviewed by 247Around");
+// Min. length of remarks to be filled by Admin while completing Booking
+define("ADMIN_REMARKS_MIN_LENGTH" , 40);
+
 // Booking Sources
 define('BOOKING_SOURCE_API', 22);
 define('BOOKING_SOURCE_CRM', 23);
@@ -733,7 +738,6 @@ define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 
 define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
 define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
-
 // Remarks for Bookings that are approved in Bulk from Admin Panel
 define("BULK_APPROVAL_REMARKS" , "Booking reviewed by 247Around");
 /* End of file constants.php */
