@@ -41,41 +41,7 @@ if (!defined('BASEPATH'))
   |
  */
 
-//$route['default_controller'] = "form";
-// Website start
-$route['default_controller'] = "main";
-$route['get-city'] = 'main/get_city_based_on_appliance';
-$route['get-Category-Service'] = 'main/get_Category_For_Service';
-$route['get-capacity'] = 'main/get_capacity_For_category';
-$route['ac-repair'] = "main/appliance_repair/Air-Conditioner";
-$route['tv-repair'] = "main/appliance_repair/Television";
-$route['washing-machine-repair'] = "main/appliance_repair/Washing-Machine";
-$route['refrigerator-repair'] = "main/appliance_repair/Refrigerator";
-$route['microwave-oven-repair'] = "main/appliance_repair/Microwave-Oven";
-
-$route['faq']="main/faq";
-$route['contact-us']="main/contact_us";
-$route['about-us'] = "main/about_us";
-$route['terms'] = "main/terms";
-$route['privacy'] = "main/privacy";
-$route['contact-us']="main/contact_us";
-$route['main/contact-query']="main/contact_query";
-$route['charges'] = "main/charges";
-$route['thanku_message'] = "main/thanku_message";
-$route['generate_otp'] = "main/generate_otp";
-
-
-$route['main/book_service'] = "main/book_service";
-$route['main/verify_booking'] = "main/verify_booking";
-$route['main/booking_verification'] = "main/booking_verification";
-$route['process_schedule_booking/(:any)'] = "main/process_schedule_booking/$1";
-$route['booking_schedule/(:any)'] = "main/booking_schedule/$1";
-$route['blog'] = "main/blog";
-$route['blog/(:any)'] = "main/find_all_thoughts/$1";
-$route['downloadQrCode/(:any)'] = 'main/getQrCode/$1';
-//$route['(:any)'] = "main/find_thought/$1";
-// Website End
-
+$route['default_controller'] = "form";
 $route['404_override'] = '';
 $route['pass-through'] = 'api/pass_through';
 $route['incoming-pass-through'] = 'telephony/pass_through';
