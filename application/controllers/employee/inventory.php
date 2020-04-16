@@ -1191,7 +1191,7 @@ class Inventory extends CI_Controller {
                         $old_state = OK_PARTS_SHIPPED;
                     }                    
                     
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status, 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => $spare_status,'remarks_defective_part_by_sf' => $remarks);
                     $track_status = $new_state = "Courier Invoice Rejected By Admin";
                     break;
                 case 'APPROVE_COURIER_INVOICE':

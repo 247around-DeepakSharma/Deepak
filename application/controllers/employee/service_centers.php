@@ -6866,7 +6866,6 @@ class Service_centers extends CI_Controller {
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh'),
-            'defective_part_shipped_date'=> NULL
         );
 
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $data);
