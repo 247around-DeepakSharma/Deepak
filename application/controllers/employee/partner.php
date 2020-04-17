@@ -2808,10 +2808,10 @@ class Partner extends CI_Controller {
 
         if ($response) {
             
-            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_sf", array('spare_parts_details.id' => $spare_id));
-            if(!empty($spare_id) && empty($get_awb[0]['awb_by_sf'])){
+            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
+            if(!empty($spare_id) && empty($get_awb[0]['awb_by_wh'])){
                 
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), 
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_wh'], 'delivered_date IS NULL' => NULL), 
                         array('delivered_date' => date('Y-m-d H:i:s')));
             }
             
