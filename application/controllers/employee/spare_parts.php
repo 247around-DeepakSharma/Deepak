@@ -1518,7 +1518,7 @@ class Spare_parts extends CI_Controller {
                     'defective_part_required' => 1
                 ];
             } else {
-                $spare_data = ['status' => SPARE_DELIVERED_TO_SF];
+                $spare_data = ['status' => SPARE_DELIVERED_TO_SF, 'consumed_part_status_id' => NULL];
             }
             
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
