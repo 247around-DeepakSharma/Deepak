@@ -1483,7 +1483,6 @@ class File_upload extends CI_Controller {
                         } else {
                             array_push($this->not_exists_model, $sanitizes_row_data[0]);
                             $flag = true;
-                            break;
                         }
                     }
                 }
@@ -1818,14 +1817,23 @@ class File_upload extends CI_Controller {
             if (!empty($value)) {
                 if (array_key_exists(str_replace(array('"', "'"), "", $value), $part_number_arr)) {
                     $tmp = array();
-                    $tmp['inventory_id'] = $part_number_arr[str_replace(array('"', "'"), "", $value)];
-                    $tmp['model_number_id'] = $model_number_id;
-                    $tmp2 = array();
-                    $tmp2['inventory_id'] = $part_number_arr[str_replace(array('"', "'"), "", $value)];
-                    $tmp2['model_number_id'] = $model_number_id;
-                    $tmp2['model_name'] = $model_name;
-                    array_push($this->dataToInsert, $tmp);
-                    array_push($this->remap_bom_array, $tmp2);
+                    $inventory_id = $part_number_arr[str_replace(array('"', "'"), "", $value)];
+                    
+                    /* check model number and part number belongs to same appliance
+                     * If yes then push record in insert array.
+                     * @modifiedBy Ankit Rajvanshi
+                     */
+                    if(!empty($this->inventory_model->check_appliance_of_model_and_part($model_number_id, $inventory_id))) {
+                        $tmp['inventory_id'] = $inventory_id;
+                        $tmp['model_number_id'] = $model_number_id;
+                        $tmp2 = array();
+                        $tmp2['inventory_id'] = $inventory_id;
+                        $tmp2['model_number_id'] = $model_number_id;
+                        $tmp2['model_name'] = $model_name;
+
+                        array_push($this->dataToInsert, $tmp);
+                        array_push($this->remap_bom_array, $tmp2);
+                    }
                 } else {
                     array_push($this->not_exists_parts, $value);
                 }
