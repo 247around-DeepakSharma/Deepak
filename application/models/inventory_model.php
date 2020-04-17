@@ -1880,7 +1880,7 @@ class Inventory_model extends CI_Model {
             $courier_company_detail[0]['id'] = $data['tid'];
         }
         else{
-            $courier_company_detail = $this->get_courier_company_invoice_details('id, is_exist', array('awb_number' => $data['awb_number']));
+            $courier_company_detail = $this->get_courier_company_invoice_details('id, awb_number, courier_invoice_id', array('awb_number' => $data['awb_number']));
             if(empty($courier_company_detail)){
                 $courier_company_data = array(
                     'awb_number'=>$data['awb_number'],
@@ -1889,25 +1889,23 @@ class Inventory_model extends CI_Model {
                     'courier_invoice_id'=>$data['invoice_id'],
                     'billable_weight'=>$data['billable_weight'],
                     'actual_weight'=>$data['actual_weight'],
-                    'is_exist'=>0
                 );
                 $courier_company_detail[0]['id'] = $this->insert_courier_company_invoice_details($courier_company_data);
                 $updateCharge = TRUE;
             }
             else{
-                if($courier_company_detail[0]['is_exist'] == 0){
+                if($courier_company_detail[0]['courier_invoice_id'] == $data['invoice_id']){
                     $courier_company_data_update = array(
                         'company_name'=>$data['courier_name'],
                         'courier_charge'=>$data['courier_charges'],
                         'courier_invoice_id'=>$data['invoice_id'],
                         'billable_weight'=>$data['billable_weight'],
                         'actual_weight'=>$data['actual_weight'],
-                        'is_exist'=>0
                     );
                     $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data_update);
                     $updateCharge = TRUE;
                 }
-                else if($courier_company_detail[0]['is_exist'] == 1){
+                else if($courier_company_detail[0]['awb_number'] == $data['awb_number']){
                     $returnData['inValidData'] = $data['awb_number'];
                 }
             }
@@ -1950,7 +1948,6 @@ class Inventory_model extends CI_Model {
             }
         }
         if($check === TRUE){
-            $courier_company_update_data['is_exist'] = 1;
             $returnData['update_awb'] = $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_update_data);
         }
         return $returnData;
