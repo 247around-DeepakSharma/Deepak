@@ -1108,7 +1108,7 @@ class dashboard_model extends CI_Model {
         $this->db->from('booking_details');
         $this->db->group_by('cancellation_reason');
         $query = $this->db->get();
-        echo $this->db->last_query();die;
+        //echo $this->db->last_query();die;
         return $query->result_array();        
     }
     
