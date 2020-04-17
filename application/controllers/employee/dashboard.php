@@ -3621,12 +3621,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         
     function get_booking_cancellation_reasons(){
 
-        $sdate = date('Y-m-d', strtotime($this->input->post('sDate')));
-        $edate = date('Y-m-d', strtotime($this->input->post('eDate')));
+        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))): date('Y-m-01');
+        $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
         log_message('info', __METHOD__. $sdate. "  .... ". $edate);
 
         //fetching click count of account manager from agent_action_table
         $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate,$edate);
+       // echo "<pre>";print_r($data);die;
         if (!empty($data)) {
             $graph = array();
             $data_report = array();
@@ -3646,7 +3647,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                       'y'=> $value,
                       );
             }
-
+            
             
             trim(ob_get_clean()); 
             echo json_encode($data_report, TRUE);
