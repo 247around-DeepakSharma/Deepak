@@ -683,7 +683,7 @@
                         <table id="courier_lost_spare_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead>
                                 <tr>
-                                    <th class="text-center" >No</th>
+                                    <th class="text-center" data-orderable="false">No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
                                     <th class="text-center" data-orderable="false">Spare Pending On</th>
                                     <th class="text-center" data-orderable="false">User</th>
@@ -1060,7 +1060,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,18,19,20,],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'

@@ -1304,27 +1304,27 @@ class Spare_parts extends CI_Controller {
             } else {
                 $spare_pending_on = 'Partner';
             }
-            $row[] = $spare_pending_on;
-            $row[] = $spare_list->name;
+            $row[] = "<span class='line_break'>" .$spare_pending_on. "</span>";
+            $row[] = "<span class='line_break'>" .$spare_list->name. "</span>";
             $row[] = $spare_list->booking_primary_contact_no;
-            $row[] = $spare_list->sc_name;
-            $row[] = $spare_list->source;
+            $row[] = "<span class='line_break'>" .$spare_list->sc_name. "</span>";
+            $row[] = "<span class='line_break'>" .$spare_list->source. "</span>";
             $row[] = '<center>' . $spare_list->state . '</center>';
             $row[] = "<span class='line_break'>" . $spare_list->model_number . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
             $row[] = $spare_list->quantity;
-            $row[] = $spare_list->parts_shipped;
+            $row[] = "<span class='line_break'>" .$spare_list->parts_shipped. "</span>";
             $row[] = $spare_list->shipped_quantity;
-            $row[] = $spare_list->awb_by_partner;
-            $row[] = $spare_list->request_type;
+            $row[] = "<span class='line_break'>".$spare_list->awb_by_partner. "</span>";
+            $row[] = "<span class='line_break'>".$spare_list->request_type. "</span>";
             if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $part_status_text = REPAIR_OOW_TAG;
             } else {
                 $part_status_text = REPAIR_IN_WARRANTY_TAG;
             }
-            $row[] = $part_status_text;
+            $row[] = "<span class='line_break'>".$part_status_text. "</span>";
             $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
             $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
             $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
