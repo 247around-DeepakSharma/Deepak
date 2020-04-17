@@ -905,6 +905,14 @@ class vendor extends CI_Controller {
      * 
      */
     function get_viewallvendor_table($vendor_list, $no) {
+        // In case RM/ASM login, only SFs associated with them will be displayed.
+         if($this->session->userdata('user_group') == _247AROUND_RM){
+            $where['rm_id'] = $this->session->userdata('id');
+        }
+        elseif($this->session->userdata('user_group') == _247AROUND_ASM)
+        {
+            $where['asm_id'] = $this->session->userdata('id');
+        }
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $row = array();
         $row[] = $no;
