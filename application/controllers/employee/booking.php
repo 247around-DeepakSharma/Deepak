@@ -4035,7 +4035,7 @@ class Booking extends CI_Controller {
      * This function use to send search result data back to filter
      * @output - it's print required json, which is automatically used by dataTables
      */ 
-    function get_advance_search_result_data($receieved_Data,$select,$selectarray=array()){
+    function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
         $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
@@ -4091,6 +4091,10 @@ class Booking extends CI_Controller {
             if(!empty($selectarray))
             {
                 $order_by_column=$selectarray[$column_sort];
+                // If a column alias is used change use its original name for sorting instead of its alias. 
+                if(!empty($column_sort_array[$column_sort])){
+                    $order_by_column=$column_sort_array[$column_sort];
+                }
                 $sorting_type=$sort_type;
             }
        }
@@ -4128,9 +4132,11 @@ class Booking extends CI_Controller {
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status, emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
                 . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%b-%Y') as parts_shipped_date,booking_details.actor as Dependency";
+        // Array of Original names of column, will be used while performing sorting.
+        $column_order = [null,null,null,null,null,null,null,null,null,null,null,null,null,'emp_asm.full_name','emp_rm.full_name','emp_am.full_name',null,'requested_inventory.part_number',null,'shipped_inventory.part_number',null,'booking_details.actor'];
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
-        $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
+        $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode,$column_order);
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
