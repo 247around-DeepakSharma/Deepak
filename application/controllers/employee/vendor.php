@@ -820,7 +820,7 @@ class vendor extends CI_Controller {
         $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
-            'c2c' => $c2c,'saas_module' => $saas_module));
+            'c2c' => $c2c,'saas_module' => $saas_module,'id'=>$vendor_id));
     }
 
 
@@ -849,6 +849,11 @@ class vendor extends CI_Controller {
         if (isset($_POST['state']) && !empty($_POST['state'])) {
             $state = trim($_POST['state']);
             $post['where']['service_centres.state'] = $state;
+        }
+         //get data of service center through id   
+         if (isset($_POST['id']) && !empty($_POST['id'])) {
+            $id = trim($_POST['id']);
+            $post['where']['service_centres.id'] = $id;
         }
 
         if (isset($_POST['city']) && !empty($_POST['city'])) {
