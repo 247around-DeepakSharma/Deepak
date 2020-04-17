@@ -3755,4 +3755,21 @@ class Inventory_model extends CI_Model {
 
         return $gst_array;
     }
+
+    /**
+     * @desc : Function returns true if appliance id matched of model and part number.
+     * @param type $appliance_model_id
+     * @param type $inventory_id
+     * @author Ankit Rajvanshi
+     */
+    function check_appliance_of_model_and_part($model_id, $inventory_id) {
+        
+        $model_appliance_id = $this->get_appliance_model_details('service_id', array('id' => $model_id))[0]['service_id'];
+        $part_appliance_id = $this->get_inventory_master_list_data('service_id', array('inventory_id' => $inventory_id))[0]['service_id'];
+        if($model_appliance_id == $part_appliance_id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
