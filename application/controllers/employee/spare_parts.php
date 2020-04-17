@@ -1502,27 +1502,27 @@ class Spare_parts extends CI_Controller {
             } else {
                 $spare_pending_on = 'Partner';
             }
-            $row[] = $spare_pending_on;
-            $row[] = $spare_list->name;
+            $row[] = "<span class='line_break'>" .$spare_pending_on. "</span>";
+            $row[] = "<span class='line_break'>" .$spare_list->name. "</span>";
             $row[] = $spare_list->booking_primary_contact_no;
-            $row[] = $spare_list->sc_name;
-            $row[] = $spare_list->source;
+            $row[] = "<span class='line_break'>" .$spare_list->sc_name. "</span>";
+            $row[] = "<span class='line_break'>" .$spare_list->source. "</span>";
             $row[] = '<center>' . $spare_list->state . '</center>';
             $row[] = "<span class='line_break'>" . $spare_list->model_number . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
             $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
             $row[] = $spare_list->quantity;
-            $row[] = $spare_list->parts_shipped;
+            $row[] = "<span class='line_break'>" .$spare_list->parts_shipped. "</span>";
             $row[] = $spare_list->shipped_quantity;
-            $row[] = $spare_list->awb_by_partner;
-            $row[] = $spare_list->request_type;
+            $row[] = "<span class='line_break'>".$spare_list->awb_by_partner. "</span>";
+            $row[] = "<span class='line_break'>".$spare_list->request_type. "</span>";
             if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $part_status_text = REPAIR_OOW_TAG;
             } else {
                 $part_status_text = REPAIR_IN_WARRANTY_TAG;
             }
-            $row[] = $part_status_text;
+            $row[] = "<span class='line_break'>".$part_status_text. "</span>";
             $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
             $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-ok"></span></a>';
             $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare(' . $spare_list->id . ');"><span class="glyphicon glyphicon-remove"></span></a>';
@@ -1619,7 +1619,7 @@ class Spare_parts extends CI_Controller {
                     'defective_part_required' => 1
                 ];
             } else {
-                $spare_data = ['status' => SPARE_DELIVERED_TO_SF];
+                $spare_data = ['status' => SPARE_DELIVERED_TO_SF, 'consumed_part_status_id' => NULL];
             }
             
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
@@ -2540,7 +2540,7 @@ class Spare_parts extends CI_Controller {
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
         $part_warranty_status = $this->input->post('part_warranty_status');
-        $where = array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != 'Cancelled'" => NULL, "sell_invoice_id IS NULL" => NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL" => NULL, "part_warranty_status" => $part_warranty_status);
+        $where = array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != 'Cancelled'" => NULL, "sell_invoice_id IS NULL" => NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL" => NULL, "part_warranty_status" => $part_warranty_status, 'defective_part_shipped IS NULL' => NULL);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
         if (count($data['data']) > 0) {
@@ -3900,7 +3900,7 @@ class Spare_parts extends CI_Controller {
         $where = array('spare_parts_details.id' => $spare_id);
         /*  Getting spare and symptom data */
         //$post = array('symptom'=>1);
-        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
+        $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'

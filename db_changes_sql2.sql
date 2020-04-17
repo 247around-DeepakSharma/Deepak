@@ -2247,7 +2247,7 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`, ADD `symptom` INT(11) NULL DEFAULT NULL AFTER `defect_pic`;
+ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `approval_entity_type`;
 
 --Ankit Rajvanshi 13-04-2020
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
@@ -2260,6 +2260,7 @@ ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 
 ---Ghanshyam 2020-04-13
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
+
  
 ---Abhishek -- 15-04-2020
 ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `bank_holder_name`, ADD `pro_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `edu_qualification`, ADD `overall_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `pro_qualification`, ADD `around_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `overall_exp`;
@@ -2267,4 +2268,45 @@ ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT
 
 ---Ghanshyam 2020-04-15
 ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
- 
+
+---Abhishek -- 15-04-2020
+ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `bank_holder_name`, ADD `pro_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `edu_qualification`, ADD `overall_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `pro_qualification`, ADD `around_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `overall_exp`;
+
+---Ghanshyam 2020-04-15
+ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
+--Ankit Bhatt 2020-04-15
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('payment_through_bank_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `bank_transactions` WHERE transaction_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and credit_amount is not null ;", "SELECT IFNULL(sum(credit_amount), 0) as count FROM `bank_transactions` WHERE transaction_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and credit_amount is not null;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('payment_through_paytm_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01')  and sub_category = 'Pre-paid(PG)' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'Pre-paid(PG)';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_service_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Service' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Service' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_buyback_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Buyback' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Buyback' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_spare_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and category = 'Spares' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and category = 'Spares' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_other_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical = 'Other' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical = 'Other' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('SF_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Credit Note' or sub_category = 'Credit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Credit Note' or sub_category = 'Credit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('SF_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Credit Note' or sub_category = 'Credit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Credit Note' or sub_category = 'Credit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('partner_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Debit Note' or sub_category = 'Debit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Debit Note' or sub_category = 'Debit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('SF_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Debit Note' or sub_category = 'Debit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Debit Note' or sub_category = 'Debit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);

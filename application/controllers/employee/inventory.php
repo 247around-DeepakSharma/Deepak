@@ -5262,7 +5262,7 @@ class Inventory extends CI_Controller {
         $row = array();
 
         $row[] = $no;
-        if ($this->session->userdata('service_center_id')) {
+        if (!empty($this->session->userdata('service_center_id'))) {
             $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
         } else if ($this->session->userdata('id')) {
             $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
@@ -5637,7 +5637,11 @@ class Inventory extends CI_Controller {
      */
     function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-        $this->check_WH_UserSession();
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkUserSession();
+        } else {
+            $this->check_WH_UserSession();
+        }
         $is_r = $this->is_reverse_purchase_invoice_generated();
         if (!empty($is_r)) {
             $res['status'] = false;
@@ -5854,7 +5858,14 @@ class Inventory extends CI_Controller {
      */
     function send_defective_to_partner_from_wh_on_challan() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-        $this->check_WH_UserSession();
+        
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
         $awb_by_wh = $this->input->post('awb_by_wh');
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
@@ -5965,7 +5976,7 @@ class Inventory extends CI_Controller {
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
-                    $service_center_id = $this->session->userdata('service_center_id');
+                    $service_center_id = $sf_id;
                     /* Insert Spare Tracking Details */
                     $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
@@ -9363,7 +9374,7 @@ class Inventory extends CI_Controller {
                             $errormessage = "Uploaded File format not matches with required file format";
                         }
                         if (!empty($bookingID)) {
-                            $bookingID_chunks = array_chunk($bookingID, 150); // Divide Bookings in group of 150 to get warranty specific Data
+                            $bookingID_chunks = array_chunk($bookingID, 50); // Divide Bookings in group of 50 to get warranty specific Data
                             $arrBookings = array();
                             $arrWarrantyData = array();
                             $arrModelWiseWarrantyData = array();
@@ -9587,6 +9598,7 @@ class Inventory extends CI_Controller {
         return true;
     }
  
+ 
   /**
      *  @desc : This function is used to get the view of table for non return part from SF
      *  @param : void()
@@ -9601,7 +9613,7 @@ class Inventory extends CI_Controller {
         $this->load->view("employee/show_non_return_part_sf");
 
     }
-
+ 
 
   /**
      *  @desc : This function is used to get the get_get_spare_parts
@@ -9625,6 +9637,8 @@ class Inventory extends CI_Controller {
         $post['where']['spare_parts_details.status !="' . _247AROUND_CANCELLED . '"'] = NULL;
         $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
+        $post['where']['spare_parts_details.shipped_inventory_id IS NOT NULL'] = NULL;
+        $post['where_in']['spare_parts_details.is_micro_wh'] = array(1,2);
 
         $list = $this->inventory_model->get_spare_parts_query($post);
 
@@ -9647,6 +9661,7 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
+
 
     /**
      *  @desc : This function is used to get the get_get_spare_parts_query_list_table
@@ -9672,7 +9687,7 @@ class Inventory extends CI_Controller {
         return $row;
     }
  
-    
+  
     /**
      * @desc : Method is used to accept the parts which was rejected by partner on delivery challan.
      * After this action part will show on Delivery on challan send to partner tab
@@ -9797,5 +9812,6 @@ class Inventory extends CI_Controller {
         $response['reason'] = implode('<br>',array_filter($cancellation_reason));
         echo json_encode($response);
     }    
- 
+
+
 }
