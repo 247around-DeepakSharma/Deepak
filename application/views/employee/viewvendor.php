@@ -1,3 +1,7 @@
+<?php 
+// If vendor id is received it is assigned to d.id and that vendor will be displayed otherwise whole list of service center will be displayed
+(isset($id)?$vid=$id:$vid='')
+?>
 <?php if (!isset($is_ajax)) { ?>
     <script>
         function outbound_call(phone_number) {
@@ -491,6 +495,7 @@
                 var entity_details = get_entity_details();
                 d.state = entity_details.state,
                         d.city = entity_details.city,
+                        d.id = '<?php echo $vid; ?>', //display vendor wrt id 
                         d.sf_cp = entity_details.sf_cp,
                         d.active = entity_details.active
             }
