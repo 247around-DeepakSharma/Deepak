@@ -403,7 +403,7 @@ class Employee_model extends CI_Model{
    function get_state_wise_rm($state,$arr_groups = [_247AROUND_RM,_247AROUND_ASM]) {
        $str_groups = implode("','",$arr_groups);
        $sql = "SELECT
-                    employee.id,
+                    distinct(employee.id),
                     employee.full_name
                 FROM
                     agent_state_mapping

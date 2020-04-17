@@ -1,1 +1,0 @@
-INSERT INTO `url_table` (`url`, `brand`, `place`, `blog_id`, `create_date`) VALUES ('<brand->tv-repair<-in-place>', '<brand>', '<place>', '1', CURRENT_TIMESTAMP);
