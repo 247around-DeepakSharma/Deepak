@@ -23,7 +23,6 @@ if ($this->uri->segment(3)) {
                                         <th class="text-center">Parts Code </th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Amount</th>
-                                        
                                         <th class="text-center">Consumption</th>
                                         <th class="text-center">Consumption Reason</th>
                                         <th class="text-center" >Spare Tag<br><input type="checkbox" id="selectall_spare_tag" > </th>
@@ -34,7 +33,10 @@ if ($this->uri->segment(3)) {
                                     </tr>
                                 </thead>
                             <tbody>
-                                    <?php foreach ($spare_parts as $key => $row) { ?>
+                                <?php
+                                $i = 1;
+                                foreach ($spare_parts as $key => $row) {
+                                    ?>
                                         <tr style="text-align: center;<?php if (!is_null($row['remarks_defective_part_by_wh'])) {
                                             echo "color:red";
                                         } ?>">
@@ -89,7 +91,7 @@ if ($this->uri->segment(3)) {
                                                     <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" />
                                         <?php } else { ?>
 
-                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]"  value="<?php echo $row['id'] ?>" />
+                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]" id="download_challan_<?php echo $i; ?>" value="<?php echo $row['id'] ?>" />
 
                                         <?php } ?>
 
@@ -104,7 +106,7 @@ if ($this->uri->segment(3)) {
                                             </td>
 
                                         </tr>
-                                    <?php $sn_no++;
+                                    <?php $sn_no++; $i++;
                                 } ?>
                                 </tbody>
                         </table>
@@ -543,7 +545,12 @@ if ($this->uri->segment(3)) {
             $('#selectall_spare_tag').prop('checked', false);
             $('#selectall_send_courier').prop('checked', false);
         }
-        $(".checkbox_challan").prop('checked', $(this).prop("checked"));
+        var total_lineItems = $('.checkbox_challan').length;
+        for( i = 1; i <= total_lineItems; i++ ){
+            if(i <= 30){
+              $("#download_challan_"+i).prop('checked', $(this).prop("checked"));
+            }
+        }
         $("#button_send").val("Challan File");
         $("#button_send").attr("type", "submit");
         $("#button_send").removeAttr("data-target");
@@ -630,7 +637,7 @@ if ($this->uri->segment(3)) {
     }
     
 
-    function remove_select_all_challan() {
+    function remove_select_all_challan(checkBox_id) {
         $('#selectall_challan_file').prop('checked', false);
         $('#selectall_send_courier').prop('checked', false);
         $('#selectall_address').prop('checked', false);
@@ -646,6 +653,11 @@ if ($this->uri->segment(3)) {
             $('#selectall_send_courier').prop('checked', false);
             $('#selectall_spare_tag').prop('checked', false);
         }
+        var total_lineItmes = $('.checkbox_challan:checked').length;
+         if(total_lineItmes > 30){
+                $("#"+checkBox_id).prop('checked', false);
+                alert('You can not select more than 30.');
+         }
     }
 
     function remove_select_all_courier() {
