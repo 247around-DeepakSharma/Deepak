@@ -78,7 +78,10 @@
                            </tr>
                         </thead>
                         <tbody>
-                            <?php  foreach($spare_parts as $key =>$row){?>
+                            <?php
+                            $i = 1;
+                            foreach($spare_parts as $key =>$row){
+                                ?>
                             <tr style="text-align: center;">
                                     <td>
                                         <?php echo $sn_no; ?>
@@ -129,7 +132,7 @@
 
                                      </td>
                                      <td>
-                                             <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php echo $row['defective_return_to_entity_id'];  ?>][]"  value="<?php echo $row['id']?>" />
+                                         <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id'];  ?>][]" id="download_challan_<?php echo $i; ?>"  value="<?php echo $row['id']?>" />
                                     </td>
  
                                     <td>
@@ -137,7 +140,7 @@
                                         <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                             </tr>
-                            <?php $sn_no++; } ?>
+                            <?php $sn_no++; $i++; } ?>
                         </tbody>
                         </table>
                         <center> 
@@ -675,10 +678,15 @@
             
         }
         
-    function remove_select_all_challan(){
+    function remove_select_all_challan(checkBox_id){
         $('#selectall_challan_file').prop('checked', false); 
         $('#send_all').prop('checked', false); 
         var d_m = $('.check_single_row:checked');
+        var total_lineItmes = $('.checkbox_challan:checked').length;
+         if(total_lineItmes > 30){
+                $("#"+checkBox_id).prop('checked', false);
+                alert('You can not select more than 30.');
+            }
         if (d_m.length > 0) {
             $('.check_single_row').prop('checked', false);
         }
@@ -760,12 +768,15 @@
     });
         
     $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true))
-        {
-            $(".checkbox_challan").prop('checked', true);
-        }
-        else
-        {
+        if ($(this).is(':checked', true)){
+            var total_lineItems = $(".checkbox_challan").length;
+            for(i = 1; i <= total_lineItems; i++){
+                if(i <= 30){
+                    $("#download_challan_"+i).prop('checked', true); 
+                }
+            }
+            
+        }else{
             $(".checkbox_challan").prop('checked', false);
         }
     });
