@@ -850,6 +850,7 @@ class vendor extends CI_Controller {
             $state = trim($_POST['state']);
             $post['where']['service_centres.state'] = $state;
         }
+         //get data of service center through id   
          if (isset($_POST['id']) && !empty($_POST['id'])) {
             $id = trim($_POST['id']);
             $post['where']['service_centres.id'] = $id;
@@ -891,7 +892,6 @@ class vendor extends CI_Controller {
             "recordsTotal" => $this->vendor_model->count_all_viewallvendor($post),
             "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
             "data" => $data,
-
         );
         echo json_encode($output);
     }
@@ -904,6 +904,14 @@ class vendor extends CI_Controller {
      * 
      */
     function get_viewallvendor_table($vendor_list, $no) {
+        // In case RM/ASM login, only SFs associated with them will be displayed.
+         if($this->session->userdata('user_group') == _247AROUND_RM){
+            $where['rm_id'] = $this->session->userdata('id');
+        }
+        elseif($this->session->userdata('user_group') == _247AROUND_ASM)
+        {
+            $where['asm_id'] = $this->session->userdata('id');
+        }
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $row = array();
         $row[] = $no;
@@ -985,10 +993,6 @@ class vendor extends CI_Controller {
         $row[] = '<a class="btn btn-warning" href="' . base_url() . 'employee/vendor/resend_login_details/vendor/' . $vendor_list["id"] . '">Resend Login Details</a>';
 
         $row[] = '<button type="button" class="btn btn-info btn-lg fa fa-history" data-toggle="modal" data-target="#on_off_history_view" onclick="get_on_off_history_view(' . $vendor_list["id"] . ')" style="padding: 11px 6px;margin: 0px 10px;"></button>';
-
-       
-
-
         return $row;
 
     }
@@ -4615,7 +4619,6 @@ class vendor extends CI_Controller {
                 $directory_xls = "vendor-partner-docs/" . $signature_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
               //  $_POST['signature_file'] = $signature_file;
-
                 $attachment_signature =$signature_file;
 
               //  unlink(TMP_FOLDER . $signature_file);
