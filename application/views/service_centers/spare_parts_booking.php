@@ -506,3 +506,9 @@ if ($this->uri->segment(3)) {
 <?php if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
+
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+</style>
