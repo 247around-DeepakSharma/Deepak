@@ -2310,3 +2310,12 @@ values('SF_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT coun
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+-- Warehouse menu on admin crm Ankit Rajvanshi 20-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Warehouse', NULL, NULL, 1, NULL, 'inventory_manager', 'main_nav', 1, '2017-12-29 06:08:44');
+	
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
+
+ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;

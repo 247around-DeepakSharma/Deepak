@@ -206,22 +206,22 @@
         } 
     });
 
-    $('#defective_parts_reject_by_artner_on_challan').DataTable({
-        "pageLength": 100,
-            dom: 'Bfrtip',
-            // Configure the drop down options.
-            "language": {                
-                "searchPlaceholder": "Search by Any Column",
-            },
-            lengthMenu: [
-                [ 25, 50,100, -1 ],
-                [ '25', '50', '100', 'All' ]
-            ],
-            // Add to buttons the pageLength option.
-            buttons: [
-                'pageLength','excel',
-            ],
-    });
+//    $('#defective_parts_reject_by_artner_on_challan').DataTable({
+//        "pageLength": 100,
+//            dom: 'Bfrtip',
+//            // Configure the drop down options.
+//            "language": {                
+//                "searchPlaceholder": "Search by Any Column",
+//            },
+//            lengthMenu: [
+//                [ 25, 50,100, -1 ],
+//                [ '25', '50', '100', 'All' ]
+//            ],
+//            // Add to buttons the pageLength option.
+//            buttons: [
+//                'pageLength','excel',
+//            ],
+//    });
     
      $("#partner_search_id2").click(function(){         
          var partner_id = $("#partner_id2").val();

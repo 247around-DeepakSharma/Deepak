@@ -17,7 +17,9 @@
                         <th>Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
-                        <th class="pqr" style="display: none;">Active</th>
+ 
+                        <th style="display: none;">Active</th> 
+
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +43,8 @@
                             <td>
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Capacity" id="update_capacity" capacity_id="<?= $rec->id ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
-                            <td class="pqr" style="display: none;">
+ 
+                             <td style="display: none;">
                                 <?php 
                                     echo $rec->active;
                                 ?>
@@ -120,9 +123,10 @@
                     title: 'Capacity-list',
                     exportOptions: {
                     columns: [0, 1, 2, 5]
+
+                    }
                 }
-                }
-                ]
+            ]
                         
      });
 
