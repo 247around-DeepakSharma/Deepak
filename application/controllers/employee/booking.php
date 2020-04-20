@@ -993,9 +993,12 @@ class Booking extends CI_Controller {
         $data['booking_history'][0]['source_name'] = !empty($source[0]['source']) ? $source[0]['source'] : "";
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
-
-        
-        
+        // Request Type
+        $booking_request_type = $data['booking_history'][0]['request_type'];
+        // Service Id
+        $service_id = $data['booking_history'][0]['service_id'];
+        // Booking primary Id
+        $booking_primary_id = $data['booking_history'][0]['booking_primary_id']; 
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -1098,6 +1101,14 @@ class Booking extends CI_Controller {
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
+        // Get review questionnaire for Admin Panel, Complete Form, Booking Service Id, Booking Request Type
+        $review_questionnaire = $this->get_review_questionnaire(1, 2, $service_id, $booking_request_type);
+        // get options checklist against review questions
+        $questionnaire_checklist = $this->get_questionnaire_checklist($review_questionnaire);
+        // get filled answers against the Booking
+        $questionnaire_answers_against_booking =  $this->get_questionnaire_answers_against_booking($booking_primary_id);
+        // get questionnaire HTML
+        $data['questionnaire_html'] = $this->get_questionnaire_html($booking_primary_id, $review_questionnaire, $questionnaire_checklist, $questionnaire_answers_against_booking);
         $this->miscelleneous->load_nav_header(); 
         $this->load->view('employee/completebooking', $data);
     }
@@ -2646,6 +2657,13 @@ class Booking extends CI_Controller {
                 log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $total_amount_paid);
             }
         
+            // save questionnaire data against Booking
+            if(!empty($this->input->post('review_questionnaire_booking_id')) && !empty($this->input->post('review_questionnaire'))){
+                $review_questionnaire_booking_id = $this->input->post('review_questionnaire_booking_id');
+                $review_questionnaire_data = $this->input->post('review_questionnaire');
+                $this->save_review_questionnaire_data($review_questionnaire_booking_id, $review_questionnaire_data);
+            }
+            
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
@@ -6322,4 +6340,154 @@ class Booking extends CI_Controller {
         $this->load->view('employee/courier_lost_parts', $data);
     }
     
+    /**
+     * @desc this is used to get review questionnaire for the given form
+     * @param int $panel_id, int $form_id, int $service_id, varchar $request_type
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_review_questionnaire($panel_id , $form_id, $service_id, $request_type){
+        // set where condition
+        $where_questions['review_questionare.panel'] = $panel_id;
+        $where_questions['review_questionare.form'] = $form_id;
+        $where_questions['request_type.service_id'] = $service_id;
+        $where_questions['request_type.service_category'] = $request_type;
+        
+        // fetch questions for given panel, page and request type 
+        $data['questions'] = $this->booking_model->get_questionnaire('*',$where_questions);
+        return $data['questions'];
+    }
+    
+    /**
+     * @desc this is used to get options checklist against given questions
+     * @param array $arr_questions
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_checklist($arr_questionnaire){
+        $options = array();
+        // if no questions found, return Blank Array
+        if(empty($arr_questionnaire)){
+            return $options;
+        }
+        
+        // get all questions Ids and set in where condition       
+        $arr_questions = array_column($arr_questionnaire, 'q_id');
+        $where_in['q_id'] = $arr_questions;
+        
+        // It will fetch all options against given questions
+        $data['options'] = $this->booking_model->get_questionnaire_options_checklist('*', $where_in);
+        
+        // arrange all options question wise
+        // set array index as question_id
+        if(!empty($data['options'])){
+            $arr_options = [];
+            foreach ($data['options'] as $key => $value) {
+                $arr_options[$value['q_id']][] = $value;
+            }
+            $data['options'] = $arr_options;
+        }
+        return $data['options'];
+    }
+    
+    /**
+     * @desc this is used to get HTML for questionnaire form
+     * @param array $arr_questions, array $arr_answers
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_html($booking_id, $arr_questions, $arr_answers, $arr_saved_answers){
+        $html = '';
+        if(!empty($arr_questions)){
+            $html .= '<div class="panel panel-info">
+                                <div class="panel-heading">Review Questionnaire</div>
+                                <div class="panel-body">';
+            $html .= ' <input type="hidden" name ="review_questionnaire_booking_id" id="review_questionnaire_booking_id" value="'.$booking_id.'" />';
+            $html .= '<table class="table table-bordered">';
+            foreach($arr_questions as $key => $arr_question)
+            {
+                $count = $key + 1;
+                $html  .=  '<tr>
+                                <td style="width:5px;font-weight:bold;">Q'.$count.'.</td>';
+                
+                // if some pre-defined options are found against a question, show them in dropdown
+                // else show textbox to fill answer
+                $html_ans = "";
+                if(!empty($arr_answers[$arr_question["q_id"]])){                    
+                    $html   .=  '<td>'.$arr_question["question"].'</td>';
+                    $html_ans .= '<td style="width:200px;"><select class="form-control" name="review_questionnaire[checklist]['.$arr_question["q_id"].']">';
+                    $html_ans .= '<option value="" disabled selected>Choose Option</option>';
+                    foreach ($arr_answers[$arr_question["q_id"]] as $ques_id => $arr_answer) {
+                        $selected = "";
+                        // set selected option if review already filled
+                        if(!empty($arr_saved_answers[$arr_question["q_id"]]) && ($arr_saved_answers[$arr_question["q_id"]] == $arr_answer["checklist_id"])){
+                            $selected = " selected ";
+                        }
+                        $html_ans .= '<option value="'.$arr_answer["checklist_id"].'" '.$selected.'>'.$arr_answer["answer"].'</option>';
+                    }
+                    $html_ans .= '</select></td></tr>';
+                }
+                else
+                {
+                    $html   .=  '<td colspan=2>'.$arr_question["question"].'</td>';
+                    $html_ans .= "</tr><tr><td colspan=3>";
+                    $filled_remarks = "";
+                    // copy already filled answer in textbox
+                    if(!empty($arr_saved_answers[$arr_question["q_id"]])){
+                        $filled_remarks = $arr_saved_answers[$arr_question["q_id"]];
+                    }
+                    $html_ans .= '<input type="textbox" class="form-control" name="review_questionnaire[remarks]['.$arr_question["q_id"].']" value="'.$filled_remarks.'">'; 
+                    $html_ans .= "</td></tr>";
+                }
+                
+                $html .= $html_ans;
+            }
+            $html .= '</table>';
+            $html .= '</div></div>';            
+        }
+        return $html;
+    }
+       
+    /**
+     *  @desc : This function is to save review questionnaire data against booking
+     *  @param : int booking_id (column id from booking_details),
+     *  @param array $questionnaire_data :Array of answers for questions     *  
+     */
+    function save_review_questionnaire_data($booking_id, $questionnaire_data) {
+        
+        //  Array of answers for questions in which checklist is given (Dropdown answers)
+        $checklist_data  = !empty($questionnaire_data['checklist']) ?  $questionnaire_data['checklist'] : [];
+        // Array of answers for questions in which checklist is not given (Textbox answers)
+        $remarks_data = !empty($questionnaire_data['remarks']) ?  $questionnaire_data['remarks'] : [];
+        
+        // save checklist data
+        $this->booking_model->save_questionnaire_checklist_data($booking_id, $checklist_data, 'checklist_id');
+        // save remarks data
+        $this->booking_model->save_questionnaire_checklist_data($booking_id, $remarks_data, 'remarks');
+    }
+    
+    /**
+     * @desc this is used to saved answers for the questionnaire against booking
+     * @param int $booking_id
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_answers_against_booking($booking_id){
+        // It will fetch answers for all questions against booking
+        $data['answers'] = $this->booking_model->get_questionnaire_filled_answers('*', $booking_id);
+        
+        // arrange all answers question wise
+        // set array index as question_id
+        if(!empty($data['answers'])){
+            $arr_answers = [];
+            foreach ($data['answers'] as $key => $value) {
+                $arr_answers[$value['q_id']] = $value['remarks'];
+                if(!empty($value['checklist_id'])){
+                    $arr_answers[$value['q_id']] = $value['checklist_id'];
+                }
+            }
+            $data['answers'] = $arr_answers;
+        }
+        return $data['answers'];
+    }
 }
