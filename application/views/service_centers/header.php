@@ -679,7 +679,7 @@
     }
 
 var btn = document.getElementById("myBtncovid");
-
+var modal = document.getElementById("myModalCovid");
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
