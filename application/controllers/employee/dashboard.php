@@ -3630,9 +3630,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
         //fetching click count of account manager from agent_action_table
         $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate,$edate);
+       // echo "<pre>";print_r($data);die;
         if (!empty($data)) {
             $graph = array();
             $data_report = array();
+            
             //create array  by indexing hour basis
             foreach ($data as $value) {
                 $graph[$value['cancellation_reason']] = $value['count'];
@@ -3641,23 +3643,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data_report['series']['colorByPoint'] = true;
             
             //Creating series for the Graph
-            $flag = true;
             foreach ($graph as $key => $value) {
-                if($flag){
+                
                 $data_report['series']['data'][] = array(
                       'name'=> $key,
-                      'y'=> (float)($value/100),
-                    'sliced'=> true,
-                    'selected'=> true
+                      'y'=> $value,
                       );
-                $flag = false;
-                }else{
-                    $data_report['series']['data'][] = array(
-                      'name'=> $key,
-                      'y'=> (float)($value/100),
-                      );
-                }
             }
+            
+            
             trim(ob_get_clean()); 
             echo json_encode($data_report, TRUE);
         }else{

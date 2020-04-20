@@ -1808,7 +1808,6 @@
     }
     
     function initiate_RM_TAT_Reporting(){
-    return true;
         // $('input[name="daterange_completed_bookings"]').daterangepicker({
         $('input[id="completed_daterange_id"]').daterangepicker({
             timePicker: true,
@@ -2535,7 +2534,6 @@
     }
     
     function create_chart_based_on_bookings_state(response) {
-        return true;
         var data = JSON.parse(response);
         var rm = data.rm.split(',');
         var cancelled = JSON.parse("[" + data.cancelled + "]");
@@ -3154,34 +3152,27 @@ function initiate_escalation_data(){
     
     $('#reportrange_booking_cancellation').on('apply.daterangepicker', function (ev, picker) {
         $('#loader_gif_booking_cancellation').show();
-        $('#state_type_booking_chart').hide();
+        //$('#state_type_booking_chart').hide();
+        //alert("dgdffgh");
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
         url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
-                create_piechart_based_on_bookings_cancellation_reason(response);
-            }else{
-                $('#loader_gif_booking_cancellation').hide();
-                $('#booking_cancellation_chart_div').fadeIn();
-                $('#booking_cancellation_chart').html('No data');
-            }
+            create_piechart_based_on_bookings_cancellation_reason(response);
         });
     });
     
     function get_bookings_cancellation_reason(){
         $('#loader_gif_booking_cancellation').fadeIn();
         $('#booking_cancellation_chart_div').fadeOut();
-        var startDate = '<?php echo date('Y-m-01') ?>';
-        var endDate = '<?php echo date('Y-m-t') ?>';
         url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
-        var data = {sDate: startDate, eDate: endDate};        
+        var data = {};        
         sendAjaxRequest(data,url,post_request).done(function(response){
-            //console.log(response);
+            console.log(response);
             if(response){
-                create_piechart_based_on_bookings_cancellation_reason(response);
+                create_chart_based_on_bookings_state(response);
             }else{
                 $('#loader_gif_booking_cancellation').hide();
                 $('#booking_cancellation_chart_div').fadeIn();
@@ -3191,13 +3182,7 @@ function initiate_escalation_data(){
     }
     
     function create_piechart_based_on_bookings_cancellation_reason(response) {
-        console.log(response);
-        var test = JSON.parse(response);
-        var tt =  [{
-            name : test.series.name,
-            colorByPoint : test.series.colorByPoint,
-            data: test.series.data
-        }];
+        var series = JSON.parse("["+response+"]");
         $('#loader_gif_booking_cancellation').hide();
         $('#booking_cancellation_chart_div').fadeIn();
         Highcharts.chart('booking_cancellation_chart', {
@@ -3208,10 +3193,10 @@ function initiate_escalation_data(){
                     type: 'pie'
                   },
                   title: {
-                    text: ''
+                    text: 'Test'
                   },
                   tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    pointFormat: '{series.cancellation_reason}: <b>{series.count}</b>'
                   },
                   accessibility: {
                     point: {
@@ -3228,7 +3213,7 @@ function initiate_escalation_data(){
                       showInLegend: true
                     }
                   },
-                  series:tt
+                  series: series.series
                 });
     
     }
