@@ -41,11 +41,16 @@ ini_set('max_execution_time', 36000000);
                     Partner Invoices
                     <?php } ?>
                     </b>
-                    <a target="_blank" class="btn btn-lg btn-primary pull-right" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
+                    <span class="pull-right">
+                    <?php if (isset($service_center)) { ?>
+                    <a class="btn btn-lg btn-primary mr-1" href="<?php echo base_url(); ?>employee/invoice/get_security_amount_List">Show FNF Payment List</a>
+                    <?php } ?>
+                    <a target="_blank" class="btn btn-lg btn-primary" href="<?php echo base_url(); ?>employee/invoice/insert_update_invoice/<?php if (isset($service_center)) {
                         echo 'vendor';
                         } else {
                         echo 'partner';
                         } ?>">Create Invoice</a>
+                    </span>
                 </h1>
             </div>
         </div>
