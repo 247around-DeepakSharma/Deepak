@@ -22,7 +22,7 @@
     #msl_info a{font-size:18px;color: #254d5d;}
     #msl_info .count{text-decoration: underline;font-size: 36px;}
 </style>
-<div id="myModal" class="modal">
+<div id="myModalCovid" class="modal">
 
   <!-- Modal content -->
  
@@ -541,20 +541,36 @@
     $(document).ready(function () {
 
 
+$('#myModalCovid').modal({
+           backdrop: 'static'
+});
 $("#myBtncovid").click();
 setTimeout(function () {
     $("#close_covid").removeClass('hide');
+
 }, 10000);
 
-$('#myModal').modal({
-           backdrop: 'static',
-           keyboard: false
-});
+
+
 $("#close_covid").click(function(){
  
-    $("#myModal").hide();
+    $("#myModalCovid").hide();
 
 });
+
+// Get the modal
+var modal = document.getElementById("myModalCovid");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtncovid");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+}
 
 
         $(document).ready(function(){
