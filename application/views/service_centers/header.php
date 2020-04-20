@@ -779,4 +779,10 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+@media only screen and (max-width: 600px) {
+  #myModalCovid {
+    width: 50% !important;
+  }
+}
 </style>
