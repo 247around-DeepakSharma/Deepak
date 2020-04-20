@@ -2319,3 +2319,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
 
 ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
+---Gorakh 20-04-02020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
