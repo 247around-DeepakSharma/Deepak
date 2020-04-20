@@ -619,6 +619,9 @@ class User extends CI_Controller {
         $data1['clear_password'] = $this->randomPassword();
         $data1['employee_password'] = md5($data1['clear_password']);
         $data1['create_date'] = date('Y-m-d H:i:s');
+        if($data['groups'] == 'inventory_manager'){
+            $data1['warehouse_id'] = trim($data['warehouse_id']);
+        }
         
         $maxid = $id = 0;
         $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
@@ -1354,5 +1357,25 @@ class User extends CI_Controller {
         }
         echo json_encode($array_return);
     }
-     
+    
+    /*
+     * @Desc: This function is used to get warehouse details
+     * @params: void
+     * @return: view
+     */
+    
+    function get_warehouse_list() {
+        $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
+        $where = array('is_wh' => 1, 'active' => 1);
+        $warehouse_list = $this->vendor_model->getVendorDetails($select, $where,'name', array(), array(),array());
+        if (!empty($warehouse_list)) {
+            $option = '<option selected="" disabled="">Select Warehouse</option>';
+            foreach ($warehouse_list as $value) {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .= _247AROUND_EMPLOYEE_STRING . " " . $value['district'] . " ( <strong>" . $value['state'] . " </strong>) - (Central Warehouse)" . "</option>";
+            }
+        }
+        echo $option;
+    }
+
 }
