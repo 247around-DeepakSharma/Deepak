@@ -297,6 +297,13 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+    
+</style>
+
 <script type="text/javascript">
     
     $('#myTabs a').click(function (e) {
@@ -843,7 +850,7 @@
         }else{
             postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
         }
-        postData['receiver_entity_id'] = '<?php echo $this->session->userdata('service_center_id')?>';
+        postData['receiver_entity_id'] = '<?php if(!empty($this->session->userdata('warehouse_id'))) { echo $this->session->userdata('warehouse_id'); } else { echo $this->session->userdata('service_center_id'); }?>';
         postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['sender_entity_name'] = $('#partner_id option:selected').text();
         postData['receiver_entity_name'] = '<?php echo $this->session->userdata('wh_name')?>';
