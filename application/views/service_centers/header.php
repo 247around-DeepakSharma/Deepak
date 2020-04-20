@@ -687,7 +687,12 @@ var span = document.getElementsByClassName("close")[0];
 btn.onclick = function() {
   modal.style.display = "block";
 }
-    
+
+setTimeout(function () {
+    $("#close_covid").removeClass('hide');
+
+}, 10000);
+
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
