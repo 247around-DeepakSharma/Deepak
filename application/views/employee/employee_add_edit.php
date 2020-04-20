@@ -235,41 +235,42 @@
                                                     </div>
                                                 </div>
                                             </div>
-                    <div class="col-md-6">
-                        <div  class="form-group <?php
-                        if (form_error('subordinate')) {
-                            echo 'has-error';
-                        }
-                        ?>">
-                            <label  for="subordinate" class="col-md-4">Subordinate</label>
-                            <div class="col-md-7">
-                                <select id='subordinate' name='subordinate[]' class="form-control subordinate" multiple="multiple" style="min-width:350px;"  >
-                                                            <!--<option value="0" selected="" disabled="">Select Subordinate</option>-->
-                                    <?php foreach ($employee_list as $key => $value) {
-                                        if(isset($subordinate)) {
-                                            foreach($subordinate as $sub_id) {
-                                                $selected[$sub_id['employee_id']] = "selected";
-                                            }
-                                        }
-                                        ?>
-                                    <option value ="<?=$value['id']; ?>" <?=(isset($selected[$value['id']])?$selected[$value['id']]:'')?> ><?php echo $value['full_name']; ?></option>
-                                                            <?php  } ?>
+                                            <div class="col-md-6" style="display:<?php if(isset($query[0]['warehouse_id'])){ echo 'block'; } else { echo 'none'; } ?>" id="wh_list">
+                                                <div  class="form-group <?php if (form_error('subordinate')) { echo 'has-error';  } ?>">
+                                                    <label  for="subordinate" class="col-md-4">Warehouse</label>
+                                                    <div class="col-md-7">
+                                                        <select name='warehouse_id' id="warehouse_id" class="form-control">
                                                         </select>
-                                <?php echo form_error('subordinate'); ?>
+                                                        <?php echo form_error('subordinate'); ?>
                                                     </div>
-                                                 </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div  class="form-group <?php if (form_error('subordinate')) { echo 'has-error';  } ?>">
+                                                    <label  for="subordinate" class="col-md-4">Subordinate</label>
+                                                    <div class="col-md-7">
+                                                        <select id='subordinate' name='subordinate[]' class="form-control subordinate" multiple="multiple" style="min-width:350px;"  >
+                                                            <?php
+                                                            foreach ($employee_list as $key => $value) {
+                                                                if (isset($subordinate)) {
+                                                                    foreach ($subordinate as $sub_id) {
+                                                                        $selected[$sub_id['employee_id']] = "selected";
+                                                                    }
+                                                                }
+                                                                ?>
+                                                                <option value ="<?= $value['id']; ?>" <?= (isset($selected[$value['id']]) ? $selected[$value['id']] : '') ?> ><?php echo $value['full_name']; ?></option>
+                                                        <?php } ?>
+                                                        </select>
+                                                        <?php echo form_error('subordinate'); ?>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-            <div class="panel-footer" align='center'>
-                                <input type="Submit" value="<?php
-                                    if (isset($query[0]['id'])) {
-                                        echo "Update";
-                                    } else {
-                                        echo "Save";
-                                    }
-                                    ?>" class="btn btn-primary" >
-                        </div>
+                            <div class="panel-footer" align='center'>
+                                <input type="Submit" value="<?php if (isset($query[0]['id'])) { echo "Update"; } else {  echo "Save"; } ?>" class="btn btn-primary" >
+                            </div>
                 </form>
             </div>
         </div>
@@ -410,6 +411,32 @@
                         }
                 }
         });
-     })
+     });
+     
+    $("#groups").change(function(){
+    
+        var selectValue = $(this).val(); 
+        var wh_id = '<?php if(isset($query[0]['warehouse_id'])){ echo $query[0]['warehouse_id']; } ?>';
+        if(selectValue == 'inventory_manager'){
+            $("#wh_list").css('display','block');
+            $.ajax({
+                type:'POST',
+                data:{is_wh : 1},
+                url: '<?php echo base_url(); ?>employee/user/get_warehouse_list',  
+                success: function(response) {
+                    $("#warehouse_id").html(response);
+                    $("#warehouse_id").val(wh_id).change();
+                }
+            });
+        }else{
+            $("#wh_list").css({'display':'none'});
+        }
+     });
+     
+     $("#warehouse_id").select2({
+        placeholder: "Select Warehouse",
+        allowClear: true
+     });
+     
    
 </script>
