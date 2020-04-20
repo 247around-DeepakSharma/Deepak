@@ -1,3 +1,7 @@
+<?php 
+// If vendor id is received it is assigned to d.id and that vendor will be displayed otherwise whole list of service center will be displayed
+(isset($id)?$vid=$id:$vid='')
+?>
 <?php if (!isset($is_ajax)) { ?>
     <script>
         function outbound_call(phone_number) {
@@ -336,7 +340,6 @@
                 location.reload();
             }
         });
-
     }
     function pendingBookings(vendorID, tempPermanent, isMicroHouse) {
         var tempString = "off TEMPORARILY to";
@@ -488,12 +491,13 @@
             url: "<?php echo base_url(); ?>employee/vendor/get_vendor_list_ajax",
             type: "POST",
             data: function (d) {
+
                 var entity_details = get_entity_details();
-                        d.state = entity_details.state,
+                d.state = entity_details.state,
                         d.city = entity_details.city,
-                        d.id = '<?php echo $id; ?>',
+                        d.id = '<?php echo $vid; ?>', //display vendor wrt id 
                         d.sf_cp = entity_details.sf_cp,
-                        d.active = entity_details.active       
+                        d.active = entity_details.active
             }
         }
     });

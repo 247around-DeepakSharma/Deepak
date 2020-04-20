@@ -91,7 +91,11 @@ if ($this->uri->segment(3)) {
                                             <?php echo $sn_no; ?>
                                         </td>
                                         <td>
-                                            <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                            <?php if (!empty($this->session->userdata('service_center_id'))) { ?>
+                                                <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                            <?php } else if ($this->session->userdata('id')) { ?>
+                                                <a  style="color:blue;" href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                            <?php } ?>	                                            
                                         </td>
                                         <td>
                                             <?php echo $row['purchase_invoice_id']; ?>
@@ -518,3 +522,9 @@ $("#on_partner").DataTable({
 <?php if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
+
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+</style>

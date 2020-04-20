@@ -295,8 +295,6 @@ $route['partner/getModelForService'] = 'employee/NRN_TR/getModelForService';
 $route['partner/get_appliances'] = 'employee/NRN_TR/get_appliances';
 
 
-
-
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 
 

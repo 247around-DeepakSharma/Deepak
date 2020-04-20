@@ -205,5 +205,5 @@ define('SPARE_PARTS_OOT_DAYS', '45');
 define('SPARE_ACKNOWLEDGE_TEAM', 'Defective/Ok Acknowledge Team');
 // courier audit team
 define('COURIER_AUDIT_TEAM', 'Courier Audit Team');
-// part to be billed days
-define('PART_TO_BE_BILLED_OOT_DAYS', 15);
+// part to be billed string
+define('PART_TO_BE_BILLED', 'Part To Be Billed');

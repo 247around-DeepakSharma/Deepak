@@ -43,6 +43,7 @@ class nrn_model extends CI_Model {
         return NULL;
     }
 
+
     function update_nrn_details($nrn_details, $nrn_id) {
         if ($nrn_id != '') {
             $this->db->where('nrn_id', $nrn_id);
@@ -53,6 +54,7 @@ class nrn_model extends CI_Model {
             return FALSE;
         }
     }
+
 
     function get_category_capacity_model($service_id, $partner_id) {
         $this->db->select('SCC.category,SCC.capacity,AMD.id, AMD.model_number, PAD.model');

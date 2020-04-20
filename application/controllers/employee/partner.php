@@ -244,8 +244,15 @@ class Partner extends CI_Controller {
                     }
                 }
                 /* getting symptom  and push in array*/
-                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['symptom']));
+                if(!empty($val['spare_request_symptom'])){
+                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['spare_request_symptom']));
+                if(!empty($symptom)){
                 $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
+                }else{
+                $spare_parts_list[] = array_merge($val, array('symptom_text' => '-')); 
+                }
+                
+                }
             }
         }
 
@@ -2807,11 +2814,10 @@ class Partner extends CI_Controller {
         }
 
         if ($response) {
-            
-            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_sf", array('spare_parts_details.id' => $spare_id));
-            if(!empty($spare_id) && empty($get_awb[0]['awb_by_sf'])){
+            $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
+            if(!empty($spare_id) && empty($get_awb[0]['awb_by_wh'])){
                 
-                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_sf'], 'delivered_date IS NULL' => NULL), 
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $get_awb[0]['awb_by_wh'], 'delivered_date IS NULL' => NULL), 
                         array('delivered_date' => date('Y-m-d H:i:s')));
             }
             
@@ -4689,22 +4695,22 @@ class Partner extends CI_Controller {
         redirect(base_url() . "employee/partner/bracket_allocation");
     }
 
-    function process_partner_document_form() { 
+   function process_partner_document_form() { 
         $return_data = array();
         $partner_id = $this->input->post("partner_id");
         //Processing Pan File
         if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
-            $pan_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-PAN' . "." . explode(".", $_FILES['pan_file']['name'])[1];
+            $pan_file = "Partner-" . strtoupper($this->input->post('pan'))  . "." . explode(".", $_FILES['pan_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $pan_file;
+            $directory_xls = "pan-numbers/" . $pan_file;
             $this->s3->putObjectFile(TMP_FOLDER . $pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             $return_data['partner']['pan_file'] = $pan_file;
 
-            $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $pan_file;
+            $attachment_pan = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/pan-numbers/" . $pan_file;
             unlink(TMP_FOLDER . $pan_file);
 
             //Logging success for file uppload
@@ -4714,7 +4720,7 @@ class Partner extends CI_Controller {
         //Processing Registration File
         if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
-            $registration_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-Registration' . "." . explode(".", $_FILES['registration_file']['name'])[1];
+            $registration_file = "Partner-" . strtoupper($this->input->post('registration_no'))  . "." . explode(".", $_FILES['registration_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
 
             //Upload files to AWS
@@ -4732,7 +4738,7 @@ class Partner extends CI_Controller {
         //Processing TIN File
         if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
-            $tin_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-TIN' . "." . explode(".", $_FILES['tin_file']['name'])[1];
+            $tin_file = "Partner-" . strtoupper($this->input->post('tin')) . "." . explode(".", $_FILES['tin_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
             //Upload files to AWS
@@ -4750,7 +4756,7 @@ class Partner extends CI_Controller {
         //Processing CST File
         if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
-            $cst_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-CST' . "." . explode(".", $_FILES['cst_file']['name'])[1];
+            $cst_file = "Partner-" . strtoupper($this->input->post('cst_no'))  . "." . explode(".", $_FILES['cst_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
             //Upload files to AWS
@@ -4768,7 +4774,7 @@ class Partner extends CI_Controller {
         //Processing Service Tax File
         if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
-            $service_tax_file = "Partner-" . preg_replace('/\s+/', '', strtolower($this->input->post('partner_public_name'))) . '-CST' . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+            $service_tax_file = "Partner-" .  strtoupper($this->input->post('service_tax'))  . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
             //Upload files to AWS
@@ -4822,7 +4828,7 @@ class Partner extends CI_Controller {
             $msg = "Partner Documents has been updated successfully";
             $this->session->set_userdata('success', $msg);
         }
-		$this->session->set_flashdata('current_tab', 2);
+        $this->session->set_flashdata('current_tab', 2);
         redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
     }
 
@@ -5246,7 +5252,7 @@ class Partner extends CI_Controller {
             if($file){
                 if (($_FILES['l_c_file']['error'] != 4) && !empty($_FILES['l_c_file']['tmp_name'])) {
                         $tmpFile = $_FILES['l_c_file']['tmp_name'];
-                        $contract_file = "Partner-" . 'Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .$_FILES['l_c_file']['name'];
+                        $contract_file = "Partner-" . 'Brand_Collateral_' . $contract_type . "_" . date('Y-m-d') . "." .str_replace(" ", "", $_FILES['l_c_file']['name']);
                         move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                         //Upload files to AWS
                         $bucket = BITBUCKET_DIRECTORY;

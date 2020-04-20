@@ -17,6 +17,9 @@
                         <th>Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
+ 
+                        <th style="display: none;">Active</th> 
+
                     </tr>
                 </thead>
                 <tbody>
@@ -39,6 +42,12 @@
                             </td>
                             <td>
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Capacity" id="update_capacity" capacity_id="<?= $rec->id ?>"><i class="glyphicon glyphicon-pencil"></i></a>
+                            </td>
+ 
+                             <td style="display: none;">
+                                <?php 
+                                    echo $rec->active;
+                                ?>
                             </td>
                         </tr>
                     <?php } ?>
@@ -101,12 +110,25 @@
 
 <script>
     $('#capacity_list').dataTable({
-        "order": [],
-        "columnDefs": [ {
-          "targets"  : 'no-sort',
-          "orderable": false,
-        }]
-    });
+       "order": [],
+         "columnDefs": [ {
+           "targets"  : 'no-sort',
+           "orderable": false,
+        }],
+        "dom": 'lBfrtip',
+        "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    title: 'Capacity-list',
+                    exportOptions: {
+                    columns: [0, 1, 2, 5]
+
+                    }
+                }
+            ]
+                        
+     });
 
     $(document).on("click", "#add_capacity", function () {
         // Display the Bootstrap modal

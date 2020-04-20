@@ -86,7 +86,11 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td>
-                                         <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php if (!empty($this->session->userdata('service_center_id'))) { ?>
+                                        <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php } else { ?>
+                                        <a  href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                        <?php } ?>                                         
                                     </td>
                                      <td>
                                         <?php echo $row['name']; ?>
@@ -202,22 +206,22 @@
         } 
     });
 
-    $('#defective_parts_reject_by_artner_on_challan').DataTable({
-        "pageLength": 100,
-            dom: 'Bfrtip',
-            // Configure the drop down options.
-            "language": {                
-                "searchPlaceholder": "Search by Any Column",
-            },
-            lengthMenu: [
-                [ 25, 50,100, -1 ],
-                [ '25', '50', '100', 'All' ]
-            ],
-            // Add to buttons the pageLength option.
-            buttons: [
-                'pageLength','excel',
-            ],
-    });
+//    $('#defective_parts_reject_by_artner_on_challan').DataTable({
+//        "pageLength": 100,
+//            dom: 'Bfrtip',
+//            // Configure the drop down options.
+//            "language": {                
+//                "searchPlaceholder": "Search by Any Column",
+//            },
+//            lengthMenu: [
+//                [ 25, 50,100, -1 ],
+//                [ '25', '50', '100', 'All' ]
+//            ],
+//            // Add to buttons the pageLength option.
+//            buttons: [
+//                'pageLength','excel',
+//            ],
+//    });
     
      $("#partner_search_id2").click(function(){         
          var partner_id = $("#partner_id2").val();
@@ -277,30 +281,11 @@
         placeholder:'Select Partner',
         allowClear:true
     });
-    $('#courier_name_by_wh_id').select2({
-        placeholder:'Select Courier Name',
-        allowClear:true
-    });
     
     $('document').ready(function(){
         get_partner_ack();
     });
     
-    var postData = {};
-    $("#defective_parts_shippped_date_id").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
-//    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
-    $('#send_all').on('click', function () {
-        if ($(this).is(':checked', true))
-        {
-            $(".check_single_row").prop('checked', true);
-        }
-        else
-        {
-            $(".check_single_row").prop('checked', false);
-        }
-    });
-    
-   
     function get_partner_ack(){
         $.ajax({
             type:'POST',
@@ -325,235 +310,6 @@
             }
         });
     }
-    
-    function check_awb_exist_details(){
-            var awb = $("#awb_by_wh_id").val();
-            if(awb){
-                    $.ajax({
-                    type: 'POST',
-                    beforeSend: function(){
-
-                        $('body').loadingModal({
-                        position: 'auto',
-                        text: 'Loading Please Wait...',
-                        color: '#fff',
-                        opacity: '0.7',
-                        backgroundColor: 'rgb(0,0,0)',
-                        animation: 'wave'
-                    });
-
-                        },
-                    url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_awb_exist',
-                    data:{awb:awb},
-                    success: function (response) {
-                        console.log(response);
-                        var data = jQuery.parseJSON(response);
-                        if(data.code === 247){
-                            alert("This AWB already used same price will be added");
-                            $("#same_awb").css("display","block");
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
-                            $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_id").val("0");
-                            $("#courier_price_id").css("display","none");
-                            if(data.message[0].courier_invoice_file){
-                                $("#exist_courier_image").val(data.message[0].courier_invoice_file);
-                                $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
-                            }
-                            $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
-                            if (data.message[0]['box_count'] === 0) {
-                                $('#shipped_spare_parts_boxes_count').val("");
-
-                            } else {
-                                $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
-
-                            }                            
-                            var wt = Number(data.message[0]['billable_weight']);
-                            if(wt > 0){
-                            var wieght = data.message[0]['billable_weight'].split(".");
-                                $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
-                                $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
-                            }
-
-                        } else {
-                            $('body').loadingModal('destroy');
-                            $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
-                            $("#courier_price_id").css("display","block");
-                            $("#same_awb").css("display","none");
-                            $("#exist_courier_image").val("");
-                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
-                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
-                        }
-
-                    }
-                });
-            }
-            
-        }
-        
-    function remove_select_all_challan(){
-        $('#selectall_challan_file').prop('checked', false); 
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.check_single_row:checked');
-        if (d_m.length > 0) {
-            $('.check_single_row').prop('checked', false);
-        }
-    }
-    
-    
-    function check_checkbox(){
-
-        var flag =0;
-
-           if(flag === 0){
-               var d_m = $('.checkbox_challan:checked');
-               if(d_m.length > 0){
-                   flag = 1;  
-               }
-           }
-
-
-
-
-
-        if(flag ===0 ){
-            alert("Please Select Atleast One Checkbox To Download Challan");
-            return false;
-        }else{
-
-           var wh =  $("#warehouse_select").val();
-            if (wh=="") {
-                alert("Please select Partner");
-            }else{
-
-            $('#myModal22').modal('show');
-            var partner_id= $("#partner_id").val();
-            $.ajax({
-            type:'POST',
-            url:'<?php echo base_url();?>employee/service_centers/get_warehouse_partner_list',
-            data:{partner:partner_id},
-            success:function(response){
-            
-            console.log(response); 
-            $("#warehouse_select").select2();
-            $("#warehouse_select").html(response).change();      
-               
-            }
-
-
-        });
-        }
-        }
-    }
-    
-    $(".check_single_row").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    $("#send_all").click(function(){
-        $('#selectall_challan_file').prop('checked', false); 
-        var d_m = $('.checkbox_challan:checked');
-        if (d_m.length > 0) {
-            $('.checkbox_challan').prop('checked', false);
-        }
-        
-    });
-    
-    
-    $("#selectall_challan_file").click(function(){
-        $('#send_all').prop('checked', false); 
-        var d_m = $('.check_single_row:checked');
-        if (d_m.length > 0) {
-            $('.check_single_row').prop('checked', false);
-        }
-        
-    });
-        
-    $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true))
-        {
-            $(".checkbox_challan").prop('checked', true);
-        }
-        else
-        {
-            $(".checkbox_challan").prop('checked', false);
-        }
-    });
-    
-     $("#shipped_spare_parts_weight_in_kg").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    
-    
-    $("#shipped_spare_parts_weight_in_gram").on({
-        "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        }
-    });
-    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
-        switch (event.keyCode) {
-            case 8:  // Backspace
-            case 9:  // Tab
-            case 13: // Enter
-            case 37: // Left
-            case 38: // Up
-            case 39: // Right
-            case 40: // Down
-                break;
-            default:
-                var regex = new RegExp("^[a-zA-Z0-9,]+$");
-                var key = event.key;
-                if (!regex.test(key)) {
-                    event.preventDefault();
-                    return false;
-                }
-                break;
-        }
-    });
     
 </script>
 

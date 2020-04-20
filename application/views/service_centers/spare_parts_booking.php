@@ -81,7 +81,10 @@ if ($this->uri->segment(3)) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($spare_parts as $key => $row) { ?>
+                                <?php
+                                    $i = 1;
+                                    foreach ($spare_parts as $key => $row) {
+                                    ?>
                                     <tr style="text-align: center;" >
                                         <td style="<?php if($row['inventory_invoice_on_booking'] == 1){ echo 'background: green;color: #FFFfff;';} ?>">
                                             <?php if ($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) { ?>
@@ -90,7 +93,11 @@ if ($this->uri->segment(3)) {
                                             <?php echo $sn_no; ?>
                                         </td>
                                         <td>
+                                        <?php if (!empty($this->session->userdata('service_center_id'))) { ?>
                                             <a  style="color:blue;" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                        <?php } else if ($this->session->userdata('id')) { ?>
+                                            <a  style="color:blue;" href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id']; ?></a>
+                                        <?php } ?>	                                            
                                         </td>
                                         <td>
                                             <?php echo $row['purchase_invoice_id']; ?>
@@ -154,22 +161,23 @@ if ($this->uri->segment(3)) {
                                             <?php } ?>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
+                                            <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3, this.id)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1, this.id)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
 <!--                                        <td>
                                             <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>-->
                                         
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
 
                                     </tr>
                                     <?php
                                     $sn_no++;
+                                    $i ++;
                                 }
                                 ?>
                             </tbody>
@@ -255,7 +263,7 @@ if ($this->uri->segment(3)) {
         //$("#messageSpare").text("");
          $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("service_center_id");?> + '/' + '<?php echo _247AROUND_SF_STRING; ?>',
+            url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $sf_id;?> + '/' + '<?php echo _247AROUND_SF_STRING; ?>',
             contentType: false,
             cache: false,
             processData: false,
@@ -340,34 +348,26 @@ if ($this->uri->segment(3)) {
            $('#selectall_manifest').prop('checked', false);
            $('.checkbox_challan').prop('checked', false);           
        }
-       $(".checkbox_challan").prop('checked', $(this).prop("checked"));
+      $('.checkbox_challan').prop('checked', false);
+      var total_lineItems = $('.checkbox_challan').length;
+      for( i = 1; i <= total_lineItems; i++ ){
+          if(i <= 30){
+            $("#generate_challan_"+i).prop('checked', $(this).prop("checked"));
+          }
+      }
        
-    
-       var sf_id = $("#generate_challan_0").data("service_center_id");
-       var flag = false;
-
-       $('.checkbox_challan:checked').each(function(i) {
-
-        });
-        
-        if(flag){
-            $('.checkbox_challan').prop('checked', false);
-            $('#selectall_challan').prop('checked', false);
-            alert("Not allow to select all option.");
-        }
     });
 
     $(".checkbox_challan").change(function(){
-             if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
-                   $('#selectall_challan').prop('checked', true);
-              }else{
-                $('#selectall_challan').removeAttr('checked');
-              }
+        if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
+              $('#selectall_challan').prop('checked', true);
+         }else{
+           $('#selectall_challan').removeAttr('checked');
+         }
     });
 
 
-    function check_checkbox(number) {
-        
+    function check_checkbox(number, checkBox_id) {
         if (number === 0) {
             var d_m = $('input[name="download_address[]"]:checked');
             var d_m_c = $('input[name="generate_challan[]"]:checked');
@@ -397,6 +397,8 @@ if ($this->uri->segment(3)) {
             var d_m = $('input[name="download_courier_manifest[]"]:checked');
             var d_m_d = $('.concern_detail:checked');
             var d_m_a = $('input[name="download_address[]"]:checked');
+            var total_lineItmes = $('.checkbox_challan:checked').length;
+            
             if (d_m.length > 0 || d_m_d.length > 0 || d_m_a.length > 0 ) {
                 $('.checkbox_manifest').prop('checked', false);
                 $('#selectall_manifest').prop('checked', false);
@@ -404,6 +406,11 @@ if ($this->uri->segment(3)) {
                 $('#selectall_concern_detail').prop('checked', false);
                 $('.checkbox_address').prop('checked', false);
                 $('#selectall_address').prop('checked', false);
+            }
+            
+            if(total_lineItmes > 30){
+                $("#"+checkBox_id).prop('checked', false);
+                alert('You can not select more than 30.');
             }
             
         }else if(number === 3){
@@ -502,3 +509,9 @@ if ($this->uri->segment(3)) {
 <?php if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
+
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+</style>
