@@ -124,9 +124,9 @@
             opacity: 1;
             color: #fff;
             }
-			.nav>li>a{
-				padding : 10px 12px;
-			}
+            .nav>li>a{
+                padding : 10px 12px;
+            }
         </style>
         <?php if(ENVIRONMENT === 'production') { ?> 
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -318,14 +318,14 @@
                             </ul>
                         </li>
 
-						<li class="dropdown">
+                        <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Others <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
                                 <li role="separator" class="divider"></li>
-                                <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>  
+                                <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>employee/service_centers/summary_report">Download Bookings Data</a></li>
                                 <li role="separator" class="divider"></li>
@@ -677,34 +677,6 @@
     function marquee_close(){
          $("#marquee_div").hide();
     }
-</script>
-<script>
-// Get the modal
-var modal = document.getElementById("myModal");
-
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks the button, open the modal 
-btn.onclick = function() {
-  modal.style.display = "block";
-}
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
