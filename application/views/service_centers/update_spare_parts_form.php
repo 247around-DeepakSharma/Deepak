@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <style type="text/css">
     #update_form .form-group label.error {
         color: #FB3A3A;

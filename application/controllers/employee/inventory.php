@@ -5804,13 +5804,29 @@ class Inventory extends CI_Controller {
                             
                             foreach ($invoice['booking_id_array'] as $booking_id) {
 
-                                $agent_id = $this->session->userdata('service_center_agent_id');
-                                $agent_name = $this->session->userdata('service_center_name');
-                                $service_center_id = $this->session->userdata('service_center_id');
                                 $actor = ACTOR_NOT_DEFINE;
                                 $next_action = NEXT_ACTION_NOT_DEFINE;
-
-                                $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                                
+                                /**
+                                 * Check session to set agant id & entity id
+                                 * @modifiedBy Ankit Rajvanshi
+                                 */
+                                if(!empty($this->session->userdata('warehouse_id'))) {
+                                    $agent_id = $this->session->userdata('id');
+                                    $entity_id = _247AROUND;
+                                    $agent_name = $this->session->userdata('employee_id');
+                                    $entity_type = _247AROUND_EMPLOYEE_STRING;
+                                    
+                                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL);
+                                } else { 
+                                    $agent_id = $this->session->userdata('service_center_agent_id');
+                                    $agent_name = $this->session->userdata('service_center_name');
+                                    $entity_id = $this->session->userdata('service_center_id');                                
+                                    $entity_type = _247AROUND_SF_STRING;
+                                    
+                                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $entity_id);
+                                }                                
+                                
                                 log_message("info", "Booking State change inserted");
                             }
 
@@ -5837,7 +5853,17 @@ class Inventory extends CI_Controller {
                                 $agent_id = $this->session->userdata('service_center_agent_id');
                                 $service_center_id = $this->session->userdata('service_center_id');
                                 /* Insert Spare Tracking Details */
-                                $tracking_details = array('spare_id' => $spare_id, 'action' =>$spare_status, 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                                $tracking_details = array('spare_id' => $spare_id, 'action' =>$spare_status, 'remarks' => '');
+                                if(!empty($this->session->userdata('warehouse_id'))) {
+                                    $tracking_details['agent_id'] = $this->session->userdata('id');
+                                    $tracking_details['entity_id'] = _247AROUND;
+                                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+                                } else { 
+                                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                }                                
+                                
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                                 // fetch record from booking details of $booking_id.
                                 $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
@@ -6037,11 +6063,21 @@ class Inventory extends CI_Controller {
                     
                     $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
-                    $agent_id = $this->session->userdata('service_center_agent_id');
-                    $agent_name = $this->session->userdata('service_center_name');
-                    $service_center_id = $sf_id;
+                    
+                    if(!empty($this->session->userdata('warehouse_id'))) { 
+                        $agent_id = $this->session->userdata('id');
+                        $agent_name = $this->session->userdata('employee_id');
+                        $entity_id = _247AROUND;
+                        $entity_type = _247AROUND_EMPLOYEE_STRING;
+                    } else {
+                        $agent_id = $this->session->userdata('service_center_agent_id');
+                        $agent_name = $this->session->userdata('service_center_name');
+                        $entity_id = $this->session->userdata('service_center_id');
+                        $entity_type = _247AROUND_SF_STRING;                        
+                    }
+                   
                     /* Insert Spare Tracking Details */
-                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $actor = ACTOR_NOT_DEFINE;
                     $next_action = NEXT_ACTION_NOT_DEFINE;
@@ -6074,7 +6110,15 @@ class Inventory extends CI_Controller {
                         $this->booking_model->update_booking($booking_id, $booking);
                     }
                     
-                    $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id, $val['spare_id']);
+                    /**
+                     * Check session and set entity id and agent id.
+                     */
+                    if(!empty($this->session->userdata('warehouse_id'))) { 
+                        $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $val['spare_id']);
+                    } else {
+                        $this->notify->insert_state_change($val['booking_id'], $data['status'], "", $data['status'], $agent_id, $agent_name, $actor, $next_action, NULL, $entity_id, $val['spare_id']);
+                    }
+                    
                     log_message("info", "Booking State change inserted");
                 }
             }
@@ -9766,10 +9810,16 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'spare_id' => $spare_id, 
             'action' => $spare_status, 
             'remarks' => $spare_status, 
-            'agent_id' => $this->session->userdata('service_center_agent_id'), 
-            'entity_id' => $this->session->userdata('service_center_id'), 
-            'entity_type' => _247AROUND_SF_STRING
         );
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $tracking_details['agent_id'] = $this->session->userdata('id');
+            $tracking_details['entity_id'] = _247AROUND;
+            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        } else { 
+            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+        }
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         
         /**
@@ -9805,8 +9855,12 @@ function get_bom_list_by_inventory_id($inventory_id) {
             }
             $this->booking_model->update_booking($booking_id, $booking);
         }
-
-        $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
+        } else {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        }
         
         return true;
     }    

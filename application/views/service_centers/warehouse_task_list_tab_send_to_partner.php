@@ -82,7 +82,7 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td>
-                                        <?php if (!empty($sf_id)) { ?>
+                                        <?php if (empty($this->session->userdata('warehouse_id'))) { ?>
                                         <a  href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id'];?></a>
                                         <?php } else { ?>
                                         <a  href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>

@@ -1498,14 +1498,23 @@ class Service_centers extends CI_Controller {
      * @param String $remarks
      */
     function insert_details_in_state_change($booking_id, $new_state, $remarks, $actor, $next_action, $spare_id = NULL ) {
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        
         //Save state change
-
-        $agent_id = $this->session->userdata('service_center_agent_id');
-        $agent_name = $this->session->userdata('service_center_name');
-        $service_center_id = $this->session->userdata('service_center_id');
-
-        $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id, $spare_id);
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $agent_id = $this->session->userdata('id');
+            $entity_id = _247AROUND;
+            $agent_name = $this->session->userdata('employee_id');
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, $entity_id, NULL, $spare_id);
+            log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('warehouse_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        } else { 
+            $agent_id = $this->session->userdata('service_center_agent_id');
+            $agent_name = $this->session->userdata('service_center_name');
+            $entity_id = $this->session->userdata('service_center_id');
+            
+            $this->notify->insert_state_change($booking_id, $new_state, "", $remarks, $agent_id, $agent_name, $actor, $next_action, NULL, $entity_id, $spare_id);
+            log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking ID: " . $booking_id . ' new_state: ' . $new_state . ' remarks: ' . $remarks);
+        }
     }
 
     /**
@@ -3972,8 +3981,17 @@ class Service_centers extends CI_Controller {
      */
     function print_declaration_detail() {
         log_message('info', __METHOD__ . json_encode($_POST, true));
-        $this->checkUserSession();
-        log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+            $agent_name = $this->session->userdata('employee_id');
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->checkUserSession();
+            $agent_name = $this->session->userdata('service_center_name');
+            $sf_id = $this->session->userdata('service_center_id');
+        }
+        
+        log_message('info', __FUNCTION__ . ' Used by :' . $agent_name);
         $booking_declaration_detail = $this->input->post('coueriers_declaration');
 
         $booking_declaration_detail_list['coueriers_declaration'] = array();
@@ -4022,7 +4040,7 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . ' No Download Address from POST');
         }
 
-        $service_center_id = $this->session->userdata('service_center_id');
+        $service_center_id = $sf_id;
 
         $output_file = "declaration-" . $service_center_id . "-" . date('dmYHis');
         $output_file_pdf = $output_file . ".pdf";
@@ -6230,7 +6248,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function update_spare_parts_form($booking_id, $wh = 0) {
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $booking_id);
+        
         if(!empty($this->session->userdata('warehouse_id'))) { 
             $this->checkEmployeeUserSession();
             $sf_id = $this->session->userdata('warehouse_id');
@@ -6238,6 +6256,9 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
             $sf_id = $this->session->userdata('service_center_id');
         }
+        
+        log_message('info', __FUNCTION__ . " SF ID: " . $sf_id . " Spare Parts ID: " . $booking_id);
+        
         $where['length'] = -1;
         if ($wh) {
             $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, 'wh_ack_received_part' => 1, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'requested_inventory_id > 0' => NULL);
@@ -6282,8 +6303,6 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function process_update_spare_parts($booking_id, $wh = 0) {
-        log_message('info', __FUNCTION__ . " Sf ID: " . $this->session->userdata('service_center_id'));
-        log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
         
         if(!empty($this->session->userdata('warehouse_id'))) { 
             $this->checkEmployeeUserSession();
@@ -6292,6 +6311,10 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
             $sf_id = $this->session->userdata('service_center_id');
         }
+        
+        log_message('info', __FUNCTION__ . " Sf ID: " . $sf_id);
+        log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
+        
         $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
@@ -6427,8 +6450,9 @@ class Service_centers extends CI_Controller {
                                         $pcb['gst_rate'] = $inventory_master_list[0]['gst_rate'];
 
                                         $pcb['estimate_cost'] = ($inventory_master_list[0]['price'] + ( $inventory_master_list[0]['price'] * $inventory_master_list[0]['gst_rate']) / 100);
-                                        ;
-                                        $pcb['agent_id'] = $this->session->userdata('service_center_id');
+                                        
+                                        $pcb['agent_id'] = $sf_id;
+
                                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                                     }
                                 }
@@ -6442,7 +6466,16 @@ class Service_centers extends CI_Controller {
                             if (!empty($spare_id)) {
 
                                 /* Insert Spare Tracking Details */
-                                $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => SPARE_PARTS_SHIPPED_BY_WAREHOUSE, 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => SPARE_PARTS_SHIPPED_BY_WAREHOUSE);
+                                if(!empty($this->session->userdata('warehouse_id'))) {
+                                    $tracking_details['agent_id'] = $this->session->userdata('id');
+                                    $tracking_details['entity_id'] = _247AROUND;
+                                    $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+                                } else { 
+                                    $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                                    $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                                    $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+                                }                                
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED_BY_WAREHOUSE, "Warehouse acknowledged to shipped spare parts, spare id : $spare_id", "", "", $spare_id);
                                 $post = array();
@@ -6464,11 +6497,11 @@ class Service_centers extends CI_Controller {
                                     //update inventory stocks
                                     $data['receiver_entity_id'] = $this->input->post('assigned_vendor_id');
                                     $data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                    $data['sender_entity_id'] = $this->session->userdata('service_center_id');
+                                    $data['sender_entity_id'] = $sf_id;
                                     $data['sender_entity_type'] = _247AROUND_SF_STRING;
                                     $data['stock'] = -$data['shipped_quantity'];
                                     $data['booking_id'] = $booking_id;
-                                    $data['agent_id'] = $this->session->userdata('service_center_id');
+                                    $data['agent_id'] = $sf_id;
                                     $data['agent_type'] = _247AROUND_SF_STRING;
                                     $data['is_wh'] = TRUE;
                                     $data['inventory_id'] = $data['shipped_inventory_id'];
@@ -6574,10 +6607,14 @@ class Service_centers extends CI_Controller {
 
                     $userSession = array('success' => 'Parts Updated');
                     $this->session->set_userdata($userSession);
-                    if ($wh) {
+                    if(!empty($this->session->userdata('warehouse_id'))) {
                         redirect(base_url() . "service_center/inventory");
                     } else {
-                        redirect(base_url() . "service_center/spare_parts");
+                        if ($wh) {
+                            redirect(base_url() . "service_center/inventory");
+                        } else {
+                            redirect(base_url() . "service_center/spare_parts");
+                        }
                     }
                 } else {
                     if ($can_status == SPARE_PARTS_CANCELLED) {
@@ -6708,7 +6745,7 @@ class Service_centers extends CI_Controller {
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
         
         if (empty($is_cron)) {
-            if (!empty($this->session->userdata('service_center_id'))) { 
+            if (!empty($this->session->userdata('warehouse_id'))) { 
                 $this->checkEmployeeUserSession();
                 $sf_id = $this->session->userdata('warehouse_id');
             } else {
@@ -6792,7 +6829,16 @@ class Service_centers extends CI_Controller {
         /* Insert Spare Tracking Details */
 
         if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $post_data['remarks'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING);
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $post_data['remarks']);
+            if(!empty($this->session->userdata('warehouse_id'))) {
+                $tracking_details['agent_id'] = $this->session->userdata('id');
+                $tracking_details['entity_id'] = _247AROUND;
+                $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+            } else { 
+                $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+            }            
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         if ($response) {
@@ -7012,7 +7058,17 @@ class Service_centers extends CI_Controller {
 
         /* Insert Spare Tracking Details */
         if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason, 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING );
+            $tracking_details = array('spare_id' => $spare_id, 'action' => $spare_status, 'remarks' => $rejection_reason);
+            if(!empty($this->session->userdata('warehouse_id'))) {
+                $tracking_details['agent_id'] = $this->session->userdata('id');
+                $tracking_details['entity_id'] = _247AROUND;
+                $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+            } else { 
+                $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+                $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+                $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+            }
+            
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
 
@@ -7132,8 +7188,15 @@ class Service_centers extends CI_Controller {
      * @return void 
      */
     function download_shippment_address($booking_address) {
-        $this->check_WH_UserSession();
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
+
+        log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
 
         $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
@@ -7152,14 +7215,14 @@ class Service_centers extends CI_Controller {
                     . "warehouse_details.warehouse_pincode as pincode,"
                     . "warehouse_details.warehouse_state as state";
 
-            $where = array('contact_person.entity_id' => $this->session->userdata('service_center_id'), 'contact_person.entity_type' => _247AROUND_SF_STRING);
+            $where = array('contact_person.entity_id' => $sf_id, 'contact_person.entity_type' => _247AROUND_SF_STRING);
 
             $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, FALSE);
 
-            $wh_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1', array('id' => $this->session->userdata('service_center_id')))[0];
+            $wh_sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district,state,pincode,primary_contact_phone_1', array('id' => $sf_id))[0];
 
             $booking_history['details'][$key] = $this->booking_model->getbooking_history($value, "join")[0];
-            $b_spare = $this->partner_model->get_spare_parts_by_any("Distinct parts_requested", array("booking_id" => $value, "entity_type" => "vendor", "partner_id" => $this->session->userdata('service_center_id')));
+            $b_spare = $this->partner_model->get_spare_parts_by_any("Distinct parts_requested", array("booking_id" => $value, "entity_type" => "vendor", "partner_id" => $sf_id));
             if (!empty($b_spare)) {
                 $part_name = implode(", ", array_unique(array_map(function ($k) {
                                     return $k['parts_requested'];
@@ -7198,8 +7261,15 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function download_mainfest($booking_manifest) {
-        $this->check_WH_UserSession();
-        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
+
+        log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
         $spare_parts_details['courier_manifest'] = array();
         foreach ($booking_manifest as $key => $value) {
 

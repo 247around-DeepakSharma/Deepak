@@ -931,4 +931,8 @@
     });
     
 </script>
-
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+</style>

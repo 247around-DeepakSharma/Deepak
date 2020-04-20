@@ -2469,4 +2469,4 @@ ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NUL
  
 ---Abhishek -- 15-04-2020
 ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `bank_holder_name`, ADD `pro_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `edu_qualification`, ADD `overall_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `pro_qualification`, ADD `around_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `overall_exp`;
- 
+
