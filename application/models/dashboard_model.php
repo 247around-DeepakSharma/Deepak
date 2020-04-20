@@ -1088,5 +1088,19 @@ class dashboard_model extends CI_Model {
         
     }
     
+    /**
+     * @Desc this function is used to return total cancelled booking by cancellation reason wise
+     * @return Array
+     */
+    function get_booking_cancellation_reasons($startDate,$endDate){
+        $this->db->select('cancellation_reason,count(*) as count');
+        $this->db->where("(current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate'");
+        $this->db->from('booking_details');
+        $this->db->group_by('cancellation_reason');
+        $query = $this->db->get();
+        //echo $this->db->last_query();die;
+        return $query->result_array();        
+    }
+    
 }
     

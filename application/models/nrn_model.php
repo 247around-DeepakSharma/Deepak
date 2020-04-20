@@ -3,7 +3,6 @@
 class nrn_model extends CI_Model {
 
     public $table_247around_nrn_details = '247around_nrn_details';
-
     public $table_service_centre_charges = 'service_centre_charges';
     public $table_partner_appliance_details = 'partner_appliance_details';
     public $table_appliance_model_details = 'appliance_model_details';
@@ -43,7 +42,7 @@ class nrn_model extends CI_Model {
         }
         return NULL;
     }
- 
+
 
     function update_nrn_details($nrn_details, $nrn_id) {
         if ($nrn_id != '') {
