@@ -360,7 +360,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" id="myBtn">COVID-19</a></li>
+                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" id="myBtncovid">COVID-19</a></li>
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
@@ -470,34 +470,7 @@
         </div>
     </div>
 </div>
-<div id="myModal" class="modal">
 
-  <!-- Modal content -->
- 
-  <div class="modal-content">
-      <div class="modal-header">
-        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
-        <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
-      </div>
-
-      <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
-<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
-<p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
-<p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
-<p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
-<p style="margin: 0 0 17px !imporatnt;">5. Wash hands before work start, Wash hands after work finishes.</p>
-<p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
-<p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
-<p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
-<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
-
-      </div>
-
- 
-    
-  </div>
-
-</div>
 <!-- End -->
 <script>
     $("#partner_tollfree").click(function(){
@@ -731,20 +704,7 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
-$("#myBtn").click();
-setTimeout(function () {
-    $("#close_covid").removeClass('hide');
-}, 10000);
 
-$('#myModal').modal({
-           backdrop: 'static',
-           keyboard: false
-});
-$("#close_covid").click(function(){
- 
-    $("#myModal").hide();
-
-});
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
