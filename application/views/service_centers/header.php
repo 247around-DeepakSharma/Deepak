@@ -740,6 +740,11 @@ $('#myModal').modal({
            backdrop: 'static',
            keyboard: false
 });
+$("#close_covid").click(function(){
+ 
+    $("#myModal").hide();
+
+});
 </script>
 <style>
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {

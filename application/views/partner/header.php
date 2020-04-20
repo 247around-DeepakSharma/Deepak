@@ -250,7 +250,7 @@
                                     </div> 
                                 </form>
                             </li>
-                           <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" id="myBtn">COVID-19</a></li>
+                            
                         </ul>
                     </nav>
                 </div>
@@ -335,34 +335,7 @@
             </div>
         </div>    
     </div>
-    <div id="myModal" class="modal">
-
-  <!-- Modal content -->
  
-  <div class="modal-content">
-      <div class="modal-header">
-        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
-        <h4 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h4>
-      </div>
-
-      <div class="modal-body" style="font-weight:700;font-size:18px !important;">
-<p>1. Technician Temperature to be checked before issuing calls.</p>
-<p>2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
-<p>3. No Sign to be taken on any document.</p>
-<p>4. Call Customer on phone from door. Do not use Door bell.</p>
-<p>5. Wash hands before work start, Wash hands after work finishes.</p>
-<p>6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
-<p>7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
-<p>8. Leave all your belongings like helmet etc outside the customer house.</p>
-<p>9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
-
-      </div>
-
- 
-    
-  </div>
-
-</div>
 <style>
 .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
     background-color: #2c9d9c;

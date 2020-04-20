@@ -54,6 +54,7 @@
             <!-- /.navbar-header -->
             <ul class="nav navbar-top-links navbar-left">
                 <li>
+                	
                     <a href="<?php echo base_url()?>employee/user"><i class="fa fa-fw fa-edit"></i>Find User</a>
                 </li>
                 <li class="dropdown ">
@@ -346,8 +347,9 @@
                      /.dropdown-user
                 </li>
 -->
-            <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" id="myBtn">COVID-19</a></li>
+            
             </ul>
+
             <ul class="nav navbar-top-links navbar-right">
                 <li>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('employee_id'); ?> <b class="caret"></b></a>
@@ -357,34 +359,7 @@
             <!-- /.navbar-top-links -->
             <!-- /.navbar-static-side -->
         </nav>
-        <div id="myModal" class="modal">
 
-  <!-- Modal content -->
- 
-  <div class="modal-content">
-      <div class="modal-header">
-        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
-        <h4 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h4>
-      </div>
-
-      <div class="modal-body" style="font-weight:700;font-size:18px !important;">
-<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
-<p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
-<p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
-<p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
-<p style="margin: 0 0 17px !imporatnt;">5. Wash hands before work start, Wash hands after work finishes.</p>
-<p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
-<p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
-<p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
-<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
-
-      </div>
-
- 
-    
-  </div>
-
-</div>
         <script type="text/javascript">
             (function($){
             $(document).ready(function(){
@@ -406,45 +381,3 @@
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
 
-<style>
- 
-
-/* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Content */
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-}
-
-/* The Close Button */
-.close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-</style>
