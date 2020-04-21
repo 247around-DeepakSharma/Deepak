@@ -9864,7 +9864,18 @@ class Inventory extends CI_Controller {
         $response['status'] = $status;
         $response['reason'] = implode('<br>',array_filter($cancellation_reason));
         echo json_encode($response);
-    }    
+    }  
+
+
+    /**
+     *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
+     *  @param : void
+     *  @return : void
+     */
+    function warehouse_inventory_stock(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/wareouse_inventory_stock_list_part_number');
+    }  
 
 
 }
