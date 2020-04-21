@@ -17,7 +17,7 @@
                         <th>Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
-                        <th style="display: none;">Active</th> 
+                        <th style="display: none;">Active</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,7 +109,7 @@
     $('#capacity_list').dataTable({
         "order": [],
         "columnDefs": [ {
-        "targets"  : 'no-sort',
+          "targets"  : 'no-sort',
         "orderable": false,
         }],
         "dom": 'lBfrtip',
@@ -125,6 +125,8 @@
             ]
                         
      });
+
+
     $(document).on("click", "#add_capacity", function () {
         // Display the Bootstrap modal
         $('#modal_title_action').html("Create Capacity");

@@ -690,7 +690,7 @@
                                     <textarea class="form-control" rows="5" name="rating_comments" placeholder ="Rating Comment"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                                 </div>
                                 <div class="col-md-4" >
-                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks" placeholder ="Admin Remarks"></textarea>
+                                    <textarea class="form-control" id="admin_remarks" rows="5" name="admin_remarks" placeholder ="Admin Remarks (Enter min. <?php echo ADMIN_REMARKS_MIN_LENGTH ?> chars.)"  minlength="<?php echo ADMIN_REMARKS_MIN_LENGTH ?>" required></textarea>
                                 </div>
                                 <div class="col-md-4" >
                                     <textarea class="form-control" id="sn_remarks" rows="5" name="sn_remarks" placeholder ="Serial Number Remarks"></textarea>
@@ -1139,7 +1139,15 @@
         }
     });
 
-
+    // check Admin remarks filled or not with min chars
+    var admin_remarks = $('#admin_remarks');
+    var minlength = "<?php echo ADMIN_REMARKS_MIN_LENGTH ?>";
+    if(admin_remarks.val().length < minlength) {
+        alert('You need to enter at least '+minlength+' characters, for Admin Remarks');
+        flag = 1;
+        return false;
+    }
+    
     if (flag === 0) {
         return true;
     
@@ -1175,7 +1183,7 @@
     margin: 0px 0 0px 125px;
     padding: 0;
     text-align: left;
-    width: 220px;
+    width: 300px;
     position: absolute;
     }
 </style>

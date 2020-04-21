@@ -272,4 +272,43 @@ class booking_creation_lib {
              return true;
          }
     }
+    /**
+     * @desc : this method is used to create and download ZIP file
+     * @param type $filename, $array_files
+     * @author Ghanshyam
+     */
+    function create_and_download_zip_file($filename = '', $array_files = '') {
+        if (!empty($filename) && !empty($array_files)) {
+            $array_files = array_filter($array_files);
+            $directory = TMP_FOLDER;
+            $directory = trim($directory, '/');
+            $directoryarray = explode('/', $directory);
+            $directoryarray = array_reverse($directoryarray);
+            $dir = $directoryarray[0];
+            $dir .= "/";
+            $filename = "$dir.$filename";
+            if (file_exists($filename)) {
+                unlink($filename);
+            }
+            $zipk = new ZipArchive;
+            if ($zipk->open($filename, ZipArchive::CREATE) !== TRUE) {
+                // Zip creation failed
+            }
+            foreach ($array_files as $file) {
+                $zipk->addFile($dir . $file);
+            }
+            $zipk->close();
+            if (file_exists($filename)) {
+                header('Content-Type: application/zip');
+                header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+                header('Content-Length: ' . filesize($filename));
+                flush();
+                readfile($filename);
+                unlink($filename);
+                foreach ($array_files as $value_unlink) {
+                    unlink(TMP_FOLDER . $value_unlink);
+                }
+            }
+        }
+    }
 }
