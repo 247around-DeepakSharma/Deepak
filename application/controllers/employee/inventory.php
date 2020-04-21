@@ -4221,8 +4221,7 @@ class Inventory extends CI_Controller {
                             $this->table->set_template($template1);
 
                             $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
-                            $action_entity_id = "";
-                            $action_agent_id = "";
+                            
                             if ($this->session->userdata('service_center_id')) {
                                 $agent_id = $this->session->userdata('service_center_id');
                                 $action_agent_id = $this->session->userdata('service_center_agent_id');
