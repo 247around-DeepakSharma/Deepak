@@ -2253,13 +2253,10 @@ ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NUL
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('part_to_be_billed', NULL, ' ', NULL, 'ankitr@247around.com', 'ankitr@247around.com', 'ankitr@247around.com', '', '1', '2020-04-13 10:01:27');
 --Ankit Bhatt 2020-04-10
-INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_List', 2, '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
-
 ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 
 ---Ghanshyam 2020-04-13
-INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
+INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse by Partner', 'NRN Reverse by Partner', 'NRN Reverse by Partner', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
  
 ---Abhishek -- 15-04-2020
@@ -2323,3 +2320,60 @@ ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
+-- Prity 17-04-2020 (73 Branch)
+CREATE TABLE review_questionare (
+  q_id int(11) NOT NULL AUTO_INCREMENT,
+  question varchar(500) NOT NULL,
+  form int NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
+  panel int NOT NULL COMMENT '1 => Admin, 2 => Partner',
+  sequence int(11) NOT NULL DEFAULT 1,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (q_id))
+  ENGINE = InnoDB;  
+						
+CREATE TABLE review_request_type_mapping (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  request_type_id int(11) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_ques_review_mapping (q_id),
+  KEY fk_request_type_review_mapping (request_type_id),
+  CONSTRAINT fk_request_type_question_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_request_type_request_mapping FOREIGN KEY (request_type_id) REFERENCES request_type (id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;	
+
+  
+CREATE TABLE review_questionare_checklist (
+  checklist_id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  answer varchar(500) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (checklist_id),
+  KEY fk_ques_checklist_mapping (q_id),
+  CONSTRAINT fk_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;  
+
+CREATE TABLE review_booking_checklist (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  booking_id int(11) NOT NULL,
+  q_id int(11) NOT NULL,
+  checklist_id int(11) NULL DEFAULT NULL,
+  remarks varchar(500) NULL DEFAULT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_booking_checklist_mapping (booking_id),
+  KEY fk_booking_ques_checklist_mapping (q_id),
+  KEY fk_booking_checklist_checklist_mapping (checklist_id),  
+  CONSTRAINT fk_booking_checklist_mapping FOREIGN KEY (booking_id) REFERENCES booking_details (id),
+  CONSTRAINT fk_booking_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_booking_checklist_checklist_mapping FOREIGN KEY (checklist_id) REFERENCES review_questionare_checklist (checklist_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1; 
