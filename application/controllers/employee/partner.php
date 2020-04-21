@@ -5778,7 +5778,9 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv)) {
+            unlink($csv);
+        }
     }
     function download_waiting_upcountry_bookings(){
         ob_start();
@@ -5853,7 +5855,6 @@ class Partner extends CI_Controller {
             "Booking Final Closing Date",
             "Product",
             "Booking Request Type",
-            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5903,7 +5904,6 @@ class Partner extends CI_Controller {
             $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-M-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
-            $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
