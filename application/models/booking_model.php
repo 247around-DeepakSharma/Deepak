@@ -3045,4 +3045,22 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function fetches all dissatisfactory reasons of poor rating
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 21-04-2020
+     */
+    function get_dissatisfactory_reasons($id = "")
+    {
+        $this->db->select('*');
+        $this->db->from("customer_dissatisfactory_reasons");
+        if(!empty($id)){
+            $this->db->where(['id' => $id]);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 }

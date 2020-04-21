@@ -1652,7 +1652,70 @@ CREATE TABLE courier_lost_spare_status (
 	agent_id int(11) NOT NULL,
 	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	update_date datetime NULL DEFAULT NULL
-);
+););
+
+---Gorakh 20-04-02020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
+-- Prity 17-04-2020 (73 Branch)
+CREATE TABLE review_questionare (
+  q_id int(11) NOT NULL AUTO_INCREMENT,
+  question varchar(500) NOT NULL,
+  form int NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
+  panel int NOT NULL COMMENT '1 => Admin, 2 => Partner',
+  sequence int(11) NOT NULL DEFAULT 1,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (q_id))
+  ENGINE = InnoDB;  
+						
+CREATE TABLE review_request_type_mapping (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  request_type_id int(11) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_ques_review_mapping (q_id),
+  KEY fk_request_type_review_mapping (request_type_id),
+  CONSTRAINT fk_request_type_question_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_request_type_request_mapping FOREIGN KEY (request_type_id) REFERENCES request_type (id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;	
+
+  
+CREATE TABLE review_questionare_checklist (
+  checklist_id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  answer varchar(500) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (checklist_id),
+  KEY fk_ques_checklist_mapping (q_id),
+  CONSTRAINT fk_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;  
+
+CREATE TABLE review_booking_checklist (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  booking_id int(11) NOT NULL,
+  q_id int(11) NOT NULL,
+  checklist_id int(11) NULL DEFAULT NULL,
+  remarks varchar(500) NULL DEFAULT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_booking_checklist_mapping (booking_id),
+  KEY fk_booking_ques_checklist_mapping (q_id),
+  KEY fk_booking_checklist_checklist_mapping (checklist_id),  
+  CONSTRAINT fk_booking_checklist_mapping FOREIGN KEY (booking_id) REFERENCES booking_details (id),
+  CONSTRAINT fk_booking_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_booking_checklist_checklist_mapping FOREIGN KEY (checklist_id) REFERENCES review_questionare_checklist (checklist_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1; 
+
 
 --Kalyani 09-12-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
@@ -2316,64 +2379,31 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
 
 ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
----Gorakh 20-04-02020
-INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
--- Prity 17-04-2020 (73 Branch)
-CREATE TABLE review_questionare (
-  q_id int(11) NOT NULL AUTO_INCREMENT,
-  question varchar(500) NOT NULL,
-  form int NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
-  panel int NOT NULL COMMENT '1 => Admin, 2 => Partner',
-  sequence int(11) NOT NULL DEFAULT 1,
-  active tinyint(1) NOT NULL DEFAULT 1,
-  create_date timestamp NOT NULL DEFAULT current_timestamp(),
-  created_by int NOT NULL,
-  PRIMARY KEY (q_id))
-  ENGINE = InnoDB;  
-						
-CREATE TABLE review_request_type_mapping (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  q_id int(11) NOT NULL,
-  request_type_id int(11) NOT NULL,
-  active tinyint(1) NOT NULL DEFAULT 1,
-  create_date timestamp NOT NULL DEFAULT current_timestamp(),
-  created_by int NOT NULL,
-  PRIMARY KEY (id),
-  KEY fk_ques_review_mapping (q_id),
-  KEY fk_request_type_review_mapping (request_type_id),
-  CONSTRAINT fk_request_type_question_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
-  CONSTRAINT fk_request_type_request_mapping FOREIGN KEY (request_type_id) REFERENCES request_type (id))
-  ENGINE=InnoDB AUTO_INCREMENT=1;	
 
-  
-CREATE TABLE review_questionare_checklist (
-  checklist_id int(11) NOT NULL AUTO_INCREMENT,
-  q_id int(11) NOT NULL,
-  answer varchar(500) NOT NULL,
-  active tinyint(1) NOT NULL DEFAULT 1,
-  create_date timestamp NOT NULL DEFAULT current_timestamp(),
-  created_by int NOT NULL,
-  PRIMARY KEY (checklist_id),
-  KEY fk_ques_checklist_mapping (q_id),
-  CONSTRAINT fk_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id))
-  ENGINE=InnoDB AUTO_INCREMENT=1;  
+-- Ankit Rajvanshi 20-04-2020
+CREATE TABLE non_inventory_partners_part_type (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    partner_id int(11) NOT NULL,
+    service_id int(11) NOT NULL,
+    inventory_part_type_id int(11) NOT NULL,
+    is_defective_required tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime NULL DEFAULT NULL,
 
-CREATE TABLE review_booking_checklist (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  booking_id int(11) NOT NULL,
-  q_id int(11) NOT NULL,
-  checklist_id int(11) NULL DEFAULT NULL,
-  remarks varchar(500) NULL DEFAULT NULL,
-  active tinyint(1) NOT NULL DEFAULT 1,
-  create_date timestamp NOT NULL DEFAULT current_timestamp(),
-  created_by int NOT NULL,
-  PRIMARY KEY (id),
-  KEY fk_booking_checklist_mapping (booking_id),
-  KEY fk_booking_ques_checklist_mapping (q_id),
-  KEY fk_booking_checklist_checklist_mapping (checklist_id),  
-  CONSTRAINT fk_booking_checklist_mapping FOREIGN KEY (booking_id) REFERENCES booking_details (id),
-  CONSTRAINT fk_booking_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
-  CONSTRAINT fk_booking_checklist_checklist_mapping FOREIGN KEY (checklist_id) REFERENCES review_questionare_checklist (checklist_id))
-  ENGINE=InnoDB AUTO_INCREMENT=1; 
+    CONSTRAINT fk_non_inventory_partners FOREIGN KEY (partner_id) REFERENCES partners(id),
+    CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
+    CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
+
+-- Prity 21-04-2020
+-- 73 Branch
+CREATE TABLE `customer_dissatisfactory_reasons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reason` varchar(255) NOT NULL,
+  `active` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
