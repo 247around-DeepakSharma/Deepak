@@ -3686,9 +3686,6 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
-    
-    
-     /**
-    }
+
     
 }
