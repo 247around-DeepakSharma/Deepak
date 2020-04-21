@@ -3688,7 +3688,5 @@ class invoices_model extends CI_Model {
     }
     
     
-     /**
-    }
-    
+     
 }

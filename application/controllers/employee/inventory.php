@@ -1087,13 +1087,13 @@ class Inventory extends CI_Controller {
             $b = array();
             $line_items = '';
             
-            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
                 . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
 
             $line_items = count($spare_parts_details);
-                      
+            
             
             switch ($requestType) {
                 case 'CANCEL_PARTS':
@@ -1158,11 +1158,23 @@ class Inventory extends CI_Controller {
                     $sc_data['admin_remarks'] = $remarks;
 
                     if ($line_items < 2) {
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                       // $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
-                    
-                   
-                    
+                    /*@des: spare cancelled on spare chnage actor and action  */
+                    if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
+                        if (count($spare_parts_details) == 1) {
+                            $partnerId = _247AROUND;
+                            $current_status = 'Pending';
+                            $internal_status = 'Spare Parts Cancelled';
+                            $partner_status = $this->booking_model->get_partner_status($partnerId, $current_status, $internal_status);
+                            if (!empty($partner_status)) {
+                                $this->booking_model->update_booking($booking_id, array("actor" => $partner_status[0]['actor'], "next_action" => $partner_status[0]['next_action']));
+                            }
+                        }
+                    }
+
+
+
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id);
