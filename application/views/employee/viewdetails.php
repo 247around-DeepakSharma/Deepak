@@ -239,7 +239,8 @@
                             <th >Paid By Customer(STS)</th>
                             <td ><?php if(!is_null($booking_history[0]['paid_by_customer'])) { if($booking_history[0]['paid_by_customer'] == 1){ echo "Paid By Customer"; } 
                             else {echo "Free For Customer";}} ?></td>
-                            <td colspan="2">&nbsp;</td>
+                            <th>Customer Dissatisfactory Reason</th>
+                            <td style="max-width: 330px;"><?php echo $customer_dissatisfactory_reason;?></td>
                         </tr>
                         
                     </table>
