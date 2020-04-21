@@ -3199,7 +3199,7 @@ function initiate_escalation_data(){
         $('#booking_cancellation_chart_div').fadeOut();
         var startDate = '<?php echo date('Y-m-01') ?>';
         var endDate = '<?php echo date('Y-m-t') ?>';
-        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};        
         sendAjaxRequest(data,url,post_request).done(function(response){
             //console.log(response);

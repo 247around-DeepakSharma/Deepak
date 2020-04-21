@@ -1065,7 +1065,6 @@ class vendor extends CI_Controller {
 
             $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
             
-
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
 
