@@ -2394,3 +2394,16 @@ CREATE TABLE non_inventory_partners_part_type (
     CONSTRAINT fk_non_inventory_partners FOREIGN KEY (partner_id) REFERENCES partners(id),
     CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
     CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
+
+-- Prity 21-04-2020
+-- 73 Branch
+CREATE TABLE `customer_dissatisfactory_reasons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reason` varchar(255) NOT NULL,
+  `active` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
