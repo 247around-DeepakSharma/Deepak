@@ -577,6 +577,9 @@
                         
                     <?php } ?>
                     
+                    <!--Review Questionnaire section-->
+                    <?php echo $questionnaire_html; ?>
+                    
                     <div class="row">
                         <div class ="col-md-12">
                             <div class="form-group col-md-6">
