@@ -10050,12 +10050,6 @@ function get_bom_list_by_inventory_id($inventory_id) {
     }
 
 
-  /**
-     *  @desc : This function is used to get the get_get_spare_parts
-     *  @param : void()
-     *  @return : JSON
-     *  @Author : Abhishek Awasthi
-     */
     function get_no_return_parts_by_sf_list() {
         $post = $this->get_post_data();
         $post[''] = array();
@@ -10096,6 +10090,18 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         echo json_encode($output);
     }
+
+
+    /**
+     *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
+     *  @param : void
+     *  @return : void
+     */
+    function warehouse_inventory_stock(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/wareouse_inventory_stock_list_part_number');
+    }  
+
 
     /**
      *  @desc : This function is used to get the get_get_spare_parts_query_list_table
