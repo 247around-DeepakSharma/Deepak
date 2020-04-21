@@ -2319,3 +2319,18 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
 
 ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
+
+-- Ankit Rajvanshi 20-04-2020
+CREATE TABLE non_inventory_partners_part_type (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    partner_id int(11) NOT NULL,
+    service_id int(11) NOT NULL,
+    inventory_part_type_id int(11) NOT NULL,
+    is_defective_required tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime NULL DEFAULT NULL,
+
+    CONSTRAINT fk_non_inventory_partners FOREIGN KEY (partner_id) REFERENCES partners(id),
+    CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
+    CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
+);
