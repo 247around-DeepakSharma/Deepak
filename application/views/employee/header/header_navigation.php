@@ -191,7 +191,7 @@
                 }
                 ?>
             <!-- /.navbar-header -->
-            <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModal" >COVID-19</a></li>
+            <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
             </ul>
            
                 
@@ -302,7 +302,7 @@
             </div>
         </div>
     </div>
-            <div id="myModal" class="modal">
+            <div id="myModalCovid" class="modal">
 
   <!-- Modal content -->
  

@@ -271,7 +271,7 @@
                                 </form>
                             </li>
 
-                            <li><a style="color:#db241b !important;font-size:30px;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModal" >COVID-19</a></li>
+                            <li><a style="color:#db241b !important;font-size:30px;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
 
                         </ul>
                     </nav>
@@ -393,7 +393,7 @@
         </div>
     </div>
 
-       <div id="myModal" class="modal" style="z-index:99999;">
+       <div id="myModalCovid" class="modal" style="z-index:99999;">
 
   <!-- Modal content -->
  
