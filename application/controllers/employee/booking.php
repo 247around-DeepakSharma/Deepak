@@ -1652,8 +1652,10 @@ class Booking extends CI_Controller {
         if ($getbooking) {
             $this->session->userdata('employee_id');
             $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+            // fetch disatisfactory reasons in case of Poor rating
+            $poor_rating_dissatisfactory_reasons = $this->booking_model->get_dissatisfactory_reasons();
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c));
+            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c, 'dissatisfactory_reasons' => $poor_rating_dissatisfactory_reasons));
         } else {
             echo "Id doesn't exist";
         }
@@ -1680,6 +1682,12 @@ class Booking extends CI_Controller {
                 if ($this->input->post('rating_star') != "Select") {
                     $data['rating_stars'] = $this->input->post('rating_star');
                     $data['rating_comments'] = $this->input->post('rating_comments');
+                    // save dissatisfactory reason in booking_details in case of bad rating
+                    $dissatisfactory_reason = "";
+                    if(!empty($this->input->post('dissatisfactory_reason'))){
+                        $dissatisfactory_reason = $this->input->post('dissatisfactory_reason');
+                    }
+                    $data['customer_dissatisfactory_reason'] = $dissatisfactory_reason;
                     $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                     $update = $this->booking_model->update_booking($booking_id, $data);
@@ -1906,6 +1914,16 @@ class Booking extends CI_Controller {
             }
         }
 
+        // fetch customer dissatisfactory reason saved against Booking
+        $data['customer_dissatisfactory_reason'] = "";
+        if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($data['booking_history'][0]['customer_dissatisfactory_reason']);
+            if(!empty($arr_dissatisfactory_reason[0]['reason'])){
+                $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
+            }
+        }
+        
+            
 //        if (!empty($data['booking_history']['spare_parts'])) {
 //            $spare_parts_list = array();
 //            foreach ($data['booking_history']['spare_parts'] as $key => $val) {

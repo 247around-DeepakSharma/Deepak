@@ -134,6 +134,7 @@
                         <li><a id="11" href="#tabs-11"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
+                        <li><a id="13" href="#tabs-18"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Defective/Ok Parts Required</span></a></li>
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
@@ -155,6 +156,7 @@
                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)" <?php if($current_tab!=11){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)" <?php if($current_tab!=12){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)" <?php if($current_tab!=13){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="18" href="#tabs-13" onclick="load_form(this.id)" <?php if($current_tab!=13){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Defective/Ok Parts Required</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)" <?php if($current_tab!=14){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)" <?php if($current_tab!=15){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)" <?php if($current_tab!=16){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Account Manager</span></a></li>
@@ -2970,6 +2972,78 @@
             </div>
         </div>
         <div class="clear"></div>
+        <div id="container_18" style="<?php if($current_tab!=13){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
+            <form name="defective_required_form" class="form-horizontal" id ="add_spare_part_margin" action="<?php echo base_url() ?>employee/partner/process_defective_required_on_spare_parts" method="POST" enctype="multipart/form-data">
+                
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Add Defective/Ok Parts Required</b></p>
+                            <!-- <button type="button" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" class="btn btn-primary addPartMargin">Add More Parts</button>-->
+                        </div>
+                        <div class="contract_holder" id="contract_holder_1">
+                           <div class="panel panel-default" id="hide_spare" >
+                       
+                        <div class="panel panel-default" style="margin-left:1%;margin-top:1%;">
+                            <div class="panel-body" >
+                                <div class="row">                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_name">Appliance *</label>   
+                                                <select class="form-control appliainces_select" onchange="get_part_type('1')" id="appliainces_1" name="part[0][appliance]" >
+                                                    <option selected disabled>Select Appliance</option>
+                                                </select> 
+                                            <span id="appliance_1_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class = 'col-md-4'>
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_type">Parts Type *</label>
+                                            <div class="checkbox" style="float:right;"><input type="checkbox" onchange="select_all_part_type_for_defective_reqd()" id="spare_part_all_for_defective_reqd" value="">Select All</div>
+                                            <select class="form-control" id="parts_type_1" name="part[0][parts_type][]" multiple="multiple">
+                                            </select>
+                                            <span id="parts_type_1_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="defective_parts_pic">Is Defective/Ok Part Required *</label>
+                                            <select class="form-control" id="is_defective_required_1" name="is_defective_required_1">
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                <div class="col-md-2"> 
+                                    <div class="clear clear_bottom">   
+                                        <input type="hidden" name="partner_id" value="<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>">
+                                        <input type="Submit" value="Save" class="btn btn-primary" id="submit_defective_reqd" style="margin-top:12px;">
+                                    </div>
+                                </div>
+                            </div>
+                              
+                        </div>
+                        <div class="row"> 
+                            <div class="col-md-6">
+                                <div class="non_inventory_partners_part_type_table"></div>
+                            </div>
+                        </div>                     
+                    </div>
+                        </div>
+                        <div id="cloned"></div>
+                        
+                         
+                    </div>
+                    
+                </div>
+               
+            </form>
+            
+        </div>
+        <div class="clear"></div>  
       </div>   
     </div>
 </div>
@@ -5284,7 +5358,14 @@
         includeSelectAllOption:true,
         tags: true
     });
-            
+
+    $('#parts_type_1').select2({
+        placeholder: "Select part type",
+        allowClear: true,
+        includeSelectAllOption:true,
+        tags: true
+    });
+    
     get_services('<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>');
     
     function get_services(partner_id){
@@ -5296,6 +5377,7 @@
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
+                $("#appliainces_1").select2();
                 $("#model_service_id").html(response);
                 $("#add_model_service").html(response);
                 $("#mapping_service").html(response);
@@ -5308,18 +5390,66 @@
     }
     
    function get_part_type(id){
-   var service_id = $("#appliainces_"+id).val();
+        
+        $('.non_inventory_partners_part_type_table').html('');
+        
+        var service_id = $("#appliainces_"+id).val();
+        var check_non_inventory = 0;
+        if(id == 1) {
+            check_non_inventory = 1;
+        }
+       
          if(service_id!==''){
             $.ajax({
                 method:'POST',
                 async: false,
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-                data: {request_type:'part_type_to_margin',service_id:service_id},
-                success:function(data){    
-                    $("#parts_type_"+id).html(data);
+                data: {request_type:'part_type_to_margin',service_id:service_id,check_non_inventory:check_non_inventory},
+                success:function(data){ 
+                    if(data == '<?php echo UPDATE_INVENTORY_MASTER_LIST_MSG; ?>') {
+                        alert(data);
+                    } else {
+                        $("#parts_type_"+id).html(data);
+                        if(id == 1) {
+                            get_non_inventory_partners_part_type(id);
+                        }
+                    }
                 }
             });
        }
+    }
+    
+    function get_non_inventory_partners_part_type(id) {
+        var partner_id = $("#partner_id").val();
+        var service_id = $("#appliainces_"+id).val();
+        if(service_id != '' && partner_id != '') {
+            $.ajax({
+                method:'POST',
+                async:false,
+                url:'<?php echo base_url(); ?>employee/partner/get_non_inventory_partners_part_type',
+                data:{partner_id, service_id}
+            }).done(function(data) {
+                if(data) {
+                    $('.non_inventory_partners_part_type_table').html(data);        
+                }
+            });
+        }
+    }
+    
+    function update_non_inventory_partners_part_type(id, is_defective_required) {
+        //alert(id);alert(is_defective_required);
+        if(id != '' && is_defective_required != '') {
+            $.ajax({
+                method:'POST',
+                async:false,
+                url:'<?php echo base_url(); ?>employee/partner/update_non_inventory_partners_part_type',
+                data:{id, is_defective_required}
+            }).done(function(data) {
+                alert('Data has been updated succcessfully.');
+                get_non_inventory_partners_part_type(1);
+                
+            });
+        }
     }
     
     function select_all_part_type(){
@@ -5341,6 +5471,28 @@
     });
     }
     }
+
+    function select_all_part_type_for_defective_reqd(){
+        if ($('#spare_part_all_for_defective_reqd').is(":checked"))
+        {
+        $('#parts_type_1 option').prop('selected', true);
+        $('#parts_type_1').select2({
+           placeholder: "All Selected",
+           allowClear: true,
+           tags: true
+        });
+        }
+        else{
+        $('#parts_type_1 option').prop('selected', false);
+        $('#parts_type_1').select2({
+           placeholder: "Select All",
+           allowClear: true,
+           tags: true
+        });
+        }
+    }
+
+    
     
     $("#submit_spare_parts").click(function(){
         
@@ -5383,6 +5535,33 @@
         
         
     });
+    
+    $("#submit_defective_reqd").click(function(){
+        
+        var appliainces = $("#appliainces_1").val();
+        var parts_type = $("#parts_type_1").val();
+        var is_defective_required = $("#is_defective_required_1").val();
+        
+        if(appliainces == '' || appliainces == null){
+            $("#appliance_1_err").html("Please select appliance ").css('color','red');
+            return false;
+        }else{
+            $("#appliance_1_err").html('');
+        }
+        
+        if(parts_type == '' || parts_type == null){
+            $("#parts_type_1_err").html("Please select part type ").css('color','red');
+            return false;
+        }else{
+            $("#parts_type_1_err").html('');
+        }
+        
+        if((appliainces != '' || appliainces != null) && (parts_type != '' || parts_type != null)) {
+            return true;
+        }
+        
+    });
+    
     var model_number_datatable; 
     function get_model_number_list(){
         if(model_number_datatable){
