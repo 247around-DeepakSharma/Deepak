@@ -1751,7 +1751,7 @@ class vendor_model extends CI_Model {
      * @return: Array or Empty
      */
     function get_employee_relation($agent_id){
-        $this->db->select('employee.id as agent_id, group_concat(service_centres.id) as service_centres_id, group_concat(agent_state_mapping.state_code) as state_code');
+        $this->db->select('employee.id as agent_id, group_concat(DISTINCT service_centres.id) as service_centres_id, group_concat(DISTINCT agent_state_mapping.state_code) as state_code');
         $this->db->where('employee.id',$agent_id);
         $this->db->where_in('employee.groups',[_247AROUND_RM, _247AROUND_ASM]);
         $this->db->join('agent_state_mapping', 'agent_state_mapping.agent_id = employee.id', 'left');
@@ -1822,7 +1822,7 @@ class vendor_model extends CI_Model {
         if(!empty($sf_id)){
             $sql = "Select 
                         service_centres.rm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
@@ -1835,7 +1835,7 @@ class vendor_model extends CI_Model {
                     UNION
                     Select 
                         service_centres.asm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
