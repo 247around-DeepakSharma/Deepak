@@ -128,7 +128,7 @@ class reusable_model extends CI_Model {
     }
     
     function get_state_for_rm($rmID){
-       $sql = "SELECT state_code.state FROM agent_state_mapping  LEFT JOIN state_code ON 
+       $sql = "SELECT distinct(state_code.state) FROM agent_state_mapping  LEFT JOIN state_code ON 
         (state_code.state_code = agent_state_mapping.state_code) WHERE agent_state_mapping.agent_id = '" . $rmID . "'";
          $query = $this->db->query($sql);
         return $query->result_array();
