@@ -142,7 +142,7 @@ class vendor_model extends CI_Model {
      * @return: void
      * 
      */
-    function _get_viewallvendor_list($post, $select){
+ function _get_viewallvendor_list($post, $select){
 
 
          if (empty($select)) {
@@ -155,14 +155,17 @@ class vendor_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
-        if(!empty($post['where_in']))
-        {
-            $this->db->where_in($post['where_in']);
+// RM/AM mapping//
+        if(!empty($post['where_in'])){
+            foreach ($post['where_in'] as $fieldName=>$conditionArray){
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
+            }
         }
-
         if (!empty($post['search_value'])) {
             $like = "";
-            foreach ($post['column_search'] as $key => $item) { // loop column 
+            foreach ($post['column_search'] as $key => $item) { // loop column
                 // if datatable send POST for search
                 if ($key === 0) { // first loop
                     $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";

@@ -831,7 +831,7 @@ class vendor extends CI_Controller {
      * @return: JSON
      * 
      */
-    function get_vendor_list_ajax() {
+ function get_vendor_list_ajax() {
         $post = $this->get_post_data();
         // echo "<pre>";
         // print_r($_POST);
@@ -868,12 +868,11 @@ class vendor extends CI_Controller {
             }
         }
         /*  Getting  related SF to RM/ASM */
-        $id = $this->session->userdata('id'); 
+        $id = $this->session->userdata('id');
         $sf_list = $this->vendor_model->get_employee_relation($id);
-        if(!empty($sf_list)){
-           $post['where_in']['service_centres.id'] = array($sf_list); 
+        if(!empty($sf_list[0]['service_centres_id'])){
+           $post['where_in'] = ['service_centres.id' => explode(",",$sf_list[0]['service_centres_id'])];
         }
-
         $select = "service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified";
