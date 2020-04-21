@@ -491,6 +491,7 @@
             url: "<?php echo base_url(); ?>employee/vendor/get_vendor_list_ajax",
             type: "POST",
             data: function (d) {
+
                 var entity_details = get_entity_details();
                 d.state = entity_details.state,
                         d.city = entity_details.city,

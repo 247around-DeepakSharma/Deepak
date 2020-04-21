@@ -736,7 +736,7 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT `services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name
                . "from booking_details, users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
@@ -2963,5 +2963,86 @@ class Booking_model extends CI_Model {
         }
         return $res;
     }
+   
+    /**
+     * @Desc: This function is used to get Questionnaire for review team
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire($select="*", $where = array())
+    {
+        $this->db->select($select);
+        $this->db->from("review_questionare");
+        $this->db->join("review_request_type_mapping", "review_questionare.q_id = review_request_type_mapping.q_id", "left");
+        $this->db->join("request_type", "review_request_type_mapping.request_type_id = request_type.id", "left");
+        $this->db->where(['review_request_type_mapping.active' => 1, 'review_questionare.active' => 1]);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by("review_questionare.sequence","asc");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: THis function fetches all options against given questions
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire_options_checklist($select="*", $where_in = array())
+    {
+        $this->db->select($select);
+        $this->db->from("review_questionare_checklist");
+        $this->db->where(['review_questionare_checklist.active' => 1]);
+        if(!empty($where_in)){
+            $this->db->where_in($where_in);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: THis function saves booking review questionnaire data against booking
+     * @param : int booking_id (column id from booking_details),
+     * @param array $data :Array of answers for questions 
+     * @param $column_name : tells whether value is to be save in remarks column or checklist Id column
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function save_questionnaire_checklist_data($booking_id, $data, $column_name){
+        foreach($data as $q_id => $answer){
+            $arr_where = ['q_id' => $q_id, 'booking_id' => $booking_id];
+            $this->db->where($arr_where);
+            $query = $this->db->get('review_booking_checklist');
 
+            if ($query->num_rows() > 0 ) 
+            {
+               $this->db->where($arr_where);
+               $this->db->update('review_booking_checklist', [$column_name => $answer]);
+            } else {
+               $created_by = !empty($this->session->userdata('id')) ? $this->session->userdata('id') : "";
+               $data = ['q_id' => $q_id, 'booking_id' => $booking_id, $column_name => $answer, 'created_by' => $created_by];
+               $this->db->insert('review_booking_checklist',$data);
+            }
+        }        
+    }
+    
+    /**
+     * @Desc: THis function fetches all saved answers for the questionnaire against booking
+     * @param : string select statement
+     * @param : int booking_id (column id from booking_details)
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire_filled_answers($select="*", $booking_id)
+    {
+        $this->db->select($select);
+        $this->db->from("review_booking_checklist");
+        $this->db->where(['booking_id' => $booking_id]);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

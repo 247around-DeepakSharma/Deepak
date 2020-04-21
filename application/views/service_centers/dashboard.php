@@ -22,6 +22,35 @@
     #msl_info a{font-size:18px;color: #254d5d;}
     #msl_info .count{text-decoration: underline;font-size: 36px;}
 </style>
+<div id="myModalCovid" class="modal">
+
+  <!-- Modal content -->
+ 
+  <div class="modal-content">
+      <div class="modal-header">
+        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
+        <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
+      </div>
+
+      <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
+<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
+<p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
+<p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
+<p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
+<p style="margin: 0 0 17px !imporatnt;">5. Wash hands before work start, Wash hands after work finishes.</p>
+<p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
+<p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
+<p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
+<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
+
+      </div>
+
+ 
+    
+  </div>
+
+</div>
+
 <div class="row" style="margin: 0px;">
     <?php if($this->session->userdata("is_micro_wh")==1){ ?>
     <div class="col-md-10 col-md-offset-2" id="msl_info">
@@ -507,8 +536,43 @@
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
+
+
+$('#myModalCovid').modal({
+           backdrop: 'static'
+});
+$("#myBtncovid").click();
+setTimeout(function () {
+    $("#close_covid").removeClass('hide');
+
+}, 10000);
+
+
+
+$("#close_covid").click(function(){
+ 
+    $("#myModalCovid").hide();
+
+});
+
+// Get the modal
+var modal = document.getElementById("myModalCovid");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtncovid");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+
         $(document).ready(function(){
           $('[data-toggle="tooltip"]').tooltip();
         });

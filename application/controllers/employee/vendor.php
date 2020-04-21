@@ -893,6 +893,7 @@ class vendor extends CI_Controller {
             "recordsFiltered" => $this->vendor_model->count_filtered_viewallvendor($post),
             "data" => $data,
         );
+
         echo json_encode($output);
     }
 
@@ -993,8 +994,8 @@ class vendor extends CI_Controller {
         $row[] = '<a class="btn btn-warning" href="' . base_url() . 'employee/vendor/resend_login_details/vendor/' . $vendor_list["id"] . '">Resend Login Details</a>';
 
         $row[] = '<button type="button" class="btn btn-info btn-lg fa fa-history" data-toggle="modal" data-target="#on_off_history_view" onclick="get_on_off_history_view(' . $vendor_list["id"] . ')" style="padding: 11px 6px;margin: 0px 10px;"></button>';
-        return $row;
 
+        return $row;
     }
 
     function get_filterd_sf_cp_data(){
@@ -1058,24 +1059,39 @@ class vendor extends CI_Controller {
             $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
             
-            $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
+            //$this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details
             $sf_details = $this->vendor_model->getVendorContact($id);
             $sf_name = $sf_details[0]['name'];
 
             //Sending Mail to corresponding RM and admin group 
-            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
+            
+            //Sending Mail to Talevar Singh
+            if(TALEVAR_USER_ID){
+                $talevar_user_email = $this->user_model->getusername(TALEVAR_USER_ID);
+            }
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
-            
+
                 //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+                $tag = ($sf_details[0]['is_micro_wh'] == 1) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
+                $template = $this->booking_model->get_booking_email_template($tag);
                 if (!empty($template)) {
+                    $email['rm_name'] = $employee_relation[0]['full_name'];
                     if($sf_details[0]['is_micro_wh'] == 1){
                         $to .= ",".$template[1];
+                        if(ACCOUNT_EMAIL_ID){
+                            $to .= ",".ACCOUNT_EMAIL_ID;
+                            $email['talevar_user_name'] = 'Account Team';
+                        }
+                        if($talevar_user_email){
+                            $to .= ",".$talevar_user_email;
+                            $email['talevar_user_name']= 'Talevar Singh';
+                        }
                     }
-                    $email['rm_name'] = $employee_relation[0]['full_name'];
+                    
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
                         $email['on_off'] = 'ON';

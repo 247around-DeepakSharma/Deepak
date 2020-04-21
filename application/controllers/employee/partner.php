@@ -2814,7 +2814,6 @@ class Partner extends CI_Controller {
         }
 
         if ($response) {
-           
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
             if(!empty($spare_id) && empty($get_awb[0]['awb_by_wh'])){
                 
@@ -6670,7 +6669,18 @@ class Partner extends CI_Controller {
     function search_docket_number() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/search_docket_number');
+        $data = array();
+        $partner_id = $this->session->userdata("partner_id");
+        if (!empty($partner_id)) {
+            $partner_details = $this->partner_model->getpartner($partner_id);
+            if (!empty($partner_details)) {
+                $data['public_name'] = $partner_details[0]['public_name'];
+            } else {
+                $data['public_name'] = 'Partner';
+            }
+        }
+
+        $this->load->view('partner/search_docket_number' ,$data);
         $this->load->view('partner/partner_footer');
     }
     function partner_dashboard() {

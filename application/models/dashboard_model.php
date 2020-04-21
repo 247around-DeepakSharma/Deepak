@@ -490,10 +490,10 @@ class dashboard_model extends CI_Model {
 //         return $this->db->get('sf_not_exist_booking_details sf')->result_array();
          
         if($rm_id){
-         $where="where agent_state_mapping.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1";
+         $where="where agent_state_mapping.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1   and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)";
         }
         else{
-          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
+          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1   and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)";  
         }
        $sql='SELECT sf.pincode,sf.city,state_code.state,services.services,emp.full_name as full_name '
                 .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.id '
@@ -586,7 +586,7 @@ class dashboard_model extends CI_Model {
             $sql='SELECT COUNT(sf.pincode) as pincodeCount,employee.id,(CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END)'
                   .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.id INNER JOIN agent_state_mapping '
                     . 'ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
-                  .'employee ON agent_state_mapping.agent_id=employee.id where sf.active_flag=1 and sf.is_pincode_valid=1 group by full_name order by count(sf.pincode) DESC';
+                  .'employee ON agent_state_mapping.agent_id=employee.id where sf.active_flag=1 and sf.is_pincode_valid=1  and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code) group by full_name order by count(sf.pincode) DESC';
             $query = $this->db->query($sql);
             return $query->result_array();          
      }
@@ -838,7 +838,7 @@ class dashboard_model extends CI_Model {
        $sql='SELECT sf.pincode,COUNT(sf.pincode) as pincodeCount,state_code.state,sf.city,sf.service_id,services.services'
                 .' FROM sf_not_exist_booking_details sf LEFT JOIN services on sf.service_id=services.id LEFT JOIN state_code on sf.state=state_code.id'
                 .' INNER JOIN agent_state_mapping ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
-                 .'employee ON agent_state_mapping.agent_id=employee.id '. $where .' group by sf.pincode,sf.service_id order by COUNT(sf.pincode) DESC';
+                 .'employee ON agent_state_mapping.agent_id=employee.id '. $where .'  and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)  group by sf.pincode,sf.service_id order by COUNT(sf.pincode) DESC';
        $query = $this->db->query($sql);
        return $query->result_array();
      }
@@ -847,11 +847,11 @@ class dashboard_model extends CI_Model {
     {
         if($agentID)
         {
-         $where='where agent_state_mapping.agent_id= '. $agentID.' and sf.active_flag=1 and sf.is_pincode_valid=1';
+         $where='where agent_state_mapping.agent_id= '. $agentID.' and sf.active_flag=1 and sf.is_pincode_valid=1 and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)';
         }
         else
         {
-          $where='where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1';  
+          $where='where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1 and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)';  
         }
        
         $sql='SELECT ' .$select
@@ -866,11 +866,11 @@ class dashboard_model extends CI_Model {
     {
         if($agentID)
         {
-         $where="where agent_state_mapping.agent_id= ". $agentID." and sf.active_flag=1 and sf.is_pincode_valid=1";
+         $where="where agent_state_mapping.agent_id= ". $agentID." and sf.active_flag=1 and sf.is_pincode_valid=1  and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code) ";
         }
         else
         {
-          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
+          $where="where agent_state_mapping.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1  and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code) ";  
         }
         
         $sql='SELECT '.$select
@@ -1086,6 +1086,20 @@ class dashboard_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
         
+    }
+    
+    /**
+     * @Desc this function is used to return total cancelled booking by cancellation reason wise
+     * @return Array
+     */
+    function get_booking_cancellation_reasons($startDate,$endDate){
+        $this->db->select('cancellation_reason,count(*) as count');
+        $this->db->where("(current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate'");
+        $this->db->from('booking_details');
+        $this->db->group_by('cancellation_reason');
+        $query = $this->db->get();
+        //echo $this->db->last_query();die;
+        return $query->result_array();        
     }
     
 }
