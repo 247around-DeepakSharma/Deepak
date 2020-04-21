@@ -155,9 +155,9 @@ class vendor_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
-        if(!empty($post['where']))
+        if(!empty($post['where_in']))
         {
-            $this->db->where_in($post['where']);
+            $this->db->where_in($post['where_in']);
         }
 
         if (!empty($post['search_value'])) {
