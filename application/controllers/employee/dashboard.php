@@ -3134,7 +3134,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($rmID){
             $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
