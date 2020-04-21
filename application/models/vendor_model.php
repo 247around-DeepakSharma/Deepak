@@ -82,7 +82,13 @@ class vendor_model extends CI_Model {
 
 
 
-
+    /**
+     * @Desc: This function is used to get data of all service centers
+     * @params: $post array
+     * @Author : Abhishek Awasthi
+     * @return: Int
+     * 
+     */
 
     function viewallvendor($post, $select){
 
@@ -148,6 +154,10 @@ class vendor_model extends CI_Model {
         $this->db->from('service_centres');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
+        }
+        if(!empty($post['where']))
+        {
+            $this->db->where_in($post['where']);
         }
 
         if (!empty($post['search_value'])) {
