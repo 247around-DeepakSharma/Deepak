@@ -3643,8 +3643,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         } else {
             $tmp_subject =  "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
-            $template = "mwh_msl_data.xlsx";
-
+            if($this->uri->segment(1) == 'partner') {
+                $template = "mwh_msl_data_for_partner.xlsx";
+            } else {
+                $template = "mwh_msl_data.xlsx";
+            }
             if ($this->session->userdata('userType') == 'partner') {
                 $where["im.entity_id"] = $this->session->userdata('partner_id');
                 $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
