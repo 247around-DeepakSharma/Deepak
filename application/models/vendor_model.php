@@ -81,14 +81,16 @@ class vendor_model extends CI_Model {
     }
 
 
+
     /**
      * @Desc: This function is used to get data of all service centers
-     * @params: $post array, $select
+     * @params: $post array
      * @Author : Abhishek Awasthi
      * @return: Int
      * 
      */
-    function viewallvendor($post, $select) {
+
+    function viewallvendor($post, $select){
 
         $this->_get_viewallvendor_list($post, $select);
         if ($post['length'] != -1) {
@@ -100,23 +102,27 @@ class vendor_model extends CI_Model {
 
 
         return $result;
+
+
     }
 
     /**
-     * @Desc: This function is used to get data of all service centers count
+     * @Desc: This function is used to get data of all service centers
      * @params: $post array
      * @Author : Abhishek Awasthi
      * @return: Int
      * 
      */
-    function count_all_viewallvendor($post) {
-        $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
+
+    function count_all_viewallvendor($post){
+         $this->_get_viewallvendor_list($post, 'count( DISTINCT service_centres.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
 
+
     /**
-     *  @desc : This function is used to get total filtered service centers count
+     *  @desc : This function is used to get total filtered service centers
      *  @param : $post string
      *  @Author : Abhishek Awasthi
      *  @return: Int
@@ -136,23 +142,30 @@ class vendor_model extends CI_Model {
      * @return: void
      * 
      */
-    function _get_viewallvendor_list($post, $select) {
+ function _get_viewallvendor_list($post, $select){
 
 
-        if (empty($select)) {
+         if (empty($select)) {
             $select = '*';
         }
         $this->db->distinct();
         $this->db->select($select, FALSE);
-        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id=service_centres.id', 'left');
+        $this->db->join('account_holders_bank_details','account_holders_bank_details.entity_id=service_centres.id','left');
         $this->db->from('service_centres');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
-
+// RM/AM mapping//
+        if(!empty($post['where_in'])){
+            foreach ($post['where_in'] as $fieldName=>$conditionArray){
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
+            }
+        }
         if (!empty($post['search_value'])) {
             $like = "";
-            foreach ($post['column_search'] as $key => $item) { // loop column 
+            foreach ($post['column_search'] as $key => $item) { // loop column
                 // if datatable send POST for search
                 if ($key === 0) { // first loop
                     $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
@@ -177,6 +190,7 @@ class vendor_model extends CI_Model {
         if (isset($post['having']) && !empty($post['having'])) {
             $this->db->having($post['having'], FALSE);
         }
+
     }
 
     /**
@@ -1750,7 +1764,7 @@ class vendor_model extends CI_Model {
      * @return: Array or Empty
      */
     function get_employee_relation($agent_id){
-        $this->db->select('employee.id as agent_id, group_concat(service_centres.id) as service_centres_id, group_concat(agent_state_mapping.state_code) as state_code');
+        $this->db->select('employee.id as agent_id, group_concat(DISTINCT service_centres.id) as service_centres_id, group_concat(DISTINCT agent_state_mapping.state_code) as state_code');
         $this->db->where('employee.id',$agent_id);
         $this->db->where_in('employee.groups',[_247AROUND_RM, _247AROUND_ASM]);
         $this->db->join('agent_state_mapping', 'agent_state_mapping.agent_id = employee.id', 'left');
@@ -1821,7 +1835,7 @@ class vendor_model extends CI_Model {
         if(!empty($sf_id)){
             $sql = "Select 
                         service_centres.rm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
@@ -1834,7 +1848,7 @@ class vendor_model extends CI_Model {
                     UNION
                     Select 
                         service_centres.asm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
@@ -2370,44 +2384,6 @@ class vendor_model extends CI_Model {
         $query = $this->db->get('sms_template');
         return $query->result();
     }
-
-        /**
-     * 
-     * @Desc: This function is used to get the list of all reassign reasons
-     * @params:  $select,$where
-     * @return: Array or Empty
-     * @author : Abhishek Awasthi
-     * @date : 08-04-2020
-     */
-
-    function getReassignReason($select,$where){
-
-        $this->db->select($select);
-        $this->db->where($where);
-        $this->db->order_by('reason','DESC');
-        $query = $this->db->get('booking_cancellation_reasons');
-        return $query->result_array();
-
-    }
-
-
-    /**
-     * 
-     * @Desc: This function is used to save reassign reasons and other details
-     * @params:  
-     * @return: Boolean
-     * @author : Abhishek Awasthi
-     * @date : 08-04-2020
-     */
-
-    function saveReassignVendor($data){
-        $this->db->insert('reassign_bookings',$data);
-        return $this->db->insert_id();
-
-    }
-
-
-  
     
     /**
      * 

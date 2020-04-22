@@ -812,7 +812,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     <?php } ?>
                             </div></div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
@@ -1064,6 +1063,7 @@
             } else{
                 $("#misc_charge_loader").css('display','none');
                $("#misc_charge_div").css('display', 'block');
+               $("#misc_charge_div").css('max-width', '100%');
                $("#misc_charge").html(response);
               
             }

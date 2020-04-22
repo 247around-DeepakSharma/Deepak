@@ -54,6 +54,7 @@
             <!-- /.navbar-header -->
             <ul class="nav navbar-top-links navbar-left">
                 <li>
+                	
                     <a href="<?php echo base_url()?>employee/user"><i class="fa fa-fw fa-edit"></i>Find User</a>
                 </li>
                 <li class="dropdown ">
@@ -346,7 +347,9 @@
                      /.dropdown-user
                 </li>
 -->
+            
             </ul>
+
             <ul class="nav navbar-top-links navbar-right">
                 <li>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('employee_id'); ?> <b class="caret"></b></a>
@@ -356,6 +359,7 @@
             <!-- /.navbar-top-links -->
             <!-- /.navbar-static-side -->
         </nav>
+
         <script type="text/javascript">
             (function($){
             $(document).ready(function(){
@@ -376,3 +380,4 @@
             .dropdown-submenu:hover>a:after{border-left-color:#555;}
             .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
         </style>
+

@@ -831,7 +831,7 @@ class vendor extends CI_Controller {
      * @return: JSON
      * 
      */
-    function get_vendor_list_ajax() {
+ function get_vendor_list_ajax() {
         $post = $this->get_post_data();
         // echo "<pre>";
         // print_r($_POST);
@@ -867,7 +867,12 @@ class vendor extends CI_Controller {
                 $post['where']['service_centres.is_sf'] = 1;
             }
         }
-
+        /*  Getting  related SF to RM/ASM */
+        $id = $this->session->userdata('id');
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if(!empty($sf_list[0]['service_centres_id'])){
+           $post['where_in'] = ['service_centres.id' => explode(",",$sf_list[0]['service_centres_id'])];
+        }
         $select = "service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified";
@@ -1233,14 +1238,10 @@ class vendor extends CI_Controller {
             
             $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
             // checks to validate whether booking can be re-assigned or not
-            $arr_validation_checks = $this->check_reassign_validations($booking_id); 
-
-            $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id,'status !="Cancelled"'=>NULL)); 
-
-            $reassign_reason = $this->vendor_model->getReassignReason("*",array('reason_of'=>'reassign'));   
+            $arr_validation_checks = $this->check_reassign_validations($booking_id);          
             
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks,'spare'=>$sp_details,'reassign_reasons'=>$reassign_reason));
+            $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers, 'arr_validation_checks' => $arr_validation_checks));
         }
     }
 
@@ -1261,14 +1262,14 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
                 $select = "service_center_booking_action.id, service_center_booking_action.booking_id, service_center_booking_action.current_status,service_center_booking_action.internal_status";
                 $where = array("service_center_booking_action.booking_id"=>$booking_id);
                 $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
-                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id,booking_details.id, booking_details.partner_id, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
     //            if (IS_DEFAULT_ENGINEER == TRUE) {
     //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
     //            } else {
@@ -1378,75 +1379,12 @@ class vendor extends CI_Controller {
                         }
                     }
                 }
-                $rm_responsible = $this->input->post('rm_responsible');
-                $reason = $this->input->post('reason');
-                $reason_row =  $this->vendor_model->getReassignReason("*",array('id'=>$reason));
-                $str_reason = !empty($reason_row[0]->reason) ? $reason_row[0]->reason : "";
-                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks." - ".$str_reason, $this->session->userdata('id'), 
-                        $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
-
-                foreach($spare_data as $spare){
-
-                    if($spare['service_center_id']==$spare['partner_id']){
-
-                         $in['receiver_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
-                         $in['receiver_entity_type'] = _247AROUND_SF_STRING;
-                         $in['sender_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
-                         $in['sender_entity_type'] = _247AROUND_SF_STRING;
-                         $in['stock'] = $spare['shipped_quantity'];
-                         $in['booking_id'] = $spare['booking_id'];
-                         $in['agent_id'] = $this->session->userdata('id');
-                         $in['agent_type'] = _247AROUND_EMPLOYEE_STRING;
-                         $in['is_wh'] = TRUE;
-                         $in['inventory_id'] = $spare['shipped_inventory_id'];
-                         $this->miscelleneous->process_inventory_stocks($in);
-                        $sp['status'] = SPARE_PARTS_CANCELLED;
-                        $sp['consumed_part_status_id'] = NULL;
-                        $sp['consumption_remarks'] = NULL;
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-                        $tracking_details = array('spare_id' => $spare['id'], 'action' => "Spare Part Cancelled", 'remarks' => "Booking Reassign - Micro Stock In", 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
 
 
+                $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 
-                    }else{
-                        if(isset($rm_responsible) && !empty($rm_responsible)){
-                         $sp['service_center_id'] = $service_center_id;
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-                                $tracking_details = array('spare_id' => $spare['id'], 'action' => "Spare Part Reassign", 'remarks' => "Booking Reassign - Part Reassign", 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-
-
-                        }else{
-
-                        $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
-                        $sp['status'] = OK_PART_TO_BE_SHIPPED;
-                        $sp['consumed_part_status_id'] = 5;
-                        $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-                                $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - ".OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
-                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-
-
-                        }
-
-                    }  
- 
-
-                }
- 
-            $reassign= array(
-                'booking_details_id'=>$previous_sf_id[0]['id'],
-                'reason'=>$reason,
-                'remark'=>$remarks,
-                'old_sf'=>$previous_sf_id[0]['assigned_vendor_id'],
-                'new_sf'=>$service_center_id,
-                'rm_responsible_flag'=>$rm_responsible,
-                'create_date'=>date("d-m-Y h:i:s")
-            );
-            $this->vendor_model->saveReassignVendor($reassign);
+                $sp['service_center_id'] = $service_center_id;
+                $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
 
                $default_id =_247AROUND_DEFAULT_AGENT;
                $defaultagent_name =_247AROUND_DEFAULT_AGENT_NAME ; 
@@ -5360,7 +5298,7 @@ class vendor extends CI_Controller {
     function get_miscellaneous_charges($booking_id, $is_sf = 0, $is_partner = 0){
        if(!empty($booking_id)){
             $data = $this->booking_model->get_misc_charges_data('*', array('booking_id' => $booking_id, 'active' => 1));
-            $html = "<div style='width: 100% ;'>";
+            $html = "<div class='table-responsive'>";
             $html .= "<table style='overflow-x:auto;' class='table  table-striped table-bordered' ><thead><tr><th>Description</th>";
             if($is_partner){
                $html  .= "<th>Partner Offer</th>";
