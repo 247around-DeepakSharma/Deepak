@@ -158,8 +158,10 @@
            $clone
                .find('[id="product_or_services"]').attr('name', 'misc[' + partIndex + '][product_or_services]').attr('id','product_or_services'+partIndex).attr('required','').end()
                .find('[id="description"]').attr('name', 'misc[' + partIndex + '][description]').attr('id','description_'+partIndex).attr('required','').end()
-               .find('[id="vendor_charge"]').attr('name', 'misc[' + partIndex + '][vendor_charge]').attr('id','vendor_charge_'+partIndex).end()
-               .find('[id="partner_charge"]').attr('name', 'misc[' + partIndex + '][partner_charge]').attr('id','partner_charge_'+partIndex).end();
+               .find('[id="vendor_charge"]').attr('name', 'misc[' + partIndex + '][vendor_charge]').attr('id','vendor_charge_'+partIndex).attr('data-part-index',partIndex).end()
+               .find('[id="partner_charge"]').attr('name', 'misc[' + partIndex + '][partner_charge]').attr('id','partner_charge_'+partIndex).attr('data-part-index',partIndex).end();
+               $('.vendor_charge').bind('change');
+               $('.partner_charge').bind('change');
     
        })
     
@@ -171,31 +173,35 @@
            $row.remove();
        });
        // CRM-6064 Vendor Charges can't be greater than Partner Offerings
-       $('.partner_charge').on('change',fucntion(){
-           var $row = $(this).parents('.clone'),
-           index = $row.attr('data-part-index');
-           var partner_charge = $('#partner_charge'+index).val();
-           var vendor_charge = $('#vendor_charge'+index).val();
+       // When partner charge text change
+       $(document).on('change','.partner_charge',function(){
+           var index = $(this).attr('data-part-index');           
+           var partner_charge = $('#partner_charge_'+index).val();
+           var vendor_charge = $('#vendor_charge_'+index).val();
            
            if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
-               alert('Vendor chages should be less than partner charges');
-               $('#vendor_charge'+index).val('');
-               $('#vendor_charge'+index).css('border-color','red');
-               $('#vendor_charge'+index).foucus();
+               alert('Vendor chages can\'t greater than partner charges');
+               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).css('border-color','red');
+               $('#vendor_charge_'+index).focus();
+           }else if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+                $('#vendor_charge_'+index).css('border-color','');
            }
            
        });
-       $('.vendor_charge').on('change',fucntion(){
-           var $row = $(this).parents('.clone'),
-           index = $row.attr('data-part-index');
-           var partner_charge = $('#partner_charge'+index).val();
-           var vendor_charge = $('#vendor_charge'+index).val();
-           
+       // vendor change text changed 
+       $(document).on('change','.vendor_charge',function(){          
+           var index = $(this).attr('data-part-index');           
+           var partner_charge = $('#partner_charge_'+index).val();
+           var vendor_charge = $('#vendor_charge_'+index).val();
+                      
            if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
-               alert('Vendor chages should be less than partner charges');
-               $('#vendor_charge'+index).val('');
-               $('#vendor_charge'+index).css('border-color','red');
-               $('#vendor_charge'+index).foucus();
+               alert('Vendor chages can\'t greater than partner charges');
+               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).css('border-color','red');
+               $('#vendor_charge_'+index).focus();
+           }else if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+                $('#vendor_charge_'+index).css('border-color','');
            }
            
        });
