@@ -2461,3 +2461,5 @@ CREATE TABLE review_booking_checklist (
   CONSTRAINT fk_booking_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
   CONSTRAINT fk_booking_checklist_checklist_mapping FOREIGN KEY (checklist_id) REFERENCES review_questionare_checklist (checklist_id))
   ENGINE=InnoDB AUTO_INCREMENT=1; 
+ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
+

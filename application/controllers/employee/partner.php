@@ -6655,18 +6655,7 @@ class Partner extends CI_Controller {
     function search_docket_number() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $data = array();
-        $partner_id = $this->session->userdata("partner_id");
-        if (!empty($partner_id)) {
-            $partner_details = $this->partner_model->getpartner($partner_id);
-            if (!empty($partner_details)) {
-                $data['public_name'] = $partner_details[0]['public_name'];
-            } else {
-                $data['public_name'] = 'Partner';
-            }
-        }
-
-        $this->load->view('partner/search_docket_number' ,$data);
+        $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
     }
     function partner_dashboard() {
