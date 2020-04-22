@@ -1028,17 +1028,7 @@
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
                           
-                        if(blDisableAcCategoryOptions == '1') {
-                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
-                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
-                            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
-                            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
-                            $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
-                            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
-                            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
-                            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (In Warranty)"]').prop('disabled', true);
-                            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (Out Warranty)"]').prop('disabled', true);
-                        }
+                          disable_sub_request_types();
                      }
                 }
             });
@@ -1740,6 +1730,7 @@
     function check_booking_request()
     {
         $(".price_checkbox").attr("disabled", false);
+        disable_sub_request_types();
         var model_number = $(".select-model").val();
         var dop = $("#purchase_date").val();
         var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
@@ -1781,5 +1772,20 @@
     }
 // function ends here ---------------------------------------------------------------- 
     
+    // This function disables all sub request types
+    // Because it is not practical that one can detect these types requirements during booking creation
+    function disable_sub_request_types(){
+        if(blDisableAcCategoryOptions == '1') {
+            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
+            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
+            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
+            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+            $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
+            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
+            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
+            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (In Warranty)"]').prop('disabled', true);
+            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (Out Warranty)"]').prop('disabled', true);
+        }
+    }
 </script>
  
