@@ -2407,3 +2407,7 @@ CREATE TABLE `customer_dissatisfactory_reasons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
+
+-- Prity 22-04-2020
+-- 73 Branch
+UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
