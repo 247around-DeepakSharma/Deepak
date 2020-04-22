@@ -895,7 +895,7 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status,(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, spare_consumption_status.is_consumed";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -2848,7 +2848,6 @@ function get_data_for_partner_callback($booking_id) {
                     `Requested Part Code`,
                     `Requested Part`,
                     `Part Requested Date`,
-                    `Part Warranty Status`,
                     `Spare Approval Date`,
                     `Spare approval Person Name`,
                     `Requested On Partner/Warehouse`,
@@ -3004,7 +3003,6 @@ function get_data_for_partner_callback($booking_id) {
                     '' AS 'Requested Part Code',
                     '' AS 'Requested Part',
                     '' AS 'Part Requested Date',
-                    '' AS 'Part Warranty Status',
                     '' AS 'Spare Approval Date',
                     '' AS 'Spare approval Person Name',
                     '' AS 'Requested On Partner/Warehouse',
@@ -3182,7 +3180,6 @@ function get_data_for_partner_callback($booking_id) {
                     requested_part_detail.part_number AS 'Requested Part Code',
                     spare_parts_details.parts_requested AS 'Requested Part',
                     spare_parts_details.date_of_request AS 'Part Requested Date',
-                    (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'Part In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Part Out-Warranty' ELSE '' END) AS 'Part Warranty Status',
                     spare_parts_details.spare_approval_date AS 'Spare Approval Date',
                     (CASE WHEN spare_parts_details.approval_entity_type = '247around' THEN spare_approval_person.full_name WHEN spare_parts_details.approval_entity_type = 'partner' THEN spare_approval_person_partner.agent_name ELSE ' ' END) AS 'Spare approval Person Name',
                     (CASE WHEN spare_parts_details.is_micro_wh = 1 THEN 'Micro-warehouse' WHEN spare_parts_details.is_micro_wh = 2 THEN 'Warehouse' ELSE 'Partner' END) AS 'Requested On Partner/Warehouse',
