@@ -1264,7 +1264,7 @@ class Partner extends CI_Controller {
         //Get DateTime
         $sch_date = $this->getDateTime($tsEnd);
 
-        $booking['booking_date'] = date('d-m-Y', strtotime($sch_date));
+        $booking['booking_date'] = date('Y-m-d', strtotime($sch_date));
 
         switch ($tsStart['hour']) {
             //9-12 PM
@@ -1985,9 +1985,9 @@ class Partner extends CI_Controller {
                 $data['booking_date'] = '';
             } else if (!empty($booking['assigned_vendor_id'])) {
 
-                $new_booking_date = date('d-m-Y');
+                $new_booking_date = date('Y-m-d');
                 if (date('H') > 12) {
-                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $new_booking_date = date('Y-m-d', strtotime("+1 days"));
                 }
 
                 $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
@@ -1998,7 +1998,7 @@ class Partner extends CI_Controller {
                     $non_workng_days = explode(",", $sf[0]['non_working_days']);
 
                     $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
-                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                    $new_booking_date = date('Y-m-d', $slot[0]['Slot'][0]['StartTime']);
                 }
 
                 $data['booking_date'] = $new_booking_date;
@@ -2019,9 +2019,9 @@ class Partner extends CI_Controller {
                 $data['booking_date'] = '';
             } else if (!empty($booking['assigned_vendor_id'])) {
 
-                $new_booking_date = date('d-m-Y');
+                $new_booking_date = date('Y-m-d');
                 if (date('H') > 12) {
-                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $new_booking_date = date('Y-m-d', strtotime("+1 days"));
                 }
 
                 $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
@@ -2032,7 +2032,7 @@ class Partner extends CI_Controller {
                     $non_workng_days = explode(",", $sf[0]['non_working_days']);
 
                     $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
-                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                    $new_booking_date = date('Y-m-d', $slot[0]['Slot'][0]['StartTime']);
                 }
 
                 $data['booking_date'] = $new_booking_date;

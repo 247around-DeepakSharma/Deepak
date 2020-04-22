@@ -492,7 +492,7 @@ class Partner extends CI_Controller {
     }
 
     function get_booking_form_data() {
-        $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $booking_date = date('Y-m-d', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
         $post['partner_id'] = $this->session->userdata('partner_id');
         $post['agent_id'] = $this->session->userdata('agent_id');
@@ -1459,7 +1459,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
             $booking_date = $this->input->post('booking_date');
 
-            $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
+            $data['booking_date'] = date('Y-m-d', strtotime($booking_date));
 //            $data['current_status'] = 'Rescheduled';
 //            $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
@@ -1806,7 +1806,7 @@ class Partner extends CI_Controller {
 
             $user['state'] = $distict_details['state'];
             $booking_details['parent_booking'] = $post['parent_booking'];
-            $booking_details['booking_date'] = date("d-m-Y", strtotime($post['booking_date']));
+            $booking_details['booking_date'] = date("Y-m-d", strtotime($post['booking_date']));
             $booking_details['partner_id'] = $post['partner_id'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
@@ -3914,11 +3914,11 @@ class Partner extends CI_Controller {
                 }
                 
                 if(date('l' == 'Sunday')){
-                    $booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $booking_date = date('Y-m-d', strtotime("+1 days"));
                 } else if(date('H') > 12){
-                    $booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $booking_date = date('Y-m-d', strtotime("+1 days"));
                 } else {
-                    $booking_date = date('d-m-Y');
+                    $booking_date = date('Y-m-d');
                 }
                 
                 $this->booking_model->update_booking($booking_id, array('initial_booking_date' => $booking_date, 'booking_date' => $booking_date));
@@ -6669,18 +6669,7 @@ class Partner extends CI_Controller {
     function search_docket_number() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $data = array();
-        $partner_id = $this->session->userdata("partner_id");
-        if (!empty($partner_id)) {
-            $partner_details = $this->partner_model->getpartner($partner_id);
-            if (!empty($partner_details)) {
-                $data['public_name'] = $partner_details[0]['public_name'];
-            } else {
-                $data['public_name'] = 'Partner';
-            }
-        }
-
-        $this->load->view('partner/search_docket_number' ,$data);
+        $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
     }
     function partner_dashboard() {
@@ -6917,7 +6906,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -6933,7 +6922,7 @@ class Partner extends CI_Controller {
         $finalArray = array();
         $partner_id = $this->session->userdata('partner_id');
         $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
-                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
         $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
         $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
         $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
@@ -7477,8 +7466,8 @@ class Partner extends CI_Controller {
         $state=0;
         $postData = $this->input->post();
         $columnMappingArray = array("column_2"=>"booking_details.request_type","column_3"=>"sc.cancellation_reason",
-            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')",
-            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");    
+            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')",
+            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");    
         $order_by = "ORDER BY booking_details.booking_id DESC";
         if(array_key_exists("order", $postData)){
                $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];

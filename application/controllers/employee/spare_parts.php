@@ -3165,7 +3165,7 @@ class Spare_parts extends CI_Controller {
                     $sc_entity_id = NULL;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
@@ -3684,8 +3684,11 @@ class Spare_parts extends CI_Controller {
         } else {
             $tmp_subject = "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
-            $template = "mwh_msl_data.xlsx";
-
+            if($this->uri->segment(1) == 'partner') {
+                $template = "mwh_msl_data_for_partner.xlsx";
+            } else {
+                $template = "mwh_msl_data.xlsx";
+            }
             if ($this->session->userdata('userType') == 'partner') {
                 $where["im.entity_id"] = $this->session->userdata('partner_id');
                 $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
