@@ -2411,3 +2411,15 @@ ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL 
 -- Prity 22-04-2020
 -- 73 Branch
 UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
+
+-- Prity 15-04-2020 (73 Branch)
+ALTER TABLE booking_details change column booking_date booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column booking_date date NOT NULL AFTER booking_date_old; 
+update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
+update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+
+-- Ankit Rajvanshi 22-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);

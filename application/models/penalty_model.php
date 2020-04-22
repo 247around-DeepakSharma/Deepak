@@ -219,7 +219,7 @@ class Penalty_model extends CI_Model {
                 AND SC.booking_id = BD.booking_id
                 AND (
                 DATEDIFF( 
-                CURRENT_TIMESTAMP , STR_TO_DATE( BD.booking_date,  '%d-%m-%Y' ) ) >=0
+                CURRENT_TIMESTAMP , STR_TO_DATE( BD.booking_date,  '%Y-%m-%d' ) ) >=0
                 )
                 AND SCS.id = SC.service_center_id
                 AND SCS.is_update =1
