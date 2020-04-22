@@ -719,6 +719,9 @@ class Around_scheduler extends CI_Controller {
 
     function send_mail_for_bank_details_notification() {
         $idArray = array();
+        // initialize to and cc arrays
+        $to = array();
+        $cc = array();
         log_message('info', __METHOD__ . '=> Entering...');
         $where = array("(account_holders_bank_details.bank_name IS NULL
                          OR account_holders_bank_details.bank_account IS NULL
@@ -738,12 +741,21 @@ class Around_scheduler extends CI_Controller {
         if (!empty($data)) {
             foreach ($data as $val) {
                 $idArray[] = $val['id'];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
+                $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id']);
+                $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+                $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : "";                
                 $template = $this->booking_model->get_booking_email_template("bank_details_notification");
                 $body = $template[0];
-                $to = $val['email'];
+                // Add Emails in To after removing blank Ids
+                array_push($to, $val['email']);
+                $to = array_filter($to);
+                $to = implode(',', $to);
+                // set Email From
                 $from = $template[2];
-                $cc = $template[3] . ',' . $rm_mail;
+                // Add RM and ASM mails in CC after removing blank Ids
+                array_push($cc, $template[3], $rm_mail, $asm_mail);
+                $cc = array_filter($cc);
+                $cc = implode(',', $cc);
                 $subject = vsprintf($template[4], $val['name']);
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'bank_details_notification');
             }

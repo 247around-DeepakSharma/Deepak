@@ -2527,3 +2527,7 @@ update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_o
 ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
 ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
 update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+
+-- Prity 22-04-2020
+-- 73 Branch
+UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
