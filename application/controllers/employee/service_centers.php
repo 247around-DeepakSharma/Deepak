@@ -1229,8 +1229,12 @@ class Service_centers extends CI_Controller {
      */
     function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city = "", $pincode = "", $templet = "", $correctpin = "") {
         $email_template = $this->booking_model->get_booking_email_template($templet);
+        // Initialize To array
+        $to = array();
         if (!empty($email_template)) {
-            $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
+            // Get ASM mail 
+            $asm_email = $this->get_asm_email($this->session->userdata('service_center_id'));
+            
             $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
             $JoinTypeTableArray['service_centres'] = 'left';
             $booking_state = $this->reusable_model->get_search_query('booking_details', 'service_centres.state', array('booking_details.booking_id' => $booking_id), $join, NULL, NULL, NULL, $JoinTypeTableArray)->result_array();
@@ -1239,10 +1243,15 @@ class Service_centers extends CI_Controller {
             $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']), "", 0, 1, 1, "partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $arr_am_data = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id']);
+                $am_email = !empty($arr_am_data[0]['official_email']) ? $arr_am_data[0]['official_email'] : "";
             }
 
-            $to = $rm_email . "," . $am_email;
+            // push AM mail and ASM mail in To
+            array_push($to, $asm_email, $am_email);
+            // Remove Blank emails
+            $to = array_filter($to);
+            $to = implode(',', $to);
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
@@ -4434,14 +4443,28 @@ class Service_centers extends CI_Controller {
      * @return : string
      */
     private function get_rm_email($vendor_id) {
-        $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        //  print_r($employee_rm_relation); exit();
+        $employee_rm_relation = $this->vendor_model->get_rm_contact_details_by_sf_id($vendor_id);
         $rm_poc_email = "";
         if (!empty($employee_rm_relation)) {
             $rm_poc_email = $employee_rm_relation[0]['official_email'];
         }
 
         return $rm_poc_email;
+    }
+    
+    /**
+     * @Desc: This function is used to get ASM email (:POC) details for the corresponding vendor 
+     * @params: vendor 
+     * @return : string
+     */
+    private function get_asm_email($vendor_id) {
+        $employee_asm_relation = $this->vendor_model->get_asm_contact_details_by_sf_id($vendor_id);
+        $asm_poc_email = "";
+        if (!empty($employee_asm_relation)) {
+            $asm_poc_email = $employee_asm_relation[0]['official_email'];
+        }
+
+        return $asm_poc_email;
     }
 
     /**
