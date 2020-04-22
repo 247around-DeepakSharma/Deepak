@@ -78,39 +78,52 @@
             <input type="hidden" name="user_id" value="<?php echo $data[0]['user_id'];?>">
             <input type="hidden" name="mobile_no" value="<?php echo $data[0]['booking_primary_contact_no']; ?>">
         </div>
-            <div class="col-md-12">
-        <div class="col-md-6">
-            
+        <div class="col-md-12">
+            <div class="col-md-6">            
                 <div class="form-group <?php if( form_error('rating_star') ) { echo 'has-error';} ?>">
                     <label for="rating_star" class="col-md-2" style="margin-left: 13px;">Rating</label>
-                                <div class="col-md-6">
-                                    <Select type="text" class="form-control"  name="rating_star" id="rating_star" value="<?php echo set_value('rating_star'); ?>" style="margin-left: 117px;width: 96%;">
-                                    <option value ="">Select</option>
-                                    <option>-1</option>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                    </Select>
-                                </div>
+                        <div class="col-md-6">
+                            <Select type="text" class="form-control"  name="rating_star" id="rating_star" value="<?php echo set_value('rating_star'); ?>" style="margin-left: 117px;width: 96%;">
+                            <option value ="">Select</option>
+                            <option>-1</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            </Select>
+                        </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="margin-left:14px;">
+                    <div class="checkbox"> <label><input type="checkbox" id="not_reachable" name="not_reachable"><b>Customer Not Reachable</b></label></div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group" style="margin-left:14px;">
+                    <div class="checkbox"> <label><input type="checkbox" id="not_send_sms" name="not_send_sms"><b>Do Not Send Sms</b></label></div>
+                </div>
             </div>
         </div>
-            <div class="col-md-4">
-                            <div class="form-group" style="margin-left:14px;">
-                    <div class="checkbox"> <label><input type="checkbox" id="not_reachable" name="not_reachable"><b>Customer Not Reachable</b></label></div>
+        <!-- Add section to save dissatisfactory reason in case of Poor Rating i.e. < 3--> 
+        <div class="col-md-12 dissatisfactory-reason-div" style="padding:15px;display:none;">
+            <label for="dissatisfactory_reason" class="col-md-2" style="margin-left: 13px;">Dissatisfactory Reason</label>
+            <div class="col-md-9">
+                <select type="text" class="form-control"  name="dissatisfactory_reason" id="dissatisfactory_reason" style="width:30%" required>
+                    <option value="" disabled selected>Select Dissatisfactory Reason</option>
+                    <?php
+                    foreach($dissatisfactory_reasons as $dissatisfactory_reason){
+                        echo "<option value='".$dissatisfactory_reason['id']."'>".$dissatisfactory_reason['reason']."</option>";                              
+                    }
+                    ?>
+                </select>
             </div>
-                </div>
-              <div class="col-md-2">
-                            <div class="form-group" style="margin-left:14px;">
-                                    <div class="checkbox"> <label><input type="checkbox" id="not_send_sms" name="not_send_sms"><b>Do Not Send Sms</b></label></div>
-                            </div>
-                </div>
-            </div>
+        </div>
         <div class="col-md-12">
             <div class="col-md-6">
                 <div class="form-group <?php if( form_error('rating_comments') ) { echo 'has-error';} ?>">
-                    <label for="rating_comments" class="col-md-2" style="margin-left: 9px; width: 23%;">Customer Feedback</label>
+                    <label for="rating_comments" class="col-md-2" style="margin-left: 13px; width: 23%;">Customer Feedback</label>
                     <div class="col-md-6">
                         <textarea style="height:80px;width:333px;margin-left: 73px;" class="form-control"  name="rating_comments"></textarea>
                         <?php echo form_error('rating_comments'); ?>
@@ -168,4 +181,12 @@
         }
     }
     
+    $("#rating_star").change(function(){
+        // Hide dissatisfactory reason combo if Rating > 3 else show
+        $(".dissatisfactory-reason-div").hide();
+        if($(this).val() < 3)
+        {
+            $(".dissatisfactory-reason-div").show();
+        }
+    });
 </script>

@@ -37,12 +37,6 @@ class NRN_TR extends CI_Controller {
         // $this->load->library('push_inbuilt_function_lib');
     }
 
-    function index() {
-        echo "<pre>";
-        print_r($this->session->userdata);
-        die;
-    }
-
     /*
      * List all NRN records for AKAI partner
      */
@@ -51,7 +45,6 @@ class NRN_TR extends CI_Controller {
         $data = array();
         $this->load->model('nrn_model');
         $all_nrn_records = $this->nrn_model->get_all_nrn_records();
-        //echo "<pre>";print_r($all_nrn_records);die;
         $data['records'] = ($all_nrn_records !== NULL) ? $all_nrn_records : array();
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/list_nrn_records', $data);
@@ -79,22 +72,10 @@ class NRN_TR extends CI_Controller {
             $this->session->set_flashdata('error', 'Invalid partner');
             redirect('partner/list_nrn_records');
         }
-        //$data['service_id'] = 46;
+        // Create dropdown options data array 
         $data['partner_id'] = $partner_details['partner_id'];
         $data['brand'] = $partner_details['partner_name'];
         $data['partner_type'] = 'OEM';
-
-        
-        //$result = $this->nrn_model->get_category_capacity_model($service_id, $partner_id);
-
-        
-        //foreach ($result as $category) {
-//            $model = array('id'=>$category['id'],'model'=>$category['model'],'model_number'=>$category['model_number']);
-//            $data['products'][$category['category']][$category['capacity']]['models'][] = $model;
-//            
-//        }
-
-
         $data['crm_name'] = array('' => 'Select CRM', '247' => '247', 'AKAI' => 'AKAI');
         $data['owners'] = array('' => 'Select Owner', 'Customer' => 'Customer', 'Sub-Dealer' => 'Sub-Dealer', 'Dealer' => 'Dealer');
         $data['physical_status'] = array('' => 'Select Physical Status', 'Defective' => 'Defective', 'DOA' => 'DOA', 'Damage' => 'Damage');
@@ -115,7 +96,7 @@ class NRN_TR extends CI_Controller {
         $data['vendor_reversal_category'] = array('' => 'Select Category', 'FG' => 'FG', 'D1' => 'D1', 'D2' => 'D2', 'D3' => 'D3', 'D4' => 'D4');
         $data['final_defective_status'] = array('' => 'Select Status', 'Dispatched to Vendor' => 'Dispatched to Vendor', 'Cannabalised' => 'Cannabalised', 'Liquidate' => 'Liquidate');
         $data['vendor_reversal_status'] = array('' => 'Select Status', 'Received' => 'Received', 'Pending' => 'Pending');
-
+        // add template and view files
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/add_nrn_details', $data);
         $this->load->view('partner/partner_footer');
@@ -147,7 +128,7 @@ class NRN_TR extends CI_Controller {
     }
 
     /*
-     * Edit NRN record
+     * Edit/Update NRN record
      */
 
     function edit_nrn_details($nrn_id = '') {
@@ -220,9 +201,14 @@ class NRN_TR extends CI_Controller {
         return TRUE;
     }
 
+    /*
+     * Get booking deatils by booking ID 
+     * return JSON data on AJAX request
+     */
+
     function finduser() {
         if ($this->input->is_ajax_request()) {
-            
+
             $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '', trim($this->input->get('search_value')));
             $post['length'] = -1;
             $select = "services.services, service_centres.name as service_centre_name,
@@ -239,27 +225,32 @@ class NRN_TR extends CI_Controller {
             }
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
-            
+
             if (!empty($data['Bookings'])) {
-                echo json_encode($data,true);
+                echo json_encode($data, true);
             }
         }
     }
-    
+
+    /*
+     * Get appliance category 
+     * return HTML data on AJAX request
+     */
+
     function getCategoryForService() {
 
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
-            
+
         $partner_id = $this->input->post('partner_id');
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
         } else {
             $isWbrand = "";
             $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
-            "service_id" => $service_id, "whitelist" => 1), "*");
-            if(!empty($whiteListBrand)){
+                "service_id" => $service_id, "whitelist" => 1), "*");
+            if (!empty($whiteListBrand)) {
                 $whiteListBrand = $brand;
             }
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $isWbrand);
@@ -269,23 +260,28 @@ class NRN_TR extends CI_Controller {
         foreach ($result as $category) {
             echo "<option>$category[category]</option>";
         }
-    } 
-    
-      function getCapacityForCategory() {
+    }
+
+    /*
+     * Get appliance capacity by category
+     * return HTML data on AJAX request
+     */
+
+    function getCapacityForCategory() {
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_id = $this->input->post('partner_id');
         $partner_type = $this->input->post('partner_type');
 
-        
+
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCapacityForCategory($service_id, $category, $brand, $partner_id);
         } else {
             $isWbrand = "";
             $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $partner_id, "brand" => $brand,
-            "service_id" => $service_id, "whitelist" => 1), "*");
-            if(!empty($whiteListBrand)){
+                "service_id" => $service_id, "whitelist" => 1), "*");
+            if (!empty($whiteListBrand)) {
                 $isWbrand = $brand;
             }
             $result = $this->booking_model->getCapacityForCategory($service_id, $category, $isWbrand, $partner_id);
@@ -295,89 +291,96 @@ class NRN_TR extends CI_Controller {
             echo "<option>$capacity[capacity]</option>";
         }
     }
-    
-    function getModelForService(){
+
+    /*
+     * Get appliance models by category and capacity
+     * return HTML data on AJAX request
+     */
+
+    function getModelForService() {
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         $partner_id = $this->input->post('partner_id');
         $capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
-        
-        $where = array ('partner_appliance_details.service_id' => $service_id,
-                        'partner_appliance_details.partner_id' => $partner_id,
-                        'partner_appliance_details.category' => $category,
-                        'partner_appliance_details.active' => 1,
-                        'appliance_model_details.active' => 1, 
-            );
-        
-        if(!empty($capacity)){
+
+        $where = array('partner_appliance_details.service_id' => $service_id,
+            'partner_appliance_details.partner_id' => $partner_id,
+            'partner_appliance_details.category' => $category,
+            'partner_appliance_details.active' => 1,
+            'appliance_model_details.active' => 1,
+        );
+
+        if (!empty($capacity)) {
             $where['partner_appliance_details.capacity'] = $capacity;
         }
-        
+
         if ($partner_type == OEM) {
             $where['partner_appliance_details.brand'] = $brand;
             $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         } else {
             $result = $this->partner_model->get_model_number('appliance_model_details.id, appliance_model_details.model_number, model', $where);
         }
-        
-        if(!empty($result)){
+
+        if (!empty($result)) {
             $flag = false;
             $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
-                if(!empty(trim($value['model']))){
+                if (!empty(trim($value['model']))) {
                     $flag = true;
-                    $option .= "<option value='".$value['model_number']."'>".$value['model_number']."</option>";
+                    $option .= "<option value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
                 }
-                
             }
-            if($flag)  {
+            if ($flag) {
                 $res['status'] = TRUE;
                 $res['msg'] = $option;
             } else {
                 $res['status'] = FALSE;
                 $res['msg'] = 'no data found';
             }
-            
-        }else{
+        } else {
             $res['status'] = FALSE;
             $res['msg'] = 'no data found';
         }
         echo $res;
-        
     }
-     function get_appliances($selected_service_id = NULL) {
+
+    /*
+     * Get appliance types AKAI Brand
+     * return HTML data on AJAX request
+     */
+
+    function get_appliances($selected_service_id = NULL) {
         $partner_id = $this->input->post('partner_id');
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
                 . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
-        
+
         $prepaid['active'] = true;
         $prepaid['is_notification'] = false;
-        
+
         $data = array();
-        
-        if(!empty($partner_details)) {
-            if($partner_details[0]['is_prepaid'] == 1){
+
+        if (!empty($partner_details)) {
+            if ($partner_details[0]['is_prepaid'] == 1) {
                 $prepaid = $this->miscelleneous->get_partner_prepaid_amount($partner_id);
-            } else  if($partner_details[0]['is_prepaid'] == 0){
+            } else if ($partner_details[0]['is_prepaid'] == 0) {
 
                 $prepaid = $this->invoice_lib->get_postpaid_partner_outstanding($partner_details[0]);
             }
-            
+
             if ($partner_details[0]['partner_type'] == OEM) {
                 $services = $this->partner_model->get_partner_specific_services($partner_id);
             } else {
                 $services = $this->booking_model->selectservice();
             }
-            
+
             $data['partner_type'] = $partner_details[0]['partner_type'];
             $data['partner_id'] = $partner_id;
             $data['active'] = $prepaid['active'];
-            if($prepaid['is_notification']){
+            if ($prepaid['is_notification']) {
                 $data['prepaid_msg'] = PREPAID_LOW_AMOUNT_MSG_FOR_ADMIN;
-
             } else {
                 $data['prepaid_msg'] = "";
             }
@@ -389,12 +392,11 @@ class NRN_TR extends CI_Controller {
                 } else if (count($services) == 1) {
                     $data['services'] .= " selected ";
                 }
-                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+                $data['services'] .= " value='" . $appliance->id . "'>$appliance->services</option>";
             }
         }
-        
+
         echo $data['services'];
-        
     }
 
 }

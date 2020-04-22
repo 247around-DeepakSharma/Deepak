@@ -1087,13 +1087,13 @@ class Inventory extends CI_Controller {
             $b = array();
             $line_items = '';
             
-            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
                 . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
 
             $line_items = count($spare_parts_details);
-                      
+            
             
             switch ($requestType) {
                 case 'CANCEL_PARTS':
@@ -1158,11 +1158,23 @@ class Inventory extends CI_Controller {
                     $sc_data['admin_remarks'] = $remarks;
 
                     if ($line_items < 2) {
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                       // $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
-                    
-                   
-                    
+                    /*@des: spare cancelled on spare chnage actor and action  */
+                    if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
+                        if (count($spare_parts_details) == 1) {
+                            $partnerId = _247AROUND;
+                            $current_status = 'Pending';
+                            $internal_status = 'Spare Parts Cancelled';
+                            $partner_status = $this->booking_model->get_partner_status($partnerId, $current_status, $internal_status);
+                            if (!empty($partner_status)) {
+                                $this->booking_model->update_booking($booking_id, array("actor" => $partner_status[0]['actor'], "next_action" => $partner_status[0]['next_action']));
+                            }
+                        }
+                    }
+
+
+
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id);
@@ -7826,21 +7838,29 @@ class Inventory extends CI_Controller {
      *  @return : $res array()
      */
     function get_inventory_parts_type() {
-
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
-
-        $option = '<option selected disabled>Select Part Type</option>';
-
-        if (!empty($this->input->post('request_type'))) {
-            foreach ($inventory_parts_type as $value) {
-                $option .= "<option value='" . $value['id'] . "'>";
-                $option .= $value['part_type'] . "</option>";
+        
+        /* Check if any record exists in inventory_master_list table if exists then return message.*/
+        if(!empty($this->input->post('check_non_inventory'))) {
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('service_id' => $this->input->post('service_id')));
+            if(!empty($inventory_master_list)) {
+                $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
             }
         } else {
-            foreach ($inventory_parts_type as $value) {
-                $option .= "<option data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
-                $option .= " > ";
-                $option .= $value['part_type'] . "</option>";
+            $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
+
+            $option = '<option selected disabled>Select Part Type</option>';
+
+            if (!empty($this->input->post('request_type'))) {
+                foreach ($inventory_parts_type as $value) {
+                    $option .= "<option value='" . $value['id'] . "'>";
+                    $option .= $value['part_type'] . "</option>";
+                }
+            } else {
+                foreach ($inventory_parts_type as $value) {
+                    $option .= "<option data-hsn-code-details='" . $value['hsn_code_details_id'] . "' value='" . $value['part_type'] . "'";
+                    $option .= " > ";
+                    $option .= $value['part_type'] . "</option>";
+                }
             }
         }
         echo $option;
@@ -9864,7 +9884,18 @@ class Inventory extends CI_Controller {
         $response['status'] = $status;
         $response['reason'] = implode('<br>',array_filter($cancellation_reason));
         echo json_encode($response);
-    }    
+    }  
+
+
+    /**
+     *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
+     *  @param : void
+     *  @return : void
+     */
+    function warehouse_inventory_stock(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/wareouse_inventory_stock_list_part_number');
+    }  
 
 
 }

@@ -1059,7 +1059,7 @@ class vendor extends CI_Controller {
             $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
             
-            //$this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
+            $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details
             $sf_details = $this->vendor_model->getVendorContact($id);
@@ -1068,7 +1068,7 @@ class vendor extends CI_Controller {
             //Sending Mail to corresponding RM and admin group 
             $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
             
-            //Sending Mail to Talevar Singh
+            //Get Talevar Singh user id from constant file as defind 
             if(TALEVAR_USER_ID){
                 $talevar_user_email = $this->user_model->getusername(TALEVAR_USER_ID);
             }
@@ -1082,10 +1082,12 @@ class vendor extends CI_Controller {
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     if($sf_details[0]['is_micro_wh'] == 1){
                         $to .= ",".$template[1];
+                        // Add Account's team email id
                         if(ACCOUNT_EMAIL_ID){
                             $to .= ",".ACCOUNT_EMAIL_ID;
                             $email['talevar_user_name'] = 'Account Team';
                         }
+                        // Add user Talevar Singh's email id
                         if($talevar_user_email){
                             $to .= ",".$talevar_user_email;
                             $email['talevar_user_name']= 'Talevar Singh';
@@ -1201,8 +1203,7 @@ class vendor extends CI_Controller {
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
-                           // This msg is already being sent from miscelleneous.php in assign_vendor_process function
-//                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
                            //End Push Notification
                             $count++;
 

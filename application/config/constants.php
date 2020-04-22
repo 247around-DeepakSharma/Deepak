@@ -739,10 +739,14 @@ define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
 define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
 
+define("UPDATE_INVENTORY_MASTER_LIST_MSG", "Mapping of this appliance with part type can only update from Part Master. Please update data from part master.");
+
                                                                                                                                                                                 
 define("_247AROUND", "247001");
+// CRM-3450
 define("ACCOUNT_EMAIL_ID", "accounts@247around.com");
 define("TALEVAR_USER_ID", "400555");
+// End CRM-3450
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
