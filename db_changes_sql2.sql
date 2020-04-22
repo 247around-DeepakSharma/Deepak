@@ -2419,3 +2419,7 @@ update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_o
 ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
 ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
 update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+
+-- Ankit Rajvanshi 22-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
