@@ -3970,7 +3970,9 @@ class Inventory extends CI_Controller {
         $spareID = $this->input->post('spareID');
         $bookingID = $this->input->post('booking_id');
         $spareColumn = $this->input->post('spareColumn');
-        if (!empty($this->input->post('directory_name'))) {
+        if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
+            $file_dir = "courier-pod";
+        } else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";
@@ -3978,7 +3980,7 @@ class Inventory extends CI_Controller {
 
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
-            if($spareColumn != 'courier_pic_by_partner'){
+            if($spareColumn != 'courier_pic_by_partner' && $spareColumn != 'courier_pod_file'){
                 $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
             }
             // if serial number image is changed , update in booking_unit_details table also.
@@ -4013,6 +4015,10 @@ class Inventory extends CI_Controller {
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
                     }
                 }
+            }
+            if (!empty($this->input->post('awb_number')) && $spareColumn == 'courier_pod_file') {
+                $awb_number = $this->input->post('awb_number');
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $awb_number), array('courier_pod_file' => $defective_parts_pic)); // Update Courier POD File on Courier company invoice detail table
             }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
