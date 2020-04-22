@@ -5641,7 +5641,7 @@ class Booking extends CI_Controller {
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){
-            $data['per_page'] = 100;
+            $data['per_page'] = 50;
             $data['offset'] = $offset;
             $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where);
             $data['status'] = $status;
