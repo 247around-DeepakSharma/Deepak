@@ -743,8 +743,10 @@ define("UPDATE_INVENTORY_MASTER_LIST_MSG", "Mapping of this appliance with part 
 
                                                                                                                                                                                 
 define("_247AROUND", "247001");
+// CRM-3450
 define("ACCOUNT_EMAIL_ID", "accounts@247around.com");
 define("TALEVAR_USER_ID", "400555");
+// End CRM-3450
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

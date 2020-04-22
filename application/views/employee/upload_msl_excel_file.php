@@ -496,8 +496,7 @@
                             return false;
                         }
                         
-                        if ((XL_row_object[i]['GST Rate'] === '0') 
-                            || (XL_row_object[i]['GST Rate'] === '1.5')
+                        if ((XL_row_object[i]['GST Rate'] === '1.5')
                             || (XL_row_object[i]['GST Rate'] === '2')
                             || (XL_row_object[i]['GST Rate'] === '5')
                             || (XL_row_object[i]['GST Rate'] === '12')
