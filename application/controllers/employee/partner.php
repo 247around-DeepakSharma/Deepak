@@ -5794,7 +5794,9 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv)) {
+            unlink($csv);
+        }
     }
     function download_waiting_upcountry_bookings(){
         ob_start();
@@ -5869,7 +5871,6 @@ class Partner extends CI_Controller {
             "Booking Final Closing Date",
             "Product",
             "Booking Request Type",
-            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5919,7 +5920,6 @@ class Partner extends CI_Controller {
             $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-M-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
-            $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
@@ -6669,18 +6669,7 @@ class Partner extends CI_Controller {
     function search_docket_number() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $data = array();
-        $partner_id = $this->session->userdata("partner_id");
-        if (!empty($partner_id)) {
-            $partner_details = $this->partner_model->getpartner($partner_id);
-            if (!empty($partner_details)) {
-                $data['public_name'] = $partner_details[0]['public_name'];
-            } else {
-                $data['public_name'] = 'Partner';
-            }
-        }
-
-        $this->load->view('partner/search_docket_number' ,$data);
+        $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
     }
     function partner_dashboard() {
