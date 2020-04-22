@@ -11,8 +11,11 @@
                     <div class="row">
                         <div class="form-inline">
                             <div class="form-group col-md-6">
-                                <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_partner"> Sent By <?php if(!empty($public_name)){ echo $public_name; } ?></label>
-                                <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_wh"> Sent By Warehouse To <?php if(!empty($public_name)){ echo $public_name; } ?></label>
+                                <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_partner"> Sent By Partner</label>
+                                <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_sf"> Sent By Service Center</label>
+                                <?php if ($this->session->userdata('is_wh') == 1) { ?>
+                                <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="wh"> Sent By Warehouse</label>
+                                <?php } ?>
                             </div>
                         </div>
                     </div>
@@ -42,6 +45,7 @@
                             <th>SF Challan Number</th>
                             <th>Partner AWB Number</th>
                             <th>SF AWB Number</th>
+
                             </thead>
                             <tbody id="docket_number_details_body"></tbody>
                         </table>
