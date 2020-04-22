@@ -1264,7 +1264,7 @@ class Service_centers extends CI_Controller {
         $booking['assigned_vendor_id'] = NULL;
         $booking['assigned_engineer_id'] = NULL;
         $booking['mail_to_vendor'] = '0';
-        $booking['booking_date'] = date('d-m-Y');
+        $booking['booking_date'] = date('Y-m-d');
 
         //Get Partner 
         $actor = $next_action = 'not_define';
@@ -2633,7 +2633,7 @@ class Service_centers extends CI_Controller {
                         $sc_data['booking_date'] = date('Y-m-d H:i:s', strtotime($booking_date));
                         $sc_data['reschedule_reason'] = $data['remarks_by_sc'];
                         // $sc_data['internal_status'] = 'Reschedule';
-                        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+                        $booking['booking_date'] = date('Y-m-d', strtotime($booking_date));
                         $this->booking_model->update_booking($booking_id, $booking);
                     }
 
@@ -2926,7 +2926,7 @@ class Service_centers extends CI_Controller {
                     $entity_type = _247AROUND_SF_STRING;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
@@ -5584,7 +5584,7 @@ class Service_centers extends CI_Controller {
                 $total_escalation_per = ($total_escalation[0]['total_escalation'] * 100) / $total_booking[0]['total_booking'];
             }
 
-            $current_month_booking = $this->reusable_model->get_search_query('booking_details', 'count(booking_id) AS total_booking', array('assigned_vendor_id' => $sf_id, "month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+            $current_month_booking = $this->reusable_model->get_search_query('booking_details', 'count(booking_id) AS total_booking', array('assigned_vendor_id' => $sf_id, "month(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
             $current_month__escalation = $this->reusable_model->get_search_query('vendor_escalation_log', 'count(booking_id) AS total_escalation', array('vendor_id' => $sf_id, "month(create_date) = month(now()) AND year(create_date) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
             if (!empty($current_month_booking[0]['total_booking'])) {
                 $current_month_escalation_per = ($current_month__escalation[0]['total_escalation'] * 100) / $current_month_booking[0]['total_booking'];

@@ -1162,7 +1162,7 @@ class engineerApi extends CI_Controller {
       $booking_id = $requestData['booking_id'];
       $booking_date = $requestData['booking_date'];
       //Format = DD-MM-YYYY for database
-      $booking_date_formatted = date("d-m-Y", strtotime($booking_date));
+      $booking_date_formatted = date("Y-m-d", strtotime($booking_date));
       $booking_time = $requestData['booking_time'];
       $reschedule_date = date('Y-m-d H:i:s');
 
@@ -1482,7 +1482,7 @@ class engineerApi extends CI_Controller {
 //             $sms['smsData']['request_type'] = $whatsapp_array['request'];
 //             $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
 //             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-//             $sms['smsData']['cdate'] = date("d-M-Y");
+//             $sms['smsData']['cdate'] = date("Y-m-d");
 //             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
 //             $sms['smsData']['partner'] = $whatsapp_array['partner'];
 //             $smsBody = vsprintf($template, $sms['smsData']);
@@ -2074,13 +2074,13 @@ class engineerApi extends CI_Controller {
         $missed_slots = $this->apis->getMissedBookingSlots();
         if ($missed_slots) {
             if (count($missed_slots) == "1") {
-                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '" . $missed_slots[0] . "'))"] = NULL;
+                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0) AND booking_details.booking_timeslot = '" . $missed_slots[0] . "'))"] = NULL;
             }
             if (count($missed_slots) == "2") {
-                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '" . $missed_slots[0] . "' OR booking_details.booking_timeslot = '" . $missed_slots[1] . "')))"] = NULL;
+                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0) AND (booking_details.booking_timeslot = '" . $missed_slots[0] . "' OR booking_details.booking_timeslot = '" . $missed_slots[1] . "')))"] = NULL;
             }
         } else {
-            $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
+            $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0)"] = NULL;
         }
         $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false, false, true);
         return $missed_bookings;
@@ -2094,7 +2094,7 @@ class engineerApi extends CI_Controller {
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
             "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = -1)" => NULL,
+            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1)" => NULL,
             "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
         );
         $tommorow_bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, false, true);
@@ -2109,7 +2109,7 @@ class engineerApi extends CI_Controller {
             "booking_details.booking_timeslot" => $slot,
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
+            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)" => NULL,
             "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
             "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
         );

@@ -108,7 +108,7 @@ class reusable_model extends CI_Model {
     }
     
      function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
-       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
        $this->db->_protect_identifiers = FALSE;
        $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY);
        return $query->result_array();
