@@ -208,7 +208,7 @@ class Booking_model extends CI_Model {
      */
     function get_booking_to_cancel_not_approved_upcountry(){
         $sql =" SELECT booking_id,partner_id FROM booking_details where "
-                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -3 "
+                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > -3 "
                 . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
         $query = $this->db->query($sql);
         return $query->result_array();      
@@ -514,12 +514,12 @@ class Booking_model extends CI_Model {
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
         } else {
-            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
         
         if($partner_id === true){
@@ -556,12 +556,12 @@ class Booking_model extends CI_Model {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
 
         } else {
-            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
         
         if($partner_id === true){
@@ -585,7 +585,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
             booking_details.type = '"._247AROUND_BOOKING."' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%Y-%m-%d') desc $add_limit"
         );
 
        // echo $this->db->last_query();
@@ -640,7 +640,7 @@ class Booking_model extends CI_Model {
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE booking_details.current_status = '"._247AROUND_FOLLOWUP."' $where
-        AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+        AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
 	$count = $query->result_array();
@@ -2378,7 +2378,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
-        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
+        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date = '')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2462,7 +2462,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_queries($post,$pincode_status,$query_status) {
-        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }  
@@ -2473,7 +2473,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_queries($post,$pincode_status,$query_status){
-        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -2657,7 +2657,7 @@ class Booking_model extends CI_Model {
         return $this->db->affected_rows();
     }
     function get_booking_tat_required_data($booking_id){
-        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,"
                 . "booking_details.is_upcountry,date(booking_details.service_center_closed_date) as sf_closed_date,"
                 . "date(booking_details.closed_date) as around_closed_date,spare_parts_details.id as spare_id,spare_parts_details.status as spare_status,date(spare_parts_details.date_of_request) as part_request_date,"
                 . "date(spare_parts_details.acknowledge_date) as spare_receieved_date ,"
@@ -2726,7 +2726,7 @@ class Booking_model extends CI_Model {
                 ."then 1 else 0 end) `install_pending`,"
                  ."sum(case when (request_type not like '%Repeat%' AND  request_type not LIKE'%Repair%') and(current_status='Cancelled') "
                 ."then 1 else 0 end) `install_cancalled`"
-                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
+                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
                 ."and partner_id IN ('".$partner_id."')";
         $query = $this->db->query($sql);
         $result =  $query->result_array();
