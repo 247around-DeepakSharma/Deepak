@@ -6512,5 +6512,44 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
-    
+    /**
+     * @desc this is used to show purchase date / warranty status as per booking Date / warranty status as per current date
+     * @param int $booking_id
+     * @author Ghanshyam
+     * @created_on 18-04-2020
+     */
+    function check_warranty_booking() {
+        $array['purchase_date'] = '';
+        $array['booking_warranty_status'] = '';
+        $array['current_warranty_status'] = '';
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        if (!empty($booking_id)) {
+            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings(array($booking_id));
+            $array['purchase_date'] = $arrBookings[0]['purchase_date'];
+            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+            //print_r($arrModelWiseWarrantyData);
+            foreach ($arrBookings as $key => $value) {
+                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
+                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
+                }
+                //$value['create_date'] = date('Y-m-d');
+                $warrentyStatus_pre = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
+            }
+            $array['booking_warranty_status'] = $warrentyStatus_pre;
+            $arrBookings[0]['booking_create_date'] = date('Y-m-d'); // Get warranty Status as per current Date
+            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+            foreach ($arrBookings as $key => $value) {
+                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
+                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
+                }
+                $warrentyStatus_pre = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
+            }
+            $array['current_warranty_status'] = $warrentyStatus_pre;
+        }
+        echo json_encode($array);
+    }
+
 }

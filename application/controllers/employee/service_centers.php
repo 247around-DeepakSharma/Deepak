@@ -3444,7 +3444,7 @@ class Service_centers extends CI_Controller {
                     $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
                     $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                     $data['defective_courier_receipt'] = $defective_courier_receipt;
-
+                    $data['approved_defective_parts_by_admin'] = 0;
                     /**
                      * @modifiedBy Ankit Rajvanshi
                      */
