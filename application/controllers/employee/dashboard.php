@@ -3621,45 +3621,55 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
-        
-    function get_booking_cancellation_reasons(){
+    
+    /**
+     * @This function is used to fetch and return - total cancelled booking by reasons 
+     *  We are showing cancelled booking by cancellation reason in pie chart on Dashboard
+     * 
+     */
+    function get_booking_cancellation_reasons() {
 
-        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))): date('Y-m-01');
+        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))) : date('Y-m-01');
         $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
-        log_message('info', __METHOD__. $sdate. "  .... ". $edate);
+        log_message('info', __METHOD__ . $sdate . "  .... " . $edate);
 
-        //fetching click count of account manager from agent_action_table
-        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate,$edate);
-       // echo "<pre>";print_r($data);die;
+        //fetching booking cancellation between the start and end date from booking_details
+        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate, $edate);
         if (!empty($data)) {
             $graph = array();
             $data_report = array();
-            
-            //create array  by indexing hour basis
+            //create array  by cancellation reasons basis
             foreach ($data as $value) {
                 $graph[$value['cancellation_reason']] = $value['count'];
             }
+            //Creating series for the Graph
             $data_report['series']['name'] = 'reason';
             $data_report['series']['colorByPoint'] = true;
-            
-            //Creating series for the Graph
+            $flag = true;
             foreach ($graph as $key => $value) {
-                
-                $data_report['series']['data'][] = array(
-                      'name'=> $key,
-                      'y'=> $value,
-                      );
+                if ($flag) {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                        'sliced' => true,
+                        'selected' => true
+                    );
+                    $flag = false;
+                } else {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                    );
+                }
             }
-            
-            
-            trim(ob_get_clean()); 
-            echo json_encode($data_report, TRUE);
-        }else{
             trim(ob_get_clean());
-            echo false; 
+            echo json_encode($data_report, TRUE);
+        } else {
+            trim(ob_get_clean());
+            echo false;
         }
     }
-    
+
 }
 
 

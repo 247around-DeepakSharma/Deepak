@@ -1,4 +1,4 @@
-    <?php
+<?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -2236,15 +2236,15 @@ class Partner extends CI_Controller {
         
         
         $shipped_part_details = $this->input->post("part");
-        /* if parts empty no need to run loop */
+/* if parts empty no need to run loop */
         if(!empty($shipped_part_details)) {
-            foreach ($shipped_part_details as $key => $val) {
+        foreach ($shipped_part_details as $key => $val) {
                 if (isset($val['spare_part_warranty_status'])) {
-                    if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
-                    }
-                }
+            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
             }
+        }    
+    }
         }
 
 
@@ -2298,7 +2298,7 @@ class Partner extends CI_Controller {
                     if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $data['defective_part_required'] = 0;
                     } else {
-                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['shipped_inventory_id']);
+                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $data['shipped_inventory_id'], $data['partner_id'], $data['shipped_parts_type']);
                     } 
                     
                     if (!empty($value['spare_id'])) {
@@ -5794,7 +5794,9 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv)) {
+            unlink($csv);
+        }
     }
     function download_waiting_upcountry_bookings(){
         ob_start();
@@ -5869,7 +5871,6 @@ class Partner extends CI_Controller {
             "Booking Final Closing Date",
             "Product",
             "Booking Request Type",
-            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5919,7 +5920,6 @@ class Partner extends CI_Controller {
             $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-M-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
-            $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
@@ -6669,18 +6669,7 @@ class Partner extends CI_Controller {
     function search_docket_number() {
         $this->checkUserSession();
         $this->miscelleneous->load_partner_nav_header();
-        $data = array();
-        $partner_id = $this->session->userdata("partner_id");
-        if (!empty($partner_id)) {
-            $partner_details = $this->partner_model->getpartner($partner_id);
-            if (!empty($partner_details)) {
-                $data['public_name'] = $partner_details[0]['public_name'];
-            } else {
-                $data['public_name'] = 'Partner';
-            }
-        }
-
-        $this->load->view('partner/search_docket_number' ,$data);
+        $this->load->view('partner/search_docket_number');
         $this->load->view('partner/partner_footer');
     }
     function partner_dashboard() {
@@ -8633,7 +8622,90 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
+    
+    /**
+     * @desc This function is used to get part type data of non inventory partners.
+     * @author Ankit Rajvanshi
+     */
+    function get_non_inventory_partners_part_type() {
+        // initialize variables
+        $post_data = $this->input->post();
+        $partner_id = $post_data['partner_id'];
+        $service_id = $post_data['service_id'];
+        
+        // fetch data. 
+        $data = $this->inventory_model->get_non_inventory_partners_part_type('non_inventory_partners_part_type.*,inventory_parts_type.part_type', ['non_inventory_partners_part_type.partner_id' => $partner_id, 'non_inventory_partners_part_type.service_id' => $service_id], true);
+        
+        // table generation in html format
+        $table = '';    
+        if(!empty($data)) { 
+            $table = '<hr /><table class="table table-bordered table-condensed" style="margin-left:1%;">';
+            $table .= '<thead><tr><th width="10%">S. No.</th><th width="50%">Part Type</th><th width="25%">Is Defective/Ok Required</th><th width="20%">Action</th></tr></thead>';
+            $table .= '<tbody>';
+            foreach($data as $key => $part) {
+                $table .= '<tr>';
+                $table .= '<td>'.++$key.'</td>';
+                $table .= '<td>'.$part['part_type'].'</td>';
+                if(!empty($part['is_defective_required'])) {
+                    $table .= '<td>Yes</td>';
+                    $table .= '<td><a href="javascript:void(0);" class="btn btn-danger" title="Part Not Required" onclick="update_non_inventory_partners_part_type('.$part['id'].', \'0\')"><i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i></a></td>';
+                } else {
+                    $table .= '<td>No</td>';
+                    $table .= '<td><a href="javascript:void(0);" class="btn btn-primary" title="Part Required" onclick="update_non_inventory_partners_part_type('.$part['id'].', 1)"><i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i></a></td>';
+                }
+                $table .= '</tr>';
+            }
+            $table .= '<tbody>';
+            $table .= '</table>';
+        }
+        
+        echo $table;
+    }
+    
+    /**
+     * @desc : This method is used to process form data of defective/ok part required tab from edit partner panel
+     * @author : Ankit Rajvanshi
+     */
+    function process_defective_required_on_spare_parts() {
+        log_message('info', __FUNCTION__ . " Defective/Ok part required of Spare Parts " . json_encode($_POST));
+        // initialize variables
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $is_defective_required = $this->input->post('is_defective_required_1');
+        $part = $this->input->post('part');
+        
+        // process data & prepare array
+        if(!empty($part[0]) && !empty($part[0]['parts_type'])) {
+            $data = [];
+            foreach($part[0]['parts_type'] as $key => $part_type_id) {
+                $data[$key]['partner_id'] = $partner_id;
+                $data[$key]['service_id'] = $part[0]['appliance'];
+                $data[$key]['is_defective_required'] = $is_defective_required;
+                $data[$key]['inventory_part_type_id'] = $part_type_id;
+            }
+            
+            $this->inventory_model->insert_non_inventory_partners_part_type($data);
+            
+            $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);            
+        }
+    }
 
+    /**
+     * @desc : This method is used to update data of non_inventory_partners_part_type.
+     * @author : Ankit Rajvanshi
+     */
+    function update_non_inventory_partners_part_type() {
+        // update data.
+        $post_data = $this->input->post();
+        $this->inventory_model->update_non_inventory_partners_part_type(
+            array('is_defective_required' => $post_data['is_defective_required']),
+            array('id' => $post_data['id'])
+        );       
+        
+        echo 'Data has been updated successfully.';
+    }
+    
     /* @desc: This method is used to load view for setting logo priority on web site
      * @param: void
      * @return:view
