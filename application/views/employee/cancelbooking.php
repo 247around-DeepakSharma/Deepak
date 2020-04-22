@@ -128,7 +128,7 @@ function check_text(){
                     <input type="hidden" class="form-control"  name="name" value = "<?php if (isset($user_and_booking_details[0]['name'])) {echo $user_and_booking_details[0]['name']; }?>">
              
                  <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
-                  <label for="cancellation_reason" class="col-md-2">Cancellation Reason</label>
+                  <label for="cancellation_reason" class="col-md-2">Cancellation Reason*</label>
                   <div class="col-md-6">
                    <?php 
                    $flag = 0;
@@ -173,7 +173,7 @@ function check_text(){
                </div>
                 <?php //if($flag == 0){?>
                 <div class="form-group <?php if( form_error('cancellation_reason_text') ) { echo 'has-error';} ?>">                
-                  <label for="cancellation_reason" class="col-md-2">Remarks </label>
+                  <label for="cancellation_reason" class="col-md-2">Remarks* </label>
                   <div class="col-md-6">
                     <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" placeholder="Please Enter Remarks" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" required></textarea>                            
                   </div>
