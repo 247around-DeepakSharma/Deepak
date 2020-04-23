@@ -820,7 +820,7 @@ class vendor extends CI_Controller {
         $saas_module = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state ,'state_list'=>$state_list, 'selected' =>$data,'push_notification'=>$pushNotification,
-            'c2c' => $c2c,'saas_module' => $saas_module));
+            'c2c' => $c2c,'saas_module' => $saas_module,'id'=>$vendor_id));
     }
 
 
@@ -849,6 +849,11 @@ class vendor extends CI_Controller {
         if (isset($_POST['state']) && !empty($_POST['state'])) {
             $state = trim($_POST['state']);
             $post['where']['service_centres.state'] = $state;
+        }
+         //get data of service center through id   
+         if (isset($_POST['id']) && !empty($_POST['id'])) {
+            $id = trim($_POST['id']);
+            $post['where']['service_centres.id'] = $id;
         }
 
         if (isset($_POST['city']) && !empty($_POST['city'])) {
@@ -2179,6 +2184,22 @@ class vendor extends CI_Controller {
                     $data['active'] = "1";
                     $data['create_date'] = date("Y-m-d H:i:s");
 
+                    if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
+
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
@@ -2321,6 +2342,22 @@ class vendor extends CI_Controller {
                     $service_id = $this->input->post('service_id');
 
                     $data['update_date'] = date("Y-m-d H:i:s");
+
+                   if($this->input->post('edu_qualification')){
+                        $data['edu_qualification'] = $this->input->post('edu_qualification');
+                    }
+
+                    if($this->input->post('pro_qualification')){
+                        $data['pro_qualification'] = $this->input->post('pro_qualification');
+                    }
+
+                    if($this->input->post('overall_exp')){
+                        $data['overall_exp'] = $this->input->post('overall_exp');
+                    }
+
+                    if($this->input->post('around_exp')){
+                        $data['around_exp'] = $this->input->post('around_exp');
+                    }
 
                     $where = array('id' => $engineer_id);
                     $engineer_update_id = $this->vendor_model->update_engineer($where, $data);

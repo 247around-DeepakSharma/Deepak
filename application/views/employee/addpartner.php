@@ -989,7 +989,7 @@
                                                 $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
                                                 if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
-                                                    $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['pan_file'];
+                                                    $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/pan-numbers/" . $query[0]['pan_file'];
                                                     $image_src = base_url() . 'images/view_image.png';
                                                 }
                                                 ?>
@@ -1586,7 +1586,7 @@
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
-                            <th>Delete <button onclick="delete_collatrals()"><i class="fa fa-trash" aria-hidden="true"></i></button></th>
+                            <th>Delete <button  class="btn-danger" onclick="delete_collatrals()"><i class=" fa fa-trash" aria-hidden="true"></i></button></th>
                             <th>Date</th>
                         </tr>
                     </thead>

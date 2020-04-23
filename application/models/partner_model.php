@@ -1590,6 +1590,11 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('service_center_booking_action', 'spare_parts_details.booking_id = service_center_booking_action.booking_id', 'left');
         }        
 
+        /* JOIN with symtom to get the symptom  */ 
+        if (!empty($post['symptom'])) {
+            $this->db->join('symptom', 'spare_parts_details.spare_request_symptom = symptom.id', 'left');
+        } 
+
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
             

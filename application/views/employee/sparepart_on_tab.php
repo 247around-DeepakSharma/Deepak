@@ -170,6 +170,9 @@
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                    <!-- Symptom -->
+                                    <th class="text-center" data-orderable="false">Symptom</th>
+                                    <th class="text-center" data-orderable="false">Defect Pic</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
@@ -1068,7 +1071,7 @@
         }).DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[ 15, "desc" ]],
+            order:[[ 17, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -1077,7 +1080,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,15,16],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -1101,11 +1104,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [15], //first column / numbering column
+                    "targets": [17], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,14,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

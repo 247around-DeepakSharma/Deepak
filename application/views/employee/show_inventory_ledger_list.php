@@ -37,7 +37,7 @@
                         </td>                        
                         <td><?php echo $value['part_name'];?></td>
                         <td><?php echo $value['part_number'];?></td>
-                        <td><?php echo $value['quantity'];?></td>
+                        <td><?php echo abs($value['quantity']);?></td>
                        <td><?php  echo ($value['is_wh_ack']==1)  ? "Acknowledged" : "Not Acknowledged"; ?></td>
                         <td>
                             <a href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>">
@@ -125,6 +125,7 @@
                 "processing": true,
                 "serverSide": false,
                 "pageLength": 50,
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 dom: 'lBfrtip',
                 "buttons": [
                 {

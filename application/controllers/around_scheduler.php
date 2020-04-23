@@ -57,7 +57,8 @@ class Around_scheduler extends CI_Controller {
         foreach ($data1 as $value) {
             $status = $this->notify->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content,SMS_WITHOUT_TAG);
             log_message('info', __METHOD__ . print_r($status, 1));
-            if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
+            if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
+                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") ) || (empty($status['error']))){
                 $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $tag, $status['content']);
 
                 $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
@@ -71,7 +72,7 @@ class Around_scheduler extends CI_Controller {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
                         . " " . $status['content'];
-                $to = ANUJ_EMAIL_ID;
+                $to = DEVELOPER_EMAIL;
 
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",SMS_SENDING_FAILED, "", $value->booking_id);
             }

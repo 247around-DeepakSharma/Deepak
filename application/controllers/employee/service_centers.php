@@ -1750,9 +1750,14 @@ class Service_centers extends CI_Controller {
                         array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                     }
                 }
-
+                $price_tags_symptom = array();
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
                 foreach ($unit_details as $value) {
+
+                $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
+                $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                array_push($price_tags_symptom, $price_tags2);
+
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
                         if (!$is_est_approved) {
                             $data['spare_flag'] = SPARE_OOW_EST_REQUESTED;
@@ -1814,7 +1819,12 @@ class Service_centers extends CI_Controller {
 
                 $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
                 $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-                
+
+/*  getting symptom */
+                if (!empty($price_tags_symptom)) {
+                 $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
+                 }
+
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -1909,6 +1919,15 @@ class Service_centers extends CI_Controller {
 
                 if (isset($value['quantity'])) {
                     $data['quantity'] = $value['quantity'];
+                }
+
+                if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
+                    $data['defect_pic'] = $value['defect_pic'];
+                }
+
+                if(isset($value['symptom']) && !empty($value['symptom'])){
+
+                    $data['spare_request_symptom'] = $value['symptom']; 
                 }
             }
         }
@@ -2456,6 +2475,14 @@ class Service_centers extends CI_Controller {
 
                     if ($value['defective_back_parts_pic']) {
                         $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
+                    }
+
+                    if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
+                        $data['defect_pic'] = $value['defect_pic'];
+                    }
+
+                    if(isset($value['symptom']) && !empty($value['symptom'])){
+                       $data['spare_request_symptom'] = $value['symptom']; 
                     }
 
                     $data['part_warranty_status'] = $value['part_warranty_status'];
@@ -7495,6 +7522,35 @@ class Service_centers extends CI_Controller {
         }
     }
 
+
+        /**
+     * @desc: This function is used to validate uploaded defect pic 
+     * @params: void
+     * @Author : Abhishek Awasthi
+     * @return: boolean
+     */
+    function validate_defect_pic_upload_file() {
+        if (!empty($_FILES['defect_pic']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG");
+            $booking_id = $this->input->post("booking_id");
+            $defect_pic = $this->miscelleneous->upload_file_to_s3($_FILES["defect_pic"], "defect_pic", $allowedExts, $booking_id, "misc-images", "defect_pic");
+            if ($defect_pic) {
+
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_defect_pic_upload_file', 'Defect Pic, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg"'
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else {
+            $this->form_validation->set_message('validate_defect_pic_upload_file', 'Please Upload Defect Pic');
+            return TRUE;
+        }
+    }
+
+
+
+
     /**
      * @desc: This function is used to validate uploaded serial number pic 
      * @params: void
@@ -7528,6 +7584,7 @@ class Service_centers extends CI_Controller {
         $booking_id = $this->input->post("booking_id");
         $defective_parts = array();
         $defective_back_parts_pic = array();
+        $defect_pic = array();
         if (!empty($_FILES['defective_parts_pic'])) {
             foreach ($_FILES['defective_parts_pic']['name'] as $key1 => $val) {
                 $a = array();
@@ -7553,6 +7610,21 @@ class Service_centers extends CI_Controller {
                 //array_push($defective_back_parts_pic, $a);
             }
         }
+
+/*  Defect Pic upload */
+        if (!empty($_FILES['defect_pic'])) {
+            foreach ($_FILES['defect_pic']['name'] as $key => $val) {
+                $a = array();
+                $a['name'] = $_FILES['defect_pic']['name'][$key];
+                $a['type'] = $_FILES['defect_pic']['type'][$key];
+                $a['tmp_name'] = $_FILES['defect_pic']['tmp_name'][$key];
+                $a['error'] = $_FILES['defect_pic']['error'][$key];
+                $a['size'] = $_FILES['defect_pic']['size'][$key];
+                $defect_pic[$key] = $a;
+            }
+        }
+
+
         $message['code'] = true;
         if (!empty($defective_parts)) {
             foreach ($defective_parts as $key => $value) {
@@ -7586,6 +7658,19 @@ class Service_centers extends CI_Controller {
             $message['message'] = "Please upload Defective Back Parts Image";
         }
 
+
+        if (!empty($defect_pic)) {
+            foreach ($defect_pic as $key => $value) {
+                $d = $this->miscelleneous->upload_file_to_s3($value, "defect_pic", $allowedExts, $booking_id, "misc-images", "defect_pic");
+                if (!empty($d)) {
+                    $_POST['part'][$key]['defect_pic'] = $d;
+                } else {
+                    $message['code'] = false;
+                    $message['message'] = "Defect Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                    break;
+                }
+            }
+        }  
         return $message;
     }
 
