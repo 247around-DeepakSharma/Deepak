@@ -140,7 +140,7 @@
                 console.log(response);
                 $('#loader_gif').hide();
                 $('#cancel_reschedule').prop("disabled", false);
-                if (response == true) {
+                if ($.trim(response) == true) {
                     alert("Reschedule Cancelled Successfully");
                 }
                 else {
