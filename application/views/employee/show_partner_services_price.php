@@ -151,8 +151,8 @@
             <th>Capacity</th>
             <th>Customer Total</th>
             <th>Partner Payable Basic</th>
-            <th>Customer Net Payable</th>
-            <th>Vendor Total</th>
+            <th>Customer Net Payable <span style="color: red;">*</span> Including GST</th>
+            <th>Vendor Total <span style="color: red;">*</span> Including GST</th>
             <th>Vendor Basic Percentage</th>
             <th>POD</th>
             <th>Upcountry</th>

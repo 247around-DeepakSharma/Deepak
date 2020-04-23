@@ -143,6 +143,9 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 $route['service_center/dispatch_msl_to_warehouse'] = 'employee/spare_parts/get_dispatch_msl_form';
+$route['service_center/upload_msl_excel_file'] = 'employee/spare_parts/upload_msl_excel_file';
+$route['service_center/msl_excel_upload_errors'] = 'employee/service_centers/msl_excel_upload_errors';
+
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
 $route['service_center/bulkPartnerConversion'] = 'employee/spare_parts/bulkPartnerConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';

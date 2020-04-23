@@ -2423,3 +2423,12 @@ update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initia
 -- Ankit Rajvanshi 22-04-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 23-04-2020
+-- 73
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Engineer Visit');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Part Supply');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not Skilled');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
