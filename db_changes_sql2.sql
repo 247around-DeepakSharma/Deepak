@@ -2432,3 +2432,6 @@ INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not 
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
+
+-- Ankit Rajvanshi 23-04-2020
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'booking_cancel_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking cancellation is %s.', NULL, '1', '0', CURRENT_TIMESTAMP), (NULL, 'booking_reschedule_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking reschedule is %s.', NULL, '', '0', CURRENT_TIMESTAMP);
