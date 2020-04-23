@@ -2512,3 +2512,11 @@ CREATE TABLE `customer_dissatisfactory_reasons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
+-- Prity 23-04-2020
+-- 73
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Engineer Visit');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Part Supply');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not Skilled');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
