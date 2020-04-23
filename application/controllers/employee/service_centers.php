@@ -9494,4 +9494,92 @@ class Service_centers extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
+    
+    /*
+     * @desc : This function is load the file upload history
+     * @param: void
+     */
+    
+    function get_uploda_file_history(){
+        
+        $post_data = array('length' => $this->input->post('length'),
+            'start' => $this->input->post('start'),
+            'file_type' => trim($this->input->post('file_type')),
+            'search_value' => trim($this->input->post('search')['value']),
+            'partner_id' => $this->input->post('partner_id')
+        );
+        
+        if(!empty($this->input->post('partner_id'))){
+            $post_data['partner_id'] = $this->input->post("partner_id");
+            $filtered_post_data['partner_id'] = $this->input->post("partner_id");
+        }
+        
+        $filtered_post_data = array(
+                'length' =>NULL,
+                'start' =>NULL,
+                'file_type' =>trim($this->input->post('file_type')),
+                'search_value' => trim($this->input->post('search')['value'])
+        );
+        
+        $list = $this->reporting_utils->get_uploaded_file_history($post_data);
+
+        $table_data = array();
+        $no = $post_data['start'];
+        foreach ($list as $file_list) {
+            $no++;
+            $file_list->file_source = $this->input->post('file_source');
+            if($this->input->post("show_amt_paid")) {
+                $file_list->show_amt_paid = $this->input->post('show_amt_paid');
+            }
+            $row =  $this->upload_file_table_data($file_list, $no);
+            $table_data[] = $row;
+        }
+
+        $allRecords = $this->reporting_utils->get_uploaded_file_history();
+        $allFilteredRecords = $this->reporting_utils->get_uploaded_file_history($filtered_post_data);
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($allRecords),
+            "recordsFiltered" =>  count($allFilteredRecords),
+            "data" => $table_data,
+        );
+        unset($post_data);
+        echo json_encode($output);
+    }
+    
+    /**
+     * @Desc: This function is used to make the table data for upload file history
+     * @params: void
+     * @return: void
+     * 
+     */
+    private function upload_file_table_data($file_list, $no) {
+        if ($file_list->result === FILE_UPLOAD_SUCCESS_STATUS) {
+            $result = "<div class='label label-success'>$file_list->result</div>";
+        } else if ($file_list->result === FILE_UPLOAD_FAILED_STATUS) {
+            $result = "<div class='label label-danger'>$file_list->result</div>";
+        } else {
+            $result = $file_list->result;
+        }
+
+        $row = array();
+        $row[] = $no;
+        $row[] = "<a target='_blank' href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $file_list->file_name . "'>" . $file_list->file_name . "</a>";
+        $row[] = $file_list->agent_name;
+        $row[] = date('d M Y H:i:s', strtotime($file_list->upload_date));
+        if ($file_list->file_source == 'partner_file_upload') {
+            if (!empty($file_list->revert_file_name)) {
+                $row[] = '<button type="button" onclick="view_revert_file(' . $file_list->id . ')" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#revert_file_model">View Revert File</button>';
+            } else {
+                $row[] = '';
+            }
+        }
+        if (isset($file_list->show_amt_paid) && $file_list->show_amt_paid) {
+            $row[] = $file_list->amount_paid;
+        }
+        $row[] = $result;
+
+        return $row;
+    }
+
 }

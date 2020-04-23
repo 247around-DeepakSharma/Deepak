@@ -3933,14 +3933,28 @@ class Spare_parts extends CI_Controller {
 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
-    }
-
+    }    
+    /*
+     *  @desc : This function is used to dispatch the MSL from Warehouse to MicroWare
+     *  @param : void()
+     */    
     function get_dispatch_msl_form() {
         log_message('info', __METHOD__);
         $this->load->view('service_centers/header');
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view("service_centers/tag_spare_invoice_send_by_warehouse", $data);
+    }
+
+    /*
+     *  @desc : This function is used to create the view page to upload msl file from warehouse panel.
+     *  @param : void()
+     */
+    function upload_msl_excel_file() {
+        log_message('info', __METHOD__);
+        $this->load->view('service_centers/header');
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view("service_centers/upload_msl_excel_file", $data);
     }
 
     /**
