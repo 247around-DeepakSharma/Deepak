@@ -368,7 +368,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <center><p id="remarks_msg_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" style="color : red;"></p></center>
                 </div>
                 <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" value="">
-                <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>
+                <!--<textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>-->
+                <select  class="form-control"  id="select_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
+                    <option disabled="" selected=""></option>
+                </select>
             </div>
             <input type="hidden" id="id_no">
             <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
@@ -545,6 +548,17 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#model_remarks_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').modal();     
         $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').val(booking_id);
         $('#modal-title-<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').html(booking_id);
+        // fill cancellation reason in cancellation remark popup dropdown
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url(); ?>/employee/booking/get_cancellation_reasons',
+            data:{reason_of:'247around'},
+            success:function(data){
+                if(data){
+                    $("#select_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>").html(data);
+                }
+            }
+        });
     }
 
 
