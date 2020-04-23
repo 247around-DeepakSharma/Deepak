@@ -480,6 +480,16 @@ class engineerApi extends CI_Controller {
                 $this->getBookingParents();  //// Getting parents
                 break;
 
+            /*   this API used to get booking Corona Corrdinates */
+            case 'checkCornoraAreas':
+                $this->getCoronaCoordinates();  //// Getting parents
+                break; 
+
+            /*   this API used to All Acceceries */
+            case 'getAccessories':
+                $this->getgetAccessoriesList();  //// Getting parents
+                break;
+
             default:
                 break;
         }
@@ -4485,4 +4495,62 @@ function submitPreviousPartsConsumptionData(){
         }
     }
 
+ 
+   /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+    function  getCoronaCoordinates(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("state"), $requestData);
+        if ($validation['state']) {
+    
+        $url = base_url() . "employee/service_centers/update_spare_parts"; //// Abhishek Change Wrong function called for spare part update ///
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+        $curl_response = curl_exec($ch);
+        curl_close($ch);
+
+         $this->jsonResponseString['response'] = $curl_response; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Data  Found'));
+        }
+
+    }
+
+
+    /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+
+    function getgetAccessoriesList(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            /* Getting Accessories from DB */
+            $accessories = $this->accessories_model->show_accessories_list();  
+         $this->jsonResponseString['response'] = $accessories; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
 }
