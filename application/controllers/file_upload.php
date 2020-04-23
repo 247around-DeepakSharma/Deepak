@@ -103,17 +103,22 @@ class File_upload extends CI_Controller {
                             $response['status'] = FALSE;
                             $response['message'] = 'Something Went wrong!!!';
                     }
-
+                   
+                    if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                        $file_type = $data['post_data']['file_type'] . " by warehouse";
+                    } else {
+                        $file_type = $data['post_data']['file_type'];
+                    }
                     //save file into database send send response based on file upload status  
                     if (isset($response['status']) && ($response['status'])) {
                         
                         //save file and upload on s3
-                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $file_type, FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                         
                         $this->session->set_userdata('file_success', $response['message']);
                     } else {
                         //save file and upload on s3
-                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $file_type, FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                         $this->session->set_flashdata('file_error', $response['message']);
                     }
 
@@ -121,8 +126,13 @@ class File_upload extends CI_Controller {
                     $this->send_email($data, $response);
                     if (isset($response['status']) && ($response['status'])) {
                         $redirect_to = $response['redirect_to'];
-                        $this->session->set_flashdata('details', $response['message']);
-                        redirect(base_url() . $redirect_to);
+
+                        if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                            redirect(base_url() . $redirect_to);
+                        } else {
+                            $this->session->set_flashdata('details', $response['message']);
+                            redirect(base_url() . $redirect_to);
+                        }
                     }
                 } else {
                     //redirect to upload page
@@ -939,7 +949,14 @@ class File_upload extends CI_Controller {
                                     $post_data[$rowData['appliance']]['partner_name'] = $this->input->post("partner_name");
                                     $post_data[$rowData['appliance']]['wh_name'] = $this->input->post("wh_name");
                                     $post_data[$rowData['appliance']]['invoice_tag'] = 'MSL';
+                                    if($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE){
+                                     $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_WAREHOUSE; 
+                                     $post_data[$rowData['appliance']]['sender_entity_type'] = $this->input->post("sender_entity_type");
+                                     $post_data[$rowData['appliance']]['sender_entity_id'] = $this->input->post("sender_entity_id");
+                                    } else {
                                     $post_data[$rowData['appliance']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
+                                    }
+                                    
                                     $post_data[$rowData['appliance']]['is_defective_part_return_wh'] = 1;
                                     $post_data[$rowData['appliance']]['part'] = array();
                                     $post_data[$rowData['appliance']]['files'] = $file_data;
@@ -963,7 +980,7 @@ class File_upload extends CI_Controller {
         }
 
         $err_msg = $this->table->generate();
-        
+      
         if (empty($error_array)) {
 
             foreach ($post_data as $post) {
@@ -979,18 +996,33 @@ class File_upload extends CI_Controller {
             $response['status'] = TRUE;
             $response['message'] = $err_msg;
             $response['bulk_msl'] = TRUE;
-            $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
+            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                $response['redirect_to'] = 'service_center/upload_msl_excel_file';
+                //redirect(base_url() . "service_center/upload_msl_excel_file");
+            } else {
+                $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
+            }
+            
         } else {
             $response['status'] = FALSE;
             $response['message'] = $err_msg;
-            $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
+            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                $response['redirect_to'] = 'service_center/upload_msl_excel_file';
+            } else {
+                $response['redirect_to'] = 'employee/inventory/upload_msl_excel_file';
+            }
             // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/msl_excel_upload_errors', $response);
+            if ($this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE) {
+                $this->load->view('employee/msl_excel_upload_errors', $response); 
+                //$this->load->view('service_center/msl_excel_upload_errors', $response);
+            } else {
+               $this->load->view('employee/msl_excel_upload_errors', $response); 
+            }
         }
 
-
         return $response;
+        
     }
     
 

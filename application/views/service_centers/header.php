@@ -306,6 +306,8 @@
                                  <?php if($this->session->userdata('is_wh') == 1){ ?>
                                 <li><a href="<?php echo base_url(); ?>service_center/dispatch_msl_to_warehouse"><strong>Dispatch MSL To Warehouse</strong></a></li> 
                                 <li class="divider" style="height: 1.5px;"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/upload_msl_excel_file"><strong>Upload MSL File</strong></a></li> 
+                                <li class="divider" style="height: 1.5px;"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer From One Booking To Another</strong></a></li>
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer To Warehouse</strong></a></li> 
