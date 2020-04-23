@@ -6315,15 +6315,15 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Sf ID: " . $sf_id);
         log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
         
-        $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
-        $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        //$this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
+        //$this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
-        if ($this->form_validation->run() == FALSE) {
-            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $sf_id .
-                    " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
-            $this->update_spare_parts_form($booking_id);
-        } else {
+//        if ($this->form_validation->run() == FALSE) {
+//            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $sf_id .
+//                    " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
+//            $this->update_spare_parts_form($booking_id);
+//        } else {
             $exist_awb = $this->input->post('exist_courier_image');
             if (!empty($exist_awb)) {
                 $courier_image['message'] = $exist_awb;
@@ -6652,7 +6652,7 @@ class Service_centers extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id . "/" . $wh);
             }
-        }
+        //}
     }
 
     /**
