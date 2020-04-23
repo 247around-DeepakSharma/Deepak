@@ -1,3 +1,10 @@
+<?php
+if ($this->uri->segment(4)) {
+    $sn_no = $this->uri->segment(4) + 1;
+} else {
+    $sn_no = 1;
+}
+?>
 <div class="page-wrapper">
     <div class="row"style="margin:10px"> 
         <div class="clear"></div>
@@ -54,12 +61,12 @@
                 </thead> 
                 <tbody> 
                     <?php
-                    $start = 0;
+                    $start = $sn_no;
                     foreach ($courier_details as $courier) {
                         ?> 
                         <tr> 
                             <td> 
-                                <?php echo ++$start ?> 
+                                <?php echo $start; ?> 
                             </td> 
                             <td> 
                                 <?php 
@@ -132,16 +139,18 @@
                                 </div>
                             </td> 
                         </tr> 
-                        <?php
+                        <?php $start++;
                     }
                     ?> 
                 </tbody> 
             </table>
+        <div class="custom_pagination" style="margin-left: 16px;" > <?php if (isset($links)) echo $links; ?></div>
     </div>
 </div>
 <script type="text/javascript"> 
         $(document).ready(function() { 
             $("#mytable").dataTable({
+                bPaginate: false,
                 dom: 'Bfrtip',
                 buttons: [
                    'excel', 'pageLength'
@@ -152,5 +161,8 @@
 <style>
     #mytable_filter{
         text-align: right;
+    }
+    .dataTables_info {
+        display :none;
     }
 </style>
