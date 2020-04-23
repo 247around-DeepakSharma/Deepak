@@ -522,3 +522,9 @@ $("#on_partner").DataTable({
 <?php if ($this->session->userdata('error')) {
     $this->session->unset_userdata('error');
 } ?>
+
+<style>
+    .dataTables_filter {
+        float:right;
+    }
+</style>

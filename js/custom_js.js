@@ -266,6 +266,19 @@ function final_price() {
     $("#grand_total_price").val(final_price);
     var is_sf_panel = $("#is_sf_panel").val();    
     if(!is_sf_panel && ($("#flag_add_booking").length) && ($("#flag_add_booking").val() == 1)) {
+        // These request types can not be selected while creating Booking
+        // uncheck these request types if selected
+        $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('checked', false);
+        $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('checked', false);
+        $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('checked', false);
+        $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('checked', false);
+        $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
+        $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
+        $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
+        $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (In Warranty)"]').prop('checked', false);
+        $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (Out Warranty)"]').prop('checked', false);
+        
+        // Make this Request types disabled
         $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
         $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
         $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);

@@ -3,7 +3,6 @@
 class nrn_model extends CI_Model {
 
     public $table_247around_nrn_details = '247around_nrn_details';
-
     public $table_service_centre_charges = 'service_centre_charges';
     public $table_partner_appliance_details = 'partner_appliance_details';
     public $table_appliance_model_details = 'appliance_model_details';
@@ -16,10 +15,20 @@ class nrn_model extends CI_Model {
         parent::__Construct();
     }
 
+    /*
+     * Insert new NRN/TR records 
+     * return last insert id
+     */
+
     function insert_nrn_details($data) {
         $this->db->insert($this->table_247around_nrn_details, $data);
         return $this->db->insert_id();
     }
+
+    /*
+     * Get all NRN/TR records 
+     * return Array/NULL
+     */
 
     function get_all_nrn_records() {
         $this->db->select('*');
@@ -30,6 +39,11 @@ class nrn_model extends CI_Model {
         }
         return NULL;
     }
+
+    /*
+     * Get particular NRN/TR record by nrn_id 
+     * return Array/NULL
+     */
 
     function get_nrn_records($nrn_id = NULL) {
         $this->db->select('*');
@@ -43,7 +57,11 @@ class nrn_model extends CI_Model {
         }
         return NULL;
     }
- 
+
+    /*
+     * Upadte deatils of a particular NRN/TR record by nrn_id 
+     * return TRUE/FALSE 
+     */
 
     function update_nrn_details($nrn_details, $nrn_id) {
         if ($nrn_id != '') {
@@ -54,26 +72,6 @@ class nrn_model extends CI_Model {
             }
             return FALSE;
         }
-    }
-
-
-    function get_category_capacity_model($service_id, $partner_id) {
-        $this->db->select('SCC.category,SCC.capacity,AMD.id, AMD.model_number, PAD.model');
-        $this->db->from($this->table_service_centre_charges . ' AS SCC');
-        $this->db->join($this->table_partner_appliance_details . ' AS PAD', "PAD.service_id = SCC.service_id AND PAD.partner_id = SCC.partner_id AND PAD.active = 1", ' LEFT');
-        $this->db->join($this->table_appliance_model_details . " AS AMD", "AMD.id = PAD.model AND AMD.active = 1");
-        $this->db->join($this->table_services . " AS S", "S.id = PAD.service_id");
-        $this->db->where('SCC.service_id', $service_id);
-        $this->db->where('SCC.partner_id', $partner_id);
-        $this->db->where('SCC.active', '1');
-        $this->db->where('SCC.check_box', '1');
-        $this->db->where('SCC.capacity !=', 0);
-        $this->db->order_by('SCC.category ASC,SCC.capacity ASC');
-        $query = $this->db->get();
-        if ($query !== FALSE && $query->num_rows() > 0) {
-            return $query->result_array();
-        }
-        return NULL;
     }
 
 }

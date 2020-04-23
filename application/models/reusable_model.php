@@ -108,7 +108,7 @@ class reusable_model extends CI_Model {
     }
     
      function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
-       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
        $this->db->_protect_identifiers = FALSE;
        $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY);
        return $query->result_array();
@@ -128,7 +128,7 @@ class reusable_model extends CI_Model {
     }
     
     function get_state_for_rm($rmID){
-       $sql = "SELECT state_code.state FROM agent_state_mapping  LEFT JOIN state_code ON 
+       $sql = "SELECT distinct(state_code.state) FROM agent_state_mapping  LEFT JOIN state_code ON 
         (state_code.state_code = agent_state_mapping.state_code) WHERE agent_state_mapping.agent_id = '" . $rmID . "'";
          $query = $this->db->query($sql);
         return $query->result_array();

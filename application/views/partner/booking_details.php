@@ -823,7 +823,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     <?php } ?>
                             </div></div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">

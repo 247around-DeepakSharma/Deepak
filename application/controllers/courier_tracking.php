@@ -93,6 +93,7 @@ class Courier_tracking extends CI_Controller {
                             $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NOT NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
                             $this->update_pod_courier($value->tracking_number);
+                            //update pod file on Delivered status
                         }
                         echo " FOr each update ". $key.PHP_EOL; 
                         $update_status = $this->process_partner_shipped_auto_acknowledge_data($value);
@@ -431,11 +432,11 @@ class Courier_tracking extends CI_Controller {
                     . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
                     if (empty($is_requested)) {
                         if (date('l' == 'Sunday')) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else if (date('H') > 12) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else {
-                            $booking['booking_date'] = date('d-m-Y');
+                            $booking['booking_date'] = date('Y-m-d');
                         }
                         $booking['update_date'] = date("Y-m-d H:i:s");
                         $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -539,6 +540,8 @@ class Courier_tracking extends CI_Controller {
                         if(isset($value->tracking_number) && !empty($value->tracking_number)){
                             $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
+                            $this->update_pod_courier($value->tracking_number);
+                            //update pod file on Delivered status
                         }
                         $update_status = $this->update_defactive_part_status($value);
                         if($update_status){
@@ -613,6 +616,8 @@ class Courier_tracking extends CI_Controller {
                                 if(isset($value->tracking_number) && !empty($value->tracking_number)){
                                     $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                             array( 'delivered_date' => date('Y-m-d H:i:s')));
+                                    $this->update_pod_courier($value->tracking_number);
+                                    //update pod file on Delivered status
                                 }
                                 $deleted_awb_number_tmp_arr = array();
                                 $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;

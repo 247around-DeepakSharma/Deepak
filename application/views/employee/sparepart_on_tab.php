@@ -515,8 +515,8 @@
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
                                         <th class="text-center" data-orderable="false">Price</th>
                                         <th class="text-center" data-orderable="true">Age</th>
-                                        <th class="text-center" data-orderable="true">Pickup Request </th>
-                                        <th class="text-center" data-orderable="true">Pickup Schedule</th>
+                                        <th class="text-center" data-orderable="false">Pickup Request </th>
+                                        <th class="text-center" data-orderable="false">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Mark Courier Lost</th>
@@ -1399,7 +1399,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[16, "desc"]], 
+            order: [[17, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1422,13 +1422,10 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,3], //first column / numbering column
+                    "targets": [1,3,17], //first column / numbering column
                     "orderable": true //set not orderable
-                },
-                 {
-                    "targets": [0,6,15,17,18], //first column / numbering column
-                    "orderable": false //set not orderable
                 }
+                
             ],
             "fnInitComplete": function (oSettings, response) {
             

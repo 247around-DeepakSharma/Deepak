@@ -493,7 +493,7 @@ class File_upload extends CI_Controller {
                             $message .= " Below parts have invalid hsn code or price. Please modify these and upload only below data again: <br>";
                             $message .= $this->table->generate();
                         }
-
+                        $response['status'] = TRUE;
                         $response['message'] = $message;
                     } else {
                         log_message("info", __METHOD__ . $is_file_contains_unique_data['message']);

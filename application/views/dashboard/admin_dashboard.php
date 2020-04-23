@@ -1120,6 +1120,35 @@
             </div>
         </div>
         <!-- RM wise booking status -->
+        <!-- Booking cancellation -->
+        <div class="row" style="margin-top:10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12" id="based_on_booking_cancellation_reason" style="padding-right:0px !important">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-5"><h2>Booking cancellation reason wise <small></small></h2></div>
+                    <div class="col-md-6">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#booking_cancellation_chart_div" data-toggle="collapse" onclick="get_bookings_cancellation_reason()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="booking_cancellation_chart_div">
+                    <div id="booking_cancellation_chart"></div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Booking cancellation -->
     </div>
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
@@ -1616,6 +1645,15 @@
         cb(start, end);
     });
     
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange_booking_cancellation span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange_booking_cancellation').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
             
     $('#action_agent_date span').on('apply.daterangepicker', function(ev, picker) {
         
@@ -3111,6 +3149,103 @@ function initiate_escalation_data(){
             }
         });
     }
+    /*
+     * By choosing dates from datapicker and expand chart div and send AJAX request to get cancelled booking data
+     * by sending start and end dates of selected option (last wwek/last month/ custom dates)  
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
+    $('#reportrange_booking_cancellation').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif_booking_cancellation').show();
+        $('#state_type_booking_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            if(response){
+                create_piechart_based_on_bookings_cancellation_reason(response);
+            }else{
+                $('#loader_gif_booking_cancellation').hide();
+                $('#booking_cancellation_chart_div').fadeIn();
+                $('#booking_cancellation_chart').html('No data');
+            }
+        });
+    });
+    /*
+     * On click of plus buttion expand chart div and send AJAX request to get cancelled booking data
+     * by sending first and last date of current 
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
+    function get_bookings_cancellation_reason(){
+        $('#loader_gif_booking_cancellation').fadeIn();
+        $('#booking_cancellation_chart_div').fadeOut();
+        var startDate = '<?php echo date('Y-m-01') ?>';
+        var endDate = '<?php echo date('Y-m-t') ?>';
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
+        var data = {sDate: startDate, eDate: endDate};        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            //console.log(response);
+            if(response){
+                create_piechart_based_on_bookings_cancellation_reason(response);
+            }else{
+                $('#loader_gif_booking_cancellation').hide();
+                $('#booking_cancellation_chart_div').fadeIn();
+                $('#booking_cancellation_chart').html('No data');
+            }
+        });
+    }
+
+    /*
+     * This function create pie chart of cancelled booking by cancellation reason
+     * Input param JSON data array
+     */
+    function create_piechart_based_on_bookings_cancellation_reason(response) {
+        console.log(response);
+        var test = JSON.parse(response);
+        var tt =  [{
+            name : test.series.name,
+            colorByPoint : test.series.colorByPoint,
+            data: test.series.data
+        }];
+        $('#loader_gif_booking_cancellation').hide();
+        $('#booking_cancellation_chart_div').fadeIn();
+        // Configure and put JSON data into piechart
+        Highcharts.chart('booking_cancellation_chart', {
+                  chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                  title: {
+                    text: ''
+                  },
+                  tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                  },
+                  accessibility: {
+                    point: {
+                      valueSuffix: ''
+                    }
+                  },
+                  plotOptions: {
+                    pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                        enabled: false
+                      },
+                      showInLegend: true
+                    }
+                  },
+                  series:tt
+                });
+    
+    }
+    
 </script>
 <style>
 .text_warning{

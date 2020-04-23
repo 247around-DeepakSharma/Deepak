@@ -6613,11 +6613,10 @@ exit();
     function get_security_amount_data() {
         $data = $this->get_security_amount_list_data();
         $post = $data['post'];
-        $total_records = $this->invoices_model->count_security_amount_list($post);
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $total_records, 
-            "recordsFiltered" => $total_records,
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
             "data" => $data['data'],
         );
        echo json_encode($output);
@@ -6637,7 +6636,7 @@ exit();
 
         $post['column_order'] = array();
         //column which will be searchable in datatable search
-        $post['column_search'] = array('sc.name', 'vpi.invoice_id');
+        $post['column_search'] = array('service_centres.name', 'vendor_partner_invoices.invoice_id');
         $id = $this->session->userdata('id');   
         //To get SF data if login user is RM or ASM
         $sf_list = $this->vendor_model->get_employee_relation($id);
@@ -6651,25 +6650,26 @@ exit();
         $end_date = $this->input->post('to_date');
         $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
         //adding start date and end date filter for query     
-        $where['vpi.invoice_date >= "'.$start_date.'"'] = null;
-        $where['vpi.invoice_date < "'.$end_date.'"'] = null;
-        $where['vpi.vendor_partner'] = _247AROUND_SF_STRING;
-        $where['vpi.settle_amount'] = 0;
-        $where["vpi.sub_category"] = FNF;
+        $where['vendor_partner_invoices.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vendor_partner_invoices.invoice_date < "'.$end_date.'"'] = null;
+        $where['vendor_partner_invoices.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vendor_partner_invoices.settle_amount'] = 0;
+        $where["vendor_partner_invoices.sub_category"] = FNF;
         //Received SF for curent RM or ASM
         if($sf_list != ""){
-            $where["sc.id  IN (" .trim($sf_list, ',').")"] = null;
+            $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
         }
         
         //adding SF filter for query     
         if($service_centre_id != 0){
-            $where['sc.id'] = $service_centre_id;
+            $where['service_centres.id'] = $service_centre_id;
         }
         
         $post['where'] = $where;
+        $post['order_by'] = array("vendor_partner_invoices.invoice_date" => "desc");
 
-        $select = "vpi.invoice_id, vpi.invoice_date, sc.name, vpi.total_amount_collected as invoice_amount, vpi.sgst_tax_amount, vpi.cgst_tax_amount, vpi.igst_tax_amount  ";
-        $list = $this->invoices_model->get_security_amount_list($post, $select);
+        $select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.invoice_date, service_centres.name, vendor_partner_invoices.total_amount_collected as invoice_amount, vendor_partner_invoices.sgst_tax_amount, vendor_partner_invoices.cgst_tax_amount, vendor_partner_invoices.igst_tax_amount  ";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
         $data = array();
         $no = $post['start'];
         //create table data for each row
@@ -6741,4 +6741,122 @@ exit();
         }
     }
     
+    /**
+     * @desc : This function is used to get list of MSL security amount 
+     * @return : Void
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_amount_list');
+    }
+    
+    /**
+     * @desc : This function is used to get list of MSL security amount. 
+     * @param : String $start_date
+     * @param : String $end_date
+     * @return : String
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_data() {
+        $data = $this->get_msl_security_amount_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+    
+     /**
+     *  @desc : This function is used to get data of msl security amount payment
+     *  @param : void
+     *  @return : void
+     *  @author Ankit Rajvanshi
+     */
+    function get_msl_security_amount_list_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('service_centres.name', 'vendor_partner_invoices.invoice_id');
+        $id = $this->session->userdata('id');   
+        //To get SF data if login user is RM or ASM
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        
+        $where = array();
+        $service_centre_id = $this->input->post('service_centre_id');
+        $start_date = date("Y-m-d", strtotime($this->input->post('from_date')));
+        $end_date = $this->input->post('to_date');
+        $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
+        //adding start date and end date filter for query     
+        $where['vendor_partner_invoices.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vendor_partner_invoices.invoice_date < "'.$end_date.'"'] = null;
+        $where['vendor_partner_invoices.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vendor_partner_invoices.settle_amount'] = 0;
+        $where["vendor_partner_invoices.sub_category"] = MSL_SECURITY_AMOUNT;
+        //Received SF for curent RM or ASM
+        if($sf_list != ""){
+            $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
+        }
+        
+        //adding SF filter for query     
+        if($service_centre_id != 0){
+            $where['service_centres.id'] = $service_centre_id;
+        }
+        
+        $post['where'] = $where;
+        $post['order_by'] = array("vendor_partner_invoices.invoice_date" => "desc");
+
+        $select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.invoice_date, service_centres.name, vendor_partner_invoices.total_amount_collected, vendor_partner_invoices.amount_collected_paid, vendor_partner_invoices.amount_paid ";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_msl_security_amount_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+    /**
+     *  @desc : This function is used to get rows for msl security amount table
+     *  @param : Array $model_list
+     *  @param : Integer $no
+     *  @return : Array
+     */
+     function get_msl_security_amount_table($model_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->invoice_id;
+        $row[] = $model_list->invoice_date;
+        $row[] = $model_list->name;
+        $row[] = $model_list->total_amount_collected;
+        
+        $settled_amount = $model_list->amount_paid + $model_list->amount_collected_paid;
+        if($settled_amount < 0) {
+            $settled_amount = -($settled_amount);
+        }
+        $row[] = $settled_amount;
+        return $row;
+    }
+
 }

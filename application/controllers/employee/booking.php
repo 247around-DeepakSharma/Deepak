@@ -756,7 +756,7 @@ class Booking extends CI_Controller {
         else{
             $booking['partner_source'] = NULL;
         }
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_date'] = date('Y-m-d', strtotime($booking_date));
         $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
         // select state, taluk, district by pincode
         $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
@@ -993,9 +993,12 @@ class Booking extends CI_Controller {
         $data['booking_history'][0]['source_name'] = !empty($source[0]['source']) ? $source[0]['source'] : "";
         //Partner ID
         $partner_id = $data['booking_history'][0]['partner_id'];
-
-        
-        
+        // Request Type
+        $booking_request_type = $data['booking_history'][0]['request_type'];
+        // Service Id
+        $service_id = $data['booking_history'][0]['service_id'];
+        // Booking primary Id
+        $booking_primary_id = $data['booking_history'][0]['booking_primary_id']; 
         //Define Blank Price array
         $data['prices'] = array();
         //Define Upcountory Price as zero
@@ -1098,6 +1101,14 @@ class Booking extends CI_Controller {
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
+        // Get review questionnaire for Admin Panel, Complete Form, Booking Service Id, Booking Request Type
+        $review_questionnaire = $this->get_review_questionnaire(1, 2, $service_id, $booking_request_type);
+        // get options checklist against review questions
+        $questionnaire_checklist = $this->get_questionnaire_checklist($review_questionnaire);
+        // get filled answers against the Booking
+        $questionnaire_answers_against_booking =  $this->get_questionnaire_answers_against_booking($booking_primary_id);
+        // get questionnaire HTML
+        $data['questionnaire_html'] = $this->get_questionnaire_html($booking_primary_id, $review_questionnaire, $questionnaire_checklist, $questionnaire_answers_against_booking);
         $this->miscelleneous->load_nav_header(); 
         $this->load->view('employee/completebooking', $data);
     }
@@ -1242,7 +1253,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id, $this->input->post('service_center_closed_date'));
         if ($is_booking_able_to_reschedule !== FALSE) {
-            $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+            $data['booking_date'] = date('Y-m-d', strtotime($this->input->post('booking_date')));
             $data['booking_timeslot'] = $this->input->post('booking_timeslot');
             $data['service_center_closed_date'] = NULL;
             //$data['cancellation_reason'] = NULL;
@@ -1641,8 +1652,10 @@ class Booking extends CI_Controller {
         if ($getbooking) {
             $this->session->userdata('employee_id');
             $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+            // fetch disatisfactory reasons in case of Poor rating
+            $poor_rating_dissatisfactory_reasons = $this->booking_model->get_dissatisfactory_reasons();
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c));
+            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c, 'dissatisfactory_reasons' => $poor_rating_dissatisfactory_reasons));
         } else {
             echo "Id doesn't exist";
         }
@@ -1669,6 +1682,12 @@ class Booking extends CI_Controller {
                 if ($this->input->post('rating_star') != "Select") {
                     $data['rating_stars'] = $this->input->post('rating_star');
                     $data['rating_comments'] = $this->input->post('rating_comments');
+                    // save dissatisfactory reason in booking_details in case of bad rating
+                    $dissatisfactory_reason = "";
+                    if(!empty($this->input->post('dissatisfactory_reason'))){
+                        $dissatisfactory_reason = $this->input->post('dissatisfactory_reason');
+                    }
+                    $data['customer_dissatisfactory_reason'] = $dissatisfactory_reason;
                     $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                     $update = $this->booking_model->update_booking($booking_id, $data);
@@ -1895,6 +1914,16 @@ class Booking extends CI_Controller {
             }
         }
 
+        // fetch customer dissatisfactory reason saved against Booking
+        $data['customer_dissatisfactory_reason'] = "";
+        if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($data['booking_history'][0]['customer_dissatisfactory_reason']);
+            if(!empty($arr_dissatisfactory_reason[0]['reason'])){
+                $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
+            }
+        }
+        
+            
 //        if (!empty($data['booking_history']['spare_parts'])) {
 //            $spare_parts_list = array();
 //            foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -2069,7 +2098,9 @@ class Booking extends CI_Controller {
                         $this->partner_cb->partner_callback($booking_id);
 
                         //Redirect to Default Search Page
+                        if($booking_id == INSERT_NEW_BOOKING){
                         $this->session->set_userdata('success', 'Booking inserted successfully with Booking Id : '.$status['booking_id']);
+                        }
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
                         //Redirect to edit booking page if validation err occurs
@@ -2645,6 +2676,13 @@ class Booking extends CI_Controller {
                 log_message("info", " Amount Paid less then 5  for booking ID ". $booking_id. " Amount Paid ". $total_amount_paid);
             }
         
+            // save questionnaire data against Booking
+            if(!empty($this->input->post('review_questionnaire_booking_id')) && !empty($this->input->post('review_questionnaire'))){
+                $review_questionnaire_booking_id = $this->input->post('review_questionnaire_booking_id');
+                $review_questionnaire_data = $this->input->post('review_questionnaire');
+                $this->save_review_questionnaire_data($review_questionnaire_booking_id, $review_questionnaire_data);
+            }
+            
             redirect(base_url() . 'employee/booking/view_bookings_by_status/Pending');
         } else {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
@@ -3602,9 +3640,9 @@ class Booking extends CI_Controller {
          if($this->input->post('bulk_booking_id')){
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
@@ -3612,9 +3650,9 @@ class Booking extends CI_Controller {
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
          }
@@ -3806,8 +3844,8 @@ class Booking extends CI_Controller {
         
         if(!empty($booking_date)){
             $bookingDateArray = explode(" - ", $booking_date);
-            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
-            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
         }
         
         if(!empty($city)){
@@ -4038,7 +4076,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -4184,8 +4222,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking, "
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
@@ -4448,7 +4486,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4817,8 +4855,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,"
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking,"
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking,"
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . " booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.vendor_rating_stars,booking_details.vendor_rating_comments,"
@@ -5369,12 +5407,12 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
-            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day, booking_details.create_date,
-             booking_details.partner_internal_status,DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as  initial_booking_date";
+             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day, booking_details.create_date,
+             booking_details.partner_internal_status,DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  initial_booking_date";
             
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',1); 
         }
@@ -5385,9 +5423,9 @@ class Booking extends CI_Controller {
                     . "services.services, service_centres.name as service_centre_name, "
                     . "service_centres.district as city, service_centres.primary_contact_name,"
                     . " service_centres.primary_contact_phone_1,
-                        DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-                       DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'),'%d-%b-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
-                       STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+                        DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+                       DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
+                       STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age";
             
             $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
         }
@@ -5603,7 +5641,7 @@ class Booking extends CI_Controller {
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){
-            $data['per_page'] = 100;
+            $data['per_page'] = 50;
             $data['offset'] = $offset;
             $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where);
             $data['status'] = $status;
@@ -6322,6 +6360,196 @@ class Booking extends CI_Controller {
             $data = $this->vendor_model->getDistrict_from_india_pincode('', $post_data['booking_pincode']);
         }
         echo json_encode($data);
+    }
+    
+    /**
+     * @desc this is used to get review questionnaire for the given form
+     * @param int $panel_id, int $form_id, int $service_id, varchar $request_type
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_review_questionnaire($panel_id , $form_id, $service_id, $request_type){
+        // set where condition
+        $where_questions['review_questionare.panel'] = $panel_id;
+        $where_questions['review_questionare.form'] = $form_id;
+        $where_questions['request_type.service_id'] = $service_id;
+        $where_questions['request_type.service_category'] = $request_type;
+        
+        // fetch questions for given panel, page and request type 
+        $data['questions'] = $this->booking_model->get_questionnaire('*',$where_questions);
+        return $data['questions'];
+    }
+    
+    /**
+     * @desc this is used to get options checklist against given questions
+     * @param array $arr_questions
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_checklist($arr_questionnaire){
+        $options = array();
+        // if no questions found, return Blank Array
+        if(empty($arr_questionnaire)){
+            return $options;
+        }
+        
+        // get all questions Ids and set in where condition       
+        $arr_questions = array_column($arr_questionnaire, 'q_id');
+        $where_in['q_id'] = $arr_questions;
+        
+        // It will fetch all options against given questions
+        $data['options'] = $this->booking_model->get_questionnaire_options_checklist('*', $where_in);
+        
+        // arrange all options question wise
+        // set array index as question_id
+        if(!empty($data['options'])){
+            $arr_options = [];
+            foreach ($data['options'] as $key => $value) {
+                $arr_options[$value['q_id']][] = $value;
+            }
+            $data['options'] = $arr_options;
+        }
+        return $data['options'];
+    }
+    
+    /**
+     * @desc this is used to get HTML for questionnaire form
+     * @param array $arr_questions, array $arr_answers
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_html($booking_id, $arr_questions, $arr_answers, $arr_saved_answers){
+        $html = '';
+        if(!empty($arr_questions)){
+            $html .= '<div class="panel panel-info">
+                                <div class="panel-heading">Review Questionnaire</div>
+                                <div class="panel-body">';
+            $html .= ' <input type="hidden" name ="review_questionnaire_booking_id" id="review_questionnaire_booking_id" value="'.$booking_id.'" />';
+            $html .= '<table class="table table-bordered">';
+            foreach($arr_questions as $key => $arr_question)
+            {
+                $count = $key + 1;
+                $html  .=  '<tr>
+                                <td style="width:5px;font-weight:bold;">Q'.$count.'.</td>';
+                
+                // if some pre-defined options are found against a question, show them in dropdown
+                // else show textbox to fill answer
+                $html_ans = "";
+                if(!empty($arr_answers[$arr_question["q_id"]])){                    
+                    $html   .=  '<td>'.$arr_question["question"].'</td>';
+                    $html_ans .= '<td style="width:200px;"><select class="form-control" name="review_questionnaire[checklist]['.$arr_question["q_id"].']">';
+                    $html_ans .= '<option value="" disabled selected>Choose Option</option>';
+                    foreach ($arr_answers[$arr_question["q_id"]] as $ques_id => $arr_answer) {
+                        $selected = "";
+                        // set selected option if review already filled
+                        if(!empty($arr_saved_answers[$arr_question["q_id"]]) && ($arr_saved_answers[$arr_question["q_id"]] == $arr_answer["checklist_id"])){
+                            $selected = " selected ";
+                        }
+                        $html_ans .= '<option value="'.$arr_answer["checklist_id"].'" '.$selected.'>'.$arr_answer["answer"].'</option>';
+                    }
+                    $html_ans .= '</select></td></tr>';
+                }
+                else
+                {
+                    $html   .=  '<td colspan=2>'.$arr_question["question"].'</td>';
+                    $html_ans .= "</tr><tr><td colspan=3>";
+                    $filled_remarks = "";
+                    // copy already filled answer in textbox
+                    if(!empty($arr_saved_answers[$arr_question["q_id"]])){
+                        $filled_remarks = $arr_saved_answers[$arr_question["q_id"]];
+                    }
+                    $html_ans .= '<input type="textbox" class="form-control" name="review_questionnaire[remarks]['.$arr_question["q_id"].']" value="'.$filled_remarks.'">'; 
+                    $html_ans .= "</td></tr>";
+                }
+                
+                $html .= $html_ans;
+            }
+            $html .= '</table>';
+            $html .= '</div></div>';            
+        }
+        return $html;
+    }
+       
+    /**
+     *  @desc : This function is to save review questionnaire data against booking
+     *  @param : int booking_id (column id from booking_details),
+     *  @param array $questionnaire_data :Array of answers for questions     *  
+     */
+    function save_review_questionnaire_data($booking_id, $questionnaire_data) {
+        
+        //  Array of answers for questions in which checklist is given (Dropdown answers)
+        $checklist_data  = !empty($questionnaire_data['checklist']) ?  $questionnaire_data['checklist'] : [];
+        // Array of answers for questions in which checklist is not given (Textbox answers)
+        $remarks_data = !empty($questionnaire_data['remarks']) ?  $questionnaire_data['remarks'] : [];
+        
+        // save checklist data
+        $this->booking_model->save_questionnaire_checklist_data($booking_id, $checklist_data, 'checklist_id');
+        // save remarks data
+        $this->booking_model->save_questionnaire_checklist_data($booking_id, $remarks_data, 'remarks');
+    }
+    
+    /**
+     * @desc this is used to saved answers for the questionnaire against booking
+     * @param int $booking_id
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+    */
+    function get_questionnaire_answers_against_booking($booking_id){
+        // It will fetch answers for all questions against booking
+        $data['answers'] = $this->booking_model->get_questionnaire_filled_answers('*', $booking_id);
+        
+        // arrange all answers question wise
+        // set array index as question_id
+        if(!empty($data['answers'])){
+            $arr_answers = [];
+            foreach ($data['answers'] as $key => $value) {
+                $arr_answers[$value['q_id']] = $value['remarks'];
+                if(!empty($value['checklist_id'])){
+                    $arr_answers[$value['q_id']] = $value['checklist_id'];
+                }
+            }
+            $data['answers'] = $arr_answers;
+        }
+        return $data['answers'];
+    }
+    /**
+     * @desc this is used to show purchase date / warranty status as per booking Date / warranty status as per current date
+     * @param int $booking_id
+     * @author Ghanshyam
+     * @created_on 18-04-2020
+     */
+    function check_warranty_booking() {
+        $array['purchase_date'] = '';
+        $array['booking_warranty_status'] = '';
+        $array['current_warranty_status'] = '';
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        if (!empty($booking_id)) {
+            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings(array($booking_id));
+            $array['purchase_date'] = $arrBookings[0]['purchase_date'];
+            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+            //print_r($arrModelWiseWarrantyData);
+            foreach ($arrBookings as $key => $value) {
+                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
+                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
+                }
+                //$value['create_date'] = date('Y-m-d');
+                $warrentyStatus_pre = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
+            }
+            $array['booking_warranty_status'] = $warrentyStatus_pre;
+            $arrBookings[0]['booking_create_date'] = date('Y-m-d'); // Get warranty Status as per current Date
+            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
+            foreach ($arrBookings as $key => $value) {
+                if (!empty($arrModelWiseWarrantyData[$value['model_number']])) {
+                    $value = $this->warranty_utilities->map_warranty_period_to_booking($value, $arrModelWiseWarrantyData[$value['model_number']]);
+                }
+                $warrentyStatus_pre = $this->warranty_utilities->get_bookings_warranty_status(array($value))[0];
+            }
+            $array['current_warranty_status'] = $warrentyStatus_pre;
+        }
+        echo json_encode($array);
     }
 
 }
