@@ -1894,7 +1894,7 @@ class Inventory_model extends CI_Model {
                 $updateCharge = TRUE;
             }
             else{
-                if($courier_company_detail[0]['courier_invoice_id'] == $data['invoice_id']){
+                if(empty($courier_company_detail[0]['courier_invoice_id'])){
                     $courier_company_data_update = array(
                         'company_name'=>$data['courier_name'],
                         'courier_charge'=>$data['courier_charges'],
@@ -1905,7 +1905,7 @@ class Inventory_model extends CI_Model {
                     $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data_update);
                     $updateCharge = TRUE;
                 }
-                else if($courier_company_detail[0]['awb_number'] == $data['awb_number']){
+                else {
                     $returnData['inValidData'] = $data['awb_number'];
                 }
             }
