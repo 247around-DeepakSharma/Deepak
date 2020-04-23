@@ -321,9 +321,8 @@
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
                                                 
-                                                 <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
-                                                        <option selected disabled>Select Part Name</option>
-                                                    </select>
+                                                 <input type="text"  required=""   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             </div>
 
@@ -358,7 +357,7 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?>  <?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
                                             </div>
