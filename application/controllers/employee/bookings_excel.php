@@ -538,7 +538,7 @@ class bookings_excel extends CI_Controller {
 
                             $booking['type'] = "Query";
 
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+3 days", strtotime($booking['shipped_date'])));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+3 days", strtotime($booking['shipped_date'])));
                             $booking['booking_timeslot'] = '';
                             $booking['amount_due'] = '';
                             $booking['booking_remarks'] = 'Installation & Demo';

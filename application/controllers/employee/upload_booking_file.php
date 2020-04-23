@@ -577,7 +577,7 @@ class Upload_booking_file extends CI_Controller {
                             $data1['request_type'] = $sku_validate[0]['service_category'];
                             $data1['price_tags'] = $sku_validate[0]['service_category'];
                             $data1['reference_date'] = date('Y-m-d', strtotime($data[1]));
-                            $data1['booking_date'] = date('d-m-Y', strtotime("+1 days", strtotime($data1['reference_date'])));
+                            $data1['booking_date'] = date('Y-m-d', strtotime("+1 days", strtotime($data1['reference_date'])));
                             $data1['source'] = $sku_validate[0]['code'];
                             $data1['order_id'] = $data[2];
                             $data1['name'] = $data[8];
@@ -692,7 +692,7 @@ class Upload_booking_file extends CI_Controller {
                                                     $dateObj2 = date_create('+3days');
                                                 }
 
-                                                $data['booking_date'] = $dateObj2->format('d-m-Y');
+                                                $data['booking_date'] = $dateObj2->format('Y-m-d');
                                                 $data['partner_source'] = "Snapdeal-shipped-excel";
 
                                                 // Set EDD only
@@ -845,7 +845,7 @@ class Upload_booking_file extends CI_Controller {
                     $data['type'] = "Query";
                     $data['source'] = "SP";
                     $data['partner_source'] = "Paytm-delivered-excel";
-                    $data['booking_date'] = date('d-m-Y', strtotime("+3 days", strtotime($data['shipped_date'])));
+                    $data['booking_date'] = date('Y-m-d', strtotime("+3 days", strtotime($data['shipped_date'])));
                     $data['request_type'] = 'Installation & Demo';
                     $data['price_tags'] = 'Installation & Demo';
                     $data['query_remarks'] = '';

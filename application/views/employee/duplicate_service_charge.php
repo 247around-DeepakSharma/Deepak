@@ -1,5 +1,5 @@
 <form action="#" method="POST" name="delete_service_charges" id="delete_service_charges">
-<table class="table priceList table-striped table-bordered">
+<table class="table priceList table-striped table-bordered" id="price_list">
     <thead>
         <tr>
             <th>SNo</th>
@@ -61,7 +61,29 @@
 <?php } ?>
 
 
+<style>.dataTables_filter {
+   float: right !important;
+}
+</style>
 <script>
+$('#price_list').dataTable({
+       "order": [],
+         "columnDefs": [ {
+           "targets"  : 'no-sort',
+           "orderable": false,
+        }],
+        "dom": 'lBfrtip',
+        "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    title: 'Charges-list',
+                    exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                }
+                }
+                ]
+     });
 $("#select_all").change(function () {
        $(".service_charge_id").prop('checked', $(this).prop("checked"));
  });

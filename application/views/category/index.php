@@ -17,8 +17,9 @@
                         <th>Name</th>
                         <th class="no-sort">Active</th> 
                         <th class="no-sort">Action</th>
-
                         <th style="display: none;">Active</th>
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -42,9 +43,8 @@
                             <td>
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Category" id="update_category" category_id="<?= $rec->id ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
- 
                             <td style="display: none;">
- 
+
                                 <?php 
                                     echo $rec->active;
                                 ?>
@@ -110,7 +110,6 @@
 
 <script>
     $('#category_list').dataTable({
- 
         "order": [],
          "columnDefs": [ {
            "targets"  : 'no-sort',
@@ -121,7 +120,7 @@
                 {
                     extend: 'excel',
                     text: 'Export',
-                    title: 'Category-list',
+                    title: 'Capacity-list',
 
                     exportOptions: {
                     columns: [0, 1, 2, 5]

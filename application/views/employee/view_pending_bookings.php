@@ -21,7 +21,7 @@
     function load_cancelled_status_admin(booking_id){
         $.ajax({
            type: 'post',
-           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status_with_reason/' + booking_id,
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id+'/1',
            success: function (response) {
                var obj = JSON.parse(response);
               if(obj.status=='success'){
