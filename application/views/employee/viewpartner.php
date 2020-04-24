@@ -165,13 +165,13 @@ if ($this->session->userdata('error')) {
                         <td><a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" title="Go To Invoice"><i class="fa fa-inr" aria-hidden="true"></i></a></td>
 
                         <td><?php if ($row['is_active'] == 1) { ?>
-                                <a class="btn btn-sm btn-primary" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
+                            <a class="btn btn-sm btn-primary activate_partner" href="javascript:void(0);"  id="<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
                             <?php } else { ?>
                                 <!--Do not allow Partner Activation if PAN details not found for partner-->                                    
                                 <?php if(empty($row['pan']) || empty($row['pan_file'])){ ?>
                                     <a class="btn btn-sm btn-danger" onclick="alert('Please Enter PAN Details of Partner to allow Activation');" title="Save PAN Details of Partner to allow Activation"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
                                 } else { ?>
-                                    <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
+                                    <a class="btn btn-sm btn-danger deactivate_partner" href="javascript:void(0);" id="<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
                                 } ?>                                
                             <?php } ?>
                         </td>
@@ -313,4 +313,20 @@ if ($this->session->userdata('error')) {
             }
         });
     }
+    
+    $(".activate_partner").on('click', function(){
+        var partner_id = $(this).attr("id");
+        if(confirm("Are you sure you want to Deactivate ?")){
+            window.location = "<?php echo base_url() ?>employee/partner/deactivate/"+partner_id;
+        } 
+    });
+    
+    $(".deactivate_partner").on('click', function(){
+        var partner_id = $(this).attr("id");
+        if(confirm("Are you sure you want to Activate ?")){
+            window.location = "<?php echo base_url() ?>employee/partner/activate/"+partner_id;
+        } 
+    });
+    
+    
 </script>
