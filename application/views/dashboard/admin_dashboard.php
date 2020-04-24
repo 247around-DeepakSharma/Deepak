@@ -3082,7 +3082,7 @@ function initiate_escalation_data(){
         //alert("dgdffgh");
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
+        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
@@ -3093,8 +3093,10 @@ function initiate_escalation_data(){
     function get_bookings_cancellation_reason(){
         $('#loader_gif_booking_cancellation').fadeIn();
         $('#booking_cancellation_chart_div').fadeOut();
-        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
-        var data = {};        
+        var startDate = '<?php echo date('Y-m-01') ?>';
+        var endDate = '<?php echo date('Y-m-t') ?>';
+        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        var data = {sDate: startDate, eDate: endDate};        
         sendAjaxRequest(data,url,post_request).done(function(response){
             console.log(response);
             if(response){
