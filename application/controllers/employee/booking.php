@@ -4059,6 +4059,9 @@ class Booking extends CI_Controller {
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
         }
+        if(!empty($receieved_Data['created_date'])){
+          $whereArray = $this->get_dates_range_where_array($receieved_Data['created_date']," - ",$whereArray,$dbfield_mapinning_option['created_date'],"Y-m-d");
+        }
         if(!empty($receieved_Data['paid_by'])){
             if($receieved_Data['paid_by'] == 'Customer'){
                 $whereArray['booking_unit_details.customer_net_payable >'] = '0';
@@ -4076,7 +4079,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
