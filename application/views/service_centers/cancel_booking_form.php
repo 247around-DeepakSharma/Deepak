@@ -114,9 +114,16 @@
                         <input class="form-control" type="text" name="cancel_booking_otp" id="cancel_booking_otp" value="">
                     </div>
                 </div>
+                
                 <div class="row">
                     <div class="col-md-4">
                         <input type="submit" id="cancel_booking_otp_btn" name="cancel-otp" value="Cancel Booking" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+                
+                <div class="row" style="margin-top:3%;">
+                    <div class="col-md-12 form-group">
+                        <span class="text-info"><b>Note :</b> OTP has been sent to customer. OTP is valid for 5 mins.</span>
                     </div>
                 </div>
             </div>
@@ -156,7 +163,6 @@
             method : 'POST',
             url: '<?php echo base_url(); ?>employee/service_centers/send_otp_customer',
             data: {booking_id, sms_template},
-            timeout: 5000
         }).done(function(data) {
             response = data;
             $('#verified_otp').val(data);
@@ -179,7 +185,7 @@
         }
         if(cancel_booking_otp == response) {
             $('#cancel_booking_form').submit();
-            //return true;
+            return true;
         }
         
         alert('Entered OTP is incorrect.');

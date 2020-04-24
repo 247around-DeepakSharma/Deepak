@@ -67,7 +67,7 @@
                             </tr>                            
                         </table>
                     </div>
-                    <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
+                    <input type="hidden" class="form-control" id="booking_id" name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
 
   
@@ -613,6 +613,38 @@
         </div>
     </div>
 </div>
+
+<div id="CancelBookingOtpModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="cancel_booking_otp_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reschedule Booking</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Enter customer OTP here</label>
+                        <input class="form-control" type="text" name="reschedule_booking_otp" id="reschedule_booking_otp" value="">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="submit" id="reschedule_booking_otp_btn" name="cancel-otp" value="Reschedule" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+                
+                <div class="row" style="margin-top:3%;">
+                    <div class="col-md-12 form-group">
+                        <span class="text-info"><b>Note :</b> OTP has been sent to customer. OTP is valid for 5 mins.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $(".spare_consumption_status").select2();
     $('#symptom_0').select2();
@@ -866,6 +898,25 @@ function alpha(e) {
               checkbox_value = 0;
           }
          
+            // ask otp to enter.
+            var booking_id = $('#booking_id').val();
+            var sms_template = '<?php echo BOOKING_RESCHEDULE_OTP_SMS_TAG; ?>';
+
+            // send one time password to customer and open popup.
+            $.ajax({
+                method : 'POST',
+                url: '<?php echo base_url(); ?>employee/service_centers/send_otp_customer',
+                data: {booking_id, sms_template},
+            }).done(function(data) {
+                response = data;
+                $('#verified_otp').val(data);
+                $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
+                // hide modal after 5 mins.
+                setTimeout(function() {$('#CancelBookingOtpModal').modal('hide');}, 300000);
+                $('#submitform').val('Proceed');
+            });       
+
+                return false;
       } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
           
@@ -1050,6 +1101,21 @@ function alpha(e) {
     
     }
     
+        $('#reschedule_booking_otp_btn').on('click', function() {
+        var reschedule_booking_otp = $('#reschedule_booking_otp').val();
+        if(reschedule_booking_otp == '' || reschedule_booking_otp == null) {
+            alert('Please enter OTP.');
+            return false;
+        }
+        if(reschedule_booking_otp == response) {
+            $('#requested_parts').submit();
+            return true;
+        }
+        
+        alert('Entered OTP is incorrect.');
+        return false;
+    });
+    
     function internal_status_check(id){
         if(id ==="spare_parts"){
             $('#hide_spare').show();
@@ -1059,6 +1125,7 @@ function alpha(e) {
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
             $('#hide_remarks').hide();
+            $('#submitform').val('Update Booking');
         } else  if(id ==="rescheduled" || id === "product_not_delivered" 
                 || id=== "reschedule_for_upcountry"
                 || id=== "spare_not_delivered"){
@@ -1069,6 +1136,7 @@ function alpha(e) {
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
         
+            $('#submitform').val('Proceed');
         }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
@@ -1076,6 +1144,7 @@ function alpha(e) {
          $('#hide_rescheduled').hide();
          $('#hide_remarks').show();
          $(".remarks").removeAttr("disabled");
+         $('#submitform').val('Update Booking');
         }
     }
     
