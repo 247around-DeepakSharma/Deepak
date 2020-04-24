@@ -2372,6 +2372,8 @@ class Booking extends CI_Controller {
         $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
         $booking_symptom['defect_id_completion'] = $technical_defect; 
         
+        // get Booking Primary Id
+        $booking_primary_id = $this->input->post('booking_primary_id');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -2635,6 +2637,10 @@ class Booking extends CI_Controller {
         //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
+        
+        // save SF and Admin amount mismatch (if any) in booking_amount_differences table
+        $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
+        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);        
         
         if ($status == 0) {
             //Log this state change as well for this booking

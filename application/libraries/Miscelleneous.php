@@ -5228,4 +5228,36 @@ function generate_image($base64, $image_name,$directory){
             'partner_challan_number' => NULL
         );
     }
+    
+    /**
+     * This function is used to used to save differences in amount that are filled by SF and Admin against a booking
+     * @author Prity Sharma
+     * @date 24-04-2020 
+     * @param type $booking_primary_id : Primary Id of booking_Details
+     * @param type $old_amount : Amount filled by SF
+     * @param type $new_amount : Amount changed by Admin
+     */
+    function save_booking_amount_history($booking_primary_id, $old_amount, $new_amount){
+        // save entry only if Amount mismatched
+        if($old_amount == $new_amount){
+            return;
+        }
+        
+        // check if some entry already exists for this Booking
+        $where = ['booking_id' => $booking_primary_id];
+        $row_amount_history = $this->My_CI->booking_model->get_booking_amount_history($where);
+        // If record already exists update that record otherwise insert new record
+        if(!empty($row_amount_history[0]['booking_id'])){
+            $data = ['total_amount_actual' => $new_amount];
+            $where = ['booking_id' => $row_amount_history[0]['booking_id']];
+            $this->My_CI->booking_model->update_booking_amount_history($data, $where);
+        }
+        else
+        {
+            $agent_id = $this->My_CI->session->userdata('id');
+            $data = ['booking_id' => $booking_primary_id, 'total_amount_by_sf' => $old_amount, 'total_amount_actual' => $new_amount, 'agent_id' => $agent_id];
+            $this->My_CI->booking_model->insert_booking_amount_history($data);
+        }
+        return;
+    }
 }
