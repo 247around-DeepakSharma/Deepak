@@ -499,7 +499,7 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         $row[] = $sn;
         $row[] = $booking['service_center_name'];
         $row[] = $booking['engineer_name'];
-        $row[] = $booking['booking_id']
+        $row[] = $booking['booking_id'];
         return $row;
     }
 
