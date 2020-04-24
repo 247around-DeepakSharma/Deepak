@@ -1917,7 +1917,8 @@ class Booking extends CI_Controller {
         // fetch customer dissatisfactory reason saved against Booking
         $data['customer_dissatisfactory_reason'] = "";
         if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
-            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($data['booking_history'][0]['customer_dissatisfactory_reason']);
+            $arr_where = ['id' => $data['booking_history'][0]['customer_dissatisfactory_reason']];
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($arr_where);
             if(!empty($arr_dissatisfactory_reason[0]['reason'])){
                 $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
             }

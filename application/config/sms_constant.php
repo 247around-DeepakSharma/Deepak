@@ -28,6 +28,11 @@ define('APPLIANCE_INSTALLATION_VIDEO_LINK', 'appliance_installation_video_link')
 
 define('ASSIGN_ENGG_NOTIFICATION', 'send_notification_on_engg_assign');
 
+// booking cancellation & reschedule sms teplates tag
+define('BOOKING_CANCEL_OTP_SMS_TAG', 'booking_cancel_otp_sms');
+define('BOOKING_RESCHEDULE_OTP_SMS_TAG', 'booking_reschedule_otp_sms');
+
+
 
 //define('VIDEOCON_STATES_WHATSAPP_NUMBER', array("Uttar Pradesh" => "8448759247", "Delhi" => "8130070247", "Maharashtra" => "8130070247", "Gujarat" => "8130070247"));
 
