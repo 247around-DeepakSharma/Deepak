@@ -9608,7 +9608,8 @@ class Service_centers extends CI_Controller {
         }
 
     /**
-     * 
+     * @desc : Method is used to send otp for booking cancellation & booking reschedule.
+     * @author Ankit Rajvanshi
      */
     function send_otp_customer() {
         $post_data = $this->input->post();
@@ -9618,8 +9619,8 @@ class Service_centers extends CI_Controller {
         
         // get booking contact number.
         $booking_primary_contact_number = $this->booking_model->get_booking_details('booking_primary_contact_no', ['booking_id' => $booking_id])[0]['booking_primary_contact_no'];
+
         // prepare data for sms template.
-        
         $otp = rand(1000,9999);
         $this->session->unset_userdata('cancel_booking_otp');
         $this->session->set_userdata('cancel_booking_otp', $otp);
