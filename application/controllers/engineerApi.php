@@ -4518,13 +4518,8 @@ function submitPreviousPartsConsumptionData(){
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
         $curl_response = curl_exec($ch);
         curl_close($ch);
-        $this->jsonResponseString['response'] = $curl_response; // All Data in response//
-            $this->sendJsonResponse(array('0000', 'success')); // send success response //
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("0101", 'No Data  Found'));
-        }
+        return $curl_response; // All Data in response//
+        }  
 
     }
 
