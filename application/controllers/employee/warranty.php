@@ -191,7 +191,7 @@ class Warranty extends CI_Controller {
         echo json_encode($arrBookings);
     }
     
-    public function plan_model_mapping() {
+    public function plan_model_mapping($plan_id = "") {
         $this->miscelleneous->load_nav_header();
         $partner_id = "";
         $service_id = "";
@@ -209,7 +209,7 @@ class Warranty extends CI_Controller {
         }
         
         //set select and where conditions
-        $where = "warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."'";
+         $where = "(warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."' ) OR warranty_plans.plan_id = '".$plan_id."'";
         $select = "warranty_plans.plan_id, warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active, warranty_plans.is_active as is_active_plan";        
         $order_by = "warranty_plans.plan_name,appliance_model_details.model_number";
         $join['services']  = 'warranty_plans.service_id = services.id';
@@ -225,7 +225,14 @@ class Warranty extends CI_Controller {
         $data['selected_service_id'] = $service_id;
         
         // load view
-        $this->load->view('warranty/plan_wise_models_view', $data);
+        if(!empty($plan_id))
+        {
+            $this->load->view('warranty/warranty_plan_model_list', $data);
+        }
+        else
+        {
+            $this->load->view('warranty/plan_wise_models_view', $data);
+        }
     }
     
     public function add_model_to_plan() {
@@ -995,6 +1002,7 @@ class Warranty extends CI_Controller {
             $row[] = "<button class='btn btn-success btn-sm' data='" . $json_data . "' onclick='change_warranty_plan_status(".$model_list->plan_id.",1,".$row_number.")'>Active</button>";
         }    
         $row[] = "<button class='btn btn-primary btn-sm' onclick='warranty_plan_details(".$model_list->plan_id.")'>Edit</button>";
+        $row[] = "<button class='btn btn-info btn-sm' onclick='plan_model_mapping(".$model_list->plan_id.")' >Model</button>";
 
         return $row;
     }
