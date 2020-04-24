@@ -7464,7 +7464,7 @@ class Inventory extends CI_Controller {
 
     function download_spare_consolidated_data() {
         log_message('info', __METHOD__ . ' Processing...');
-
+        ini_set('memory_limit', -1);
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
