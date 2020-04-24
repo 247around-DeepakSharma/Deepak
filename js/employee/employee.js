@@ -31,6 +31,13 @@ var ad_table;
                      cancelLabel: 'Clear'
                 }
         });
+        $('input[name="created_date"]').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    format: 'YYYY/MM/DD',
+                     cancelLabel: 'Clear'
+                }
+        });
         
         $('input[name="booking_date"]').on('apply.daterangepicker', function (ev, picker) {
             $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));    
@@ -49,9 +56,21 @@ var ad_table;
         $('input[name="close_date"]').on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
         });
+        $('input[name="created_date"]').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+        });
 
         $('input[name="close_date"]').on('cancel.daterangepicker', function(ev, picker) {
             var value1 = $('input[name="close_date"]').val();
+            if(value1 !== ''){
+                $(this).val('');
+                ad_table.ajax.reload( function ( json ) {
+                   //create_dropdown();
+                });
+            }
+        });
+        $('input[name="created_date"]').on('cancel.daterangepicker', function(ev, picker) {
+            var value1 = $('input[name="created_date"]').val();
             if(value1 !== ''){
                 $(this).val('');
                 ad_table.ajax.reload( function ( json ) {
@@ -81,11 +100,12 @@ var ad_table;
             ],
             // Load data for the table's content from an Ajax source
             "ajax": {
-                "url": baseUrl+"/employee/booking/get_advance_search_result_view",
+                "url": baseUrl+"/booking/get_advance_search_result_view",
                 "type": "POST",
                 "data": function(d){
                     d.booking_date = $('input[name="booking_date"]').val();
                     d.close_date = $('input[name="close_date"]').val();
+                    d.created_date = $('input[name="created_date"]').val();
                     d.partner =  $("#partner option:selected").val();
                     d.city =     $("#city option:selected").val();
                     d.sf =       $("#sf option:selected").val();
