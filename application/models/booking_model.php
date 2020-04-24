@@ -3052,12 +3052,12 @@ class Booking_model extends CI_Model {
      * @author Prity Sharma
      * @created_on 21-04-2020
      */
-    function get_dissatisfactory_reasons($id = "")
+    function get_dissatisfactory_reasons($where = array())
     {
         $this->db->select('*');
         $this->db->from("customer_dissatisfactory_reasons");
-        if(!empty($id)){
-            $this->db->where(['id' => $id]);
+        if(!empty($where)){
+            $this->db->where($where);
         }
         $query = $this->db->get();
         return $query->result_array();

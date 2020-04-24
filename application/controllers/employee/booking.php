@@ -1917,7 +1917,8 @@ class Booking extends CI_Controller {
         // fetch customer dissatisfactory reason saved against Booking
         $data['customer_dissatisfactory_reason'] = "";
         if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
-            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($data['booking_history'][0]['customer_dissatisfactory_reason']);
+            $arr_where = ['id' => $data['booking_history'][0]['customer_dissatisfactory_reason']];
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($arr_where);
             if(!empty($arr_dissatisfactory_reason[0]['reason'])){
                 $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
             }
@@ -6550,6 +6551,23 @@ class Booking extends CI_Controller {
             $array['current_warranty_status'] = $warrentyStatus_pre;
         }
         echo json_encode($array);
+    }
+    /*
+     * ST-224
+     * Get cancellation reasons of 247around
+     * return HTML
+     */
+    function get_cancellation_reasons(){
+        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') :'247around';
+        $where = array('reason_of' => $reason_of);
+        $cancellation_reasons = $this->booking_model->cancelreason($where);
+        $options = '<option selected disabled>Select reason</option>';
+        if(!empty($cancellation_reasons)){
+            foreach($cancellation_reasons as $reason){
+                $options .= '<option>'. $reason->reason .'</option>';
+            }
+        }
+        echo $options;
     }
 
 }

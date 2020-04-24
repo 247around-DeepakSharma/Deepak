@@ -1012,7 +1012,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp){
-        $from_date = date('Y-m-d', strtotime('-4 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-6 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         //Defective return by SF
@@ -2659,6 +2659,7 @@ class invoices_model extends CI_Model {
                     AND b.invoice_id IS NULL
                     AND c.delivered_date >= '$from_date'
                     AND c.delivered_date < '$to_date'
+                    AND s1.part_warranty_status = 1
                  GROUP by s1.awb_by_partner
                  HAVING courier_charges_by_sf > ".DEFAULT_CHARGES_LIMIT." ";
                 

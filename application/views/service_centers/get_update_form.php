@@ -321,9 +321,8 @@
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
                                                 
-                                                 <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
-                                                        <option selected disabled>Select Part Name</option>
-                                                    </select>
+                                                 <input type="text"  required=""   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             </div>
 
@@ -358,7 +357,7 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?>  <?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
                                             </div>
@@ -1136,7 +1135,7 @@ function alpha(e) {
 
                         .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
 
-                        .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defect_pic"]').attr('name', 'defect_pic[' + partIndex + ']').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
                         .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()                
@@ -1154,7 +1153,7 @@ function alpha(e) {
 
                    .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
 
-                   .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defect_pic"]').attr('name', 'defect_pic[' + partIndex + ']').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
 
                    .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()

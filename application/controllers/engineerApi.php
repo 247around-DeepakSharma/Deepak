@@ -482,7 +482,7 @@ class engineerApi extends CI_Controller {
             /*   this API used to get parents of booking */
             case 'checkBookingParents':
                 $this->getBookingParents();  //// Getting parents
-                break;
+                break; 
 
             /*   this API used to All Acceceries */
             case 'getAccessories':
@@ -2128,6 +2128,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
         }
@@ -2164,6 +2166,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $missed_bookings[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $missed_bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2205,6 +2209,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $tomorrowBooking[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $tomorrowBooking[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
             //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
@@ -3856,6 +3862,9 @@ class engineerApi extends CI_Controller {
                         $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] = $spares_details;
 
+                        $state = $value['state'];
+                        $data['Bookings'][$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -4470,6 +4479,36 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0099", 'No parents  Found'));
         }
     }
+
+   /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+    function  getCoronaCoordinates($state){
+
+        if (!empty($state)) {    
+        $url = base_url() . "covid19/getCoronaArea/".$state; 
+        $requestData = array();
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+        $curl_response = curl_exec($ch);
+        curl_close($ch);
+        $this->jsonResponseString['response'] = $curl_response; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Data  Found'));
+        }
+
+    }
+
 
     /**
      * @Desc: This function is to used to show accessories list

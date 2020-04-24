@@ -728,7 +728,7 @@
             }
         }else{
             var partner_id = $('#partner_id').val();
-            if(!partner_id){
+            if(partner_id){
                 var entity_details = get_entity_details();
                 tableData.sender_entity_id= entity_details.sender_entity_id;
                 tableData.sender_entity_type= '<?php echo _247AROUND_SF_STRING;?>';
