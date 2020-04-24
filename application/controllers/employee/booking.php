@@ -1917,7 +1917,8 @@ class Booking extends CI_Controller {
         // fetch customer dissatisfactory reason saved against Booking
         $data['customer_dissatisfactory_reason'] = "";
         if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
-            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($data['booking_history'][0]['customer_dissatisfactory_reason']);
+            $arr_where = ['id' => $data['booking_history'][0]['customer_dissatisfactory_reason']];
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($arr_where);
             if(!empty($arr_dissatisfactory_reason[0]['reason'])){
                 $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
             }
@@ -2371,6 +2372,8 @@ class Booking extends CI_Controller {
         $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
         $booking_symptom['defect_id_completion'] = $technical_defect; 
         
+        // get Booking Primary Id
+        $booking_primary_id = $this->input->post('booking_primary_id');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -2634,6 +2637,10 @@ class Booking extends CI_Controller {
         //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
+        
+        // save SF and Admin amount mismatch (if any) in booking_amount_differences table
+        $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
+        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);        
         
         if ($status == 0) {
             //Log this state change as well for this booking
@@ -4059,6 +4066,9 @@ class Booking extends CI_Controller {
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
         }
+        if(!empty($receieved_Data['created_date'])){
+          $whereArray = $this->get_dates_range_where_array($receieved_Data['created_date']," - ",$whereArray,$dbfield_mapinning_option['created_date'],"Y-m-d");
+        }
         if(!empty($receieved_Data['paid_by'])){
             if($receieved_Data['paid_by'] == 'Customer'){
                 $whereArray['booking_unit_details.customer_net_payable >'] = '0';
@@ -4076,7 +4086,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -6550,6 +6560,23 @@ class Booking extends CI_Controller {
             $array['current_warranty_status'] = $warrentyStatus_pre;
         }
         echo json_encode($array);
+    }
+    /*
+     * ST-224
+     * Get cancellation reasons of 247around
+     * return HTML
+     */
+    function get_cancellation_reasons(){
+        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') :'247around';
+        $where = array('reason_of' => $reason_of);
+        $cancellation_reasons = $this->booking_model->cancelreason($where);
+        $options = '<option selected disabled>Select reason</option>';
+        if(!empty($cancellation_reasons)){
+            foreach($cancellation_reasons as $reason){
+                $options .= '<option>'. $reason->reason .'</option>';
+            }
+        }
+        echo $options;
     }
 
 }
