@@ -56,6 +56,11 @@
     .radio-inline input[type=radio] {
     position: absolute;   
     margin-left: 10px;
+    
+}
+select,input[type=file][readonly]
+{
+    pointer-events: none;
 }
 </style>
 <div id="page-wrapper">
@@ -119,7 +124,9 @@
                 <div class="col-md-12" style="">
                     <ul>
                         <?php
+                        $disabled = '';
                             if (!isset($query[0]['id'])) {
+                                $disabled = 'disabled';
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1"><span class="panel-title">Basic Details</span></a></li>
                         <li><a id="2" href="#tabs-2" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Documents</span></a></li>
@@ -188,7 +195,7 @@
                                         } ?>">
                                         <label  for="company_name" class="col-md-4">Company Name *</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
+                                            <input  type="text" class="form-control blockspacialchar" <?php if (isset($query[0]['company_name'])) { echo 'readonly="true"'; } ?> id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
                                                 echo $query[0]['company_name'];
                                                 } ?>" >
                                             <?php echo form_error('company_name'); ?>
@@ -204,7 +211,7 @@
                                                 } ?>" >
                                             <input  type="text" class="form-control blockspacialchar" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])) {
                                                 echo $query[0]['public_name'];
-                                                } ?>" >
+                                                } ?>" <?php if (isset($query[0]['public_name'])) { echo 'readonly="true"'; } ?> >
                                             <?php echo form_error('public_name'); ?>
                                         </div>
                                     </div>
@@ -215,7 +222,7 @@
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="address" value = "<?php if (isset($query[0]['address'])) {
                                                 echo $query[0]['address'];
-                                                } ?>" >
+                                                } ?>" <?php if (isset($query[0]['address'])) { echo 'readonly="true"'; } ?>>
                                             <?php echo form_error('address'); ?>
                                         </div>
                                     </div>
@@ -224,7 +231,7 @@
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])) {
                                                 echo $query[0]['landmark'];
-                                                } ?>" name="landmark" >
+                                                } ?>" name="landmark" <?php if (isset($query[0]['landmark'])) { echo 'readolny="true"'; } ?>>
                                         </div>
                                     </div>
                                     <div  class="form-group <?php if (form_error('partner_type')) {
@@ -232,7 +239,7 @@
                                         } ?>">
                                         <label  for="partner_type" class="col-md-4">Type *</label>
                                         <div class="col-md-8">
-                                            <select name="partner_type" class="form-control" id="partner_type">
+                                            <select name="partner_type" class="form-control" id="partner_type" <?php if (isset($results['partner_code'][0]['partner_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option selected disabled>Select Partner Type</option>
                                                 <option value=<?php echo BUYBACKTYPE ?> 
                                                     <?php if (isset($results['partner_code'][0]['partner_type'])) {
@@ -275,7 +282,7 @@
                                         } ?>">
                                         <label for="state" class="col-md-4">State *</label>
                                         <div class="col-md-8">
-                                            <select class="micro_warehouse_state form-control" name ="state" id="state" onChange="getDistrict()" >
+                                            <select class="micro_warehouse_state form-control" name ="state" id="state" <?php if (isset($query[0]['state'])) { echo 'readonly tabindex="-1"'; } if (empty($query[0]['state'])) { ?> onChange="getDistrict()" <?php } ?>>
                                                 <option disabled="disabled" selected="selected"> Select State</option>
                                                 <?php
                                                     foreach ($results['select_state'] as $state) {
@@ -301,7 +308,7 @@
                                         } ?>">
                                         <label for="state" class="col-md-4">District *</label>
                                         <div class="col-md-8">
-                                            <select class="district form-control" name ="district" id="district" onChange="getPincode()">
+                                            <select class="district form-control" name ="district" id="district" <?php if (isset($query[0]['state'])) { echo 'readonly tabindex="-1"'; } if(empty($query[0]['state'])) { ?>  onChange="getPincode()" <?php } ?>>
                                                 <option <?php if (isset($query[0]['district'])) {
                                                     echo "selected";
                                                     } ?>><?php if (isset($query[0]['district'])) {
@@ -314,7 +321,7 @@
                                     <div class="form-group " style="margin-bottom: 20px;">
                                         <label for="state" class="col-md-4">Pincode</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" name ="pincode"  id="pincode">
+                                            <select class="pincode form-control" name ="pincode"  id="pincode" <?php if (isset($query[0]['pincode'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option <?php if (isset($query[0]['pincode'])) {
                                                     echo "selected";
                                                     } ?>><?php if (isset($query[0]['pincode'])) {
@@ -326,7 +333,7 @@
                                     <div class="form-group ">
                                         <label for="partner_code" class="col-md-4">Partner Code</label>
                                         <div class="col-md-8">
-                                            <select class="form-control" name ="partner_code"  id="partner_code">
+                                            <select class="form-control" name ="partner_code"  id="partner_code" <?php if (isset($results['partner_code'][0]['code']) && in_array($results['partner_code'][0]['code'],$results['all_partner_code'])) { echo 'readonly tabindex="-1"'; } ?> >
                                                 <option value=""  selected="">Select Partner Code</option>
                                                 <?php
                                                     //Checking for Edit Parnter
@@ -376,7 +383,7 @@
                                         ?>">
                                         <label for="company_type" class="col-md-4">Company Type</label>
                                         <div class="col-md-8">
-                                            <select name="company_type" class="form-control">
+                                            <select name="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option disabled selected >Select Company Type</option>
                                                 <option value="Individual" <?php
                                                     if (isset($query[0]['company_type'])) {
@@ -979,12 +986,12 @@
                                         } ?>">
                                         <label for="pan" class="col-md-3">PAN No.</label>
                                         <div class="col-md-4" style="width:25%">
-                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" value = "<?php if (isset($query[0]['pan'])) {
+                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
                                                 echo $query[0]['pan'];
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control"  name="pan_file">
+                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1010,10 +1017,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="registration_no" id="registration_no" value = "<?php if (isset($query[0]['registration_no'])) {
                                                 echo $query[0]['registration_no'];
-                                                } ?>" placeholder="Company Registration No">
+                                                } ?>" placeholder="Company Registration No" <?php if (isset($query[0]['registration_no']) && $query[0]['registration_no'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="registration_file">
+                                            <input type="file" class="form-control"  name="registration_file" <?php if (isset($query[0]['registration_no']) && $query[0]['registration_no'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1039,10 +1046,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="tin" id="tin_no" value = "<?php if (isset($query[0]['tin'])) {
                                                 echo $query[0]['tin'];
-                                                } ?>" placeholder="TIN No">
+                                                } ?>" placeholder="TIN No" <?php if (isset($query[0]['tin']) && $query[0]['tin'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="tin_file">
+                                            <input type="file" class="form-control"  name="tin_file" <?php if (isset($query[0]['tin']) && $query[0]['tin'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1068,10 +1075,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php if (isset($query[0]['cst_no'])) {
                                                 echo $query[0]['cst_no'];
-                                                } ?>" placeholder="CST No">
+                                                } ?>" placeholder="CST No" <?php if (isset($query[0]['cst_no']) && $query[0]['cst_no'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="cst_file">
+                                            <input type="file" class="form-control"  name="cst_file" <?php if (isset($query[0]['cst_no']) && $query[0]['cst_no'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1097,10 +1104,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="service_tax" id="service_tax_no" value = "<?php if (isset($query[0]['registration_no'])) {
                                                 echo $query[0]['service_tax'];
-                                                } ?>" placeholder="service tax no">
+                                                } ?>" placeholder="service tax no" <?php if (isset($query[0]['registration_no'])) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="service_tax_file">
+                                            <input type="file" class="form-control"  name="service_tax_file" <?php if (isset($query[0]['registration_no'])) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1126,7 +1133,8 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
-                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()">
+                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()" 
+                                                <?php if (isset($query[0]['gst_number'])) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-2">
                                             <input type="text" class="form-control" name="gst_type" id="gst_type" placeholder="Enter GST Number Type" value = "<?php if (isset($query[0]['gst_type'])) {
@@ -1139,7 +1147,7 @@
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control"  name="gst_number_file">
+                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -3750,15 +3758,21 @@
         allowClear: true,
         tags: true
     });
+    <?php if (empty($query[0]['state'])) { ?>
     $('#state').select2({
         placeholder: "Select State"
     });
+    <?php } ?>
+    <?php if (empty($query[0]['district'])) { ?>
     $('#district').select2({
         placeholder: "Select City"
     });
+    <?php } ?>
+    <?php if (empty($query[0]['pincode'])) { ?>
     $('#pincode').select2({
         placeholder: "Select Pincode"
     });
+    <?php } ?>
     $('#account_manager').select2({
         placeholder: "Select Account Managers"
     });
