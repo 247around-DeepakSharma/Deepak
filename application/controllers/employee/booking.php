@@ -2732,7 +2732,7 @@ class Booking extends CI_Controller {
             $partner_spare_extra_charge = $charges[0]['partner_spare_extra_charge'];
 
             $data_unit = array(
-                'partner_spare_extra_charge'=>
+                'partner_spare_extra_charge'=>$partner_spare_extra_charge
             );
             $where_unit = array(
                 'id'=>$unit['id']
