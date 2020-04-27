@@ -150,6 +150,7 @@
                         <th>Status</th>
                         <th>Action</th>
                         <th>Edit</th>
+                        <th>Model</th> 
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -316,6 +317,9 @@
     function warranty_plan_details(plan_id){
         window.location.href = "<?php echo base_url(); ?>employee/warranty/warranty_plan_details/"+plan_id;
     }
-    
+    // redirecting to model according to plan id
+    function plan_model_mapping(plan_id){
+        window.location.href = "<?php echo base_url(); ?>employee/warranty/plan_model_mapping/"+plan_id;
+    }
 
 </script>

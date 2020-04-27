@@ -6335,15 +6335,15 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Sf ID: " . $sf_id);
         log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
         
-        $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
-        $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+        //$this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
+        //$this->form_validation->set_rules('awb', 'AWB', 'trim|required');
         //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
 
-        if ($this->form_validation->run() == FALSE) {
-            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $sf_id .
-                    " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
-            $this->update_spare_parts_form($booking_id);
-        } else {
+//        if ($this->form_validation->run() == FALSE) {
+//            log_message('info', __FUNCTION__ . '=> Form Validation is not updated by SF ' . $sf_id .
+//                    " Spare id " . $booking_id . " Data" . print_r($this->input->post(), true));
+//            $this->update_spare_parts_form($booking_id);
+//        } else {
             $exist_awb = $this->input->post('exist_courier_image');
             if (!empty($exist_awb)) {
                 $courier_image['message'] = $exist_awb;
@@ -6671,7 +6671,7 @@ class Service_centers extends CI_Controller {
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id . "/" . $wh);
             }
-        }
+        //}
     }
 
     /**
@@ -9582,4 +9582,32 @@ class Service_centers extends CI_Controller {
         return $row;
     }
 
+    /**
+     * @desc : Method is used to send otp for booking cancellation & booking reschedule.
+     * @author Ankit Rajvanshi
+     */
+    function send_otp_customer() {
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        $tag = $post_data['sms_template'];
+        $sms = [];
+        
+        // get booking contact number.
+        $booking_primary_contact_number = $this->booking_model->get_booking_details('booking_primary_contact_no', ['booking_id' => $booking_id])[0]['booking_primary_contact_no'];
+
+        // prepare data for sms template.
+        $otp = rand(1000,9999);
+        $this->session->unset_userdata('cancel_booking_otp');
+        $this->session->set_userdata('cancel_booking_otp', $otp);
+        
+        $sms['tag'] = $tag;
+        $sms['phone_no'] = $booking_primary_contact_number;
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "user";
+        $sms['type_id'] = "";
+        $sms['smsData']['otp'] = $otp;
+        $this->notify->send_sms_msg91($sms);
+       
+        echo $this->session->userdata('cancel_booking_otp');
+    }
 }

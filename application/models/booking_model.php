@@ -3052,15 +3052,52 @@ class Booking_model extends CI_Model {
      * @author Prity Sharma
      * @created_on 21-04-2020
      */
-    function get_dissatisfactory_reasons($id = "")
+    function get_dissatisfactory_reasons($where = array())
     {
         $this->db->select('*');
         $this->db->from("customer_dissatisfactory_reasons");
-        if(!empty($id)){
-            $this->db->where(['id' => $id]);
+        if(!empty($where)){
+            $this->db->where($where);
         }
         $query = $this->db->get();
         return $query->result_array();
     }
     
+    /**
+     * @Desc: This function fetches records from booking_amount_differences Table 
+     * (Amount that are filled by SF and Admin against a booking)
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 21-04-2020
+     */
+    function get_booking_amount_history($where = array(), $select = '*'){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get('booking_amount_differences');
+        return $query->result_array();
+    }
+    
+    /**
+     * This function is used to insert record in booking_amount_differences
+     * @param type $data
+     * @return (int) Inserted ID
+    */     
+    function insert_booking_amount_history($data){
+        $this->db->insert('booking_amount_differences', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * This function is used to update record in booking_amount_differences
+     * @param type $data
+     * @param type $where
+     * @return type
+     */
+    function update_booking_amount_history($data, $where){
+        $this->db->where($where);
+        $result = $this->db->update('booking_amount_differences', $data);
+        return $result;
+    }
 }
