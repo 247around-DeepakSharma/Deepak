@@ -555,8 +555,8 @@ span.stars span {
            type: 'post',
            url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id,
            success: function (response) {
-               
-               if($.trim(response) === "success"){
+               var obj = JSON.parse(response);
+               if($.trim(obj.status) === "success"){
                    
                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
                }  else {

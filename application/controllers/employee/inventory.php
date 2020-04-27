@@ -8563,6 +8563,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
      * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
     function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
