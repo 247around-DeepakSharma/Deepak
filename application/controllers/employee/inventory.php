@@ -1163,8 +1163,8 @@ class Inventory extends CI_Controller {
                     if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
                         if (count($spare_parts_details) == 1) {
                             $partnerId = _247AROUND;
-                            $current_status = 'Pending';
-                            $internal_status = 'Spare Parts Cancelled';
+                            $current_status = _247AROUND_PENDING;
+                            $internal_status = SPARE_PARTS_CANCELLED;
                             $partner_status = $this->booking_model->get_partner_status($partnerId, $current_status, $internal_status);
                             if (!empty($partner_status)) {
                                 $this->booking_model->update_booking($booking_id, array("actor" => $partner_status[0]['actor'], "next_action" => $partner_status[0]['next_action']));
