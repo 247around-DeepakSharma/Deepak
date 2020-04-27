@@ -6308,7 +6308,7 @@ class vendor extends CI_Controller {
     }
     
     function getASMs() {
-        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM]);
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM],$this->input->post('rm_id'));
         $asm_id = $this->input->post('asm_id');
         $arr_asm_ids  = array_column($data, 'id');
         $option = '<option value="" disabled '.((empty($asm_id) || !in_array($asm_id, $arr_asm_ids)) ? 'selected' : '').'>Select Area Sales Manager</option>';
