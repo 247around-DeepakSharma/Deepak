@@ -2435,3 +2435,9 @@ INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
 
 -- Ankit Rajvanshi 23-04-2020
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'booking_cancel_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking cancellation is %s.', NULL, '1', '0', CURRENT_TIMESTAMP), (NULL, 'booking_reschedule_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking reschedule is %s.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+-- Sarvendra 27-04-2020 CRM-6107
+ALTER TABLE `boloaaka`.`service_centres` 
+CHANGE COLUMN `has_authorization_certificate` `has_authorization_certificate` TINYINT(1) NOT NULL DEFAULT '0' ;
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `auth_certificate_file_name` TEXT NULL AFTER `has_authorization_certificate`;

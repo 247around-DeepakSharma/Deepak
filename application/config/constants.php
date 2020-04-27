@@ -747,7 +747,9 @@ define("_247AROUND", "247001");
 define("ACCOUNT_EMAIL_ID", "accounts@247around.com");
 define("TALEVAR_USER_ID", "400555");
 // End CRM-3450
-
+if(ENVIRONMENT == 'development'){
+    define('TMP_FOLDER','/var/www/localhost.247around.com');
+}
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
