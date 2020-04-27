@@ -1,6 +1,7 @@
 {
     "require": {
         "elasticsearch/elasticsearch": "~1.0",
-        "mpdf/mpdf": "^7.0"
+        "mpdf/mpdf": "^7.0",
+        "seunmatt/codeigniter-log-viewer": "^1.1"
     }
 }

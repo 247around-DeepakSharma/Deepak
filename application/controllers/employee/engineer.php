@@ -466,14 +466,11 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
     function get_engineer_history($engineer){
 
         $post = $this->get_post_data();
-        $post[''] = array();
         $post['column_order'] = array();
-                echo "<pre>";
         $post['column_search'] = array('booking_id', 'service_centres.name', 'engineer_details.name');
         $select = "booking_details.id,booking_details.booking_id,booking_details.assigned_vendor_id,booking_details.assigned_engineer_id,service_centres.name as service_center_name,engineer_details.name as engineer_name";
         $post['where']['booking_details.assigned_engineer_id'] = $engineer;
         $list = $this->engineer_model->get_engineer_history_list($post, $select);
-
         $data = array();
         $no = $post['start'];
 
