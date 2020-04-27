@@ -112,7 +112,7 @@
         //Set column definition initialisation properties.
         columnDefs: [
             {
-                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12,13,14], //first column / numbering column disable sort in buttons
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8,10,11,12,13,14,15], //first column / numbering column disable sort in buttons
                 "orderable": false //set not orderable
             },
             {
