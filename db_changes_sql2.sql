@@ -2310,3 +2310,6 @@ values('SF_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT coun
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+
+----tEST
