@@ -1996,7 +1996,7 @@ class Service_centers extends CI_Controller {
             * @modifiedBy Ankit Rajvanshi
             */
             if ($data['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
-                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
+                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($this->input->post('booking_id'), $data['requested_inventory_id'], $data['partner_id'], $warehouse_details['type']);
             } else {
                 $data['defective_part_required'] = 0;
             }
@@ -2506,7 +2506,7 @@ class Service_centers extends CI_Controller {
                     if ($value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
                         //$data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
-                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['requested_inventory_id']);
+                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $data['requested_inventory_id'], $this->input->post('partner_id'), $data['parts_requested_type']);
                         $sc_data['internal_status'] = $reason;
                     } else {
 
@@ -6360,6 +6360,10 @@ class Service_centers extends CI_Controller {
                             $data = array();
                             $data['courier_pic_by_partner'] = (!empty($courier_image['status'])) ? $courier_image['message'] : NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
+                            $data['model_number_shipped'] = $part_details['shipped_model_number'];
+                            $data['shipped_parts_type'] = $part_details['shipped_part_type'];
+                            $data['parts_shipped'] = $part_details['shipped_parts_name'];
+
                             /**
                              * change defective part required flag in spare part details on the basis of shipped inventory id
                              * @modifiedBy Ankit Rajvanshi
@@ -6367,12 +6371,9 @@ class Service_centers extends CI_Controller {
                             if ($part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) { 
                                 $data['defective_part_required'] = 0;
                             } else {
-                                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['shipped_inventory_id']);
+                                $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $data['shipped_inventory_id'], $partner_id, $data['shipped_parts_type']);
                             }
                             
-                            $data['model_number_shipped'] = $part_details['shipped_model_number'];
-                            $data['shipped_parts_type'] = $part_details['shipped_part_type'];
-                            $data['parts_shipped'] = $part_details['shipped_parts_name'];
                             $data['courier_name_by_partner'] = $this->input->post('courier_name');
                             $data['awb_by_partner'] = $this->input->post('awb');
                             if ($key == 0) {
@@ -7835,9 +7836,9 @@ class Service_centers extends CI_Controller {
                 if (!empty($d)) {
                     $_POST['part'][$key]['defect_pic'] = $d;
                 } else {
-                    $message['code'] = false;
-                    $message['message'] = "Defect Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
-                    break;
+                   // $message['code'] = false;
+                   // $message['message'] = "Defect Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                  //  break;
                 }
             }
         }  

@@ -2467,3 +2467,18 @@ ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NUL
 ---Abhishek -- 15-04-2020
 ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `bank_holder_name`, ADD `pro_qualification` VARCHAR(255) NULL DEFAULT NULL AFTER `edu_qualification`, ADD `overall_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `pro_qualification`, ADD `around_exp` VARCHAR(15) NULL DEFAULT NULL AFTER `overall_exp`;
 
+-- Ankit Rajvanshi 20-04-2020
+CREATE TABLE non_inventory_partners_part_type (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    partner_id int(11) NOT NULL,
+    service_id int(11) NOT NULL,
+    inventory_part_type_id int(11) NOT NULL,
+    is_defective_required tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime NULL DEFAULT NULL,
+
+    CONSTRAINT fk_non_inventory_partners FOREIGN KEY (partner_id) REFERENCES partners(id),
+    CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
+    CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
+);
+
