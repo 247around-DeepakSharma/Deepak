@@ -8501,6 +8501,7 @@ class Inventory extends CI_Controller {
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
      * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
     function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
@@ -8539,13 +8540,9 @@ class Inventory extends CI_Controller {
         } else {
             $return = "Not Exist";
         }
-        if (!empty($is_reason_required) && $is_reason_required == 1) {
-            $response['status'] = $return;
-            $response['reason'] = implode('<br>', array_filter($cancellation_reason));
-            echo json_encode($response);
-        } else {
-            echo $return;
-        }
+        $response['status'] = $return;
+        $response['reason'] = implode('<br>', array_filter($cancellation_reason));
+        echo json_encode($response);
     }
 
     function get_spare_delivered_status($booking_id) {
