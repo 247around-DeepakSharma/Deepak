@@ -284,9 +284,9 @@ class booking_creation_lib {
             $directory = trim($directory, '/');
             $directoryarray = explode('/', $directory);
             $directoryarray = array_reverse($directoryarray);
-            $dir = $directoryarray[0];
+            $dir = "../".$directoryarray[0];
             $dir .= "/";
-            $filename = "$dir.$filename";
+            $filename = $dir.$filename;
             if (file_exists($filename)) {
                 unlink($filename);
             }
@@ -295,7 +295,7 @@ class booking_creation_lib {
                 // Zip creation failed
             }
             foreach ($array_files as $file) {
-                $zipk->addFile($dir . $file);
+                $zipk->addFile($dir . $file,$file);
             }
             $zipk->close();
             if (file_exists($filename)) {
