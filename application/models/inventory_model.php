@@ -3594,10 +3594,7 @@ class Inventory_model extends CI_Model {
          * Execute query to get is_defective_required from inventory_master_list table. 
          */
         if(!empty($inventory_id)) {
-            $this->db->select('is_defective_required');
-            $this->db->from('inventory_master_list');
-            $this->db->where("inventory_id = {$inventory_id}");
-            $inventory_master_list = $this->db->get()->result_array();            
+            $inventory_master_list = $this->get_inventory_master_list_data('is_defective_required', ['inventory_id' => $inventory_id]);
             return $inventory_master_list[0]['is_defective_required'];
         } else {
             /**

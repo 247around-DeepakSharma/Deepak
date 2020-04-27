@@ -1075,6 +1075,7 @@ class Booking_request extends CI_Controller {
                     }
                     
                     //process each row and save in database.
+                    if($data['highest_row'] > 1){
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                         $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -1146,10 +1147,16 @@ class Booking_request extends CI_Controller {
                             }
                         }
                     }
-                    
-                    
                 }
-            } else {
+                 else{
+                    echo "Empty file uploaded, Please check";
+                                exit;
+                            }
+                        } else {
+                            echo "File header not matching.  For reference,Please use previous successfully upload file from CRM.";
+                            exit;
+                        }
+                    } else {
                         echo "File header not matching.  For reference,Please use previous successfully upload file from CRM.";
                         exit;
                     }
