@@ -80,7 +80,7 @@
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
                      <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right" style="margin-left: 1%;"/>
                      <?php if(in_array($this->session->userdata['user_group'], [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN, _247AROUND_RM, _247AROUND_ASM, _247AROUND_DEVELOPER])) { ?>
-                        <a onclick="edit_form();" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
+                        <a onclick="edit_form();" id="edit_service_center" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
                      <?php } ?>
                 </form>
                 <?php }?>
@@ -749,7 +749,11 @@
                                         echo $query[0]['signature_file'];
                                     }
                                     ?>">
-                                   
+                                    <input type="hidden" id="signature_file_hd" name="signature_file_hd" value = "<?php
+                                    if (isset($query[0]['signature_file'])) {
+                                        echo $query[0]['signature_file'];
+                                    }
+                                    ?>"/>
                                     
                                  </div> 
 
@@ -872,9 +876,14 @@
                                         ?>">
                                         <label for="address_proof_file" class="col-md-3 vertical-align" style="width: 25%;">Address Proof File</label>
                                         <div class="col-md-7" style="    width: 65%;">
-                                            <input type="file" class="form-control"  name="address_proof_file" >
+                                            <input type="file" class="form-control"  name="address_proof_file" id="address_proof_file" >
                                             <?php echo form_error('address_proof_file'); ?>
                                         </div>
+                                        <input type="hidden" id="address_proof_file_hd" name="address_proof_file_hd" value = "<?php
+                                    if (isset($query[0]['address_proof_file'])) {
+                                        echo $query[0]['address_proof_file'];
+                                    }
+                                    ?>"/>
                                         <div class="col-md-2" style="width: 9%;">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
@@ -906,11 +915,16 @@
                                         ?>">
                                         <label  for="contract_file" class="col-md-3 vertical-align" style="width: 22%;">Contract File</label>
                                         <div class="col-md-8" style="width: 59%;">
-                                            <input type="file" class="form-control"  name="contract_file" value = "<?php
+                                            <input type="file" class="form-control" id="contract_file" name="contract_file" value = "<?php
                                                 if (isset($query[0]['contract_file'])) {
                                                     echo $query[0]['contract_file'];
                                                 }
                                                 ?>">
+                                            <input type="hidden" id="contract_file_hd" name="contract_file_hd" value = "<?php
+                                    if (isset($query[0]['contract_file'])) {
+                                        echo $query[0]['contract_file'];
+                                    }
+                                    ?>"/>
                                             <?php echo form_error('contract_file'); ?>
                                         </div>
                                         <div class="col-md-1">
@@ -1817,6 +1831,7 @@ function manageAccountNameField(value){
     function load_form(tab_id){
         var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
         sessionStorage.setItem("last-url-s"+current_partner_id, tab_id);
+        
        total_div  = document.getElementsByClassName('form_container').length;
        for(var i =1;i<=total_div;i++){
            if(i != tab_id){
@@ -1826,6 +1841,7 @@ function manageAccountNameField(value){
             else{
                 document.getElementById("container-"+i).style.display='block';
                 document.getElementById(i).style.background='#fff';
+                $('#edit_service_center').attr('container',"container-"+i);
             }
        }
        
@@ -2094,10 +2110,73 @@ function manageAccountNameField(value){
 </style>    
 
 <script>
+    // CRM-5620 disbled company name and document details on edit SF deatils
     function edit_form() {
-        $('#container-1, .form-control, .select2, #submit_btn').not("#company_name,#name,#registration-details").css('pointer-events', 'auto');
-        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').not("#company_name,#name,#registration-details").css('background-color', 'white');
+        var container = $('#edit_service_center').attr('container');
+        $('#'+container).find('.form-control, .select2, #submit_btn').css('pointer-events', 'auto');
+        $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline');
+        
+        if($('#'+container+' #company_name').val() != ''){
+            $('#'+container+' #company_name').css('pointer-events', 'none');
+            $('#'+container+' #company_name').attr('readonly');
+            $('#'+container+' #company_name').css('background-color','');
+        }
+        if($('#'+container+' #name').val() != ''){
+            $('#'+container+' #name').css('pointer-events', 'none');
+            $('#'+container+' #name').attr('readonly');
+            $('#'+container+' #name').css('background-color','');
+        }
+        if($('#'+container+' #name_on_pan').val() != ''){
+            $('#'+container+' #name_on_pan').css('pointer-events', 'none');
+            $('#'+container+' #name_on_pan').attr('readonly');
+            $('#'+container+' #name_on_pan').css('background-color','');
+        }
+        if($('#'+container+' #pan_no').val() != ''){
+            $('#'+container+' #pan_no').css('pointer-events', 'none');
+            $('#'+container+' #pan_no').attr('readonly');
+            $('#'+container+' #pan_no').css('background-color','');
+        }
+        $('#'+container+' #pan_file').css('pointer-events', 'none');
+        $('#'+container+' #pan_file').attr('readonly');
+        $('#'+container+' #pan_file').css('background-color','');
+        
+        
+        if($('#'+container+' #gst_no').val() != ''){
+            $('#'+container+' #gst_no').css('pointer-events', 'none');
+            $('#'+container+' #gst_no').attr('readonly');
+            $('#'+container+' #gst_no').css('background-color','');
+        }
+        if($('#'+container+' #gst_type').val() != ''){
+            $('#'+container+' #gst_type').css('pointer-events', 'none');
+            $('#'+container+' #gst_type').attr('readonly');
+            $('#'+container+' #gst_type').css('background-color','');
+        }
+        if($('#'+container+' #gst_status').val() != ''){
+            $('#'+container+' #gst_status').css('pointer-events', 'none');
+            $('#'+container+' #gst_status').attr('readonly');
+            $('#'+container+' #gst_status').css('background-color','');
+        }
+        $('#'+container+' #gst_file').css('pointer-events', 'none');
+        $('#'+container+' #gst_file').attr('readonly');
+        $('#'+container+' #gst_file').css('background-color','');
+       
+        if($('#'+container+' #signature_file_hd').val() != ''){
+            $('#'+container+' #signature_file').css('pointer-events', 'none');
+            $('#'+container+' #signature_file').css('background-color', '');
+            $('#'+container+' #signature_file').attr('readonly');
+        }
+        console.log($('#'+container+' #address_proof_file_hd').val()+ '= ' + $('#'+container+' #address_proof_file_hd').val() != '');
+        if($('#'+container+' #address_proof_file_hd').val() !== ''){
+            $('#'+container+' #address_proof_file').css('pointer-events', 'none');
+            $('#'+container+' #address_proof_file').css('background-color', '');
+            $('#'+container+' #address_proof_file').attr('readonly');
+        }
+        if($('#'+container+' #contract_file_hd').val() !== ''){
+            $('#'+container+' #contract_file').css('pointer-events', 'none');
+            $('#'+container+' #contract_file').css('background-color', '');
+            $('#'+container+' #contract_file').attr('readonly');
+        }
     }
     
     function check_documents() {
@@ -2137,6 +2216,7 @@ function manageAccountNameField(value){
         {
            // $("#"+lastUrl).trigger('click');
         }
+        load_form(1);
     });
 </script>
 <!--Validations here-->
