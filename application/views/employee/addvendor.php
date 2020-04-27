@@ -571,7 +571,7 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                     <div class="panel-heading" style="background-color:#ECF0F1"><b>Registration Details</b></div>
-                        <div class="panel-body">
+                        <div class="panel-body" id="registration-details">
                             <div class="col-md-12">
                                 <div class="col-md-12" style="height: 59px;">
                                 <div class="col-md-4">
@@ -2095,8 +2095,8 @@ function manageAccountNameField(value){
 
 <script>
     function edit_form() {
-        $('#container-1, .form-control, .select2, #submit_btn').css('pointer-events', 'auto');
-        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
+        $('#container-1, .form-control, .select2, #submit_btn').not("#company_name,#name,#registration-details").css('pointer-events', 'auto');
+        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').not("#company_name,#name,#registration-details").css('background-color', 'white');
         $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline');
     }
     
