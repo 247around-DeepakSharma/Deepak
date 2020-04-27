@@ -167,6 +167,14 @@
                             </div>
                         </div>
                     </td>
+                    <td >
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="Appliance">Partner Spare Extra Charges *</label>
+                                <input style="margin-top:10px;" type="number" class="form-control" id="free_partner_extra_spare" name="free_partner_extra_spare" value = "" placeholder="Enter Amount"  >
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td align="center" style="vertical-align: middle;">
@@ -262,6 +270,8 @@
                             </div>
                         </div>
                     </td>
+
+ 
                 </tr>
             </table>
         </div>
@@ -349,7 +359,7 @@
             postData['partner_id'] = '<?php echo $partner_id; ?>';
             postData['partner_type'] ='<?php echo $partner_type; ?>';
             postData['brand'] = $("#appliance_brand").val();
-            postData['is_mapping'] = 1;
+            postData['is_mapping'] = 0;
     
             sendAjaxRequest(postData, url).done(function (data) {
 
