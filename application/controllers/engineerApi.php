@@ -4490,22 +4490,13 @@ class engineerApi extends CI_Controller {
     function  getCoronaCoordinates($state){
 
         if (!empty($state)) {    
-        $url = base_url() . "covid19/getCoronaArea/".$state; 
-        $requestData = array();
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
-        $curl_response = curl_exec($ch);
-        curl_close($ch);
-        $this->jsonResponseString['response'] = $curl_response; // All Data in response//
-            $this->sendJsonResponse(array('0000', 'success')); // send success response //
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("0101", 'No Data  Found'));
-        }
+        $state_name = str_replace(' ', '', $state);
+        $state_name = strtoupper($state_name);
+        $states_json =   file_get_contents('states.json');
+        $states_array = json_decode($states_json,true);
+        $state_coordinates = $states_array[$state_name][0];
+        return $state_coordinates; // All Data in response//
+        } 
 
     }
 
