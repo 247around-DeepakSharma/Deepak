@@ -1,4 +1,3 @@
-<?php
 
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
@@ -7634,10 +7633,8 @@ class Inventory extends CI_Controller {
      */
     function recheck_docket_number() {
         $this->checkUserSession();
-        $data['courier_company_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_exist' => 0, 'is_reject' => 0));
-        $data['ignored_invoice_detail'] = $this->inventory_model->get_courier_company_invoice_details('*', array('is_reject' => 1));
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/recheck_docket_number', $data);
+        $this->load->view('employee/recheck_docket_number');
     }
 
     /**
@@ -7683,7 +7680,170 @@ class Inventory extends CI_Controller {
             }
         }
     }
+    
+    /**
+     * @desc: This Function is used to get the lists of recheck docket number
+     * @param: void
+     * @return : boolean
+     */
+    function get_recheck_docket_number(){
+        $post_data = array('length' => $this->input->post('length'),
+            'start' => $this->input->post('start'),
+            'file_type' => trim($this->input->post('file_type')),
+            'order' => $this->input->post('order'),
+            'draw' => $this->input->post('draw'),
+            'search_value' => trim($this->input->post('search')['value'])
+        );
+        $post_data['where'] = array(
+            'is_exist' => 0,
+            'is_reject' => 0,
+        );
+        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $no = $post_data['start'];
+        $data = array();
+        $rowSums = array(
+            "colCount" => 0,
+            "colData" => array(
+                0 => 'Total',
+                7 => 0.00, //total occurs in col 11 in datatable
+            )
+        );
 
+        foreach ($list as $invoice_list) {
+            $row = array();
+            $no++;
+            $row[] = $no;
+            $row[] = $invoice_list->courier_invoice_id;
+            $row[] = $invoice_list->awb_number;
+            $row[] = $invoice_list->company_name;
+            $row[] = $invoice_list->billable_weight;
+            $row[] = $invoice_list->actual_weight;
+            $date = date('d-M-Y', strtotime($invoice_list->create_date));
+            $row[] = $date;
+            $row[] = $invoice_list->courier_charge;
+            $a = "<a href='javascript:void(0);' class='btn btn-success btn-xs' onclick='";
+            $a .= "recheck_docket_nember(" . '"' . $invoice_list->id . '"';
+            $a .= ', "' . $invoice_list->awb_number . '"';
+            $a .= ', "' . $invoice_list->courier_charge . '"';
+            $a .= ")'>Recheck  </a>";
+            $a .= '&nbsp;&nbsp;&nbsp; <button type="button" class="btn btn-warning btn-xs" onclick="open_reject_remark_model(' . $invoice_list->id . ')" data-toggle="modal" data-target="#rejectInvoiceModal">Ignore</button>';
+            $row[] = $a;
+            $data[] = $row;
+            
+            $tSum = $this->get_courier_charges_total($invoice_list);
+            $rowSums['colData'][7] += $tSum['total'];
+            $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
+        }
+                   
+        if (count($data) > 0) {
+            $data[] = $this->draw_table_courier_docket_footer($rowSums);
+        }
+
+        $output = array(
+            "draw" => $post_data['draw'],
+            "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+      
+     /**
+     * @desc: This Function is used to get the lists of recheck docket number
+     * @param: void
+     * @return : boolean
+     */
+    function get_ignored_invoice_list(){
+        $post_data = array('length' => $this->input->post('length'),
+            'start' => $this->input->post('start'),
+            'file_type' => trim($this->input->post('file_type')),
+            'order' => $this->input->post('order'),
+            'draw' => $this->input->post('draw'),
+            'search_value' => trim($this->input->post('search')['value'])
+        );
+        
+        $post_data['where'] = array(
+            'is_reject' => 1,
+        );
+        
+        $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+
+        $no = $post_data['start'];
+        $data = array();
+        $rowSums = array(
+            "colCount" => 0,
+            "colData" => array(
+                0 => 'Total',
+                5 => 0.00, //total occurs in col 11 in datatable
+            )
+        );
+
+        foreach ($list as $invoice_list) {
+            $row = array();
+            $no++;
+            $row[] = $no;
+            $row[] = $invoice_list->courier_invoice_id;
+            $row[] = $invoice_list->awb_number;
+            $row[] = $invoice_list->company_name;
+            $date = date('d-M-Y', strtotime($invoice_list->create_date));
+            $row[] = $date;
+            $row[] = $invoice_list->courier_charge;
+            $row[] = $invoice_list->reject_remarks;
+            $data[] = $row;
+            
+            $tSum = $this->get_courier_charges_total($invoice_list);
+            $rowSums['colData'][5] += $tSum['total'];
+            $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
+        }
+                   
+        if (count($data) > 0) {
+            $data[] = $this->draw_table_courier_docket_footer($rowSums);
+        }
+
+        $output = array(
+            "draw" => $post_data['draw'],
+            "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+    
+    
+     /** 
+     * @desc: This function is used to create table body to table.
+     * @param: Array
+     * @return: Array
+     */
+    
+    private function get_courier_charges_total($data_list) {
+        $res = array();
+        $res['total'] =  $data_list->courier_charge;
+        return $res;
+    }
+
+    /** 
+     * @desc: This function is used to draw the footer of table.
+     * @param: rowData
+     * @return: Array
+     */
+    private function draw_table_courier_docket_footer($rowData) {
+        $res = array();
+        for ($i = 0; $i < $rowData['colCount']; $i++) {
+            $res[$i] = '';
+            if (isset($rowData['colData'])) {
+                if (isset($rowData['colData'][$i])) {
+                    $res[$i] = (is_float($rowData['colData'][$i])) ? number_format($rowData['colData'][$i], 2) : $rowData['colData'][$i];
+                }
+            }
+        }
+        return $res;
+    }
+    
     /**
      * @desc: This Function is used to search docket number in bulk
      * @param: void
@@ -7725,7 +7885,7 @@ class Inventory extends CI_Controller {
             echo json_encode($returndata);
         }
     }
-
+    
     /**
      * @desc: This Function is print warehouse address from tag page using MSL.
      * @param: void
@@ -7821,8 +7981,8 @@ class Inventory extends CI_Controller {
             $row[] = $invoice_list->actual_weight;
             $row[] = $invoice_list->billable_weight;
             $row[] = $invoice_list->courier_invoice_id;
-            $row[] = $invoice_list->vendor_invoice_id;
-            $row[] = $invoice_list->partner_invoice_id;
+            //$row[] = $invoice_list->vendor_invoice_id;
+            //$row[] = $invoice_list->partner_invoice_id;
             $row[] = $invoice_list->pickup_from;
             $row[] = $invoice_list->create_date;
             $data[] = $row;
