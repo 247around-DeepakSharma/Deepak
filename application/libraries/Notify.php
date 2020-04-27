@@ -257,7 +257,7 @@ class Notify {
 		$post_data = array(
 		    'From' => $agent_phone,
 		    'To' => $customer_phone,
-		    'CallerId' => '01141170701', //247around call centre exophone number
+		    'CallerId' => OUTGOING_NUMBER, //247around call centre exophone number
 		    'CallType' => 'trans'
 		);
 
