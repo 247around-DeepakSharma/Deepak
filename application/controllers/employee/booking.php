@@ -32,6 +32,7 @@ class Booking extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->model('warranty_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
@@ -2640,7 +2641,12 @@ class Booking extends CI_Controller {
         
         // save SF and Admin amount mismatch (if any) in booking_amount_differences table
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
-        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);        
+        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
+
+
+        $this->check_and_update_partner_extra_spare($booking_id);
+
+
         
         if ($status == 0) {
             //Log this state change as well for this booking
@@ -2695,6 +2701,48 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
+    }
+
+    /**
+     *  @desc : This function is used to update partner_extra_charges if partner_net_pay >0
+     *  @param : string $booking_id
+     *  @Author : Abhishek Awasthi 
+     */
+
+    function check_and_update_partner_extra_spare($booking_id){
+
+        $booking_unit_details = $this->booking_model->getunit_details($booking_id);
+        foreach($booking_unit_details as $unit){
+            if($unit['partner_net_pay']>0){
+                
+            $brand = $unit['brand'];
+            $category = $unit['category'];
+            $capacity = $unit['capacity'];
+            $partner_id = $unit['partner_id'];
+            $price_tag = $unit['uprice_tag'];
+            $where = array(
+                'brand'=>$brand,
+                'category'=>$category,
+                'capacity'=>$capacity,
+                'partner_id'=>$partner_id,
+                'service_category'=>$price_tag
+            );
+            $select = "service_centre_charges.partner_spare_extra_charge";
+            $charges =  $this->service_centre_charges_model->get_service_caharges_data($select,$where);
+            $partner_spare_extra_charge = $charges[0]['partner_spare_extra_charge'];
+
+            $data_unit = array(
+                'partner_spare_extra_charge'=>
+            );
+            $where_unit = array(
+                'id'=>$unit['id']
+            );
+            $this->booking_model->update_booking_unit_details_by_any($where_unit, $data_unit);
+
+            } 
+        }
+
+
     }
 
     /**
