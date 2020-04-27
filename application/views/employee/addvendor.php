@@ -400,7 +400,7 @@
                                         ?>">
                                         <label for="rm" class="col-md-3 vertical-align">RM*</label>
                                         <div class="col-md-8">
-                                            <select id="rm" class="form-control" name="rm">
+                                            <select id="rm" class="form-control" name="rm"  onchange='getASMs()'>
                                                 <option selected disabled>Select Regional Manager</option>                                                
                                             </select>
                                             <?php echo form_error('rm'); ?>
@@ -571,7 +571,7 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                     <div class="panel-heading" style="background-color:#ECF0F1"><b>Registration Details</b></div>
-                        <div class="panel-body">
+                        <div class="panel-body" id="registration-details">
                             <div class="col-md-12">
                                 <div class="col-md-12" style="height: 59px;">
                                 <div class="col-md-4">
@@ -1482,10 +1482,8 @@
         
         var rm_id = '<?php if(!empty($rm) && !empty($rm[0]['agent_id'])) { echo $rm[0]['agent_id']; } else { echo ''; }; ?>';
         var vendor_rm_id = '<?php if(!empty($query) && !empty($query[0]['rm_id'])) { echo $query[0]['rm_id']; } else { echo ''; }; ?>';
-        var vendor_asm_id = '<?php if(!empty($query) && !empty($query[0]['asm_id'])) { echo $query[0]['asm_id']; } else { echo ''; }; ?>';
 
         getRMs(vendor_rm_id);
-        getASMs(vendor_asm_id);
         get_brands();
     });
 
@@ -1523,6 +1521,7 @@ function manageAccountNameField(value){
           data: {state: state, rm_id:rm_id},
           success: function (data) {
             $("#rm").html(data);
+            getASMs();
           }
         });
         }
@@ -1530,11 +1529,13 @@ function manageAccountNameField(value){
     
     function getASMs(asm_id = '') {
         var state = $("#state").val();
+        var rm_id = $("#rm").val();
+        var asm_id = '<?php if(!empty($query) && !empty($query[0]['asm_id'])) { echo $query[0]['asm_id']; } else { echo ''; }; ?>';
         if(state != ''){
         $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/vendor/getASMs',
-          data: {state: state, asm_id:asm_id},
+          data: {state: state, asm_id:asm_id, rm_id:rm_id},
           success: function (data) {
             $("#asm").html(data);
           }
@@ -2095,8 +2096,8 @@ function manageAccountNameField(value){
 
 <script>
     function edit_form() {
-        $('#container-1, .form-control, .select2, #submit_btn').css('pointer-events', 'auto');
-        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
+        $('#container-1, .form-control, .select2, #submit_btn').not("#company_name,#name,#registration-details").css('pointer-events', 'auto');
+        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').not("#company_name,#name,#registration-details").css('background-color', 'white');
         $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline');
     }
     
