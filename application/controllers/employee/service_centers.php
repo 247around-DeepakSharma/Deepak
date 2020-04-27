@@ -7836,9 +7836,9 @@ class Service_centers extends CI_Controller {
                 if (!empty($d)) {
                     $_POST['part'][$key]['defect_pic'] = $d;
                 } else {
-                    $message['code'] = false;
-                    $message['message'] = "Defect Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
-                    break;
+                   // $message['code'] = false;
+                   // $message['message'] = "Defect Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                  //  break;
                 }
             }
         }  
