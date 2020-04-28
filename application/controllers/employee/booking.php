@@ -4473,7 +4473,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
-        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
@@ -4487,7 +4487,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."')})</script>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
