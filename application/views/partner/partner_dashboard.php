@@ -106,9 +106,6 @@
                     <button class="btn btn-primary" ng-click="ShowRMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
                 <br>
                 <div class="clear"></div>
-                <p ng-if='completedBookingByRM.leg_1 !== undefined'>
-                    <?php echo LEG_DESCRIPTION ; ?>
-                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>

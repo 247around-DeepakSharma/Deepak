@@ -362,7 +362,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModalCovid" id="myBtncovid">COVID-19</a></li>
+                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">

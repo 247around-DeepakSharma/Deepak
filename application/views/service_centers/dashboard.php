@@ -22,7 +22,7 @@
     #msl_info a{font-size:18px;color: #254d5d;}
     #msl_info .count{text-decoration: underline;font-size: 36px;}
 </style>
-<div id="myModalCovid" class="modal">
+<div id="myModalCovid"  class="modal">
 
   <!-- Modal content -->
  
@@ -545,6 +545,8 @@ $('#myModalCovid').modal({
            backdrop: 'static'
 });
 $("#myBtncovid").click();
+
+$("#myModalCovid").modal('show');
 setTimeout(function () {
     $("#close_covid").removeClass('hide');
 

@@ -2101,8 +2101,8 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
-ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
+ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
 -------------------------------------------------------------
 
@@ -2319,7 +2319,6 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
- 
 ---Gorakh 01 Apr 2020
 UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
 
@@ -2482,3 +2481,6 @@ CREATE TABLE non_inventory_partners_part_type (
     CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
 );
 
+=======
+ 
+>>>>>>> CRM_Release_1.72.0.0

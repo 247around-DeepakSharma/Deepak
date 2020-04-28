@@ -80,7 +80,6 @@ class vendor_model extends CI_Model {
        return $query->result_array();
     }
 
-
     /**
      * @Desc: This function is used to get data of all service centers
      * @params: $post array, $select
@@ -102,7 +101,7 @@ class vendor_model extends CI_Model {
         return $result;
     }
 
-    /**
+    / /**
      * @Desc: This function is used to get data of all service centers count
      * @params: $post array
      * @Author : Abhishek Awasthi
@@ -115,7 +114,7 @@ class vendor_model extends CI_Model {
         return $query->result_array()[0]['numrows'];
     }
 
-    /**
+   /**
      *  @desc : This function is used to get total filtered service centers count
      *  @param : $post string
      *  @Author : Abhishek Awasthi

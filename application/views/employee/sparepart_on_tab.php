@@ -411,6 +411,41 @@
         </div>
     </div>
 </div>
+<div role="tabpanel" class="tab-pane" id="return_defective_parts_from_wh_to_partner">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="return_defective_parts_from_wh_to_partner_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center">No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        <th class="text-center" data-orderable="false">Age</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div role="tabpanel" class="tab-pane" id="defective_part_shipped_by_SF">
     <div class="container-fluid">
         <div class="row" >
@@ -662,6 +697,7 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Part Lost & Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -704,6 +740,7 @@
                                         <th class="text-center" data-orderable="true">Age Of Delivered</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -901,7 +938,19 @@
         </div>
     </div>
 </div>
-
+<div id="RtoCaseSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="rto_case_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">RTO Case </h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -916,7 +965,7 @@
 </style>
 <script>
     var spare_parts_requested_table;
-    var spare_parts_requested_table_approved;
+     var spare_parts_requested_table_approved;
     var partner_shipped_part_table;
     var sf_received_part_table;
     var defective_part_pending_table;
@@ -929,6 +978,7 @@
     var courier_lost_spare_parts_table;
     
     var defective_part_rejected_by_wh_table;
+    var return_defective_parts_from_wh_to_partner_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -1001,7 +1051,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,9,10,11,13,15], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10,11,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1038,7 +1088,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,5,15], //first column / numbering column
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1213,7 +1263,6 @@
                     "orderable": true //set not orderable
                 },
                 {
-
                     "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
@@ -2129,7 +2178,6 @@
     function disable_btn(id){
         $("#"+id).attr('disabled',true);
     }
- 
     var courier_lost_spare_id;
     function approve_courier_lost_spare(spare_id) {
         courier_lost_spare_id = spare_id;
@@ -2171,6 +2219,23 @@
             alert('Spare part has been approved successfully.');
         });
     });
+    
+    var rto_case_spare_part_id;
+    var tab_type;
+    function handle_rto_case(spare_id, type) {
+        rto_case_spare_part_id = spare_id;
+        tab_type = type;
+        
+        $.ajax({
+            method:'POST',
+            url: '<?php echo base_url(); ?>employee/spare_parts/rto_case_spare',
+            data: {spare_id}
+        }).done(function (data){
+            $("#rto_case_spare_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#RtoCaseSparePartModal').modal({backdrop: 'static', keyboard: false});
+        });
+    }
+    
         $(document).ready(function(){
         $('.panel .form-control').on('keypress keyup', function (event) {
             var regex = new RegExp("^[a-zA-Z0-9 ,-]+$");
@@ -2188,4 +2253,3 @@
         width: 572px !important;
     }
 </style>
- 
