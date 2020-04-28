@@ -32,6 +32,7 @@ class Booking extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->model('warranty_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
@@ -2640,7 +2641,12 @@ class Booking extends CI_Controller {
         
         // save SF and Admin amount mismatch (if any) in booking_amount_differences table
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
-        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);        
+        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
+
+
+        $this->check_and_update_partner_extra_spare($booking_id);
+
+
         
         if ($status == 0) {
             //Log this state change as well for this booking
@@ -2695,6 +2701,48 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
+    }
+
+    /**
+     *  @desc : This function is used to update partner_extra_charges if partner_net_pay >0
+     *  @param : string $booking_id
+     *  @Author : Abhishek Awasthi 
+     */
+
+    function check_and_update_partner_extra_spare($booking_id){
+
+        $booking_unit_details = $this->booking_model->getunit_details($booking_id);
+        foreach($booking_unit_details as $unit){
+            if($unit['partner_net_pay']>0){
+                
+            $brand = $unit['brand'];
+            $category = $unit['category'];
+            $capacity = $unit['capacity'];
+            $partner_id = $unit['partner_id'];
+            $price_tag = $unit['uprice_tag'];
+            $where = array(
+                'brand'=>$brand,
+                'category'=>$category,
+                'capacity'=>$capacity,
+                'partner_id'=>$partner_id,
+                'service_category'=>$price_tag
+            );
+            $select = "service_centre_charges.partner_spare_extra_charge";
+            $charges =  $this->service_centre_charges_model->get_service_caharges_data($select,$where);
+            $partner_spare_extra_charge = $charges[0]['partner_spare_extra_charge'];
+
+            $data_unit = array(
+                'partner_spare_extra_charge'=>$partner_spare_extra_charge
+            );
+            $where_unit = array(
+                'id'=>$unit['id']
+            );
+            $this->booking_model->update_booking_unit_details_by_any($where_unit, $data_unit);
+
+            } 
+        }
+
+
     }
 
     /**
@@ -4425,7 +4473,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
-        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
@@ -4439,7 +4487,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."')})</script>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5618,11 +5666,11 @@ class Booking extends CI_Controller {
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($cancellation_reason_id)){
-                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
-                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+                // $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'"'] = NULL;
             }
         }        
         

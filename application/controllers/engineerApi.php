@@ -4495,7 +4495,15 @@ class engineerApi extends CI_Controller {
         $states_json =   file_get_contents('states.json');
         $states_array = json_decode($states_json,true);
         $state_coordinates = $states_array[$state_name][0];
-        return $state_coordinates; // All Data in response//
+        $latlong =array();
+        $supcordinate = array();
+        foreach($state_coordinates as $key => $coordinate){
+            $latlong['lat'] = $coordinate[0];
+            $latlong['long'] = $coordinate[1];
+            $supcordinate[] = $latlong;
+        }
+
+        return $supcordinate; // All Data in response//
         } 
 
     }
