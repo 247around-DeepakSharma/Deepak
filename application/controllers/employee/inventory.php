@@ -10159,6 +10159,28 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         echo json_encode($data);
     }
+    /**
+     *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
+     *  @param : booking_id
+     *  @return : JSON /status(sucess / error), count
+     * @Author: Ghanshyam
+     */
+    function booking_cancelled_rejected_count($booking_id) {
+        $where['old_state'] = SF_BOOKING_CANCELLED_STATUS; // Booking cancelled by SF
+        $where['new_state'] = _247AROUND_CANCELED_REJECTED; // Csncelled status rejected by Admin
+        $data = $this->booking_model->get_booking_state_change($booking_id, $where);
+        $count_cancelled_rejected = 0;
+        $status = '';
+        if (!empty($data)) {
+            $status = 'success';
+            $count_cancelled_rejected = count($data);
+        } else {
+            $status = 'error';
+        }
+        $return_array['status'] = $status;
+        $return_array['count'] = $count_cancelled_rejected;
+        echo json_encode($return_array);
+    }
 
 }
 
