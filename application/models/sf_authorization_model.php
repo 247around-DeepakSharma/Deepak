@@ -28,13 +28,15 @@ class SF_authorization_model extends CI_Model {
      * Get SF deatils and SF's RM details and in which services SF deals
      */
 
-    function get_sf_details($sf_id) {
+    function get_sf_details($finacial_year) {
         $this->db->select('id,name,company_name,address,pincode,state,district,landmark,appliances');
         $this->db->from('service_centres');
         $this->db->where('active', '1');
         $this->db->where('is_sf', '1');
+        $this->db->where("((auth_certificate_validate_year != '$finacial_year' OR auth_certificate_validate_year IS NULL)");
+        $this->db->or_where("(auth_certificate_validate_year = '$finacial_year' AND has_authorization_certificate = '0'))");
         $query = $this->db->get();
-        return $query->row_array();
+        return $query->result_array();
     }
 
     /*
@@ -42,14 +44,26 @@ class SF_authorization_model extends CI_Model {
      *  by SF id     * 
      */
 
-    function update_authorization_certificate_details($sf_id, $file_name) {
+    function update_authorization_certificate_details($sf_id, $file_name,$finacial_year) {
         $this->db->set('has_authorization_certificate', 1);
         $this->db->set('auth_certificate_file_name', $file_name);
+        $this->db->set('auth_certificate_validate_year', $finacial_year);
         $this->db->where('id', $sf_id);
         $this->db->where('active', '1');
         $this->db->where('is_sf', '1');
         $query = $this->db->update('service_centres');
-        return $query->affected_rows();
+        return $this->db->affected_rows();
+    }
+    /*
+     * Get all active SF deatils for listinf SF
+     */
+    function get_all_active_sf_details() {
+        $this->db->select('id,name,company_name,auth_certificate_validate_year,auth_certificate_file_name');
+        $this->db->from('service_centres');
+        $this->db->where('active', '1');
+        $this->db->where('is_sf', '1');
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
 }
