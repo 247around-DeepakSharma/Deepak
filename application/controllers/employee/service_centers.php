@@ -1118,7 +1118,7 @@ class Service_centers extends CI_Controller {
 
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
-
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
         if ($this->session->userdata('is_engineer_app') == 1) {
             $en_where = array("booking_id" => $booking_id,
                 "service_center_id" => $this->session->userdata('service_center_id')
@@ -1160,18 +1160,18 @@ class Service_centers extends CI_Controller {
 
 
             switch ($cancellation_reason) {
-                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
+                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID :
                     //Called when sc choose Product not delivered to customer 
                     $this->convert_booking_to_query($booking_id, $partner_id);
 
                     break;
 
                 default :
-                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA) {
+                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA_ID) {
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_CALL_AREA_TEMPLATE);
                     }
 
-                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON) {
+                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
                         $pinupdate = array(
                             'booking_pincode' => $correctpin
                         );
@@ -1310,8 +1310,11 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
-            return TRUE;
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf')) ) {
+            if(!empty($this->session->userdata('has_authorization_certificate')) && ($this->session->userdata('has_authorization_certificate') == 1)){
+                return TRUE;
+            }
+            
         } else {
             log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();

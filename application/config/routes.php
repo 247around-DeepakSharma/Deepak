@@ -362,6 +362,7 @@ $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 $route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
 $route['partner/search_docket'] = 'employee/partner/search_docket';
+$route['employee/sf_authorization_certificate'] = 'employee/SF_authorization_certificate/index';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

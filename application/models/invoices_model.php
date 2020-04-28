@@ -730,7 +730,7 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $msl_packaging_charge = array();
+        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date);
         $msl_large_box_packaging_charge = array();
         $msl_small_box_packaging_charge = array();
         // We will get data only if large MSL box price will be greater than 0
@@ -745,8 +745,7 @@ class invoices_model extends CI_Model {
             $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
         }
         //merge small and large MSL box data into common array
-        $msl_packaging_charge = array_merge($msl_packaging_charge, $msl_large_box_packaging_charge);
-        $msl_packaging_charge = array_merge($msl_packaging_charge, $msl_small_box_packaging_charge);
+        $msl_packaging_charge = array_merge($msl_large_box_packaging_charge, $msl_small_box_packaging_charge);
         
         $spare_parts_open_cell_led_bar_data = array();
         $open_cell_led_bar_charges = array();
@@ -777,6 +776,8 @@ class invoices_model extends CI_Model {
         $result['upcountry'] = array();
         $result['pickup_courier'] = array();
         $result['courier'] = array();
+        $result['msl'] = array();
+        $result['final_courier'] = array();
         $result['misc'] = array();
         $result['warehouse_courier'] = array();
         $result['defective_part_by_wh'] = array();
@@ -790,6 +791,27 @@ class invoices_model extends CI_Model {
         $result['open_cell'] = array();
         $result['nrn'] = array();
         $result['msl_packaging_data'] = array();
+        
+        if(!empty($courier) && isset($courier['final_courier']) 
+                && !empty($courier['final_courier'])){
+
+            $courier_price = (array_sum(array_column($courier['final_courier'], 'courier_charges_by_sf')));
+            if ($courier_price > 0) {
+                $c_data = array();
+                $c_data[0]['description'] = 'Courier Charges';
+                $c_data[0]['hsn_code'] = '';
+                $c_data[0]['qty'] = '';
+                $c_data[0]['rate'] = '';
+                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                $c_data[0]['product_or_services'] = 'Courier';
+                $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
+                $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['courier'] = $courier['courier'];
+                $result['final_courier'] = $courier['final_courier'];
+                $result['msl'] = $courier['msl'];
+            }
+        }
         
         if (!empty($upcountry_data)) {
             if($upcountry_data[0]['total_upcountry_price'] > 0){
@@ -1011,7 +1033,7 @@ class invoices_model extends CI_Model {
      * @param String $to_date_tmp
      * @return Array
      */
-    function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp){
+    function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1) {
         $from_date = date('Y-m-d', strtotime('-6 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
@@ -1025,38 +1047,41 @@ class invoices_model extends CI_Model {
         $warehouse_return = $this->get_partner_invoice_warehouse_return_defective($partner_id, $from_date, $to_date);
         //MSL New Part return to partner and MSL sent to SF from warehouse
         $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
-        
+
         $final_courier = array_merge($courier, $pickup_courier, $warehouse_courier, $warehouse_return, $defective_return_to_partner);
         $result = array();
         if (!empty($final_courier)) {
-            $c_data = array();
-            $courier_price = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
-            if($courier_price > 0){
-                $c_data[0]['description'] = 'Courier Charges';
-                $c_data[0]['hsn_code'] = '';
-                $c_data[0]['qty'] = '';
-                $c_data[0]['rate'] = '';
-                $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-                $c_data[0]['product_or_services'] = 'Courier';
-                $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
-                
-                $partners_data = $this->partner_model->getpartner_details("company_name, address as company_address,partners.pincode, partners.district, partners.state, gst_number",
-                        array('partners.id' => $partner_id));
-                
-                $c_data[0]['company_name'] = $partners_data[0]['company_name'];
-                $c_data[0]['company_address'] = $partners_data[0]['company_address'];
-                $c_data[0]['pincode'] = $partners_data[0]['pincode'];
-                $c_data[0]['district'] = $partners_data[0]['district'];
-                $c_data[0]['state'] = $partners_data[0]['state'];
-                $c_data[0]['gst_number'] = $partners_data[0]['gst_number'];
-                
-                $result['courier'] = array_merge($courier, $warehouse_courier, $pickup_courier, $warehouse_return);
-                $result['final_courier'] = $final_courier;
-                $result['msl'] = $defective_return_to_partner;
-                
-                $response = $this->_set_partner_excel_invoice_data($c_data, $from_date_tmp, $to_date_tmp, "Tax Invoice");
-                $result['booking'] = $response['booking'];
-                $result['meta'] = $response['meta'];
+            $result['courier'] = array_merge($courier, $warehouse_courier, $pickup_courier, $warehouse_return);
+            $result['final_courier'] = $final_courier;
+            $result['msl'] = $defective_return_to_partner;
+
+            if ($default == 1) {
+                $c_data = array();
+                $courier_price = (array_sum(array_column($final_courier, 'courier_charges_by_sf')));
+                if ($courier_price > 0) {
+                    $c_data[0]['description'] = 'Courier Charges';
+                    $c_data[0]['hsn_code'] = '';
+                    $c_data[0]['qty'] = '';
+                    $c_data[0]['rate'] = '';
+                    $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                    $c_data[0]['product_or_services'] = 'Courier';
+                    $c_data[0]['taxable_value'] = sprintf("%.2f", $courier_price);
+
+                    $partners_data = $this->partner_model->getpartner_details("company_name, address as company_address,partners.pincode, partners.district, partners.state, gst_number",
+                            array('partners.id' => $partner_id));
+
+                    $c_data[0]['company_name'] = $partners_data[0]['company_name'];
+                    $c_data[0]['company_address'] = $partners_data[0]['company_address'];
+                    $c_data[0]['pincode'] = $partners_data[0]['pincode'];
+                    $c_data[0]['district'] = $partners_data[0]['district'];
+                    $c_data[0]['state'] = $partners_data[0]['state'];
+                    $c_data[0]['gst_number'] = $partners_data[0]['gst_number'];
+
+
+                    $response = $this->_set_partner_excel_invoice_data($c_data, $from_date_tmp, $to_date_tmp, "Tax Invoice");
+                    $result['booking'] = $response['booking'];
+                    $result['meta'] = $response['meta'];
+                }
             }
         }
         return $result;
@@ -1125,6 +1150,9 @@ class invoices_model extends CI_Model {
             $data['open_cell'] = $result_data['open_cell'];
             $data['nrn'] = $result_data['nrn'];
             $data['msl_packaging_data'] = $result_data['msl_packaging_data'];
+            $data['msl'] = $result_data['msl'];
+            $data['courier'] = $result_data['courier'];
+            $data['final_courier'] = $result_data['final_courier'];
           
             return $data;
         } else {
