@@ -65,7 +65,10 @@
                         </form>
                     </div>
                     <div class="col-md-6">
-                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b><br/><font color="red">* Upload date(s) in dd-mm-yyyy format</font></p>
+                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b>
+                        <br/><font color="red" style="font-size: 14px;">* Upload date(s) in dd-mm-yyyy format</font>
+                        <br/><font color="red" style="font-size: 14px;">* For <b>'Using Booking Id only'</b> option, use the same sample sheet and upload it after filling Booking Ids below the Booking Id column.</font>
+                        </p>
                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_sample_sheet.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                         <p style="font-size: 18px;margin-top:10px"><b>Please choose service_id only from below list</b><br> <small>Example : Use <strong style="color:red"><?php echo $serviceArray[0]['id'] ?></strong> for <?php echo $serviceArray[0]['services'] ?></small></p>
                          <table class='table table-condensed table-bordered'>
