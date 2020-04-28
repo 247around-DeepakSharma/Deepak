@@ -614,7 +614,7 @@
                     <div class="col-md-6 col-md-offset-2">
                         <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
-                <?php }?>
+                    <?php }?>
                 </form>
             </div>
         </div>

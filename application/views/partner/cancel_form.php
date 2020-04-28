@@ -105,7 +105,7 @@ $min_time_diff += $since_start->i;
                                     <?php $count = 1;foreach($reason as $key =>$data1){ ?>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" class="cancellation_reason" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                                            <input type="radio" class="cancellation_reason" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->id;?>" required>
                                             <?php  echo $data1->reason;?>
                                         </label>
                                     </div>
