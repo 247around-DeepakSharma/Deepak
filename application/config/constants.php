@@ -748,6 +748,12 @@ define("ACCOUNT_EMAIL_ID", "accounts@247around.com");
 define("TALEVAR_USER_ID", "400555");
 // End CRM-3450
 
+define('DASHBOARD_INVOICE_PROCESS_1', 'dashboard_process_1');
+define('DASHBOARD_INVOICE_PROCESS_2', 'dashboard_process_2');
+define('DASHBOARD_INVOICE_PROCESS_3', 'dashboard_process_3');
+define('DASHBOARD_INVOICE_PROCESS_4', 'dashboard_process_4');
+define('DASHBOARD_INVOICE_PROCESS_5', 'dashboard_process_5');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
