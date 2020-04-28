@@ -3571,6 +3571,339 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
+    /**
+     * @desc : Method is used to redirect to verify bookings to be invoiced page.
+     * @author : Ankit Rajvanshi
+     */
+    function bookings_to_be_invoiced() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('dashboard/bookings_to_be_invoiced');
+    }
+    
+    /**
+     * @desc : Method returns those booking in which customer paid charges.
+     * @author : Ankit Rajvanshi
+     */
+    function get_bookings_to_be_invoiced() {
+       
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        //echo"<pre>";print_r($post_data);exit;
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.customer_net_payable > 0'] = NULL;
+        $where['booking_unit_details.customer_paid_basic_charges < 100'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_1" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_1.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+        
+    }
+    
+    /**
+     * @desc : Method retunns those bookings in which serial number and image missing
+     * @author : Ankit Rajvanshi
+     */
+    function get_missing_serial_number_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.pod'] = 1;
+        $where['(booking_unit_details.serial_number IS NULL OR booking_unit_details.serial_number_pic IS NULL)'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                
+                $remark = '';
+                if(empty($d['serial_number'])) {
+                    $remark .= 'Serial Number does not exist.<br/>';
+                }
+                if(empty($d['serial_number'])) {
+                    $remark .= 'Serial Number Pic does not exist.<br/>';
+                }
+                $table_data .= '<td>'.$remark.'</td>';
+                $table_data .= '<td><input class="form-control check_2" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_2.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings in which partner invoice is not generated.
+     * @author : Ankit Rajvanshi
+     */
+    function get_missing_partner_invoice() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.partner_invoice_id IS NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_3" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_3.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings which are pending but unit details is completed
+     * @author : Ankit Rajvanshi
+     */
+    function get_completed_booking_unit_details_of_pending_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status != "'._247AROUND_COMPLETED.'"'] = NULL;
+        $where['booking_unit_details.ud_closed_date IS NOT NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_4" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_4.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings which are completed but unit details are pending.
+     * @author : Ankit Rajvanshi
+     */
+    function get_pending_booking_unit_details_of_completed_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status = "'._247AROUND_COMPLETED.'"'] = NULL;
+        $where['booking_unit_details.ud_closed_date IS NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_details.service_center_closed_date)>='".$start."' AND date(booking_details.service_center_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_5" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_5.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+        
+    }    
+    
+    /**
+     * @desc : Method is used to download data in csv format.
+     * @author : Ankit Rajvanshi
+     */
+    function export_data() {
+        $post_data = $this->input->get();
+        $table_id = $post_data['tableId'];
+        $date = $post_data['date'];
+        
+        $where = [];
+        $dateArray  = explode(" - ",$date);
+        $start = date('Y-m-d',strtotime($dateArray[0]));
+        $end = date('Y-m-d',strtotime($dateArray[1]));
+        
+        $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.partner_invoice_id';
+        
+        
+        if(!empty($table_id)) {
+            if($table_id == 1) {
+                $where['booking_unit_details.customer_net_payable > 0'] = NULL;
+                $where['booking_unit_details.customer_paid_basic_charges < 100'] = NULL;
+            }
+            if($table_id == 2) {
+                $where['booking_unit_details.pod'] = 1;
+                $where['(booking_unit_details.serial_number IS NULL OR booking_unit_details.serial_number_pic IS NULL)'] = NULL;
+            }
+            if($table_id == 3) {
+                $where['booking_unit_details.partner_invoice_id IS NULL'] = NULL;
+            }
+            if($table_id == 4) {
+                $where = [];
+                $where['booking_details.current_status != "'._247AROUND_COMPLETED.'"'] = NULL;
+                $where['booking_unit_details.ud_closed_date IS NOT NULL'] = NULL;
+                $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+                $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+            }            
+            if($table_id == 5) {
+                $where = [];
+                $where['booking_unit_details.ud_closed_date IS NULL'] = NULL;
+                $where["(date(booking_details.service_center_closed_date)>='".$start."' AND date(booking_details.service_center_closed_date)<='".$end."')"] = NULL;
+                $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+                $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+            }      
+            
+            $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+            
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Basic Charges Paid By Customer',  'Extra Charges Paid By Customer', 'Parts Paid By Customer', 'Serial Number', 'Partner Invoice'], 'data_'.date('Ymd-His'));
+        }
+    }
+    
+    /**
+     * @desc : Method is used to mark bookings as processed for invoice.
+     * @author : Ankit Rajvanshi
+     * @return boolean
+     */
+    function process_invoice() {
+        $post_data = $this->input->post();
+      
+        if(!empty($post_data['dashboard_process']) && !empty($post_data[$post_data['dashboard_process']])) {
+            $insert_data = array();
+            foreach($post_data[$post_data['dashboard_process']] as $unit_detail_id => $val) {
+                $tmp_array = array();
+                $tmp_array['booking_unit_details_id'] = $unit_detail_id;
+                $tmp_array['is_processed'] = $val;
+                $tmp_array['dashboard_section_id'] = $post_data['dashboard_process'];
+                
+                array_push($insert_data, $tmp_array);
+            }
+            
+            $this->dashboard_model->insert_into_booking_unit_detail_invoice_process($insert_data);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 
