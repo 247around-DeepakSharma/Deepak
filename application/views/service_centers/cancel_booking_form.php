@@ -85,18 +85,12 @@
                             }
                        }
                    } ?>
-                   <?php 
-                   //if current status is completed or cancelled by admin. SF cannot cancel the booking.
-                   if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
-                    echo "<center><b>This booking is ".$bookinghistory[0]['current_status']." by Admin. You cannot cancel this booking.</b></center>";}
-                    else {
-                    ?>
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
                     <?php } else { ?>
                     <input type="submit" id="submitform" value="Proceed" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php } ?>
-                  <?php } ?>
+                  
                   </div>
                </div>
             </form>
