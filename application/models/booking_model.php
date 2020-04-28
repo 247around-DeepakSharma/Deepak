@@ -108,7 +108,7 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`,booking_unit_details.price_tags as uprice_tag,booking_unit_details.partner_net_payable as partner_net_pay
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
@@ -1959,9 +1959,12 @@ class Booking_model extends CI_Model {
      * @param String $booking_id
      * @return boolean
      */
-    function get_booking_state_change($booking_id){
+    function get_booking_state_change($booking_id,$where=''){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->like('booking_id',$trimed_booking_id);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get('booking_state_change');
 

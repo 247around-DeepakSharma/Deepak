@@ -177,6 +177,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_shipped_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -212,6 +213,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "in_transit" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -245,6 +247,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "courier_audit" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -282,6 +285,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_rejected_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -325,6 +329,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_rejected_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -440,6 +445,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_return_to_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -522,6 +528,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "delivered_to_sf" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -566,6 +573,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_pending" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -593,6 +601,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "oow_shipped_pending" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -630,18 +639,11 @@ class Spare_parts extends CI_Controller {
             $data[] = $row;
         }
 
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => SPARE_PART_ON_APPROVAL, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
-        if (!empty($spare_parts_list)) {
-            $total = count($spare_parts_list);
-        } else {
-            $total = 0;
-        }
-
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "requested_quote" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -672,18 +674,11 @@ class Spare_parts extends CI_Controller {
             $data[] = $row;
         }
 
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => _247AROUND_CANCELLED, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
-        if (!empty($spare_parts_list)) {
-            $total = count($spare_parts_list);
-        } else {
-            $total = 0;
-        }
-
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "total_rejected" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -722,7 +717,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "courier_lost" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         header('Content-type: application/json');
@@ -821,6 +816,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "partner_shipped_part" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -4523,6 +4519,7 @@ class Spare_parts extends CI_Controller {
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
         
+        $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
         //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['is_inventory'] = TRUE;
 
@@ -4539,6 +4536,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "oow_defective" => $this->inventory_model->count_spare_oot_filtered($post),
             "data" => $data,
         );
 
@@ -4775,6 +4773,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "shipped_part_to_sf" => $this->inventory_model->count_spare_oot_filtered($post),
             "data" => $data,
         );
 

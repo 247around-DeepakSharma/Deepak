@@ -1163,8 +1163,8 @@ class Inventory extends CI_Controller {
                     if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
                         if (count($spare_parts_details) == 1) {
                             $partnerId = _247AROUND;
-                            $current_status = 'Pending';
-                            $internal_status = 'Spare Parts Cancelled';
+                            $current_status = _247AROUND_PENDING;
+                            $internal_status = SPARE_PARTS_CANCELLED;
                             $partner_status = $this->booking_model->get_partner_status($partnerId, $current_status, $internal_status);
                             if (!empty($partner_status)) {
                                 $this->booking_model->update_booking($booking_id, array("actor" => $partner_status[0]['actor'], "next_action" => $partner_status[0]['next_action']));
@@ -8501,6 +8501,7 @@ class Inventory extends CI_Controller {
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
      * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
     function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
@@ -8539,13 +8540,9 @@ class Inventory extends CI_Controller {
         } else {
             $return = "Not Exist";
         }
-        if (!empty($is_reason_required) && $is_reason_required == 1) {
-            $response['status'] = $return;
-            $response['reason'] = implode('<br>', array_filter($cancellation_reason));
-            echo json_encode($response);
-        } else {
-            echo $return;
-        }
+        $response['status'] = $return;
+        $response['reason'] = implode('<br>', array_filter($cancellation_reason));
+        echo json_encode($response);
     }
 
     function get_spare_delivered_status($booking_id) {
@@ -10275,6 +10272,28 @@ class Inventory extends CI_Controller {
 
 
         echo json_encode($array);
+    }
+    /**
+     *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
+     *  @param : booking_id
+     *  @return : JSON /status(sucess / error), count
+     * @Author: Ghanshyam
+     */
+    function booking_cancelled_rejected_count($booking_id) {
+        $where['old_state'] = SF_BOOKING_CANCELLED_STATUS; // Booking cancelled by SF
+        $where['new_state'] = _247AROUND_CANCELED_REJECTED; // Csncelled status rejected by Admin
+        $data = $this->booking_model->get_booking_state_change($booking_id, $where);
+        $count_cancelled_rejected = 0;
+        $status = '';
+        if (!empty($data)) {
+            $status = 'success';
+            $count_cancelled_rejected = count($data);
+        } else {
+            $status = 'error';
+        }
+        $return_array['status'] = $status;
+        $return_array['count'] = $count_cancelled_rejected;
+        echo json_encode($return_array);
     }
 
 }

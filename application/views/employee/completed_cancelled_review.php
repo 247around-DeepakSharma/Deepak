@@ -336,6 +336,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
              }
              else{
                     $tab = "#tabs-3";
+                    // Pagination for Wrong area Calls Tab
+                    if(!empty($sub_id)){
+                        $tab = "#tabs-6";
+                    }
                     if($review_status == "Completed"){
                         $tab = "#tabs-2";
                     }
