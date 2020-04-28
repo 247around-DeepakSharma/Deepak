@@ -9095,6 +9095,13 @@ class Inventory extends CI_Controller {
         $spare_parts_id = $this->input->post("spare_parts_id");
         $booking_id = $this->input->post("booking_id");
         $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "DELIVERED_PART_CANCELLED");
+        
+        /* Load data which is required i.e., remove all shipped details & courier details */
+        $spare_data = $this->miscelleneous->load_data_to_cancel_micro_wh_part($spare_parts_id, _247AROUND_CANCELLED, NULL);
+        /* update data of spare parts details */
+        $this->service_centers_model->update_spare_parts(['id' => $spare_parts_id], $spare_data);
+
+        
         //increase stock on cancel part
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,

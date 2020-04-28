@@ -29,7 +29,7 @@
                         ?>
                      <div class="radio">
                         <label>
-                           <input class="inputradio <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==CANCELLATION_REASON_WRONG_AREA){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" <?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if($data1->reason == $engineer_data[0]['cancellation_reason']){ echo "checked"; }  }  } ?> required>
+                           <input class="inputradio <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==CANCELLATION_REASON_WRONG_AREA){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->id;?>" <?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if($data1->reason == $engineer_data[0]['cancellation_reason']){ echo "checked"; }  }  } ?> required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
@@ -85,7 +85,7 @@
                             }
                        }
                    } ?>
-                    <?php 
+                   <?php 
                    //if current status is completed or cancelled by admin. SF cannot cancel the booking.
                    if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
                     echo "<center><b>This booking is ".$bookinghistory[0]['current_status']." by Admin. You cannot cancel this booking.</b></center>";}

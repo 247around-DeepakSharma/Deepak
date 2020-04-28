@@ -5666,11 +5666,11 @@ class Booking extends CI_Controller {
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($cancellation_reason_id)){
-                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
-                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+                // $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'"'] = NULL;
             }
         }        
         
