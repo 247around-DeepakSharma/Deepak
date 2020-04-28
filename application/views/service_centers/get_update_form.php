@@ -605,16 +605,9 @@
                             <textarea class="form-control remarks"  id="sc_remarks" name="sc_remarks" value = "" placeholder="Enter Remarks" rows="5" ></textarea>
                         </div>
                     </div>
-                    <?php 
-                   //if current status is completed or cancelled by admin. SF cannot update the booking.
-                   if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
-                    echo "<center><b>This booking is ".$bookinghistory[0]['current_status']." by Admin. You cannot update this booking.</b></center>";}
-                    else {
-                    ?>
                     <div class="col-md-6 col-md-offset-2">
                         <input type="submit"  value="Update Booking" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
                     </div>
-                <?php }?>
                 </form>
             </div>
         </div>
