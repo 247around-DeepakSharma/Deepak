@@ -2435,3 +2435,6 @@ INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
 
 -- Ankit Rajvanshi 23-04-2020
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'booking_cancel_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking cancellation is %s.', NULL, '1', '0', CURRENT_TIMESTAMP), (NULL, 'booking_reschedule_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking reschedule is %s.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
+ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
