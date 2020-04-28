@@ -1160,18 +1160,18 @@ class Service_centers extends CI_Controller {
 
 
             switch ($cancellation_reason) {
-                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
+                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID :
                     //Called when sc choose Product not delivered to customer 
                     $this->convert_booking_to_query($booking_id, $partner_id);
 
                     break;
 
                 default :
-                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA) {
+                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA_ID) {
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_CALL_AREA_TEMPLATE);
                     }
 
-                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON) {
+                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
                         $pinupdate = array(
                             'booking_pincode' => $correctpin
                         );

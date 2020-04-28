@@ -244,11 +244,12 @@ function get_data_for_partner_callback($booking_id) {
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
-                . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
+                . ' booking_cancellation_reasons.reason as cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
                 . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d"))<0 THEN 0 ELSE '
                 . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
+        $this->db->join('booking_cancellation_reasons','booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
         $this->db->join('users','users.user_id = booking_details.user_id');
         if($state == 1){
             $this->db->join('agent_filters','agent_filters.state = booking_details.state', "left");
@@ -454,12 +455,14 @@ function get_data_for_partner_callback($booking_id) {
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
-			BD.current_status, BD.cancellation_reason, rating_stars,BD.partner_current_status,BD.partner_internal_status,
+			BD.current_status, booking_cancellation_reasons.reason as cancellation_reason, rating_stars,BD.partner_current_status,BD.partner_internal_status,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
 			UD.appliance_brand as brand, UD.model_number, UD.appliance_description as description,
 			name, phone_number, home_address, pincode, users.city
-			FROM booking_details as BD, users, services, booking_unit_details as UD
+			FROM booking_details as BD
+                        LEFT JOIN booking_cancellation_reasons ON (BD.cancellation_reason = booking_cancellation_reasons.id)
+                        , users, services, booking_unit_details as UD
 			WHERE BD.booking_id NOT REGEXP '^Q-' AND
 			BD.booking_id = UD.booking_id AND
 			BD.service_id = services.id AND
@@ -1890,9 +1893,10 @@ function get_data_for_partner_callback($booking_id) {
                 . "GROUP_CONCAT(booking_unit_details.appliance_brand) as appliance_brand,booking_details.booking_jobcard_filename,"
                 . "service_center_booking_action.internal_status,users.name,booking_details.booking_primary_contact_no,booking_details.city,booking_details.state,"
                 . "STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,"
-                . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,service_center_booking_action.cancellation_reason",FALSE);
+                . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,booking_cancellation_reasons.reason as cancellation_reason",FALSE);
         $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("services","booking_details.service_id = services.id");
+        $this->db->join("booking_cancellation_reasons","service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id");
         $this->db->join("booking_unit_details","booking_unit_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("users","users.user_id = booking_details.user_id");
         $this->db->group_by("service_center_booking_action.booking_id");

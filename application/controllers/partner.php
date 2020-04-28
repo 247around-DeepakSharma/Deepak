@@ -1226,7 +1226,7 @@ class Partner extends CI_Controller {
         $booking_id = $request['247aroundBookingID'];
         $booking['current_status'] = $details['current_status'] = $details['internal_status'] = $unit_details['booking_status'] = "Cancelled";
         $booking['internal_status'] = "Cancelled";
-        $booking['cancellation_reason'] = $details['cancellation_reason'] = "Other : " . $request['cancellationReason'];
+        $booking['cancellation_reason'] = $details['cancellation_reason'] = OTHERS_CANCELLATION_ID;
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
 
         //check partner status from partner_booking_status_mapping table  

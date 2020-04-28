@@ -4111,7 +4111,7 @@ class Partner extends CI_Controller {
                     $next_action = $partner_status[3];
                 }
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
+                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "partner_current_status" => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
                 
                 $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));

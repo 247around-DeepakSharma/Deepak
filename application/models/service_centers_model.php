@@ -197,11 +197,12 @@ class Service_centers_model extends CI_Model {
 
         $this->db->select('booking_details.booking_id, booking_details.flat_upcountry, users.name as customername, booking_details.booking_primary_contact_no, '
                 . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_details.closing_remarks, '
-                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type,'
+                . 'booking_cancellation_reasons.reason as cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type,'
                 . '(CASE WHEN booking_details.assigned_engineer_id is not NULL AND booking_details.assigned_engineer_id = 24700001
                     THEN "Default Engineer" WHEN booking_details.assigned_engineer_id is not null THEN engineer_details.name ELSE "-" END) as Engineer');
         $this->db->from('booking_details');
         $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id', 'left');
         $this->db->where('booking_details.current_status', $status);
@@ -301,13 +302,14 @@ class Service_centers_model extends CI_Model {
         }
         
          if(!$select){
-             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
+             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,booking_cancellation_reasons.reason as cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as age"
                 . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
+                . " JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
                 . " JOIN partners ON booking_details.partner_id = partners.id "
                 . "$join"
                 . " WHERE sc.current_status = 'InProcess' "

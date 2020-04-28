@@ -1194,7 +1194,7 @@ class vendor_model extends CI_Model {
      *  @return : array of cancellation reason count
      */
     function getcancellation_reason($service_center_id) {
-        $sql = "SELECT cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
+        $sql = "SELECT booking_cancellation_reasons.reason as cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id) where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
 
         $data = $this->db->query($sql);
         log_message('info', __METHOD__ . "=> Cancellation Reaon: " . $this->db->last_query() );
