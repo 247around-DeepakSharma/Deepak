@@ -3433,7 +3433,8 @@ exit();
                     $sc_details['last_payment_amount'] = "";
                     $sc_details['last_payment_type'] = "";
                 }
-                
+               
+                $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3578,6 +3579,39 @@ exit();
             return 0;
         }
     }
+    
+    /**
+     * @desc : Method returns FNF Security Deposit.
+     * @param type $service_center_id
+     * @param type $due_date
+     * @return int
+     */
+    function get_fnf_summary_amount($service_center_id, $due_date=false){
+        $select_invoice = " CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END"
+                . " as fnf_amount";
+       
+        if($due_date){
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
+            "settle_amount" => 0);
+        }
+        else{
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0); 
+        }
+        
+        $where_invoice['where_in']['sub_category'] = array(FNF);
+        $where_invoice['length'] = -1;
+        $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+        
+        if(!empty($data)){
+            return $data[0]->fnf_amount;
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * @desc Used to get header of payment csv file
      * @return Array
@@ -3639,6 +3673,7 @@ exit();
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
+        $sc_details['fnf_security_amount'] = "FNF Security Deposit";
 
         return $sc_details;
     }
