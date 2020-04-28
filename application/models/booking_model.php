@@ -736,8 +736,10 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name
-               . "from booking_details, users, services " . $service_centre .$partner
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason "
+               . "from booking_details "
+               . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
+               . " users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
@@ -788,8 +790,10 @@ class Booking_model extends CI_Model {
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name "
-               . "from booking_details, users, services ,partners "
+            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
+               . "from booking_details "
+               . "LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id), "
+               . "users, services ,partners "
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  "
@@ -2178,6 +2182,7 @@ class Booking_model extends CI_Model {
     function get_partner_logo($select,$where){
         $this->db->select($select);
         $this->db->where($where);
+        $this->db->order_by('logo_priority','ASC');
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }

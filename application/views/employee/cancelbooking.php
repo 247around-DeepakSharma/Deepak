@@ -152,7 +152,7 @@ function check_text(){
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                        <input type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                        <input type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->id;?>" required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
@@ -162,7 +162,7 @@ function check_text(){
                     
                      <div class="radio">
                         <label>
-                        <input type="radio"  name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->status;?>" required>
+                        <input type="radio"  name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->id;?>" required>
                         <?php  echo $data1->status;?>
                         </label>
                      </div>

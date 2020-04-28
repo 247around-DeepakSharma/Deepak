@@ -557,7 +557,8 @@ class Miscelleneous {
 
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, $cancelled_by) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
-        $data['internal_status'] = $data['cancellation_reason'] = $cancellation_reason;
+        $data['internal_status'] = $cancellation_text;
+        $data['cancellation_reason'] = $cancellation_reason;
         $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
