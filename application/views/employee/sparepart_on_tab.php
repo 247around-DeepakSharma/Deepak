@@ -1969,6 +1969,82 @@
      spare_parts_requested_table.ajax.reload( function ( json ) { 
             $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
         },false );
+        
+        estimate_cost_requested_table.ajax.reload( function ( json ) { 
+            $("#total_req_quote").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        estimate_cost_given_table.ajax.reload( function ( json ) { 
+            $("#total_quote_given").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        spare_parts_requested_table_approved.ajax.reload( function ( json ) { 
+            $("#total_approved_spare").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+         spare_parts_requested_table_reject.ajax.reload( function ( json ) { 
+            $("#total_rejected_spare").html('(<i>'+json.total_rejected+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        oow_part_shipped_table.ajax.reload( function ( json ) { 
+            $("#total_oow_shipped_part_pending").html('(<i>'+json.oow_shipped_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+         partner_shipped_part_table.ajax.reload( function ( json ) { 
+            $("#total_partner_shipped_part").html('(<i>'+json.partner_shipped_part+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        sf_received_part_table.ajax.reload( function ( json ) { 
+            $("#total_sf_received_part").html('(<i>'+json.delivered_to_sf+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        total_part_shipped_to_sf_table.ajax.reload( function ( json ) { 
+            $("#total_part_shipped_to_sf").html('(<i>'+json.shipped_part_to_sf+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        courier_lost_spare_parts_table.ajax.reload( function ( json ) { 
+            $("#total_courier_lost").html('(<i>'+json.courier_lost+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_pending_table.ajax.reload( function ( json ) { 
+            $("#total_all_defective").html('(<i>'+json.defective_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_pending_table.ajax.reload( function ( json ) { 
+            $("#total_all_defective").html('(<i>'+json.defective_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_oot_table.ajax.reload( function ( json ) { 
+            $("#total_defective_oot").html('(<i>'+json.oow_defective+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_shipped_by_sf_table.ajax.reload( function ( json ) { 
+            $("#total_courier_audit").html('(<i>'+json.courier_audit+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        courier_approved_defective_parts_table.ajax.reload( function ( json ) { 
+            $("#total_in_transit").html('(<i>'+json.in_transit+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_shipped_by_SF_approved_table.ajax.reload( function ( json ) { 
+            $("#total_defective_received_by_wh").html('(<i>'+json.defective_shipped_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_rejected_by_wh_table.ajax.reload( function ( json ) { 
+            $("#total_defective_rejected_by_wh").html('(<i>'+json.defective_rejected_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        return_defective_parts_from_wh_to_partner_table.ajax.reload( function ( json ) { 
+            $("#total_defective_return_to_partner").html('(<i>'+json.defective_return_to_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        
+        defective_part_rejected_by_partner_table.ajax.reload( function ( json ) { 
+            $("#total_defective_rejected_partner").html('(<i>'+json.defective_rejected_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        
+        
     });
     
     function uncheckedPickupScheduleCheckbox(sequence_id){
