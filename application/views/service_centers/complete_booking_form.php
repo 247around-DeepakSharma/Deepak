@@ -674,11 +674,17 @@
                                 $is_upcountry = 1;
                             }
                             ?>
+                            <?php 
+                            if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
+                                echo "<center><b>This booking is completed or cancelled by Admin. You cannot complete this booking.</b></center>";}
+                                else {
+                                    ?>
                             <center style="margin-top:60px;">
                                 <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $is_upcountry; ?>', '<?php echo $k_count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                             </center>
                         <?php }?>
+                       <?php }?> 
                     </div>
                     
             </div>
