@@ -44,10 +44,11 @@ class SFauthorization_certificate {
                         $response_file_name = $response['output_pdf_file'];
                         $this->CI->sf_authorization_model->update_authorization_certificate_details($sf_id, $response_file_name,$finacial_year);
                     }
+                    return TRUE;
                 }
             }
         }
-        return TRUE;
+        return FALSE;
     }
 
     /*

@@ -2442,6 +2442,9 @@ ALTER TABLE `boloaaka`.`service_centres`
 CHANGE COLUMN `has_authorization_certificate` `has_authorization_certificate` TINYINT(1) NOT NULL DEFAULT '0' ;
 ALTER TABLE `boloaaka`.`service_centres` 
 ADD COLUMN `auth_certificate_file_name` TEXT NULL AFTER `has_authorization_certificate`;
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `auth_certificate_validate_year` VARCHAR(9) NULL DEFAULT NULL AFTER `auth_certificate_file_name`;
+-----------------------------------
 
 ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
 ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
