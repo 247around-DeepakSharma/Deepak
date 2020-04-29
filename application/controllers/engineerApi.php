@@ -2528,6 +2528,10 @@ class engineerApi extends CI_Controller {
                 }
             }
             if ($check_serial['status']) {
+		/* Check for duplicate Part Request */
+                $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
+		if($duplicate_part['status'])
+		{				
                 /* Check part warranty status */
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
                 foreach ($requestData['part'] as $key => $value) {
@@ -2620,7 +2624,12 @@ class engineerApi extends CI_Controller {
                   log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
                   $this->sendJsonResponse(array('0035', $response->message));
                   }
-                 */
+                 */ 
+		}else{
+		log_message("info", __METHOD__ . "Duplicate Part Request");
+                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+		}					
+				 		 
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
@@ -2629,6 +2638,30 @@ class engineerApi extends CI_Controller {
             log_message("info", __METHOD__ . "Request validation failed " . $validation['message']);
             $this->sendJsonResponse(array('0036', $validation['message']));
         }
+    }
+
+
+
+    /**
+     * @desc This function is used to check same part already requested or not.
+     * DO Not allow to sf to request part if same part already requested
+     * @return Array
+     * @Author : Abhishek Awasthi
+     */
+    function is_part_already_requested($parts_requestedm,$booking_id) {
+        $array = array();
+        foreach ($parts_requested as $value) {
+            if (isset($value['parts_type'])) {
+                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+                    "parts_requested_type" => $value['parts_type']));
+                if (!empty($data)) {
+                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+                    break;
+                }
+            }
+        }
+        return $array;
     }
 
     function validateSparePartsOrderRequest($requestData) {
