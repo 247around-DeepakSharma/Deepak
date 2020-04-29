@@ -195,6 +195,8 @@
             if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == 'admin'){  ?>
             <li><a target="_blank" href="https://forms.gle/Bbvh95cKXDHQcWB8A" >Feature Requirement</a></li>
             <?php } ?>
+            <!-- Admin SF authorization certificate link-->
+            <li><a href="<?php echo base_url('employee/sf_authorization_certificate'); ?>">SF Authorization Certificate</a></li>
             <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
             </ul>
            

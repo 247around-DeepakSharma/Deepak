@@ -600,6 +600,11 @@ class Login extends CI_Controller {
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0,$sc_details[0]['primary_contact_email'],$agent['full_name']);
                 
                 if($this->session->userdata('is_sf') === '1'){
+                    //CRM-6107
+                    $this->session->set_userdata(array(
+                        'has_authorization_certificate'=>$sc_details[0]['has_authorization_certificate'],
+                        'auth_certificate_file_name'=>$sc_details[0]['auth_certificate_file_name']
+                            ));
                     redirect(base_url() . "service_center/dashboard");
                 }else if($this->session->userdata('is_cp') === '1'){
                     redirect(base_url() . "service_center/buyback/bb_order_details");
