@@ -1589,6 +1589,7 @@ class Miscelleneous {
 
     /*
      * This Functiotn is used to send sf not found email to associated rm
+     * @param $rm_email = ASM mail ID
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner, $rm_id='') {
@@ -1598,7 +1599,7 @@ class Miscelleneous {
         
         if(!empty($rm_id)) {
             $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
-            
+            // Add RM Email Id in CC
             if(!empty($managerData)) {
                 $cc .= $managerData[0]['official_email'];
             }
@@ -1637,8 +1638,8 @@ class Miscelleneous {
     }
 
     /*
-     * This Functiotn is used to map rm to pincode, for which SF not found
-     * if pincode does'nt have any rm then an email will goes to nitin
+     * This Functiotn is used to map asm to pincode, for which SF not found
+     * if pincode does'nt have any asm then an email will goes to rm if rm not found then to nitin
      * @input - An associative array with keys(booking_id,pincode,city,applianceID)
      */
 
@@ -1648,20 +1649,20 @@ class Miscelleneous {
         }
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $pincode =  $booking['booking_pincode'];
-        $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
+        $result = $this->My_CI->reusable_model->get_asm_for_pincode($notFoundSfArray['pincode']);
         
         if (!empty($result)) {
-            $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
+            $notFoundSfArray['asm_id'] = $result[0]['asm_id'];
             $notFoundSfArray['state'] = $result[0]['state_id'];
             
-            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
-            $rm_email = $query->result_array();
-            if (empty($rm_email)) {
-                $rm_email[0]['official_email'] = NULL;
+            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['asm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
+            $asm_email = $query->result_array();
+            if (empty($asm_email)) {
+                $asm_email[0]['official_email'] = NULL;
             }
             
             $subject = "SF Not Exist in the Pincode " . $pincode;
-            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE, $result[0]['rm_id']);
+            $this->send_sf_not_found_email_to_rm($booking, $asm_email[0]['official_email'],$subject, TRUE, $result[0]['asm_id']);
         }else{
             $pincodeJsonData = $this->google_map_address_api($pincode);
             $pincodeArray = json_decode($pincodeJsonData,true);
@@ -1674,8 +1675,13 @@ class Miscelleneous {
                         $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
                         if(!is_null($pincode) && !is_null($state) && !is_null($city))
                             $this->process_if_pincode_valid($pincode,$state,$city);
-                       //Update State and City in sf_not_exist_booking_details
-                        $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
+                        // Update ASM,State and City in sf_not_exist_booking_details
+                        $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
+                        // If ASM not found ,get RM details
+                        if(empty($resultTemp)){
+                            $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                        }
+                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
