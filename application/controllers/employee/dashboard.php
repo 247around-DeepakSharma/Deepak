@@ -2774,7 +2774,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function send_missing_pincode_details(){
         log_message('info', __METHOD__ . "=>start");
-       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",array("employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL
+       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email,employee.groups",array("employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL
                ,NULL,NULL,NULL,NULL,array());
         $data['serviceData']= $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,NULL,NULL,NULL);
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
@@ -2783,14 +2783,23 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 log_message('info', __METHOD__ . "=>rm_details =".print_r($rmDetails,TRUE));
                 $data['rmPincodeDetails'] = $this->get_missing_pincode_data_group_by_state_appliance($rmDetails['agent_id']);
                 if($data['rmPincodeDetails']){
+                    // Get data is found against ASM, get its RM Details
+                    if($rmDetails['groups'] == _247AROUND_ASM){
+                        $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rmDetails['agent_id'], 'employee.groups IN ("'._247AROUND_RM.'")'=>NULL));
+                    }
                     $msg = $this->load->view('employee/missing_pincode_report',$data,TRUE);
                     $email['msg'] = $msg;
                     $emailBody = vsprintf($template[0], $email);
                     $subjectBody = $template[4];
                     $to = $rmDetails['official_email'];
+                    $cc = "";
+                    // Add RM mail in CC
+                    if(!empty($managerData[0]['official_email'])) {
+                        $cc = $managerData[0]['official_email'];
+                    }
                     $bcc = $template[5];
                     log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,$cc, $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                 }
             }
         } 
