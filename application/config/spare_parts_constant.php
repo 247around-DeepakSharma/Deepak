@@ -143,6 +143,7 @@ define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel uploa
 define('UPLOAD_MSL_EXCEL_FILE', 'Upload msl excel file');
  
 define('NRN_APPROVED_BY_PARTNER', 'NRN Approved By Partner');
+define('NRN_REVERSE_BY_PARTNER', 'NRN Reverse by Partner');
 define('NRN_TO_BE_APPROVED_BY_PARTNER', 'NRN To Be Approved By Partner');
 define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
  

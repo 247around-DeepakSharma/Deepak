@@ -4564,8 +4564,8 @@ function submitPreviousPartsConsumptionData(){
         $latlong =array();
         $supcordinate = array();
         foreach($state_coordinates as $key => $coordinate){
-            $latlong['lat'] = $coordinate[0];
-            $latlong['long'] = $coordinate[1];
+            $latlong['long'] = $coordinate[0];
+            $latlong['lat'] = $coordinate[1];
             $supcordinate[] = $latlong;
         }
 
