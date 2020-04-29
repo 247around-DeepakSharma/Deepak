@@ -2462,3 +2462,6 @@ ADD COLUMN `auth_certificate_validate_year` VARCHAR(9) NULL DEFAULT NULL AFTER `
 ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
 ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
 
+-- Prity 29-04-2020
+-- 73
+ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
