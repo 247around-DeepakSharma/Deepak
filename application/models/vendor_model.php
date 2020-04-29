@@ -150,6 +150,15 @@ class vendor_model extends CI_Model {
             $this->db->where($post['where']);
         }
 
+        // RM/AM mapping//
+        if(!empty($post['where_in'])){
+            foreach ($post['where_in'] as $fieldName=>$conditionArray){
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
+            }
+        }
+
         if (!empty($post['search_value'])) {
             $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
