@@ -488,13 +488,10 @@ class engineerApi extends CI_Controller {
             case 'getAccessories':
                 $this->getgetAccessoriesList();  //// Getting parents
                 break;
-
-            /*   this API used to All Acceceries */
-            case 'getAccessories':
-                $this->getgetAccessoriesList();  //// Getting parents
+            /*   this API used to send OTP for Cancel/Rescedule */
+            case 'sendCancelRescheduleOTP':
+                $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
                 break;
-
-
             default:
                 break;
         }
@@ -4625,6 +4622,47 @@ function submitPreviousPartsConsumptionData(){
             $accessories = $this->accessories_model->show_accessories_list();  
          $this->jsonResponseString['response'] = $accessories; // All Data in response//
             $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
+
+    /**
+     * @Desc: This function is to used to send OTP for Cancel/Reschedule
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 29-04-2020
+     */
+
+    function sendCancelRescheduleOTPCustomer(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id"), $requestData);
+        if ($validation['status']) {
+            /* CURL Call */             
+            $url = base_url() . 'employee/service_centers/send_otp_customer';
+            $fields = array(
+                'booking_id' => $requestData['booking_id'],
+                'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG
+            );
+            //url-ify the data for the POST
+            $fields_string = http_build_query($fields);
+            //open connection
+            $ch = curl_init();
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+            //execute post
+            $result = curl_exec($ch);
+            //close connection
+            curl_close($ch);
+            $this->jsonResponseString['response'] = $result; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response // 
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 

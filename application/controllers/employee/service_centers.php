@@ -9630,6 +9630,7 @@ class Service_centers extends CI_Controller {
             $this->session->set_userdata('cancel_booking_otp', $otp);
         }
         // setting sms data.
+
         $sms['tag'] = $tag;
         $sms['phone_no'] = $booking_primary_contact_number;
         $sms['booking_id'] = $booking_id;
