@@ -1676,7 +1676,6 @@ class Miscelleneous {
                             $this->process_if_pincode_valid($pincode,$state,$city);
                        //Update State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
-                        //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
