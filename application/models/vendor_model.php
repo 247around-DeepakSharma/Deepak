@@ -101,7 +101,7 @@ class vendor_model extends CI_Model {
         return $result;
     }
 
-    / /**
+     /**
      * @Desc: This function is used to get data of all service centers count
      * @params: $post array
      * @Author : Abhishek Awasthi
