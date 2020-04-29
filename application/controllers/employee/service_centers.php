@@ -1310,8 +1310,11 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
-            return TRUE;
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf')) ) {
+            if(!empty($this->session->userdata('has_authorization_certificate')) && ($this->session->userdata('has_authorization_certificate') == 1)){
+                return TRUE;
+            }
+            
         } else {
             log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();

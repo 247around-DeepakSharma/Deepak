@@ -747,6 +747,11 @@ define("ACCOUNT_EMAIL_ID", "accounts@247around.com");
 define("TALEVAR_USER_ID", "400555");
 // End CRM-3450
 
+if(ENVIRONMENT == 'development'){
+    define('TMP_FOLDER','/var/www/localhost.247around.com');
+}
+
+
 define('DASHBOARD_INVOICE_PROCESS_1', 'dashboard_process_1');
 define('DASHBOARD_INVOICE_PROCESS_2', 'dashboard_process_2');
 define('DASHBOARD_INVOICE_PROCESS_3', 'dashboard_process_3');
@@ -762,6 +767,7 @@ define('OTHERS_CANCELLATION_ID', 1000);
 define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID',21);
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON', 30);
 define('_247AROUND_WRONG_PINCODE_CANCEL_REASON_ID', 1014);
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
