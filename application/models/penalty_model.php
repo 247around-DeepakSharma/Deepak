@@ -144,14 +144,7 @@ class Penalty_model extends CI_Model {
             $data['agent_id'] = isset($value['agent_id']) && !empty($value['agent_id']) ? $value['agent_id'] : NULL;
             $data['remarks'] = isset($value['remarks']) && !empty($value['remarks']) ? $value['remarks'] : NULL;
             $data['criteria_id'] = $penalty_details['id'];
-            if(!$penalty){
-               
-                $data['penalty_amount'] = $penalty_details['penalty_amount'];
-            }
-            else
-             {
-                $data['penalty_amount'] = $penalty;
-            }
+            $data['penalty_amount'] = $penalty_details['penalty_amount'];
             $data['active'] = 1;
             $data['create_date'] = date('Y-m-d H:i:s');
             $data['agent_type'] = $value['agent_type'];
