@@ -2101,8 +2101,8 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
-ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
+ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
 -------------------------------------------------------------
 
@@ -2319,7 +2319,6 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
- 
 ---Gorakh 01 Apr 2020
 UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
 
@@ -2500,4 +2499,3 @@ CREATE TABLE non_inventory_partners_part_type (
 
 ---Ghanshyam 2020-04-13
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
-

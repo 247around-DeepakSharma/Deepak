@@ -3841,12 +3841,14 @@ class Inventory_model extends CI_Model {
      */
     function update_non_inventory_partners_part_type($data,$where){
         $this->db->where($where);
-	$this->db->update('non_inventory_partners_part_type', $data);
+	    $this->db->update('non_inventory_partners_part_type', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{
             return false;
         }
+    }
         
-    }    
+    
+   
 }

@@ -171,6 +171,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_shipped_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -205,7 +206,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "in_transit" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -237,7 +239,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "courier_audit" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -274,7 +277,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_rejected_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -317,6 +321,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_rejected_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -399,43 +404,124 @@ class Spare_parts extends CI_Controller {
 
         return $row;
     }
-
-    /**
-     * @desc Used to create tab in which we are showing
-     * Part delivered to sf 
-     * @param Array $post
+      
+     /*
+     * @desc: Used to create tab in which we are showing
+     * Return: Defective Part To Warehouse
+     * @param: Array $post
      */
-    function get_part_delivered_to_sf($post){
-        log_message('info', __METHOD__. json_encode($post, true));
-        
+    function get_return_defective_part_from_wh_partner($post) {
+        log_message('info', __METHOD__);
+
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
-                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
-                . "spare_parts_details.acknowledge_date, challan_approx_value, status ,inventory_master_list.part_number,im.part_number as shipped_part_number,spare_parts_details.quantity,spare_parts_details.shipped_quantity, spare_parts_details.awb_by_partner";
-        if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
-            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, NULL, NULL, 'service_centres.name', NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL,NULL, NULL,NULL,NULL, NULL, 'age_of_delivered_to_sf', NULL);
-        } else {
-            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id',NULL, NULL, NULL,'service_centres.name', NULL, NULL,NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL,NULL, NULL, NULL,'age_part_pending_to_sf',NULL);
-        }
+                . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped, rejected_defective_part_pic_by_wh,"
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'defective_parts_shippped_date_by_wh', NULL, NULL, NULL, NULL, NULL);
+
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
-            'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type', 'spare_parts_details.shipped_date', 'spare_parts_details.awb_by_partner');
-
+            'users.name', 'users.phone_number', 'defective_part_shipped', 'booking_details.request_type');
+        
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
             $no++;
-            $row =  $this->parts_delivered_to_sf_table_data($spare_list, $no);
+            $row = $this->return_defective_part_from_wh_to_partner_table_data($spare_list, $no);
             $data[] = $row;
         }
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_return_to_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
+
+        echo json_encode($output);
+    }
+
+      
+     /**
+     * @desc This Function Is Used To Create Table Row Data For The Return Defective Part To Warehouse Tab
+     * @param Array $spare_list
+     * @param int $no
+     * @return Array
+     */
+    
+    function return_defective_part_from_wh_to_partner_table_data($spare_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
+            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+            if (!empty($wh_details)) {
+                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            } else {
+                $spare_pending_on = 'Warehouse';
+            }
+        } else {
+            $spare_pending_on = 'Partner';
+        }
+        $row[] = $spare_pending_on;
+        $row[] = $spare_list->name;
+        $row[] = $spare_list->booking_primary_contact_no;
+        $row[] = $spare_list->sc_name;
+        $row[] = $spare_list->source;
+        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
+        $row[] = $spare_list->quantity;
+        $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->part_number;
+        $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->request_type . "</span>";
+        $row[] = (empty($spare_list->age_defective_part_shipped_date_wh)) ? '0 Days' : $spare_list->age_defective_part_shipped_date_wh . " Days";
+ 
+        return $row;
+    }
+    /**
+     * @desc Used to create tab in which we are showing
+     * Part delivered to sf 
+     * @param Array $post
+     */
+    function get_part_delivered_to_sf($post) {
+        log_message('info', __METHOD__ . json_encode($post, true));
+
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
+                . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
+                . "spare_parts_details.acknowledge_date, challan_approx_value, status ,inventory_master_list.part_number,im.part_number as shipped_part_number,spare_parts_details.quantity,spare_parts_details.shipped_quantity, spare_parts_details.awb_by_partner";
         
+        
+        if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, NULL, NULL, 'service_centres.name', NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL,NULL, NULL,NULL,NULL, NULL, 'age_of_delivered_to_sf', NULL);
+        } else {
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, NULL, NULL, 'service_centres.name', NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL);
+        }
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
+            'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type', 'spare_parts_details.shipped_date', 'spare_parts_details.awb_by_partner');
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->parts_delivered_to_sf_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "delivered_to_sf" => $this->inventory_model->count_spare_filtered($post),
+            "data" => $data,
+        );
+
         echo json_encode($output);
     }
     
@@ -476,7 +562,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_pending" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -503,7 +590,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "oow_shipped_pending" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -543,19 +631,13 @@ class Spare_parts extends CI_Controller {
             $row = $this->spare_parts_requested_table_data($spare_list, $no, $post['request_type'],$post['approved']);
             $data[] = $row;
         }
-        
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => SPARE_PART_ON_APPROVAL, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
-        if (!empty($spare_parts_list)) {
-            $total = count($spare_parts_list);
-        } else {
-            $total = 0;
-        }
+
 
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "requested_quote" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
             
         );
@@ -590,19 +672,12 @@ class Spare_parts extends CI_Controller {
             $row =  $this->spare_parts_rejected_table_data($spare_list, $no, $post['request_type']);
             $data[] = $row;
         }
-        
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => _247AROUND_CANCELLED, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
-        if (!empty($spare_parts_list)) {
-            $total = count($spare_parts_list);
-        } else {
-            $total = 0;
-        }
 
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "total_rejected" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
             
         );
@@ -643,12 +718,12 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
-            "unapproved" => $total,
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "courier_lost" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
             
         );
-        
+
         echo json_encode($output);
     }
 
@@ -751,7 +826,8 @@ class Spare_parts extends CI_Controller {
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "partner_shipped_part" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
         
@@ -1116,6 +1192,11 @@ class Spare_parts extends CI_Controller {
             $row[] = "";
         }
 
+        if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
+            $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 2)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+        } else {
+            $row[] = "";
+        }        
         return $row;
     }
     
@@ -1278,7 +1359,13 @@ class Spare_parts extends CI_Controller {
             
             $row[] = "";
         }
-        
+
+        if ($spare_list->is_micro_wh != 1 && ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager")) {
+            $row[] = '<button type="button" onclick="handle_rto_case('.$spare_list->id.', 1)" class="btn btn-md btn-info"><span class="glyphicon glyphicon-ok-sign"></span></button>';
+        } else {
+            $row[] = "";
+        }        
+
         return $row;
     }
     
@@ -4524,6 +4611,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "oow_defective" => $this->inventory_model->count_spare_oot_filtered($post),
             "data" => $data,
         );
 
@@ -4658,10 +4746,39 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->load->view("employee/spare_history_details",$data);
     }
     
-    
-    
-     
-
+    /**
+     * @desc This method is called when a part is marked cancelled through RTO case.
+     * @author Ankit Rajvanshi
+     */
+    function rto_case_spare() {
+        $this->checkUserSession();
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_id'];
+        
+        /* get spare part detail of $spare_id */ 
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $data['spare_id']], NULL, NULL, NULL, NULL, NULL)[0];
+        if (!empty($post_data['rto'])) {
+            // upload rto document.
+            $post_data['rto_file'] = NULL;
+            if (!empty($_FILES['rto_file'])) {
+                $rto_pod_file_name = $this->upload_rto_doc($spare_part_detail['booking_id'], $_FILES['rto_file']['tmp_name'], ' ', $_FILES['rto_file']['name']);
+                $post_data['rto_file'] = $rto_pod_file_name;
+            }
+            
+            /* fetch all spare associated with this awb number */
+            $spare_part_details = $this->reusable_model->get_search_result_data('spare_parts_details', 'id', ['awb_by_partner' => $spare_part_detail['awb_by_partner'], 'status != "'._247AROUND_CANCELLED.'"' => NULL], NULL, NULL, NULL, NULL, NULL);
+            if(!empty($spare_part_details)) {
+                foreach($spare_part_details as $spare_part) {
+                    $this->inventory_model->handle_rto_case($spare_part['id'], $post_data);
+                }
+            }
+            
+            /**
+             * Set is_rto is equals to 1 for awb_number in courier_company_invoice_details table.
+             */
+            $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
+        }
+    }
    
     /*
      * @desc: Used to create tab in which we are showing
@@ -4706,6 +4823,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "shipped_part_to_sf" => $this->inventory_model->count_spare_oot_filtered($post),
             "data" => $data,
         );
 
@@ -4755,49 +4873,84 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
      */
 
     function download_total_spare_shipped_part_sf_data() {
-        log_message('info', __METHOD__ . ' Processing...');
-        ini_set('memory_limit', '256M');
-        $download_flag = $this->input->post('download_flag');
+                log_message('info', __METHOD__ . ' Processing...');
+                ini_set('memory_limit', '256M');
+                $download_flag = $this->input->post('download_flag');
 
-        $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status',  booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number', spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
-                . "spare_parts_details.model_number_shipped as 'Shipped Model Number', spare_parts_details.parts_shipped as 'Shipped Part', spare_parts_details.shipped_parts_type as 'Shipped Parts Type', i.part_number as 'Shipped Part Number', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date',"
-                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age',"
-                . "challan_approx_value As 'Parts Charge', spare_parts_details.awb_by_partner as 'AWB By Partner', spare_parts_details.awb_by_sf as 'AWB By SF', spare_parts_details.awb_by_wh as 'AWB By WH',"
-                . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
-      
-        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
-        $post['where']['status NOT IN  ("' . _247AROUND_CANCELLED . '")'] = NULL;
-        $post['group_by'] = "spare_parts_details.id";
+                $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
+                        . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status',  booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number', spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+                        . "spare_parts_details.model_number_shipped as 'Shipped Model Number', spare_parts_details.parts_shipped as 'Shipped Part', spare_parts_details.shipped_parts_type as 'Shipped Parts Type', i.part_number as 'Shipped Part Number', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date',"
+                        . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age',"
+                        . "challan_approx_value As 'Parts Charge', spare_parts_details.awb_by_partner as 'AWB By Partner', spare_parts_details.awb_by_sf as 'AWB By SF', spare_parts_details.awb_by_wh as 'AWB By WH',"
+                        . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
 
-        if (!empty($download_flag)) {
-            $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
-            
-            
-            if ($spare_details) {
+                $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
+                $post['where']['status NOT IN  ("' . _247AROUND_CANCELLED . '")'] = NULL;
+                $post['group_by'] = "spare_parts_details.id";
 
-                $this->load->dbutil();
-                $this->load->helper('file');
+                if (!empty($download_flag)) {
+                    $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
 
-                $file_name = 'spare_part_shipped_to_sf_data_' . date('j-M-Y-H-i-s') . ".csv";
-                $delimiter = ",";
-                $newline = "\r\n";
-                $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
-                write_file(TMP_FOLDER . $file_name, $new_report);
 
-                if (file_exists(TMP_FOLDER . $file_name)) {
-                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
-                    $res1 = 0;
-                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
-                    $res['status'] = true;
-                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
-                } else {
-                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
-                    $res['status'] = FALSE;
-                    $res['msg'] = 'error in generating file';
+                    if ($spare_details) {
+
+                        $this->load->dbutil();
+                        $this->load->helper('file');
+
+                        $file_name = 'spare_part_shipped_to_sf_data_' . date('j-M-Y-H-i-s') . ".csv";
+                        $delimiter = ",";
+                        $newline = "\r\n";
+                        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+                        write_file(TMP_FOLDER . $file_name, $new_report);
+
+                        if (file_exists(TMP_FOLDER . $file_name)) {
+                            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                            $res1 = 0;
+                            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                            $res['status'] = true;
+                            $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                        } else {
+                            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                            $res['status'] = FALSE;
+                            $res['msg'] = 'error in generating file';
+                        }
+
+                        echo json_encode($res);
+                    }
                 }
+            }
 
-                echo json_encode($res);
+            /**
+     *  @desc : This function is used to upload the rto to s3.
+     * @param type $booking_id
+     * @param type $tmp_name
+     * @param type $error
+     * @param type $name
+     * @return boolean|string
+     * @author Ankit Rajvanshi
+     */
+    function upload_rto_doc($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_rto_pod_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "rto-pod/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            if ($upload_file_status) {
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'RTO pod has been uploaded sucessfully for booking_id: ' . $booking_id);
+                return $support_file_name;
+            } else {
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading rto pod file for booking_id: ' . $booking_id);
+                return False;
             }
         }
     }
