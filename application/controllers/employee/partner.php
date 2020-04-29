@@ -2136,9 +2136,11 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
            //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
-            if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
-            }
+            /*
+                if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+                }
+             */
                      
             /*
               if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
@@ -2160,7 +2162,7 @@ class Partner extends CI_Controller {
                 }
             }
         }
-    
+        
         $partner_id = $this->session->userdata('partner_id');
         if (!empty($this->input->post('courier_status'))) {
 
@@ -2174,7 +2176,7 @@ class Partner extends CI_Controller {
             $data['shipped_date'] = $this->input->post('shipment_date');
             //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
             $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-            $data['challan_approx_value'] = $this->input->post('approx_value');
+            //$data['challan_approx_value'] = $this->input->post('approx_value');
             //} 
             
             $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
@@ -2236,15 +2238,15 @@ class Partner extends CI_Controller {
         
         
         $shipped_part_details = $this->input->post("part");
-/* if parts empty no need to run loop */
+        /* if parts empty no need to run loop */
         if(!empty($shipped_part_details)) {
-        foreach ($shipped_part_details as $key => $val) {
+            foreach ($shipped_part_details as $key => $val) {
                 if (isset($val['spare_part_warranty_status'])) {
-            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    }
+                }
             }
-        }    
-    }
         }
 
 
@@ -2280,6 +2282,7 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['challan_approx_value'] = $value['approx_value'];
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;

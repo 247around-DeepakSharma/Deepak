@@ -10302,5 +10302,28 @@ class Inventory extends CI_Controller {
         $return_array['count'] = $count_cancelled_rejected;
         echo json_encode($return_array);
     }
+    
+    /*
+     *  @desc : This function is used to get spare part chages
+     *  @param : void
+     *  @return : $res array()
+     */
+
+    function get_spare_part_charges() {
+        $entity_type = $this->input->post('entity_type');
+        $entity_id = $this->input->post('entity_id');
+        $inventory_id = $this->input->post('inventory_id');
+        $data = array();
+        if ($entity_type == _247AROUND_PARTNER_STRING) {
+            if (!empty($inventory_id)) {
+                $where = array("inventory_master_list.entity_id" => $entity_id, "inventory_master_list.entity_type" => $entity_type, "inventory_master_list.inventory_id" => $inventory_id);
+                $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.gst_rate', $where);
+                if (!empty($inventory_details)) {
+                    $data['spare_part_price'] = sprintf("%.2f", $inventory_details[0]['price'] * (1 + $inventory_details[0]['gst_rate'] / 100));
+                }
+            }
+        }
+        echo json_encode($data);
+    }
 
 }
