@@ -26,7 +26,7 @@ class Warranty extends CI_Controller {
     }
 
     /**
-     *  @desc : This function will load warranty plans
+     *  @desc : This function is used to load warranty checker Panel
      *  @param: void
      *  @return : print warranty on warranty Page
      */
@@ -40,6 +40,11 @@ class Warranty extends CI_Controller {
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
     }
 
+    /**
+     * @desc This function is used to show existing warranty plans on the given appliance
+     * This view is called from AJAX from warranty checker panel
+     * Sub functions Used : in_warranty_data, warranty_data
+     */
     public function get_warranty_list_data() {
         $post = $this->get_post_data();
         $post_data = $this->input->post();
@@ -85,6 +90,10 @@ class Warranty extends CI_Controller {
         echo json_encode($output);
     }
     
+    /**
+     * @desc This function is used to get datatable post data from warranty checher panel
+     * @return type
+     */
     function get_post_data(){
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
@@ -97,6 +106,19 @@ class Warranty extends CI_Controller {
         return $post;
     }
     
+    /**
+     * @desc This function is used to generate rows of warranty plans on given model in warranty checker panel
+     * @parent_function : get_warranty_list_data
+     * @param type $warranty_list
+     * @param type $no
+     * @param type $period_start
+     * @param type $InWarrantyTimePeriod
+     * @param type $InWarrantyGracePeriod
+     * @param type $activeInWarrantyPlans
+     * @param type $activeExtendedWarrantyPlans
+     * @param type $create_date
+     * @return string
+     */
     function warranty_data($warranty_list, $no, $period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, &$activeInWarrantyPlans,&$activeExtendedWarrantyPlans, $create_date){
         $warranty_end_period = $period_start;
         $in_warranty_end_period = $period_start;
@@ -150,6 +172,15 @@ class Warranty extends CI_Controller {
         return $row;        
     }
     
+    /**
+     * @desc This function is used to generate row of default 1 year In-warranty plan on warranty checker panel
+     * @parent_function : get_warranty_list_data
+     * @param type $no : serial number
+     * @param type $purchase_date
+     * @param type $activeInWarrantyPlans
+     * @param type $create_date
+     * @return string
+     */
     function in_warranty_data($no, $purchase_date, &$activeInWarrantyPlans, $create_date){  
         $warranty_start_period = date('d-M-Y', strtotime($purchase_date));
         $warranty_end_period = date('d-m-Y', strtotime(date("Y-m-d", strtotime($purchase_date)) . " +1 year"));
@@ -179,6 +210,10 @@ class Warranty extends CI_Controller {
         return $row;        
     }
     
+    /**
+     * This function is called when Booking_id is entered in Warranty Checker panel (From Top Right Search Box)
+     * This function is used to fetch all parameters that are required for fetching a booking warranty status, from the Booking Id     * 
+    */
     public function get_warranty_specific_data_from_booking_id()
     {
         $booking_id = $this->input->post('booking_id');
@@ -190,7 +225,11 @@ class Warranty extends CI_Controller {
         }
         echo json_encode($arrBookings);
     }
-    
+    /**
+     * This view is called from 'Add Models to Plan' Menu
+     * This view will show all existing warranty plans and the models mapped to these plans 
+     * Data will be Shown Partner and Product wise (No data will be shown if partner and service is not selected)
+    */
     public function plan_model_mapping() {
         $this->miscelleneous->load_nav_header();
         $partner_id = "";
@@ -228,6 +267,10 @@ class Warranty extends CI_Controller {
         $this->load->view('warranty/plan_wise_models_view', $data);
     }
     
+    /**
+     * This function loads the view of Adding Models to warranty Plans
+     * also this function is used to Add models to warranty plans
+     */
     public function add_model_to_plan() {
         $arr_post = $this->input->post();
         $warranty_plans = $this->warranty_model->selectPlans();
@@ -252,6 +295,12 @@ class Warranty extends CI_Controller {
         $this->load->view('warranty/add_model_to_plan', array('warranty_plans' => $warranty_plans, 'appliance_models' => $appliance_models));    
     }
     
+    /**
+     * This function is used to unmap a mapped model from a warranty Plan.
+     * This function is called from AJAX
+     * @param : Primary key of warranty_plan_model_mapping
+     * @request_type : POST
+     */
     public function remove_model_from_plan() {
         $arr_post = $this->input->post();
         if(!empty($arr_post['mapping_id']))
@@ -261,6 +310,12 @@ class Warranty extends CI_Controller {
         }
     }    
  
+    /**
+     * This function is used to again map an un-mapped model in a warranty Plan.
+     * This function is called from AJAX
+     * @param : Primary key of warranty_plan_model_mapping
+     * @request_type : POST
+     */
     public function activate_model_to_plan() {
         $arr_post = $this->input->post();
         if(!empty($arr_post['mapping_id']))
@@ -270,6 +325,12 @@ class Warranty extends CI_Controller {
         }
     }
     
+    /**
+     * This function is used to activate a Warranty Plan
+     * This function is called from AJAX
+     * @param : Primary key of warranty_plans
+     * @request_type : POST
+     */
     public function activate_plan() {
         $arr_post = $this->input->post();
         if(!empty($arr_post['plan_id']))
@@ -279,6 +340,12 @@ class Warranty extends CI_Controller {
         }
     }
     
+    /**
+     * This function is used to de-activate a Warranty Plan
+     * This function is called from AJAX
+     * @param : Primary key of warranty_plans
+     * @request_type : POST
+     */
     public function deactivate_plan() {
         $arr_post = $this->input->post();
         if(!empty($arr_post['plan_id']))
@@ -289,7 +356,7 @@ class Warranty extends CI_Controller {
     }
     
      /**
-     *  @desc : This function is used display add warranty plan form
+     *  @desc : This function is used to display add warranty plan form
      *  @param : void
      *  @return : void
      */

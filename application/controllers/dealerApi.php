@@ -312,8 +312,7 @@ class dealerApi extends CI_Controller {
     }
 
 
-
-        /**
+    /**
      * Simple function to replicate PHP 5 behaviour
      */
     function microtime_float() {

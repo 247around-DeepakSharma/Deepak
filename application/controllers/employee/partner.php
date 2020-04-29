@@ -9306,15 +9306,29 @@ class Partner extends CI_Controller {
             $partner_id = $this->session->userdata('partner_id');
             $where = array('booking_id' => $booking_id, 'nrn_approved' => 1, 'partner_id' => $partner_id);
             $data = $this->booking_model->get_bookings_count_by_any($select, $where);
-
             if (count($data) > 0) {
                 $booking['nrn_approved'] = 0;
+                /* Change status of booking details table start here */
+                $booking['internal_status'] = NRN_REVERSE_BY_PARTNER;
+                $booking['current_status'] = _247AROUND_PENDING;
+                $actor = "";
+                $next_action = "";
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, NRN_REVERSE_BY_PARTNER, $partner_id, $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                /*Change status of booking details table ends here*/
                 $this->booking_model->update_booking($booking_id, $booking);
                 $data_service_center = array(
                     'current_status' => "InProcess",
                     'internal_status' => "InProcess",
                 );
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+                $new_state = NRN_REVERSE_BY_PARTNER;
+                $this->notify->insert_state_change($booking_id, $new_state, NRN_APPROVED_BY_PARTNER, NRN_REVERSE_BY_PARTNER, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, $partner_id);
                 echo 1;
             } else {
                 echo 0;
