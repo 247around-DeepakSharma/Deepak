@@ -473,22 +473,7 @@ class dashboard_model extends CI_Model {
  * This function get data from missing pincode table on the basis of rm id if rm id is null then it will return data group by on rm
  */    
      function get_pincode_data_for_not_found_sf($rm_id){
-         $this->db->_reserved_identifiers = array('*','CASE');
-//         if($rmID){
-//         $this->db->select('sf.pincode,sf.city,sf.state,sf.service_id,sf.rm_id,partners.public_name,services.services');
-//         $this->db->where('sf.rm_id',$rmID); 
-//             $this->db->join('employee', 'employee.id = sf.rm_id',"left");
-//         }
-//           else{
-//               $this->db->select('sf.pincode,sf.city,sf.state,sf.service_id,partners.public_name,services.services');
-//               $this->db->where('sf.rm_id IS NULL'); 
-//           }   
-//         $this->db->where('active_flag',1); 
-//         $this->db->where('is_pincode_valid',1); 
-//         $this->db->join('services', 'services.id = sf.service_id','left');
-//            $this->db->join('partners', 'partners.id = sf.partner_id',"left");
-//         return $this->db->get('sf_not_exist_booking_details sf')->result_array();
-         
+        $this->db->_reserved_identifiers = array('*','CASE');         
         if($rm_id){
          $where="where agent_state_mapping.agent_id= $rm_id and sf.active_flag=1 and sf.is_pincode_valid=1   and agent_state_mapping.id in(select max(id) from agent_state_mapping group by agent_id,state_code)";
         }
@@ -573,16 +558,6 @@ class dashboard_model extends CI_Model {
     return $data;
      }
      function get_missing_pincode_query_count_by_admin(){
-//          $this->db->select('COUNT(sf.pincode) as pincodeCount,employee.id,'
-//                    . '(CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END) AS full_name');
-//          $this->db->order_by('count(sf.pincode) DESC');
-//          $this->db->group_by('full_name'); 
-//          $this->db->where('sf.active_flag',1); 
-//          $this->db->where('sf.is_pincode_valid',1); 
-//          $this->db->join('employee', 'employee.id = sf.rm_id',"left");
-//           return $this->db->get('sf_not_exist_booking_details sf')->result_array();
-         
-         
             $sql='SELECT COUNT(sf.pincode) as pincodeCount,employee.id,(CASE  WHEN employee.full_name IS NULL THEN "NOT FOUND RM" ELSE employee.full_name END)'
                   .'AS full_name FROM sf_not_exist_booking_details sf LEFT JOIN state_code ON sf.state=state_code.id INNER JOIN agent_state_mapping '
                     . 'ON (state_code.state_code = agent_state_mapping.state_code) LEFT JOIN '
