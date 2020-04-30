@@ -6354,9 +6354,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-            //$courier_image['status']           
+            
             if (1) {
-
+                
                 $part = $this->input->post("part");
                 //$sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
