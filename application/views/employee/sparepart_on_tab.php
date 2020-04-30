@@ -552,7 +552,6 @@
                                         <th class="text-center" data-orderable="false">Partner Name</th>
                                         <th class="text-center" data-orderable="false">Spare Status</th>
                                         <th class="text-center" data-orderable="false">Spare Warranty Status</th>
-                                        <th class="text-center" data-orderable="false">NRN Status</th>
                                         <th class="text-center" data-orderable="false">Service Center Closed Date</th>
                                         <th class="text-center" data-orderable="false">Booking Request Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Model Number</th>
@@ -561,6 +560,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part Number</th>
                                         <th class="text-center" data-orderable="false">Spare Part Shipped Date</th>
                                         <th class="text-center" data-orderable="true">Spare Shipped Age</th>
+                                        <th class="text-center" data-orderable="false">NRN Status</th>
                                         <th class="text-center" data-orderable="false">TAT</th>
                                         <th class="text-center" data-orderable="false">Partner AWB Number</th>
                                         <th class="text-center" data-orderable="false">SF AWB Number</th>                                 
@@ -1675,7 +1675,7 @@
           defective_part_oot_table = $('#defective_part_oot_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[15, "asc"]], 
+            order: [[14, "asc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1702,7 +1702,7 @@
                     "orderable": true //set not orderable
                 },
                  {
-                  "targets": [15], //first column / numbering column
+                  "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],

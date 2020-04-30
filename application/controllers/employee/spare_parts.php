@@ -84,7 +84,7 @@ class Spare_parts extends CI_Controller {
         //log_message('info', __METHOD__ . print_r($_POST, true));
         
         $post = $this->get_spare_tab_datatable_data();
-        
+                
         switch ($post['type']) {
             case 0:
                 $this->get_spare_requested_tab($post);
@@ -128,9 +128,14 @@ class Spare_parts extends CI_Controller {
             case 13:
                 $this->get_part_rejected_by_warehouse($post);
                 break;
+            case 14:
+            /* Return Defective Part To Warehouse */
+                $this->get_return_defective_part_from_wh_partner($post);
             case 15:
                 /* Return Defective Part To Warehouse */
-                $this->get_defective_part_out_of_tat_pending($post);
+                if ($post['type'] == 15) {
+                    $this->get_defective_part_out_of_tat_pending($post);
+                }
                 break;
             case 16:
                 /* Total Parts Shipped To SF */
@@ -424,7 +429,7 @@ class Spare_parts extends CI_Controller {
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
             'users.name', 'users.phone_number', 'defective_part_shipped', 'booking_details.request_type');
-        
+              
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -432,7 +437,7 @@ class Spare_parts extends CI_Controller {
             $no++;
             $row = $this->return_defective_part_from_wh_to_partner_table_data($spare_list, $no);
             $data[] = $row;
-        }
+        }       
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
@@ -440,7 +445,7 @@ class Spare_parts extends CI_Controller {
             "defective_return_to_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
-
+        
         echo json_encode($output);
     }
 
@@ -4582,7 +4587,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.awb_by_wh,"
                 . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS spare_lost";
 
-        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL,);
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
             'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
@@ -4599,7 +4604,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
-
+        
         $no = $post['start'];
         $data = array();
         foreach ($list as $spare_list) {
@@ -4634,7 +4639,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $row[] = $spare_list->partner_name;
         $row[] = "<span class='line_break'>" . $spare_list->spare_status . "</span>";
         $row[] = $spare_list->spare_warranty_status;
-        $row[] = "<span class='line_break'>" . $spare_list->nrn_status . "</span>";
         $row[] = $spare_list->service_center_closed_date;
         $row[] = "<span class='line_break'>" . $spare_list->booking_request_type . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_model_number . "</span>";
@@ -4643,6 +4647,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
         $row[] = $spare_list->spare_part_shipped_date;
         $row[] = $spare_list->spare_shipped_age;
+        $row[] = "<span class='line_break'>" . $spare_list->nrn_status . "</span>";
         if ($spare_list->spare_shipped_age > 60) {
             $tat = 'Out Of TAT';
         } else {
