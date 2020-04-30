@@ -3907,7 +3907,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
     }
 
-    
     /**
      * @This function is used to fetch and return - total cancelled booking by reasons 
      *  We are showing cancelled booking by cancellation reason in pie chart on Dashboard
@@ -3955,6 +3954,95 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             trim(ob_get_clean());
             echo false;
         }
+    }
+    
+    /*
+     * Brandwise sales analytics to get total registered call count month wise for selected year's 
+     * 1-January to 31-December 
+     */
+    function brand_sales_analytics() {
+        $year = $this->input->post('sales_year');
+        $sales_partner = (!empty($this->input->post('sales_partner'))) ? $this->input->post('sales_partner') : array();
+        $where = 'year(str_to_date(booking_details.create_date,"%Y")) =' . $year;
+        $where_in = array();
+        if (count($sales_partner) > 0) {
+            $where = 'year(str_to_date(booking_details.create_date,"%Y")) =' . $year;
+            $where_in = array('booking_details.partner_id' => $sales_partner);
+        }
+        $select = 'month(str_to_date(booking_details.create_date,"%Y-%m-%d")) as month,count(*) as call_count,booking_details.partner_id,partners.public_name';
+        $group_by = 'booking_details.partner_id,month(str_to_date(create_date,"%Y-%m-%d"))';
+        $join = array(
+            'partners' => 'partners.id = booking_details.partner_id'
+        );
+        $is_am = 0;
+        if ($this->session->userdata('user_group') == _247AROUND_AM) {
+            $is_am = 1;
+            $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
+        }
+        $partnerWhere['partners.is_active'] = 1;
+        // Get registered call count month wise for selcted year
+        $registered_call_count = $this->reusable_model->get_search_result_data("booking_details", $select, $where, $join, NULL, NULL, $where_in, NULL, $group_by);
+        $is_am = 0;
+        if($this->session->userdata('user_group') == _247AROUND_AM){
+            $is_am = 1;
+            $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
+        }
+        $partnerWhere['partners.is_active'] = 1;
+        $partnerWhereIn['partners.id'] = $sales_partner;
+        // get partners deatils for selected brands
+        $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am,"",$partnerWhereIn);
+        $partners = array_column($partners,'public_name','id');
+        $calls = array();
+        $series = array();
+        foreach($registered_call_count as $registered_call){
+            // skip the current year's month data and set to zero
+            if(date('Y') == $year && date('m') == $registered_call['month']){
+                $calls[$registered_call['partner_id']][$registered_call['month']] = array(
+                    'call_count' => 0,
+                    'company_name' => $registered_call['public_name']
+                );
+            }else{
+                $calls[$registered_call['partner_id']][$registered_call['month']] = array(
+                    'call_count' => $registered_call['call_count'],
+                    'company_name' => $registered_call['public_name']
+                );
+            }
+            $calls[$registered_call['partner_id']]['public_name'] = $registered_call['public_name'];
+            // if partner has registered call count for selected year then unset from partners list
+            unset($partners[$registered_call['partner_id']]);
+        }
+        // partners who have no register call for selcted year and set call count zero
+        foreach($partners as $partner_id => $public_name){
+            for($i=1;$i<=12;$i++){
+                $calls[$partner_id][$i] = array(
+                    'call_count' => 0,
+                    'company_name' => $public_name
+                );
+                 $calls[$partner_id]['public_name']=$public_name;
+            }
+        }
+       $data['calls'] = $calls;
+       
+       foreach($calls as $partner => $months){
+           $node = array();
+           $node['name'] = $calls[$partner]['public_name'];
+           $node_data = array();
+           for ($i = 1; $i <= 12; $i++) {
+               if (isset($months[$i]['call_count'])) {
+                  $node_data[] = (int)$months[$i]['call_count'];
+                } else {
+                   $node_data[] = 0;
+                }
+           }
+           $node['data'] = $node_data;
+           $series[] = $node;
+       }
+       
+       
+       // load data in table format and retunn as string 
+       $arr['table_data'] = $this->load->view('employee/brand_sales_analytics',$data,true);
+       $arr['series'] = $series;
+       echo json_encode($arr,true);die;
     }
 
 }
