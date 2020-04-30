@@ -730,7 +730,7 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date);
+        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0);
         $msl_large_box_packaging_charge = array();
         $msl_small_box_packaging_charge = array();
         // We will get data only if large MSL box price will be greater than 0
@@ -1035,7 +1035,12 @@ class invoices_model extends CI_Model {
      */
     function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1) {
         $from_date = date('Y-m-d', strtotime('-6 months', strtotime($from_date_tmp)));
-        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        if($default == 1){
+            $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        } else {
+            $to_date =$to_date_tmp;
+        }
+        
         log_message("info", $from_date . "- " . $to_date);
         //Defective return by SF
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
