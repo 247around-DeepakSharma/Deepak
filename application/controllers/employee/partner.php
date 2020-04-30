@@ -3424,6 +3424,24 @@ class Partner extends CI_Controller {
     }
 
     /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_defective_parts_received_by_wh($offset = 0) {
+        $this->checkUserSession();
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/received_by_wh', $data);
+        $this->load->view('partner/partner_footer');
+    }
+    
+    /**
      * @Desc: This function is used to remove images from partner add/edit form
      *          It is being called using AJAX Request
      * params: partner id
@@ -9532,37 +9550,235 @@ class Partner extends CI_Controller {
      * @author: Ghanshyam
      */
     function process_search_docket() {
-        $docket_no = $this->input->post("docket_no");
+        $docket_no = trim($this->input->post("docket_no"));
         $html = "";
         $partner_id = $this->session->userdata('partner_id');
-        $notFoundData = array();
-        if (!empty($docket_no)) {
-            $docket_no = explode(",", $docket_no);
-            $docket_no_array = array_filter($docket_no);
-            $where_in = array('awb_number' => $docket_no_array);
-            $data = $this->partner_model->get_docket_information($partner_id, $where_in);
-            //print_r($array_Consolidated);
-            $i = 1;
-            foreach ($data as $key => $value) {
-                $foundedData[] = $value['awb_number'];
-                $html .= "<tr>";
-                $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
-                if (!empty($value['courier_invoice_file'])) {
-                    $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
-                } else {
-                    $html .= "<td></td>";
+        $foundedData = $foundedData_array = array();
+        $i = 0;
+        $docket_no = explode(",", $docket_no);
+        $docket_no_array_all = array_filter($docket_no);
+        if (!empty($docket_no_array_all)) {
+
+            $docket_no_array_chunk = array_chunk($docket_no_array_all, 50); // Divided awb_number in 50-50 groups to avoide slow query
+
+            foreach ($docket_no_array_chunk as $key_chunk => $docket_no_array) {
+                $where_in = array('awb_number' => $docket_no_array);
+                //Search docket in courier_company_invoice_detail and spare_part_details
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,"
+                        . "courier_company_invoice_details.billable_weight,courier_company_invoice_details.actual_weight,courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "spare_parts_details.id,inventory_master_list.part_name,inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join spare_parts_details "
+                        . "on courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner or courier_company_invoice_details.awb_number=spare_parts_details.awb_by_sf or "
+                        . "courier_company_invoice_details.awb_number=spare_parts_details.awb_by_wh inner join inventory_master_list "
+                        . "on spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' "
+                        . "AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "') group by spare_parts_details.awb_by_partner, spare_parts_details.awb_by_wh,spare_parts_details.awb_by_sf";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
                 }
-                $html .= "</td><td>" . $value['create_date'] . "</td>";
-                $html .= "</tr>";
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail and inventory_ledger
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, "
+                        . "GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id, "
+                        . "courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge, "
+                        . "courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, "
+                        . "courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,  "
+                        . "courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "inventory_ledger.id,inventory_master_list.part_name, inventory_master_list.part_number "
+                        . "FROM (`courier_company_invoice_details`) inner join inventory_ledger on courier_company_invoice_details.id = inventory_ledger.courier_id   "
+                        . "inner join inventory_master_list on inventory_ledger.inventory_id = inventory_master_list.inventory_id WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " "
+                        . "group by inventory_ledger.courier_id;";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail
+                $sql = "Select *"
+                        . "FROM (`courier_company_invoice_details`) WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " ";
+
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+            }
+            if (!empty($foundedData_array)) {
+                //Below two lines will reorder output in same order in which it was input
+                $intersect_array = array_flip(array_intersect($docket_no_array_all, $foundedData));
+                $foundedData_array = array_merge($intersect_array, $foundedData_array);
+                //Reordering Done
+
+                foreach ($foundedData_array as $key => $value) {
+                    if (is_array($value)) {
+                        $html .= "<tr>";
+                        $html .= "<td>" . ++$i . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td>";
+                        if (!empty($value['part_names'])) {
+                            $html .= "<td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td>";
+                        } else {
+                            $html .= "<td></td><td></td>";
+                        }
+
+                        $html .= "<td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
+                        if (!empty($value['courier_invoice_file'])) {
+                            $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
+                        } else {
+                            $html .= "<td></td>";
+                        }
+                        $html .= "</td><td>" . $value['create_date'] . "</td>";
+                        $html .= "</tr>";
+                    }
+                }
             }
             $returndata['status'] = "success";
             $returndata['html'] = $html;
-            $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+            $returndata['notFound'] = implode(", ", array_diff($docket_no_array_all, $foundedData));
             echo json_encode($returndata);
         } else {
             $returndata['status'] = "error";
             echo json_encode($returndata);
         }
+    }
+    
+    /**
+     * @desc : Method retuns spare parts which are received by warehouse
+     * @author Ankit Rajvanshi
+     */
+    function received_defactive_parts_by_wh(){
+        $finalArray = array();
+        $postData = $this->input->post();
+        $state = 0;
+        if($this->session->userdata('is_filter_applicable') == 1){
+          $state = 1;
+        }
+        $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"defective_part_shipped",
+          "column_4"=>"received_defective_part_date","column_5"=>"awb_by_partner","column_6"=>"courier_name_by_partner");    
+        $order_by = "ORDER BY spare_parts_details.defective_part_shipped_date DESC";
+        if(array_key_exists("order", $postData)){
+            $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
+        }
+        $partner_id = $this->session->userdata('partner_id');
+        
+        // set where condition
+        $where = "spare_parts_details.defective_part_required = 1 and approved_defective_parts_by_admin = 1";
+        $where .= ' AND ((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'") ) OR '
+            . '('
+            . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
+            . 'AND booking_details.partner_id = "'.$partner_id.'" '
+            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'")))';
+        
+        if($this->input->post('state')){
+            $where =  $where.' AND booking_details.state = "' .$this->input->post('state').'"';
+        }
+        if($this->input->post('booking_id')){
+            $where =  $where.' AND booking_details.booking_id = "' .$this->input->post('booking_id').'"';
+        }
+        $bookingData = $this->partner_model->get_spare_parts_booking_list($where, $postData['start'], $postData['length'], true,$state,NULL,FALSE,$order_by);
+        $bookingCount =  $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state)[0]['total_rows'];
+        $sn = $postData['start'];
+        
+        // prepare data.
+        foreach ($bookingData as $key => $row) {
+            $tempArray = array();
+            $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 = $tempString6 = $tempString7 = "";
+            $sn++;
+            $tempArray[] = $sn;
+            $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
+            $tempArray[] = $row['name'];
+            $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
+            $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";      
+            $tempArray[] = $row['quantity'];
+            if (!is_null($row['received_defective_part_date'])) {
+                 $tempString2 =   date("d-M-Y", strtotime($row['received_defective_part_date']));
+            }
+            $tempArray[] = $tempString2;
+            $tempArray[] = $row['awb_by_partner'];
+            $tempArray[] = $row['courier_name_by_partner'];
+            if(!empty($row['partner_challan_file'])) {
+                 $tempString ='<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['partner_challan_file'].' target="_blank">'.$row['partner_challan_number'].'</a>';
+            }
+             else if(!empty($row['partner_challan_number'])) {
+                  $tempString =  $row['partner_challan_number'];
+            } else {
+               $tempString = "NA"; 
+            }
+            $tempArray[] = $tempString;
+            $tempArray[] = $row['remarks_defective_part_by_sf'];
+            $finalArray[] = $tempArray;
+        }
+        
+        // prepare output array
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        
+        // return response
+        echo json_encode($output);
+    }
+    
+    /**
+     * @desc : Download spares received by warehouse from partner panel
+     * @auhtor : Ankit Rajvanshi
+     */
+    function download_received_spare_by_wh(){
+        ob_start();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        
+        $where = "spare_parts_details.defective_part_required = 1 and approved_defective_parts_by_admin = 1";
+        $where .= ' AND ((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
+            . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'") ) OR '
+            . '('
+            . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
+            . 'AND booking_details.partner_id = "'.$partner_id.'" '
+            . 'AND spare_parts_details.status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'")))';
+        
+        
+        $data = $this->partner_model->get_spare_parts_booking_list($where, NULL,NULL, true);
+        $headings = array("Name","Booking ID","Received Parts","Part Code","Received Date","AWB","Courier Name","Challan","SF Remarks");
+        $CSVData = array();
+        foreach($data as $sparePartBookings){
+            $tempArray = array();
+            $tempArray[] = $sparePartBookings['name'];
+            $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = $sparePartBookings['defective_part_shipped'];
+            $tempArray[] = $sparePartBookings['part_number'];
+            $tempArray[] = $sparePartBookings['received_defective_part_date'];
+            $tempArray[] = $sparePartBookings['awb_by_partner'];
+            $tempArray[] = $sparePartBookings['courier_name_by_partner'];
+            $tempArray[] = $sparePartBookings['partner_challan_number'];
+            $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
+            $CSVData[]  = $tempArray;
+        }
+                
+        if(!empty($CSVData)){
+            $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Received_By_Warehouse_".date("Y-m-d"));
+        }
+        
     }
 
 }

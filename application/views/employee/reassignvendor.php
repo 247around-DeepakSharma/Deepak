@@ -32,7 +32,7 @@
                                             </div>
                                         </th>
                                         <th>
-                                            <select class="form-control" id="partner_1" name="partner[]" required>
+                                            <select class="form-control selectcntrl" id="partner_1" name="partner[]" required>
                                                 <option selected disabled>Select Partner</option>
                                                     <?php foreach ($partners as $key => $values) { ?>
                                                     <option  value="<?php echo $values['id']; ?>">
@@ -158,7 +158,7 @@
                                     <input type="text" class="form-control" value= "<?php echo $booking_id; ?>" name="booking_id" placeholder="Please Enter Booking Id Here.." required="" readonly>
                                 </td>
                                 <td>
-                                    <select class="form-control" id="service_center" name="service" required="">
+                                    <select class="form-control selectcntrl" id="service_center" name="service" required="">
                                         <option selected disabled>Select Service Center</option>
                                             <?php foreach ($service_centers as $key => $values) { ?>
                                             <option  value="<?php echo $values['id']; ?>">
@@ -172,7 +172,7 @@
                                 </td>
 
                                 <td>
-                                    <select class="form-control" id="service_center" name="reason" required="">
+                                    <select class="form-control" id="reason" name="reason" required="">
                                         <option selected disabled>Select Reason</option>
                                             <?php foreach ($reassign_reasons as $key => $values) { ?>
                                             <option  value="<?php echo $values['id']; ?>">
@@ -206,7 +206,7 @@
                                     <center><h3 class='text-danger'><?php echo reset($arr_validation_checks);?></h3></center>
                                 <?php } else {?>
                                     <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
-                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">
+                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
                                 <?php } ?>
                             </div>
                         </center>
@@ -217,6 +217,10 @@
 <script type="text/javascript">
 <?php if (isset($type)) { ?> $('#partner').select2();<?php } else { ?>$('#service_center').select2();
 <?php } ?>
+// Reset selected text in service_centers Select2
+$(".btn-reset").click(function(){
+    $(".selectcntrl").val('').trigger("change");
+});
 </script>
 <?php if ($this->session->userdata('error')) {$this->session->unset_userdata('error');} ?>
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');} ?>

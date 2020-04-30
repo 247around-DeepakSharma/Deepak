@@ -26,6 +26,7 @@ class User extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('notify');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
@@ -102,10 +103,8 @@ class User extends CI_Controller {
 
             else if(!empty($serial_number)){
             $post['search_value'] = $serial_number;
-            $post['column_search'] = array('booking_unit_details.serial_number');
-            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number);
-            $post['column_search'] = array('booking_unit_details.serial_number','booking_unit_details.partner_serial_number');
-            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number, 'booking_unit_details.partner_serial_number' =>$serial_number);
+             $post['column_search'] = array('booking_unit_details.serial_number','booking_unit_details.partner_serial_number');
+             $post['where'] = array('booking_unit_details.serial_number' =>$serial_number, 'booking_unit_details.partner_serial_number' =>$serial_number);
             $view = "employee/search_result";
         
             
@@ -1391,6 +1390,34 @@ class User extends CI_Controller {
             }
         }
         echo $option;
+    }
+    /**
+     * @desc this is used to show purchase date / warranty status as per booking Date / warranty status as per current date
+     * @param int $booking_id
+     * @author Ghanshyam
+     * @created_on 18-04-2020
+     */
+    function check_warranty_booking_search() {
+        $array['purchase_date'] = '';
+        $array['booking_warranty_status'] = '';
+        $array['current_warranty_status'] = '';
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        if (!empty($booking_id)) {
+            $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings(array($booking_id));
+            if (!empty($arrBookings)) {
+                $array['purchase_date'] = $arrBookings[0]['purchase_date'];
+                $warranty_status_as_per_booking_date = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
+                $array['booking_warranty_status'] = $warranty_status_as_per_booking_date[$booking_id];
+                /*
+                 * Changing Booking Date to current Date to get warranty status as per current Date
+                 */
+                $arrBookings[0]['booking_create_date'] = date('Y-m-d');
+                $warranty_status_as_per_current_date = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);
+                $array['current_warranty_status'] = $warranty_status_as_per_current_date[$booking_id];
+            }
+        }
+        echo json_encode($array);
     }
 
 }

@@ -265,6 +265,7 @@
     var annual_charges_report = $('#annual_charges_report').DataTable({
         "processing": true,
         "serverSide": true,
+        "lengthChange": false,
         "ajax": {
             "url": "<?php echo base_url(); ?>employee/inventory/defective_spare_dashboard_process_record",
             "type": "POST",

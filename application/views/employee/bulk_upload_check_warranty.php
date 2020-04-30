@@ -70,7 +70,7 @@
                         <br/><font color="red" style="font-size: 14px;">* For <b>'Using Booking Id only'</b> option, use the same sample sheet and upload it after filling Booking Ids below the Booking Id column.</font>
                         </p>
                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_sample_sheet.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
-                        <strong>(Header: </strong>booking_id, booking_create_date, <a href='<?php echo base_url(); ?>employee/bulkupload/download_partner_summary_details'>partner_id</a>, <a href='<?php echo base_url(); ?>employee/bulkupload/download_service_with_id'>service_id</a>, model_number, purchase_date<strong>)</strong>
+                          <a href='<?php echo base_url(); ?>employee/bulkupload/download_partner_summary_details' class="btn btn-sm btn-primary" style="margin-left:10px;margin-top: 5px;"><i class="fa fa-download" aria-hidden="true"></i> Download Partner List</a>, <a href='<?php echo base_url(); ?>employee/bulkupload/download_service_with_id' class="btn btn-sm btn-primary" style="margin-top: 5px;margin-right:5px"><i class="fa fa-download" aria-hidden="true"></i> Download Services List</a>
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
