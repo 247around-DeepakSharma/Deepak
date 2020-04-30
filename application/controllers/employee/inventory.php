@@ -10080,6 +10080,9 @@ class Inventory extends CI_Controller {
         $post_data = $this->input->post();
         $partner_id_array = $post_data['partner_id'];
         if (!empty($partner_id_array)) {
+            /*
+             * Initialte all variables grand total count of all partner as 0
+             */
             $grandtotal_out_tat_c_n_c_count = 0;
             $grandtotal_out_tat_c_n_c_amount = 0;
             $grandtotal_out_tat_p_n_r_count = 0;
@@ -10099,7 +10102,9 @@ class Inventory extends CI_Controller {
                 $total_Inward = 0;
                 $total_Outward = 0;
                 $difference = 0;
-
+                /*
+                 * Get total Inward (Purchased) and Outward(Sold) Iventory Stock List
+                 */
                 $partnerWhere['partners.id'] = $partner_id;
                 $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
                 $publicName = $partner_details[0]['public_name'];
@@ -10122,7 +10127,9 @@ class Inventory extends CI_Controller {
                         $salecount = $salecount + 1;
                     }
                 }
-
+                /*
+                 * Get warehouse fresh stock amount
+                 */
                 $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock, inventory_master_list.price AS 'Basic Price', inventory_master_list.gst_rate as 'GST Rate'";
                 $data_where['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
                 $data_where['where']['inventory_master_list.entity_id'] = $partner_id;
@@ -10136,7 +10143,9 @@ class Inventory extends CI_Controller {
                 foreach ($whfreshStock_array as $key => $value) {
                     $whfreshStock_amount = $whfreshStock_amount + $value['Stock'] * $value['Basic Price'];
                 }
-
+                /*
+                 * Get Micro warehouse fresh stock
+                 */
                 $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock, inventory_master_list.price AS 'Basic Price', inventory_master_list.gst_rate as 'GST Rate'";
                 $data_where_mi['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
                 $data_where_mi['where']['inventory_master_list.entity_id'] = $partner_id;
@@ -10150,7 +10159,21 @@ class Inventory extends CI_Controller {
                 foreach ($whfreshStock_array as $key => $value) {
                     $whfreshStock_amount_micro = $whfreshStock_amount_micro + $value['Stock'] * $value['Basic Price'];
                 }
-
+                /*
+                 * Below Four values fetched from Spare Consolidation Report Data (With help of spare status and Partner Level Status 2)
+                 *
+                 * Defective / Ok Part @ Warehouse
+                 * Intransit Defective / ok Part Count and Amount
+                 * Defective Pending/Rescheduled (In TAT, Out TAT)
+                 * Defective Complete/Cancelled (In TAT, Out TAT)
+                 *
+                 * TAT Period: within 60 days(In TAT)
+                 * TAT Period: More than 60 days Out tat
+                 * $array_defective_item_at_warehouse => Defective / OK Item @ wharehouse
+                 * $in_transit_item_array: Intransit Defective / OK Item
+                 * $completed_cancelled_array (Partner level status 2): Defective / ok Item Competed or Cancelled
+                 * $pending_rescheduled_array (Partner Level Status2): Defective / ok Item Pending or Rescheduled
+                 */
 
                 $defective_amount_at_wharehouse = 0;
                 $in_transit_part_count = 0;
@@ -10183,7 +10206,7 @@ class Inventory extends CI_Controller {
 
                 $select = "spare_parts_details.id as spare_id, booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2', spare_parts_details.status as 'Spare Status', "
                         . "datediff(CURRENT_DATE, spare_parts_details.shipped_date) as 'Spare Shipped Age', challan_approx_value As 'Parts Charge'";
-                //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+
                 $where_consolidate_report = array();
                 $where_consolidate_report['booking_details.partner_id'] = $partner_id;
                 $group_by_consolidate_report = "spare_parts_details.id";
@@ -10229,6 +10252,9 @@ class Inventory extends CI_Controller {
 
                 $difference = $total_Inward + $total_Outward + $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
 
+                /*
+                 * Change All Amount values to 2 decimal places
+                 */
                 $total_Inward = number_format((float) $total_Inward, 2, '.', '');
                 $total_Outward = number_format((float) $total_Outward, 2, '.', '');
                 $difference = number_format((float) $difference, 2, '.', '');
@@ -10274,8 +10300,8 @@ class Inventory extends CI_Controller {
         }
 
         $array['draw'] = $_POST['draw'];
-        $array['recordsTotal'] = 2;
-        $array['recordsFiltered'] = 2;
+        $array['recordsTotal'] = count($array['data']);
+        $array['recordsFiltered'] = count($array['data']);
 
 
         echo json_encode($array);
