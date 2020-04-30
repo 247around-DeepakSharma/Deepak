@@ -75,6 +75,7 @@
                 contentType: false,
                 beforeSend: function () {
                     $("#search").html('Searching..');
+                    $("#not_found_data_div").hide();
                 },
                 success: function (response) {
                     //console.log(response);
