@@ -2567,3 +2567,8 @@ ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL
 
 -- Ankit Rajvanshi 01-05-2020
 ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+
+-- Ankit Rajvanshi 30-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
+
