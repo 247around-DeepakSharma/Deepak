@@ -2944,7 +2944,13 @@ class Booking_model extends CI_Model {
             return 0;
         }
     }
+//Function to fetch booking by serial number
+   function get_booking_by_serial_number($serial_number) {
+       $this->db->where(['partner_serial_number' => $serial_number, 'serial_number' => $serial_number]);
+       $query=$this->db->get("booking_unit_details");
+       return $query->result_array();
 
+   } 
     /**
      * [[get booking status from service_center_booking_action (scba)]]
      * return: int (0-> cancelled, 1-> completed, 2-> pending)
