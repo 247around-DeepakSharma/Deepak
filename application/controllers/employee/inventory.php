@@ -10066,8 +10066,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.part_warranty_status,"
                 . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number ";
-        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
-            'parts_requested');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name','parts_requested');
+        $post['search']['value'] = $post['search_value'];
         $post['is_inventory'] = TRUE;
         $post['where']['booking_details.current_status'] = _247AROUND_COMPLETED;
 
