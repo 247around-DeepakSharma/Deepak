@@ -736,13 +736,13 @@ class invoices_model extends CI_Model {
         // We will get data only if large MSL box price will be greater than 0
         if(LARGE_MSL_BOX_PACKAGING_PRICE > 0){
             //get data for MSL courier packaging charges for large box
-            $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
+         //   $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
         }
         
         // We will get data only if small MSL box price will be greater than 0
         if(SMALL_MSL_BOX_PACKAGING_PRICE > 0){
             //get data for MSL courier packaging charges for large box
-            $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
+        //    $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
         }
         //merge small and large MSL box data into common array
         $msl_packaging_charge = array_merge($msl_large_box_packaging_charge, $msl_small_box_packaging_charge);
