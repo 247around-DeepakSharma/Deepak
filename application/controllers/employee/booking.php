@@ -2103,6 +2103,9 @@ class Booking extends CI_Controller {
                         if($booking_id == INSERT_NEW_BOOKING){
                         $this->session->set_userdata('success', 'Booking inserted successfully with Booking Id : '.$status['booking_id']);
                         }
+                        else{
+                            $this->session->set_userdata('success', 'Booking saved successfully with Booking Id : '.$status['booking_id']);
+                        }
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
                         //Redirect to edit booking page if validation err occurs
