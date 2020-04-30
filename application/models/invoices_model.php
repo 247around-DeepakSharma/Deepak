@@ -730,22 +730,7 @@ class invoices_model extends CI_Model {
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date);
-        $msl_large_box_packaging_charge = array();
-        $msl_small_box_packaging_charge = array();
-        // We will get data only if large MSL box price will be greater than 0
-        if(LARGE_MSL_BOX_PACKAGING_PRICE > 0){
-            //get data for MSL courier packaging charges for large box
-            $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
-        }
-        
-        // We will get data only if small MSL box price will be greater than 0
-        if(SMALL_MSL_BOX_PACKAGING_PRICE > 0){
-            //get data for MSL courier packaging charges for large box
-            $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
-        }
-        //merge small and large MSL box data into common array
-        $msl_packaging_charge = array_merge($msl_large_box_packaging_charge, $msl_small_box_packaging_charge);
+        $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0);
         
         $spare_parts_open_cell_led_bar_data = array();
         $open_cell_led_bar_charges = array();
@@ -850,30 +835,58 @@ class invoices_model extends CI_Model {
             }
         }
         
+        $msl_large_box_packaging_charge = array();
+        
+        $msl_l_packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_RATE_LARGE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
+        
+        if (!empty($msl_l_packaging)) {
+            
+            // We will get data only if large MSL box price will be greater than 0
+            //get data for MSL courier packaging charges for large box
+            $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
+ 
+            if (!empty($msl_large_box_packaging_charge)) {
+                $c_data = array();
+                $c_data[0]['description'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['hsn_code'] = $msl_l_packaging[0]['hsn_code'];
+                $c_data[0]['qty'] = count($msl_large_box_packaging_charge);
+                $c_data[0]['rate'] = $msl_l_packaging[0]['fixed_charges'];
+                $c_data[0]['gst_rate'] = $msl_l_packaging[0]['gst_rate'];
+                $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $msl_l_packaging[0]['fixed_charges']));
+                $result['result'] = array_merge($result['result'], $c_data);
+            }
+        }
+        
+        $msl_small_box_packaging_charge = array();
+        
+        $msl_s_packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_RATE_SMALL_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
+        if (!empty($msl_s_packaging)) {
+            
+            // We will get data only if small MSL box price will be greater than 0
+           //get data for MSL courier packaging charges for large box
+           $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
+            if (!empty($msl_small_box_packaging_charge)) {
+                $c_data = array();
+                $c_data[0]['description'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['hsn_code'] = $msl_s_packaging[0]['hsn_code'];
+                $c_data[0]['qty'] = count($msl_small_box_packaging_charge);
+                $c_data[0]['rate'] = $msl_s_packaging[0]['fixed_charges'];
+                $c_data[0]['gst_rate'] = $msl_s_packaging[0]['gst_rate'];
+                $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $msl_s_packaging[0]['fixed_charges']));
+                $result['result'] = array_merge($result['result'], $c_data);
+            }
+        }
+        
+        //merge small and large MSL box data into common array
+        $msl_packaging_charge = array_merge($msl_large_box_packaging_charge, $msl_small_box_packaging_charge);
+        
         if (!empty($msl_packaging_charge)) {
             $total_msl_box_count = array_sum(array_column($msl_packaging_charge, 'msl_box'));
             $total_msl_packaging_charge = sprintf("%.2f", (array_sum(array_column($msl_packaging_charge, 'total_charge'))));
-            $data = array();
-            $data[0]['description'] = MSL_PACKAGING_CHARGES;
-            $data[0]['hsn_code'] = '';
-            $data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
-
-            if(count($msl_large_box_packaging_charge) > 0){
-                //get total number of big box count to show them as separate line items
-                $data[0]['qty'] = array_sum(array_column($msl_large_box_packaging_charge, 'msl_box'));
-                $data[0]['rate'] = LARGE_MSL_BOX_PACKAGING_PRICE;
-                $data[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($msl_large_box_packaging_charge, 'total_charge'))));
-                $result['result'] = array_merge($result['result'], $data);
-            }
-            if(count($msl_small_box_packaging_charge) > 0){
-                //get total number of small box count to show them as separate line items
-                $data[0]['qty'] = array_sum(array_column($msl_small_box_packaging_charge, 'msl_box'));
-                $data[0]['rate'] = SMALL_MSL_BOX_PACKAGING_PRICE;
-                $data[0]['taxable_value'] = sprintf("%.2f", (array_sum(array_column($msl_small_box_packaging_charge, 'total_charge'))));
-                $result['result'] = array_merge($result['result'], $data);
-            }
-            
             $msl_packaging_charge[0]['total_msl_box_packaging_charge'] = $total_msl_packaging_charge;
             $msl_packaging_charge[0]['total_msl_box_count'] = $total_msl_box_count;
             $result['msl_packaging_data'] = $msl_packaging_charge;
@@ -1035,7 +1048,12 @@ class invoices_model extends CI_Model {
      */
     function generate_partner_courier_invoice($partner_id, $from_date_tmp, $to_date_tmp, $default = 1) {
         $from_date = date('Y-m-d', strtotime('-6 months', strtotime($from_date_tmp)));
-        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        if($default == 1){
+            $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        } else {
+            $to_date =$to_date_tmp;
+        }
+        
         log_message("info", $from_date . "- " . $to_date);
         //Defective return by SF
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
@@ -2858,10 +2876,13 @@ class invoices_model extends CI_Model {
         $join_billed_msl_package = " left join billed_msl_package as bmp on (ccid.id = bmp.courier_id)";
         
         if($box_type == LARGE_MSL_BOX){
+            
+            $select .= ", '1' as box_type ";
             //get data for large MSL box
             $msl_condition = " AND ccid.box_count > 0";
             $msl_select = ', ccid.box_count as msl_box, ccid.box_count * ' . LARGE_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.LARGE_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
         }else{
+            $select .= ", '0' as box_type ";
             //get data for small MSL box
             $msl_condition = " AND ccid.small_box_count > 0";
             $msl_select = ', ccid.small_box_count as msl_box, ccid.small_box_count * ' . SMALL_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.SMALL_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
