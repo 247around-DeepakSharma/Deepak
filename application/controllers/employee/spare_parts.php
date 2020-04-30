@@ -3199,7 +3199,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $sc_entity_id = NULL;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 

@@ -358,7 +358,7 @@ class Dealers extends CI_Controller {
     
     function get_input_form(){
         $this->checkDealerSession();
-        $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $booking_date = date('Y-m-d', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->initialized_variable->get_partner_data()[0]['public_name'];
         $post['partner_id'] = $this->input->post('partner_id');
         $post['agent_id'] = $this->session->userdata('agent_id');

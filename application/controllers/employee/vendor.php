@@ -6239,7 +6239,7 @@ class vendor extends CI_Controller {
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
-                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%Y-%m-%d')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
 
             $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);

@@ -451,7 +451,7 @@ class Do_background_upload_excel extends CI_Controller {
                             if ($data['partner_id'] == 3) {
                                 $booking['partner_source'] = "Paytm-shipped";
                             }
-                            $booking['booking_date'] = $dateObj2->format('d-m-Y');
+                            $booking['booking_date'] = $dateObj2->format('Y-m-d');
                             // Set EDD only
                             $booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
                             $booking['delivery_date'] = '';

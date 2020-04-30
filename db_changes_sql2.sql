@@ -2520,3 +2520,10 @@ INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not 
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
 INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
+-- Prity 15-04-2020 (73 Branch)
+ALTER TABLE booking_details change column booking_date booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column booking_date date NOT NULL AFTER booking_date_old; 
+update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
+update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');

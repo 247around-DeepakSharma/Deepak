@@ -2783,7 +2783,7 @@ class Miscelleneous {
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
             $partner_id = $partner_id_array[$booking_id];
-            $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
+            $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d H:i:s");
@@ -3870,7 +3870,7 @@ function generate_image($base64, $image_name,$directory){
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
         $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
         $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
@@ -4025,7 +4025,7 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     function reopen_booking($booking_id, $status){
-            $data['booking_date'] = date('d-m-Y', strtotime($this->My_CI->input->post('booking_date')));
+            $data['booking_date'] = date('Y-m-d', strtotime($this->My_CI->input->post('booking_date')));
             $data['booking_timeslot'] = $this->My_CI->input->post('booking_timeslot');
             $data['current_status'] = _247AROUND_PENDING;
             $data['internal_status'] = "Booking Opened From " . $status;
@@ -4693,7 +4693,7 @@ function generate_image($base64, $image_name,$directory){
                     $sc_entity_id = NULL;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
@@ -4807,7 +4807,7 @@ function generate_image($base64, $image_name,$directory){
      * Method change date format: e.g., 11-Oct-2019.
      * For Mysql 
      * if date field is varchar type then use 
-     *      DATE_FORMAT(STR_TO_DATE(date, '%d-%m-%Y'), '%d-%b-%Y')
+     *      DATE_FORMAT(STR_TO_DATE(date, '%Y-%m-%d'), '%d-%b-%Y')
      * else
      *      DATE_FORMAT(date, '%d-%b-%Y')
      * @param type $date

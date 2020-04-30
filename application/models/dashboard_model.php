@@ -505,8 +505,8 @@ class dashboard_model extends CI_Model {
             $escalation_select_sub = "count(DISTINCT vendor_escalation_log.booking_id) AS total_escalation ";
         }
          //Create Blank Where Array For escalation and Booking
-    $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
-    $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))"] = "ASC";
+    $booking_orderBy["YEAR(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'))"] = "ASC";
+    $booking_orderBy["month(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'))"] = "ASC";
     $escalation_orderBy["month(vendor_escalation_log.create_date)"] = "ASC";
     $escalation_orderBy["YEAR(vendor_escalation_log.create_date)"] = "ASC";
     $escalation_where=array();
@@ -522,9 +522,9 @@ class dashboard_model extends CI_Model {
         "zones"=>"rm_zone_mapping.zone_id = zones.id");
     $booking_joinType = array("rm_zone_mapping" => 'left', "zones" => 'left');
     //Create Select String for booking and escalation
-    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date,service_centres.rm_id as rm_id,'
-            . 'zones.zone as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_month,'
-            . 'YEAR(STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y")) as booking_year';
+    $booking_select = 'count(booking_id) AS total_booking,assigned_vendor_id,STR_TO_DATE(booking_details.booking_date,"%Y-%m-%d") as booking_date,service_centres.rm_id as rm_id,'
+            . 'zones.zone as region,employee.full_name as rm_name,MONTH(STR_TO_DATE(booking_details.booking_date,"%Y-%m-%d")) as booking_month,'
+            . 'YEAR(STR_TO_DATE(booking_details.booking_date,"%Y-%m-%d")) as booking_year';
     $escalation_select = $escalation_select_sub.',vendor_escalation_log.vendor_id,vendor_escalation_log.create_date as escalation_date,'
             . 'service_centres.rm_id as rm_id,employee.full_name as rm_name,zones.zone as region,MONTH(vendor_escalation_log.create_date) as escalation_month,YEAR(vendor_escalation_log.create_date) as escalation_year';
    // If rm id is set add rm id in where array for booking and escalation
@@ -543,12 +543,12 @@ class dashboard_model extends CI_Model {
     }
     // If dates are Set Then add date in where array for booking and escalation
     if(!($startDate) && !($endDate)){
-            $booking_where["month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())"] = NULL;
+            $booking_where["month(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = year(now())"] = NULL;
             $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
        }
        //If dates are not set set them for current Month
        else{
-            $booking_where["STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') >='".$startDate."' AND STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') <'".$endDate."'"] = NULL;
+            $booking_where["STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d') >='".$startDate."' AND STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d') <'".$endDate."'"] = NULL;
             $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
        }
        //Get Booking data for above define where condition,select,join and requested group by

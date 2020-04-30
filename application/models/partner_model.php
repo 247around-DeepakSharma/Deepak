@@ -43,7 +43,7 @@ class Partner_model extends CI_Model {
 
     //Find order id for a partner
     function get_order_id_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL) {
-      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) AS ageing", FALSE);  
       $this->db->where(array("booking_details.partner_id" => $partner_id, "TRIM(CHAR(9) FROM TRIM(booking_details.order_id)) = '".$order_id."'" => NULL));
       if($booking_id != ""){
            $this->db->not_like('booking_details.booking_id', preg_replace("/[^0-9]/","",$booking_id));
@@ -181,7 +181,7 @@ function get_data_for_partner_callback($booking_id) {
              $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
         //do not show bookings for future as of now
-        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
+        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0";
 
           $query = $this->db->query("Select $select from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -204,7 +204,7 @@ function get_data_for_partner_callback($booking_id) {
      function getPending_queries($partner_id ){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
-        $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+        $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR
                 booking_details.booking_date='')";
 
         $query = $this->db->query("Select services.services,
@@ -245,8 +245,8 @@ function get_data_for_partner_callback($booking_id) {
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
                 . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
-                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
-                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END )  as tat');
+                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d"))<0 THEN 0 ELSE '
+                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
@@ -412,9 +412,9 @@ function get_data_for_partner_callback($booking_id) {
         } 
         if ($percentageLogic == 1){
             $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(booking_details.current_status = "Cancelled" OR booking_details.internal_status ="InProcess_Cancelled") '
-                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
+                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END) ELSE "" END) as TAT';
+             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) ELSE "" END) as Ageing';
         }
         
         if(!empty($partner_id)) {
@@ -466,7 +466,7 @@ function get_data_for_partner_callback($booking_id) {
 			BD.user_id = users.user_id AND
 			( BD.partner_id = $partner_id OR BD.origin_partner_id = $partner_id ) AND
 			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
-			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
+			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) >= 0");
 
 	return $query->result_array();
     }
@@ -1780,7 +1780,7 @@ function get_data_for_partner_callback($booking_id) {
         $agingSubQuery = "";
         if($status == 'Pending'){
             $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) as Aging';
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) as Aging';
         }
         else if($status == 'Completed'){
             $where = "booking_details.current_status IN ('Completed')";
@@ -1889,7 +1889,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "booking_details.amount_due, GROUP_CONCAT(service_center_booking_action.internal_status) as combined_status,"
                 . "GROUP_CONCAT(booking_unit_details.appliance_brand) as appliance_brand,booking_details.booking_jobcard_filename,"
                 . "service_center_booking_action.internal_status,users.name,booking_details.booking_primary_contact_no,booking_details.city,booking_details.state,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,service_center_booking_action.cancellation_reason",FALSE);
         $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("services","booking_details.service_id = services.id");
@@ -2674,7 +2674,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_booking_details_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL ) {
 
-      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) AS ageing", FALSE);  
       $where = array();
       $where['booking_details.partner_id'] = $partner_id;
       if(!empty($order_id)) {
