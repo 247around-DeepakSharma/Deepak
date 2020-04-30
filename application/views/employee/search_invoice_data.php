@@ -7,6 +7,7 @@
         <div class="search_invoice_id" style="border: 1px solid #e6e6e6; margin-top: 20px; margin-bottom: 20px;padding: 10px;">
             <h3><strong>Search Invoices</strong></h3>
             <hr>
+            <form action="<?php echo base_url(); ?>employee/accounting/get_invoice_searched_data" method="post">  
             <section class="fetch_invoice_id" style="padding-left:5px;">
                 <div class="row">
                     <div class="form-inline" style="margin-left: 5px;">
@@ -57,7 +58,7 @@
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
                             <label>Select Period Date</label>
-                            <input name="invoice_period" placeholder="Select invoice period range" class="form-control col-md-12" id="invoice_period_date" style="width:100%;">
+                            <input name="invoice_period_date" placeholder="Select invoice period range" class="form-control col-md-12" id="invoice_period_date" style="width:100%;">
                           
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
@@ -67,19 +68,27 @@
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
                              <label>Invoice Remark</label>
-                             <input type="text" class="form-control" id="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
+                             <input type="text" class="form-control" id="invoice_remarks" name="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
                              <label>Invoice Id</label>
-                             <input type="text" class="form-control" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
+                             <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
-                            <button class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</button>
+                            <div class="col-md-6">
+                                <div class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</div>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="hidden" name="download_all" value="1">
+                                <input type="hidden" name="request_type" value="admin_search">
+                                <button type="submit" class="btn btn-success col-md-2" id="download_invoice_id_data" style="width:100%; margin-top: 23px;">Download</button>
+                            </div>
                         </div>
                         
                     </div>
                 </div>
             </section>
+            </form>    
             <div class="text-center" id="loader" style="display: none;" ><img src= '<?php echo base_url(); ?>images/loadring.gif' /></div>
             <hr>
             <section class="show_invoice_id_data">
