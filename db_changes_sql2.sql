@@ -2531,3 +2531,6 @@ update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initia
 -- Prity 22-04-2020
 -- 73 Branch
 UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
+-- Ankit Rajvanshi 22-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
