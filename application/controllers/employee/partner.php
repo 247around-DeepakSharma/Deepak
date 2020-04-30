@@ -2136,9 +2136,11 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
            //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
-            if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
-            }
+            /*
+                if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+                }
+             */
                      
             /*
               if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
@@ -2160,7 +2162,7 @@ class Partner extends CI_Controller {
                 }
             }
         }
-    
+        
         $partner_id = $this->session->userdata('partner_id');
         if (!empty($this->input->post('courier_status'))) {
 
@@ -2174,7 +2176,7 @@ class Partner extends CI_Controller {
             $data['shipped_date'] = $this->input->post('shipment_date');
             //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
             $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-            $data['challan_approx_value'] = $this->input->post('approx_value');
+            //$data['challan_approx_value'] = $this->input->post('approx_value');
             //} 
             
             $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
@@ -2236,15 +2238,15 @@ class Partner extends CI_Controller {
         
         
         $shipped_part_details = $this->input->post("part");
-/* if parts empty no need to run loop */
+        /* if parts empty no need to run loop */
         if(!empty($shipped_part_details)) {
-        foreach ($shipped_part_details as $key => $val) {
+            foreach ($shipped_part_details as $key => $val) {
                 if (isset($val['spare_part_warranty_status'])) {
-            if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    if ($val['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                        $part_warranty_status = SPARE_PART_IN_OUT_OF_WARRANTY_STATUS;
+                    }
+                }
             }
-        }    
-    }
         }
 
 
@@ -2280,6 +2282,7 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['challan_approx_value'] = $value['approx_value'];
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -9529,32 +9532,106 @@ class Partner extends CI_Controller {
      * @author: Ghanshyam
      */
     function process_search_docket() {
-        $docket_no = $this->input->post("docket_no");
+        $docket_no = trim($this->input->post("docket_no"));
         $html = "";
         $partner_id = $this->session->userdata('partner_id');
-        $notFoundData = array();
-        if (!empty($docket_no)) {
-            $docket_no = explode(",", $docket_no);
-            $docket_no_array = array_filter($docket_no);
-            $where_in = array('awb_number' => $docket_no_array);
-            $data = $this->partner_model->get_docket_information($partner_id, $where_in);
-            //print_r($array_Consolidated);
-            $i = 1;
-            foreach ($data as $key => $value) {
-                $foundedData[] = $value['awb_number'];
-                $html .= "<tr>";
-                $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
-                if (!empty($value['courier_invoice_file'])) {
-                    $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
-                } else {
-                    $html .= "<td></td>";
+        $foundedData = $foundedData_array = array();
+        $i = 0;
+        $docket_no = explode(",", $docket_no);
+        $docket_no_array_all = array_filter($docket_no);
+        if (!empty($docket_no_array_all)) {
+
+            $docket_no_array_chunk = array_chunk($docket_no_array_all, 50); // Divided awb_number in 50-50 groups to avoide slow query
+
+            foreach ($docket_no_array_chunk as $key_chunk => $docket_no_array) {
+                $where_in = array('awb_number' => $docket_no_array);
+                //Search docket in courier_company_invoice_detail and spare_part_details
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,"
+                        . "courier_company_invoice_details.billable_weight,courier_company_invoice_details.actual_weight,courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "spare_parts_details.id,inventory_master_list.part_name,inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join spare_parts_details "
+                        . "on courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner or courier_company_invoice_details.awb_number=spare_parts_details.awb_by_sf or "
+                        . "courier_company_invoice_details.awb_number=spare_parts_details.awb_by_wh inner join inventory_master_list "
+                        . "on spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' "
+                        . "AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "') group by spare_parts_details.awb_by_partner, spare_parts_details.awb_by_wh,spare_parts_details.awb_by_sf";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
                 }
-                $html .= "</td><td>" . $value['create_date'] . "</td>";
-                $html .= "</tr>";
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail and inventory_ledger
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, "
+                        . "GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id, "
+                        . "courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge, "
+                        . "courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, "
+                        . "courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,  "
+                        . "courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "inventory_ledger.id,inventory_master_list.part_name, inventory_master_list.part_number "
+                        . "FROM (`courier_company_invoice_details`) inner join inventory_ledger on courier_company_invoice_details.id = inventory_ledger.courier_id   "
+                        . "inner join inventory_master_list on inventory_ledger.inventory_id = inventory_master_list.inventory_id WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " "
+                        . "group by inventory_ledger.courier_id;";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail
+                $sql = "Select *"
+                        . "FROM (`courier_company_invoice_details`) WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " ";
+
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+            }
+            if (!empty($foundedData_array)) {
+                //Below two lines will reorder output in same order in which it was input
+                $intersect_array = array_flip(array_intersect($docket_no_array_all, $foundedData));
+                $foundedData_array = array_merge($intersect_array, $foundedData_array);
+                //Reordering Done
+
+                foreach ($foundedData_array as $key => $value) {
+                    if (is_array($value)) {
+                        $html .= "<tr>";
+                        $html .= "<td>" . ++$i . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td>";
+                        if (!empty($value['part_names'])) {
+                            $html .= "<td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td>";
+                        } else {
+                            $html .= "<td></td><td></td>";
+                        }
+
+                        $html .= "<td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
+                        if (!empty($value['courier_invoice_file'])) {
+                            $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
+                        } else {
+                            $html .= "<td></td>";
+                        }
+                        $html .= "</td><td>" . $value['create_date'] . "</td>";
+                        $html .= "</tr>";
+                    }
+                }
             }
             $returndata['status'] = "success";
             $returndata['html'] = $html;
-            $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+            $returndata['notFound'] = implode(", ", array_diff($docket_no_array_all, $foundedData));
             echo json_encode($returndata);
         } else {
             $returndata['status'] = "error";

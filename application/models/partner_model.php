@@ -3271,34 +3271,6 @@ function get_data_for_partner_callback($booking_id) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
     }
-    /**
-     * @Desc: This function is used to get the courier company invoice details
-     * @params: $select string
-     * @params: $where string
-     * @return: array
-     * @author: Ghanshyam Ji Gupta
-     */
-    function get_docket_information($partner_id, $where_in = array()) {
-        if (!empty($partner_id) && !empty($where_in)) {
-            $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,"
-                    . "courier_company_invoice_details.billable_weight,courier_company_invoice_details.actual_weight,courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
-                    . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
-                    . "spare_parts_details.id,inventory_master_list.part_name,inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join spare_parts_details "
-                    . "on courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner or courier_company_invoice_details.awb_number=spare_parts_details.awb_by_sf or "
-                    . "courier_company_invoice_details.awb_number=spare_parts_details.awb_by_wh inner join inventory_master_list "
-                    . "on spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' "
-                    . "AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "') group by spare_parts_details.awb_by_partner, spare_parts_details.awb_by_wh,spare_parts_details.awb_by_sf  UNION Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, 
-                    GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,
-                    courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,
-                    courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight,
-                    courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file, 
-                    courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,inventory_ledger.id,inventory_master_list.part_name,
-                    inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join inventory_ledger on courier_company_invoice_details.id = inventory_ledger.courier_id  
-                    inner join inventory_master_list on inventory_ledger.inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')"
-                    . " group by inventory_ledger.courier_id;";
-            return $query = $this->db->query($sql)->result_array();
-        }
-    }
 
 }
 

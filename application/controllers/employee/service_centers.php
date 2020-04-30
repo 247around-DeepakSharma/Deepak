@@ -1310,8 +1310,11 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) {
-            return TRUE;
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf')) ) {
+            if(!empty($this->session->userdata('has_authorization_certificate')) && ($this->session->userdata('has_authorization_certificate') == 1)){
+                return TRUE;
+            }
+            
         } else {
             log_message('info', __FUNCTION__ . " Session Expire for Service Center");
             $this->session->sess_destroy();
@@ -9597,9 +9600,10 @@ class Service_centers extends CI_Controller {
 
         // prepare data for sms template.
         $otp = rand(1000,9999);
+        if (!$this->input->post("call_from_api")) {
         $this->session->unset_userdata('cancel_booking_otp');
         $this->session->set_userdata('cancel_booking_otp', $otp);
-        
+        }
         $sms['tag'] = $tag;
         $sms['phone_no'] = $booking_primary_contact_number;
         $sms['booking_id'] = $booking_id;
@@ -9607,7 +9611,10 @@ class Service_centers extends CI_Controller {
         $sms['type_id'] = "";
         $sms['smsData']['otp'] = $otp;
         $this->notify->send_sms_msg91($sms);
-       
+        if (!$this->input->post("call_from_api")) {
         echo $this->session->userdata('cancel_booking_otp');
+        }else{
+         echo $otp;   
+        }
     }
 }
