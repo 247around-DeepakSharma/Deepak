@@ -25,8 +25,7 @@ class Bulkupload extends CI_Controller {
      */
     function check_warranty() {
         $this->miscelleneous->load_nav_header();
-        $serviceArray = $this->reusable_model->get_search_result_data("services","services,id",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-        $this->load->view('employee/bulk_upload_check_warranty',array('serviceArray'=>$serviceArray));
+        $this->load->view('employee/bulk_upload_check_warranty');
     }
 
     /**
@@ -99,8 +98,7 @@ class Bulkupload extends CI_Controller {
             }
         }
         $this->miscelleneous->load_nav_header();
-        $serviceArray = $this->reusable_model->get_search_result_data("services","services,id",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnArray, 'file_type' => $fileType,'serviceArray'=>$serviceArray]);
+        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnArray, 'file_type' => $fileType]);
     }
 
     /**
@@ -503,6 +501,32 @@ class Bulkupload extends CI_Controller {
     
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bulk_upload_add_warranty', ['data' => $returnMsg, 'partner_id' => $post_data['partner_id']]);
+    }
+    /** @desc: This function is to download partner list with ID to show in bulk check_warranty page
+     * @param: void
+     * @return void
+     * @author: Ghanshyam
+     */
+    function download_partner_summary_details() {
+        $partner_details = array();
+        $select = "public_name,partners.id";
+        $where = array('partners.is_active' => 1);
+        $group_by = "partners.id";
+        //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
+        $partner_details = $this->partner_model->getpartner_data($select, $where, "", 1, 1, 1, $group_by);
+        $headings = array("Partner", "Partner ID");
+        $this->miscelleneous->downloadCSV($partner_details, $headings, "partner_list");
+    }
+
+    /** @desc: This function is to download service with their ID
+     * @param: void
+     * @return void
+     * @author: Ghanshyam
+     */
+    function download_service_with_id() {
+        $serviceArray = $this->reusable_model->get_search_result_data("services", "services,id", array("isBookingActive" => 1), NULL, NULL, array("services" => "ASC"), NULL, NULL, array());
+        $headings = array("Service", "Service ID");
+        $this->miscelleneous->downloadCSV($serviceArray, $headings, "service_list");
     }
 
 }

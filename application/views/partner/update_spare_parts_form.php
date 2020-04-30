@@ -277,10 +277,15 @@
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
                                             <input type="text" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]"   value="<?php echo $value->quantity; ?>"    required  />
-
-
                                             <span id="error_span_<?php echo $key; ?>" style="color:red;" class="hide"></span>
                                         </div>
+                                    </div>
+                                        
+                                    <div class="form-group">
+                                        <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
+                                            <div class="col-md-7">
+                                                <input required="" type="text" class="form-control" id="<?php echo "approx_value_" . $key; ?>" name="part[<?php echo $key; ?>][approx_value]" max="100000" value = "" placeholder="Please Enter approx value" <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?> >
+                                            </div>
                                     </div>
                                     </div>
                                     
@@ -450,11 +455,19 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" min="1" class="form-control quantity " id="quantity" value="1" name=""      required  />
+                                            <input type="text" min="1" class="form-control quantity " id="quantity" value="1"  required  />
                                             <span id="error_span" style="color:red;" class="hide"></span>
 
                                         </div>
                                     </div>
+                                    
+                                    <div class="form-group ">
+                                        <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
+                                        <div class="col-md-7">
+                                            <input required="" type="text" class="form-control" id="approx_value"  max="100000" value = "" placeholder="Please Enter approx value"  <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?>>
+                                        </div>
+                                    </div>
+                                    
                                     <?php if ($request_type == REPAIR_OOW_TAG) { ?>   
                                     <div class="form-group">
                                         <label for="invoice_amount" class="col-md-4">Invoice Date *</label>
@@ -514,13 +527,26 @@
                                 </div>
                             </div>
                             <div class="form-group <?php
+                                if (form_error('courier_name')) {echo 'has-error';} ?>">
+                                <label for="courier" class="col-md-4">Courier Name *</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" id="courier_name" name="courier_name" required>
+                                        <option selected="" disabled="" value="">Select Courier Name</option>
+                                        <?php foreach ($courier_details as $value1) { ?> 
+                                        <option value="<?php echo $value1['courier_code']?>"><?php echo $value1['courier_name']?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <?php echo form_error('courier_name'); ?>
+                                </div>
+                            </div>
+                            <!-- <div class="form-group <?php
                                 if (form_error('approx_value')) { echo 'has-error'; } ?>">
                                 <label for="approx_value" class="col-md-4">Approx Value <?php if($warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){  ?>*<?php } ?></label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="approx_value" name="approx_value" max="100000" value = "" placeholder="Please Enter approx value"  <?php if(isset($spare_parts[0]->part_warranty_status) && ($spare_parts[0]->part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS)){  ?> required  <?php } ?>>
                                     <?php echo form_error('approx_value'); ?>
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="form-group <?php
                                 if (form_error('awb')) { echo 'has-error'; } ?>">
                                 <label for="defectivePartsShippedBoxesCount" class="col-md-4">No Of Boxes *</label>
@@ -536,19 +562,6 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group <?php
-                                if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Courier Name *</label>
-                                <div class="col-md-6">
-                                    <select class="form-control" id="courier_name" name="courier_name" required>
-                                        <option selected="" disabled="" value="">Select Courier Name</option>
-                                        <?php foreach ($courier_details as $value1) { ?> 
-                                        <option value="<?php echo $value1['courier_code']?>"><?php echo $value1['courier_name']?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <?php echo form_error('courier_name'); ?>
-                                </div>
-                            </div>
                             <div class="form-group <?php
                                 if (form_error('partner_challan_number')) { echo 'has-error'; } ?>">
                                 <label for="partner_challan_number" class="col-md-4">Challan Number</label>
@@ -700,11 +713,6 @@
                 courier_name:"required",
                 awb: "required",
                 shipment_date:"required",
-                approx_value:{
-                    min:1,
-                    required: true,
-                    maxlength: 100000
-                },
                 defective_parts_shipped_boxes_count:'required',
                 courier_price_by_partner:{
                     digits:true,
@@ -715,7 +723,6 @@
                 courier_name: "Please Select Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
-                approx_value :"Please Enter Valid Approx Value.",
                 defective_parts_shipped_boxes_count : "Please Select Boxes Count",
                 courier_price_by_partner:{
                     digits: "Courier Price can only be Numeric.",
@@ -929,6 +936,11 @@
         $('#inventoryid_'+key).val(inventory);
         //$("#quantity_0").removeAttr("readonly");
         get_hsn_code_list(key,service_id);
+        
+        if(inventory != undefined ){
+            get_spare_part_price(key, inventory);
+        }
+        
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -948,6 +960,23 @@
             });
         }
     }
+    
+    /* get the details of spare part charges */
+    
+    function get_spare_part_price(id_index, inventory ){
+        $.ajax({
+              method:'POST',
+              url:'<?php echo base_url(); ?>employee/inventory/get_spare_part_charges',
+              data: { inventory_id : inventory, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>'},
+              success:function(data){
+                  var obj = JSON.parse(data);
+                  if(obj){
+                      $('#approx_value_'+id_index).val(obj.spare_part_price);
+                  }
+              }
+         });
+    }
+    
     $(document).ready(function(){
         $(document).on("change",".shipped-part-name",function(){
             var key = $(this).data("key");

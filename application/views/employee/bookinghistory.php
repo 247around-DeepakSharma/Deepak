@@ -127,7 +127,7 @@
         var request = $.ajax({
         type: 'POST',
         data: datastring,
-        url: "<?php echo base_url(); ?>employee/booking/check_warranty_booking",
+        url: "<?php echo base_url(); ?>employee/user/check_warranty_booking_search",
         beforeSend: function(){
             $("#purchase_date_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
             $("#booking_type_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");

@@ -2182,6 +2182,7 @@ class Booking_model extends CI_Model {
     function get_partner_logo($select,$where){
         $this->db->select($select);
         $this->db->where($where);
+        $this->db->order_by('logo_priority','ASC');
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }

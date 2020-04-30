@@ -488,7 +488,10 @@ class engineerApi extends CI_Controller {
             case 'getAccessories':
                 $this->getgetAccessoriesList();  //// Getting parents
                 break;
-
+            /*   this API used to send OTP for Cancel/Rescedule */
+            case 'sendCancelRescheduleOTP':
+                $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
+                break;
 
             default:
                 break;
@@ -2517,6 +2520,10 @@ class engineerApi extends CI_Controller {
                 }
             }
             if ($check_serial['status']) {
+		/* Check for duplicate Part Request */
+                $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
+		if($duplicate_part['status'])
+		{				
                 /* Check part warranty status */
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
                 foreach ($requestData['part'] as $key => $value) {
@@ -2609,7 +2616,12 @@ class engineerApi extends CI_Controller {
                   log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
                   $this->sendJsonResponse(array('0035', $response->message));
                   }
-                 */
+                 */ 
+		}else{
+		log_message("info", __METHOD__ . "Duplicate Part Request");
+                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+		}					
+				 		 
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
@@ -2618,6 +2630,30 @@ class engineerApi extends CI_Controller {
             log_message("info", __METHOD__ . "Request validation failed " . $validation['message']);
             $this->sendJsonResponse(array('0036', $validation['message']));
         }
+    }
+
+
+
+    /**
+     * @desc This function is used to check same part already requested or not.
+     * DO Not allow to sf to request part if same part already requested
+     * @return Array
+     * @Author : Abhishek Awasthi
+     */
+    function is_part_already_requested($parts_requestedm,$booking_id) {
+        $array = array();
+        foreach ($parts_requested as $value) {
+            if (isset($value['parts_type'])) {
+                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+                    "parts_requested_type" => $value['parts_type']));
+                if (!empty($data)) {
+                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+                    break;
+                }
+            }
+        }
+        return $array;
     }
 
     function validateSparePartsOrderRequest($requestData) {
@@ -4498,8 +4534,8 @@ class engineerApi extends CI_Controller {
         $latlong =array();
         $supcordinate = array();
         foreach($state_coordinates as $key => $coordinate){
-            $latlong['lat'] = $coordinate[0];
-            $latlong['long'] = $coordinate[1];
+            $latlong['long'] = $coordinate[0];
+            $latlong['lat'] = $coordinate[1];
             $supcordinate[] = $latlong;
         }
 
@@ -4526,6 +4562,47 @@ class engineerApi extends CI_Controller {
             $accessories = $this->accessories_model->show_accessories_list();  
          $this->jsonResponseString['response'] = $accessories; // All Data in response//
             $this->sendJsonResponse(array('0000', 'success')); // send success response //
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
+
+    /**
+     * @Desc: This function is to used to send OTP for Cancel/Reschedule
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 29-04-2020
+     */
+
+    function sendCancelRescheduleOTPCustomer(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id"), $requestData);
+        if ($validation['status']) {
+            /* CURL Call */             
+            $url = base_url() . 'employee/service_centers/send_otp_customer';
+            $fields = array(
+                'booking_id' => $requestData['booking_id'],
+                'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG
+            );
+            //url-ify the data for the POST
+            $fields_string = http_build_query($fields);
+            //open connection
+            $ch = curl_init();
+            //set the url, number of POST vars, POST data
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+            //execute post
+            $result = curl_exec($ch);
+            //close connection
+            curl_close($ch);
+            $this->jsonResponseString['response'] = $result; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response // 
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
