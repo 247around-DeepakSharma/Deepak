@@ -2465,7 +2465,3 @@ ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) N
 -- Prity 29-04-2020
 -- 73
 ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
-
--- Ankit Rajvanshi 30-04-2020
-INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
