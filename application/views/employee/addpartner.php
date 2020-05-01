@@ -1538,6 +1538,12 @@ select,input[type=file][readonly]
                                         <option value="repair">Repair</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
+                                    <label for="youtube_link">Youtube Link</label>
+                                    <input type="text" class="form-control"  name="youtube_link" id="youtube_link" onchange="validate_youtube_link(this)">
+                                </div>
+                                </div>    
                             </div>
                             <div class="col-md-6" style="float:right; width: 49%;">
                                 <div class="form-group">
@@ -1596,6 +1602,7 @@ select,input[type=file][readonly]
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
+                            <th>Youtube Link</th>
                             <th>Delete <button  class="btn-danger" onclick="delete_collatrals()"><i class=" fa fa-trash" aria-hidden="true"></i></button></th>
                             <th>Date</th>
                         </tr>
@@ -1626,6 +1633,11 @@ select,input[type=file][readonly]
                             <td><?php echo ucfirst($value['request_type']); ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
+                            <td>
+                                <?php if(!empty($value['youtube_link'])) { ?>
+                                <a href="<?php echo $value['youtube_link']; ?>" target="_blank">Click To Watch</a>
+                                <?php } ?>
+                            </td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
                             <td><?php echo date("d-M-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
@@ -6091,6 +6103,19 @@ select,input[type=file][readonly]
             }
         }
     }
+    
+    function validate_youtube_link(obj) {
+        var url = $(obj).val();
+        if (url != undefined || url != '') {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            if (match && match[2].length == 11) {}
+            else {
+               alert('Please enter the correct youtube url.');
+            }
+        }
+    }
+    
     $(document).ready(function(){
         var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
         var lastUrl = sessionStorage.getItem("last-url"+current_partner_id);

@@ -1161,7 +1161,7 @@ class Partner extends CI_Controller {
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
-                . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id',
+                . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id, collateral.youtube_link',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, array("collateral.start_date" => "DESC"), NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
@@ -5272,6 +5272,10 @@ class Partner extends CI_Controller {
             $l_c_category = $this->input->post('l_c_category');
             $appliance_id = $this->input->post('l_c_service');
             $request_type = $this->input->post('l_c_request_type');
+            $youtube_link = NULL;
+            if(!empty($this->input->post('youtube_link'))) {
+                $youtube_link = $this->input->post('youtube_link');
+            }
             $description = '';
             if($this->input->post('l_c_capacity') && !empty($this->input->post('l_c_capacity'))){
               $l_c_capacity = $this->input->post('l_c_capacity');  
@@ -5314,6 +5318,7 @@ class Partner extends CI_Controller {
                                 $temp['document_description'] = $description;
                                 $temp['file'] = $contract_file;
                                 $temp['request_type'] = $requestType;
+                                $temp['youtube_link'] = $youtube_link;
                                 $data[] = $temp;
                             }
                         }
@@ -5330,6 +5335,7 @@ class Partner extends CI_Controller {
                                 $temp['document_description'] = $description;
                                 $temp['file'] = $contract_file;
                                 $temp['request_type'] = $requestType;
+                                $temp['youtube_link'] = $youtube_link;
                                 $data[] = $temp;
                         }
                     }
