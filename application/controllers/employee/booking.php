@@ -2711,7 +2711,7 @@ class Booking extends CI_Controller {
 
     function check_and_update_partner_extra_spare($booking_id){
 
-        $booking_unit_details = $this->booking_model->getunit_details($booking_id);
+        $booking_unit_details = $this->booking_model->getunit_details($booking_id,"",TRUE);
         foreach($booking_unit_details as $unit){
             if($unit['partner_net_pay']>0){
                 
