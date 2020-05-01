@@ -82,7 +82,7 @@ if ($this->uri->segment(4)) {
                                 <?php echo ucfirst($courier->document_type) ?> 
                             </td>
                             <td> 
-                                <?php echo ucfirst($courier->partner_invoice_id) ?> 
+                                <?php echo ucfirst($courier->billed_to_partner_invoice_id) ?> 
                             </td>
                             <td> 
                                 <?php echo $courier->AWB_no ?> 
