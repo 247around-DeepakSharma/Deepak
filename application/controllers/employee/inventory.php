@@ -8562,33 +8562,49 @@ function get_bom_list_by_inventory_id($inventory_id) {
     }
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
-     * @param String $booking_id
+     * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
-    function get_spare_cancelled_status($booking_id){
-        log_message('info', __METHOD__. " Booking ID ".$booking_id);
-        
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status', array('spare_parts_details.booking_id' => $booking_id));
-        if(!empty($spare)){
+    function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+
+        $data = array();
+        $cancellation_reason = array();
+        $select = 'spare_parts_details.booking_id, status';
+        if (!empty($is_reason_required) && $is_reason_required == 1) {
+            $data['spare_cancel_reason'] = true;
+            $select .= ", booking_cancellation_reasons.reason";
+        }
+
+        $spare = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id), '', '', '', $data);
+
+        if (!empty($spare)) {
             $is_cancelled = false;
             $not_can = false;
-            foreach($spare as $value){
-                if($value['status'] == _247AROUND_CANCELLED){
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
                     $is_cancelled = true;
+                    if (!empty($value['reason'])) {
+                        $cancellation_reason[] = $value['reason'];
+                    }
                 } else {
                     $not_can = true;
                 }
             }
-            
-            if($not_can){
-                echo "Not Exist";
-            } else if($is_cancelled){
-                echo "success";
+
+            if ($not_can) {
+                $return = "Not Exist";
+            } else if ($is_cancelled) {
+                $return = "success";
             } else {
-                 echo "Not Exist";
+                $return = "Not Exist";
             }
         } else {
-            echo "Not Exist";
+            $return = "Not Exist";
         }
+        $response['status'] = $return;
+        $response['reason'] = implode('<br>', array_filter($cancellation_reason));
+        echo json_encode($response);
     }
     
     function get_spare_delivered_status($booking_id){
@@ -10049,44 +10065,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         return true;
     }
-/**
-     * @desc This function is used to get success message when spare cancelled with cancelled reason
-     * @param String $booking_id
-     * @response json
-     * @author: Ghanshyam
-     */
-    function get_spare_cancelled_status_with_reason($booking_id) {
-        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
-        $data['spare_cancel_reason'] = true;
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status,booking_cancellation_reasons.reason', array('spare_parts_details.booking_id' => $booking_id),'','','',$data);
-        $status = '';
-        $cancellation_reason = array();
-        if (!empty($spare)) {
-            $is_cancelled = false;
-            $not_can = false;
-            foreach ($spare as $value) {
-                if ($value['status'] == _247AROUND_CANCELLED) {
-                    $is_cancelled = true;
-                    $cancellation_reason[] = $value['reason'];
-                } else {
-                    $not_can = true;
-                }
-            }
-
-            if ($not_can) {
-                $status = "Not Exist";
-            } else if ($is_cancelled) {
-                $status = "success";
-            } else {
-                $status = "Not Exist";
-            }
-        } else {
-            $status = "Not Exist";
-        }
-        $response['status'] = $status;
-        $response['reason'] = implode('<br>',array_filter($cancellation_reason));
-        echo json_encode($response);
-    }    
+ 
 
 
   /**
@@ -10144,6 +10123,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         echo json_encode($output);
     }
+
 
 
     /**
