@@ -1954,9 +1954,12 @@ class Booking_model extends CI_Model {
      * @param String $booking_id
      * @return boolean
      */
-    function get_booking_state_change($booking_id){
+    function get_booking_state_change($booking_id,$where=''){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->like('booking_id',$trimed_booking_id);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get('booking_state_change');
 

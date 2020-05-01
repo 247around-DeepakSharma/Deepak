@@ -10048,6 +10048,44 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         return true;
+    }
+/**
+     * @desc This function is used to get success message when spare cancelled with cancelled reason
+     * @param String $booking_id
+     * @response json
+     * @author: Ghanshyam
+     */
+    function get_spare_cancelled_status_with_reason($booking_id) {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+        $data['spare_cancel_reason'] = true;
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status,booking_cancellation_reasons.reason', array('spare_parts_details.booking_id' => $booking_id),'','','',$data);
+        $status = '';
+        $cancellation_reason = array();
+        if (!empty($spare)) {
+            $is_cancelled = false;
+            $not_can = false;
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
+                    $is_cancelled = true;
+                    $cancellation_reason[] = $value['reason'];
+                } else {
+                    $not_can = true;
+                }
+            }
+
+            if ($not_can) {
+                $status = "Not Exist";
+            } else if ($is_cancelled) {
+                $status = "success";
+            } else {
+                $status = "Not Exist";
+            }
+        } else {
+            $status = "Not Exist";
+        }
+        $response['status'] = $status;
+        $response['reason'] = implode('<br>',array_filter($cancellation_reason));
+        echo json_encode($response);
     }    
 
 
@@ -10164,6 +10202,28 @@ function get_bom_list_by_inventory_id($inventory_id) {
             }
         }
         echo json_encode($data);
+    }
+    /**
+     *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
+     *  @param : booking_id
+     *  @return : JSON /status(sucess / error), count
+     * @Author: Ghanshyam
+     */
+    function booking_cancelled_rejected_count($booking_id) {
+        $where['old_state'] = SF_BOOKING_CANCELLED_STATUS; // Booking cancelled by SF
+        $where['new_state'] = _247AROUND_CANCELED_REJECTED; // Csncelled status rejected by Admin
+        $data = $this->booking_model->get_booking_state_change($booking_id, $where);
+        $count_cancelled_rejected = 0;
+        $status = '';
+        if (!empty($data)) {
+            $status = 'success';
+            $count_cancelled_rejected = count($data);
+        } else {
+            $status = 'error';
+        }
+        $return_array['status'] = $status;
+        $return_array['count'] = $count_cancelled_rejected;
+        echo json_encode($return_array);
     }
 
 }
