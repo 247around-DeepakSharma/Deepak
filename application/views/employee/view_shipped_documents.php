@@ -1,10 +1,3 @@
-<?php
-if ($this->uri->segment(4)) {
-    $sn_no = $this->uri->segment(4) + 1;
-} else {
-    $sn_no = 1;
-}
-?>
 <div class="page-wrapper">
     <div class="row"style="margin:10px"> 
         <div class="clear"></div>
@@ -61,12 +54,12 @@ if ($this->uri->segment(4)) {
                 </thead> 
                 <tbody> 
                     <?php
-                    $start = $sn_no;
+                    $start = 0;
                     foreach ($courier_details as $courier) {
                         ?> 
                         <tr> 
                             <td> 
-                                <?php echo $start; ?> 
+                                <?php echo ++$start ?> 
                             </td> 
                             <td> 
                                 <?php 
@@ -82,7 +75,7 @@ if ($this->uri->segment(4)) {
                                 <?php echo ucfirst($courier->document_type) ?> 
                             </td>
                             <td> 
-                                <?php echo ucfirst($courier->billed_to_partner_invoice_id) ?> 
+                                <?php echo ucfirst($courier->partner_invoice_id) ?> 
                             </td>
                             <td> 
                                 <?php echo $courier->AWB_no ?> 
@@ -139,18 +132,16 @@ if ($this->uri->segment(4)) {
                                 </div>
                             </td> 
                         </tr> 
-                        <?php $start++;
+                        <?php
                     }
                     ?> 
                 </tbody> 
             </table>
-        <div class="custom_pagination" style="margin-left: 16px;" > <?php if (isset($links)) echo $links; ?></div>
     </div>
 </div>
 <script type="text/javascript"> 
         $(document).ready(function() { 
             $("#mytable").dataTable({
-                bPaginate: false,
                 dom: 'Bfrtip',
                 buttons: [
                    'excel', 'pageLength'
@@ -161,8 +152,5 @@ if ($this->uri->segment(4)) {
 <style>
     #mytable_filter{
         text-align: right;
-    }
-    .dataTables_info {
-        display :none;
     }
 </style>

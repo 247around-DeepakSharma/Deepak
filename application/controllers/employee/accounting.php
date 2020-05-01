@@ -34,7 +34,6 @@ class Accounting extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('invoice_lib');
-        $this->load->library("pagination");
         //  $this->load->library('email');
 
 //    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -681,25 +680,10 @@ class Accounting extends CI_Controller {
         }
     }
     //to view all the documents
-    function view_shipped_documents($offset = 0){
-        
+    function view_shipped_documents(){
+        $courier_details = $this->accounting_model->get_courier_documents();
         $this->miscelleneous->load_nav_header();
-        
-        $config['base_url'] = base_url() . 'employee/accounting/view_shipped_documents';
-        $config['per_page'] = 20;
-        $config['uri_segment'] = 4;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-        
-        $courier_details = $this->accounting_model->get_courier_documents(NULL, $offset, $config['per_page']);
-        $config['total_rows'] = count($this->accounting_model->get_courier_documents());
-        $data['count'] = $config['total_rows'];
-        
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-        $data['courier_details'] = $courier_details;
-        
-        $this->load->view('employee/view_shipped_documents',$data);
+        $this->load->view('employee/view_shipped_documents',array('courier_details'=>$courier_details));
     
     }
     

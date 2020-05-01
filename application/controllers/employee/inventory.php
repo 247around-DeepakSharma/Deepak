@@ -7699,8 +7699,7 @@ class Inventory extends CI_Controller {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date,  courier_company_invoice_details.id";
-        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
         $no = $post_data['start'];
         $data = array();
         $rowSums = array(
@@ -7715,7 +7714,6 @@ class Inventory extends CI_Controller {
             $row = array();
             $no++;
             $row[] = $no;
-            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7745,7 +7743,7 @@ class Inventory extends CI_Controller {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
             "data" => $data,
         );
 
@@ -7771,8 +7769,7 @@ class Inventory extends CI_Controller {
         );
         
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.reject_remarks";
-        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -7788,7 +7785,6 @@ class Inventory extends CI_Controller {
             $row = array();
             $no++;
             $row[] = $no;
-            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7810,7 +7806,7 @@ class Inventory extends CI_Controller {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
             "data" => $data,
         );
 
@@ -7971,8 +7967,7 @@ class Inventory extends CI_Controller {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'vendor_invoice_id', 'partner_invoice_id');
-        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.id";
-        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
+        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -7980,13 +7975,12 @@ class Inventory extends CI_Controller {
             $row = array();
             $no++;
             $row[] = $no;
-            $row[] = $invoice_list->invoice_id;
-            $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
             $row[] = $invoice_list->courier_charge;
             $row[] = $invoice_list->actual_weight;
             $row[] = $invoice_list->billable_weight;
+            $row[] = $invoice_list->courier_invoice_id;
             //$row[] = $invoice_list->vendor_invoice_id;
             //$row[] = $invoice_list->partner_invoice_id;
             $row[] = $invoice_list->pickup_from;
@@ -7997,7 +7991,7 @@ class Inventory extends CI_Controller {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
             "data" => $data,
         );
 
@@ -9881,11 +9875,13 @@ class Inventory extends CI_Controller {
      */
     function get_no_return_parts_by_sf_list() {
         $post = $this->get_post_data();
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $search = $this->input->post('search');
+        $post['search'] = $search;
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity as shipping_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.part_warranty_status,"
                 . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number ";
-        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
-            'parts_requested');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name','parts_requested');
+        $post['search']['value'] = $post['search_value'];
         $post['is_inventory'] = TRUE;
         $post['where']['booking_details.current_status'] = _247AROUND_COMPLETED;
 
@@ -9896,10 +9892,7 @@ class Inventory extends CI_Controller {
         $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['spare_parts_details.shipped_inventory_id IS NOT NULL'] = NULL;
         $post['where_in']['spare_parts_details.is_micro_wh'] = array(1,2);
-
         $list = $this->inventory_model->get_spare_parts_query($post);
-
-
         $data = array();
         $no = $post['start'];
         foreach ($list as $spare) {
@@ -9940,7 +9933,7 @@ class Inventory extends CI_Controller {
         $row[] = $spare->shipped_parts_type;
         $row[] = $spare->shipped_quantity;
         $row[] = $spare->status;
-        $row[] = '<input id="selectbox"' . $spare->sid . '  class="select_part"  type="checkbox"  />';
+        $row[] = '<input id="selectbox" data-spare-id="' . $spare->sid . '" data-partner-id="'.$spare->partner_id.'" data-is-micro-wh="'.$spare->is_micro_wh.'" data-shipped-inventory-id="'.$spare->shipped_inventory_id.'" data-booking-id="'.$spare->booking_id.'" data-shipping-quantity="'.$spare->shipping_quantity.'" data-part-name="'.$spare->part_name.'" data-defective-return-to-entity-id="'.$spare->defective_return_to_entity_id.'" data-sc-code="'.$spare->sc_code.'" class="select_part"  type="checkbox"  />';
         return $row;
     }
  

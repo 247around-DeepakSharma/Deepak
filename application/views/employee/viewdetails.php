@@ -110,7 +110,7 @@
         <div class="tab-pane fade in active" id="tab1">
             <div class="row">
                 <div class="col-md-12">
-                    <table style="table-layout:fixed; width: 100%" class="table  table-striped table-bordered" >
+                    <table class="table  table-striped table-bordered" >
                         <tr>
                             <th>Name </th>
                             <td><?php echo $booking_history[0]['name']; ?></td>
@@ -225,7 +225,7 @@
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
-                            <td style="max-width: 330px; word-wrap: break-word;"><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th>Service Promise Date</th>
                             <td ><?php echo date("d-M-Y", strtotime($booking_history[0]['service_promise_date']));?></td>
                         </tr>

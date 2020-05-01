@@ -51,7 +51,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers_history',
                     exportOptions: {
-                       columns: [1,2,3,4],
+                       columns: [0,1,2,3],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

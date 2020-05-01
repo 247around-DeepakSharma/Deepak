@@ -103,13 +103,19 @@ class Booking_model extends CI_Model {
      * @param: booking id, appliance id
      * @return:  Array
      */
-    function getunit_details($booking_id="", $appliance_id=""){
+    function getunit_details($booking_id="", $appliance_id="",$spare_extra=FALSE){
         $where = "";
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
+
+           if($spare_extra){
             $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`,booking_unit_details.price_tags as uprice_tag,booking_unit_details.partner_net_payable as partner_net_pay
             from booking_unit_details Where $where  ";
+           }else{
+           $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+            from booking_unit_details Where $where  ";   
+           }
 
         } else if ($appliance_id != "") {
 

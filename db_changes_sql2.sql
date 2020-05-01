@@ -2465,14 +2465,3 @@ ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) N
 -- Prity 29-04-2020
 -- 73
 ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
-
--- Ankit Rajvanshi 30-04-2020
-INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
-
--- Ankit Rajvanshi 01-05-2020
-INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES
-('Symptom', 'creation_symptom.symptom as \'Booking Symptom\'', 1, '', 1, 51),
-('SF Symptom', 'completion_symptom.symptom as \'Completion Symptom\'', 1, '', 1, 52),
-('Defect', 'defect.defect AS \'Defect\'', 1, '', 1, 53),
-('Solution', 'symptom_completion_solution.technical_solution AS \'Solution\'', 1, '', 1, 54);
