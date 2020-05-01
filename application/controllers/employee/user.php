@@ -103,8 +103,10 @@ class User extends CI_Controller {
 
             else if(!empty($serial_number)){
             $post['search_value'] = $serial_number;
-             $post['column_search'] = array('booking_unit_details.serial_number','booking_unit_details.partner_serial_number');
-             $post['where'] = array('booking_unit_details.serial_number' =>$serial_number, 'booking_unit_details.partner_serial_number' =>$serial_number);
+            $post['column_search'] = array('booking_unit_details.serial_number');
+            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number);
+            $post['column_search'] = array('booking_unit_details.serial_number','booking_unit_details.partner_serial_number');
+            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number, 'booking_unit_details.partner_serial_number' =>$serial_number);
             $view = "employee/search_result";
         
             
