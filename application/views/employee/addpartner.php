@@ -2764,9 +2764,9 @@
                                     <table class="table table-bordered table-hover table-striped" id="model_mapping_table">
                                         <thead>
                                             <tr>
-                                                <th>S.No.</th>
-                                                <th>Model Number</th>
+                                                <th>S.No.</th>                                                
                                                 <th>Service</th>
+                                                <th>Model Number</th>
                                                 <th>Brand</th>
                                                 <th>Category</th>
                                                 <th>Capacity</th>
