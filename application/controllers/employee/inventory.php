@@ -7754,7 +7754,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date,  courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
         $no = $post_data['start'];
         $data = array();
         $rowSums = array(
@@ -7769,6 +7770,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7798,7 +7800,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -7824,7 +7826,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         );
         
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.reject_remarks";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -7840,6 +7843,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7861,7 +7865,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -8022,7 +8026,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'vendor_invoice_id', 'partner_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -8030,12 +8035,13 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
+            $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
             $row[] = $invoice_list->courier_charge;
             $row[] = $invoice_list->actual_weight;
             $row[] = $invoice_list->billable_weight;
-            $row[] = $invoice_list->courier_invoice_id;
             //$row[] = $invoice_list->vendor_invoice_id;
             //$row[] = $invoice_list->partner_invoice_id;
             $row[] = $invoice_list->pickup_from;
@@ -8046,7 +8052,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
