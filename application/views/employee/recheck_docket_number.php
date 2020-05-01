@@ -87,7 +87,8 @@
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
-                                    <th>Invoice Id</th>
+                                    <th> Invoice Id</th>
+                                    <th>CourierInvoice Id</th>
                                     <th>AWB Number</th>
                                     <th>Company Name</th>
                                     <th>Billable Weight</th>
@@ -105,7 +106,8 @@
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
-                                    <th>Invoice Id</th>
+                                    <th> Invoice Id</th>
+                                    <th>Courier Invoice Id</th>
                                     <th>AWB Number</th>
                                     <th>Company Name</th>
                                     <th>Create Date</th>
@@ -121,12 +123,13 @@
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
+                                    <th> Invoice Id</th>
+                                    <th>Courier Invoice Id</th>
                                     <th>AWB Number</th>
                                     <th>Company Name</th>
                                     <th>Courier Charges</th>
                                     <th>Actual Weight</th>
                                     <th>Billable Weight</th>
-                                    <th>Courier Invoice Id</th>
 <!--                                    <th>Vendor Invoice Id</th>-->
 <!--                                    <th>Partner Invoice Id</th>-->
                                     <th>Pickup From</th>
