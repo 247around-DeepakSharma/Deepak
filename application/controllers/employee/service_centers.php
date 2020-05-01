@@ -1118,7 +1118,7 @@ class Service_centers extends CI_Controller {
 
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
-
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
         if ($this->session->userdata('is_engineer_app') == 1) {
             $en_where = array("booking_id" => $booking_id,
                 "service_center_id" => $this->session->userdata('service_center_id')
@@ -1229,8 +1229,12 @@ class Service_centers extends CI_Controller {
      */
     function send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city = "", $pincode = "", $templet = "", $correctpin = "") {
         $email_template = $this->booking_model->get_booking_email_template($templet);
+        // Initialize To array
+        $to = array();
         if (!empty($email_template)) {
-            $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
+            // Get ASM mail 
+            $asm_email = $this->get_asm_email($this->session->userdata('service_center_id'));
+            
             $join['service_centres'] = 'booking_details.assigned_vendor_id = service_centres.id';
             $JoinTypeTableArray['service_centres'] = 'left';
             $booking_state = $this->reusable_model->get_search_query('booking_details', 'service_centres.state', array('booking_details.booking_id' => $booking_id), $join, NULL, NULL, NULL, $JoinTypeTableArray)->result_array();
@@ -1239,10 +1243,15 @@ class Service_centers extends CI_Controller {
             $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']), "", 0, 1, 1, "partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
-                $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
+                $arr_am_data = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id']);
+                $am_email = !empty($arr_am_data[0]['official_email']) ? $arr_am_data[0]['official_email'] : "";
             }
 
-            $to = $rm_email . "," . $am_email;
+            // push AM mail and ASM mail in To
+            array_push($to, $asm_email, $am_email);
+            // Remove Blank emails
+            $to = array_filter($to);
+            $to = implode(',', $to);
             $cc = $email_template[3];
             $bcc = $email_template[5];
             $subject = vsprintf($email_template[4], array($booking_id));
@@ -1264,7 +1273,7 @@ class Service_centers extends CI_Controller {
         $booking['assigned_vendor_id'] = NULL;
         $booking['assigned_engineer_id'] = NULL;
         $booking['mail_to_vendor'] = '0';
-        $booking['booking_date'] = date('d-m-Y');
+        $booking['booking_date'] = date('Y-m-d');
 
         //Get Partner 
         $actor = $next_action = 'not_define';
@@ -2633,7 +2642,7 @@ class Service_centers extends CI_Controller {
                         $sc_data['booking_date'] = date('Y-m-d H:i:s', strtotime($booking_date));
                         $sc_data['reschedule_reason'] = $data['remarks_by_sc'];
                         // $sc_data['internal_status'] = 'Reschedule';
-                        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+                        $booking['booking_date'] = date('Y-m-d', strtotime($booking_date));
                         $this->booking_model->update_booking($booking_id, $booking);
                     }
 
@@ -2926,7 +2935,7 @@ class Service_centers extends CI_Controller {
                     $entity_type = _247AROUND_SF_STRING;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
@@ -4437,14 +4446,28 @@ class Service_centers extends CI_Controller {
      * @return : string
      */
     private function get_rm_email($vendor_id) {
-        $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        //  print_r($employee_rm_relation); exit();
+        $employee_rm_relation = $this->vendor_model->get_rm_contact_details_by_sf_id($vendor_id);
         $rm_poc_email = "";
         if (!empty($employee_rm_relation)) {
             $rm_poc_email = $employee_rm_relation[0]['official_email'];
         }
 
         return $rm_poc_email;
+    }
+    
+    /**
+     * @Desc: This function is used to get ASM email (:POC) details for the corresponding vendor 
+     * @params: vendor 
+     * @return : string
+     */
+    private function get_asm_email($vendor_id) {
+        $employee_asm_relation = $this->vendor_model->get_asm_contact_details_by_sf_id($vendor_id);
+        $asm_poc_email = "";
+        if (!empty($employee_asm_relation)) {
+            $asm_poc_email = $employee_asm_relation[0]['official_email'];
+        }
+
+        return $asm_poc_email;
     }
 
     /**
@@ -5584,7 +5607,7 @@ class Service_centers extends CI_Controller {
                 $total_escalation_per = ($total_escalation[0]['total_escalation'] * 100) / $total_booking[0]['total_booking'];
             }
 
-            $current_month_booking = $this->reusable_model->get_search_query('booking_details', 'count(booking_id) AS total_booking', array('assigned_vendor_id' => $sf_id, "month(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
+            $current_month_booking = $this->reusable_model->get_search_query('booking_details', 'count(booking_id) AS total_booking', array('assigned_vendor_id' => $sf_id, "month(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = month(now()) AND year(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d')) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
             $current_month__escalation = $this->reusable_model->get_search_query('vendor_escalation_log', 'count(booking_id) AS total_escalation', array('vendor_id' => $sf_id, "month(create_date) = month(now()) AND year(create_date) = year(now())" => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();
             if (!empty($current_month_booking[0]['total_booking'])) {
                 $current_month_escalation_per = ($current_month__escalation[0]['total_escalation'] * 100) / $current_month_booking[0]['total_booking'];
@@ -6331,9 +6354,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-            //$courier_image['status']           
+            
             if (1) {
-
+                
                 $part = $this->input->post("part");
                 //$sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
@@ -7052,6 +7075,7 @@ class Service_centers extends CI_Controller {
             'remarks_defective_part_by_wh' => $rejection_reason,
             'defective_part_rejected_by_wh' => 1,
             'defective_part_received_by_wh' => '0',
+            'approved_defective_parts_by_admin' => '0',
             'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh'),
         );
 
@@ -9582,5 +9606,44 @@ class Service_centers extends CI_Controller {
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
         }
+
+    /**
+     * @desc : Method is used to send otp for booking cancellation & booking reschedule.
+     * @author Ankit Rajvanshi
+     */
+    function send_otp_customer() {
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        $tag = $post_data['sms_template'];
+        $sms = [];
+        
+        // get booking contact number and user id.
+        $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+        $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+        $user_id = $booking_deatils['user_id'];
+        
+        // prepare data for sms template.
+        $otp = rand(1000,9999);
+        if (!$this->input->post("call_from_api")) {
+            // unset session variable if already stored.
+            $this->session->unset_userdata('cancel_booking_otp');
+            $this->session->set_userdata('cancel_booking_otp', $otp);
+        }
+        // setting sms data.
+
+        $sms['tag'] = $tag;
+        $sms['phone_no'] = $booking_primary_contact_number;
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "user";
+        $sms['type_id'] = $user_id;
+        $sms['smsData']['otp'] = $otp;
+        // send sms.
+        $this->notify->send_sms_msg91($sms);
+        if (!$this->input->post("call_from_api")) {
+            echo $this->session->userdata('cancel_booking_otp');
+        } else {
+            echo $otp;   
+        }
     }
+}
 }

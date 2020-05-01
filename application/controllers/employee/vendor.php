@@ -872,7 +872,11 @@ class vendor extends CI_Controller {
                 $post['where']['service_centres.is_sf'] = 1;
             }
         }
-
+        $id = $this->session->userdata('id');
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if(!empty($sf_list[0]['service_centres_id'])){
+           $post['where_in'] = ['service_centres.id' => explode(",",$sf_list[0]['service_centres_id'])];
+        }
         $select = "service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified";
@@ -6235,7 +6239,7 @@ class vendor extends CI_Controller {
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
-                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%Y-%m-%d')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
 
             $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);

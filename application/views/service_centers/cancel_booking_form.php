@@ -1,23 +1,5 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
-<script type="text/javascript">
 
-   
-   function check_text() {
-       var reason = document.myForm.cancellation_reason.value;
-       
-       if (reason === '' ) {
-           alert("Cancellation reason is missing");
-           return false;
-       } 
-        $('#submitform').val("Please wait.....");
-              
-
-        return true;
-          
-       
-   }
-   
-</script>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -25,7 +7,7 @@
             <h1 class="page-header">
                Cancel Booking 
             </h1>
-             <form class="form-horizontal" onSubmit="document.getElementById('submitform').disabled=true;" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php if(!empty($user_and_booking_details)){ echo $user_and_booking_details[0]['booking_id']; }?>" method="POST">
+             <form class="form-horizontal" id="cancel_booking_form" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php if(!empty($user_and_booking_details)){ echo $user_and_booking_details[0]['booking_id']; }?>"  method="POST">
                <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                   <label for="name" class="col-md-2">User Name</label>
                   <div class="col-md-6">
@@ -103,12 +85,18 @@
                             }
                        }
                    } ?>
+                   <?php 
+                   //if current status is completed or cancelled by admin. SF cannot cancel the booking.
+                   if(($bookinghistory[0]['current_status'] == _247AROUND_COMPLETED)||($bookinghistory[0]['current_status'] == _247AROUND_CANCELLED)){
+                    echo "<center><b>This booking is ".$bookinghistory[0]['current_status']." by Admin. You cannot cancel this booking.</b></center>";}
+                    else {
+                    ?>
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
                     <?php } else { ?>
-                    <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                    <input type="submit" id="submitform" value="Proceed" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php } ?>
-                  
+                  <?php } ?>
                   </div>
                </div>
             </form>
@@ -116,6 +104,39 @@
       </div>
    </div>
 </div>
+
+<div id="CancelBookingOtpModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="cancel_booking_otp_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cancel Booking</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Enter customer OTP here</label>
+                        <input class="form-control" type="text" name="cancel_booking_otp" id="cancel_booking_otp" value="">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="submit" id="cancel_booking_otp_btn" name="cancel-otp" value="Cancel Booking" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+                
+                <div class="row" style="margin-top:3%;">
+                    <div class="col-md-12 form-group">
+                        <span class="text-info"><b>Note :</b> OTP has been sent to customer. OTP is valid for 5 mins.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     
 // $(".wrong_pincode").click(function(){
@@ -130,5 +151,53 @@
      }
      
  });
+    
+    var response = '';  
+    function check_text() {
+       var reason = document.myForm.cancellation_reason.value;
+       
+       if (reason === '' ) {
+           alert("Cancellation reason is missing");
+           return false;
+       } 
+       
+        var booking_id = '<?php echo $user_and_booking_details[0]['booking_id']; ?>';
+        var sms_template = '<?php echo BOOKING_CANCEL_OTP_SMS_TAG; ?>';
+        
+        // send one time password to customer and open popup.
+        $.ajax({
+            method : 'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/send_otp_customer',
+            data: {booking_id, sms_template},
+        }).done(function(data) {
+            response = data;
+            $('#verified_otp').val(data);
+            $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
+            // hide modal after 5 mins.
+            setTimeout(function() {$('#CancelBookingOtpModal').modal('hide');}, 300000);
+            $('#submitform').val('Proceed');
+        });       
+       
+        $('#submitform').val("Please wait.....");
+        $('#submitform').css("disabled", true);
+        return false;
+    }  
+    
+    $('#cancel_booking_otp_btn').on('click', function() {
+        var cancel_booking_otp = $('#cancel_booking_otp').val();
+        if(cancel_booking_otp == '' || cancel_booking_otp == null) {
+            alert('Please enter OTP.');
+            return false;
+        }
+        if(cancel_booking_otp == response) {
+            $('#cancel_booking_form').submit();
+            return true;
+        }
+        
+        alert('Entered OTP is incorrect.');
+        return false;
+    });
+    
+    
     
 </script>

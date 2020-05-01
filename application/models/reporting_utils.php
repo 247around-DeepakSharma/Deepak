@@ -22,11 +22,11 @@ class Reporting_utils extends CI_Model {
                     . $sf_list .
                     ")
                 AND
-        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 2
                 AND booking_details.assigned_vendor_id IS NOT NULL";
         } else {
             $where = "booking_details.current_status IN ('Pending', 'Rescheduled') AND 
-        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 2
                 AND booking_details.assigned_vendor_id IS NOT NULL";
         }
         $query = $this->db->query("SELECT DISTINCT booking_details.booking_id,
@@ -41,7 +41,7 @@ class Reporting_utils extends CI_Model {
                 booking_unit_details.appliance_capacity,
                 booking_details.amount_due,
                 booking_details.current_status,
-                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) AS booking_age,
+                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) AS booking_age,
                 services.services AS service_name,
                 users.name AS user_name,
                 users.phone_number AS user_phone,
@@ -79,7 +79,7 @@ class Reporting_utils extends CI_Model {
                 booking_details.items_selected,
                 booking_details.amount_due,
                 booking_details.current_status,
-                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) AS booking_age,
+                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) AS booking_age,
                 services.services AS service_name,
                 users.name AS user_name,
                 users.phone_number AS user_phone
@@ -88,7 +88,7 @@ class Reporting_utils extends CI_Model {
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
                 LEFT JOIN  `service_centres` ON `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
                 WHERE booking_details.assigned_vendor_id = '$id' AND
-                (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0) AND
+                (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0) AND
                 booking_details.current_status IN ('Pending', 'Rescheduled')"
         );
 
@@ -107,10 +107,10 @@ class Reporting_utils extends CI_Model {
                     . $sf_list .
                     ")
                 AND
-        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 2 ";
         } else {
             $where = "booking_details.current_status IN ('Pending', 'Rescheduled') "
-                    . "AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+                    . "AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 2 ";
         }
         $query = $this->db->query("SELECT service_centres.name AS sc_name, "
                 . "COUNT(booking_details.booking_id) AS num_bookings "
@@ -129,7 +129,7 @@ class Reporting_utils extends CI_Model {
                     "SELECT booking_details.booking_id FROM booking_details
                     WHERE `current_status` IN ('Pending', 'Rescheduled', 'FollowUp') AND
                     DATEDIFF (CURRENT_TIMESTAMP,
-                        STR_TO_DATE (booking_details.booking_date, '%d-%m-%Y')) = 0"
+                        STR_TO_DATE (booking_details.booking_date, '%Y-%m-%d')) = 0"
             );
         } else {
             $query = $this->db->query(
@@ -137,7 +137,7 @@ class Reporting_utils extends CI_Model {
                 FROM booking_details
                 WHERE `current_status` IN ('Pending', 'Rescheduled', 'FollowUp') AND
                 DATEDIFF( STR_TO_DATE(  '" . $date .
-                    "',  '%d-%m-%Y' ) , STR_TO_DATE( booking_details.booking_date,  '%d-%m-%Y' ) ) = 0"
+                    "',  '%Y-%m-%d' ) , STR_TO_DATE( booking_details.booking_date,  '%Y-%m-%d' ) ) = 0"
             );
         }
 
@@ -1209,7 +1209,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
 //            $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
 //                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
 //                    . " AND assigned_vendor_id = '$value[id]' AND "
-//                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1";
+//                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) >= -1";
 //            $query1 = $this->db->query($sql1);
 //            $result1 = $query1->result_array();
             //Count, Booking is not updated
@@ -1223,7 +1223,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                       AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
                       AND service_center_id = '" . $value['id'] . "' 
                       AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 1) 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 1";
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) >= 1";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
 
@@ -1231,7 +1231,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
             $sql3 = "SELECT count(distinct(BD.booking_id)) as total_bookings FROM booking_details as BD,
                       service_center_booking_action AS sb
                       WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 1
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) >= 1
                       AND assigned_vendor_id = '" . $value['id'] . "' "
                     . " AND BD.booking_id = sb.booking_id AND sb.current_status = 'Pending' ";
 
@@ -1378,7 +1378,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
             $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
                     . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
                     . " AND assigned_vendor_id = '$value[id]' AND "
-                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) = 0";
+                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) = 0";
             $query1 = $this->db->query($sql1);
             $result1 = $query1->result_array();
 
@@ -1386,7 +1386,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
             $sql2 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
                     . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
                     . " AND assigned_vendor_id = '$value[id]' AND "
-                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) > 0";
+                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) > 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
 
@@ -1468,10 +1468,10 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             FROM booking_details
                                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                             WHERE 
-                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0
                                             " . $where . "
                                             AND 
-                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) <= 2
                                             AND current_status
                                             IN (
                                             'Pending', 'Rescheduled'
@@ -1483,9 +1483,9 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             FROM booking_details
                                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                             WHERE 
-                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 3
                                             AND 
-                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) <= 5
                                             " . $where . "
                                             AND current_status
                                             IN (
@@ -1498,7 +1498,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                                     FROM booking_details
                                                     JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                                     WHERE 
-                                                                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                                                                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 5
                                                     " . $where . "
                                                     AND current_status
                                                     IN (
@@ -1693,7 +1693,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                 from booking_details as bd
                 JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
-                WHERE `bd`.booking_id LIKE '%Q-%' AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
+                WHERE `bd`.booking_id LIKE '%Q-%' AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) >= 0 OR
                 bd.booking_date='') AND `bd`.current_status='FollowUp'
                 AND NOT EXISTS 
                 (SELECT 1

@@ -429,11 +429,11 @@ class Courier_tracking extends CI_Controller {
                     . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
                     if (empty($is_requested)) {
                         if (date('l' == 'Sunday')) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else if (date('H') > 12) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else {
-                            $booking['booking_date'] = date('d-m-Y');
+                            $booking['booking_date'] = date('Y-m-d');
                         }
                         $booking['update_date'] = date("Y-m-d H:i:s");
                         $booking['internal_status'] = SPARE_DELIVERED_TO_SF;

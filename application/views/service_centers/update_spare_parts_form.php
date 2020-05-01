@@ -471,7 +471,7 @@
                             ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  autocomplete="off" placeholder="Select Courier Shipment Date" readonly=""  style="background-color:#FFF;" onkeydown="return false;">
+                                    <input type="text" class="form-control"  id="shipment_date" name="shipment_date"  value = "<?php echo date("Y-m-d", strtotime("+0 day")); ?>"  required>
                                     <?php echo form_error('shipment_date'); ?>
                                 </div>
                             </div>
@@ -568,41 +568,21 @@
     </form>
 </div>
 <script type="text/javascript">
-//    $('#shipment_date').daterangepicker({
-//        autoUpdateInput: false,
-//        singleDatePicker: true,
-//        showDropdowns: true,
-//        minDate:false,
-//        locale:{
-//            format: 'YYYY-MM-DD'
-//        }
-//    });
-//            
-//    $('#shipment_date').on('apply.daterangepicker', function(ev, picker) {
-//        $(this).val(picker.startDate.format('YYYY-MM-DD'));
-//    });
-//    
-//    $('#shipment_date').on('cancel.daterangepicker', function(ev, picker) {
-//        $(this).val('');
-//    });
-//    
-        $('#shipment_date').daterangepicker({
+    $('#shipment_date').daterangepicker({
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: new Date(), //date_before_15_days,
-        maxDate: false,//'today',
-        locale:{
-            format: 'DD/MM/YYYY'
+        minDate: false,
+        locale: {
+            format: 'YYYY-MM-DD'
         }
     });
 
-
-    $('#shipment_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    $('#shipment_date').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
 
-    $('#shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+    $('#shipment_date').on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
 
@@ -647,9 +627,7 @@
                                     var current = $(this).val();
                                     if (ptypes.length > 0) {
                                         alert(ptypes.length);
-
                                         var n = ptypes.includes(current);
-                                        alert(n);
                                         if (n) {
                                             //alert("Same part type can not be requested.For multiple part please fill quantity.");
                                             // checkbox_value = 0;
@@ -972,20 +950,16 @@
                             $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
                             $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
                         }
-    
-                        } else {
-    
-                            $('body').loadingModal('destroy');
-                            $("#courier_image").css("display","block");
-                            $("#courier_price_by_partner").css("display","block");
-                            $("#courier_price_by_partner").val('');
-                            $("#same_awb").css("display","none");
-                            $("#exist_courier_image").val("");
-                            $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
-                            $("#shipped_spare_parts_weight_in_gram").val('').removeAttr("readonly");
-                            $('#shipped_spare_parts_boxes_count').val('').trigger('change');
-                        }
-    
+
+                    } else {
+
+                        $('body').loadingModal('destroy');
+                        $("#courier_image").css("display", "block");
+                        $("#courier_price_by_partner").css("display", "block");
+                        $("#same_awb").css("display", "none");
+                        $("#exist_courier_image").val("");
+                        $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
+                        $("#shipped_spare_parts_weight_in_gram").val('').removeAttr("readonly");
                     }
 
                 }

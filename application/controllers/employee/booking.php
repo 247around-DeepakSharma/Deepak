@@ -32,6 +32,7 @@ class Booking extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->model('warranty_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
@@ -756,7 +757,7 @@ class Booking extends CI_Controller {
         else{
             $booking['partner_source'] = NULL;
         }
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_date'] = date('Y-m-d', strtotime($booking_date));
         $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
         // select state, taluk, district by pincode
         $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
@@ -1253,7 +1254,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id, $this->input->post('service_center_closed_date'));
         if ($is_booking_able_to_reschedule !== FALSE) {
-            $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+            $data['booking_date'] = date('Y-m-d', strtotime($this->input->post('booking_date')));
             $data['booking_timeslot'] = $this->input->post('booking_timeslot');
             $data['service_center_closed_date'] = NULL;
             //$data['cancellation_reason'] = NULL;
@@ -1652,8 +1653,10 @@ class Booking extends CI_Controller {
         if ($getbooking) {
             $this->session->userdata('employee_id');
             $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+            // fetch disatisfactory reasons in case of Poor rating
+            $poor_rating_dissatisfactory_reasons = $this->booking_model->get_dissatisfactory_reasons();
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c));
+            $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status, 'c2c' => $c2c, 'dissatisfactory_reasons' => $poor_rating_dissatisfactory_reasons));
         } else {
             echo "Id doesn't exist";
         }
@@ -1680,6 +1683,12 @@ class Booking extends CI_Controller {
                 if ($this->input->post('rating_star') != "Select") {
                     $data['rating_stars'] = $this->input->post('rating_star');
                     $data['rating_comments'] = $this->input->post('rating_comments');
+                    // save dissatisfactory reason in booking_details in case of bad rating
+                    $dissatisfactory_reason = "";
+                    if(!empty($this->input->post('dissatisfactory_reason'))){
+                        $dissatisfactory_reason = $this->input->post('dissatisfactory_reason');
+                    }
+                    $data['customer_dissatisfactory_reason'] = $dissatisfactory_reason;
                     $remarks = 'Rating'.':'.$data['rating_stars'].'. '.$data['rating_comments'];
 
                     $update = $this->booking_model->update_booking($booking_id, $data);
@@ -1906,6 +1915,17 @@ class Booking extends CI_Controller {
             }
         }
 
+        // fetch customer dissatisfactory reason saved against Booking
+        $data['customer_dissatisfactory_reason'] = "";
+        if(!empty($data['booking_history'][0]['customer_dissatisfactory_reason'])){
+            $arr_where = ['id' => $data['booking_history'][0]['customer_dissatisfactory_reason']];
+            $arr_dissatisfactory_reason = $this->booking_model->get_dissatisfactory_reasons($arr_where);
+            if(!empty($arr_dissatisfactory_reason[0]['reason'])){
+                $data['customer_dissatisfactory_reason'] = $arr_dissatisfactory_reason[0]['reason'];
+            }
+        }
+        
+            
 //        if (!empty($data['booking_history']['spare_parts'])) {
 //            $spare_parts_list = array();
 //            foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -2353,6 +2373,8 @@ class Booking extends CI_Controller {
         $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
         $booking_symptom['defect_id_completion'] = $technical_defect; 
         
+        // get Booking Primary Id
+        $booking_primary_id = $this->input->post('booking_primary_id');
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
         $b_unit_details = array();
         if($status == 1){
@@ -2617,6 +2639,15 @@ class Booking extends CI_Controller {
             }
         }
         
+        // save SF and Admin amount mismatch (if any) in booking_amount_differences table
+        $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
+        $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
+
+
+        $this->check_and_update_partner_extra_spare($booking_id);
+
+
+        
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
@@ -2670,6 +2701,48 @@ class Booking extends CI_Controller {
             redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $internal_status);
         }
         }
+    }
+
+    /**
+     *  @desc : This function is used to update partner_extra_charges if partner_net_pay >0
+     *  @param : string $booking_id
+     *  @Author : Abhishek Awasthi 
+     */
+
+    function check_and_update_partner_extra_spare($booking_id){
+
+        $booking_unit_details = $this->booking_model->getunit_details($booking_id,"",TRUE);
+        foreach($booking_unit_details as $unit){
+            if($unit['partner_net_pay']>0){
+                
+            $brand = $unit['brand'];
+            $category = $unit['category'];
+            $capacity = $unit['capacity'];
+            $partner_id = $unit['partner_id'];
+            $price_tag = $unit['uprice_tag'];
+            $where = array(
+                'brand'=>$brand,
+                'category'=>$category,
+                'capacity'=>$capacity,
+                'partner_id'=>$partner_id,
+                'service_category'=>$price_tag
+            );
+            $select = "service_centre_charges.partner_spare_extra_charge";
+            $charges =  $this->service_centre_charges_model->get_service_caharges_data($select,$where);
+            $partner_spare_extra_charge = $charges[0]['partner_spare_extra_charge'];
+
+            $data_unit = array(
+                'partner_spare_extra_charge'=>$partner_spare_extra_charge
+            );
+            $where_unit = array(
+                'id'=>$unit['id']
+            );
+            $this->booking_model->update_booking_unit_details_by_any($where_unit, $data_unit);
+
+            } 
+        }
+
+
     }
 
     /**
@@ -3621,21 +3694,21 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name,employee.full_name as rm_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name,employee.full_name as rm_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
+            service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
          }
         unset($new_post['order_performed_on_count']);
@@ -3826,8 +3899,8 @@ class Booking extends CI_Controller {
         
         if(!empty($booking_date)){
             $bookingDateArray = explode(" - ", $booking_date);
-            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
-            $post['where']['STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d") >= '] =  date("Y-m-d", strtotime(trim($bookingDateArray[0])));
+            $post['where']['STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d") < '] = date("Y-m-d", strtotime(trim($bookingDateArray[1])));
         }
         
         if(!empty($city)){
@@ -4057,7 +4130,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%d-%m-%Y")', 'close_date'=>'date(booking_details.closed_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -4203,8 +4276,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking, "
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
@@ -4384,10 +4457,10 @@ class Booking extends CI_Controller {
          }
         $row[] = $no.$sn;
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -4396,7 +4469,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
         $row[] = $escalation." ".$order_list->partner_internal_status;
-        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
@@ -4410,7 +4483,8 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
+
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -4466,7 +4540,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4835,8 +4909,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,"
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking,"
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking,"
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . " booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.vendor_rating_stars,booking_details.vendor_rating_comments,"
@@ -5387,12 +5461,12 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
-            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
-             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day, booking_details.create_date,
+             booking_details.partner_internal_status,DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  initial_booking_date";
             
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',1); 
         }
@@ -5403,9 +5477,9 @@ class Booking extends CI_Controller {
                     . "services.services, service_centres.name as service_centre_name, "
                     . "service_centres.district as city, service_centres.primary_contact_name,"
                     . " service_centres.primary_contact_phone_1,
-                       STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-                       STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
-                       STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
+                        DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+                       DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
+                       STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age";
             
             $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
         }

@@ -108,7 +108,7 @@ class reusable_model extends CI_Model {
     }
     
      function get_search_result_data($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY=array()){
-       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+       $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
        $this->db->_protect_identifiers = FALSE;
        $query = $this->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray,$groupBY);
        return $query->result_array();
@@ -123,6 +123,14 @@ class reusable_model extends CI_Model {
     function get_rm_for_pincode($pincode){
         $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN agent_state_mapping ON 
         (state_code.state_code = agent_state_mapping.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    // This function gets ASM against Pincode
+    function get_asm_for_pincode($pincode){
+        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as asm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN agent_state_mapping ON 
+        (state_code.state_code = agent_state_mapping.state_code) JOIN employee ON (agent_state_mapping.agent_id = employee.id) WHERE employee.groups = '"._247AROUND_ASM."' AND india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

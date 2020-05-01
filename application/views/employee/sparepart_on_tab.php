@@ -411,6 +411,41 @@
         </div>
     </div>
 </div>
+<div role="tabpanel" class="tab-pane" id="return_defective_parts_from_wh_to_partner">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="return_defective_parts_from_wh_to_partner_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center">No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        <th class="text-center" data-orderable="false">Age</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div role="tabpanel" class="tab-pane" id="defective_part_shipped_by_SF">
     <div class="container-fluid">
         <div class="row" >
@@ -517,7 +552,6 @@
                                         <th class="text-center" data-orderable="false">Partner Name</th>
                                         <th class="text-center" data-orderable="false">Spare Status</th>
                                         <th class="text-center" data-orderable="false">Spare Warranty Status</th>
-                                        <th class="text-center" data-orderable="false">NRN Status</th>
                                         <th class="text-center" data-orderable="false">Service Center Closed Date</th>
                                         <th class="text-center" data-orderable="false">Booking Request Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Model Number</th>
@@ -526,6 +560,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part Number</th>
                                         <th class="text-center" data-orderable="false">Spare Part Shipped Date</th>
                                         <th class="text-center" data-orderable="true">Spare Shipped Age</th>
+                                        <th class="text-center" data-orderable="false">NRN Status</th>
                                         <th class="text-center" data-orderable="false">TAT</th>
                                         <th class="text-center" data-orderable="false">Partner AWB Number</th>
                                         <th class="text-center" data-orderable="false">SF AWB Number</th>                                 
@@ -662,6 +697,7 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Part Lost & Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -704,6 +740,7 @@
                                         <th class="text-center" data-orderable="true">Age Of Delivered</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Mark RTO Case</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -901,7 +938,19 @@
         </div>
     </div>
 </div>
-
+<div id="RtoCaseSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="rto_case_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">RTO Case </h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -916,7 +965,7 @@
 </style>
 <script>
     var spare_parts_requested_table;
-    var spare_parts_requested_table_approved;
+     var spare_parts_requested_table_approved;
     var partner_shipped_part_table;
     var sf_received_part_table;
     var defective_part_pending_table;
@@ -929,6 +978,7 @@
     var courier_lost_spare_parts_table;
     
     var defective_part_rejected_by_wh_table;
+    var return_defective_parts_from_wh_to_partner_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -1001,7 +1051,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,9,10,11,13,15], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10,11,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1038,7 +1088,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,5,15], //first column / numbering column
+                    "targets": [0,1,2,3,4,5], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1213,7 +1263,6 @@
                     "orderable": true //set not orderable
                 },
                 {
-
                     "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
@@ -1626,7 +1675,7 @@
           defective_part_oot_table = $('#defective_part_oot_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[15, "asc"]], 
+            order: [[14, "asc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1653,7 +1702,7 @@
                     "orderable": true //set not orderable
                 },
                  {
-                  "targets": [15], //first column / numbering column
+                  "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],
@@ -1969,6 +2018,82 @@
      spare_parts_requested_table.ajax.reload( function ( json ) { 
             $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
         },false );
+        
+        estimate_cost_requested_table.ajax.reload( function ( json ) { 
+            $("#total_req_quote").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        estimate_cost_given_table.ajax.reload( function ( json ) { 
+            $("#total_quote_given").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        spare_parts_requested_table_approved.ajax.reload( function ( json ) { 
+            $("#total_approved_spare").html('(<i>'+json.requested_quote+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+         spare_parts_requested_table_reject.ajax.reload( function ( json ) { 
+            $("#total_rejected_spare").html('(<i>'+json.total_rejected+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        oow_part_shipped_table.ajax.reload( function ( json ) { 
+            $("#total_oow_shipped_part_pending").html('(<i>'+json.oow_shipped_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+         partner_shipped_part_table.ajax.reload( function ( json ) { 
+            $("#total_partner_shipped_part").html('(<i>'+json.partner_shipped_part+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        sf_received_part_table.ajax.reload( function ( json ) { 
+            $("#total_sf_received_part").html('(<i>'+json.delivered_to_sf+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        total_part_shipped_to_sf_table.ajax.reload( function ( json ) { 
+            $("#total_part_shipped_to_sf").html('(<i>'+json.shipped_part_to_sf+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        courier_lost_spare_parts_table.ajax.reload( function ( json ) { 
+            $("#total_courier_lost").html('(<i>'+json.courier_lost+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_pending_table.ajax.reload( function ( json ) { 
+            $("#total_all_defective").html('(<i>'+json.defective_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_pending_table.ajax.reload( function ( json ) { 
+            $("#total_all_defective").html('(<i>'+json.defective_pending+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_oot_table.ajax.reload( function ( json ) { 
+            $("#total_defective_oot").html('(<i>'+json.oow_defective+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_shipped_by_sf_table.ajax.reload( function ( json ) { 
+            $("#total_courier_audit").html('(<i>'+json.courier_audit+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        courier_approved_defective_parts_table.ajax.reload( function ( json ) { 
+            $("#total_in_transit").html('(<i>'+json.in_transit+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_shipped_by_SF_approved_table.ajax.reload( function ( json ) { 
+            $("#total_defective_received_by_wh").html('(<i>'+json.defective_shipped_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        defective_part_rejected_by_wh_table.ajax.reload( function ( json ) { 
+            $("#total_defective_rejected_by_wh").html('(<i>'+json.defective_rejected_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        return_defective_parts_from_wh_to_partner_table.ajax.reload( function ( json ) { 
+            $("#total_defective_return_to_partner").html('(<i>'+json.defective_return_to_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        
+        defective_part_rejected_by_partner_table.ajax.reload( function ( json ) { 
+            $("#total_defective_rejected_partner").html('(<i>'+json.defective_rejected_by_wh+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+        },false );
+        
+        
+        
     });
     
     function uncheckedPickupScheduleCheckbox(sequence_id){
@@ -2129,7 +2254,6 @@
     function disable_btn(id){
         $("#"+id).attr('disabled',true);
     }
- 
     var courier_lost_spare_id;
     function approve_courier_lost_spare(spare_id) {
         courier_lost_spare_id = spare_id;
@@ -2171,6 +2295,23 @@
             alert('Spare part has been approved successfully.');
         });
     });
+    
+    var rto_case_spare_part_id;
+    var tab_type;
+    function handle_rto_case(spare_id, type) {
+        rto_case_spare_part_id = spare_id;
+        tab_type = type;
+        
+        $.ajax({
+            method:'POST',
+            url: '<?php echo base_url(); ?>employee/spare_parts/rto_case_spare',
+            data: {spare_id}
+        }).done(function (data){
+            $("#rto_case_spare_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#RtoCaseSparePartModal').modal({backdrop: 'static', keyboard: false});
+        });
+    }
+    
         $(document).ready(function(){
         $('.panel .form-control').on('keypress keyup', function (event) {
             var regex = new RegExp("^[a-zA-Z0-9 ,-]+$");
@@ -2188,4 +2329,3 @@
         width: 572px !important;
     }
 </style>
- 

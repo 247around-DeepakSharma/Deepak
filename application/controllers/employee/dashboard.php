@@ -879,21 +879,7 @@ class Dashboard extends CI_Controller {
     function missing_pincode_full_view($agentID = NULL){
         $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
-//       $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
-//        if($agentID){
-//          $where['sf.rm_id'] = $agentID;  
-//        } 
-//        else{
-//             $where['rm_id IS NULL'] = NULL;  
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
-//        $groupBY = array('sf.pincode','sf.service_id');
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID);
-       // $tempPincode = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = array();
         foreach($tempPincode as $pincodes){
             if(array_key_exists($pincodes['pincode'], $finalPincodeArray)){
@@ -1184,7 +1170,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     // End Date will be - "1st Day of current Month before a year ago"
     $startDate = date('Y-m-d',$startDateTemp);
     //Create Group by array for booking and escalation
-    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
+    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'))");
     $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
     // Get escalation by vendor group by date
     $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,NULL);
@@ -1569,58 +1555,22 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_missing_pincode_data_group_by_district($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.city) as city ,sf.pincode";
-//        if($agentID){
-//             $where['sf.rm_id'] = $agentID;
-//        }
-//       else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//       }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
         $groupBY = ' group by city,sf.service_id,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-        //$dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'city','services');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
     }
     function get_missing_pincode_data_group_by_partner($agentID = NULL){
         $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,sf.city as District,sf.pincode";
-//        if($agentID){
-//          $where['sf.rm_id'] = $agentID;  
-//        }
-//        else{
-//            $where['sf.rm_id IS NULL'] = NULL;  
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-   //     $orderBYArray['pincodeCount'] = 'DESC';
-       $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
-//        $join['partners']  = 'sf.partner_id=partners.id';
-//        $JoinTypeTableArray['services'] = 'left';
+        $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','District');
     }
     function get_missing_pincode_data_group_by_appliance($agentID = NULL){
-       $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.city as District,sf.pincode";
-//        if($agentID){
-//            $where['sf.rm_id'] = $agentID;
-//        }
-//        else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
+        $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.city as District,sf.pincode";
         $groupBY = ' group by services.services,sf.city,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','Appliance','District');
     }
@@ -2058,7 +2008,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
-                $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
+                $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) <= '".$endDate."') "] = NULL;
             }
             $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
@@ -2078,17 +2028,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
             if($is_pending){
                     $select = "employee.full_name as entity,agent_filters.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
                     if($request_type == 'Repair_with_part'){
                      $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";       
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";       
                     }
                     else
                     {
                      $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
                 }
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
@@ -2100,35 +2050,35 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
                     $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
 			if($request_type == 'Repair_with_part'){
                             $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                            . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
 		    	}
 		   	else {
-                            $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                        }                
+                    $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    }
                 }
-            }
+                }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
 			if($request_type == 'Repair_with_part'){
                             $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                         . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                         . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     	}
                     	else{
-                            $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,"
-                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-                        }
+                     $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,"
+                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    }
                 }
-            }
+                }
             $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
             $conditionsArray['join']['rm_zone_mapping'] = "service_centres.rm_id = rm_zone_mapping.rm_id";
             $conditionsArray['join']['zones'] = "rm_zone_mapping.zone_id = zones.id";
@@ -2214,16 +2164,16 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
    function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = ""){
         if($is_pending){
             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as booking_count"
-                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) AS TAT";
+                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT";
         }
         else{
             if($request_type == 'Repair_with_part'){
                 $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,"
-                        . "ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        . "ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
             }
             else{
-             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-            }
+             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+               }
         }
         $sfData = array();
         if($is_am == 0){
@@ -2313,16 +2263,16 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($is_pending){
             $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
                 . "GROUP_CONCAT( DISTINCT booking_details.booking_id) as booking_id , COUNT(DISTINCT booking_details.booking_id) as booking_count,"
-                    . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) AS TAT";
+                    . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT";
         }
         else{
             if($request_type == 'Repair_with_part'){
                 $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
-                                . "booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
             }
             else{
-               $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-            }
+               $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+               }
         }
         $stateData = array();
         if($is_am == 0){
@@ -2820,26 +2770,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_missing_pincode_data_group_by_state_appliance($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.state) as state ,sf.pincode";
-//        if($agentID){
-//             $where['sf.rm_id'] = $agentID;
-//        }
-//       else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//       }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
-          $groupBY = ' group by state,sf.service_id,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
+        $groupBY = ' group by state,sf.service_id,sf.pincode';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'state','services');
         return $finalPincodeArray;
     }
     function send_missing_pincode_details(){
         log_message('info', __METHOD__ . "=>start");
-       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",array("employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL
+       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email,employee.groups",array("employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL
                ,NULL,NULL,NULL,NULL,array());
         $data['serviceData']= $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,NULL,NULL,NULL);
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
@@ -2848,14 +2786,23 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 log_message('info', __METHOD__ . "=>rm_details =".print_r($rmDetails,TRUE));
                 $data['rmPincodeDetails'] = $this->get_missing_pincode_data_group_by_state_appliance($rmDetails['agent_id']);
                 if($data['rmPincodeDetails']){
+                    // Get data is found against ASM, get its RM Details
+                    if($rmDetails['groups'] == _247AROUND_ASM){
+                        $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rmDetails['agent_id'], 'employee.groups IN ("'._247AROUND_RM.'")'=>NULL));
+                    }
                     $msg = $this->load->view('employee/missing_pincode_report',$data,TRUE);
                     $email['msg'] = $msg;
                     $emailBody = vsprintf($template[0], $email);
                     $subjectBody = $template[4];
                     $to = $rmDetails['official_email'];
+                    $cc = "";
+                    // Add RM mail in CC
+                    if(!empty($managerData[0]['official_email'])) {
+                        $cc = $managerData[0]['official_email'];
+                    }
                     $bcc = $template[5];
                     log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,$cc, $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                 }
             }
         } 

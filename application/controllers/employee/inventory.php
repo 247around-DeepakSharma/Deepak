@@ -7754,7 +7754,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date,  courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
         $no = $post_data['start'];
         $data = array();
         $rowSums = array(
@@ -7769,6 +7770,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7798,7 +7800,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -7824,7 +7826,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         );
         
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.reject_remarks";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -7840,6 +7843,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7861,7 +7865,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -8022,7 +8026,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'vendor_invoice_id', 'partner_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -8030,12 +8035,13 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
+            $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
             $row[] = $invoice_list->courier_charge;
             $row[] = $invoice_list->actual_weight;
             $row[] = $invoice_list->billable_weight;
-            $row[] = $invoice_list->courier_invoice_id;
             //$row[] = $invoice_list->vendor_invoice_id;
             //$row[] = $invoice_list->partner_invoice_id;
             $row[] = $invoice_list->pickup_from;
@@ -8046,7 +8052,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -8556,33 +8562,49 @@ function get_bom_list_by_inventory_id($inventory_id) {
     }
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
-     * @param String $booking_id
+     * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
-    function get_spare_cancelled_status($booking_id){
-        log_message('info', __METHOD__. " Booking ID ".$booking_id);
-        
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status', array('spare_parts_details.booking_id' => $booking_id));
-        if(!empty($spare)){
+    function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+
+        $data = array();
+        $cancellation_reason = array();
+        $select = 'spare_parts_details.booking_id, status';
+        if (!empty($is_reason_required) && $is_reason_required == 1) {
+            $data['spare_cancel_reason'] = true;
+            $select .= ", booking_cancellation_reasons.reason";
+        }
+
+        $spare = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id), '', '', '', $data);
+
+        if (!empty($spare)) {
             $is_cancelled = false;
             $not_can = false;
-            foreach($spare as $value){
-                if($value['status'] == _247AROUND_CANCELLED){
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
                     $is_cancelled = true;
+                    if (!empty($value['reason'])) {
+                        $cancellation_reason[] = $value['reason'];
+                    }
                 } else {
                     $not_can = true;
                 }
             }
-            
-            if($not_can){
-                echo "Not Exist";
-            } else if($is_cancelled){
-                echo "success";
+
+            if ($not_can) {
+                $return = "Not Exist";
+            } else if ($is_cancelled) {
+                $return = "success";
             } else {
-                 echo "Not Exist";
+                $return = "Not Exist";
             }
         } else {
-            echo "Not Exist";
+            $return = "Not Exist";
         }
+        $response['status'] = $return;
+        $response['reason'] = implode('<br>', array_filter($cancellation_reason));
+        echo json_encode($response);
     }
     
     function get_spare_delivered_status($booking_id){
@@ -8936,7 +8958,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','inventory_master_list.part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
 
         
@@ -9161,6 +9183,13 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $spare_parts_id = $this->input->post("spare_parts_id");
         $booking_id= $this->input->post("booking_id");
         $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "DELIVERED_PART_CANCELLED");
+        
+        /* Load data which is required i.e., remove all shipped details & courier details */
+        $spare_data = $this->miscelleneous->load_data_to_cancel_micro_wh_part($spare_parts_id, _247AROUND_CANCELLED, NULL);
+        /* update data of spare parts details */
+        $this->service_centers_model->update_spare_parts(['id' => $spare_parts_id], $spare_data);
+
+        
         //increase stock on cancel part
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,
@@ -9935,7 +9964,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         return true;
     }
 
-    
+
+ 
+ 
+
+ 
     /**
      * @desc : Method is used to accept the parts which was rejected by partner on delivery challan.
      * After this action part will show on Delivery on challan send to partner tab
@@ -10031,7 +10064,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         return true;
-    }    
+    }
+ 
 
 
   /**
@@ -10052,12 +10086,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
     function get_no_return_parts_by_sf_list() {
         $post = $this->get_post_data();
-        $post[''] = array();
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.part_warranty_status,"
                 . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number ";
-        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
-            'parts_requested');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name','parts_requested');
+        $post['search']['value'] = $post['search_value'];
         $post['is_inventory'] = TRUE;
         $post['where']['booking_details.current_status'] = _247AROUND_COMPLETED;
 
@@ -10090,6 +10123,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         echo json_encode($output);
     }
+
 
 
     /**
@@ -10125,6 +10159,51 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = $spare->status;
         $row[] = '<input id="selectbox"' . $spare->sid . '  class="select_part"  type="checkbox"  />';
         return $row;
+    }
+    
+    /*
+     *  @desc : This function is used to get spare part chages
+     *  @param : void
+     *  @return : $res array()
+     */
+
+    function get_spare_part_charges() {
+        $entity_type = $this->input->post('entity_type');
+        $entity_id = $this->input->post('entity_id');
+        $inventory_id = $this->input->post('inventory_id');
+        $data = array();
+        if ($entity_type == _247AROUND_PARTNER_STRING) {
+            if (!empty($inventory_id)) {
+                $where = array("inventory_master_list.entity_id" => $entity_id, "inventory_master_list.entity_type" => $entity_type, "inventory_master_list.inventory_id" => $inventory_id);
+                $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.gst_rate', $where);
+                if (!empty($inventory_details)) {
+                    $data['spare_part_price'] = sprintf("%.2f", $inventory_details[0]['price'] * (1 + $inventory_details[0]['gst_rate'] / 100));
+                }
+            }
+        }
+        echo json_encode($data);
+    }
+    /**
+     *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
+     *  @param : booking_id
+     *  @return : JSON /status(sucess / error), count
+     * @Author: Ghanshyam
+     */
+    function booking_cancelled_rejected_count($booking_id) {
+        $where['old_state'] = SF_BOOKING_CANCELLED_STATUS; // Booking cancelled by SF
+        $where['new_state'] = _247AROUND_CANCELED_REJECTED; // Csncelled status rejected by Admin
+        $data = $this->booking_model->get_booking_state_change($booking_id, $where);
+        $count_cancelled_rejected = 0;
+        $status = '';
+        if (!empty($data)) {
+            $status = 'success';
+            $count_cancelled_rejected = count($data);
+        } else {
+            $status = 'error';
+        }
+        $return_array['status'] = $status;
+        $return_array['count'] = $count_cancelled_rejected;
+        echo json_encode($return_array);
     }
 
 }

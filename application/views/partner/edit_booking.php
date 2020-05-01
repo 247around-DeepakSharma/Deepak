@@ -1219,7 +1219,8 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
              array.push(amc_flag);
          }
          
-         if(findInArray(delivered_price_tags, 'Replacement') > -1 ){
+         if(findInArray(delivered_price_tags, 'Replacement') > -1 
+                || findInArray(delivered_price_tags, 'Replacement - In Warranty (Service Center Visit)') > -1){
              replacement_flag = true;
              array.push(replacement_flag);
          }

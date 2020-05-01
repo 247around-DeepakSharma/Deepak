@@ -2101,8 +2101,8 @@ insert into district_state_mapping(district,state_code) select distinct india_pi
 
 ALTER TABLE `agent_state_mapping`  ADD `district_id` INT NOT NULL DEFAULT '0'  AFTER `state_code`;
 
-ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
+ALTER TABLE agent_state_mapping DROP INDEX uk_state_agent;
 
 -------------------------------------------------------------
 
@@ -2319,7 +2319,6 @@ ALTER TABLE `courier_serviceable_area`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
- 
 ---Gorakh 01 Apr 2020
 UPDATE `header_navigation` SET `link` = '' WHERE `header_navigation`.`id` = 119;
 
@@ -2501,3 +2500,53 @@ CREATE TABLE non_inventory_partners_part_type (
 ---Ghanshyam 2020-04-13
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
+-- Prity 21-04-2020
+-- 73 Branch
+CREATE TABLE `customer_dissatisfactory_reasons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reason` varchar(255) NOT NULL,
+  `active` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
+-- Prity 23-04-2020
+-- 73
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Engineer Visit');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Part Supply');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not Skilled');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
+-- Prity 15-04-2020 (73 Branch)
+ALTER TABLE booking_details change column booking_date booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column booking_date date NOT NULL AFTER booking_date_old; 
+update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
+update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+
+-- Prity 22-04-2020
+-- 73 Branch
+UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
+-- Ankit Rajvanshi 22-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 29-04-2020
+-- 73
+ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Engineer Visit');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Part Supply');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not Skilled');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
+
+-- Ankit Rajvanshi 23-04-2020
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'booking_cancel_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking cancellation is %s.', NULL, '1', '0', CURRENT_TIMESTAMP), (NULL, 'booking_reschedule_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking reschedule is %s.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
+ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;

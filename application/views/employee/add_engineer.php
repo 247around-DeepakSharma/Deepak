@@ -225,7 +225,7 @@
                             <!-- end -->
                             <div class="col-md-6 ">
                              <div class="form-group">
-                                    <label for="overall_exp" class="col-md-4">Overall Experiance</label>
+                                    <label for="overall_exp" class="col-md-4">Overall Experience</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="overall_exp" name="overall_exp" value = "<?php if(isset($data[0]['overall_exp'])){ echo $data[0]['overall_exp'];} ?>" placeholder="Enter Overall Exp" >
                                     </div>
@@ -235,7 +235,7 @@
 
                          <div class="col-md-6 ">
                              <div class="form-group">
-                                    <label for="around_exp" class="col-md-4">247Around Experiance</label>
+                                    <label for="around_exp" class="col-md-4">247Around Experience</label>
                                     <div class="col-md-6">
                                     <input type="text" class="form-control"  id="around_exp" name="around_exp" value = "<?php if(isset($data[0]['around_exp'])){ echo $data[0]['around_exp'];} ?>" placeholder="Enter 247Around Exp" >
                                     </div>

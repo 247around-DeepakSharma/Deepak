@@ -501,7 +501,7 @@ class Invoice extends CI_Controller {
         $meta = $misc_data['meta'];
         $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
         $files = array();
-        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id);
+        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id, "-detailed.xlsx");
         //echo $c_files_name;
         array_push($files, $output_file_excel);
         log_message('info', __METHOD__ . "=> File created " . $output_file_excel);
@@ -584,30 +584,9 @@ class Invoice extends CI_Controller {
             
             $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_COURIER_INVOICE_EMAIL_TAG);
             
-            if(!empty($misc_data['msl'])){
-                foreach ($misc_data['msl'] as $defective_id) {
-                    $c_id = explode(",", $defective_id['c_id']);
-                    foreach($c_id as $cid){
-                       $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-
-            if(!empty($misc_data['courier'])){
-                foreach ($misc_data['courier'] as $spare_array) {
-                    $s_id = explode(",", $spare_array['sp_id']);
-                    foreach($s_id as $spare_id){
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-            
+            //Map invoice with courier
             if(!empty($misc_data['final_courier'])){
-                foreach ($misc_data['final_courier'] as $spare_array) {
-                   
-                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
-                        "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
-                }
+                $this->map_courier_invoice_id($misc_data, $meta, $partner_id);
             }
             
         } else {
@@ -639,6 +618,7 @@ class Invoice extends CI_Controller {
         $total_misc_charge = 0;
         $total_penalty_discount = 0;
         $penalty_booking_count = 0;
+        $total_courier_charge = 0;
         if(!empty($misc_data['misc'])){
             $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
         }
@@ -722,10 +702,16 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
+        
+        if (!empty($misc_data['final_courier'])) {
+            $total_courier_charge = $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
+            $c_files = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id, "-courier-detailed.xlsx");
+            
+            array_push($files, $c_files);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
-        //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
         $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
         $output_pdf_file_name = $convert['main_pdf_file_name'];
 
@@ -789,6 +775,7 @@ class Invoice extends CI_Controller {
                 'warehouse_storage_charges' => $misc_data['warehouse_storage_charge'],
                 'penalty_amount'=> $total_penalty_discount,
                 'penalty_bookings_count' => $penalty_booking_count,
+                'courier_charges' => $total_courier_charge,
                 'vertical' => SERVICE,
                 'category' => INSTALLATION_AND_REPAIR,
                 'sub_category' => CASH,
@@ -881,10 +868,15 @@ class Invoice extends CI_Controller {
                         'entity_id' => $partner_id,
                         'invoice_id' => $meta['invoice_id'],
                         'box_count' => $msl_courier_details['msl_box'],
-                        'rate' => $msl_courier_details['msl_box_price']
+                        'rate' => $msl_courier_details['msl_box_price'],
+                        'box_type' => $msl_courier_details['box_type']
                     );
                     $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
+            }
+            //Map invoice with courier
+            if(!empty($misc_data['final_courier'])){
+                $this->map_courier_invoice_id($misc_data, $meta, $partner_id);
             }
             
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
@@ -912,6 +904,49 @@ class Invoice extends CI_Controller {
 
         return true;
     }
+    
+    /**
+     * @desc We are mapping invoice id with docket
+     * @param Array $misc_data
+     * @param Array $meta
+     * @param Int $partner_id
+     */
+    function map_courier_invoice_id($misc_data, $meta, $partner_id) {
+        /**
+         * @desc Here we are updating invoice id in the spare parts details table
+         */
+        if (!empty($misc_data['msl'])) {
+            foreach ($misc_data['msl'] as $defective_id) {
+                $c_id = explode(",", $defective_id['c_id']);
+                foreach ($c_id as $cid) {
+                    $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+            }
+        }
+        
+        /**
+         * @desc Here we are updating invoice id in the courier details table
+         */
+
+        if (!empty($misc_data['courier'])) {
+            foreach ($misc_data['courier'] as $spare_array) {
+                $s_id = explode(",", $spare_array['sp_id']);
+                foreach ($s_id as $spare_id) {
+                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                }
+            }
+        }
+        /**
+         * @desc Here we are inserting mapping invoice id with courier id
+         */
+        if (!empty($misc_data['final_courier'])) {
+            foreach ($misc_data['final_courier'] as $spare_array) {
+
+                $this->invoices_model->insert_billed_courier_invoice(array('courier_id' => $spare_array['courier_id'], "entity_type" => "partner",
+                    "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
+            }
+        }
+    }
 
     function download_invoice_files($invoice_id, $output_file_excel, $output_pdf_file_name) {
        ob_start();
@@ -921,12 +956,13 @@ class Invoice extends CI_Controller {
 
                 $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . $output_file_pdf;
                 exec($cmd);
-
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
                         . ' ' . $output_file_excel);
             } else {
+                echo 'zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel;
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
+            
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
@@ -979,7 +1015,7 @@ class Invoice extends CI_Controller {
 
     }
     
-    function generate_partner_courier_excel($data, $meta, $partner_id){
+    function generate_partner_courier_excel($data, $meta, $partner_id, $temp_name){
         if($partner_id == VIDEOCON_ID){
             //Partner is Videocon
             $template = 'Partner_invoice_detail_template-v2-courier-videocon.xlsx';
@@ -988,7 +1024,7 @@ class Invoice extends CI_Controller {
             //Partner other than Videocon
             $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
         }
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . $temp_name;
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -3398,7 +3434,8 @@ exit();
                     $sc_details['last_payment_amount'] = "";
                     $sc_details['last_payment_type'] = "";
                 }
-                
+               
+                $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
                 
                 array_push($payment_data, $sc_details);
                 
@@ -3543,6 +3580,39 @@ exit();
             return 0;
         }
     }
+    
+    /**
+     * @desc : Method returns FNF Security Deposit.
+     * @param type $service_center_id
+     * @param type $due_date
+     * @return int
+     */
+    function get_fnf_summary_amount($service_center_id, $due_date=false){
+        $select_invoice = " CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END"
+                . " as fnf_amount";
+       
+        if($due_date){
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
+            "settle_amount" => 0);
+        }
+        else{
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0); 
+        }
+        
+        $where_invoice['where_in']['sub_category'] = array(FNF);
+        $where_invoice['length'] = -1;
+        $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+        
+        if(!empty($data)){
+            return $data[0]->fnf_amount;
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * @desc Used to get header of payment csv file
      * @return Array
@@ -3604,6 +3674,7 @@ exit();
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
+        $sc_details['fnf_security_amount'] = "FNF Security Deposit";
 
         return $sc_details;
     }
@@ -6748,4 +6819,122 @@ exit();
         }
     }
     
+    /**
+     * @desc : This function is used to get list of MSL security amount 
+     * @return : Void
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_amount_list');
+    }
+    
+    /**
+     * @desc : This function is used to get list of MSL security amount. 
+     * @param : String $start_date
+     * @param : String $end_date
+     * @return : String
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_data() {
+        $data = $this->get_msl_security_amount_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+    
+     /**
+     *  @desc : This function is used to get data of msl security amount payment
+     *  @param : void
+     *  @return : void
+     *  @author Ankit Rajvanshi
+     */
+    function get_msl_security_amount_list_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('service_centres.name', 'vendor_partner_invoices.invoice_id');
+        $id = $this->session->userdata('id');   
+        //To get SF data if login user is RM or ASM
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        
+        $where = array();
+        $service_centre_id = $this->input->post('service_centre_id');
+        $start_date = date("Y-m-d", strtotime($this->input->post('from_date')));
+        $end_date = $this->input->post('to_date');
+        $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
+        //adding start date and end date filter for query     
+        $where['vendor_partner_invoices.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vendor_partner_invoices.invoice_date < "'.$end_date.'"'] = null;
+        $where['vendor_partner_invoices.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vendor_partner_invoices.settle_amount'] = 0;
+        $where["vendor_partner_invoices.sub_category"] = MSL_SECURITY_AMOUNT;
+        //Received SF for curent RM or ASM
+        if($sf_list != ""){
+            $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
+        }
+        
+        //adding SF filter for query     
+        if($service_centre_id != 0){
+            $where['service_centres.id'] = $service_centre_id;
+        }
+        
+        $post['where'] = $where;
+        $post['order_by'] = array("vendor_partner_invoices.invoice_date" => "desc");
+
+        $select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.invoice_date, service_centres.name, vendor_partner_invoices.total_amount_collected, vendor_partner_invoices.amount_collected_paid, vendor_partner_invoices.amount_paid ";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_msl_security_amount_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+    /**
+     *  @desc : This function is used to get rows for msl security amount table
+     *  @param : Array $model_list
+     *  @param : Integer $no
+     *  @return : Array
+     */
+     function get_msl_security_amount_table($model_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->invoice_id;
+        $row[] = $model_list->invoice_date;
+        $row[] = $model_list->name;
+        $row[] = $model_list->total_amount_collected;
+        
+        $settled_amount = $model_list->amount_paid + $model_list->amount_collected_paid;
+        if($settled_amount < 0) {
+            $settled_amount = -($settled_amount);
+        }
+        $row[] = $settled_amount;
+        return $row;
+    }
+
 }

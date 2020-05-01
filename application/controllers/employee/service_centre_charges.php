@@ -1039,6 +1039,14 @@ class service_centre_charges extends CI_Controller {
         if(!isset($form_data['paid_invoice_pod'])){
             $form_data['paid_invoice_pod'] = 0;
         }
+
+        if(!isset($form_data['free_partner_extra_spare'])){
+            $form_data['free_partner_extra_spare'] = 0;
+        }
+
+        // if(!isset($form_data['paid_partner_extra_spare'])){
+        //     $form_data['paid_partner_extra_spare'] = 0;
+        // }
         
         if(!empty($form_data['brand'])){
             $where_in['brand'] = $form_data['brand'];
@@ -1101,7 +1109,6 @@ class service_centre_charges extends CI_Controller {
         
        $combos = $this->generate_combinations($data);
        $service_data = $this->generate_service_charges_data($form_data, $combos, $existing_key, $key_data);
-       
        if(!empty($service_data['service_charge'])){
            $this->service_centre_charges_model->insert_data_in_temp("service_centre_charges", $service_data['service_charge']);
        }
@@ -1242,6 +1249,7 @@ class service_centre_charges extends CI_Controller {
         $data['is_upcountry'] = $form_data['free_upcountry'];
         $data['customer_total'] = $form_data['free_customer_total'];
         $data['customer_net_payable'] = 0;
+        $data['free_partner_extra_spare'] = $form_data['free_partner_extra_spare'];
 
         $data['partner_net_payable'] = $form_data['free_customer_total'];
         $vendor_tax = $form_data['free_vendor_total'] * SERVICE_TAX_RATE;

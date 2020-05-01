@@ -429,7 +429,6 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
-// Remove Print //
         return $query->result();
     }
     
@@ -2144,7 +2143,7 @@ class Inventory_model extends CI_Model {
      * @param $select, $post
      * @return array
      */  
-    function get_searched_courier_invoices($select='*', $post){
+    function get_searched_courier_invoices($select, $post){
         $this->_querySearchCourierInvoice($select, $post);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2154,8 +2153,10 @@ class Inventory_model extends CI_Model {
     }
     
     function _querySearchCourierInvoice($select, $post){
-        $this->db->from('courier_company_invoice_details');
+        
         $this->db->select($select, FALSE);
+        $this->db->from('courier_company_invoice_details');
+        $this->db->join('billed_docket', 'courier_company_invoice_details.id = billed_docket.courier_id');
 
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
@@ -3841,12 +3842,14 @@ class Inventory_model extends CI_Model {
      */
     function update_non_inventory_partners_part_type($data,$where){
         $this->db->where($where);
-	$this->db->update('non_inventory_partners_part_type', $data);
+	    $this->db->update('non_inventory_partners_part_type', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{
             return false;
         }
+    }
         
-    }    
+    
+   
 }

@@ -59,11 +59,11 @@ class Convert_query_to_booking extends CI_Controller {
                         
                         if(empty($value['booking_date'])){
                             if(date('H' > 12)){
-                                $booking_date = date('d-m-Y', strtotime("+1 day"));
+                                $booking_date = date('Y-m-d', strtotime("+1 day"));
                             } else {
-                                $booking_date = date('d-m-Y');
+                                $booking_date = date('Y-m-d');
                             }
-                            $booking['booking_date'] =  $booking['initial_booking_date'] = date('d-m-Y', strtotime($booking_date));
+                            $booking['booking_date'] =  $booking['initial_booking_date'] = date('Y-m-d', strtotime($booking_date));
                         }
                         
                         $s = $this->booking_model->update_booking($value['booking_id'], $booking);

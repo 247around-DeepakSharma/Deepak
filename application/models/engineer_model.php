@@ -97,8 +97,8 @@ class Engineer_model extends CI_Model {
 
         return $query->result();
     }
- 
-     function count_all_review_engineer_action($post) {
+
+    function count_all_review_engineer_action($post) {
         $this->_get_engineer_action_table_list($post, 'count( DISTINCT engineer_booking_action.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
@@ -112,7 +112,7 @@ class Engineer_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
- 
+
     public function _get_engineer_action_table_list($post, $select) {
         $this->db->from('engineer_booking_action');
         $this->db->distinct();
@@ -284,7 +284,7 @@ class Engineer_model extends CI_Model {
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
-                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand
                 FROM 
                     booking_details
@@ -311,7 +311,7 @@ class Engineer_model extends CI_Model {
     }
     
     function get_engineer_D0_closure($engineer_id, $sf_id){
-        $sql = "SELECT (select count(id) FROM booking_details WHERE DATEDIFF(STR_TO_DATE(initial_booking_date,'%d-%m-%Y'), CAST(service_center_closed_date AS date)) = 0 AND assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as same_day_closure,"
+        $sql = "SELECT (select count(id) FROM booking_details WHERE DATEDIFF(STR_TO_DATE(initial_booking_date,'%Y-%m-%d'), CAST(service_center_closed_date AS date)) = 0 AND assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as same_day_closure,"
                 . " (Select Count(id) From booking_details WHERE assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as total_closure from booking_details limit 1";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -333,7 +333,7 @@ class Engineer_model extends CI_Model {
         
         $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
             eb.`current_status`, eb.`internal_status`, partners.public_name as partner_name, bud.appliance_brand, eb.`cancellation_reason`, eb.`cancellation_remark`,
-            eb.`closing_remark`, Date_format(str_to_date(bd.initial_booking_date,"%d-%m-%Y"),"%d-%b-%Y") , DATE_FORMAT(eb.closed_date,"%d-%b-%Y") , if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            eb.`closing_remark`, Date_format(str_to_date(bd.initial_booking_date,"%Y-%m-%d"),"%d-%b-%Y") , DATE_FORMAT(eb.closed_date,"%d-%b-%Y") , if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
             FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
             JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
             JOIN booking_details as bd on bd.booking_id = eb.booking_id JOIN partners on partners.id = bd.partner_id

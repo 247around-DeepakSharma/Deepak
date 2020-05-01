@@ -1589,6 +1589,7 @@ class Miscelleneous {
 
     /*
      * This Functiotn is used to send sf not found email to associated rm
+     * @param $rm_email = ASM mail ID
      */
 
     function send_sf_not_found_email_to_rm($booking, $rm_email,$subject, $isPartner, $rm_id='') {
@@ -1598,7 +1599,7 @@ class Miscelleneous {
         
         if(!empty($rm_id)) {
             $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
-            
+            // Add RM Email Id in CC
             if(!empty($managerData)) {
                 $cc .= $managerData[0]['official_email'];
             }
@@ -1637,8 +1638,8 @@ class Miscelleneous {
     }
 
     /*
-     * This Functiotn is used to map rm to pincode, for which SF not found
-     * if pincode does'nt have any rm then an email will goes to nitin
+     * This Functiotn is used to map asm to pincode, for which SF not found
+     * if pincode does'nt have any asm then an email will goes to rm if rm not found then to nitin
      * @input - An associative array with keys(booking_id,pincode,city,applianceID)
      */
 
@@ -1648,20 +1649,20 @@ class Miscelleneous {
         }
         $notFoundSfArray = array('booking_id' => $booking['booking_id'], 'pincode' => $booking['booking_pincode'], 'city' => $booking['city'], 'service_id' => $booking['service_id']);
         $pincode =  $booking['booking_pincode'];
-        $result = $this->My_CI->reusable_model->get_rm_for_pincode($notFoundSfArray['pincode']);
+        $result = $this->My_CI->reusable_model->get_asm_for_pincode($notFoundSfArray['pincode']);
         
         if (!empty($result)) {
-            $notFoundSfArray['rm_id'] = $result[0]['rm_id'];
+            $notFoundSfArray['asm_id'] = $result[0]['asm_id'];
             $notFoundSfArray['state'] = $result[0]['state_id'];
             
-            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['rm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
-            $rm_email = $query->result_array();
-            if (empty($rm_email)) {
-                $rm_email[0]['official_email'] = NULL;
+            $query = $this->My_CI->reusable_model->get_search_query("employee", "official_email", array('id' => $result[0]['asm_id'],'active' => 1), NULL, NULL, NULL, NULL, NULL);
+            $asm_email = $query->result_array();
+            if (empty($asm_email)) {
+                $asm_email[0]['official_email'] = NULL;
             }
             
             $subject = "SF Not Exist in the Pincode " . $pincode;
-            $this->send_sf_not_found_email_to_rm($booking, $rm_email[0]['official_email'],$subject, TRUE, $result[0]['rm_id']);
+            $this->send_sf_not_found_email_to_rm($booking, $asm_email[0]['official_email'],$subject, TRUE, $result[0]['asm_id']);
         }else{
             $pincodeJsonData = $this->google_map_address_api($pincode);
             $pincodeArray = json_decode($pincodeJsonData,true);
@@ -1674,9 +1675,13 @@ class Miscelleneous {
                         $city = $pincodeArray['results']['0']['address_components'][$addressCompLength-3]['long_name'];
                         if(!is_null($pincode) && !is_null($state) && !is_null($city))
                             $this->process_if_pincode_valid($pincode,$state,$city);
-                       //Update State and City in sf_not_exist_booking_details
-                        $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
-                        //$notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                        // Update ASM,State and City in sf_not_exist_booking_details
+                        $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
+                        // If ASM not found ,get RM details
+                        if(empty($resultTemp)){
+                            $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                        }
+                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
@@ -2784,7 +2789,7 @@ class Miscelleneous {
          log_message('info', __FUNCTION__);
          foreach ($reschedule_booking_id as $booking_id) {
             $partner_id = $partner_id_array[$booking_id];
-            $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
+            $booking['booking_date'] = date('Y-m-d', strtotime($reschedule_booking_date[$booking_id]));
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d H:i:s");
@@ -3871,7 +3876,7 @@ function generate_image($base64, $image_name,$directory){
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
         $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
         $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
@@ -4026,7 +4031,7 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     function reopen_booking($booking_id, $status){
-            $data['booking_date'] = date('d-m-Y', strtotime($this->My_CI->input->post('booking_date')));
+            $data['booking_date'] = date('Y-m-d', strtotime($this->My_CI->input->post('booking_date')));
             $data['booking_timeslot'] = $this->My_CI->input->post('booking_timeslot');
             $data['current_status'] = _247AROUND_PENDING;
             $data['internal_status'] = "Booking Opened From " . $status;
@@ -4694,7 +4699,7 @@ function generate_image($base64, $image_name,$directory){
                     $sc_entity_id = NULL;
                 }
                 if (empty($is_requested)) {
-                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
                     $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
 
@@ -4808,7 +4813,7 @@ function generate_image($base64, $image_name,$directory){
      * Method change date format: e.g., 11-Oct-2019.
      * For Mysql 
      * if date field is varchar type then use 
-     *      DATE_FORMAT(STR_TO_DATE(date, '%d-%m-%Y'), '%d-%b-%Y')
+     *      DATE_FORMAT(STR_TO_DATE(date, '%Y-%m-%d'), '%d-%b-%Y')
      * else
      *      DATE_FORMAT(date, '%d-%b-%Y')
      * @param type $date
@@ -5228,5 +5233,37 @@ function generate_image($base64, $image_name,$directory){
             'partner_challan_file' => NULL,
             'partner_challan_number' => NULL
         );
+    }
+    
+    /**
+     * This function is used to used to save differences in amount that are filled by SF and Admin against a booking
+     * @author Prity Sharma
+     * @date 24-04-2020 
+     * @param type $booking_primary_id : Primary Id of booking_Details
+     * @param type $old_amount : Amount filled by SF
+     * @param type $new_amount : Amount changed by Admin
+     */
+    function save_booking_amount_history($booking_primary_id, $old_amount, $new_amount){
+        // save entry only if Amount mismatched
+        if($old_amount == $new_amount){
+            return;
+        }
+        
+        // check if some entry already exists for this Booking
+        $where = ['booking_id' => $booking_primary_id];
+        $row_amount_history = $this->My_CI->booking_model->get_booking_amount_history($where);
+        // If record already exists update that record otherwise insert new record
+        if(!empty($row_amount_history[0]['booking_id'])){
+            $data = ['total_amount_actual' => $new_amount];
+            $where = ['booking_id' => $row_amount_history[0]['booking_id']];
+            $this->My_CI->booking_model->update_booking_amount_history($data, $where);
+        }
+        else
+        {
+            $agent_id = $this->My_CI->session->userdata('id');
+            $data = ['booking_id' => $booking_primary_id, 'total_amount_by_sf' => $old_amount, 'total_amount_actual' => $new_amount, 'agent_id' => $agent_id];
+            $this->My_CI->booking_model->insert_booking_amount_history($data);
+        }
+        return;
     }
 }
