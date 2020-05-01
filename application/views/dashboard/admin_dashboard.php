@@ -19,6 +19,9 @@
     table.sub-table thead{
         background:#8cc6ab;
     }
+    #sales_partner_div .select2-container--default{
+        width:500px !important;
+    }
 </style>
 <!-- page content -->
 <div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
@@ -220,6 +223,92 @@
         </div>
     </div>
     
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Brand Sales Report</h2>
+                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="brand_sales_reporting" class="collapse in">
+                <div class="table-responsive" id="escalation_data">
+                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
+                    <div class="col-md-3">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <label for="">Year</label>
+                                <select class="form-control filter_table" id="sales_year" name="sales_year">
+                                    <option value="">Select Year</option>
+                                    <?php $from_year = 2015;
+                                            $to_year = date('Y');
+                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
+                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                        <div class="col-md-6" id="sales_partner_div">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Partner</label>
+                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
+                                <?php foreach($partners as $val){ ?>
+                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                               
+                                <?php } ?>
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    
+                  
+               
+                       
+                   <div class="col-md-3">
+                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                   </div>
+                         </form>
+                    <br>
+                <div class="clear"></div>
+               
+                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>January</th>
+                            <th>February</th>
+                            <th>March</th>
+                            <th>April</th>
+                            <th>May</th>
+                            <th>June</th>
+                            <th>July</th>
+                            <th>August</th>
+                            <th>September</th>
+                            <th>October</th>
+                            <th>November</th>
+                            <th>December</th>
+                            <th>Total</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+                    
+                    <div id="brand_sales_chart">
+                        
+                    </div>
+                    
+            </div> 
+            </div>
+        </div>
+    </div>
     
     
         <div class="row">
@@ -1425,6 +1514,7 @@
 <!-- Chart Script -->
 <script>
     $('#request_type').select2();
+    $('#sales_partner').select2({ maximumSelectionLength: 5 });
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
@@ -1435,9 +1525,8 @@
     $('#upcountry_am_pending').select2();
 
      $('#am_id').select2();
-
-    
-    $('#process').click(function(){
+     
+     $('#process').click(function(){
         var am_id=[];
         var result=1;
            var am_id=$('#am_id').val();
@@ -3246,6 +3335,95 @@ function initiate_escalation_data(){
     
     }
     
+    /*
+     * Brand wise sales for each month of selected year
+     */
+    $('#btn_brand_sales').on('click',function(){
+       var _sales_year = $('#sales_year').val(); 
+       var _sales_partners = $('#sales_partner').val();
+       if(_sales_year !== '' && (_sales_partners.length > 0 && _sales_partners.length < 6)){
+           $.ajax({
+               type:'POST',
+               url:'<?php echo base_url('employee/dashboard/brand_sales_analytics') ?>',
+               data:{sales_year:_sales_year,sales_partner:_sales_partners},
+               success: function(response){
+                   var data = JSON.parse(response);
+                   $('#loader_gif_brand_sales').css('display','none');
+                   $('#brand_sales tbody').html(data.table_data);
+                   console.log(data.series);
+                   brand_sales_bar_chart(data.series);
+               },beforeSend: function(){
+                    $('#brand_sales tbody').html('');
+                    $('#loader_gif_brand_sales').css('display','block');
+               }
+           });        
+        }
+    });
+   $(document).ready(function(){
+        $('#brand_sales').DataTable({
+            dom: 'Bfrtip',
+            searching: false,
+            paging: false,
+            buttons: [{
+                extend: 'excel',
+                text: 'Export',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12]
+                }
+            }]
+        });
+    });
+   function brand_sales_bar_chart(series){ 
+    Highcharts.chart('brand_sales_chart', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Brand Sales Chart'
+    },
+    subtitle: {
+        text: 'Month wise report'
+    },
+    xAxis: {
+        categories: [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+        ],
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: 'Registered Calls'
+        }
+    },
+    tooltip: {
+        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+    plotOptions: {
+        column: {
+           // pointPadding: 0.2,
+            borderWidth: 0
+        }
+    },
+    series: series
+});
+}
 </script>
 <style>
 .text_warning{

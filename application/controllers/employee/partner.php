@@ -9656,7 +9656,7 @@ class Partner extends CI_Controller {
             echo json_encode($returndata);
         }
     }
-    
+
     /**
      * @desc : Method retuns spare parts which are received by warehouse
      * @author Ankit Rajvanshi

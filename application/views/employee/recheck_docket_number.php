@@ -86,15 +86,16 @@
                         <table class="table table-bordered table-hover table-striped" id="recheck_docket_number_table">
                             <thead>
                                 <tr>
-                                    <th>S.No.</th>
-                                    <th>Invoice Id</th>
-                                    <th>AWB Number</th>
-                                    <th>Company Name</th>
-                                    <th>Billable Weight</th>
-                                    <th>Actual Weight</th>
-                                    <th>Create Date</th>
-                                    <th>Courier Charges</th>
-                                    <th>Action</th>
+                                    <th data-orderable="false">S.No.</th>
+                                    <th data-orderable="false"> Invoice Id</th>
+                                    <th data-orderable="false">CourierInvoice Id</th>
+                                    <th data-orderable="false">AWB Number</th>
+                                    <th data-orderable="false">Company Name</th>
+                                    <th data-orderable="false">Billable Weight</th>
+                                    <th data-orderable="false">Actual Weight</th>
+                                    <th data-orderable="false">Create Date</th>
+                                    <th data-orderable="false">Courier Charges</th>
+                                    <th data-orderable="false">Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -104,13 +105,14 @@
                         <table class="table table-bordered table-hover table-striped" id="ingnored_docket_number_table">
                             <thead>
                                 <tr>
-                                    <th>S.No.</th>
-                                    <th>Invoice Id</th>
-                                    <th>AWB Number</th>
-                                    <th>Company Name</th>
-                                    <th>Create Date</th>
-                                    <th>Courier Charges</th>
-                                    <th>Remark</th>
+                                    <th data-orderable="false">S.No.</th>
+                                    <th data-orderable="false"> Invoice Id</th>
+                                    <th data-orderable="false">Courier Invoice Id</th>
+                                    <th data-orderable="false">AWB Number</th>
+                                    <th data-orderable="false">Company Name</th>
+                                    <th data-orderable="false">Create Date</th>
+                                    <th data-orderable="false">Courier Charges</th>
+                                    <th data-orderable="false">Remark</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -120,17 +122,18 @@
                         <table class="table table-bordered table-hover table-striped" id="courier_invoice_table">
                             <thead>
                                 <tr>
-                                    <th>S.No.</th>
-                                    <th>AWB Number</th>
-                                    <th>Company Name</th>
-                                    <th>Courier Charges</th>
-                                    <th>Actual Weight</th>
-                                    <th>Billable Weight</th>
-                                    <th>Courier Invoice Id</th>
+                                    <th data-orderable="false">S.No.</th>
+                                    <th data-orderable="false"> Invoice Id</th>
+                                    <th data-orderable="false">Courier Invoice Id</th>
+                                    <th data-orderable="false">AWB Number</th>
+                                    <th data-orderable="false">Company Name</th>
+                                    <th data-orderable="false">Courier Charges</th>
+                                    <th data-orderable="false">Actual Weight</th>
+                                    <th data-orderable="false">Billable Weight</th>
 <!--                                    <th>Vendor Invoice Id</th>-->
 <!--                                    <th>Partner Invoice Id</th>-->
-                                    <th>Pickup From</th>
-                                    <th>Invoice Date</th>
+                                    <th data-orderable="false">Pickup From</th>
+                                    <th data-orderable="false">Invoice Date</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -264,7 +267,7 @@ function reject_courier_invoice(){
                 //Set column definition initialisation properties.
                 columnDefs: [
                     {
-                        "targets": [0,1,2,3,4,5], //first column / numbering column
+                        "targets": [], //first column / numbering column
                         "orderable": false //set not orderable
                     }
                 ]
@@ -312,7 +315,7 @@ function reject_courier_invoice(){
                     //Set column definition initialisation properties.
                     columnDefs: [
                         {
-                            "targets": [0,1,2,3], //first column / numbering column
+                            "targets": [], //first column / numbering column
                             "orderable": false //set not orderable
                         }
                     ]
@@ -360,7 +363,7 @@ function reject_courier_invoice(){
                     //Set column definition initialisation properties.
                     columnDefs: [
                         {
-                            "targets": [0,1,2,3,4,5,6,7,8], //first column / numbering column
+                            "targets": [], //first column / numbering column
                             "orderable": false //set not orderable
                         }
                     ]
