@@ -52,7 +52,7 @@
                                     <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                     <th class="text-center" data-orderable="false">Shipped  Quantity</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="false">Select All<input style="margin-left:5px;" id="selectbox" type="checkbox" /></th>
+                                    <th class="text-center" data-orderable="false">Select All<input style="margin-left:5px;" id="selectbox_all" type="checkbox" /></th>
                                 </tr>
                                 </tr>
                             </thead>
@@ -153,21 +153,21 @@
 
 
 
-            $('body').on('click', '#selectbox', function () {
+            $('body').on('click', '#selectbox_all', function () {
                 // do something
 
 
                 if ($(this).is(":checked")) {
 
                     $(".select_part").each(function () {
-
-                        $(this).attr("checked", "checked");
+                        //select ebery checkbox
+                        $(this).prop('checked', true);
                     });
 
                 } else {
                     $(".select_part").each(function () {
-
-                        $(this).removeAttr("checked");
+                        //unselect ebery checkbox
+                        $(this).prop('checked', false);
                     });
                 }
 
