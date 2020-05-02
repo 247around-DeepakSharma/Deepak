@@ -1065,32 +1065,14 @@ class vendor extends CI_Controller {
 
             $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
             
-            //Get Talevar Singh user id from constant file as defind 
-            if(TALEVAR_USER_ID){
-                $talevar_user_email = $this->user_model->getusername(TALEVAR_USER_ID);
-            }
 
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
-            
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+
+                //Getting template from Database 
+                $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
+                $template = $this->booking_model->get_booking_email_template($tag);
                 if (!empty($template)) {
-                    if($sf_details[0]['is_micro_wh'] == 1){
-                        $to .= ",".$template[1];
-
-                        // Add Account's team email id
-                        if(ACCOUNT_EMAIL_ID){
-                            $to .= ",".ACCOUNT_EMAIL_ID;
-                            $email['talevar_user_name'] = 'Account Team';
-                        }
-                        // Add user Talevar Singh's email id
-                        if($talevar_user_email){
-                            $to .= ",".$talevar_user_email;
-                            $email['talevar_user_name']= 'Talevar Singh';
-                        }
-
-                    }
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
@@ -1099,11 +1081,14 @@ class vendor extends CI_Controller {
                     } else {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
+                        if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
+                            $to .= ",".$template[1];
+                        }
                     }
                     $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
-                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_permanent_on_off');
+                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);

@@ -754,7 +754,6 @@ define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
 
 define("UPDATE_INVENTORY_MASTER_LIST_MSG", "Mapping of this appliance with part type can only update from Part Master. Please update data from part master.");
 
-
 define('DASHBOARD_INVOICE_PROCESS_1', 'dashboard_process_1');
 define('DASHBOARD_INVOICE_PROCESS_2', 'dashboard_process_2');
 define('DASHBOARD_INVOICE_PROCESS_3', 'dashboard_process_3');
