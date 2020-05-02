@@ -4580,14 +4580,16 @@ class engineerApi extends CI_Controller {
 
     function sendCancelRescheduleOTPCustomer(){
 
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("booking_id"), $requestData);
-        if ($validation['status']) {
+        //$requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$validation = $this->validateKeys(array("booking_id"), $requestData);
+        $requestData['booking_id'] = 'LP-5375931909131';
+        if (1) {
             /* CURL Call */             
             $url = base_url().'employee/service_centers/send_otp_customer';
             $fields = array(
                 'booking_id' => $requestData['booking_id'],
-                'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG
+                'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG,
+                'call_from_api'=>TRUE
             );
             //url-ify the data for the POST
             $fields_string = http_build_query($fields);
@@ -4595,14 +4597,18 @@ class engineerApi extends CI_Controller {
             $ch = curl_init();
             //set the url, number of POST vars, POST data
             curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
             //execute post
             $result = curl_exec($ch);
+            
             //close connection
             curl_close($ch);
             $this->jsonResponseString['response'] = $result; // All Data in response//
-            $this->sendJsonResponse(array('0000', 'success')); // send success response // 
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+           // print_r($result); exit; 
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 

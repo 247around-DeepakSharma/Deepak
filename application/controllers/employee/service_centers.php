@@ -9614,7 +9614,7 @@ class Service_centers extends CI_Controller {
         if (!$this->input->post("call_from_api")) {
         echo $this->session->userdata('cancel_booking_otp');
         }else{
-         echo $otp;   
+        echo  $otp;   
         }
     }
 }
