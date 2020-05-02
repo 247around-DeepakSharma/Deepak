@@ -4584,7 +4584,7 @@ class engineerApi extends CI_Controller {
         $validation = $this->validateKeys(array("booking_id"), $requestData);
         if ($validation['status']) {
             /* CURL Call */             
-            $url = base_url() . 'employee/service_centers/send_otp_customer';
+            $url = base_url().'employee/service_centers/send_otp_customer';
             $fields = array(
                 'booking_id' => $requestData['booking_id'],
                 'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG
