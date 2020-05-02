@@ -2115,7 +2115,7 @@ class engineerApi extends CI_Controller {
             foreach ($bookings as $key => $value) {
                 if ($engineer_pincode) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
@@ -2153,7 +2153,7 @@ class engineerApi extends CI_Controller {
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
@@ -2196,7 +2196,7 @@ class engineerApi extends CI_Controller {
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
@@ -3869,7 +3869,7 @@ class engineerApi extends CI_Controller {
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                         $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
