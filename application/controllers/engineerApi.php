@@ -4583,30 +4583,28 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("booking_id"), $requestData);
         if ($validation['status']) {
-            /* CURL Call */             
-            $url = base_url() . 'employee/service_centers/send_otp_customer';
-            $fields = array(
-                'booking_id' => $requestData['booking_id'],
-                'sms_template' => BOOKING_CANCEL_OTP_SMS_TAG
-            );
-            //url-ify the data for the POST
-            $fields_string = http_build_query($fields);
-            //open connection
-            $ch = curl_init();
-            //set the url, number of POST vars, POST data
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-            //execute post
-            $result = curl_exec($ch);
-            //close connection
-            curl_close($ch);
-            $this->jsonResponseString['response'] = $result; // All Data in response//
-            $this->sendJsonResponse(array('0000', 'success')); // send success response // 
+           $booking_id = $requestData['booking_id'];
+            $tag = BOOKING_CANCEL_OTP_SMS_TAG;
+            $sms = [];
+        // get booking contact number.
+            $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+            $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+            $user_id = $booking_deatils['user_id'];
+            $otp = rand(1000,9999);
+            $sms['tag'] = $tag;
+            $sms['phone_no'] = $booking_primary_contact_number;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $user_id;
+            $sms['smsData']['otp'] = $otp;
+            $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = $otp; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+           // print_r($result); exit; 
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+            $this->sendJsonResponse(array("0103", 'OTP Not Sent'));
         }
 
     }
