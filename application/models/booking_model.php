@@ -2268,8 +2268,14 @@ class Booking_model extends CI_Model {
             $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         }
         
+        //when unit not required is not set then the where condition will be used with OR operator otherwise it will be used with AND operator.
         if (!empty($post['where'])) {
-            $this->db->where($post['where']);
+            if(!isset($post['unit_not_required'])){
+                $this->db->or_where($post['where']);
+            }
+            else{
+                $this->db->where($post['where']);
+            }
         }
         if (!empty($post['where_in'])) {
             foreach($post['where_in'] as $key=>$values){

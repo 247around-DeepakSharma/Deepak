@@ -7,17 +7,17 @@
             var booking_id = document.forms["myForm"]["booking_id"].value;
             var user_name = document.forms["myForm"]["userName"].value;
             var order_id = document.forms["myForm"]["order_id"].value;
-            var serial_number = document.forms["myForm"]["serial_number"].value;
+             var serial_number = document.forms["myForm"]["serial_number"].value;
 
             var exp1 = /^[6-9]{1}[0-9]{9}$/;
             var exp2 = /^[A-Za-z _]+$/;
 
-            if (ph_no == "" && booking_id == "" && user_name =="" && order_id == "" && serial_number == "" ) {
+             if (ph_no == "" && booking_id == "" && user_name =="" && order_id == "" && serial_number == "" ) {
                 alert("Please enter atleast one detail to search..");
                 return false;
             }
 
-            if (ph_no != "" && booking_id != "" && user_name !="" && order_id !="" && serial_number != "") {
+             if (ph_no != "" && booking_id != "" && user_name !="" && order_id !="" && serial_number != "") {
                 alert("Please fill only one field...");
                 return false;
             }
@@ -48,15 +48,15 @@
             }
 
             //Serial no. validation
-            if (serial_number != ""  && user_name !="" ) {
-                alert("Please fill only one field...");
-                return false;
-            }
+             if (serial_number != ""  && user_name !="" ) {
+                 alert("Please fill only one field...");
+                 return false;
+             }
 
-            if (serial_number != ""  && order_id !="" ) {
-                alert("Please fill only one field...");
-                return false;
-            }
+             if (serial_number != ""  && order_id !="" ) {
+              alert("Please fill only one field...");
+                 return false;
+             }
 
 
             if (ph_no != "" && !ph_no.match(exp1)) {
@@ -143,19 +143,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="order id" class="col-md-2">Order ID</label>
+                        <label for="order_id" class="col-md-2">Order ID</label>
                         <div class="col-md-4">
                         <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
                         </div>
 
                     </div>
 
-                    <!-- Find booking from serial number -->
-                    <div class="form-group">
-                        <label for="serial id" class="col-md-2">Serial No.</label>
-                        <div class="col-md-4">
-                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Enter Serial No." onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
-                        </div>
+                     <!-- Find booking from serial number -->
+                     <div class="form-group">
+                         <label for="serial_number" class="col-md-2">Serial No.</label>
+                         <div class="col-md-4">
+                         <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Enter Serial No." onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
+                         </div>
 
                     </div>
 
