@@ -9596,25 +9596,20 @@ class Service_centers extends CI_Controller {
         $sms = [];
         
         // get booking contact number.
-        $booking_primary_contact_number = $this->booking_model->get_booking_details('booking_primary_contact_no', ['booking_id' => $booking_id])[0]['booking_primary_contact_no'];
-
+       $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+        $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+        $user_id = $booking_deatils['user_id'];
         // prepare data for sms template.
         $otp = rand(1000,9999);
-        if (!$this->input->post("call_from_api")) {
         $this->session->unset_userdata('cancel_booking_otp');
         $this->session->set_userdata('cancel_booking_otp', $otp);
-        }
         $sms['tag'] = $tag;
         $sms['phone_no'] = $booking_primary_contact_number;
         $sms['booking_id'] = $booking_id;
         $sms['type'] = "user";
-        $sms['type_id'] = "";
+        $sms['type_id'] = $user_id;
         $sms['smsData']['otp'] = $otp;
         $this->notify->send_sms_msg91($sms);
-        if (!$this->input->post("call_from_api")) {
         echo $this->session->userdata('cancel_booking_otp');
-        }else{
-        echo  $otp;   
-        }
     }
 }
