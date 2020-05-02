@@ -4640,10 +4640,9 @@ function submitPreviousPartsConsumptionData(){
 
     function sendCancelRescheduleOTPCustomer(){
 
-        //$requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$validation = $this->validateKeys(array("booking_id"), $requestData);
-        $requestData['booking_id'] = 'LP-5375931909131';
-        if (1) {
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id"), $requestData);
+        if ($validation['status']) {
             /* CURL Call */             
             $url = base_url().'employee/service_centers/send_otp_customer';
             $fields = array(
