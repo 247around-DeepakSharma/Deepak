@@ -4314,6 +4314,16 @@ class Booking extends CI_Controller {
        }
        ob_end_clean();
     }
+
+    /**
+     *  @desc : This function is used to get Last recieve spare
+     *  @param : $booking_id
+     *  @return : $Date
+     */
+    function getBookingLastSpare($booking_id){
+     $receivedate =  $this->booking_model->getBookingLastSpare($booking_id)[0];
+     return $receivedate->acknowledge_date;
+    }
     
     /**
      *  @desc : This function is used to make the table for pending bookings
@@ -4334,6 +4344,8 @@ class Booking extends CI_Controller {
         }else{
             $sn = "";
         }
+
+        $last_spare = $this->getBookingLastSpare($order_list->booking_id);
         
 //        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
 //        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
@@ -4475,7 +4487,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status;
+        $row[] = $escalation." ".$order_list->partner_internal_status." Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
