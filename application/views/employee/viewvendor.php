@@ -39,6 +39,7 @@
             //alert();
             $('#download_pin_code').attr('data-vendor_id', id);
             document.getElementById("upload_pin_code").href = "<?php echo base_url(); ?>employee/vendor/upload_pin_code_vendor/" + id;
+            document.getElementById("view_pin_code").href = "<?php echo base_url(); ?>employee/vendor/view_vendor_pincode_mapping/" + id;
             document.getElementById("download_pin_code").href = "<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/" + id;
             document.getElementById("v_name").innerHTML = $("#"+id).attr("data-vendor_name");
         }
@@ -229,14 +230,15 @@
         <div class="modal-dialog">
 
             <!-- Modal content-->
-            <div class="modal-content">
+            <div class="modal-content" style="width:82% !important;" >
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title" id="v_name" align="center"></h4>
                 </div>
                 <div class="modal-body" align="center">
                     <a id='download_pin_code' class='btn btn-info' href="javascript:void(0)" onclick="download_pincode_file()" href="<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/">Download Pin code</a>
-                    <a id='upload_pin_code' class='btn btn-info' href="<?php echo base_url(); ?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
+                    <a id='upload_pin_code' class='btn btn-warning' href="<?php echo base_url(); ?>employee/vendor/upload_vendor_pin_code" target="_blank">Upload Pin Code</a>
+                    <a id='view_pin_code' class='btn btn-success' href="<?php echo base_url(); ?>employee/vendor/view_vendor_pincode_mapping/" target="_blank">View Pin Codes</a>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
