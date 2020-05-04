@@ -745,11 +745,7 @@
                                
                                 <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
                                 <div class="col-md-7">
-                                    <input type="file" accept="image/*" class="form-control crop_image"  name="signature_file" id="signature_file" value = "<?php
-                                    if (isset($query[0]['signature_file'])) {
-                                        echo $query[0]['signature_file'];
-                                    }
-                                    ?>">
+                                    <input type="file" accept="image/*" class="form-control crop_image"  name="signature_file" id="signature_file"/>
                                     <input type="hidden" id="signature_file_hd" name="signature_file_hd" value = "<?php
                                     if (isset($query[0]['signature_file'])) {
                                         echo $query[0]['signature_file'];
@@ -880,7 +876,7 @@
                                             <?php echo form_error('address_proof_file'); ?>
                                         </div>
                                         <input type="hidden" id="address_proof_file_hd" name="address_proof_file_hd" value = "<?php
-                                    if (isset($query[0]['address_proof_file'])) {
+                                    if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
                                         echo $query[0]['address_proof_file'];
                                     }
                                     ?>"/>
@@ -2116,7 +2112,7 @@ function manageAccountNameField(value){
         var container = $('#edit_service_center').attr('container');
         $('#'+container).find('.form-control, .select2, #submit_btn').css('pointer-events', 'auto');
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
-        $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline');
+        $('#submit_btn, .cancel').css('display', 'inline');
         
         if($('#'+container+' #company_name').val() != ''){
             $('#'+container+' #company_name').css('pointer-events', 'none');
@@ -2166,17 +2162,20 @@ function manageAccountNameField(value){
             $('#'+container+' #signature_file').css('pointer-events', 'none');
             $('#'+container+' #signature_file').css('background-color', '');
             $('#'+container+' #signature_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            
         }
-        console.log($('#'+container+' #address_proof_file_hd').val()+ '= ' + $('#'+container+' #address_proof_file_hd').val() != '');
         if($('#'+container+' #address_proof_file_hd').val() !== ''){
             $('#'+container+' #address_proof_file').css('pointer-events', 'none');
             $('#'+container+' #address_proof_file').css('background-color', '');
             $('#'+container+' #address_proof_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
         }
         if($('#'+container+' #contract_file_hd').val() !== ''){
             $('#'+container+' #contract_file').css('pointer-events', 'none');
             $('#'+container+' #contract_file').css('background-color', '');
             $('#'+container+' #contract_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
         }
     }
     
