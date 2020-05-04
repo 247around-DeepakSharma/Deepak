@@ -32,6 +32,8 @@
                                         <tr>
                                             <td style="width:13%;"><input type="text" placeholder="Booking Date" class="form-control" id="booking_date" name="booking_date"/></td>
                                             <td style="width:13%;"><input type="text" placeholder="Close Date" class="form-control" id="close_date" name="close_date"/></td>
+                                            <!-- ST-309 add new search feature booking search by created date -->
+                                            <td style="width:13%;"><input type="text" placeholder="Created Date" class="form-control" id="created_date" name="created_date"/></td>
                                             <td>
                                                 <select style="width:100%" name="partner" ui-select2 id="partner"  class="form-control data_change" data-placeholder="Select Partner">
                                                     <option value="" ng-show="false"></option>
