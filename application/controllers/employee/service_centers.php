@@ -9605,9 +9605,10 @@ class Service_centers extends CI_Controller {
         } else {
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
-        }
-
-    /**
+		}
+	}
+	
+	/**
      * @desc : Method is used to send otp for booking cancellation & booking reschedule.
      * @author Ankit Rajvanshi
      */
@@ -9634,5 +9635,4 @@ class Service_centers extends CI_Controller {
         $this->notify->send_sms_msg91($sms);
         echo $this->session->userdata('cancel_booking_otp');
     }
-}
 }
