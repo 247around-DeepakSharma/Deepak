@@ -2560,3 +2560,10 @@ update header_navigation set groups = concat(groups, ',regionalmanager') where i
 
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_list', 3, '69', 'admin,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 29-04-2020
+-- 73
+ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
+
+-- Ankit Rajvanshi 01-05-2020
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;

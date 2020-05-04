@@ -347,12 +347,13 @@ class accounting_model extends CI_Model {
 
         return $data;
     }
-    function get_courier_documents($id=NULL){
+    function get_courier_documents($id=NULL, $offset = 0, $limit = 0){
         $where = "WHERE courier_details.is_active = 1";
         if($id){
             $where = " WHERE courier_details.id = ".$id;
         }
-        $query = $this->db->query("SELECT courier_details.*,
+        
+        $sql = "SELECT courier_details.*, billed_docket.invoice_id as billed_to_partner_invoice_id, 
         (CASE
             WHEN sender_entity_type  = 'partner' THEN partners.public_name
             WHEN sender_entity_type  = 'vendor' THEN service_centres.name
@@ -364,10 +365,19 @@ class accounting_model extends CI_Model {
             ELSE e.full_name
         END) as receiver_entity_name,
         contact_person.name as contact_person_name
-        FROM courier_details LEFT JOIN `employee` ON `courier_details`.`sender_entity_id` = `employee`.`id` LEFT JOIN `partners` ON `courier_details`.`sender_entity_id`= `partners`.`id` 
+        FROM courier_details 
+        LEFT JOIN courier_company_invoice_details ON (courier_details.AWB_no = courier_company_invoice_details.awb_number)
+        LEFT JOIN billed_docket ON (courier_company_invoice_details.id = billed_docket.courier_id)
+        LEFT JOIN `employee` ON `courier_details`.`sender_entity_id` = `employee`.`id` LEFT JOIN `partners` ON `courier_details`.`sender_entity_id`= `partners`.`id` 
         LEFT JOIN `service_centres` ON `courier_details`.`sender_entity_id`= `service_centres`.`id` LEFT JOIN `partners` as p ON `courier_details`.`receiver_entity_id`= `p`.`id` 
         LEFT JOIN `service_centres` as s ON `courier_details`.`receiver_entity_id`= `s`.`id` LEFT JOIN `employee` as e ON `courier_details`.`sender_entity_id` = e.`id` 
-        LEFT JOIN `contact_person` ON `courier_details`.`contact_person_id`= `contact_person`.`id` ".$where." ORDER BY `courier_details`.`id` asc ;");
+        LEFT JOIN `contact_person` ON `courier_details`.`contact_person_id`= `contact_person`.`id` ".$where." ORDER BY `courier_details`.`id` asc ";
+        
+        if($limit > 0) {
+            $sql .= " LIMIT {$limit} OFFSET {$offset} ";
+        }
+        $query = $this->db->query($sql);
+        
         return $query->result();
     }
      /**
