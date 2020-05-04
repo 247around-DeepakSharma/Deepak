@@ -99,14 +99,12 @@ class User extends CI_Controller {
            
             
         }
-            //Search Booking from serial number
+            //Search Booking from serial number when the number is equal to partner serial number or serial number. 
 
             else if(!empty($serial_number)){
             $post['search_value'] = $serial_number;
-            $post['column_search'] = array('booking_unit_details.serial_number');
-            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number);
             $post['column_search'] = array('booking_unit_details.serial_number','booking_unit_details.partner_serial_number');
-            $post['where'] = array('booking_unit_details.serial_number' =>$serial_number, 'booking_unit_details.partner_serial_number' =>$serial_number);
+            $post['where'] = array('booking_unit_details.serial_number = "'.$serial_number.'" OR booking_unit_details.partner_serial_number = "'.$serial_number.'"' => NULL);
             $view = "employee/search_result";
         
             
