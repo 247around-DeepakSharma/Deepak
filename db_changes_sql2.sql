@@ -2572,3 +2572,17 @@ ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
 
+-- Prity 04-05-2020
+-- 73
+CREATE TABLE `booking_amount_differences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL,
+  `total_amount_by_sf` decimal(10,2) NOT NULL,
+  `total_amount_actual` decimal(10,2) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_booking_amount_differences` (`booking_id`),
+  CONSTRAINT `fk_booking_amount_differences` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
