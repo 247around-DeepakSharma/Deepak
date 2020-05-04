@@ -1432,6 +1432,53 @@
     </div>
     <!-- Agent Graph -->
     
+    <div class="row">
+        <form action="<?php echo base_url(); ?>employee/invoice/download_dashboard_invoice_data" method="post">  
+            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+                <div class="dashboard_graph">
+                    <div class="row x_title">
+                        <div class="col-md-6">
+                            <h3>Invoice Details &nbsp;&nbsp;&nbsp;
+                                <small>
+                                </small>
+                            </h3>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="hidden" value="<?php echo date("Y-m-01"); ?>" name="sDate" id="sDate">
+                            <input type="hidden" value="<?php echo date("Y-m-d"); ?>" name="eDate" id="eDate">
+                            
+                            <div id="action_total_invoice" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                                 <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+
+                                <span></span> <b class="caret"></b>
+                            </div>
+                            
+                            <!--Adding Button to Download invoice data in Excel-->
+                                <button type="submit" class="btn btn-success btn-xs" style="margin-left:5px;float:right;padding: 6px 10px;" title="Download Invoice Details">Download Excel</button>
+
+                        </div>
+                        <div class="col-md-1">
+                            <span class="collape_icon" href="#chart_container_partner_total_booking_div" data-toggle="collapse" onclick="dashboard_total_invoice_data()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                    <div class="x_content collapse" id="chart_container_partner_total_booking_div">
+                        <div class="col-md-12">
+                            <center><img id="loader_gif_total_invoice" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        </div>
+                        <div id="chart_total_invoice_div" class="chart_total_invoice_div" style="width:100%; height:100%;">
+
+                             <div class="model-table">
+                                <table class="table table-bordered table-hover table-striped" id="invoice_datatable" style="text-align:right;">
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </form>
+    </div>
    <!-- show more content -->
     <div class="row"  style="margin-top:20px;">
         <div id="show_more" style="display:none;"> 
@@ -1566,6 +1613,22 @@
     }
    return values.join(":");
 }
+    //this function is used to find out current financial year start date and end date on basis of date.
+    function getCurrentFinancialYear(strDate) {
+        var startYear = "";
+        var endYear = "";
+        var docDate = new Date(strDate);
+        if ((docDate.getMonth() + 1) <= 3) {
+          startYear = docDate.getFullYear() - 1;
+          endYear = docDate.getFullYear();
+        } else {
+          startYear = docDate.getFullYear();
+          endYear = docDate.getFullYear() + 1;
+        }
+        var start_date = new Date(startYear + "-04-01");
+        var end_date = new Date(endYear + "-03-31");
+        return {startDate : start_date, endDate: end_date };
+      }
     var post_request = 'POST';
     var get_request = 'GET';
     var url = '';
@@ -1581,6 +1644,9 @@
     var end = moment().endOf('month');
     var start_week = moment().subtract(6, 'days');
     var end_week = moment();
+    var current_financial_year = getCurrentFinancialYear(start);
+    var current_financial_year_start_date = current_financial_year.startDate;
+    var current_financial_year_end_date = current_financial_year.endDate;
     var options = {
             startDate: start,
             endDate: end,
@@ -1653,6 +1719,43 @@
             }
     };
     
+    var options_year = {
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 366},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Current FY': [moment(current_financial_year_start_date), moment(current_financial_year_end_date)],
+                'Last FY': [moment(current_financial_year_start_date).subtract(1, 'years'), moment(current_financial_year_end_date).subtract(1, 'years')],
+                '2nd Last FY': [moment(current_financial_year_start_date).subtract(2, 'years'), moment(current_financial_year_end_date).subtract(2, 'years')],
+                '3rd Last FY': [moment(current_financial_year_start_date).subtract(3, 'years'), moment(current_financial_year_end_date).subtract(3, 'years')],
+                '4th Last FY': [moment(current_financial_year_start_date).subtract(4, 'years'), moment(current_financial_year_end_date).subtract(4, 'years')],
+                '5th Last FY': [moment(current_financial_year_start_date).subtract(5, 'years'), moment(current_financial_year_end_date).subtract(5, 'years')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+    };
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -1689,6 +1792,16 @@
         }
 
         $('#action_agent_date_performance').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
+    
+    $(function () {
+        function cb(start, end) {
+            $('#action_total_invoice span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#action_total_invoice').daterangepicker(options_year, cb);
 
         cb(start, end);
     });
@@ -1793,6 +1906,23 @@
         agent_click_performance(startDate, endDate);
         
     });
+    
+    //set values of start date and end date in input fields
+    function set_invoice_date_values(startDate, endDate){
+        $("#sDate").val(startDate);
+        $("#eDate").val(endDate);
+    }
+    
+    $('#action_total_invoice').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif_total_invoice').show();
+        $('#chart_total_invoice_div').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        set_invoice_date_values(startDate, endDate);
+        dashboard_click_total_invoice_data();
+        
+    });
+    
     $('#reportrange3').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
@@ -1934,6 +2064,32 @@
         
     }
     
+    function dashboard_click_total_invoice_data(){
+        url = baseUrl + '/employee/invoice/get_dashboard_invoice_data';
+        $('#loader_gif_total_invoice').show();
+        $("#invoice_datatable").html("");
+        $('#chart_total_invoice_div').fadeIn();
+        $.ajax({
+           type: 'POST',
+           url: url,
+           data: {sDate : $("#sDate").val(), eDate : $("#eDate").val()}
+         })
+         .done (function(data) { 
+            $('#loader_gif_total_invoice').hide();
+            $("#invoice_datatable").html(data);
+         })
+         .fail(function(jqXHR, textStatus, errorThrown){
+             $('#loader_gif_total_invoice').hide();
+             alert("Something went wrong while loading invoice!");
+          })
+    }
+    
+    //this function is used to get invoice data
+    function dashboard_total_invoice_data(){
+        set_invoice_date_values(moment().startOf('month').format('MMMM D, YYYY'), moment().endOf('month').format('MMMM D, YYYY'));
+        dashboard_click_total_invoice_data();
+        
+    }
     
     //show next grapgh when show more button clicked
     $("#show_more_btn").click(function(){
