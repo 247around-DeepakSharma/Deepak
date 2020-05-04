@@ -6409,4 +6409,98 @@ class vendor extends CI_Controller {
             
             return $arr_validation_checks;
         }
+
+
+
+    /** @desc: This function is used to view list of pincode mappings .
+     * @param: $vendor
+    * @Author : Abhishek Awasthi
+     * @return void
+     */
+    function view_vendor_pincode_mapping($vendor){
+        $this->miscelleneous->load_nav_header();
+        $data['vendor'] = $vendor;
+        $this->load->view('employee/vendor_picodes', $data);
+
+    }
+
+
+    /** @desc: This function is used to get the vendor_pincode_mapping list.
+     * @param: $vendor
+     * @Author : Abhishek Awasthi
+     * @return void
+     */
+    function get_vendor_pincode_mapping($vendor) {
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('vendor_pincode_mapping.Pincode', 'vendor_pincode_mapping.City', 'vendor_pincode_mapping.State');  
+
+        $select = "vendor_pincode_mapping.id,services.services,vendor_pincode_mapping.Appliance_ID,vendor_pincode_mapping.Pincode,vendor_pincode_mapping.City,vendor_pincode_mapping.State,vendor_pincode_mapping.active";
+        $post['where']['vendor_pincode_mapping.Vendor_ID'] = $vendor;
+        $list = $this->vendor_model->get_vendor_pincode_mapping_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+
+        foreach ($list as $pincode_list) {
+            $no++;
+            $row = $this->get_vendor_pincode_mapping_table($pincode_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->vendor_model->count_all_vendor_pincode_mapping($post),
+            "recordsFiltered" => $this->vendor_model->count_filtered_vendor_pincode_mapping($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    /**
+     * @desc this is used to generate  table
+     * @Author Abhishek AWasthi
+     */
+    private function get_vendor_pincode_mapping_table($pincode_list, $sn) {
+        $row = array();
+        $row[] = $sn;
+        $row[] = $pincode_list['services'];
+        $row[] = $pincode_list['City'];
+        $row[] = $pincode_list['State'];
+        $row[] = $pincode_list['Pincode'];
+        if ($pincode_list['active'] == 1) {
+            $row[] = '<span style="cursor:pointer;" class="label label-success makedeactive" id="'.$pincode_list['id'].'" >Active</span>';
+        } else {
+            $row[] = '<span style="cursor:pointer;" class="label label-danger makeactive" id="'.$pincode_list['id'].'">InActive</span>';
+        }
+        return $row;
+    }
+
+    /**
+     * @desc this is used to activate /Deactivate mapping 
+     * @Author Abhishek AWasthi
+     */
+    function activate_deactivate_pincode(){
+
+        $id = $this->input->post('id');
+        $action = $this->input->post('action');
+        if($action=='deactivate'){
+        $data = array(
+            'active'=>0
+        );
+        }else{
+        $data = array(
+            'active'=>1
+        );
+
+        }
+        $where = array('id'=>$id);
+        $result =  $this->vendor_model->update_vendor_pincode_mapping($data,$where);
+        echo  $result;
+
+    }
+
+
+
 }
