@@ -333,6 +333,7 @@ $route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_center
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 $route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
+$route['partner/search_docket'] = 'employee/partner/search_docket';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

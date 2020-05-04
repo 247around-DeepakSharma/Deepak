@@ -3255,5 +3255,6 @@ function get_data_for_partner_callback($booking_id) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
     }
+
 }
 
