@@ -2461,10 +2461,10 @@ ADD COLUMN `auth_certificate_validate_year` VARCHAR(9) NULL DEFAULT NULL AFTER `
 
 ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
 ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
-
 -- Prity 29-04-2020
 -- 73
 ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
-
 -- Ankit Rajvanshi 01-05-2020
 ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+--Gorakh 01-04-2020
+ALTER TABLE `spare_parts_details` ADD `defactive_part_return_to_partner_from_wh_date_by_courier_api` DATETIME NULL DEFAULT NULL AFTER `symptom`;
