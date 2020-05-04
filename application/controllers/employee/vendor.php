@@ -1062,7 +1062,14 @@ class vendor extends CI_Controller {
             $sf_name = $sf_details[0]['name'];
 
             //Sending Mail to corresponding RM and admin group 
-            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+
+            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
+            
+            //Get Talevar Singh user id from constant file as defind 
+            if(TALEVAR_USER_ID){
+                $talevar_user_email = $this->user_model->getusername(TALEVAR_USER_ID);
+            }
+
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
             
@@ -1071,6 +1078,18 @@ class vendor extends CI_Controller {
                 if (!empty($template)) {
                     if($sf_details[0]['is_micro_wh'] == 1){
                         $to .= ",".$template[1];
+
+                        // Add Account's team email id
+                        if(ACCOUNT_EMAIL_ID){
+                            $to .= ",".ACCOUNT_EMAIL_ID;
+                            $email['talevar_user_name'] = 'Account Team';
+                        }
+                        // Add user Talevar Singh's email id
+                        if($talevar_user_email){
+                            $to .= ",".$talevar_user_email;
+                            $email['talevar_user_name']= 'Talevar Singh';
+                        }
+
                     }
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);

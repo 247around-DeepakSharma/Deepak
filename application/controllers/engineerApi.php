@@ -4644,7 +4644,12 @@ function submitPreviousPartsConsumptionData(){
         $validation = $this->validateKeys(array("booking_id"), $requestData);
         if ($validation['status']) {
            $booking_id = $requestData['booking_id'];
-            $tag = BOOKING_CANCEL_OTP_SMS_TAG;
+           if($requestData['tag']=='CANCEL'){
+           $tag =  BOOKING_CANCEL_OTP_SMS_TAG;
+           }else{
+           $tag =  BOOKING_RESCHEDULE_OTP_SMS_TAG;
+           }
+            
             $sms = [];
         // get booking contact number.
             $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];

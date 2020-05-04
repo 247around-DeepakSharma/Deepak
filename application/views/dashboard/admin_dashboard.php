@@ -3075,21 +3075,36 @@ function initiate_escalation_data(){
             }
         });
     }
-    
+    /*
+     * By choosing dates from datapicker and expand chart div and send AJAX request to get cancelled booking data
+     * by sending start and end dates of selected option (last wwek/last month/ custom dates)  
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
     $('#reportrange_booking_cancellation').on('apply.daterangepicker', function (ev, picker) {
         $('#loader_gif_booking_cancellation').show();
-        //$('#state_type_booking_chart').hide();
-        //alert("dgdffgh");
+        $('#state_type_booking_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
         url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            create_piechart_based_on_bookings_cancellation_reason(response);
+            if(response){
+                create_piechart_based_on_bookings_cancellation_reason(response);
+            }else{
+                $('#loader_gif_booking_cancellation').hide();
+                $('#booking_cancellation_chart_div').fadeIn();
+                $('#booking_cancellation_chart').html('No data');
+            }
         });
     });
-    
+    /*
+     * On click of plus buttion expand chart div and send AJAX request to get cancelled booking data
+     * by sending first and last date of current 
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
     function get_bookings_cancellation_reason(){
         $('#loader_gif_booking_cancellation').fadeIn();
         $('#booking_cancellation_chart_div').fadeOut();
@@ -3098,9 +3113,9 @@ function initiate_escalation_data(){
         url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};        
         sendAjaxRequest(data,url,post_request).done(function(response){
-            console.log(response);
+            //console.log(response);
             if(response){
-                create_chart_based_on_bookings_state(response);
+                create_piechart_based_on_bookings_cancellation_reason(response);
             }else{
                 $('#loader_gif_booking_cancellation').hide();
                 $('#booking_cancellation_chart_div').fadeIn();
@@ -3108,11 +3123,22 @@ function initiate_escalation_data(){
             }
         });
     }
-    
+
+    /*
+     * This function create pie chart of cancelled booking by cancellation reason
+     * Input param JSON data array
+     */
     function create_piechart_based_on_bookings_cancellation_reason(response) {
-        var series = JSON.parse("["+response+"]");
+        console.log(response);
+        var test = JSON.parse(response);
+        var tt =  [{
+            name : test.series.name,
+            colorByPoint : test.series.colorByPoint,
+            data: test.series.data
+        }];
         $('#loader_gif_booking_cancellation').hide();
         $('#booking_cancellation_chart_div').fadeIn();
+        // Configure and put JSON data into piechart
         Highcharts.chart('booking_cancellation_chart', {
                   chart: {
                     plotBackgroundColor: null,
@@ -3121,10 +3147,10 @@ function initiate_escalation_data(){
                     type: 'pie'
                   },
                   title: {
-                    text: 'Test'
+                    text: ''
                   },
                   tooltip: {
-                    pointFormat: '{series.cancellation_reason}: <b>{series.count}</b>'
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                   },
                   accessibility: {
                     point: {
@@ -3141,7 +3167,7 @@ function initiate_escalation_data(){
                       showInLegend: true
                     }
                   },
-                  series: series.series
+                  series:tt
                 });
     
     }
