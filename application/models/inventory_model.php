@@ -3605,7 +3605,7 @@ class Inventory_model extends CI_Model {
             /* Get service id */
             $service_id = $this->booking_model->get_booking_details('service_id', ['booking_id' => $booking_id])[0]['service_id'];
             /* Get inventory part type id */
-            $inventory_part_type = $this->get_inventory_parts_type_details('id', ['service_id' => $service_id, 'part_type' => $part_type]);
+            $inventory_part_type = $this->get_inventory_parts_type_details('inventory_parts_type.id', ['service_id' => $service_id, 'part_type' => $part_type]);
             /* get defective/ok part required or not. */
             if(!empty($inventory_part_type)) {
                 $non_inventory_part_type = $this->get_non_inventory_partners_part_type('is_defective_required', ['partner_id' => $partner_id, 'inventory_part_type_id' => $inventory_part_type[0]['id']]);
@@ -3616,7 +3616,7 @@ class Inventory_model extends CI_Model {
             } 
             
             /* for non inventory cases defective part must be return that's why returning 1 by default in case of inventory id is empty */
-            return 1;
+            return true;
         }
      
     }
