@@ -3736,4 +3736,17 @@ class invoices_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
+    
+    
+    
+     /**
+     *  @desc : This function is used to execute defined query
+     *  @param : String $query
+     *  @author Ankit Bhatt
+     *  @date : 17-04-2020
+     */
+    function execute_query($query){
+        $result = $this->db->query($query);
+        return $result->result_array();
+    }
 }
