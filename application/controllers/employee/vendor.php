@@ -5635,11 +5635,13 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }        
+            $attachment_signature='';
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
                // print_r($attachment_signature);
                 if($attachment_signature){
                 } else {
+                    
                     //return FALSE;
                 }
             }
