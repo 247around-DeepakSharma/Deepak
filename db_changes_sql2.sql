@@ -2466,5 +2466,7 @@ ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) N
 ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
 -- Ankit Rajvanshi 01-05-2020
 ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
---Gorakh 01-04-2020
+--Gorakh 01-05-2020
 ALTER TABLE `spare_parts_details` ADD `defactive_part_return_to_partner_from_wh_date_by_courier_api` DATETIME NULL DEFAULT NULL AFTER `symptom`;
+--Gorakh 04-05-2020
+UPDATE `header_navigation` SET `title` = 'Defective parts Shipped By WH' WHERE `header_navigation`.`id` = 136;
