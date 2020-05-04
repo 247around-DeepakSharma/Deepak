@@ -2500,6 +2500,7 @@ CREATE TABLE non_inventory_partners_part_type (
 ---Ghanshyam 2020-04-13
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
+
 -- Prity 21-04-2020
 -- 73 Branch
 CREATE TABLE `customer_dissatisfactory_reasons` (
@@ -2552,3 +2553,5 @@ ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NO
 ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
 --Gorakh 01-04-2020
 ALTER TABLE `spare_parts_details` ADD `defactive_part_return_to_partner_from_wh_date_by_courier_api` DATETIME NULL DEFAULT NULL AFTER `symptom`;
+---Ghanshyam 2020-04-15
+ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
