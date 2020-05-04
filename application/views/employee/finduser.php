@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="order id" class="col-md-2">Order ID</label>
+                        <label for="order_id" class="col-md-2">Order ID</label>
                         <div class="col-md-4">
                         <input type="text" class="form-control" id="order_id" name="order_id" placeholder="Enter Order ID" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
                         </div>
@@ -152,7 +152,7 @@
 
                     <!-- Find booking from serial number -->
                     <div class="form-group">
-                        <label for="serial id" class="col-md-2">Serial No.</label>
+                        <label for="serial_number" class="col-md-2">Serial No.</label>
                         <div class="col-md-4">
                         <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Enter Serial No." onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13">
                         </div>
