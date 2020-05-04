@@ -4487,7 +4487,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status." Last Spare : ".$last_spare;
+        $row[] = $escalation." ".$order_list->partner_internal_status." Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;

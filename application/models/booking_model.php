@@ -3122,7 +3122,7 @@ class Booking_model extends CI_Model {
      * @return type
      */
     function getBookingLastSpare($booking_id){
-    $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and  booking_id='".$booking_id."'";
+    $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
     return $this->db->query($sql)->result();
     }
 }
