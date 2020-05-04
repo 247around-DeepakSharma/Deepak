@@ -359,12 +359,13 @@ class Around_scheduler_model extends CI_Model {
 
         return $return_arr;
     }
-
-    function get_status_changes_booking_with_in_hour($hour) {
-
-        $sql = "SELECT DISTINCT bd.order_id, bd.partner_current_status, bd.booking_date, cancellation_reason, amount_paid"
+    
+    function get_status_changes_booking_with_in_hour($hour){
+       
+        $sql  = "SELECT DISTINCT bd.order_id, bd.partner_current_status, bd.booking_date, booking_cancellation_reasons.reason as cancellation_reason, amount_paid"
                 . " FROM booking_details as bd, "
-                . " booking_state_change as bs WHERE "
+                . " booking_state_change as bs "
+                . " LEFT JOIN booking_cancellation_reasons ON (bd.cancellation_reason = booking_cancellation_reasons.id) WHERE "
                 . " replace('Q-','',bd.booking_id) =  replace('Q-','',bs.booking_id) "
                 . " AND bd.update_date >= DATE_ADD(NOW(), INTERVAL -$hour HOUR) AND bd.partner_id = '" . JEEVES_ID . "'"
                 . " AND old_state IN ('" . _247AROUND_COMPLETED . "', '" . _247AROUND_FOLLOWUP . "', "

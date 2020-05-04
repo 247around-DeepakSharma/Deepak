@@ -212,6 +212,8 @@ $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject
 $route['partner/reject_defective_part_sent_by_wh/(:any)/(:any)'] = 'employee/partner/reject_defective_part_sent_by_wh/$1/$2';
 $route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
 $route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
+$route['partner/received_parts_by_wh'] = 'employee/partner/get_defective_parts_received_by_wh';
+$route['partner/received_parts_by_wh/(:any)'] = 'employee/partner/get_defective_parts_received_by_wh/$1';
 $route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner/get_waiting_for_approval_upcountry_charges';
 $route['partner/get_waiting_for_approval_upcountry_charges/(:any)'] = 'employee/partner/get_waiting_for_approval_upcountry_charges/$1';
 $route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/upcountry_charges_approval/$1/$2';
@@ -236,6 +238,7 @@ $route['partner/download_mwh_msl_data'] = 'employee/spare_parts/get_msl_data/2';
 $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
+$route['partner/download_received_spare_by_wh'] = 'employee/partner/download_received_spare_by_wh';
 $route['partner/inventory/ack_spare_send_by_wh'] = 'employee/partner/ack_spare_send_by_wh';
 $route['partner/inventory/show_inventory_details'] = 'employee/partner/show_inventory_master_details';
 $route['partner/inventory/show_inventory_appliance_details'] = 'employee/partner/show_appliance_model_list';
@@ -253,6 +256,15 @@ $route['partner/inventory/download_part_master'] = 'employee/partner/show_downlo
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 $route['partner/brand_collaterals']='employee/partner/brand_collaterals';
+$route['partner/add_nrn_details'] = 'employee/NRN_TR/add_nrn_details';
+$route['partner/list_nrn_records'] = 'employee/NRN_TR/list_nrn_records';
+$route['partner/edit_nrn_details'] = 'employee/NRN_TR/edit_nrn_details';
+$route['partner/edit_nrn_details/edit/(:num)'] = 'employee/NRN_TR/edit_nrn_details/$1';
+$route['partner/nrn_tr/index'] = 'employee/NRN_TR/index';
+$route['partner/getCategoryForService'] = 'employee/NRN_TR/getCategoryForService';
+$route['partner/getCapacityForCategory'] = 'employee/NRN_TR/getCapacityForCategory';
+$route['partner/getModelForService'] = 'employee/NRN_TR/getModelForService';
+$route['partner/get_appliances'] = 'employee/NRN_TR/get_appliances';
 
 
 
@@ -321,6 +333,7 @@ $route['service_center/parts_delivered_to_sf/(:any)'] = 'employee/service_center
 $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/update_courier_lost/$1';
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 $route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
+$route['partner/search_docket'] = 'employee/partner/search_docket';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

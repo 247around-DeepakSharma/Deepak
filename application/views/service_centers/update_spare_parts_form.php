@@ -627,9 +627,7 @@
                                     var current = $(this).val();
                                     if (ptypes.length > 0) {
                                         alert(ptypes.length);
-
                                         var n = ptypes.includes(current);
-                                        alert(n);
                                         if (n) {
                                             //alert("Same part type can not be requested.For multiple part please fill quantity.");
                                             // checkbox_value = 0;

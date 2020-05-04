@@ -110,7 +110,7 @@
         <div class="tab-pane fade in active" id="tab1">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table  table-striped table-bordered" >
+                    <table style="table-layout:fixed; width: 100%" class="table  table-striped table-bordered" >
                         <tr>
                             <th>Name </th>
                             <td><?php echo $booking_history[0]['name']; ?></td>
@@ -225,7 +225,7 @@
                         </tr>
                         <tr>
                             <th>Closing Remarks</th>
-                            <td style="max-width: 330px;"><?php echo $booking_history[0]['closing_remarks'];?></td>
+                            <td style="max-width: 330px; word-wrap: break-word;"><?php echo $booking_history[0]['closing_remarks'];?></td>
                             <th>Service Promise Date</th>
                             <td ><?php echo $booking_history[0]['service_promise_date'];?></td>
                         </tr>
@@ -930,6 +930,7 @@
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Spare Parts Shipped</h1>
                         <div class="col-md-12" style="padding-left:1px;">
+                            <div class="table-responsive">
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
@@ -952,6 +953,7 @@
                                         <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
+                                        <th>Courier POD File</th>
                                         <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <th>Is Defective/Ok Parts Required</th>
                                         <?php } ?>
@@ -1027,6 +1029,17 @@
                                             <a class='courier_pic_by_partner' href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank" id="<?php echo "a_courier_pic_by_partner_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_partner'])){echo $sp['awb_by_partner'];} ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "courier_pic_by_partner_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','courier_pic_by_partner');"></i>
                                                <?php } ?>
                                         </td>
+                                        <td>
+                                           <?php
+                                           if(!empty($sp['awb_by_partner']))
+                                           {
+                                           ?>
+                                            <div class="progress-bar progress-bar-success myprogress" id="myprogresscourier_pod_file<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>                                            
+                                            <a class='courier_pod_file' href="<?php echo S3_WEBSITE_URL;?>courier-pod/<?php  if(!empty($sp['courier_pod_file'])){ echo $sp['courier_pod_file']; } ?>" target="_blank" id="<?php echo "a_courier_pod_file_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_partner'])){echo $sp['awb_by_partner'];} ?>"><?php  if(!empty($sp['courier_pod_file'])){ ?>Click Here to view <?php } ?></a> &nbsp;&nbsp;<i id="<?php echo "courier_pod_file_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','courier_pod_file');"></i>
+                                            <?php
+                                           }
+                                           ?>
+                                        </td>
                                         <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <td>
                                             <?php echo $sp['btn'] ?>
@@ -1036,6 +1049,7 @@
                                     <?php } } ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2348,11 +2362,13 @@ function uploadfile(){
     }
     var awb_number_file = $("span[id='"+spareID+"|awb_by_partner']").text();
     
-    if(spareFileColumn=='partner_challan_file' || spareFileColumn=='courier_pic_by_partner'){
-        directory_name = 'vendor-partner-docs';
-    }else{
-        directory_name = '';
-    }
+        if(spareFileColumn=='partner_challan_file' || spareFileColumn=='courier_pic_by_partner'){
+            directory_name = 'vendor-partner-docs';
+        }else if(spareFileColumn=='courier_pod_file'){
+            directory_name = 'courier-pod';
+        }else{
+            directory_name = '';
+        }
     
     
         if(flag === true){
@@ -2398,6 +2414,17 @@ function uploadfile(){
                                 var awb_number_changed = $("span[id='"+LineItemID+"|awb_by_partner']").text();
                                 if(awb_number_file == awb_number_changed){
                                     $(this).attr("href", "<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/" + obj.name);
+                                }
+                            });
+                        }
+                        else if(spareFileColumn=='courier_pod_file'){
+                            $(".courier_pod_file").each(function(){
+                                var LineItemID = $(this).attr('line_item_id');
+                                var AwbNumber = $(this).attr('awb_number');
+                                var awb_number_changed = $("span[id='"+LineItemID+"|awb_by_partner']").text();
+                                if(awb_number_file == awb_number_changed){
+                                    $(this).attr("href", "<?php echo S3_WEBSITE_URL;?>courier-pod/" + obj.name);
+                                    $(this).html('Click Here to view');
                                 }
                             });
                         }

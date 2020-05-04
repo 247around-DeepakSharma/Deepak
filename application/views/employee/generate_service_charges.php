@@ -359,7 +359,7 @@
             postData['partner_id'] = '<?php echo $partner_id; ?>';
             postData['partner_type'] ='<?php echo $partner_type; ?>';
             postData['brand'] = $("#appliance_brand").val();
-            postData['is_mapping'] = 0;
+            postData['is_mapping'] = 1;
     
             sendAjaxRequest(postData, url).done(function (data) {
 

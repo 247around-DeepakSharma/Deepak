@@ -34,6 +34,7 @@ class Accounting extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('invoice_lib');
+        $this->load->library("pagination");
         //  $this->load->library('email');
 
 //    if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -680,10 +681,25 @@ class Accounting extends CI_Controller {
         }
     }
     //to view all the documents
-    function view_shipped_documents(){
-        $courier_details = $this->accounting_model->get_courier_documents();
+    function view_shipped_documents($offset = 0){
+        
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/view_shipped_documents',array('courier_details'=>$courier_details));
+        
+        $config['base_url'] = base_url() . 'employee/accounting/view_shipped_documents';
+        $config['per_page'] = 20;
+        $config['uri_segment'] = 4;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        
+        $courier_details = $this->accounting_model->get_courier_documents(NULL, $offset, $config['per_page']);
+        $config['total_rows'] = count($this->accounting_model->get_courier_documents());
+        $data['count'] = $config['total_rows'];
+        
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['courier_details'] = $courier_details;
+        
+        $this->load->view('employee/view_shipped_documents',$data);
     
     }
     
@@ -729,7 +745,14 @@ class Accounting extends CI_Controller {
      */
     function get_invoice_searched_data(){
         log_message("info", __METHOD__);
-        $post = $this->getInvoiceDataTablePost();
+        if(!empty($this->input->post('download_all')) && $this->input->post('download_all') == 1){
+            //Bring all data for download
+            $download_all = 1;
+        }else{
+            //Bring only page size data to show
+            $download_all = 0;
+        }
+        $post = $this->getInvoiceDataTablePost($download_all);
         $post['column_order'] = array(NULL, 'vendor_partner_invoices.id');
         $post['column_search'] = array('invoice_id');
         $data = array();
@@ -742,14 +765,19 @@ class Accounting extends CI_Controller {
                 $data = $this->getPartnerInvoicingData($post);
                 break;
             case 'admin_search':
-                $data = $this->getSearchedInvoicingData($post);
+                $data = $this->getSearchedInvoicingData($post, $download_all);
                 break;
             default :
                break; 
         }
-        
-       
-        $output = array(
+       if($download_all == 1){
+           //download data
+           $headings = array("Party Name", "Invoice Id", "Type", "Bookings/ Parts", "Invoice Period", "Total Invoice", "Service Charges", "Additional Service Charges",
+                            "Parts / Stands", "TDS Amount", "Penalty", "GST Amount", "Amount to be Paid By 247Around", "Amount to be Paid By Partner",
+                            "Amount Paid", "Remarks", "Vertical", "Category", "Sub Category");
+           $this->miscelleneous->downloadCSV($data,$headings,"invoice");
+       }else{
+           $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->invoices_model->count_all_invoices($post),
             "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
@@ -757,6 +785,8 @@ class Accounting extends CI_Controller {
         );
         
         echo json_encode($output);
+       }
+        
         
     }
         
@@ -766,17 +796,17 @@ class Accounting extends CI_Controller {
      * @return type
      */
      
-    function getSearchedInvoicingData($post){
+    function getSearchedInvoicingData($post, $download_all = 0){
         $select = "IFNULL(service_centres.name, partners.public_name) as party_name, vendor_partner_invoices.*";
         $list = $this->invoices_model->searchInvoicesdata($select, $post);
-        $no = $post['start'];
-        $data = array();
-        foreach ($list as $invoice_list) {
-            $no++;
-            $row =  $this->invoice_datatable($invoice_list, $no);
-            $data[] = $row;
-        }
-        return $data;
+            $no = $post['start'];
+            $data = array();
+            foreach ($list as $invoice_list) {
+                $no++;
+                $row =  $this->invoice_datatable($invoice_list, $no, $download_all);
+                $data[] = $row;
+            }
+            return $data;   
     }
             
      /**
@@ -787,6 +817,7 @@ class Accounting extends CI_Controller {
     function getServiceCenterInvoicingData($post){
         $select = "IFNULL(service_centres.name, partners.public_name) as party_name, vendor_partner_invoices.*";
         $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        
         $no = $post['start'];
         $data = array();
         foreach ($list as $invoice_list) {
@@ -855,25 +886,38 @@ class Accounting extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function invoice_datatable($invoice_list, $no){
+    function invoice_datatable($invoice_list, $no, $download_all = 0){
         $row = array();
         $invoice_links = "";
-        if($invoice_list->settle_amount == 1){
+        if($download_all == 0){
+            if($invoice_list->settle_amount == 1){
             $row[] = '<span class="satteled_row">'.$no.'</span>';
+            }
+            else{
+                $row[] = $no;
+            }
+            $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_file_main.'">Main</a></p>';
+            $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_detailed_excel.'">Detail</a>';
+            $invoice_links .= '</p><p style="margin-top:15px;"><a  href="javascript:void(0);" onclick="get_invoice_payment_history(this)" data-id="'.$invoice_list->invoice_id.'">History</a></p>';
+
+            $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
         }
         else{
-            $row[] = $no;
+            //No need to set link for export file
+            $row[] = $invoice_list->party_name;
         }
         
-        $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_file_main.'">Main</a></p>';
-        $invoice_links .= '<p style="margin-top:15px;"><a  href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$invoice_list->invoice_detailed_excel.'">Detail</a>';
-        $invoice_links .= '</p><p style="margin-top:15px;"><a  href="javascript:void(0);" onclick="get_invoice_payment_history(this)" data-id="'.$invoice_list->invoice_id.'">History</a></p>';
         
-        $row[] = "<a href='". base_url()."employee/invoice/invoice_summary/".$invoice_list->vendor_partner."/".$invoice_list->vendor_partner_id."' target='_blank'>".$invoice_list->party_name."</a>";
+        
         $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
-        $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
-        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
+        $row[] = "'".$invoice_list->num_bookings."/".$invoice_list->parts_count;
+        if($download_all == 0){
+            $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
+        }else{
+            $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))."  ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
+        }
+        
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
@@ -888,29 +932,37 @@ class Accounting extends CI_Controller {
         $row[] = $invoice_list->vertical;
         $row[] = $invoice_list->category;
         $row[] = $invoice_list->sub_category;
-        $a_update = '<a href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice_list->vendor_partner.'/'.$invoice_list->invoice_id.'"';
-        if($invoice_list->amount_paid > 0){
-            $a_update .= " disabled ";
+        if($download_all == 0){
+            $a_update = '<a href="'.base_url().'employee/invoice/insert_update_invoice/'.$invoice_list->vendor_partner.'/'.$invoice_list->invoice_id.'"';
+            if($invoice_list->amount_paid > 0){
+                $a_update .= " disabled ";
+            }
+            $a_update .= ' class="btn btn-sm btn-info">update</a> ';
+            $row[] = $a_update;
+
+            $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
+            $row[] = $resend_invoice;
+    //        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
+    //            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
+    //        } else {
+    //            $row[] = "";
+    //        }
         }
-        $a_update .= ' class="btn btn-sm btn-info">update</a> ';
-        $row[] = $a_update;
         
-        $resend_invoice = '<a href="'.base_url().'employee/invoice/sendInvoiceMail/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-primary">Resend Invoice</a>';
-        $row[] = $resend_invoice;
-//        if(($invoice_list->type == "DebitNote") && $invoice_list->credit_generated == 0){
-//            $row[] = '<a target="_blank" href="'.base_url().'employee/invoice/generate_gst_creditnote/'.$invoice_list->invoice_id.'" class="btn btn-sm btn-success"> Generate</a>';
-//        } else {
-//            $row[] = "";
-//        }
         return $row;
     }
     /**
      * @desc Get POST data from DataTable
      * @return Array
      */
-    function getInvoiceDataTablePost(){
-        
-        $post['length'] = $this->input->post('length');
+    function getInvoiceDataTablePost($download_all = 0){
+        if($download_all == 1){
+            //Bring all data for download
+            $post['length'] = -1;
+        }else{
+            //Bring only page size data to show
+            $post['length'] = $this->input->post('length');
+        }
         $post['start'] = $this->input->post('start');
         $search = $this->input->post('search');
         if(!empty($search['value'])){

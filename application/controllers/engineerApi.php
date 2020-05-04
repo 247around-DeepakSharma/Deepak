@@ -488,13 +488,10 @@ class engineerApi extends CI_Controller {
             case 'getAccessories':
                 $this->getgetAccessoriesList();  //// Getting parents
                 break;
-
-            /*   this API used to All Acceceries */
-            case 'getAccessories':
-                $this->getgetAccessoriesList();  //// Getting parents
+            /*   this API used to send OTP for Cancel/Rescedule */
+            case 'sendCancelRescheduleOTP':
+                $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
                 break;
-
-
             default:
                 break;
         }
@@ -2118,7 +2115,7 @@ class engineerApi extends CI_Controller {
             foreach ($bookings as $key => $value) {
                 if ($engineer_pincode) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
@@ -2156,7 +2153,7 @@ class engineerApi extends CI_Controller {
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
@@ -2199,7 +2196,7 @@ class engineerApi extends CI_Controller {
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
@@ -3872,7 +3869,7 @@ class engineerApi extends CI_Controller {
                 foreach ($data['Bookings'] as $key => $value) {
                     if ($engineer_pincode) {
 /*  Make True if want calculation from google API */
-                    $calculate_ddistance = TRUE;
+                    $calculate_ddistance = FALSE;
                     $distance = "0"; 
                     if($calculate_ddistance){
                         $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
@@ -4629,6 +4626,50 @@ function submitPreviousPartsConsumptionData(){
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
+
+    /**
+     * @Desc: This function is to used to send OTP for Cancel/Reschedule
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 29-04-2020
+     */
+
+    function sendCancelRescheduleOTPCustomer(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id"), $requestData);
+        if ($validation['status']) {
+           $booking_id = $requestData['booking_id'];
+           if($requestData['tag']=='CANCEL'){
+           $tag =  BOOKING_CANCEL_OTP_SMS_TAG;
+           }else{
+           $tag =  BOOKING_RESCHEDULE_OTP_SMS_TAG;
+           }
+            
+            $sms = [];
+        // get booking contact number.
+            $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+            $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+            $user_id = $booking_deatils['user_id'];
+            $otp = rand(1000,9999);
+            $sms['tag'] = $tag;
+            $sms['phone_no'] = $booking_primary_contact_number;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $user_id;
+            $sms['smsData']['otp'] = $otp;
+            $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = $otp; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+           // print_r($result); exit; 
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0103", 'OTP Not Sent'));
         }
 
     }

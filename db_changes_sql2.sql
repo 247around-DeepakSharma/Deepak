@@ -2500,6 +2500,7 @@ CREATE TABLE non_inventory_partners_part_type (
 ---Ghanshyam 2020-04-13
 INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
+
 -- Prity 21-04-2020
 -- 73 Branch
 CREATE TABLE `customer_dissatisfactory_reasons` (
@@ -2550,3 +2551,38 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_e
 
 ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
 ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
+--Gorakh 01-04-2020
+ALTER TABLE `spare_parts_details` ADD `defactive_part_return_to_partner_from_wh_date_by_courier_api` DATETIME NULL DEFAULT NULL AFTER `symptom`;
+---Ghanshyam 2020-04-15
+ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
+--Ankit Bhatt 2020-04-27
+update header_navigation set groups = concat(groups, ',regionalmanager') where id = 69;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_list', 3, '69', 'admin,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 29-04-2020
+-- 73
+ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
+
+-- Ankit Rajvanshi 01-05-2020
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+
+-- Ankit Rajvanshi 30-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
+
+-- Prity 04-05-2020
+-- 73
+CREATE TABLE `booking_amount_differences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL,
+  `total_amount_by_sf` decimal(10,2) NOT NULL,
+  `total_amount_actual` decimal(10,2) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_booking_amount_differences` (`booking_id`),
+  CONSTRAINT `fk_booking_amount_differences` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

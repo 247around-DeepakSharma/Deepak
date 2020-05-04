@@ -1118,7 +1118,7 @@ class Service_centers extends CI_Controller {
 
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
-
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
         if ($this->session->userdata('is_engineer_app') == 1) {
             $en_where = array("booking_id" => $booking_id,
                 "service_center_id" => $this->session->userdata('service_center_id')
@@ -1160,18 +1160,18 @@ class Service_centers extends CI_Controller {
 
 
             switch ($cancellation_reason) {
-                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
+                case PRODUCT_NOT_DELIVERED_TO_CUSTOMER_ID :
                     //Called when sc choose Product not delivered to customer 
                     $this->convert_booking_to_query($booking_id, $partner_id);
 
                     break;
 
                 default :
-                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA) {
+                    if ($cancellation_reason == CANCELLATION_REASON_WRONG_AREA_ID) {
                         $this->send_mail_rm_for_wrong_area_picked($booking_id, $partner_id, $city, $booking_pincode, WRONG_CALL_AREA_TEMPLATE);
                     }
 
-                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON) {
+                    if (isset($correctpin) && !empty($correctpin) && $cancellation_reason == _247AROUND_WRONG_PINCODE_CANCEL_REASON_ID) {
                         $pinupdate = array(
                             'booking_pincode' => $correctpin
                         );
@@ -6354,9 +6354,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-            //$courier_image['status']           
+            
             if (1) {
-
+                
                 $part = $this->input->post("part");
                 //$sf_id = $this->session->userdata('service_center_id');
                 $partner_id = $this->input->post('partner_id');
@@ -9605,6 +9605,34 @@ class Service_centers extends CI_Controller {
         } else {
             $this->session->sess_destroy();
             redirect(base_url() . "employee/login");
-        }
+		}
+	}
+	
+	/**
+     * @desc : Method is used to send otp for booking cancellation & booking reschedule.
+     * @author Ankit Rajvanshi
+     */
+      function send_otp_customer() {
+        $post_data = $this->input->post();
+        $booking_id = $post_data['booking_id'];
+        $tag = $post_data['sms_template'];
+        $sms = [];
+        
+        // get booking contact number.
+       $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+        $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+        $user_id = $booking_deatils['user_id'];
+        // prepare data for sms template.
+        $otp = rand(1000,9999);
+        $this->session->unset_userdata('cancel_booking_otp');
+        $this->session->set_userdata('cancel_booking_otp', $otp);
+        $sms['tag'] = $tag;
+        $sms['phone_no'] = $booking_primary_contact_number;
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "user";
+        $sms['type_id'] = $user_id;
+        $sms['smsData']['otp'] = $otp;
+        $this->notify->send_sms_msg91($sms);
+        echo $this->session->userdata('cancel_booking_otp');
     }
 }

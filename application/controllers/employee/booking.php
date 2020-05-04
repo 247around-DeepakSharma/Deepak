@@ -2103,6 +2103,9 @@ class Booking extends CI_Controller {
                         if($booking_id == INSERT_NEW_BOOKING){
                         $this->session->set_userdata('success', 'Booking inserted successfully with Booking Id : '.$status['booking_id']);
                         }
+                        else{
+                            $this->session->set_userdata('success', 'Booking saved successfully with Booking Id : '.$status['booking_id']);
+                        }
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
                         //Redirect to edit booking page if validation err occurs
@@ -2711,7 +2714,7 @@ class Booking extends CI_Controller {
 
     function check_and_update_partner_extra_spare($booking_id){
 
-        $booking_unit_details = $this->booking_model->getunit_details($booking_id);
+        $booking_unit_details = $this->booking_model->getunit_details($booking_id,"",TRUE);
         foreach($booking_unit_details as $unit){
             if($unit['partner_net_pay']>0){
                 
@@ -4113,6 +4116,9 @@ class Booking extends CI_Controller {
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
         }
+        if(!empty($receieved_Data['created_date'])){
+          $whereArray = $this->get_dates_range_where_array($receieved_Data['created_date']," - ",$whereArray,$dbfield_mapinning_option['created_date'],"Y-m-d");
+        }
         if(!empty($receieved_Data['paid_by'])){
             if($receieved_Data['paid_by'] == 'Customer'){
                 $whereArray['booking_unit_details.customer_net_payable >'] = '0';
@@ -4130,7 +4136,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -4307,6 +4313,16 @@ class Booking extends CI_Controller {
        }
        ob_end_clean();
     }
+
+    /**
+     *  @desc : This function is used to get Last recieve spare
+     *  @param : $booking_id
+     *  @return : $Date
+     */
+    function getBookingLastSpare($booking_id){
+     $receivedate =  $this->booking_model->getBookingLastSpare($booking_id)[0];
+     return $receivedate->acknowledge_date;
+    }
     
     /**
      *  @desc : This function is used to make the table for pending bookings
@@ -4327,6 +4343,8 @@ class Booking extends CI_Controller {
         }else{
             $sn = "";
         }
+
+        $last_spare = $this->getBookingLastSpare($order_list->booking_id);
         
 //        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
 //        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
@@ -4457,10 +4475,10 @@ class Booking extends CI_Controller {
          }
         $row[] = $no.$sn;
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -4468,8 +4486,8 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status;
-        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a>";
+        $row[] = $escalation." ".$order_list->partner_internal_status." Latest Ack Date : ".$last_spare;
+        $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
@@ -4483,7 +4501,8 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
+
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5661,11 +5680,11 @@ class Booking extends CI_Controller {
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($cancellation_reason_id)){
-                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
-                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+                // $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'"'] = NULL;
             }
         }        
         
@@ -6564,4 +6583,24 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
+
+    /*
+     * ST-224
+     * Get cancellation reasons of 247around
+     * return HTML
+     */
+    function get_cancellation_reasons(){
+        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') :'247around';
+        $where = array('reason_of' => $reason_of);
+        $cancellation_reasons = $this->booking_model->cancelreason($where);
+        $options = '<option selected disabled>Select reason</option>';
+        if(!empty($cancellation_reasons)){
+            foreach($cancellation_reasons as $reason){
+                $options .= '<option>'. $reason->reason .'</option>';
+            }
+        }
+        echo $options;
+    }
+
+
 }

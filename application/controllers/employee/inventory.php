@@ -3970,7 +3970,9 @@ class Inventory extends CI_Controller {
         $spareID = $this->input->post('spareID');
         $bookingID = $this->input->post('booking_id');
         $spareColumn = $this->input->post('spareColumn');
-        if (!empty($this->input->post('directory_name'))) {
+        if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
+            $file_dir = "courier-pod";
+        } else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";
@@ -3978,7 +3980,7 @@ class Inventory extends CI_Controller {
 
         $defective_parts_pic = $this->miscelleneous->upload_file_to_s3($_FILES["file"], $spareColumn, $allowedExts, $bookingID, $file_dir, "sp_parts");
         if ($defective_parts_pic) {
-            if($spareColumn != 'courier_pic_by_partner'){
+            if($spareColumn != 'courier_pic_by_partner' && $spareColumn != 'courier_pod_file'){
                 $this->service_centers_model->update_spare_parts(array('id' => $spareID), array($spareColumn => $defective_parts_pic));
             }
             // if serial number image is changed , update in booking_unit_details table also.
@@ -4013,6 +4015,10 @@ class Inventory extends CI_Controller {
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details); // Insert into spare part tracking History
                     }
                 }
+            }
+            if (!empty($this->input->post('awb_number')) && $spareColumn == 'courier_pod_file') {
+                $awb_number = $this->input->post('awb_number');
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $awb_number), array('courier_pod_file' => $defective_parts_pic)); // Update Courier POD File on Courier company invoice detail table
             }
             echo json_encode(array('code' => "success", "name" => $defective_parts_pic));
         } else {
@@ -7754,7 +7760,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date,  courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
         $no = $post_data['start'];
         $data = array();
         $rowSums = array(
@@ -7769,6 +7776,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7798,7 +7806,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -7824,7 +7832,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         );
         
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.reject_remarks";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -7840,6 +7849,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
             $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
@@ -7861,7 +7871,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -8022,7 +8032,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'is_reject' => 0,
         );
         $post_data['column_search'] = array('awb_number', 'company_name', 'courier_charge', 'courier_invoice_id', 'vendor_invoice_id', 'partner_invoice_id');
-        $list = $this->inventory_model->get_searched_courier_invoices('*', $post_data);
+        $select = "billed_docket.invoice_id, courier_company_invoice_details.awb_number, courier_company_invoice_details.courier_invoice_id, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.small_box_count, courier_company_invoice_details.shippment_date, courier_company_invoice_details.delivered_date, courier_company_invoice_details.box_count, courier_company_invoice_details.pickup_from, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.id";
+        $list = $this->inventory_model->get_searched_courier_invoices($select, $post_data);
 
         $no = $post_data['start'];
         $data = array();
@@ -8030,12 +8041,13 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $row = array();
             $no++;
             $row[] = $no;
+            $row[] = $invoice_list->invoice_id;
+            $row[] = $invoice_list->courier_invoice_id;
             $row[] = $invoice_list->awb_number;
             $row[] = $invoice_list->company_name;
             $row[] = $invoice_list->courier_charge;
             $row[] = $invoice_list->actual_weight;
             $row[] = $invoice_list->billable_weight;
-            $row[] = $invoice_list->courier_invoice_id;
             //$row[] = $invoice_list->vendor_invoice_id;
             //$row[] = $invoice_list->partner_invoice_id;
             $row[] = $invoice_list->pickup_from;
@@ -8046,7 +8058,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $output = array(
             "draw" => $post_data['draw'],
             "recordsTotal" => $this->inventory_model->count_courier_invoices($post_data),
-            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('id', $post_data),
+            "recordsFiltered" => $this->inventory_model->count_filtered_courier_invoices('courier_company_invoice_details.id', $post_data),
             "data" => $data,
         );
 
@@ -8556,33 +8568,49 @@ function get_bom_list_by_inventory_id($inventory_id) {
     }
     /**
      * @desc This function is used to get success message when spare cancelled but this is not on priority.
-     * @param String $booking_id
+     * @param String $booking_id, $is_reason_required (Return all cancellation reason)
+     * $return JSON (Status and cancellation reason if required)
      */
-    function get_spare_cancelled_status($booking_id){
-        log_message('info', __METHOD__. " Booking ID ".$booking_id);
-        
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, status', array('spare_parts_details.booking_id' => $booking_id));
-        if(!empty($spare)){
+    function get_spare_cancelled_status($booking_id, $is_reason_required = '') {
+        log_message('info', __METHOD__ . " Booking ID " . $booking_id);
+
+        $data = array();
+        $cancellation_reason = array();
+        $select = 'spare_parts_details.booking_id, status';
+        if (!empty($is_reason_required) && $is_reason_required == 1) {
+            $data['spare_cancel_reason'] = true;
+            $select .= ", booking_cancellation_reasons.reason";
+        }
+
+        $spare = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id), '', '', '', $data);
+
+        if (!empty($spare)) {
             $is_cancelled = false;
             $not_can = false;
-            foreach($spare as $value){
-                if($value['status'] == _247AROUND_CANCELLED){
+            foreach ($spare as $value) {
+                if ($value['status'] == _247AROUND_CANCELLED) {
                     $is_cancelled = true;
+                    if (!empty($value['reason'])) {
+                        $cancellation_reason[] = $value['reason'];
+                    }
                 } else {
                     $not_can = true;
                 }
             }
-            
-            if($not_can){
-                echo "Not Exist";
-            } else if($is_cancelled){
-                echo "success";
+
+            if ($not_can) {
+                $return = "Not Exist";
+            } else if ($is_cancelled) {
+                $return = "success";
             } else {
-                 echo "Not Exist";
+                $return = "Not Exist";
             }
         } else {
-            echo "Not Exist";
+            $return = "Not Exist";
         }
+        $response['status'] = $return;
+        $response['reason'] = implode('<br>', array_filter($cancellation_reason));
+        echo json_encode($response);
     }
     
     function get_spare_delivered_status($booking_id){
@@ -8936,7 +8964,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
-        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','inventory_master_list.part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
 
         
@@ -9942,7 +9970,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         return true;
     }
 
-    
+
+ 
+ 
+
+ 
     /**
      * @desc : Method is used to accept the parts which was rejected by partner on delivery challan.
      * After this action part will show on Delivery on challan send to partner tab
@@ -10038,7 +10070,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         return true;
-    }    
+    }
+ 
 
 
   /**
@@ -10059,12 +10092,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
     function get_no_return_parts_by_sf_list() {
         $post = $this->get_post_data();
-        $post[''] = array();
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.part_warranty_status,"
                 . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number ";
-        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
-            'parts_requested');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name','parts_requested');
+        $post['search']['value'] = $post['search_value'];
         $post['is_inventory'] = TRUE;
         $post['where']['booking_details.current_status'] = _247AROUND_COMPLETED;
 
@@ -10099,6 +10131,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
     }
 
 
+
     /**
      *  @desc : This function is used to search inventory stocks on warehouse(as Micro-warehouse,central warehouse).
      *  @param : void
@@ -10108,7 +10141,265 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wareouse_inventory_stock_list_part_number');
     }  
+    /**
+     *  @desc : This function is used to show view file of defective part Dashboard
+     *  @param : void
+     *  @return : View
+     * @Author: Ghanshyam
+     */
+    function defective_spare_dashboard() {
+        $data['employee_rm'] = $this->employee_model->get_rm_details();
+        $data['state'] = $this->employee_model->get_states();
+        $data['error'] = $this->session->flashdata('error');
+        $this->miscelleneous->load_nav_header();
+        $partner_not_like = '';
+        $partnerType = '';
+        if (!$partnerType) {
+            $partner_not_like = INTERNALTYPE;
+            $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
+        }
+        $partnerWhere['partners.is_active'] = 1;
+        $data['partner_list'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
+        //$data['partner_list'] = $query;
+        $this->load->view('employee/defective_spare_dashboard', $data);
+    }
 
+    /**
+     *  @desc : This function is used to show view file of defective part Dashboard
+     *  @param : Partner ID
+     *  @return : JSON Array
+     * @Author: Ghanshyam
+     */
+    function defective_spare_dashboard_process_record() {
+        $post_data = $this->input->post();
+        $partner_id_array = $post_data['partner_id'];
+        if (!empty($partner_id_array)) {
+            /*
+             * Initialte all variables grand total count of all partner as 0
+             */
+            $grandtotal_out_tat_c_n_c_count = 0;
+            $grandtotal_out_tat_c_n_c_amount = 0;
+            $grandtotal_out_tat_p_n_r_count = 0;
+            $grandtotal_out_tat_p_n_r_amount = 0;
+            $grandtotal_in_tat_c_n_c_count = 0;
+            $grandtotal_in_tat_c_n_c_amount = 0;
+            $grandtotal_in_tat_p_n_r_count = 0;
+            $grandtotal_in_tat_p_n_r_amount = 0;
+            $grand_total_part_count = 0;
+            $grand_total_part_amount = 0;
+            $grand_intransit_part_count = 0;
+            $grand_intransit_part_amount = 0;
+            $row_count = 0;
+            foreach ($partner_id_array as $key => $partner_id) {
+                $post['length'] = -1;
+                $array_partner_detail = array();
+                $total_Inward = 0;
+                $total_Outward = 0;
+                $difference = 0;
+                /*
+                 * Get total Inward (Purchased) and Outward(Sold) Iventory Stock List
+                 */
+                $partnerWhere['partners.id'] = $partner_id;
+                $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
+                $publicName = $partner_details[0]['public_name'];
+                $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount";
+                $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+                $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
+                $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
+
+                $purchasecount = 0;
+                $salecount = 0;
+                foreach ($list as $key => $value) {
+                    $invoice_type = $value->invoice_type;
+                    $total_amount = $value->total_amount;
+                    if ($invoice_type == 'purchase_invoice') {
+                        $total_Inward = $total_Inward + $total_amount;
+                        $purchasecount = $purchasecount + 1;
+                    }
+                    if ($invoice_type == 'sale_invoice') {
+                        $total_Outward = $total_Outward + $total_amount;
+                        $salecount = $salecount + 1;
+                    }
+                }
+                /*
+                 * Get warehouse fresh stock amount
+                 */
+                $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock, inventory_master_list.price AS 'Basic Price', inventory_master_list.gst_rate as 'GST Rate'";
+                $data_where['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
+                $data_where['where']['inventory_master_list.entity_id'] = $partner_id;
+                $data_where['where']['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+                $data_where['is_access_to_sf_price'] = 1;
+
+                $bom_details = $this->inventory_model->get_warehouse_stocks($data_where, $select);
+
+                $whfreshStock_array = $bom_details->result_array();
+                $whfreshStock_amount = 0;
+                foreach ($whfreshStock_array as $key => $value) {
+                    $whfreshStock_amount = $whfreshStock_amount + $value['Stock'] * $value['Basic Price'];
+                }
+                /*
+                 * Get Micro warehouse fresh stock
+                 */
+                $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock, inventory_master_list.price AS 'Basic Price', inventory_master_list.gst_rate as 'GST Rate'";
+                $data_where_mi['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
+                $data_where_mi['where']['inventory_master_list.entity_id'] = $partner_id;
+                $data_where_mi['where']['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+                $data_where_mi['is_access_to_sf_price'] = 1;
+
+                $bom_details = $this->inventory_model->get_warehouse_stocks($data_where_mi, $select);
+
+                $whfreshStock_array = $bom_details->result_array();
+                $whfreshStock_amount_micro = 0;
+                foreach ($whfreshStock_array as $key => $value) {
+                    $whfreshStock_amount_micro = $whfreshStock_amount_micro + $value['Stock'] * $value['Basic Price'];
+                }
+                /*
+                 * Below Four values fetched from Spare Consolidation Report Data (With help of spare status and Partner Level Status 2)
+                 *
+                 * Defective / Ok Part @ Warehouse
+                 * Intransit Defective / ok Part Count and Amount
+                 * Defective Pending/Rescheduled (In TAT, Out TAT)
+                 * Defective Complete/Cancelled (In TAT, Out TAT)
+                 *
+                 * TAT Period: within 60 days(In TAT)
+                 * TAT Period: More than 60 days Out tat
+                 * $array_defective_item_at_warehouse => Defective / OK Item @ wharehouse
+                 * $in_transit_item_array: Intransit Defective / OK Item
+                 * $completed_cancelled_array (Partner level status 2): Defective / ok Item Competed or Cancelled
+                 * $pending_rescheduled_array (Partner Level Status2): Defective / ok Item Pending or Rescheduled
+                 */
+
+                $defective_amount_at_wharehouse = 0;
+                $in_transit_part_count = 0;
+                $in_transit_part_amount = 0;
+
+                $out_tat_part_completed_cancelled_count = 0;
+                $out_tat_part_completed_cancelled_amount = 0;
+                $out_tat_part_pending_rescheduled_count = 0;
+                $out_tat_part_pending_rescheduled_amount = 0;
+
+                $in_tat_part_completed_cancelled_count = 0;
+                $in_tat_part_completed_cancelled_amount = 0;
+                $in_tat_part_pending_rescheduled_count = 0;
+                $in_tat_part_pending_rescheduled_amount = 0;
+                $total_part_count = 0;
+                $total_part_amount = 0;
+
+                $array_defective_item_at_warehouse = array(strtoupper(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE), strtoupper(Ok_PARTS_RECEIVED_BY_WAREHOUSE));
+
+                $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED));
+
+                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE));
+
+                $completed_cancelled_array = array(_247AROUND_CANCELLED, 'Booking Completed - Defective Part Shipped By SF', 'Booking Completed - Defective Part To Be Shipped By SF', SPARE_PARTS_CANCELLED, 'Part Lost', 'Booking Completed - Ok Part To Be Shipped By SF', 'Booking Completed - Defective Part Rejected By Partner', 'Booking Completed By Service Centre', _247AROUND_COMPLETED, 'Cancelled - Customer not reachable / Customer not picked phone', NRN_APPROVED_BY_PARTNER, BOOKING_COMPLETED_BY_ENGINEER_STATUS, 'Cancelled - Refused By Customer', 'Cancelled - Customer out of station', 'Booking Completed - Defective Part Received By Partner', 'Booking Completed - Defective Part Rejected By Warehouse', 'Booking Completed - Defective Part Received By Warehouse', BOOKING_CANCELLED_BY_ENGINEER_STATUS, 'Booking Cancelled By Service Centre', 'Cancelled (Customer Refused Service)', 'Booking In Progress - Spare Parts Cancelled');
+                $completed_cancelled_array = array_map('strtoupper', $completed_cancelled_array);
+
+                $pending_rescheduled_array = array(SPARE_PARTS_REQUESTED, 'Pending (Product Not Delivered To Customer)', SPARE_SHIPPED_BY_PARTNER, 'Spare Parts Requested By Service Centre', SPARE_DELIVERED_TO_SF, 'Booking In Progress', _247AROUND_RESCHEDULED, CUSTOMER_NOT_REACHABLE, SPARE_SHIPPED_TO_WAREHOUSE, 'Spare Parts Requested By Service Centre - Pending on Approval', 'Spare parts not received by SF', ESTIMATE_APPROVED_BY_CUSTOMER, 'Invoice not available', 'Booking In Progress - Service Centre Assigned', 'Booking In Progress - Engineer On Route', 'Booking In Progress - Service Center Reassigned', CUSTOMER_ASK_TO_RESCHEDULE, _247AROUND_PENDING, WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS, _247AROUND__SCHEDULED, 'Pending (Customer Not Responding)', 'Rescheduled - Upcountry Booking');
+                $pending_rescheduled_array = array_map('strtoupper', $pending_rescheduled_array);
+
+
+                $select = "spare_parts_details.id as spare_id, booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2', spare_parts_details.status as 'Spare Status', "
+                        . "datediff(CURRENT_DATE, spare_parts_details.shipped_date) as 'Spare Shipped Age', challan_approx_value As 'Parts Charge'";
+
+                $where_consolidate_report = array();
+                $where_consolidate_report['booking_details.partner_id'] = $partner_id;
+                $group_by_consolidate_report = "spare_parts_details.id";
+                $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where_consolidate_report, $group_by_consolidate_report);
+                $spare_details_array = $spare_details->result_array();
+
+                $count_defective_at_warehouse = 0;
+
+                foreach ($spare_details_array as $key => $value) {
+                    if (in_array(strtoupper($value['Spare Status']), $array_defective_item_at_warehouse)) {
+                        $defective_amount_at_wharehouse = $defective_amount_at_wharehouse + $value['Parts Charge'];
+                        $count_defective_at_warehouse++;
+                    }
+                    if (in_array(strtoupper($value['Spare Status']), $in_transit_item_array)) {
+                        $in_transit_part_amount = $in_transit_part_amount + $value['Parts Charge'];
+                        $in_transit_part_count = $in_transit_part_count + 1;
+                    }
+                    if (in_array(strtoupper($value['Partner Status Level 2']), $completed_cancelled_array) && $value['Spare Shipped Age'] > 60 && in_array(strtoupper($value['Spare Status']), $in_transit_item_array1)) {
+                        $out_tat_part_completed_cancelled_count = $out_tat_part_completed_cancelled_count + 1;
+                        $out_tat_part_completed_cancelled_amount = $out_tat_part_completed_cancelled_amount + $value['Parts Charge'];
+                    }
+                    if (in_array(strtoupper($value['Partner Status Level 2']), $pending_rescheduled_array) && $value['Spare Shipped Age'] > 60 && in_array(strtoupper($value['Spare Status']), $in_transit_item_array1)) {
+                        $out_tat_part_pending_rescheduled_count = $out_tat_part_pending_rescheduled_count + 1;
+                        $out_tat_part_pending_rescheduled_amount = $out_tat_part_pending_rescheduled_amount + $value['Parts Charge'];
+                    }
+
+                    if (in_array(strtoupper($value['Partner Status Level 2']), $completed_cancelled_array) && $value['Spare Shipped Age'] <= 60 && in_array(strtoupper($value['Spare Status']), $in_transit_item_array1)) {
+                        $in_tat_part_completed_cancelled_count = $in_tat_part_completed_cancelled_count + 1;
+                        $in_tat_part_completed_cancelled_amount = $in_tat_part_completed_cancelled_amount + $value['Parts Charge'];
+                    }
+                    if (in_array(strtoupper($value['Partner Status Level 2']), $pending_rescheduled_array) && $value['Spare Shipped Age'] <= 60 && in_array(strtoupper($value['Spare Status']), $in_transit_item_array1)) {
+                        $in_tat_part_pending_rescheduled_count = $in_tat_part_pending_rescheduled_count + 1;
+                        $in_tat_part_pending_rescheduled_amount = $in_tat_part_pending_rescheduled_amount + $value['Parts Charge'];
+                    }
+                }
+
+
+
+                $total_part_count = $out_tat_part_completed_cancelled_count + $out_tat_part_pending_rescheduled_count + $in_tat_part_completed_cancelled_count + $in_tat_part_pending_rescheduled_count;
+                $total_part_amount = $out_tat_part_completed_cancelled_amount + $out_tat_part_pending_rescheduled_amount + $in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount;
+
+
+
+                $difference = $total_Inward + $total_Outward + $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
+
+                /*
+                 * Change All Amount values to 2 decimal places
+                 */
+                $total_Inward = number_format((float) $total_Inward, 2, '.', '');
+                $total_Outward = number_format((float) $total_Outward, 2, '.', '');
+                $difference = number_format((float) $difference, 2, '.', '');
+                $whfreshStock_amount = number_format((float) $whfreshStock_amount, 2, '.', '');
+                $whfreshStock_amount_micro = number_format((float) $whfreshStock_amount_micro, 2, '.', '');
+                $defective_amount_at_wharehouse = number_format((float) $defective_amount_at_wharehouse, 2, '.', '');
+                $out_tat_part_completed_cancelled_amount = number_format((float) $out_tat_part_completed_cancelled_amount, 2, '.', '');
+                $out_tat_part_pending_rescheduled_amount = number_format((float) $out_tat_part_pending_rescheduled_amount, 2, '.', '');
+                $in_tat_part_completed_cancelled_amount = number_format((float) $in_tat_part_completed_cancelled_amount, 2, '.', '');
+                $in_tat_part_pending_rescheduled_amount = number_format((float) $in_tat_part_pending_rescheduled_amount, 2, '.', '');
+                $in_transit_part_amount = number_format((float) $in_transit_part_amount, 2, '.', '');
+                $total_part_amount = number_format((float) $total_part_amount, 2, '.', '');
+
+                $grandtotal_out_tat_c_n_c_count = $grandtotal_out_tat_c_n_c_count + $out_tat_part_completed_cancelled_count;
+                $grandtotal_out_tat_c_n_c_amount = $grandtotal_out_tat_c_n_c_amount + $out_tat_part_completed_cancelled_amount;
+
+                $grandtotal_out_tat_p_n_r_count = $grandtotal_out_tat_p_n_r_count + $out_tat_part_pending_rescheduled_count;
+                $grandtotal_out_tat_p_n_r_amount = $grandtotal_out_tat_p_n_r_amount + $out_tat_part_pending_rescheduled_amount;
+
+                $grandtotal_in_tat_c_n_c_count = $grandtotal_in_tat_c_n_c_count + $in_tat_part_completed_cancelled_count;
+                $grandtotal_in_tat_c_n_c_amount = $grandtotal_in_tat_c_n_c_amount + $in_tat_part_completed_cancelled_amount;
+
+                $grandtotal_in_tat_p_n_r_count = $grandtotal_in_tat_p_n_r_count + $in_tat_part_pending_rescheduled_count;
+                $grandtotal_in_tat_p_n_r_amount = $grandtotal_in_tat_p_n_r_amount + $in_tat_part_pending_rescheduled_amount;
+
+                $grand_total_part_count = $grand_total_part_count + $total_part_count;
+                $grand_total_part_amount = $grand_total_part_amount + $total_part_amount;
+
+                $grand_intransit_part_count = $grand_intransit_part_count + $in_transit_part_count;
+                $grand_intransit_part_amount = $grand_intransit_part_count + $in_transit_part_amount;
+
+                if ($in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount > 0) {
+                    $percentage = ($out_tat_part_completed_cancelled_amount + $out_tat_part_pending_rescheduled_amount) / ($in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount);
+                    $percentage = number_format((float) $percentage, 2, '.', '');
+                } else {
+                    $percentage = '';
+                }
+                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
+            }
+            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
+        } else {
+            $array['data'][] = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+        }
+
+        $array['draw'] = $_POST['draw'];
+        $array['recordsTotal'] = count($array['data']);
+        $array['recordsFiltered'] = count($array['data']);
+
+
+        echo json_encode($array);
+    }
 
     /**
      *  @desc : This function is used to get the get_get_spare_parts_query_list_table
@@ -10155,6 +10446,28 @@ function get_bom_list_by_inventory_id($inventory_id) {
             }
         }
         echo json_encode($data);
+    }
+    /**
+     *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
+     *  @param : booking_id
+     *  @return : JSON /status(sucess / error), count
+     * @Author: Ghanshyam
+     */
+    function booking_cancelled_rejected_count($booking_id) {
+        $where['old_state'] = SF_BOOKING_CANCELLED_STATUS; // Booking cancelled by SF
+        $where['new_state'] = _247AROUND_CANCELED_REJECTED; // Csncelled status rejected by Admin
+        $data = $this->booking_model->get_booking_state_change($booking_id, $where);
+        $count_cancelled_rejected = 0;
+        $status = '';
+        if (!empty($data)) {
+            $status = 'success';
+            $count_cancelled_rejected = count($data);
+        } else {
+            $status = 'error';
+        }
+        $return_array['status'] = $status;
+        $return_array['count'] = $count_cancelled_rejected;
+        echo json_encode($return_array);
     }
 
 }
