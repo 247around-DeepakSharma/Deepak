@@ -170,7 +170,7 @@
             url: '<?php echo base_url(); ?>employee/service_centers/send_otp_customer',
             data: {booking_id, sms_template},
         }).done(function(data) {
-            response = data;
+            response = $.trim(data);
             $('#verified_otp').val(data);
             $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
             // hide modal after 5 mins.
