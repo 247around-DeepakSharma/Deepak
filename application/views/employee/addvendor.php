@@ -615,6 +615,11 @@
                                                 echo $query[0]['pan_file'];
                                             }
                                             ?>">
+                                        <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
+                                            if (isset($query[0]['pan_file'])) {
+                                                echo $query[0]['pan_file'];
+                                            }
+                                            ?>"/>
                                         <?php echo form_error('pan_file'); ?>
                                     </div>
                                 </div>
@@ -702,6 +707,11 @@
                                                     echo $query[0]['gst_file'];
                                                 }
                                                 ?>">
+                                            <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
+                                            if (isset($query[0]['gst_file'])) {
+                                                echo $query[0]['gst_file'];
+                                            }
+                                            ?>"/>
                                             <?php echo form_error('gst_file'); ?>
                                         </div>
                                         <div class="col-md-2">
@@ -2134,10 +2144,12 @@ function manageAccountNameField(value){
             $('#'+container+' #pan_no').attr('readonly');
             $('#'+container+' #pan_no').css('background-color','');
         }
-        $('#'+container+' #pan_file').css('pointer-events', 'none');
-        $('#'+container+' #pan_file').attr('readonly');
-        $('#'+container+' #pan_file').css('background-color','');
-        
+        if($('#'+container+' #pan_file_hd').val() != ''){
+            $('#'+container+' #pan_file').css('pointer-events', 'none');
+            $('#'+container+' #pan_file').attr('readonly');
+            $('#'+container+' #pan_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+        }       
         
         if($('#'+container+' #gst_no').val() != ''){
             $('#'+container+' #gst_no').css('pointer-events', 'none');
@@ -2154,10 +2166,14 @@ function manageAccountNameField(value){
             $('#'+container+' #gst_status').attr('readonly');
             $('#'+container+' #gst_status').css('background-color','');
         }
-        $('#'+container+' #gst_file').css('pointer-events', 'none');
-        $('#'+container+' #gst_file').attr('readonly');
-        $('#'+container+' #gst_file').css('background-color','');
-       
+        
+        if($('#'+container+' #gst_file_hd').val() != ''){
+            $('#'+container+' #gst_file').css('pointer-events', 'none');
+            $('#'+container+' #gst_file').attr('readonly');
+            $('#'+container+' #gst_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+        }
+              
         if($('#'+container+' #signature_file_hd').val() != ''){
             $('#'+container+' #signature_file').css('pointer-events', 'none');
             $('#'+container+' #signature_file').css('background-color', '');
