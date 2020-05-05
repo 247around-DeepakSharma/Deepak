@@ -4600,7 +4600,7 @@ function submitPreviousPartsConsumptionData(){
         // }
 
         return $supcordinate; // All Data in response//
-        } 
+       // } 
 
     }
 
