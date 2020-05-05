@@ -2540,13 +2540,15 @@ class Booking extends CI_Controller {
         }
         // insert in booking files.
         $booking_file = [];
-        $booking_file['booking_id'] = $booking_id;
-        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
-        $booking_file['file_name'] = $purchase_invoice_file_name;
-        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
-        $booking_file['create_date'] = date("Y-m-d H:i:s");
-        $this->booking_model->insert_booking_file($booking_file);
+        if(!empty($purchase_invoice_file_name)){
+            $booking_file['booking_id'] = $booking_id;
+            $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+            $booking_file['file_name'] = $purchase_invoice_file_name;
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
+            //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+            $booking_file['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->insert_booking_file($booking_file);
+        }
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             
