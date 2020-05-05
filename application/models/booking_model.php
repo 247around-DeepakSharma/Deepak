@@ -3114,4 +3114,15 @@ class Booking_model extends CI_Model {
         $result = $this->db->update('booking_amount_differences', $data);
         return $result;
     }
+
+    /**
+     * This function is used to update record in booking_amount_differences
+     * @param type $data
+     * @param type $where
+     * @return type
+     */
+    function getBookingLastSpare($booking_id){
+    $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
+    return $this->db->query($sql)->result();
+    }
 }

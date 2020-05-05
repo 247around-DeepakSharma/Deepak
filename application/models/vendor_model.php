@@ -2452,6 +2452,125 @@ class vendor_model extends CI_Model {
             return '';
         }
     }
+
+
+
+
+    /**
+     *  @desc : This function is used to get vendor_pincode_mapping  list
+     *  @param : $post string
+     *  @param : $select string
+     *  @param : $sfIDArray array
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    function get_vendor_pincode_mapping_list($post, $select = "") {
+        $this->_get_vendor_pincode_mapping_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+
+        $result = $query->result_array();
+
+
+        return $result;
+    }
+
+    /**
+     * @Desc: This function is used to get data from the vendor_pincode_mapping table
+     * @params: $post array
+     * @params: $select string
+     *  @param : Author : Abhishek Awasthi
+     * @return: void
+     * 
+     */
+    function _get_vendor_pincode_mapping_list($post, $select) {
+
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->join('services','services.id=vendor_pincode_mapping.Appliance_ID');
+        $this->db->from('vendor_pincode_mapping');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('vendor_pincode_mapping.id', 'desc');
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+        if (isset($post['having']) && !empty($post['having'])) {
+            $this->db->having($post['having'], FALSE);
+        }
+    }
+
+    /**
+     *  @desc : This function is used to get total mappings of SF
+     *  @param : $post string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    public function count_all_vendor_pincode_mapping($post) {
+        $this->_get_vendor_pincode_mapping_list($post, 'count( DISTINCT vendor_pincode_mapping.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    /**
+     *  @desc : This function is used to get total filtered mappings
+     *  @param : $post string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    function count_filtered_vendor_pincode_mapping($post) {
+        $sfIDArray = array();
+        $this->_get_vendor_pincode_mapping_list($post, 'count( DISTINCT vendor_pincode_mapping.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    /**
+     *  @desc : This function is used update mapping table
+     *  @param : $data,$where string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+
+    function update_vendor_pincode_mapping($data,$where){
+        $this->db->where($where);
+        $this->db->update('vendor_pincode_mapping',$data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+
+    }
+
+
     
 }
 

@@ -1180,6 +1180,42 @@
 
 <?php } ?>
 <script>
+
+    $(document).ready(function(){
+
+        $('body').on('click', '.engineer_select', function() {
+            var service_id = $(this).attr("service-id");
+            var engineer_id = $(this).attr("engineer-id");
+            var booking_id = $(this).attr("booking-id");
+            var id = $(this).attr("id");
+            if(service_id){
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
+                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'booking_id':booking_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        if(response.status){
+                            $("#"+id).html(response.html);
+                            $("#"+id).css("display", "inline");
+                            $("#"+id).parent().find("a").css("display", "none");
+                            $("#"+id).select2();
+                        }
+                        else{
+                            $("#"+id).parent().find("a").remove();
+                            $("#"+id).parent().append(response.html);
+                            $("#"+id).css("display", "none");
+                        }
+                    }
+                });
+            }
+
+        });
+
+    });
+
+
+
      function show_contacts(bookingID,create_booking_contacts_flag,partner_id){
                     $.ajax({
                         type: 'post',
@@ -1284,40 +1320,6 @@
         }
     }
     
-    function getBookingEngineers(){
-        $(".engineer_select").each(function(){  
-            var service_id = $(this).attr("service-id");
-            var engineer_id = $(this).attr("engineer-id");
-            var booking_id = $(this).attr("booking-id");
-            var id = $(this).attr("id");
-            if(service_id){
-                $.ajax({
-                    type: 'post',
-                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
-                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'booking_id':booking_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
-                    success: function (response) {
-                        response = JSON.parse(response);
-                        if(response.status){
-                            $("#"+id).html(response.html);
-                            $("#"+id).css("display", "inline");
-                            $("#"+id).parent().find("a").css("display", "none");
-                            $("#"+id).select2();
-                        }
-                        else{
-                            $("#"+id).parent().find("a").remove();
-                            $("#"+id).parent().append(response.html);
-                            //$("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
-                            $("#"+id).css("display", "none");
-                        }
-                    }
-                });
-            }
-        });
-    }
-    
-    $(document).ready(function(){
-        getBookingEngineers();
-    });
     
     $(".engineer_select").change(function(){
         var booking_id = $(this).attr("booking-id");

@@ -626,8 +626,6 @@
                                 $(".parts_type_check").each(function (i) {
                                     var current = $(this).val();
                                     if (ptypes.length > 0) {
-                                        alert(ptypes.length);
-
                                         var n = ptypes.includes(current);
                                         alert(n);
                                         if (n) {

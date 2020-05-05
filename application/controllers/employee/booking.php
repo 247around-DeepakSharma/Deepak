@@ -2540,13 +2540,15 @@ class Booking extends CI_Controller {
         }
         // insert in booking files.
         $booking_file = [];
-        $booking_file['booking_id'] = $booking_id;
-        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
-        $booking_file['file_name'] = $purchase_invoice_file_name;
-        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
-        $booking_file['create_date'] = date("Y-m-d H:i:s");
-        $this->booking_model->insert_booking_file($booking_file);
+        if(!empty($purchase_invoice_file_name)){
+            $booking_file['booking_id'] = $booking_id;
+            $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+            $booking_file['file_name'] = $purchase_invoice_file_name;
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
+            //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+            $booking_file['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->insert_booking_file($booking_file);
+        }
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             
@@ -4314,6 +4316,16 @@ class Booking extends CI_Controller {
        }
        ob_end_clean();
     }
+
+    /**
+     *  @desc : This function is used to get Last recieve spare
+     *  @param : $booking_id
+     *  @return : $Date
+     */
+    function getBookingLastSpare($booking_id){
+     $receivedate =  $this->booking_model->getBookingLastSpare($booking_id)[0];
+     return $receivedate->acknowledge_date;
+    }
     
     /**
      *  @desc : This function is used to make the table for pending bookings
@@ -4334,6 +4346,8 @@ class Booking extends CI_Controller {
         }else{
             $sn = "";
         }
+
+        $last_spare = $this->getBookingLastSpare($order_list->booking_id);
         
 //        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
 //        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
@@ -4373,8 +4387,7 @@ class Booking extends CI_Controller {
             $state = "";
         }
         if ($order_list->assigned_vendor_id == "") {
-            $complete =  "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
-            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+            $complete =  "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled'href='javascript:void(0);' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
         } else {
             if ($order_list->current_status == _247AROUND_PENDING || $order_list->current_status == _247AROUND_RESCHEDULED) {
                 $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id;
@@ -4384,8 +4397,7 @@ class Booking extends CI_Controller {
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/review_bookings/$order_list->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
             } else {
-                $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' "
-                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm disabled' href='javascript:void(0);' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             }
         }
         
@@ -4436,24 +4448,17 @@ class Booking extends CI_Controller {
         $b_time = explode("-", $order_list->booking_timeslot);
         $b_timeslot = date("H", strtotime($b_time[0]));
         $esc = "";
-        if( $order_list->current_status != "Rescheduled") { 
-            if ( $order_list->assigned_vendor_id == null){ 
-                $esc =  "disabled"; 
-            } 
-            else if($b_days >0){ 
+        if ($order_list->current_status != "Rescheduled") {
+            if ($order_list->assigned_vendor_id == null) {
                 $esc = "disabled";
-            } 
-            else if($b_days == 0){ 
-                if($b_timeslot > date("H")){ 
-                    $esc =  "disabled";
+            } else if ($b_days > 0) {
+                $esc = "disabled";
+            } else if ($b_days == 0) {
+                if ($b_timeslot > date("H")) {
+                    $esc = "disabled";
                 }
-            }else{
-                $esc = "";
             } 
-        }else{
-            $esc = "";
-        }
-        
+        } 
 
 
         $ageString = $order_list->booking_age." days";
@@ -4475,7 +4480,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status;
+        $row[] = $escalation." ".$order_list->partner_internal_status." Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
@@ -4484,8 +4489,12 @@ class Booking extends CI_Controller {
                     . ' <span class="glyphicon glyphicon-user"></span></button>';
         }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color ".((!empty($order_list->service_center_closed_date) || (!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)) ? 'disabled' : '')."' "
-            . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
+        if((!empty($order_list->service_center_closed_date) || (!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS))){
+            $row[] = "<a target = '_blank' id = 'edit' disabled  class = 'btn btn-sm btn-color' href='javascript:void(0);' title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
+        }else{
+            $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
+        }
+               
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";

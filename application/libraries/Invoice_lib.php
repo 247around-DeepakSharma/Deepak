@@ -843,7 +843,7 @@ class Invoice_lib {
      * @return boolean
      */
     function generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "") {
-
+           
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
@@ -884,14 +884,24 @@ class Invoice_lib {
                     }
                 }
 
-         /*  By: Abhishek : Consumption status  on Challan */
-//            if(!empty($spare_parts_details_value[0]['consumed_status'])){
-//                $spare_parts_details[0][$spare_key]['consumption'] = $spare_parts_details_value[0]['consumed_status']; 
-//            }else{
-//                $spare_parts_details[0][$spare_key]['consumption'] = 'NA'; 
-//            }
-            
+            if (!empty($spare_parts_details_value[0]['service_center_id'])) {
 
+                $vendor_details = $this->ci->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $spare_parts_details_value[0]['service_center_id']), 'name', array(), array(), array());
+                    if (!empty($vendor_details)) {
+                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                        if (!empty($serviceable_area)) {
+                            $couriers_name = implode(', ', array_map(function ($entry) {
+                                        return $entry['courier_company_name'];
+                                    }, $serviceable_area));
+                        } else {
+                            $couriers_name = 'NA';
+                        }
+                    } else {
+                        $couriers_name = 'NA';
+                    }
+                }
+                
+                $spare_parts_details[$spare_key][0]['courier_name'] = $couriers_name; 
             }
 
 
@@ -1002,6 +1012,8 @@ class Invoice_lib {
                         } else {
                             $couriers_name = 'NA';
                         }
+                    }else {
+                        $couriers_name = 'NA';
                     }
                 }
                 $spare_parts_details[$spare_key][0]['courier_name'] = $couriers_name; 
