@@ -4129,6 +4129,8 @@ class Service_centers extends CI_Controller {
                                     } else {
                                         $couriers_name = 'NA';
                                     }
+                                } else {
+                                    $couriers_name = 'NA';
                                 }
                             }
                             $spare_parts['courier_name'] = $couriers_name;  
@@ -9634,5 +9636,5 @@ class Service_centers extends CI_Controller {
         $sms['smsData']['otp'] = $otp;
         $this->notify->send_sms_msg91($sms);
         echo $this->session->userdata('cancel_booking_otp');
-    }
+    }   
 }
