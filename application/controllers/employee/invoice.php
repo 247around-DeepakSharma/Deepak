@@ -3911,6 +3911,11 @@ exit();
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        if(!empty($this->input->post('tds_rate'))) {
+            $data['tds_rate'] = $this->input->post('tds_rate');
+        } else {
+            $data['tds_rate'] = 0;
+        }
         $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
@@ -3918,7 +3923,7 @@ exit();
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag);
+                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag, $data['tds_rate']);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -3930,7 +3935,7 @@ exit();
             if($data['partner_vendor'] == "vendor"){
                   $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Debit", $agent_id);
+                    $amount, $data['tds_amount'], "Debit", $agent_id, NULL, $data['tds_rate']);
                 if($invoice_id){
                     $data['invoice_id'] = $invoice_id;
                     $data['is_advance'] = 1;
@@ -3951,7 +3956,7 @@ exit();
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null) { 
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null, $tds_rate = 0) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -4040,6 +4045,7 @@ exit();
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
+                    $data['tds_rate'] = $tds_rate;
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
