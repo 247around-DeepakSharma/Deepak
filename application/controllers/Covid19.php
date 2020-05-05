@@ -89,7 +89,7 @@ class Covid19 extends CI_Controller {
 
        //  echo $json_coordinates;
 
-        echo file_put_contents('states.json', $json_coordinates);
+        echo file_put_contents(TMP_FOLDER.'states.json', $json_coordinates);
   
        // }
       }

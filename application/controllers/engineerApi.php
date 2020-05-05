@@ -4588,7 +4588,7 @@ function submitPreviousPartsConsumptionData(){
 
         $state_name = str_replace(' ', '', $state);
         $state_name = strtoupper($state_name);
-        $states_json =   file_get_contents('states.json');
+        $states_json =   file_get_contents(TMP_FOLDER.'states.json');
         $states_array = json_decode($states_json,true);
         $state_coordinates = $states_array[$state_name][0];
         $latlong =array();
@@ -4596,7 +4596,7 @@ function submitPreviousPartsConsumptionData(){
         foreach($state_coordinates as $key => $coordinate){
             $latlong['long'] = $coordinate[0];
             $latlong['lat'] = $coordinate[1];
-            $supcordinate[] = $latlong;
+           // $supcordinate[] = $latlong;
         }
 
         return $supcordinate; // All Data in response//
