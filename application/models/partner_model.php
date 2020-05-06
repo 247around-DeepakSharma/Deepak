@@ -1896,7 +1896,7 @@ function get_data_for_partner_callback($booking_id) {
                 . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,booking_cancellation_reasons.reason as cancellation_reason",FALSE);
         $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("services","booking_details.service_id = services.id");
-        $this->db->join("booking_cancellation_reasons","service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id");
+        $this->db->join("booking_cancellation_reasons","service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id", "left");
         $this->db->join("booking_unit_details","booking_unit_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("users","users.user_id = booking_details.user_id");
         $this->db->group_by("service_center_booking_action.booking_id");

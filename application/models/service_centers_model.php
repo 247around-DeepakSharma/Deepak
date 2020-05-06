@@ -202,7 +202,7 @@ class Service_centers_model extends CI_Model {
                     THEN "Default Engineer" WHEN booking_details.assigned_engineer_id is not null THEN engineer_details.name ELSE "-" END) as Engineer');
         $this->db->from('booking_details');
         $this->db->join('services', 'services.id = booking_details.service_id');
-        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id', 'left');
         $this->db->where('booking_details.current_status', $status);
@@ -309,7 +309,7 @@ class Service_centers_model extends CI_Model {
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
-                . " JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
+                . " LEFT JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
                 . " JOIN partners ON booking_details.partner_id = partners.id "
                 . "$join"
                 . " WHERE sc.current_status = 'InProcess' "
