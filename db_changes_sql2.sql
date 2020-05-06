@@ -2490,3 +2490,14 @@ CREATE TABLE `booking_amount_differences` (
   KEY `fk_booking_amount_differences` (`booking_id`),
   CONSTRAINT `fk_booking_amount_differences` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+--Sarvendra 04-05-2020 - CRM-6175
+--74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_year`;
+
+Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
+values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
+2,36,'admin,developer,regionalmanager,areasalesmanager',
+'main_nav',1);

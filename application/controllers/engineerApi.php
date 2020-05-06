@@ -4525,22 +4525,22 @@ class engineerApi extends CI_Controller {
      */
     function  getCoronaCoordinates($state){
 
-        if (!empty($state)) {    
-        $state_name = str_replace(' ', '', $state);
-        $state_name = strtoupper($state_name);
-        $states_json =   file_get_contents('states.json');
-        $states_array = json_decode($states_json,true);
-        $state_coordinates = $states_array[$state_name][0];
-        $latlong =array();
+        // if (!empty($state)) {    
+        // $state_name = str_replace(' ', '', $state);
+        // $state_name = strtoupper($state_name);
+        // $states_json =   file_get_contents(TMP_FOLDER.'states.json');
+        // $states_array = json_decode($states_json,true);
+        // $state_coordinates = $states_array[$state_name][0];
+        // $latlong =array();
         $supcordinate = array();
-        foreach($state_coordinates as $key => $coordinate){
-            $latlong['long'] = $coordinate[0];
-            $latlong['lat'] = $coordinate[1];
-            $supcordinate[] = $latlong;
-        }
+        // foreach($state_coordinates as $key => $coordinate){
+        //     $latlong['long'] = $coordinate[0];
+        //     $latlong['lat'] = $coordinate[1];
+        //    // $supcordinate[] = $latlong;
+        // }
 
         return $supcordinate; // All Data in response//
-        } 
+    //    } 
 
     }
 

@@ -6502,7 +6502,25 @@ class vendor extends CI_Controller {
         echo  $result;
 
     }
-
-
+    /*
+     * Display list of unapproved SF
+     * Unaaproved SF can only approve their RM/ASM 
+     */
+    function unapprovered_service_centers() {
+        if ($this->input->post('sf_id')) {
+            $where = 'id = ' . $this->input->post('sf_id');
+            $affected_rows = $this->reusable_model->update_table('service_centres', array('is_approved' => 1), $where);
+            if ($affected_rows) {
+                echo json_encode(array('result' => 1));
+                return;
+            }
+            echo json_encode(array('result' => 0));
+            return;
+        }
+        $id = $this->session->userdata('id');
+        $data['records'] = $this->vendor_model->get_unapproved_sf_list($id);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/unapproved_sf_list', $data);
+    }
 
 }
