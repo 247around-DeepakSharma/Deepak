@@ -510,7 +510,7 @@
                                         <div class="form-group">
                                             <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" required="" class="form-control defect_pic" id="" name="" >
+                                                <input type="file" required="" class="form-control " id="defect_pic"  >
                                             </div>
                                         </div>
                                     </div>
@@ -1136,7 +1136,7 @@ function alpha(e) {
 
                         .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
 
-                        .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defect_pic"]').attr('name', 'defect_pic[' + partIndex + ']').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
                         .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()                
@@ -1154,7 +1154,7 @@ function alpha(e) {
 
                    .find('[id="symptom"]').attr('name', 'part[' + partIndex + '][symptom]').addClass('symptom').attr('id','parts_symptom_'+partIndex).attr("required", true).select2({placeholder:'Select Symptom'}).end()
 
-                   .find('[id="defect_pic"]').attr('name', 'part[' + partIndex + '][defect_pic]').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defect_pic"]').attr('name', 'defect_pic[' + partIndex + ']').addClass('defect_pic').attr('id','parts_defect_pic_'+partIndex).attr("required", true).end()
 
                    .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
