@@ -510,7 +510,7 @@
                                         <div class="form-group">
                                             <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" required="" class="form-control defect_pic" id="defect_pic" name="defect_pic[0]" >
+                                                <input type="file" required="" class="form-control defect_pic" id="" name="" >
                                             </div>
                                         </div>
                                     </div>
