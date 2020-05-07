@@ -233,7 +233,8 @@ class Dealer_model extends CI_Model {
     function getDealerStatesCities($entity, $state_code){
         $cities =array();
          ///  Will come when mappping is done //
-         return  $cities;
+        $cities =  $this->db->get_where('dealer_brand_mapping', array('dealer_id =' => '$entity'))->result_array();
+        return  $cities;
 
     }
 

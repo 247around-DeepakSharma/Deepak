@@ -23,7 +23,7 @@ include('engineer_config.php'); /// Include engg constants
 include('around_lib_constant.php'); /// Include around generic constant file
 include('karix_constant.php');
 include('dealer_config.php'); // Deal app config and constants
-
+include('cancellation_reasons_constant.php');
 
 
 
@@ -533,7 +533,6 @@ define('CUSTOMER_INVOICE_TAG','CUSTOMER_INVOICE_TAG');
 
 define('VINESH_FLIPKART_EMAIL', 'vinesh.poojari@flipkart.com,bsdflipkart@jeeves.co.in,naveen.n@jeeves.co.in,sathis.s@mnw.co.in,radha.c@jeeves.co.in');
 define('THRESHOLD_LIMIT_TO_CANCEL_NOT_FOUND_SF_QUERIES', '5');
-define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON', 'Services not started in this region yet');
 define('SF_NOT_FOUND_BOOKING_CANCELLED_REASON_TEXT', 'Service Not Available in this region');
 
 
@@ -617,9 +616,7 @@ define('_247AROUND_GST_DEBIT_NOTE_STRING','GST Debit Note');
 define('WAREHOUSE','Warehouse');  
 //constant to define New Query state
 define('_247AROUND_QUERY','Query');
-//Sf Select Wrong Call Area
-define('CANCELLATION_REASON_WRONG_AREA', 'Wrong call - Not in our area.');
-define('CANCELLATION_REASON_WRONG_AREA_ID', 19);
+
 //send broadcast sms to all vendors
 define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 
@@ -657,7 +654,6 @@ define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Customer has given wrong pincode');
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
@@ -738,3 +734,17 @@ define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 
 define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
 define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
+
+define("UPDATE_INVENTORY_MASTER_LIST_MSG", "Mapping of this appliance with part type can only update from Part Master. Please update data from part master.");
+
+                                                                                                                                                                                
+    
+define('DASHBOARD_INVOICE_PROCESS_1', 'dashboard_process_1');
+define('DASHBOARD_INVOICE_PROCESS_2', 'dashboard_process_2');
+define('DASHBOARD_INVOICE_PROCESS_3', 'dashboard_process_3');
+define('DASHBOARD_INVOICE_PROCESS_4', 'dashboard_process_4');
+define('DASHBOARD_INVOICE_PROCESS_5', 'dashboard_process_5');
+
+/* End of file constants.php */
+/* Location: ./application/config/constants.php */
+

@@ -56,6 +56,11 @@
     .radio-inline input[type=radio] {
     position: absolute;   
     margin-left: 10px;
+    
+}
+select,input[type=file][readonly]
+{
+    pointer-events: none;
 }
 </style>
 <div id="page-wrapper">
@@ -119,7 +124,9 @@
                 <div class="col-md-12" style="">
                     <ul>
                         <?php
+                        $disabled = '';
                             if (!isset($query[0]['id'])) {
+                                $disabled = 'disabled';
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1"><span class="panel-title">Basic Details</span></a></li>
                         <li><a id="2" href="#tabs-2" ><span class="panel-title" onclick="alert('Please Add Basic Details First')">Documents</span></a></li>
@@ -134,6 +141,7 @@
                         <li><a id="11" href="#tabs-11"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
+                        <li><a id="13" href="#tabs-18"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Defective/Ok Parts Required</span></a></li>
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
@@ -155,6 +163,7 @@
                         <li><a id="11" href="#tabs-11" onclick="load_form(this.id)" <?php if($current_tab!=11){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Variable Charges</span></a></li>
                         <li><a id="12" href="#tabs-12" onclick="load_form(this.id)" <?php if($current_tab!=12){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Micro Warehouse</span></a></li>
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)" <?php if($current_tab!=13){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Margin</span></a></li>
+                        <li><a id="18" href="#tabs-13" onclick="load_form(this.id)" <?php if($current_tab!=13){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Add Defective/Ok Parts Required</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)" <?php if($current_tab!=14){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)" <?php if($current_tab!=15){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)" <?php if($current_tab!=16){ ?>style="background-color:#d9edf7"<?php } else{ ?>style="background-color:#fff"<?php } ?>><span class="panel-title">Account Manager</span></a></li>
@@ -186,7 +195,7 @@
                                         } ?>">
                                         <label  for="company_name" class="col-md-4">Company Name *</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
+                                            <input  type="text" class="form-control blockspacialchar" <?php if (isset($query[0]['company_name'])) { echo 'readonly="true"'; } ?> id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
                                                 echo $query[0]['company_name'];
                                                 } ?>" >
                                             <?php echo form_error('company_name'); ?>
@@ -202,7 +211,7 @@
                                                 } ?>" >
                                             <input  type="text" class="form-control blockspacialchar" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])) {
                                                 echo $query[0]['public_name'];
-                                                } ?>" >
+                                                } ?>" <?php if (isset($query[0]['public_name'])) { echo 'readonly="true"'; } ?> >
                                             <?php echo form_error('public_name'); ?>
                                         </div>
                                     </div>
@@ -213,7 +222,7 @@
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control"  name="address" value = "<?php if (isset($query[0]['address'])) {
                                                 echo $query[0]['address'];
-                                                } ?>" >
+                                                } ?>" <?php if (isset($query[0]['address'])) { echo 'readonly="true"'; } ?>>
                                             <?php echo form_error('address'); ?>
                                         </div>
                                     </div>
@@ -222,7 +231,7 @@
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])) {
                                                 echo $query[0]['landmark'];
-                                                } ?>" name="landmark" >
+                                                } ?>" name="landmark" <?php if (isset($query[0]['landmark'])) { echo 'readolny="true"'; } ?>>
                                         </div>
                                     </div>
                                     <div  class="form-group <?php if (form_error('partner_type')) {
@@ -230,7 +239,7 @@
                                         } ?>">
                                         <label  for="partner_type" class="col-md-4">Type *</label>
                                         <div class="col-md-8">
-                                            <select name="partner_type" class="form-control" id="partner_type">
+                                            <select name="partner_type" class="form-control" id="partner_type" <?php if (isset($results['partner_code'][0]['partner_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option selected disabled>Select Partner Type</option>
                                                 <option value=<?php echo BUYBACKTYPE ?> 
                                                     <?php if (isset($results['partner_code'][0]['partner_type'])) {
@@ -273,7 +282,7 @@
                                         } ?>">
                                         <label for="state" class="col-md-4">State *</label>
                                         <div class="col-md-8">
-                                            <select class="micro_warehouse_state form-control" name ="state" id="state" onChange="getDistrict()" >
+                                            <select class="micro_warehouse_state form-control" name ="state" id="state" <?php if (isset($query[0]['state'])) { echo 'readonly tabindex="-1"'; } if (empty($query[0]['state'])) { ?> onChange="getDistrict()" <?php } ?>>
                                                 <option disabled="disabled" selected="selected"> Select State</option>
                                                 <?php
                                                     foreach ($results['select_state'] as $state) {
@@ -299,7 +308,7 @@
                                         } ?>">
                                         <label for="state" class="col-md-4">District *</label>
                                         <div class="col-md-8">
-                                            <select class="district form-control" name ="district" id="district" onChange="getPincode()">
+                                            <select class="district form-control" name ="district" id="district" <?php if (isset($query[0]['state'])) { echo 'readonly tabindex="-1"'; } if(empty($query[0]['state'])) { ?>  onChange="getPincode()" <?php } ?>>
                                                 <option <?php if (isset($query[0]['district'])) {
                                                     echo "selected";
                                                     } ?>><?php if (isset($query[0]['district'])) {
@@ -312,7 +321,7 @@
                                     <div class="form-group " style="margin-bottom: 20px;">
                                         <label for="state" class="col-md-4">Pincode</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" name ="pincode"  id="pincode">
+                                            <select class="pincode form-control" name ="pincode"  id="pincode" <?php if (isset($query[0]['pincode'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option <?php if (isset($query[0]['pincode'])) {
                                                     echo "selected";
                                                     } ?>><?php if (isset($query[0]['pincode'])) {
@@ -324,7 +333,7 @@
                                     <div class="form-group ">
                                         <label for="partner_code" class="col-md-4">Partner Code</label>
                                         <div class="col-md-8">
-                                            <select class="form-control" name ="partner_code"  id="partner_code">
+                                            <select class="form-control" name ="partner_code"  id="partner_code" <?php if (isset($results['partner_code'][0]['code']) && in_array($results['partner_code'][0]['code'],$results['all_partner_code'])) { echo 'readonly tabindex="-1"'; } ?> >
                                                 <option value=""  selected="">Select Partner Code</option>
                                                 <?php
                                                     //Checking for Edit Parnter
@@ -374,7 +383,7 @@
                                         ?>">
                                         <label for="company_type" class="col-md-4">Company Type</label>
                                         <div class="col-md-8">
-                                            <select name="company_type" class="form-control">
+                                            <select name="company_type" class="form-control" <?php if (isset($query[0]['company_type'])) { echo 'readonly tabindex="-1"'; } ?>>
                                                 <option disabled selected >Select Company Type</option>
                                                 <option value="Individual" <?php
                                                     if (isset($query[0]['company_type'])) {
@@ -977,12 +986,12 @@
                                         } ?>">
                                         <label for="pan" class="col-md-3">PAN No.</label>
                                         <div class="col-md-4" style="width:25%">
-                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" value = "<?php if (isset($query[0]['pan'])) {
+                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
                                                 echo $query[0]['pan'];
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control"  name="pan_file">
+                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1008,10 +1017,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="registration_no" id="registration_no" value = "<?php if (isset($query[0]['registration_no'])) {
                                                 echo $query[0]['registration_no'];
-                                                } ?>" placeholder="Company Registration No">
+                                                } ?>" placeholder="Company Registration No" <?php if (isset($query[0]['registration_no']) && $query[0]['registration_no'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="registration_file">
+                                            <input type="file" class="form-control"  name="registration_file" <?php if (isset($query[0]['registration_no']) && $query[0]['registration_no'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1037,10 +1046,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="tin" id="tin_no" value = "<?php if (isset($query[0]['tin'])) {
                                                 echo $query[0]['tin'];
-                                                } ?>" placeholder="TIN No">
+                                                } ?>" placeholder="TIN No" <?php if (isset($query[0]['tin']) && $query[0]['tin'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="tin_file">
+                                            <input type="file" class="form-control"  name="tin_file" <?php if (isset($query[0]['tin']) && $query[0]['tin'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1066,10 +1075,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="cst_no" id="cst_no" value = "<?php if (isset($query[0]['cst_no'])) {
                                                 echo $query[0]['cst_no'];
-                                                } ?>" placeholder="CST No">
+                                                } ?>" placeholder="CST No" <?php if (isset($query[0]['cst_no']) && $query[0]['cst_no'] != '') { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="cst_file">
+                                            <input type="file" class="form-control"  name="cst_file" <?php if (isset($query[0]['cst_no']) && $query[0]['cst_no'] != '') { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1095,10 +1104,10 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="service_tax" id="service_tax_no" value = "<?php if (isset($query[0]['registration_no'])) {
                                                 echo $query[0]['service_tax'];
-                                                } ?>" placeholder="service tax no">
+                                                } ?>" placeholder="service tax no" <?php if (isset($query[0]['registration_no'])) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="service_tax_file">
+                                            <input type="file" class="form-control"  name="service_tax_file" <?php if (isset($query[0]['registration_no'])) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1124,7 +1133,8 @@
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
-                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()">
+                                                } ?>" placeholder="GST Number" oninput="validateGSTNo()" 
+                                                <?php if (isset($query[0]['gst_number'])) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-2">
                                             <input type="text" class="form-control" name="gst_type" id="gst_type" placeholder="Enter GST Number Type" value = "<?php if (isset($query[0]['gst_type'])) {
@@ -1137,7 +1147,7 @@
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control"  name="gst_number_file">
+                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1528,6 +1538,12 @@
                                         <option value="repair">Repair</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
+                                    <label for="youtube_link">Youtube Link</label>
+                                    <input type="text" class="form-control"  name="youtube_link" id="youtube_link" onchange="validate_youtube_link(this)">
+                                </div>
+                                </div>    
                             </div>
                             <div class="col-md-6" style="float:right; width: 49%;">
                                 <div class="form-group">
@@ -1586,6 +1602,7 @@
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
+                            <th>Youtube Link</th>
                             <th>Delete <button  class="btn-danger" onclick="delete_collatrals()"><i class=" fa fa-trash" aria-hidden="true"></i></button></th>
                             <th>Date</th>
                         </tr>
@@ -1616,6 +1633,11 @@
                             <td><?php echo ucfirst($value['request_type']); ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
+                            <td>
+                                <?php if(!empty($value['youtube_link'])) { ?>
+                                <a href="<?php echo $value['youtube_link']; ?>" target="_blank">Click To Watch</a>
+                                <?php } ?>
+                            </td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
                             <td><?php echo date("d-M-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
@@ -2970,6 +2992,78 @@
             </div>
         </div>
         <div class="clear"></div>
+        <div id="container_18" style="<?php if($current_tab!=13){ ?>display:none;<?php } else { ?>display:block<?php } ?>" class="form_container">
+            <form name="defective_required_form" class="form-horizontal" id ="add_spare_part_margin" action="<?php echo base_url() ?>employee/partner/process_defective_required_on_spare_parts" method="POST" enctype="multipart/form-data">
+                
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <p><b>Add Defective/Ok Parts Required</b></p>
+                            <!-- <button type="button" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" class="btn btn-primary addPartMargin">Add More Parts</button>-->
+                        </div>
+                        <div class="contract_holder" id="contract_holder_1">
+                           <div class="panel panel-default" id="hide_spare" >
+                       
+                        <div class="panel panel-default" style="margin-left:1%;margin-top:1%;">
+                            <div class="panel-body" >
+                                <div class="row">                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_name">Appliance *</label>   
+                                                <select class="form-control appliainces_select" onchange="get_part_type('1')" id="appliainces_1" name="part[0][appliance]" >
+                                                    <option selected disabled>Select Appliance</option>
+                                                </select> 
+                                            <span id="appliance_1_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class = 'col-md-4'>
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="parts_type">Parts Type *</label>
+                                            <div class="checkbox" style="float:right;"><input type="checkbox" onchange="select_all_part_type_for_defective_reqd()" id="spare_part_all_for_defective_reqd" value="">Select All</div>
+                                            <select class="form-control" id="parts_type_1" name="part[0][parts_type][]" multiple="multiple">
+                                            </select>
+                                            <span id="parts_type_1_err"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding: 10px;">
+                                            <label for="defective_parts_pic">Is Defective/Ok Part Required *</label>
+                                            <select class="form-control" id="is_defective_required_1" name="is_defective_required_1">
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                <div class="col-md-2"> 
+                                    <div class="clear clear_bottom">   
+                                        <input type="hidden" name="partner_id" value="<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>">
+                                        <input type="Submit" value="Save" class="btn btn-primary" id="submit_defective_reqd" style="margin-top:12px;">
+                                    </div>
+                                </div>
+                            </div>
+                              
+                        </div>
+                        <div class="row"> 
+                            <div class="col-md-6">
+                                <div class="non_inventory_partners_part_type_table"></div>
+                            </div>
+                        </div>                     
+                    </div>
+                        </div>
+                        <div id="cloned"></div>
+                        
+                         
+                    </div>
+                    
+                </div>
+               
+            </form>
+            
+        </div>
+        <div class="clear"></div>  
       </div>   
     </div>
 </div>
@@ -3676,15 +3770,21 @@
         allowClear: true,
         tags: true
     });
+    <?php if (empty($query[0]['state'])) { ?>
     $('#state').select2({
         placeholder: "Select State"
     });
+    <?php } ?>
+    <?php if (empty($query[0]['district'])) { ?>
     $('#district').select2({
         placeholder: "Select City"
     });
+    <?php } ?>
+    <?php if (empty($query[0]['pincode'])) { ?>
     $('#pincode').select2({
         placeholder: "Select Pincode"
     });
+    <?php } ?>
     $('#account_manager').select2({
         placeholder: "Select Account Managers"
     });
@@ -5284,7 +5384,14 @@
         includeSelectAllOption:true,
         tags: true
     });
-            
+
+    $('#parts_type_1').select2({
+        placeholder: "Select part type",
+        allowClear: true,
+        includeSelectAllOption:true,
+        tags: true
+    });
+    
     get_services('<?php echo ((isset($query[0]['id']))?$query[0]['id']:''); ?>');
     
     function get_services(partner_id){
@@ -5296,6 +5403,7 @@
             success:function(response){
                 $(".appliainces_select").html(response);
                 $("#appliainces_0").select2();
+                $("#appliainces_1").select2();
                 $("#model_service_id").html(response);
                 $("#add_model_service").html(response);
                 $("#mapping_service").html(response);
@@ -5308,18 +5416,66 @@
     }
     
    function get_part_type(id){
-   var service_id = $("#appliainces_"+id).val();
+        
+        $('.non_inventory_partners_part_type_table').html('');
+        
+        var service_id = $("#appliainces_"+id).val();
+        var check_non_inventory = 0;
+        if(id == 1) {
+            check_non_inventory = 1;
+        }
+       
          if(service_id!==''){
             $.ajax({
                 method:'POST',
                 async: false,
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-                data: {request_type:'part_type_to_margin',service_id:service_id},
-                success:function(data){    
-                    $("#parts_type_"+id).html(data);
+                data: {request_type:'part_type_to_margin',service_id:service_id,check_non_inventory:check_non_inventory},
+                success:function(data){ 
+                    if(data == '<?php echo UPDATE_INVENTORY_MASTER_LIST_MSG; ?>') {
+                        alert(data);
+                    } else {
+                        $("#parts_type_"+id).html(data);
+                        if(id == 1) {
+                            get_non_inventory_partners_part_type(id);
+                        }
+                    }
                 }
             });
        }
+    }
+    
+    function get_non_inventory_partners_part_type(id) {
+        var partner_id = $("#partner_id").val();
+        var service_id = $("#appliainces_"+id).val();
+        if(service_id != '' && partner_id != '') {
+            $.ajax({
+                method:'POST',
+                async:false,
+                url:'<?php echo base_url(); ?>employee/partner/get_non_inventory_partners_part_type',
+                data:{partner_id, service_id}
+            }).done(function(data) {
+                if(data) {
+                    $('.non_inventory_partners_part_type_table').html(data);        
+                }
+            });
+        }
+    }
+    
+    function update_non_inventory_partners_part_type(id, is_defective_required) {
+        //alert(id);alert(is_defective_required);
+        if(id != '' && is_defective_required != '') {
+            $.ajax({
+                method:'POST',
+                async:false,
+                url:'<?php echo base_url(); ?>employee/partner/update_non_inventory_partners_part_type',
+                data:{id, is_defective_required}
+            }).done(function(data) {
+                alert('Data has been updated succcessfully.');
+                get_non_inventory_partners_part_type(1);
+                
+            });
+        }
     }
     
     function select_all_part_type(){
@@ -5341,6 +5497,28 @@
     });
     }
     }
+
+    function select_all_part_type_for_defective_reqd(){
+        if ($('#spare_part_all_for_defective_reqd').is(":checked"))
+        {
+        $('#parts_type_1 option').prop('selected', true);
+        $('#parts_type_1').select2({
+           placeholder: "All Selected",
+           allowClear: true,
+           tags: true
+        });
+        }
+        else{
+        $('#parts_type_1 option').prop('selected', false);
+        $('#parts_type_1').select2({
+           placeholder: "Select All",
+           allowClear: true,
+           tags: true
+        });
+        }
+    }
+
+    
     
     $("#submit_spare_parts").click(function(){
         
@@ -5383,6 +5561,33 @@
         
         
     });
+    
+    $("#submit_defective_reqd").click(function(){
+        
+        var appliainces = $("#appliainces_1").val();
+        var parts_type = $("#parts_type_1").val();
+        var is_defective_required = $("#is_defective_required_1").val();
+        
+        if(appliainces == '' || appliainces == null){
+            $("#appliance_1_err").html("Please select appliance ").css('color','red');
+            return false;
+        }else{
+            $("#appliance_1_err").html('');
+        }
+        
+        if(parts_type == '' || parts_type == null){
+            $("#parts_type_1_err").html("Please select part type ").css('color','red');
+            return false;
+        }else{
+            $("#parts_type_1_err").html('');
+        }
+        
+        if((appliainces != '' || appliainces != null) && (parts_type != '' || parts_type != null)) {
+            return true;
+        }
+        
+    });
+    
     var model_number_datatable; 
     function get_model_number_list(){
         if(model_number_datatable){
@@ -5898,6 +6103,19 @@
             }
         }
     }
+    
+    function validate_youtube_link(obj) {
+        var url = $(obj).val();
+        if (url != undefined || url != '') {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            if (match && match[2].length == 11) {}
+            else {
+               alert('Please enter the correct youtube url.');
+            }
+        }
+    }
+    
     $(document).ready(function(){
         var current_partner_id="<?php if(!empty($this->uri->segment(4))) { echo $this->uri->segment(4); }else{ echo ''; } ?>";
         var lastUrl = sessionStorage.getItem("last-url"+current_partner_id);

@@ -1224,7 +1224,7 @@ class Partner extends CI_Controller {
         $booking_id = $request['247aroundBookingID'];
         $booking['current_status'] = $details['current_status'] = $details['internal_status'] = $unit_details['booking_status'] = "Cancelled";
         $booking['internal_status'] = "Cancelled";
-        $booking['cancellation_reason'] = $details['cancellation_reason'] = "Other : " . $request['cancellationReason'];
+        $booking['cancellation_reason'] = $details['cancellation_reason'] = OTHERS_CANCELLATION_ID;
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
 
         //check partner status from partner_booking_status_mapping table  
@@ -1264,7 +1264,7 @@ class Partner extends CI_Controller {
         //Get DateTime
         $sch_date = $this->getDateTime($tsEnd);
 
-        $booking['booking_date'] = date('d-m-Y', strtotime($sch_date));
+        $booking['booking_date'] = date('Y-m-d', strtotime($sch_date));
 
         switch ($tsStart['hour']) {
             //9-12 PM
@@ -1985,9 +1985,9 @@ class Partner extends CI_Controller {
                 $data['booking_date'] = '';
             } else if (!empty($booking['assigned_vendor_id'])) {
 
-                $new_booking_date = date('d-m-Y');
+                $new_booking_date = date('Y-m-d');
                 if (date('H') > 12) {
-                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $new_booking_date = date('Y-m-d', strtotime("+1 days"));
                 }
 
                 $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
@@ -1998,7 +1998,7 @@ class Partner extends CI_Controller {
                     $non_workng_days = explode(",", $sf[0]['non_working_days']);
 
                     $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
-                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                    $new_booking_date = date('Y-m-d', $slot[0]['Slot'][0]['StartTime']);
                 }
 
                 $data['booking_date'] = $new_booking_date;
@@ -2019,9 +2019,9 @@ class Partner extends CI_Controller {
                 $data['booking_date'] = '';
             } else if (!empty($booking['assigned_vendor_id'])) {
 
-                $new_booking_date = date('d-m-Y');
+                $new_booking_date = date('Y-m-d');
                 if (date('H') > 12) {
-                    $new_booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $new_booking_date = date('Y-m-d', strtotime("+1 days"));
                 }
 
                 $sf = $this->reusable_model->get_search_result_data("service_centres", "service_centres.non_working_days "
@@ -2032,7 +2032,7 @@ class Partner extends CI_Controller {
                     $non_workng_days = explode(",", $sf[0]['non_working_days']);
 
                     $slot = $this->getWorkingDays($non_workng_days, $new_booking_date);
-                    $new_booking_date = date('d-m-Y', $slot[0]['Slot'][0]['StartTime']);
+                    $new_booking_date = date('Y-m-d', $slot[0]['Slot'][0]['StartTime']);
                 }
 
                 $data['booking_date'] = $new_booking_date;
@@ -2720,157 +2720,5 @@ exit();
          $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/contacts', $data);
         $this->load->view('partner/partner_footer');
-    }
-    
-    /*
-     * Add NRN deatails by Partner
-     */
-    function add_nrn_details(){
-        $data = array();
-        
-        if ($this->input->server('REQUEST_METHOD') == 'POST'){
-            $this->form_validation->set_rules('nrn_details', 'nrn_details', 'callback_insert_nrn_details[]');
-             if ($this->form_validation->run() !== FALSE) {
-                $this->session->set_flashdata('success', 'NRN details added succesfully.');
-                redirect('partner/list_nrn_records');
-             }
-        }
-        $data['title'] = 'Add NRN details form';
-        $data['crm_name'] = array(''=>'Select CRM','247'=>'247','AKAI'=>'AKAI');
-            $data['products'] = array(''=>'Select Product','LED'=>'LED','AC'=>'AC','Washing Machine'=>'Washing Machine');
-            $data['owners'] = array(''=>'Select Owner','Customer'=>'Customer','Sub-Dealer'=>'Sub-Dealer','Dealer'=>'Dealer');
-            $data['physical_status'] = array(''=>'Select Physical Status','Defective'=>'Defective','DOA'=>'DOA','Damage'=>'Damage');
-            $data['make'] = array(''=>'Select Make','MEPL'=>'MEPL','VEIRA'=>'VEIRA','CHANGHONG'=>'CHANGHONG','HISENS'=>'HISENS','JPE'=>'JPE','KTC'=>'KTC','CHIGO'=>'CHIGO','TCL'=>'TCL','AMBER'=>'AMBER','E-VISION'=>'E-VISION','DIXON'=>'DIXON','VIMALPLAST'=>'VIMALPLAST','SUN INDUSTRIES'=>'SUN INDUSTRIES');
-            $data['approval_status'] = array(''=>'Select Approval Status','Approved'=>'Approved','Rejected'=>'Rejected','Special Approval'=>'Special Approval');
-            $data['warranty_status'] = array(''=>'Select Warranty Status','IW'=>'IW','OW'=>'OW');
-            $data['service_partner'] = array(''=>'Select Service Partner','AKAI'=>'AKAI','247'=>'247');
-            $data['action_plan'] = array(''=>'Select Action Plan','Customer + Sub-dealer'=>'Customer + Sub-dealer','Distributor'=>'Distributor');
-            $data['replacement_status'] = array(''=>'Select Replacement Status','Dispatched'=>'Dispatched','Pending'=>'Pending','NA'=>'NA');
-            $data['replacement_with_accessory'] = array(''=>'Select Replacement Accessory','Yes'=>'Yes','No'=>'No','NA'=>'NA');
-            $data['defective_pickup_status'] = array(''=>'Select Status','Pending due to address'=>'Pending due to address','ODA Location'=>'ODA Location','Pickup Aligned'=>'Pickup Aligned');
-            $data['tr_status'] = array(''=>'Select Status','Open'=>'Open','Close'=>'Close');
-            $data['replacement_action_plan'] = array(''=>'Select Action Plan','Yes'=>'Yes','No'=>'No');
-            $data['tr_physical_receiving_status'] = array(''=>'Select Status','Yes'=>'Yes','No'=>'No');
-            $data['gap_received'] = array(''=>'Select Status','Done'=>'Done','Pending'=>'Pending');
-            $data['fca_category_pdi1'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['fca_category_pdi2'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['vendor_reversal_category'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['final_defective_status'] = array(''=>'Select Status','Dispatched to Vendor'=>'Dispatched to Vendor','Cannabalised'=>'Cannabalised','Liquidate'=>'Liquidate');
-            $data['vendor_reversal_status'] = array(''=>'Select Status','Received'=>'Received','Pending'=>'Pending');
-        
-        $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/add_nrn_details', $data);
-        $this->load->view('partner/partner_footer');
-    }
-    
-    /*
-     * Insert new NRN entry for AKAI
-     */
-    function insert_nrn_details(){
-        $nrn_details = $this->input->post();
-        $nrn_details['physical_status_remark_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['physical_status_remark_date'])));
-        $nrn_details['tr_reporting_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['tr_reporting_date'])));
-        $nrn_details['booking_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['booking_date'])));
-        $nrn_details['purchase_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date'])));
-        $nrn_details['approval_rejection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['approval_rejection_date'])));
-        $nrn_details['defective_receiving_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['defective_receiving_date'])));
-        $nrn_details['replacement_dispatch_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['replacement_dispatch_date'])));
-        $nrn_details['replacement_delivery_date'] =date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['replacement_delivery_date'])));
-        $nrn_details['category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['category_after_inspection_date'])));
-        $nrn_details['final_pdi_category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['final_pdi_category_after_inspection_date'])));
-        $nrn_details['vendor_warranty_expire_month'] = date("Y-m-t", strtotime(str_replace('/', '-','1/'.$nrn_details['vendor_warranty_expire_month'])));
-        $nrn_details['final_defective_status_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['final_defective_status_date'])));
-        $nrn_details['vendor_reversal_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['vendor_reversal_date'])));
-
-        $this->load->model('nrn_model');
-        $this->nrn_model->insert_nrn_details($nrn_details);
-        return TRUE;
-    }
-    
-    /*
-     * List all NRN records for AKAI partner
-     */
-    function list_nrn_records(){
-        $data = array();
-        $this->load->model('nrn_model');
-        $all_nrn_records = $this->nrn_model->get_all_nrn_records();
-        //echo "<pre>";print_r($all_nrn_records);die;
-        $data['records'] = ($all_nrn_records !== NULL) ? $all_nrn_records : array() ;
-        $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/list_nrn_records', $data);
-        $this->load->view('partner/partner_footer');
-    }
-    
-    /*
-     * Edit NRN record
-     */
-    function edit_nrn_details($nrn_id = ''){
-        
-         if ($this->input->server('REQUEST_METHOD') == 'POST'){
-            $this->form_validation->set_rules('update_nrn_details', 'update_nrn_details', 'callback_update_nrn_details[nrn_id]');
-             if ($this->form_validation->run() !== FALSE) {
-                $this->session->set_flashdata('success', 'NRN details updated succesfully.');
-                redirect('partner/list_nrn_records');
-             }
-        }
-        
-        
-        if($nrn_id != ''){
-            $nrn_record = array();
-            $this->load->model('nrn_model');
-            $nrn_record = $this->nrn_model->get_nrn_records($nrn_id);
-            $data['nrn_record'] = ($nrn_record !== NULL) ? $nrn_record[0] : array();
-            $data['crm_name'] = array(''=>'Select CRM','247'=>'247','AKAI'=>'AKAI');
-            $data['products'] = array(''=>'Select Product','LED'=>'LED','AC'=>'AC','Washing Machine'=>'Washing Machine');
-            $data['owners'] = array(''=>'Select Owner','Customer'=>'Customer','Sub-Dealer'=>'Sub-Dealer','Dealer'=>'Dealer');
-            $data['physical_status'] = array(''=>'Select Physical Status','Defective'=>'Defective','DOA'=>'DOA','Damage'=>'Damage');
-            $data['make'] = array(''=>'Select Make','MEPL'=>'MEPL','VEIRA'=>'VEIRA','CHANGHONG'=>'CHANGHONG','HISENS'=>'HISENS','JPE'=>'JPE','KTC'=>'KTC','CHIGO'=>'CHIGO','TCL'=>'TCL','AMBER'=>'AMBER','E-VISION'=>'E-VISION','DIXON'=>'DIXON','VIMALPLAST'=>'VIMALPLAST','SUN INDUSTRIES'=>'SUN INDUSTRIES');
-            $data['approval_status'] = array(''=>'Select Approval Status','Approved'=>'Approved','Rejected'=>'Rejected','Special Approval'=>'Special Approval');
-            $data['warranty_status'] = array(''=>'Select Warranty Status','IW'=>'IW','OW'=>'OW');
-            $data['service_partner'] = array(''=>'Select Service Partner','AKAI'=>'AKAI','247'=>'247');
-            $data['action_plan'] = array(''=>'Select Action Plan','Customer + Sub-dealer'=>'Customer + Sub-dealer','Distributor'=>'Distributor');
-            $data['replacement_status'] = array(''=>'Select Replacement Status','Dispatched'=>'Dispatched','Pending'=>'Pending','NA'=>'NA');
-            $data['replacement_with_accessory'] = array(''=>'Select Replacement Accessory','Yes'=>'Yes','No'=>'No','NA'=>'NA');
-            $data['defective_pickup_status'] = array(''=>'Select Status','Pending due to address'=>'Pending due to address','ODA Location'=>'ODA Location','Pickup Aligned'=>'Pickup Aligned');
-            $data['tr_status'] = array(''=>'Select Status','Open'=>'Open','Close'=>'Close');
-            $data['replacement_action_plan'] = array(''=>'Select Action Plan','Yes'=>'Yes','No'=>'No');
-            $data['tr_physical_receiving_status'] = array(''=>'Select Status','Yes'=>'Yes','No'=>'No');
-            $data['gap_received'] = array(''=>'Select Status','Done'=>'Done','Pending'=>'Pending');
-            $data['fca_category_pdi1'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['fca_category_pdi2'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['vendor_reversal_category'] = array(''=>'Select Category','FG'=>'FG','D1'=>'D1','D2'=>'D2','D3'=>'D3','D4'=>'D4');
-            $data['final_defective_status'] = array(''=>'Select Status','Dispatched to Vendor'=>'Dispatched to Vendor','Cannabalised'=>'Cannabalised','Liquidate'=>'Liquidate');
-            $data['vendor_reversal_status'] = array(''=>'Select Status','Received'=>'Received','Pending'=>'Pending');
-            
-            $this->miscelleneous->load_partner_nav_header();
-            $this->load->view('partner/edit_nrn_details', $data);
-            $this->load->view('partner/partner_footer');
-        }
-        
-    }
-    
-    /*
-     * Update NRN entry for AKAI
-     */
-    function update_nrn_details(){
-        $nrn_details = $this->input->post();
-        $nrn_details['physical_status_remark_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['physical_status_remark_date'])));
-        $nrn_details['tr_reporting_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['tr_reporting_date'])));
-        $nrn_details['booking_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['booking_date'])));
-        $nrn_details['purchase_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date'])));
-        $nrn_details['approval_rejection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['approval_rejection_date'])));
-        $nrn_details['defective_receiving_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['defective_receiving_date'])));
-        $nrn_details['replacement_dispatch_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['replacement_dispatch_date'])));
-        $nrn_details['replacement_delivery_date'] =date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['replacement_delivery_date'])));
-        $nrn_details['category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['category_after_inspection_date'])));
-        $nrn_details['final_pdi_category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['final_pdi_category_after_inspection_date'])));
-        $nrn_details['vendor_warranty_expire_month'] = date("Y-m-t", strtotime(str_replace('/', '-','1/'.$nrn_details['vendor_warranty_expire_month'])));
-        $nrn_details['final_defective_status_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['final_defective_status_date'])));
-        $nrn_details['vendor_reversal_date'] = date("Y-m-d", strtotime(str_replace('/', '-',$nrn_details['vendor_reversal_date'])));
-        $nrn_id = $nrn_details['nrn_id'];
-        
-        $this->load->model('nrn_model');
-        $this->nrn_model->update_nrn_details($nrn_details,$nrn_id);
-        return TRUE;
     }
 }

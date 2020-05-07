@@ -872,7 +872,11 @@ class vendor extends CI_Controller {
                 $post['where']['service_centres.is_sf'] = 1;
             }
         }
-
+        $id = $this->session->userdata('id');
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if(!empty($sf_list[0]['service_centres_id'])){
+           $post['where_in'] = ['service_centres.id' => explode(",",$sf_list[0]['service_centres_id'])];
+        }
         $select = "service_centres.*,account_holders_bank_details.bank_name,account_holders_bank_details.account_type,account_holders_bank_details.bank_account, account_holders_bank_details.ifsc_code_api_response,"
                 . "account_holders_bank_details.ifsc_code,account_holders_bank_details.cancelled_cheque_file,account_holders_bank_details.beneficiary_name,"
                 . "account_holders_bank_details.is_verified";
@@ -1066,16 +1070,15 @@ class vendor extends CI_Controller {
             $sf_name = $sf_details[0]['name'];
 
             //Sending Mail to corresponding RM and admin group 
-            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+            $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);  
+            
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
-            
-                //Getting template from Database
-                $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+
+                //Getting template from Database 
+                $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
+                $template = $this->booking_model->get_booking_email_template($tag);
                 if (!empty($template)) {
-                    if($sf_details[0]['is_micro_wh'] == 1){
-                        $to .= ",".$template[1];
-                    }
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
@@ -1084,11 +1087,14 @@ class vendor extends CI_Controller {
                     } else {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
+                        if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
+                            $to .= ",".$template[1];
+                        }
                     }
                     $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
-                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_permanent_on_off');
+                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
@@ -1186,8 +1192,7 @@ class vendor extends CI_Controller {
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
-                           // This msg is already being sent from miscelleneous.php in assign_vendor_process function
-//                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
                            //End Push Notification
                             $count++;
 
@@ -4620,7 +4625,6 @@ class vendor extends CI_Controller {
                 $directory_xls = "vendor-partner-docs/" . $signature_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
               //  $_POST['signature_file'] = $signature_file;
-
                 $attachment_signature =$signature_file;
 
               //  unlink(TMP_FOLDER . $signature_file);
@@ -5631,11 +5635,13 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }        
+            $attachment_signature='';
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
                // print_r($attachment_signature);
                 if($attachment_signature){
                 } else {
+                    
                     //return FALSE;
                 }
             }
@@ -6244,7 +6250,7 @@ class vendor extends CI_Controller {
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
-                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%Y-%m-%d')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
 
             $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);
@@ -6313,7 +6319,7 @@ class vendor extends CI_Controller {
     }
     
     function getASMs() {
-        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM]);
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'), [_247AROUND_ASM],$this->input->post('rm_id'));
         $asm_id = $this->input->post('asm_id');
         $arr_asm_ids  = array_column($data, 'id');
         $option = '<option value="" disabled '.((empty($asm_id) || !in_array($asm_id, $arr_asm_ids)) ? 'selected' : '').'>Select Area Sales Manager</option>';
@@ -6405,4 +6411,116 @@ class vendor extends CI_Controller {
             
             return $arr_validation_checks;
         }
+
+
+
+    /** @desc: This function is used to view list of pincode mappings .
+     * @param: $vendor
+    * @Author : Abhishek Awasthi
+     * @return void
+     */
+    function view_vendor_pincode_mapping($vendor){
+        $this->miscelleneous->load_nav_header();
+        $data['vendor'] = $vendor;
+        $this->load->view('employee/vendor_picodes', $data);
+
+    }
+
+
+    /** @desc: This function is used to get the vendor_pincode_mapping list.
+     * @param: $vendor
+     * @Author : Abhishek Awasthi
+     * @return void
+     */
+    function get_vendor_pincode_mapping($vendor) {
+        $post = $this->get_post_data();
+        $post['column_order'] = array();
+        $post['column_search'] = array('vendor_pincode_mapping.Pincode', 'vendor_pincode_mapping.City', 'vendor_pincode_mapping.State');  
+
+        $select = "vendor_pincode_mapping.id,services.services,vendor_pincode_mapping.Appliance_ID,vendor_pincode_mapping.Pincode,vendor_pincode_mapping.City,vendor_pincode_mapping.State,vendor_pincode_mapping.active";
+        $post['where']['vendor_pincode_mapping.Vendor_ID'] = $vendor;
+        $list = $this->vendor_model->get_vendor_pincode_mapping_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+
+        foreach ($list as $pincode_list) {
+            $no++;
+            $row = $this->get_vendor_pincode_mapping_table($pincode_list, $no);
+            $data[] = $row;
+        }
+
+        $post['length'] = -1;
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->vendor_model->count_all_vendor_pincode_mapping($post),
+            "recordsFiltered" => $this->vendor_model->count_filtered_vendor_pincode_mapping($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    /**
+     * @desc this is used to generate  table
+     * @Author Abhishek AWasthi
+     */
+    private function get_vendor_pincode_mapping_table($pincode_list, $sn) {
+        $row = array();
+        $row[] = $sn;
+        $row[] = $pincode_list['services'];
+        $row[] = $pincode_list['City'];
+        $row[] = $pincode_list['State'];
+        $row[] = $pincode_list['Pincode'];
+        if ($pincode_list['active'] == 1) {
+            $row[] = '<span style="cursor:pointer;" class="label label-success makedeactive" id="'.$pincode_list['id'].'" >Active</span>';
+        } else {
+            $row[] = '<span style="cursor:pointer;" class="label label-danger makeactive" id="'.$pincode_list['id'].'">InActive</span>';
+        }
+        return $row;
+    }
+
+    /**
+     * @desc this is used to activate /Deactivate mapping 
+     * @Author Abhishek AWasthi
+     */
+    function activate_deactivate_pincode(){
+
+        $id = $this->input->post('id');
+        $action = $this->input->post('action');
+        if($action=='deactivate'){
+        $data = array(
+            'active'=>0
+        );
+        }else{
+        $data = array(
+            'active'=>1
+        );
+
+        }
+        $where = array('id'=>$id);
+        $result =  $this->vendor_model->update_vendor_pincode_mapping($data,$where);
+        echo  $result;
+
+    }
+    /*
+     * Display list of unapproved SF
+     * Unaaproved SF can only approve their RM/ASM 
+     */
+    function unapprovered_service_centers() {
+        if ($this->input->post('sf_id')) {
+            $where = 'id = ' . $this->input->post('sf_id');
+            $affected_rows = $this->reusable_model->update_table('service_centres', array('is_approved' => 1), $where);
+            if ($affected_rows) {
+                echo json_encode(array('result' => 1));
+                return;
+            }
+            echo json_encode(array('result' => 0));
+            return;
+        }
+        $id = $this->session->userdata('id');
+        $data['records'] = $this->vendor_model->get_unapproved_sf_list($id);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/unapproved_sf_list', $data);
+    }
+
 }

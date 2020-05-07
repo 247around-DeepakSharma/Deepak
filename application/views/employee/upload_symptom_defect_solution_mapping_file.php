@@ -37,8 +37,8 @@
                                 echo 'has-error';
                             }
                             ?>">
-                                <label for="partner_id" class="col-md-3">Select Partner</label>
-                                <div class="col-md-9">
+                                <label for="partner_id" class="col-md-4">Select Partner <sup style='color:red'>*</sup></label>
+                                <div class="col-md-8">
                                     <select class="form-control" id="partner_id" required="" name="partner_id"></select>
                                 </div>
                                 <?php echo form_error('partner_id'); ?>
@@ -49,9 +49,9 @@
                                 echo 'has-error';
                             }
                             ?>">
-                                <label for="excel" class="col-md-3">Upload File</label>
-                                <div class="col-md-9">
-                                    <input type="file" class="form-control"  name="file" >
+                                <label for="excel" class="col-md-4">Upload File <sup style='color:red'>*</sup></label>
+                                <div class="col-md-8">
+                                    <input type="file" class="form-control"  name="file" required>
                                     <?php
                                     if (form_error('excel')) {
                                         echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
@@ -137,6 +137,7 @@
                 }).done(function (data) {
                     if($.trim(data) == '1') {
                         alert('Data has been saved successfully.');
+                        window.location.href = window.location.href;
                     } else if($.trim(data) == '0') {
                         alert('Data validation failed. Please check data.');
                         window.location.href = window.location.href;

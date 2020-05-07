@@ -143,6 +143,9 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 $route['service_center/dispatch_msl_to_warehouse'] = 'employee/spare_parts/get_dispatch_msl_form';
+$route['service_center/upload_msl_excel_file'] = 'employee/spare_parts/upload_msl_excel_file';
+$route['service_center/msl_excel_upload_errors'] = 'employee/service_centers/msl_excel_upload_errors';
+
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
 $route['service_center/bulkPartnerConversion'] = 'employee/spare_parts/bulkPartnerConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';
@@ -359,6 +362,8 @@ $route['service_center/update_courier_lost/(:any)'] = 'employee/service_centers/
 $route['partner/inventory/bulk_warranty_checker'] = 'employee/inventory/bulk_warranty_checker';
 $route['employee/invoice/partner_oow_invoice'] = 'employee/invoice/get_partner_oow_parts_invoice_list';
 $route['partner/search_docket'] = 'employee/partner/search_docket';
+$route['employee/sf_authorization_certificate'] = 'employee/SF_authorization_certificate/index';
+$route['employee/vendor/unapprovered_service_centers'] = 'employee/vendor/unapprovered_service_centers';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

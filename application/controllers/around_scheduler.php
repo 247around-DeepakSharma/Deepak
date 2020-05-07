@@ -57,7 +57,8 @@ class Around_scheduler extends CI_Controller {
         foreach ($data1 as $value) {
             $status = $this->notify->sendTransactionalSmsMsg91($value->booking_primary_contact_no, $value->content,SMS_WITHOUT_TAG);
             log_message('info', __METHOD__ . print_r($status, 1));
-            if (ctype_alnum($status['content']) && strlen($status['content']) == 24) {
+            if ((isset($status['content']) && !empty($status['content'])) ||(ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
+                        || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") ) || (empty($status['error']))){
                 $this->notify->add_sms_sent_details($value->type_id, $value->type, $value->booking_primary_contact_no, $value->content, $value->booking_id, $tag, $status['content']);
 
                 $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
@@ -71,7 +72,7 @@ class Around_scheduler extends CI_Controller {
                 $message = "Please check SMS tag and phone number. Booking id is : " .
                         $value->booking_id . " Tag is '" . $tag . "' & phone number is :" . $value->booking_primary_contact_no . " Result:"
                         . " " . $status['content'];
-                $to = ANUJ_EMAIL_ID;
+                $to = DEVELOPER_EMAIL;
 
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",SMS_SENDING_FAILED, "", $value->booking_id);
             }
@@ -214,7 +215,7 @@ class Around_scheduler extends CI_Controller {
         foreach ($data as $value) {
             echo ".." . PHP_EOL;
             $this->booking_model->update_booking($value['booking_id'], array('current_status' => 'Cancelled',
-                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer not reachable / Customer not picked phone"));
+                'internal_status' => 'Cancelled', 'cancellation_reason' => CUSTOMER_NOT_REACHABLE_CANCELLATION_ID));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
 
             $this->notify->insert_state_change($value['booking_id'], "Cancelled", "FollowUp", "Customer not reachable / Customer not picked phone", _247AROUND_DEFAULT_AGENT, 
@@ -237,7 +238,7 @@ class Around_scheduler extends CI_Controller {
         $status = $this->booking_model->getbooking_history(trim($booking_id));
 
         if ($status[0]['current_status'] == "FollowUp") {
-            $data['cancellation_reason'] = 'Customer Not Responded to 247around Communication';
+            $data['cancellation_reason'] = CUSTOMER_NOT_REACHABLE_CANCELLATION_ID;
             $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
             $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
             $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
@@ -261,7 +262,7 @@ class Around_scheduler extends CI_Controller {
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around', ACTOR_BOOKING_CANCELLED,
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 'Customer Not Responded to 247around Communication', '1', '247around', ACTOR_BOOKING_CANCELLED,
                     NEXT_ACTION_CANCELLED_BOOKING,_247AROUND);
 
             echo $booking_id . ' Cancelled ................' . PHP_EOL;
@@ -279,7 +280,7 @@ class Around_scheduler extends CI_Controller {
     function cancel_wrong_orders($order_id) {
         log_message('info', __METHOD__ . " => Order ID: " . $order_id);
 
-        $data['cancellation_reason'] = 'Installation Not Required';
+        $data['cancellation_reason'] = INSTALLATION_NOT_REQUIRED_CANCELLATION_ID;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
@@ -306,7 +307,7 @@ class Around_scheduler extends CI_Controller {
 
             $this->miscelleneous->process_booking_tat_on_completion($booking_id);
             //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, $data['cancellation_reason'], '1', '247around',ACTOR_BOOKING_CANCELLED,
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 'Installation Not Required', '1', '247around',ACTOR_BOOKING_CANCELLED,
                     NEXT_ACTION_CANCELLED_BOOKING, _247AROUND);
 
             echo 'Cancelled ................' . PHP_EOL;
@@ -718,6 +719,9 @@ class Around_scheduler extends CI_Controller {
 
     function send_mail_for_bank_details_notification() {
         $idArray = array();
+        // initialize to and cc arrays
+        $to = array();
+        $cc = array();
         log_message('info', __METHOD__ . '=> Entering...');
         $where = array("(account_holders_bank_details.bank_name IS NULL
                          OR account_holders_bank_details.bank_account IS NULL
@@ -737,12 +741,21 @@ class Around_scheduler extends CI_Controller {
         if (!empty($data)) {
             foreach ($data as $val) {
                 $idArray[] = $val['id'];
-                $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id'])[0]['official_email'];
+                $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id']);
+                $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
+                $rm_mail = !empty($arr_rm_asm_mails[1]['official_email']) ? $arr_rm_asm_mails[1]['official_email'] : "";                
                 $template = $this->booking_model->get_booking_email_template("bank_details_notification");
                 $body = $template[0];
-                $to = $val['email'];
+                // Add Emails in To after removing blank Ids
+                array_push($to, $val['email']);
+                $to = array_filter($to);
+                $to = implode(',', $to);
+                // set Email From
                 $from = $template[2];
-                $cc = $template[3] . ',' . $rm_mail;
+                // Add RM and ASM mails in CC after removing blank Ids
+                array_push($cc, $template[3], $rm_mail, $asm_mail);
+                $cc = array_filter($cc);
+                $cc = implode(',', $cc);
                 $subject = vsprintf($template[4], $val['name']);
                 $this->notify->sendEmail($from, $to, $cc, '', $subject, $body, "",'bank_details_notification');
             }
@@ -2828,5 +2841,11 @@ class Around_scheduler extends CI_Controller {
 
             $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
         }
+    }
+    
+    //CRM-6107 Send autogenrated authorization certificate to SF
+    function send_authorization_certificate(){
+        $this->load->library('SFauthorization_certificate');
+        $this->sfauthorization_certificate->create_new_certificate(1);
     }
 }

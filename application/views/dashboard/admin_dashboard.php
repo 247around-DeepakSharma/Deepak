@@ -19,6 +19,9 @@
     table.sub-table thead{
         background:#8cc6ab;
     }
+    #sales_partner_div .select2-container--default{
+        width:500px !important;
+    }
 </style>
 <!-- page content -->
 <div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
@@ -220,6 +223,92 @@
         </div>
     </div>
     
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Brand Sales Report</h2>
+                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="brand_sales_reporting" class="collapse in">
+                <div class="table-responsive" id="escalation_data">
+                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
+                    <div class="col-md-3">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <label for="">Year</label>
+                                <select class="form-control filter_table" id="sales_year" name="sales_year">
+                                    <option value="">Select Year</option>
+                                    <?php $from_year = 2015;
+                                            $to_year = date('Y');
+                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
+                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                        <div class="col-md-6" id="sales_partner_div">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Partner</label>
+                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
+                                <?php foreach($partners as $val){ ?>
+                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                               
+                                <?php } ?>
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    
+                  
+               
+                       
+                   <div class="col-md-3">
+                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                   </div>
+                         </form>
+                    <br>
+                <div class="clear"></div>
+               
+                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>January</th>
+                            <th>February</th>
+                            <th>March</th>
+                            <th>April</th>
+                            <th>May</th>
+                            <th>June</th>
+                            <th>July</th>
+                            <th>August</th>
+                            <th>September</th>
+                            <th>October</th>
+                            <th>November</th>
+                            <th>December</th>
+                            <th>Total</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+                    
+                    <div id="brand_sales_chart">
+                        
+                    </div>
+                    
+            </div> 
+            </div>
+        </div>
+    </div>
     
     
         <div class="row">
@@ -1120,6 +1209,35 @@
             </div>
         </div>
         <!-- RM wise booking status -->
+        <!-- Booking cancellation -->
+        <div class="row" style="margin-top:10px;">
+        <div class="col-md-12 col-sm-12 col-xs-12" id="based_on_booking_cancellation_reason" style="padding-right:0px !important">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-5"><h2>Booking cancellation reason wise <small></small></h2></div>
+                    <div class="col-md-6">
+                        <small>
+                        <div class="nav navbar-right panel_toolbox">
+                            <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span></span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        </small>
+                    </div>
+                    <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#booking_cancellation_chart_div" data-toggle="collapse" onclick="get_bookings_cancellation_reason()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <div class="x_content collapse" id="booking_cancellation_chart_div">
+                    <div id="booking_cancellation_chart"></div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Booking cancellation -->
     </div>
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
@@ -1327,6 +1445,53 @@
     </div>
     <!-- Agent Graph -->
     
+    <div class="row">
+        <form action="<?php echo base_url(); ?>employee/invoice/download_dashboard_invoice_data" method="post">  
+            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+                <div class="dashboard_graph">
+                    <div class="row x_title">
+                        <div class="col-md-6">
+                            <h3>Invoice Details &nbsp;&nbsp;&nbsp;
+                                <small>
+                                </small>
+                            </h3>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="hidden" value="<?php echo date("Y-m-01"); ?>" name="sDate" id="sDate">
+                            <input type="hidden" value="<?php echo date("Y-m-d"); ?>" name="eDate" id="eDate">
+                            
+                            <div id="action_total_invoice" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                                 <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+
+                                <span></span> <b class="caret"></b>
+                            </div>
+                            
+                            <!--Adding Button to Download invoice data in Excel-->
+                                <button type="submit" class="btn btn-success btn-xs" style="margin-left:5px;float:right;padding: 6px 10px;" title="Download Invoice Details">Download Excel</button>
+
+                        </div>
+                        <div class="col-md-1">
+                            <span class="collape_icon" href="#chart_container_partner_total_booking_div" data-toggle="collapse" onclick="dashboard_total_invoice_data()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                    <div class="x_content collapse" id="chart_container_partner_total_booking_div">
+                        <div class="col-md-12">
+                            <center><img id="loader_gif_total_invoice" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        </div>
+                        <div id="chart_total_invoice_div" class="chart_total_invoice_div" style="width:100%; height:100%;">
+
+                             <div class="model-table">
+                                <table class="table table-bordered table-hover table-striped" id="invoice_datatable" style="text-align:right;">
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </form>
+    </div>
    <!-- show more content -->
     <div class="row"  style="margin-top:20px;">
         <div id="show_more" style="display:none;"> 
@@ -1396,6 +1561,7 @@
 <!-- Chart Script -->
 <script>
     $('#request_type').select2();
+    $('#sales_partner').select2({ maximumSelectionLength: 5 });
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
@@ -1406,9 +1572,8 @@
     $('#upcountry_am_pending').select2();
 
      $('#am_id').select2();
-
-    
-    $('#process').click(function(){
+     
+     $('#process').click(function(){
         var am_id=[];
         var result=1;
            var am_id=$('#am_id').val();
@@ -1461,6 +1626,22 @@
     }
    return values.join(":");
 }
+    //this function is used to find out current financial year start date and end date on basis of date.
+    function getCurrentFinancialYear(strDate) {
+        var startYear = "";
+        var endYear = "";
+        var docDate = new Date(strDate);
+        if ((docDate.getMonth() + 1) <= 3) {
+          startYear = docDate.getFullYear() - 1;
+          endYear = docDate.getFullYear();
+        } else {
+          startYear = docDate.getFullYear();
+          endYear = docDate.getFullYear() + 1;
+        }
+        var start_date = new Date(startYear + "-04-01");
+        var end_date = new Date(endYear + "-03-31");
+        return {startDate : start_date, endDate: end_date };
+      }
     var post_request = 'POST';
     var get_request = 'GET';
     var url = '';
@@ -1476,6 +1657,9 @@
     var end = moment().endOf('month');
     var start_week = moment().subtract(6, 'days');
     var end_week = moment();
+    var current_financial_year = getCurrentFinancialYear(start);
+    var current_financial_year_start_date = current_financial_year.startDate;
+    var current_financial_year_end_date = current_financial_year.endDate;
     var options = {
             startDate: start,
             endDate: end,
@@ -1548,6 +1732,43 @@
             }
     };
     
+    var options_year = {
+            startDate: start,
+            endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 366},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Current FY': [moment(current_financial_year_start_date), moment(current_financial_year_end_date)],
+                'Last FY': [moment(current_financial_year_start_date).subtract(1, 'years'), moment(current_financial_year_end_date).subtract(1, 'years')],
+                '2nd Last FY': [moment(current_financial_year_start_date).subtract(2, 'years'), moment(current_financial_year_end_date).subtract(2, 'years')],
+                '3rd Last FY': [moment(current_financial_year_start_date).subtract(3, 'years'), moment(current_financial_year_end_date).subtract(3, 'years')],
+                '4th Last FY': [moment(current_financial_year_start_date).subtract(4, 'years'), moment(current_financial_year_end_date).subtract(4, 'years')],
+                '5th Last FY': [moment(current_financial_year_start_date).subtract(5, 'years'), moment(current_financial_year_end_date).subtract(5, 'years')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+    };
+    
     $(function () {
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -1590,6 +1811,16 @@
     
     $(function () {
         function cb(start, end) {
+            $('#action_total_invoice span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#action_total_invoice').daterangepicker(options_year, cb);
+
+        cb(start, end);
+    });
+    
+    $(function () {
+        function cb(start, end) {
             $('#reportrange4 span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
@@ -1616,6 +1847,15 @@
         cb(start, end);
     });
     
+    $(function () {
+        function cb(start, end) {
+            $('#reportrange_booking_cancellation span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange_booking_cancellation').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
             
     $('#action_agent_date span').on('apply.daterangepicker', function(ev, picker) {
         
@@ -1679,6 +1919,23 @@
         agent_click_performance(startDate, endDate);
         
     });
+    
+    //set values of start date and end date in input fields
+    function set_invoice_date_values(startDate, endDate){
+        $("#sDate").val(startDate);
+        $("#eDate").val(endDate);
+    }
+    
+    $('#action_total_invoice').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif_total_invoice').show();
+        $('#chart_total_invoice_div').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        set_invoice_date_values(startDate, endDate);
+        dashboard_click_total_invoice_data();
+        
+    });
+    
     $('#reportrange3').on('apply.daterangepicker', function (ev, picker) {
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
@@ -1820,6 +2077,32 @@
         
     }
     
+    function dashboard_click_total_invoice_data(){
+        url = baseUrl + '/employee/invoice/get_dashboard_invoice_data';
+        $('#loader_gif_total_invoice').show();
+        $("#invoice_datatable").html("");
+        $('#chart_total_invoice_div').fadeIn();
+        $.ajax({
+           type: 'POST',
+           url: url,
+           data: {sDate : $("#sDate").val(), eDate : $("#eDate").val()}
+         })
+         .done (function(data) { 
+            $('#loader_gif_total_invoice').hide();
+            $("#invoice_datatable").html(data);
+         })
+         .fail(function(jqXHR, textStatus, errorThrown){
+             $('#loader_gif_total_invoice').hide();
+             alert("Something went wrong while loading invoice!");
+          })
+    }
+    
+    //this function is used to get invoice data
+    function dashboard_total_invoice_data(){
+        set_invoice_date_values(moment().startOf('month').format('MMMM D, YYYY'), moment().endOf('month').format('MMMM D, YYYY'));
+        dashboard_click_total_invoice_data();
+        
+    }
     
     //show next grapgh when show more button clicked
     $("#show_more_btn").click(function(){
@@ -3111,6 +3394,192 @@ function initiate_escalation_data(){
             }
         });
     }
+    /*
+     * By choosing dates from datapicker and expand chart div and send AJAX request to get cancelled booking data
+     * by sending start and end dates of selected option (last wwek/last month/ custom dates)  
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
+    $('#reportrange_booking_cancellation').on('apply.daterangepicker', function (ev, picker) {
+        $('#loader_gif_booking_cancellation').show();
+        $('#state_type_booking_chart').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        var data = {sDate: startDate, eDate: endDate};
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            if(response){
+                create_piechart_based_on_bookings_cancellation_reason(response);
+            }else{
+                $('#loader_gif_booking_cancellation').hide();
+                $('#booking_cancellation_chart_div').fadeIn();
+                $('#booking_cancellation_chart').html('No data');
+            }
+        });
+    });
+    /*
+     * On click of plus buttion expand chart div and send AJAX request to get cancelled booking data
+     * by sending first and last date of current 
+     * and get response data in JSON format aand pass to  
+     * create_piechart_based_on_bookings_cancellation_reason function
+     */
+    function get_bookings_cancellation_reason(){
+        $('#loader_gif_booking_cancellation').fadeIn();
+        $('#booking_cancellation_chart_div').fadeOut();
+        var startDate = '<?php echo date('Y-m-01') ?>';
+        var endDate = '<?php echo date('Y-m-t') ?>';
+        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        var data = {sDate: startDate, eDate: endDate};        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            //console.log(response);
+            if(response){
+                create_piechart_based_on_bookings_cancellation_reason(response);
+            }else{
+                $('#loader_gif_booking_cancellation').hide();
+                $('#booking_cancellation_chart_div').fadeIn();
+                $('#booking_cancellation_chart').html('No data');
+            }
+        });
+    }
+
+    /*
+     * This function create pie chart of cancelled booking by cancellation reason
+     * Input param JSON data array
+     */
+    function create_piechart_based_on_bookings_cancellation_reason(response) {
+        console.log(response);
+        var test = JSON.parse(response);
+        var tt =  [{
+            name : test.series.name,
+            colorByPoint : test.series.colorByPoint,
+            data: test.series.data
+        }];
+        $('#loader_gif_booking_cancellation').hide();
+        $('#booking_cancellation_chart_div').fadeIn();
+        // Configure and put JSON data into piechart
+        Highcharts.chart('booking_cancellation_chart', {
+                  chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                  },
+                  title: {
+                    text: ''
+                  },
+                  tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                  },
+                  accessibility: {
+                    point: {
+                      valueSuffix: ''
+                    }
+                  },
+                  plotOptions: {
+                    pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                        enabled: false
+                      },
+                      showInLegend: true
+                    }
+                  },
+                  series:tt
+                });
+    
+    }
+    
+    /*
+     * Brand wise sales for each month of selected year
+     */
+    $('#btn_brand_sales').on('click',function(){
+       var _sales_year = $('#sales_year').val(); 
+       var _sales_partners = $('#sales_partner').val();
+       if(_sales_year !== '' && (_sales_partners.length > 0 && _sales_partners.length < 6)){
+           $.ajax({
+               type:'POST',
+               url:'<?php echo base_url('employee/dashboard/brand_sales_analytics') ?>',
+               data:{sales_year:_sales_year,sales_partner:_sales_partners},
+               success: function(response){
+                   var data = JSON.parse(response);
+                   $('#loader_gif_brand_sales').css('display','none');
+                   $('#brand_sales tbody').html(data.table_data);
+                   console.log(data.series);
+                   brand_sales_bar_chart(data.series);
+               },beforeSend: function(){
+                    $('#brand_sales tbody').html('');
+                    $('#loader_gif_brand_sales').css('display','block');
+               }
+           });        
+        }
+    });
+   $(document).ready(function(){
+        $('#brand_sales').DataTable({
+            dom: 'Bfrtip',
+            searching: false,
+            paging: false,
+            buttons: [{
+                extend: 'excel',
+                text: 'Export',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12]
+                }
+            }]
+        });
+    });
+   function brand_sales_bar_chart(series){ 
+    Highcharts.chart('brand_sales_chart', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Brand Sales Chart'
+    },
+    subtitle: {
+        text: 'Month wise report'
+    },
+    xAxis: {
+        categories: [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+        ],
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: 'Registered Calls'
+        }
+    },
+    tooltip: {
+        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+    plotOptions: {
+        column: {
+           // pointPadding: 0.2,
+            borderWidth: 0
+        }
+    },
+    series: series
+});
+}
 </script>
 <style>
 .text_warning{

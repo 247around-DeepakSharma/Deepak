@@ -44,13 +44,13 @@ class Service_centers_model extends CI_Model {
             if($booking_id !=""){
                 if($i==2){
                 //Future Booking
-                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) <=- -1) ";
                     $booking = " ";
                     $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.partner_internal_status !='Booking Completed By Engineer'";
                     // not show if engg complete
                 } else if($i == 3){
                     // Rescheduled Booking
-                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) < -1) ";
                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.partner_internal_status !='Booking Completed By Engineer'";
                     // not show if engg complete
                 } 
@@ -58,18 +58,18 @@ class Service_centers_model extends CI_Model {
             } else {
                 if($i ==1){
                 // Today Day
-                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
+                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) >= 0) ";
                 $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";
                 // not show if engg complete
                 
                 } else if($i==2) {
                 //Tomorrow Booking
-                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
+                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) = -1) ";
                 $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'"; 
                 // not show if engg complete
                 } else if($i == 3){
                     // Rescheduled Booking
-                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) < -1) ";
                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";  // not show if engg complete
                 } else if ($i== 4) {
                     $day = " ";
@@ -133,7 +133,7 @@ class Service_centers_model extends CI_Model {
                         FROM booking_unit_details AS u
                         WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking, "
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%Y-%m-%d')) as age_of_booking, "
                 . " CASE WHEN (SELECT count(*) FROM spare_parts_details WHERE spare_parts_details.booking_id=bd.booking_id "
                 . " AND bd.internal_status='Spare Parts Cancelled') THEN (SELECT GROUP_CONCAT(reason) FROM spare_parts_details "
                 . " JOIN booking_cancellation_reasons ON booking_cancellation_reasons.id=spare_parts_details.spare_cancellation_reason "
@@ -151,7 +151,7 @@ class Service_centers_model extends CI_Model {
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . $status
                 . "  ".$day . $booking
-                . " GROUP BY bd.booking_id ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+                . " GROUP BY bd.booking_id ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%Y-%m-%d') desc ";
              
             $query1 = $this->db->query($sql);
             //echo $this->db->last_query(); die();
@@ -196,11 +196,12 @@ class Service_centers_model extends CI_Model {
 
         $this->db->select('booking_details.booking_id, booking_details.flat_upcountry, users.name as customername, booking_details.booking_primary_contact_no, '
                 . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_details.closing_remarks, '
-                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type,'
+                . 'booking_cancellation_reasons.reason as cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type,'
                 . '(CASE WHEN booking_details.assigned_engineer_id is not NULL AND booking_details.assigned_engineer_id = 24700001
                     THEN "Default Engineer" WHEN booking_details.assigned_engineer_id is not null THEN engineer_details.name ELSE "-" END) as Engineer');
         $this->db->from('booking_details');
         $this->db->join('services', 'services.id = booking_details.service_id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id', 'left');
         $this->db->where('booking_details.current_status', $status);
@@ -300,13 +301,14 @@ class Service_centers_model extends CI_Model {
         }
         
          if(!$select){
-             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
-                . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
-                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
+             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,booking_cancellation_reasons.reason as cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as age"
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
+                . " LEFT JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
                 . " JOIN partners ON booking_details.partner_id = partners.id "
                 . "$join"
                 . " WHERE sc.current_status = 'InProcess' "
@@ -1064,7 +1066,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
 /*     Spare Details  for part approval on Partner   */
 
     function get_spare_parts_on_approval_partner($where, $select, $group_by=FALSE, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array(),$nrn=FALSE){
-        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
         $this->db->_protect_identifiers = FALSE;
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
@@ -1117,7 +1119,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
 
 
     function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array(),$nrn=FALSE){
-        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
         $this->db->_protect_identifiers = FALSE;
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
@@ -1260,7 +1262,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                     FROM booking_unit_details AS u
                     WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
-            . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
+            . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%Y-%m-%d')) as age_of_booking "
             . " FROM service_center_booking_action as sc "
             . " JOIN booking_details as bd on bd.booking_id =  sc.booking_id " 
             . " JOIN users on bd.user_id = users.user_id " 
@@ -1270,7 +1272,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             . " WHERE sc.service_center_id = '$service_center_id' "
             . " AND bd.assigned_vendor_id = '$service_center_id' "
             . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
-            . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+            . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%Y-%m-%d') desc ";
 
         $query1 = $this->db->query($sql);
 
@@ -1280,7 +1282,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
     }
     
     function spare_assigned_to_partner($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
-        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
         $this->db->_protect_identifiers = FALSE;
         $this->db->select($select, false);
         $this->db->from("spare_parts_details");
@@ -1471,7 +1473,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $res['errorMessage'] = "No service center provided.";
             return $res;
         }
-        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
         $this->db->_protect_identifiers = FALSE;
         if($countOnly){
             $this->db->select("count(id) as 'count'");
@@ -1542,7 +1544,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $res['errorMessage'] = "No service center provided.";
             return $res;
         }
-        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")','%Y-%m-%d,"")');
         $this->db->_protect_identifiers = FALSE;
         if($countOnly){
             $this->db->select("count(id) as 'count'");

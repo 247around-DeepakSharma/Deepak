@@ -412,7 +412,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group ">
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
+                                                <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>
                                                     name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php 
@@ -427,7 +427,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php
                                                     if(!empty($category[0])) {
@@ -441,7 +441,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php 
                                                     if(!empty($capacity[0])) {
@@ -469,7 +469,7 @@ if(empty($booking_history[0]['booking_id'])){
                                                     <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 </div>
                                                 <div class="select-model-div">
-                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
+                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                         <option selected disabled>Select Appliance Model</option>
                                                         <?php
                                                         if(!empty($model[0])){
@@ -1012,7 +1012,7 @@ if(empty($booking_history[0]['booking_id'])){
     </div>
 </div>
 <!-- Repeat Booking Model  -->
-<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true" style="z-index: 2">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

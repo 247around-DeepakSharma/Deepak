@@ -34,6 +34,10 @@
                                 <th>Appliance</th>
                                 <th>Booking Date</th>
                                 <th>Booking Timeslot</th>
+                                <th>Booking Type</th>
+                                <th>Purchase Date</th>
+                                <th>Booking Warranty Status</th>
+                                <th>Current Warranty Status</th>
                                 <th>Status</th>
                                 <th>View</th>
                                 <th>Go To Booking </th>
@@ -49,6 +53,10 @@
                             <td><?php echo $row->services;?></td>
                             <td><?php echo date("d-M-Y", strtotime($row->booking_date));?></td>
                             <td><?php echo $row->booking_timeslot;?></td>
+                            <td><?php echo $row->request_type;?></td>
+                            <td id='purchase_date_<?php echo $row->booking_id;?>'></td>
+                            <td id='booking_type_<?php echo $row->booking_id;?>'></td>
+                            <td id='current_warranty_<?php echo $row->booking_id;?>'><script>$(document).ready(function(){check_warranty_booking('<?php echo $row->booking_id;?>');});</script></td>
                             <td><?php echo $row->current_status;?></td>
                             <td>
                                 <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $row->booking_id;?>"
@@ -112,5 +120,26 @@
         </div>
         <div id="ap_sms"></div>
     </div>
-    </div>              
+    </div>
+     <script>
+    function check_warranty_booking(booking_id){
+        var datastring ="booking_id="+booking_id;
+        var request = $.ajax({
+        type: 'POST',
+        data: datastring,
+        url: "<?php echo base_url(); ?>employee/user/check_warranty_booking_search",
+        beforeSend: function(){
+            $("#purchase_date_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+            $("#booking_type_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+            $("#current_warranty_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+        },
+        success: function(data){
+            var obj = JSON.parse(data);
+            $("#purchase_date_"+booking_id).html(obj.purchase_date);
+            $("#booking_type_"+booking_id).html(obj.booking_warranty_status);
+            $("#current_warranty_"+booking_id).html(obj.current_warranty_status);
+        }
+        });
+    }
+    </script>
 </html>

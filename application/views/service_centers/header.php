@@ -306,6 +306,8 @@
                                  <?php if($this->session->userdata('is_wh') == 1){ ?>
                                 <li><a href="<?php echo base_url(); ?>service_center/dispatch_msl_to_warehouse"><strong>Dispatch MSL To Warehouse</strong></a></li> 
                                 <li class="divider" style="height: 1.5px;"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/upload_msl_excel_file"><strong>Upload MSL File</strong></a></li> 
+                                <li class="divider" style="height: 1.5px;"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer"><strong>Spare Transfer From One Booking To Another</strong></a></li>
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer To Warehouse</strong></a></li> 
@@ -360,6 +362,10 @@
                                 </li>
                             </ul>
                         </li>
+                        <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
+                        <?php if(!empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1){ ?>
+                        <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
+                        <?php } ?>
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">
@@ -469,6 +475,7 @@
         </div>
     </div>
 </div>
+
 <!-- End -->
 <script>
     $("#partner_tollfree").click(function(){
@@ -735,4 +742,46 @@
     margin-top: 14px;
     margin-left: 125px !important;
     }
+</style>
+<style>
+ 
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
 </style>

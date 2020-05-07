@@ -93,6 +93,7 @@ class Courier_tracking extends CI_Controller {
                             $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NOT NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
                             $this->update_pod_courier($value->tracking_number);
+                            //update pod file on Delivered status
                         }
                         echo " FOr each update ". $key.PHP_EOL; 
                         $update_status = $this->process_partner_shipped_auto_acknowledge_data($value);
@@ -244,9 +245,12 @@ class Courier_tracking extends CI_Controller {
          */
         if($status == SPARE_SHIPPED_BY_PARTNER) {
             $post['where']['spare_parts_details.status IN ("'.SPARE_PARTS_SHIPPED.'", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'", "'.SPARE_OOW_SHIPPED.'")'] = NULL;
-        } else {
-            $post['where'] = array('spare_parts_details.status' => $status);
-        }
+        } else if($status == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH) {
+            $post['where']['spare_parts_details.status IN ("'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'", "'.OK_PARTS_SEND_TO_PARTNER_BY_WH.'")'] = NULL;
+        }else{
+           $post['where'] = array('spare_parts_details.status' => $status); 
+        } 
+        
         $spare_data = $this->inventory_model->get_spare_parts_query($post);
         if(!empty($spare_data)){
             foreach ($spare_data as $key => $val) {
@@ -431,11 +435,11 @@ class Courier_tracking extends CI_Controller {
                     . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
                     if (empty($is_requested)) {
                         if (date('l' == 'Sunday')) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else if (date('H') > 12) {
-                            $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));
+                            $booking['booking_date'] = date('Y-m-d', strtotime("+1 days"));
                         } else {
-                            $booking['booking_date'] = date('d-m-Y');
+                            $booking['booking_date'] = date('Y-m-d');
                         }
                         $booking['update_date'] = date("Y-m-d H:i:s");
                         $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -539,6 +543,8 @@ class Courier_tracking extends CI_Controller {
                         if(isset($value->tracking_number) && !empty($value->tracking_number)){
                             $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
+                            $this->update_pod_courier($value->tracking_number);
+                            //update pod file on Delivered status
                         }
                         $update_status = $this->update_defactive_part_status($value);
                         if($update_status){
@@ -613,6 +619,8 @@ class Courier_tracking extends CI_Controller {
                                 if(isset($value->tracking_number) && !empty($value->tracking_number)){
                                     $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                             array( 'delivered_date' => date('Y-m-d H:i:s')));
+                                    $this->update_pod_courier($value->tracking_number);
+                                    //update pod file on Delivered status
                                 }
                                 $deleted_awb_number_tmp_arr = array();
                                 $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
@@ -722,6 +730,100 @@ class Courier_tracking extends CI_Controller {
                 }
             }
         }
+    }
+
+    
+    /** @desc:List details of the courier awb number that defective shipped from partner to warehouse
+     *  @param int $numbers Tracking numbers,eg:$awb_numbers = LY044217709CN,UG561422482CN (optional)
+     *  @param int $orders Tracking order,eg:$orders = #123 (optional)
+     *  @return: view
+     */
+    function auto_acknowledge_defactive_part_shipped_by_wh_to_partner(){
+        log_message('info',__METHOD__.' Entering...');
+        //update trackingmore data by creating new awb number from spare part details
+        $select = "spare_parts_details.id as 'spare_id',"
+                . "spare_parts_details.awb_by_wh as 'awb',spare_parts_details.courier_name_by_wh as 'courier_name',"
+                . "spare_parts_details.wh_to_partner_defective_shipped_date as 'shipped_date',spare_parts_details.booking_id,booking_details.partner_id";
+        $this->create_awb_number_data($select,DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH);
+        //getting awb list from the api and process on delivered status
+        $awb_number_list = $this->trackingmore_api->getTrackingsList();
+        //echo $awb_number_list->meta->code;
+        if(!empty($awb_number_list) && $awb_number_list->meta->code == 200 ){
+            //check if data is empty
+            if(!empty($awb_number_list->data)){
+                //do background process on api data to save it into database
+                $this->insert_api_data($awb_number_list);
+                $awb_number_to_be_deleted_from_api = array();
+                //make array of all delivered data so that we can update status of that spare
+                foreach ($awb_number_list->data->items as $key => $value){
+                    if($value->status == 'delivered'){
+                        if(isset($value->tracking_number) && !empty($value->tracking_number)){
+                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
+                                    array('delivered_date' => date('Y-m-d H:i:s')));
+                        }
+                        $update_status = $this->update_defactive_return_to_partner_from_wh_status($value);
+                        if($update_status){
+                            //log_message('info','Spare Status Updated Successfully for awb number '.$value->tracking_number);
+                            $deleted_awb_number_tmp_arr = array();
+                            $deleted_awb_number_tmp_arr['tracking_number'] = $value->tracking_number;
+                            $deleted_awb_number_tmp_arr['carrier_code'] = $value->carrier_code;
+                            $awb_number_to_be_deleted_from_api[] = $deleted_awb_number_tmp_arr;
+                        }
+                        if(!empty($awb_number_to_be_deleted_from_api)){
+                            $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
+                            echo "DELETE AWB BY API";
+                            //print_r($delete_status);
+                            if($delete_status['status']){
+                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                            }else{
+                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                            }
+
+                            $awb_number_to_be_deleted_from_api = array();
+                        } 
+                    }
+                }
+            }
+            log_message('info',__METHOD__.' Exit...');
+        }else{
+            log_message('info','api did not return success response '. print_r($awb_number_list,true));
+            //send mail to developer
+            $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
+        }
+        
+    }
+    
+    /* 
+     * @desc:This function is used to update data for recieved defactive part by partner
+     *  @param: data
+     *  @return: view
+     */
+    
+    function update_defactive_return_to_partner_from_wh_status($data){
+        log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
+        $res = FALSE;
+        $parts_details = explode('/', $data->order_id);
+        if (!empty($parts_details)) {
+            $booking_id = $parts_details[2];
+            $spare_id = $parts_details[0];
+            $awb_number = $data->tracking_number;
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL, 
+                "defactive_part_return_to_partner_from_wh_date_by_courier_api IS NULL"=>NULL));
+            if (!empty($getsparedata)) {
+                $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_wh"=>$awb_number), array('defactive_part_return_to_partner_from_wh_date_by_courier_api' => date("Y-m-d H:i:s")));
+                if ($response) {
+                    $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_API_CONFORMATION, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, DELIVERY_CONFIRMED_WITH_COURIER, _247AROUND_DEFAULT_AGENT, _247AROUND, "Partner", "Approve or Reject the part", _247AROUND);
+                    $res = TRUE;
+                }
+                else{
+                    log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
+                }
+            }
+        }
+        else{
+           log_message('info', __FUNCTION__ ."order_id is empty"); 
+        }
+        return $res;
     }
 
 }

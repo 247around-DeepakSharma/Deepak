@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <style type="text/css">
     #update_form .form-group label.error {
         color: #FB3A3A;
@@ -142,17 +143,17 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="radio-inline col-md-6" style="font-weight:bold">
-                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" required=""  value="1">Shipping
+                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" class="courier_shipping" id="courier_shipping"  required=""  value="1">Shipping
                                                 </label>
                                             </div>
                                             <div class="form-group">
                                                 <label class="radio-inline col-md-6" style="font-weight:bold">
-                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" required=""  value="0">Not Shipping
+                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" id="courier_not_shipping" required="" class="courier_not_shipping"  value="0">Not Shipping
                                                 </label>
                                             </div>
                                             <div class="form-group">
                                                 <label class="radio-inline col-md-6" style="font-weight:bold">
-                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" required="" value="-1">To be Shipped
+                                                    <input type="radio" name="part[<?php echo $skey; ?>][shippingStatus]" id="to_be_shipping"  required="" value="-1">To be Shipped
                                                 </label>
                                             </div>
                                         </div>
@@ -432,7 +433,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 col-sm12 col-xs-12">
+            <div class="col-md-12 col-sm12 col-xs-12"  id="courier_detail_section">
                 <div class="x_panel">
                     <div class="x_title">
                         <h3>Courier Details</h3>
@@ -625,8 +626,8 @@
                                 $(".parts_type_check").each(function (i) {
                                     var current = $(this).val();
                                     if (ptypes.length > 0) {
-
                                         var n = ptypes.includes(current);
+                                        alert(n);
                                         if (n) {
                                             //alert("Same part type can not be requested.For multiple part please fill quantity.");
                                             // checkbox_value = 0;
@@ -1080,6 +1081,53 @@
                 break;
         }
     });
+    
+    
+    $(".courier_not_shipping").click(function(){
+               courier_deatil_visibility();       
+        });
+        
+        $(".addButton").click(function(){
+            $("#courier_detail_section").show();
+            $("#courier_status").val('1');
+        });
+        
+         $(".courier_shipping").click(function(){
+            $("#courier_detail_section").show();
+            $("#courier_status").val('1');
+        });
+        
+        function courier_deatil_visibility(){
+            var flag = false;
+            $(".courier_shipping:checked").each(function() {
+            var check_val  = $(this).val();
+            if(check_val !='' && check_val == 1){
+             flag = true;
+             return false;
+            }
+            });
+
+            if(flag){
+              $("#courier_detail_section").show();
+              $("#courier_status").val('1');
+            }else{
+              $("#courier_detail_section").hide();  
+              $("#courier_status").val('0');
+            }
+        }
+        
+        
+        $("#courier_not_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+        });
+        
+        $("#courier_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+        });
+        
+        $("#to_be_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+        });
 
 </script>
 <?php foreach ($spare_parts as $ssKey => $sp) {

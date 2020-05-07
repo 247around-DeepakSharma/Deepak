@@ -150,6 +150,15 @@ class vendor_model extends CI_Model {
             $this->db->where($post['where']);
         }
 
+        // RM/AM mapping//
+        if(!empty($post['where_in'])){
+            foreach ($post['where_in'] as $fieldName=>$conditionArray){
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
+            }
+        }
+
         if (!empty($post['search_value'])) {
             $like = "";
             foreach ($post['column_search'] as $key => $item) { // loop column 
@@ -1186,7 +1195,7 @@ class vendor_model extends CI_Model {
      *  @return : array of cancellation reason count
      */
     function getcancellation_reason($service_center_id) {
-        $sql = "SELECT cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
+        $sql = "SELECT booking_cancellation_reasons.reason as cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id) where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
 
         $data = $this->db->query($sql);
         log_message('info', __METHOD__ . "=> Cancellation Reaon: " . $this->db->last_query() );
@@ -1750,7 +1759,7 @@ class vendor_model extends CI_Model {
      * @return: Array or Empty
      */
     function get_employee_relation($agent_id){
-        $this->db->select('employee.id as agent_id, group_concat(service_centres.id) as service_centres_id, group_concat(agent_state_mapping.state_code) as state_code');
+        $this->db->select('employee.id as agent_id, group_concat(DISTINCT service_centres.id) as service_centres_id, group_concat(DISTINCT agent_state_mapping.state_code) as state_code');
         $this->db->where('employee.id',$agent_id);
         $this->db->where_in('employee.groups',[_247AROUND_RM, _247AROUND_ASM]);
         $this->db->join('agent_state_mapping', 'agent_state_mapping.agent_id = employee.id', 'left');
@@ -1821,7 +1830,7 @@ class vendor_model extends CI_Model {
         if(!empty($sf_id)){
             $sql = "Select 
                         service_centres.rm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
@@ -1834,7 +1843,7 @@ class vendor_model extends CI_Model {
                     UNION
                     Select 
                         service_centres.asm_id as agent_id,
-                        group_concat(agent_state_mapping.state_code) as state_code,
+                        group_concat(DISTINCT agent_state_mapping.state_code) as state_code,
                         employee.*
                     from 
                         service_centres
@@ -2443,6 +2452,141 @@ class vendor_model extends CI_Model {
             return '';
         }
     }
+
+
+
+
+    /**
+     *  @desc : This function is used to get vendor_pincode_mapping  list
+     *  @param : $post string
+     *  @param : $select string
+     *  @param : $sfIDArray array
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    function get_vendor_pincode_mapping_list($post, $select = "") {
+        $this->_get_vendor_pincode_mapping_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+
+        $result = $query->result_array();
+
+
+        return $result;
+    }
+
+    /**
+     * @Desc: This function is used to get data from the vendor_pincode_mapping table
+     * @params: $post array
+     * @params: $select string
+     *  @param : Author : Abhishek Awasthi
+     * @return: void
+     * 
+     */
+    function _get_vendor_pincode_mapping_list($post, $select) {
+
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->join('services','services.id=vendor_pincode_mapping.Appliance_ID');
+        $this->db->from('vendor_pincode_mapping');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('vendor_pincode_mapping.id', 'desc');
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+        if (isset($post['having']) && !empty($post['having'])) {
+            $this->db->having($post['having'], FALSE);
+        }
+    }
+
+    /**
+     *  @desc : This function is used to get total mappings of SF
+     *  @param : $post string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    public function count_all_vendor_pincode_mapping($post) {
+        $this->_get_vendor_pincode_mapping_list($post, 'count( DISTINCT vendor_pincode_mapping.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    /**
+     *  @desc : This function is used to get total filtered mappings
+     *  @param : $post string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+    function count_filtered_vendor_pincode_mapping($post) {
+        $sfIDArray = array();
+        $this->_get_vendor_pincode_mapping_list($post, 'count( DISTINCT vendor_pincode_mapping.id) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    /**
+     *  @desc : This function is used update mapping table
+     *  @param : $data,$where string
+     *  @param : Author : Abhishek Awasthi
+     *  @return: Array()
+     */
+
+    function update_vendor_pincode_mapping($data,$where){
+        $this->db->where($where);
+        $this->db->update('vendor_pincode_mapping',$data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+
+    }
     
+    /**
+     *  @desc : This function returns all unapproved SF list by RM/ASM
+     *  @param : $id
+     *  @return: Array()
+     */
+    function get_unapproved_sf_list($id){
+        
+       $sql = "SELECT
+                    service_centres.*
+                FROM
+                    employee 
+                    JOIN agent_state_mapping ON (agent_state_mapping.agent_id = employee.id)
+                    JOIN state_code ON (state_code.state_code = agent_state_mapping.state_code)
+                    JOIN service_centres ON (state_code.state = service_centres.state and service_centres.is_approved = 0)
+                WHERE 
+                    employee.id =" . $id;
+       return $this->db->query($sql)->result_array();
+    }
 }
 

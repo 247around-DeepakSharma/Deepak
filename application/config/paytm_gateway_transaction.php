@@ -15,7 +15,7 @@
 define('PAYTM_GATEWAY_ENVIRONMENT', 'TEST'); // PROD
 define('PAYTM_GATEWAY_MERCHANT_KEY', '@m8pOe%7LSZw63y2'); //Change this constant's value with Merchant key downloaded from portal
 define('PAYTM_GATEWAY_MERCHANT_MID', '247Aro50898004256928'); //Change this constant's value with MID (Merchant ID) received from Paytm
-define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEB_STAGING'); //Change this constant's value with Website name received from Paytm
+define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEBSTAGING'); //Change this constant's value with Website name received from Paytm
 
 /*$PAYTM_DOMAIN = "pguat.paytm.com";
 if (PAYTM_ENVIRONMENT == 'PROD') {
@@ -38,9 +38,11 @@ if(ENVIRONMENT == 'production'){
     $PAYTM_GATEWAY_TXN_URL='https://securegw.paytm.in/theia/processTransaction';
     $GATEWAY_CALLBACK_URL = 'https://aroundhomzapp.com/payment/response';
 }else{
-    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://pguat.paytm.com/oltp/HANDLER_INTERNAL/getTxnStatus';
-    $PAYTM_GATEWAY_TXN_URL='https://pguat.paytm.com/oltp-web/processTransaction';
-    $GATEWAY_CALLBACK_URL = 'http://247dev.in/payment/response';
+    //$PAYTM_GATEWAY_STATUS_QUERY_NEW_URL = 'https://pguat.paytm.com/oltp/HANDLER_INTERNAL/getTxnStatus';
+    //$PAYTM_GATEWAY_TXN_URL='https://pguat.paytm.com/oltp-web/processTransaction';
+    $PAYTM_GATEWAY_STATUS_QUERY_NEW_URL='https://securegw-stage.paytm.in/merchant-status/getTxnStatus';
+    $PAYTM_GATEWAY_TXN_URL='https://securegw-stage.paytm.in/theia/processTransaction';
+    $GATEWAY_CALLBACK_URL = 'http://localhost/Develop/payment/response';
     
 }
 

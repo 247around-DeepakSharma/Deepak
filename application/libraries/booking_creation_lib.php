@@ -280,13 +280,8 @@ class booking_creation_lib {
     function create_and_download_zip_file($filename = '', $array_files = '') {
         if (!empty($filename) && !empty($array_files)) {
             $array_files = array_filter($array_files);
-            $directory = TMP_FOLDER;
-            $directory = trim($directory, '/');
-            $directoryarray = explode('/', $directory);
-            $directoryarray = array_reverse($directoryarray);
-            $dir = $directoryarray[0];
-            $dir .= "/";
-            $filename = "$dir.$filename";
+            $dir = TMP_FOLDER;
+            $filename = $dir.$filename;
             if (file_exists($filename)) {
                 unlink($filename);
             }
@@ -295,7 +290,7 @@ class booking_creation_lib {
                 // Zip creation failed
             }
             foreach ($array_files as $file) {
-                $zipk->addFile($dir . $file);
+                $zipk->addFile($dir . $file,$file);
             }
             $zipk->close();
             if (file_exists($filename)) {

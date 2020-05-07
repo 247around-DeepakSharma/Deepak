@@ -19,6 +19,7 @@
                         <th class="no-sort">Action</th>
                         <th style="display: none;">Active</th>
 
+
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +44,7 @@
                                 <a class="btn btn-primary btn-xs" href='javascript:void(0)' title="Update Category" id="update_category" category_id="<?= $rec->id ?>"><i class="glyphicon glyphicon-pencil"></i></a>
                             </td>
                             <td style="display: none;">
+
                                 <?php 
                                     echo $rec->active;
                                 ?>
@@ -119,6 +121,7 @@
                     extend: 'excel',
                     text: 'Export',
                     title: 'Capacity-list',
+
                     exportOptions: {
                     columns: [0, 1, 2, 5]
                 }

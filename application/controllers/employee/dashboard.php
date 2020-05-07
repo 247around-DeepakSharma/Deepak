@@ -879,21 +879,7 @@ class Dashboard extends CI_Controller {
     function missing_pincode_full_view($agentID = NULL){
         $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
-//       $select = "sf.pincode,COUNT(sf.pincode) as pincodeCount,sf.state,sf.city,sf.service_id,services.services";
-//        if($agentID){
-//          $where['sf.rm_id'] = $agentID;  
-//        } 
-//        else{
-//             $where['rm_id IS NULL'] = NULL;  
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
-//        $groupBY = array('sf.pincode','sf.service_id');
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $tempPincode=$this->dashboard_model->get_missing_pincode_by_rm_id($agentID);
-       // $tempPincode = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = array();
         foreach($tempPincode as $pincodes){
             if(array_key_exists($pincodes['pincode'], $finalPincodeArray)){
@@ -1184,7 +1170,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     // End Date will be - "1st Day of current Month before a year ago"
     $startDate = date('Y-m-d',$startDateTemp);
     //Create Group by array for booking and escalation
-    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'))");
+    $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'))");
     $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
     // Get escalation by vendor group by date
     $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,NULL);
@@ -1569,58 +1555,22 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_missing_pincode_data_group_by_district($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.city) as city ,sf.pincode";
-//        if($agentID){
-//             $where['sf.rm_id'] = $agentID;
-//        }
-//       else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//       }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
         $groupBY = ' group by city,sf.service_id,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-        //$dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'city','services');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'district_appliance','District','services');
     }
     function get_missing_pincode_data_group_by_partner($agentID = NULL){
         $select = "partners.public_name,COUNT(sf.pincode) as pincodeCount,sf.city as District,sf.pincode";
-//        if($agentID){
-//          $where['sf.rm_id'] = $agentID;  
-//        }
-//        else{
-//            $where['sf.rm_id IS NULL'] = NULL;  
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-   //     $orderBYArray['pincodeCount'] = 'DESC';
-       $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
-//        $join['partners']  = 'sf.partner_id=partners.id';
-//        $JoinTypeTableArray['services'] = 'left';
+        $groupBY = 'group by partners.public_name,sf.city,sf.pincode';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by_partner($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'public_name','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'partner_appliance','Partner','District');
     }
     function get_missing_pincode_data_group_by_appliance($agentID = NULL){
-       $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.city as District,sf.pincode";
-//        if($agentID){
-//            $where['sf.rm_id'] = $agentID;
-//        }
-//        else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//        }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
+        $select = "COUNT(sf.pincode) as pincodeCount,services.services,sf.city as District,sf.pincode";
         $groupBY = ' group by services.services,sf.city,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','Appliance','District');
     }
@@ -2058,7 +2008,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
-                $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) <= '".$endDate."') "] = NULL;
+                $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) <= '".$endDate."') "] = NULL;
             }
             $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
@@ -2078,17 +2028,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
             if($is_pending){
                     $select = "employee.full_name as entity,agent_filters.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
                     if($request_type == 'Repair_with_part'){
                      $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";       
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";       
                     }
                     else
                     {
                      $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
                 }
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
@@ -2100,32 +2050,32 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
                     $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
 			if($request_type == 'Repair_with_part'){
                             $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                            . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
 		    	}
 		   	else {
                     $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
-                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
                 }
                 }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
-                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                            . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
 			if($request_type == 'Repair_with_part'){
                             $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,"
-                         . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                         . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     	}
                     	else{
                      $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,"
-                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
                 }
                 }
@@ -2214,15 +2164,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
    function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = ""){
         if($is_pending){
             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as booking_count"
-                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) AS TAT";
+                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT";
         }
         else{
             if($request_type == 'Repair_with_part'){
                 $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,"
-                        . "ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        . "ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
             }
             else{
-             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                }
         }
         $sfData = array();
@@ -2310,15 +2260,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($is_pending){
             $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
                 . "GROUP_CONCAT( DISTINCT booking_details.booking_id) as booking_id , COUNT(DISTINCT booking_details.booking_id) as booking_count,"
-                    . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) AS TAT";
+                    . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT";
         }
         else{
             if($request_type == 'Repair_with_part'){
                 $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
-                                . "booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "booking_details.booking_id,ifnull(MIN(leg_1), 0) as leg_1,ifnull(MIN(leg_2), 0) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
             }
             else{
-               $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+               $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                }
         }
         $stateData = array();
@@ -2817,26 +2767,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
     function get_missing_pincode_data_group_by_state_appliance($agentID = NULL){
         $select = "COUNT(sf.pincode) as pincodeCount,services.services,UPPER(sf.state) as state ,sf.pincode";
-//        if($agentID){
-//             $where['sf.rm_id'] = $agentID;
-//        }
-//       else{
-//            $where['sf.rm_id IS NULL'] = NULL;
-//       }
-//        $where['sf.active_flag'] = 1;
-//        $where['sf.is_pincode_valid'] = 1;
-//        $orderBYArray['pincodeCount'] = 'DESC';
-          $groupBY = ' group by state,sf.service_id,sf.pincode';
-//        $join['services']  = 'sf.service_id=services.id';
-//        $JoinTypeTableArray['services'] = 'left';
+        $groupBY = ' group by state,sf.service_id,sf.pincode';
         $dataArray=$this->dashboard_model->get_missing_pincode_data_group_by($select,$agentID,$groupBY);
-       // $dataArray = $this->reusable_model->get_search_result_data("sf_not_exist_booking_details sf",$select,$where,$join,NULL,$orderBYArray,NULL,$JoinTypeTableArray,$groupBY);
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'state','services');
         return $finalPincodeArray;
     }
     function send_missing_pincode_details(){
         log_message('info', __METHOD__ . "=>start");
-       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email",array("employee.groups IN ("._247AROUND_RM.","._247AROUND_ASM.")"=>NULL),NULL
+       $rmServiceCentersData =  $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.official_email,employee.groups",array("employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL
                ,NULL,NULL,NULL,NULL,array());
         $data['serviceData']= $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,NULL,NULL,NULL);
         $template = $this->booking_model->get_booking_email_template("missing_pincode_details");
@@ -2845,14 +2783,23 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 log_message('info', __METHOD__ . "=>rm_details =".print_r($rmDetails,TRUE));
                 $data['rmPincodeDetails'] = $this->get_missing_pincode_data_group_by_state_appliance($rmDetails['agent_id']);
                 if($data['rmPincodeDetails']){
+                    // Get data is found against ASM, get its RM Details
+                    if($rmDetails['groups'] == _247AROUND_ASM){
+                        $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rmDetails['agent_id'], 'employee.groups IN ("'._247AROUND_RM.'")'=>NULL));
+                    }
                     $msg = $this->load->view('employee/missing_pincode_report',$data,TRUE);
                     $email['msg'] = $msg;
                     $emailBody = vsprintf($template[0], $email);
                     $subjectBody = $template[4];
                     $to = $rmDetails['official_email'];
+                    $cc = "";
+                    // Add RM mail in CC
+                    if(!empty($managerData[0]['official_email'])) {
+                        $cc = $managerData[0]['official_email'];
+                    }
                     $bcc = $template[5];
                     log_message('info', __METHOD__ . "=>email_body =".print_r($emailBody,TRUE));
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,'', $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to,$cc, $bcc, $subjectBody, $emailBody, "",'missing_pincode_details', "", NULL);
                 }
             }
         } 
@@ -2983,6 +2930,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 $data['district_data'] = $this->get_servicability_missing_data_district('district',$this->input->post('rm_id'),NULL);
                 $data['services'] = $this->vendor_model->get_active_services();
+                $data['no_ajax_refresh'] = 1; // Prevent Page load Recursively
                 $this->load->view('employee/missing_servicablity_report',$data);
             }
             function pincode_rm_wise($rm_id = NULL){ 
@@ -3243,11 +3191,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         $totalPincode = array_sum(array_values($india_pincode));
-        $where['employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'] = NULL;
+        $where['employee.groups IN ("'._247AROUND_RM.'")'] = NULL;
         if($rmID){
             $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
+        $groupBY = 'agent_state_mapping.agent_id';
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,$groupBY);
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
@@ -3621,6 +3570,478 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
+    
+    /**
+     * @This function is used to fetch and return - total cancelled booking by reasons 
+     *  We are showing cancelled booking by cancellation reason in pie chart on Dashboard
+     * 
+     */
+    function get_booking_cancellation_reasons() {
+
+        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))) : date('Y-m-01');
+        $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
+        log_message('info', __METHOD__ . $sdate . "  .... " . $edate);
+
+        //fetching booking cancellation between the start and end date from booking_details
+        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate, $edate);
+        if (!empty($data)) {
+            $graph = array();
+            $data_report = array();
+            //create array  by cancellation reasons basis
+            foreach ($data as $value) {
+                $graph[$value['cancellation_reason']] = $value['count'];
+            }
+            //Creating series for the Graph
+            $data_report['series']['name'] = 'reason';
+            $data_report['series']['colorByPoint'] = true;
+            $flag = true;
+            foreach ($graph as $key => $value) {
+                if ($flag) {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                        'sliced' => true,
+                        'selected' => true
+                    );
+                    $flag = false;
+                } else {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                    );
+                }
+            }
+            trim(ob_get_clean());
+            echo json_encode($data_report, TRUE);
+        } else {
+            trim(ob_get_clean());
+            echo false;
+        }
+    }
+
+    /**
+     * @desc : Method is used to redirect to verify bookings to be invoiced page.
+     * @author : Ankit Rajvanshi
+     */
+    function bookings_to_be_invoiced() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('dashboard/bookings_to_be_invoiced');
+    }
+    
+    /**
+     * @desc : Method returns those booking in which customer paid charges.
+     * @author : Ankit Rajvanshi
+     */
+    function get_bookings_to_be_invoiced() {
+       
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        //echo"<pre>";print_r($post_data);exit;
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.customer_net_payable > 0'] = NULL;
+        $where['booking_unit_details.customer_paid_basic_charges < 100'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_1" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_1.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+        
+    }
+    
+    /**
+     * @desc : Method retunns those bookings in which serial number and image missing
+     * @author : Ankit Rajvanshi
+     */
+    function get_missing_serial_number_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.pod'] = 1;
+        $where['(booking_unit_details.serial_number IS NULL OR booking_unit_details.serial_number_pic IS NULL)'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                
+                $remark = '';
+                if(empty($d['serial_number'])) {
+                    $remark .= 'Serial Number does not exist.<br/>';
+                }
+                if(empty($d['serial_number'])) {
+                    $remark .= 'Serial Number Pic does not exist.<br/>';
+                }
+                $table_data .= '<td>'.$remark.'</td>';
+                $table_data .= '<td><input class="form-control check_2" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_2.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings in which partner invoice is not generated.
+     * @author : Ankit Rajvanshi
+     */
+    function get_missing_partner_invoice() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details.partner_invoice_id IS NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_3" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_3.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings which are pending but unit details is completed
+     * @author : Ankit Rajvanshi
+     */
+    function get_completed_booking_unit_details_of_pending_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status != "'._247AROUND_COMPLETED.'"'] = NULL;
+        $where['booking_unit_details.ud_closed_date IS NOT NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_4" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_4.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+    }
+    
+    /**
+     * @desc : Method retunns those bookings which are completed but unit details are pending.
+     * @author : Ankit Rajvanshi
+     */
+    function get_pending_booking_unit_details_of_completed_bookings() {
+        $post_data = $this->input->post();
+        $date = $post_data['date'];
+        
+        // define select variable.
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
+        
+        // define where variable.
+        $where = array();
+        $where['booking_details.current_status = "'._247AROUND_COMPLETED.'"'] = NULL;
+        $where['booking_unit_details.ud_closed_date IS NULL'] = NULL;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        if(!empty($date)) {
+            $dateArray  = explode(" - ",$date);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where["(date(booking_details.service_center_closed_date)>='".$start."' AND date(booking_details.service_center_closed_date)<='".$end."')"] = NULL;
+        }
+        
+        // get data and prepare table.
+        $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+        $table_data = '';
+        if(!empty($data)) {
+            foreach($data as $k => $d) {
+                $table_data .= '<tr>';
+                $table_data .= '<td>'.++$k.'</td>';
+                $table_data .= '<td><a href="'.base_url().'employee/booking/get_complete_booking_form/'.$d['booking_id'].'" target="_blank">'.$d['booking_id'].'</a></td>';
+                $table_data .= '<td>'.$d['customer_paid_basic_charges'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_parts'].'</td>';
+                $table_data .= '<td>'.$d['customer_paid_extra_charges'].'</td>';
+                $table_data .= '<td><input class="form-control check_5" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_5.'['.$d['id'].']" value="1"></td>';
+                $table_data .= '</tr>';
+            }
+        }
+        
+        echo $table_data;
+        
+    }    
+    
+    /**
+     * @desc : Method is used to download data in csv format.
+     * @author : Ankit Rajvanshi
+     */
+    function export_data() {
+        $post_data = $this->input->get();
+        $table_id = $post_data['tableId'];
+        $date = $post_data['date'];
+        
+        $where = [];
+        $dateArray  = explode(" - ",$date);
+        $start = date('Y-m-d',strtotime($dateArray[0]));
+        $end = date('Y-m-d',strtotime($dateArray[1]));
+        
+        $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+        $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+        $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+        
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+                booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
+                booking_unit_details.serial_number, booking_unit_details.partner_invoice_id';
+        
+        
+        if(!empty($table_id)) {
+            if($table_id == 1) {
+                $where['booking_unit_details.customer_net_payable > 0'] = NULL;
+                $where['booking_unit_details.customer_paid_basic_charges < 100'] = NULL;
+            }
+            if($table_id == 2) {
+                $where['booking_unit_details.pod'] = 1;
+                $where['(booking_unit_details.serial_number IS NULL OR booking_unit_details.serial_number_pic IS NULL)'] = NULL;
+            }
+            if($table_id == 3) {
+                $where['booking_unit_details.partner_invoice_id IS NULL'] = NULL;
+            }
+            if($table_id == 4) {
+                $where = [];
+                $where['booking_details.current_status != "'._247AROUND_COMPLETED.'"'] = NULL;
+                $where['booking_unit_details.ud_closed_date IS NOT NULL'] = NULL;
+                $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+                $where["(date(booking_unit_details.ud_closed_date)>='".$start."' AND date(booking_unit_details.ud_closed_date)<='".$end."')"] = NULL;
+            }            
+            if($table_id == 5) {
+                $where = [];
+                $where['booking_unit_details.ud_closed_date IS NULL'] = NULL;
+                $where["(date(booking_details.service_center_closed_date)>='".$start."' AND date(booking_details.service_center_closed_date)<='".$end."')"] = NULL;
+                $where['booking_details.current_status'] = _247AROUND_COMPLETED;
+                $where['booking_unit_details_invoice_process.booking_unit_details_id IS NULL'] = NULL;
+            }      
+            
+            $data = $this->dashboard_model->get_unit_details_invoice_process_data($select, $where);
+            
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Basic Charges Paid By Customer',  'Extra Charges Paid By Customer', 'Parts Paid By Customer', 'Serial Number', 'Partner Invoice'], 'data_'.date('Ymd-His'));
+        }
+    }
+    
+    /**
+     * @desc : Method is used to mark bookings as processed for invoice.
+     * @author : Ankit Rajvanshi
+     * @return boolean
+     */
+    function process_invoice() {
+        $post_data = $this->input->post();
+      
+        if(!empty($post_data['dashboard_process']) && !empty($post_data[$post_data['dashboard_process']])) {
+            $insert_data = array();
+            foreach($post_data[$post_data['dashboard_process']] as $unit_detail_id => $val) {
+                $tmp_array = array();
+                $tmp_array['booking_unit_details_id'] = $unit_detail_id;
+                $tmp_array['is_processed'] = $val;
+                $tmp_array['dashboard_section_id'] = $post_data['dashboard_process'];
+                
+                array_push($insert_data, $tmp_array);
+            }
+            
+            $this->dashboard_model->insert_into_booking_unit_detail_invoice_process($insert_data);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /*
+     * Brandwise sales analytics to get total registered call count month wise for selected year's 
+     * 1-January to 31-December 
+     */
+    function brand_sales_analytics() {
+        $year = $this->input->post('sales_year');
+        $sales_partner = (!empty($this->input->post('sales_partner'))) ? $this->input->post('sales_partner') : array();
+        $where = 'year(str_to_date(booking_details.create_date,"%Y")) =' . $year;
+        $where_in = array();
+        if (count($sales_partner) > 0) {
+            $where = 'year(str_to_date(booking_details.create_date,"%Y")) =' . $year;
+            $where_in = array('booking_details.partner_id' => $sales_partner);
+        }
+        $select = 'month(str_to_date(booking_details.create_date,"%Y-%m-%d")) as month,count(*) as call_count,booking_details.partner_id,partners.public_name';
+        $group_by = 'booking_details.partner_id,month(str_to_date(create_date,"%Y-%m-%d"))';
+        $join = array(
+            'partners' => 'partners.id = booking_details.partner_id'
+        );
+        $is_am = 0;
+        if ($this->session->userdata('user_group') == _247AROUND_AM) {
+            $is_am = 1;
+            $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
+        }
+        $partnerWhere['partners.is_active'] = 1;
+        // Get registered call count month wise for selcted year
+        $registered_call_count = $this->reusable_model->get_search_result_data("booking_details", $select, $where, $join, NULL, NULL, $where_in, NULL, $group_by);
+        $is_am = 0;
+        if($this->session->userdata('user_group') == _247AROUND_AM){
+            $is_am = 1;
+            $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
+        }
+        $partnerWhere['partners.is_active'] = 1;
+        $partnerWhereIn['partners.id'] = $sales_partner;
+        // get partners deatils for selected brands
+        $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am,"",$partnerWhereIn);
+        $partners = array_column($partners,'public_name','id');
+        $calls = array();
+        $series = array();
+        foreach($registered_call_count as $registered_call){
+            // skip the current year's month data and set to zero
+            if(date('Y') == $year && date('m') == $registered_call['month']){
+                $calls[$registered_call['partner_id']][$registered_call['month']] = array(
+                    'call_count' => 0,
+                    'company_name' => $registered_call['public_name']
+                );
+            }else{
+                $calls[$registered_call['partner_id']][$registered_call['month']] = array(
+                    'call_count' => $registered_call['call_count'],
+                    'company_name' => $registered_call['public_name']
+                );
+            }
+            $calls[$registered_call['partner_id']]['public_name'] = $registered_call['public_name'];
+            // if partner has registered call count for selected year then unset from partners list
+            unset($partners[$registered_call['partner_id']]);
+        }
+        // partners who have no register call for selcted year and set call count zero
+        foreach($partners as $partner_id => $public_name){
+            for($i=1;$i<=12;$i++){
+                $calls[$partner_id][$i] = array(
+                    'call_count' => 0,
+                    'company_name' => $public_name
+                );
+                 $calls[$partner_id]['public_name']=$public_name;
+            }
+        }
+       $data['calls'] = $calls;
+       
+       foreach($calls as $partner => $months){
+           $node = array();
+           $node['name'] = $calls[$partner]['public_name'];
+           $node_data = array();
+           for ($i = 1; $i <= 12; $i++) {
+               if (isset($months[$i]['call_count'])) {
+                  $node_data[] = (int)$months[$i]['call_count'];
+                } else {
+                   $node_data[] = 0;
+                }
+           }
+           $node['data'] = $node_data;
+           $series[] = $node;
+       }
+       
+       
+       // load data in table format and retunn as string 
+       $arr['table_data'] = $this->load->view('employee/brand_sales_analytics',$data,true);
+       $arr['series'] = $series;
+       echo json_encode($arr,true);die;
+    }
+
 }
 
 

@@ -17,8 +17,17 @@ class Employeelogin extends CI_Model{
       */
       function login($employee_id,$employee_password) {
         $sql = "SELECT * FROM employee WHERE employee_id = '$employee_id' AND employee_password = '$employee_password' AND active = 1"; 
-        $data = $this->db->query($sql);     
-        return $data->result_array();
+        $data = $this->db->query($sql)->result_array(); 
+        /**
+         * If warehouse person logged in then get wh name.
+         */
+        if(!empty($data[0]) && !empty($data[0]['warehouse_id'])) {
+            $sql = "SELECT district, state FROM service_centres WHERE id = ".$data[0]['warehouse_id']; 
+            $sc_data = $this->db->query($sql)->result_array(); 
+            $data[0]['wh_name'] = _247AROUND_EMPLOYEE_STRING." ".$sc_data[0]['district'] ." (". $sc_data[0]['state'].")";
+        }
+       
+        return $data;
       }
       
       /**

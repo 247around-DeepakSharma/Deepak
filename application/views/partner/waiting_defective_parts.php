@@ -47,7 +47,7 @@
                             <th class="text-center">Defective Quantity</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
-                            <th class="text-center">SF Challan</th>
+                            <th class="text-center">WH Challan</th>
                             <th class="text-center">Partner Challan</th>
                             <th class="text-center">Shipped Date</th>
                             <th class="text-center">Send Email</th>                            

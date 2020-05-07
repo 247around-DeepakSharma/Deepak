@@ -130,6 +130,7 @@
                                     <div class="col-md-6">
                                         <input type="hidden" name ="partner_type" id="partner_type" />
                                         <input type="hidden" name ="booking_id" id="booking_id" value="<?php echo $booking_history[0]['booking_id']; ?>" />
+                                        <input type="hidden" name ="booking_primary_id" id="booking_primary_id" value="<?php echo $booking_history[0]['booking_primary_id']; ?>" />
                                         <input type="hidden" id="change_appliance_details" name="change_appliance_details" value="0" />
                                         <input type="hidden" id= "user_id" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
                                         <input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
@@ -576,6 +577,9 @@
                         </div>
                         
                     <?php } ?>
+                    
+                    <!--Review Questionnaire section-->
+                    <?php echo $questionnaire_html; ?>
                     
                     <div class="row">
                         <div class ="col-md-12">

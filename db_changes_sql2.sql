@@ -1652,7 +1652,70 @@ CREATE TABLE courier_lost_spare_status (
 	agent_id int(11) NOT NULL,
 	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	update_date datetime NULL DEFAULT NULL
-);
+););
+
+---Gorakh 20-04-02020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
+-- Prity 17-04-2020 (73 Branch)
+CREATE TABLE review_questionare (
+  q_id int(11) NOT NULL AUTO_INCREMENT,
+  question varchar(500) NOT NULL,
+  form int NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
+  panel int NOT NULL COMMENT '1 => Admin, 2 => Partner',
+  sequence int(11) NOT NULL DEFAULT 1,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (q_id))
+  ENGINE = InnoDB;  
+						
+CREATE TABLE review_request_type_mapping (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  request_type_id int(11) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_ques_review_mapping (q_id),
+  KEY fk_request_type_review_mapping (request_type_id),
+  CONSTRAINT fk_request_type_question_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_request_type_request_mapping FOREIGN KEY (request_type_id) REFERENCES request_type (id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;	
+
+  
+CREATE TABLE review_questionare_checklist (
+  checklist_id int(11) NOT NULL AUTO_INCREMENT,
+  q_id int(11) NOT NULL,
+  answer varchar(500) NOT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (checklist_id),
+  KEY fk_ques_checklist_mapping (q_id),
+  CONSTRAINT fk_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1;  
+
+CREATE TABLE review_booking_checklist (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  booking_id int(11) NOT NULL,
+  q_id int(11) NOT NULL,
+  checklist_id int(11) NULL DEFAULT NULL,
+  remarks varchar(500) NULL DEFAULT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  create_date timestamp NOT NULL DEFAULT current_timestamp(),
+  created_by int NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_booking_checklist_mapping (booking_id),
+  KEY fk_booking_ques_checklist_mapping (q_id),
+  KEY fk_booking_checklist_checklist_mapping (checklist_id),  
+  CONSTRAINT fk_booking_checklist_mapping FOREIGN KEY (booking_id) REFERENCES booking_details (id),
+  CONSTRAINT fk_booking_ques_checklist_mapping FOREIGN KEY (q_id) REFERENCES review_questionare (q_id),
+  CONSTRAINT fk_booking_checklist_checklist_mapping FOREIGN KEY (checklist_id) REFERENCES review_questionare_checklist (checklist_id))
+  ENGINE=InnoDB AUTO_INCREMENT=1; 
+
 
 --Kalyani 09-12-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
@@ -2253,13 +2316,10 @@ ALTER TABLE `spare_parts_details` ADD `defect_pic` VARCHAR(200) NULL DEFAULT NUL
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('part_to_be_billed', NULL, ' ', NULL, 'ankitr@247around.com', 'ankitr@247around.com', 'ankitr@247around.com', '', '1', '2020-04-13 10:01:27');
 --Ankit Bhatt 2020-04-10
-INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_List', 2, '36', 'accountmanager,admin,callcenter,closure,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
-
 ALTER TABLE service_centres ADD COLUMN last_foc_mail_send_date timestamp;
 
 ---Ghanshyam 2020-04-13
-INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse', 'NRN Reverse', 'NRN Reverse', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
+INSERT INTO `partner_booking_status_mapping` ( `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES ('247001', 'Pending', 'NRN Reverse by Partner', 'NRN Reverse by Partner', 'NRN Reverse by Partner', 'vendor', 'Visit to Customer', CURRENT_TIMESTAMP);
 
  
 ---Abhishek -- 15-04-2020
@@ -2276,40 +2336,174 @@ ALTER TABLE `engineer_details` ADD `edu_qualification` VARCHAR(255) NULL DEFAULT
 ALTER TABLE `courier_company_invoice_details` ADD `courier_pod_file` VARCHAR(255) NULL DEFAULT NULL AFTER `delivered_date`;
 --Ankit Bhatt 2020-04-15
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('payment_through_bank_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `bank_transactions` WHERE transaction_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and credit_amount is not null ;", "SELECT IFNULL(sum(credit_amount), 0) as count FROM `bank_transactions` WHERE transaction_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and credit_amount is not null;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_service_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category='Cash' and amount_collected_paid > 0 and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category='Cash' and amount_collected_paid > 0 and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('payment_through_paytm_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01')  and sub_category = 'Pre-paid(PG)' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'Pre-paid(PG)';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_buyback_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and type='Buyback' and sub_category = 'Sale' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and type='Buyback' and sub_category = 'Sale' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_service_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Service' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Service' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_spare_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category in('MSL New Part Return', 'OOW New Part Return', 'MSL Defective Return') and amount_collected_paid > 0 and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category in('MSL New Part Return', 'OOW New Part Return', 'MSL Defective Return') and amount_collected_paid > 0 and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_buyback_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Buyback' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical='Buyback' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_other_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'CRM' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'CRM' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_spare_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and category = 'Spares' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and category = 'Spares' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('SF_service_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category='Commission' and amount_collected_paid > 0 and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category='Commission' and amount_collected_paid > 0 and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_other_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical = 'Other' and vendor_partner='partner' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vertical = 'Other' and vendor_partner='partner';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('SF_buyback_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and type='Buyback' and sub_category = 'Sale' and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and type='Buyback' and sub_category = 'Sale' and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('SF_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('SF_spare_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'Out-of-Warranty' and amount_collected_paid > 0 and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'Out-of-Warranty' and amount_collected_paid > 0 and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Credit Note' or sub_category = 'Credit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Credit Note' or sub_category = 'Credit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('SF_other_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'CRM' and vendor_partner='vendor' ;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and sub_category = 'CRM' and vendor_partner='vendor';", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('SF_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Credit Note' or sub_category = 'Credit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Credit Note' or sub_category = 'Credit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (type = 'Credit Note' or type = 'CreditNote');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (type = 'Credit Note' or type = 'CreditNote');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('partner_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Debit Note' or sub_category = 'Debit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (category = 'Debit Note' or sub_category = 'Debit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('SF_CN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (type = 'Credit Note' or type = 'CreditNote');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (type = 'Credit Note' or type = 'CreditNote');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-values('SF_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Debit Note' or sub_category = 'Debit Note');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE create_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (category = 'Debit Note' or sub_category = 'Debit Note');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+values('partner_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (type = 'Debit Note' or type = 'DebitNote');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='partner' and (type = 'Debit Note' or type = 'DebitNote');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('SF_DN_invoice_this_month', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (type = 'Debit Note' or type = 'DebitNote');", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01') and vendor_partner='vendor' and (type = 'Debit Note' or type = 'DebitNote');", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('payment_through_bank_today', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `bank_transactions` WHERE transaction_date >= CURDATE() and credit_amount is not null ;", "SELECT IFNULL(sum(credit_amount), 0) as count FROM `bank_transactions` WHERE transaction_date >= CURDATE() and credit_amount is not null;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('payment_through_paytm_today', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE()  and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE() and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+<<<<<<< HEAD
+values('Total_GST_Credit_Hold_Amount_This_Month', 'Total Amount', '',"SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` where sub_category = 'GST Credit Note' and invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01');", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+values('Total_GST_Debit_Hold_Amount_This_Month', 'Total Amount', '',"SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` where sub_category = 'GST Debit Note' and invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01');", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+
+-- Warehouse menu on admin crm Ankit Rajvanshi 20-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Warehouse', NULL, NULL, 1, NULL, 'inventory_manager', 'main_nav', 1, '2017-12-29 06:08:44');
+	
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
+
+ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
+
+
+-- Ankit Rajvanshi 20-04-2020
+CREATE TABLE non_inventory_partners_part_type (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    partner_id int(11) NOT NULL,
+    service_id int(11) NOT NULL,
+    inventory_part_type_id int(11) NOT NULL,
+    is_defective_required tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime NULL DEFAULT NULL,
+
+    CONSTRAINT fk_non_inventory_partners FOREIGN KEY (partner_id) REFERENCES partners(id),
+    CONSTRAINT fk_non_inventory_services FOREIGN KEY (service_id) REFERENCES services(id),
+    CONSTRAINT fk_non_inventory_parts_type FOREIGN KEY (inventory_part_type_id) REFERENCES inventory_parts_type(id)
+
+-- Prity 21-04-2020
+-- 73 Branch
+CREATE TABLE `customer_dissatisfactory_reasons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reason` varchar(255) NOT NULL,
+  `active` TINYINT  NOT NULL DEFAULT 1,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE booking_details add column customer_dissatisfactory_reason int NULL DEFAULT NULL AFTER rating_comments; 
+
+-- Prity 22-04-2020
+-- 73 Branch
+UPDATE email_template SET template = 'Dear Partner,<br><br>\nGreetings from 247around !!!<br><br>\nPlease provide your bank details (Cheque / Passbook Front Page) to your Area Sales Manager so that invoice payment can happen on time.<br><br>\nRegards,<br>\nTeam 247around' WHERE email_template.id = 37;
+
+-- Prity 15-04-2020 (73 Branch)
+ALTER TABLE booking_details change column booking_date booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column booking_date date NOT NULL AFTER booking_date_old; 
+update booking_details set booking_date = DATE_FORMAT(STR_TO_DATE(booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+ALTER TABLE booking_details change column initial_booking_date initial_booking_date_old varchar(100) NOT NULL; 
+ALTER TABLE booking_details add column initial_booking_date date NOT NULL AFTER initial_booking_date_old; 
+update booking_details set initial_booking_date = DATE_FORMAT(STR_TO_DATE(initial_booking_date_old,'%d-%m-%Y'), '%Y-%m-%d');
+
+-- Ankit Rajvanshi 22-04-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'MSL Security Amount', NULL, 'employee/invoice/get_msl_security_amount_list', 3, '69', 'admin,developer', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 23-04-2020
+-- 73
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Engineer Visit');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Delay in Part Supply');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Not Skilled');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Engineer Behaviour Not good');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('High Repair Charges');
+INSERT INTO `customer_dissatisfactory_reasons` (`reason`) VALUES ('Others');
+
+-- Ankit Rajvanshi 23-04-2020
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'booking_cancel_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking cancellation is %s.', NULL, '1', '0', CURRENT_TIMESTAMP), (NULL, 'booking_reschedule_otp_sms', 'Dear Customer,\r\n\r\nYour one time password for booking reschedule is %s.', NULL, '1', '0', CURRENT_TIMESTAMP);
+
+
+-- Sarvendra 27-04-2020 CRM-6107
+ALTER TABLE `boloaaka`.`service_centres` 
+CHANGE COLUMN `has_authorization_certificate` `has_authorization_certificate` TINYINT(1) NOT NULL DEFAULT '0' ;
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `auth_certificate_file_name` TEXT NULL AFTER `has_authorization_certificate`;
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `auth_certificate_validate_year` VARCHAR(9) NULL DEFAULT NULL AFTER `auth_certificate_file_name`;
+-----------------------------------
+
+ALTER TABLE `service_centre_charges` ADD `partner_spare_extra_charge` INT(11) NOT NULL DEFAULT '0' AFTER `partner_net_payable`;
+ALTER TABLE `booking_unit_details` ADD `partner_spare_extra_charge` DECIMAL(2) NOT NULL DEFAULT '0' AFTER `partner_paid_basic_charges`;
+-- Prity 29-04-2020
+-- 73
+ALTER TABLE sf_not_exist_booking_details ADD COLUMN asm_id INT NULL DEFAULT NULL AFTER rm_id;
+-- Ankit Rajvanshi 01-05-2020
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+--Gorakh 01-05-2020
+ALTER TABLE `spare_parts_details` ADD `defactive_part_return_to_partner_from_wh_date_by_courier_api` DATETIME NULL DEFAULT NULL AFTER `symptom`;
+--Gorakh 04-05-2020
+UPDATE `header_navigation` SET `title` = 'Defective parts Shipped By WH' WHERE `header_navigation`.`id` = 136;
+--Ankit Bhatt 2020-04-27
+update header_navigation set groups = concat(groups, ',regionalmanager') where id = 69;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'FNF Amount Payment List', NULL, 'employee/invoice/get_security_amount_list', 3, '69', 'admin,developer,regionalmanager', 'main_nav', 1, CURRENT_TIMESTAMP);
+
+-- Prity 04-05-2020
+-- 73
+CREATE TABLE `booking_amount_differences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL,
+  `total_amount_by_sf` decimal(10,2) NOT NULL,
+  `total_amount_actual` decimal(10,2) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_booking_amount_differences` (`booking_id`),
+  CONSTRAINT `fk_booking_amount_differences` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+--Sarvendra 04-05-2020 - CRM-6175
+--74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_year`;
+
+Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
+values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
+2,36,'admin,developer,regionalmanager,areasalesmanager',
+'main_nav',1);
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 
-----tEST
+---Ghanshyam 2020-05-07
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('partner', 'Search Docket', NULL, 'partner/search_docket', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);

@@ -17,74 +17,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 
 
-
-
-      <div id="booking_reassign" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-         <!-- Modal content-->
-         <div class="modal-content">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal">&times;</button>
-               <h4 class="modal-title" id="modal_title_reassign">Transfer Booking </h4>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                           <select class="form-control" id="service_center_reassign" name="service" required="">
-                                        <option selected disabled>Transfer Call To</option>
-                                            <?php
-                                            if(!empty($service_centers)){
-                                            foreach ($service_centers as $key => $values) { ?>
-                                            <option  value="<?php echo $values['id']; ?>">
-                                                <?php
-                                                echo $values['name'];
-                                                ?>
-                                            </option>
-                                            <?php }
-                                            }
-                                            ?>
-                                        </option>
-                                    
-                       </select>
-
-                </div>
-                <div class="col-md-12">
-
-
-                   <select class="form-control" id="reason_of_reassign" name="service" required="">
-                                        <option selected disabled>Reason Of Transfer</option>
-                                            <?php 
-                                            if(!empty($service_centers)){
-                                            foreach ($service_centers as $key => $values) { ?>
-                                            <option  value="<?php echo $values['id']; ?>">
-                                                <?php
-                                                echo $values['name']; ?>
-                                            </option>    
-                                            <?php } }?>                                        
-                                    
-                       </select>
-
-                </div>
-                <input type="hidden" name="modal_booking_id" id="modal_booking_id_reassign" value="">
-                <div class="col-md-12">
-                <textarea rows="8" name="remarks" class="form-control textarea" id="textarea_assign"></textarea>
-                </div>
-                <div class="col-md-12">
-                <input type="checkbox" name="acceptrmam" id="modal_acceptrmam_reassign" value="1"> RM/AM will take care of spare parts if shipped.
-              </div>
-            </div>
-             
-           
-            <div class="modal-footer">
-               <button type="button" class="btn btn-success" onclick="transfer_call_to_other_sf()" id="reassign_process">Transfer</button>
-               <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
-            </div>
-         </div>
-      </div>
-   </div>
-
-
-
-
 <div class="" style="margin-top: 30px;">
         <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">    
          <div class="row">
@@ -404,6 +336,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
              }
              else{
                     $tab = "#tabs-3";
+                    // Pagination for Wrong area Calls Tab
+                    if(!empty($sub_id)){
+                        $tab = "#tabs-6";
+                    }
                     if($review_status == "Completed"){
                         $tab = "#tabs-2";
                     }
@@ -436,7 +372,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <center><p id="remarks_msg_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" style="color : red;"></p></center>
                 </div>
                 <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" value="">
-                <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>
+                <!--<textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>"></textarea>-->
+                <select  class="form-control"  id="select_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
+                    <option disabled="" selected=""></option>
+                </select>
             </div>
             <input type="hidden" id="id_no">
             <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>">
@@ -613,6 +552,17 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#model_remarks_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').modal();     
         $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').val(booking_id);
         $('#modal-title-<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').html(booking_id);
+        // fill cancellation reason in cancellation remark popup dropdown
+        $.ajax({
+            type:'POST',
+            url:'<?php echo base_url(); ?>/employee/booking/get_cancellation_reasons',
+            data:{reason_of:'247around'},
+            success:function(data){
+                if(data){
+                    $("#select_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>").html(data);
+                }
+            }
+        });
     }
 
 

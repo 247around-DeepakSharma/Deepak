@@ -474,9 +474,11 @@
                     //var json_object = JSON.stringify(XL_row_object);
                     //console.log(JSON.parse(json_object));
                     console.log(XL_row_object);
+                   
                     var html = "";
                     var total_price = 0 ;
                     for(var i in XL_row_object){
+                         console.log(XL_row_object[i]['GST Rate']);
                         var parts_total_price = 0;
                         var regexp = /^[0-9]+([,.][0-9]+)?$/g;
                         if ((XL_row_object[i]['Basic Price'].trim() > 0) && (regexp.test(XL_row_object[i]['Basic Price'].trim()))) {
@@ -494,8 +496,12 @@
                             return false;
                         }
                         
-                        var regular_expression = /^[0-9]+$/;
-                        if ((XL_row_object[i]['GST Rate'].trim() > 0) && (regular_expression.test(XL_row_object[i]['GST Rate'].trim()))) {
+                        if ((XL_row_object[i]['GST Rate'] === '1.5')
+                            || (XL_row_object[i]['GST Rate'] === '2')
+                            || (XL_row_object[i]['GST Rate'] === '5')
+                            || (XL_row_object[i]['GST Rate'] === '12')
+                            || (XL_row_object[i]['GST Rate'] === '18')
+                            || (XL_row_object[i]['GST Rate'] === '28')) {
                            
                         }else{
                             alert("Excel cell value GST rate is wrong."); 
@@ -561,5 +567,51 @@
             reader.readAsBinaryString(file);
         };
     };
+    
+    function check_invoice_id(id, isOnBooking){
+    
+        var invoice_id = $('#'+id).val().trim();
+        if(invoice_id){
+            
+            if( invoice_id.indexOf('/') !== -1 ){
+                $('#'+id).css('border','1px solid red');
+                if(isOnBooking){
+                     $('#on_submit_btn').attr('disabled',true);
+                } else {
+                     $('#submit_btn').attr('disabled',true);
+                }
+                
+                alert("Use '-' in place of '/'");
+            }
+            else{
+                $.ajax({
+                    method:'POST',
+                    url:'<?php echo base_url(); ?>check_invoice_id_exists/'+invoice_id,
+                    data:{is_ajax:true},
+                    success:function(res){
+                        //console.log(res);
+                        var obj = JSON.parse(res);
+                        if(obj.status === true){
+                            $('#'+id).css('border','1px solid red');
+                            if(isOnBooking){
+                               $('#on_submit_btn').attr('disabled',true);
+                            } else {
+                               $('#submit_btn').attr('disabled',true);
+                            }
+                            alert('Invoice number already exists');
+                        }else{
+                            $('#'+id).css('border','1px solid #ccc');
+                            if(isOnBooking){
+                              $('#on_submit_btn').attr('disabled',false);
+                            } else {
+                               $('#submit_btn').attr('disabled',false);
+                            }
+                            
+                        }
+                    }
+                });
+            }
+        }
+    }
 </script>
  

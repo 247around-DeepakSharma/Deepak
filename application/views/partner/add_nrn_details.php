@@ -764,7 +764,7 @@
                 format: 'DD/MM/YYYY'
             }
         });
-
+        
         $('#replacement_action_plan').on('change', function () {
             if ($('#replacement_action_plan').val() == 'No') {
                 $('#replacement_remark').val('Open Ended');
@@ -777,6 +777,7 @@
                 window.location.href = '<?php echo base_url("partner/list_nrn_records") ?>';
             }
         });
+        // Get booking data by sending booking id 
         $('#booking_id').on('change', function () {
             var _booking_id = $('#booking_id').val();
             if (_booking_id != '') {

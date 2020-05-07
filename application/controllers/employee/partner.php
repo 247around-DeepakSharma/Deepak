@@ -1,4 +1,4 @@
-    <?php
+<?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -492,7 +492,7 @@ class Partner extends CI_Controller {
     }
 
     function get_booking_form_data() {
-        $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $booking_date = date('Y-m-d', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
         $post['partner_id'] = $this->session->userdata('partner_id');
         $post['agent_id'] = $this->session->userdata('agent_id');
@@ -1161,7 +1161,7 @@ class Partner extends CI_Controller {
         $results['brand_mapping'] = $this->partner_model->get_partner_specific_details($where, "service_id, brand, active");
         $results['partner_contracts'] = $this->reusable_model->get_search_result_data("collateral", 'collateral.id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,'
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
-                . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id',
+                . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id, collateral.youtube_link',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
                 NULL, array("collateral.start_date" => "DESC"), NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
@@ -1459,7 +1459,7 @@ class Partner extends CI_Controller {
             log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
             $booking_date = $this->input->post('booking_date');
 
-            $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
+            $data['booking_date'] = date('Y-m-d', strtotime($booking_date));
 //            $data['current_status'] = 'Rescheduled';
 //            $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
@@ -1806,7 +1806,7 @@ class Partner extends CI_Controller {
 
             $user['state'] = $distict_details['state'];
             $booking_details['parent_booking'] = $post['parent_booking'];
-            $booking_details['booking_date'] = date("d-m-Y", strtotime($post['booking_date']));
+            $booking_details['booking_date'] = date("Y-m-d", strtotime($post['booking_date']));
             $booking_details['partner_id'] = $post['partner_id'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
@@ -2136,9 +2136,11 @@ class Partner extends CI_Controller {
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
            //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
-            if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
-            }
+            /*
+                if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
+                }
+             */
                      
             /*
               if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
@@ -2160,7 +2162,7 @@ class Partner extends CI_Controller {
                 }
             }
         }
-    
+        
         $partner_id = $this->session->userdata('partner_id');
         if (!empty($this->input->post('courier_status'))) {
 
@@ -2174,7 +2176,7 @@ class Partner extends CI_Controller {
             $data['shipped_date'] = $this->input->post('shipment_date');
             //if ($this->input->post('request_type') !== REPAIR_OOW_TAG) {
             $data['partner_challan_number'] = $this->input->post('partner_challan_number');
-            $data['challan_approx_value'] = $this->input->post('approx_value');
+            //$data['challan_approx_value'] = $this->input->post('approx_value');
             //} 
             
             $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
@@ -2280,6 +2282,7 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['challan_approx_value'] = $value['approx_value'];
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2298,7 +2301,7 @@ class Partner extends CI_Controller {
                     if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                         $data['defective_part_required'] = 0;
                     } else {
-                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($data['shipped_inventory_id']);
+                        $data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $data['shipped_inventory_id'], $data['partner_id'], $data['shipped_parts_type']);
                     } 
                     
                     if (!empty($value['spare_id'])) {
@@ -2814,7 +2817,6 @@ class Partner extends CI_Controller {
         }
 
         if ($response) {
-            
             $get_awb = $this->partner_model->get_spare_parts_by_any("spare_parts_details.awb_by_wh", array('spare_parts_details.id' => $spare_id));
             if(!empty($spare_id) && empty($get_awb[0]['awb_by_wh'])){
                 
@@ -3915,11 +3917,11 @@ class Partner extends CI_Controller {
                 }
                 
                 if(date('l' == 'Sunday')){
-                    $booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $booking_date = date('Y-m-d', strtotime("+1 days"));
                 } else if(date('H') > 12){
-                    $booking_date = date('d-m-Y', strtotime("+1 days"));
+                    $booking_date = date('Y-m-d', strtotime("+1 days"));
                 } else {
-                    $booking_date = date('d-m-Y');
+                    $booking_date = date('Y-m-d');
                 }
                 
                 $this->booking_model->update_booking($booking_id, array('initial_booking_date' => $booking_date, 'booking_date' => $booking_date));
@@ -4092,7 +4094,7 @@ class Partner extends CI_Controller {
                     $next_action = $partner_status[3];
                 }
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
+                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "partner_current_status" => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
                 
                 $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));
@@ -5270,6 +5272,10 @@ class Partner extends CI_Controller {
             $l_c_category = $this->input->post('l_c_category');
             $appliance_id = $this->input->post('l_c_service');
             $request_type = $this->input->post('l_c_request_type');
+            $youtube_link = NULL;
+            if(!empty($this->input->post('youtube_link'))) {
+                $youtube_link = $this->input->post('youtube_link');
+            }
             $description = '';
             if($this->input->post('l_c_capacity') && !empty($this->input->post('l_c_capacity'))){
               $l_c_capacity = $this->input->post('l_c_capacity');  
@@ -5312,6 +5318,7 @@ class Partner extends CI_Controller {
                                 $temp['document_description'] = $description;
                                 $temp['file'] = $contract_file;
                                 $temp['request_type'] = $requestType;
+                                $temp['youtube_link'] = $youtube_link;
                                 $data[] = $temp;
                             }
                         }
@@ -5328,6 +5335,7 @@ class Partner extends CI_Controller {
                                 $temp['document_description'] = $description;
                                 $temp['file'] = $contract_file;
                                 $temp['request_type'] = $requestType;
+                                $temp['youtube_link'] = $youtube_link;
                                 $data[] = $temp;
                         }
                     }
@@ -5795,7 +5803,9 @@ class Partner extends CI_Controller {
         header('Content-Length: ' . filesize($csv));
         readfile($csv);
         exec("rm -rf " . escapeshellarg($csv));
-        unlink($csv);
+        if(file_exists($csv)) {
+            unlink($csv);
+        }
     }
     function download_waiting_upcountry_bookings(){
         ob_start();
@@ -5870,7 +5880,6 @@ class Partner extends CI_Controller {
             "Booking Final Closing Date",
             "Product",
             "Booking Request Type",
-            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5920,7 +5929,6 @@ class Partner extends CI_Controller {
             $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-M-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = $sparePartBookings['request_type'];
-            $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
@@ -6907,7 +6915,7 @@ class Partner extends CI_Controller {
     function get_pending_bookings(){
         $this->checkUserSession();
           $columnMappingArray = array("column_1"=>"booking_details.booking_id","column_3"=>"appliance_brand","column_4"=>"booking_details.partner_internal_status","column_7"=>"booking_details.city",
-                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");
+                "column_8"=>"booking_details.state","column_9"=>"DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y')","column_10"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");
         $order['column'] = $columnMappingArray["column_10"];
         $order['sorting'] = "desc";
         $state = 0;
@@ -6923,7 +6931,7 @@ class Partner extends CI_Controller {
         $finalArray = array();
         $partner_id = $this->session->userdata('partner_id');
         $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
-                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
+                . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
         $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
         $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
         $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
@@ -7290,10 +7298,10 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
-                . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
+        $select = "defective_part_shipped, spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, spare_parts_details.courier_name_by_wh, spare_parts_details.awb_by_wh, spare_parts_details.wh_to_partner_defective_shipped_date,"
+                . "spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.wh_challan_number"
+                . ",spare_parts_details.wh_challan_file, spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -7310,19 +7318,19 @@ class Partner extends CI_Controller {
                     $tempArray[] = "<span>". $row['quantity'] ."</span>";
                     $tempArray[] = "<span>". $row['shipped_quantity'] ."</span>";
 
-                    $tempArray[] = $row['courier_name_by_sf'];
-                    $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
-                    $awb_by_sf = "'".$row['awb_by_sf']."'";
+                    $tempArray[] = $row['courier_name_by_wh'];
+                    $courier_name_by_wh = "'".$row['courier_name_by_wh']."'";
+                    $awb_by_wh = "'".$row['awb_by_wh']."'";
                     $spareStatus = "'".DELIVERED_SPARE_STATUS."'";
-                    if(!$row['defactive_part_received_date_by_courier_api']){
-                        $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
+                    if(!$row['defactive_part_return_to_partner_from_wh_date_by_courier_api']){
+                        $spareStatus = "'".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."'";
                     }
-                    $container = "'awb_loader_".$row['awb_by_sf']."'";
-                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_sf.','.$awb_by_sf.','.$spareStatus.','.$container.')">'.$row['awb_by_sf'].'</a> 
+                    $container = "'awb_loader_".$row['awb_by_wh']."'";
+                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_wh.','.$awb_by_wh.','.$spareStatus.','.$container.')">'.$row['awb_by_wh'].'</a> 
                                             <span id='.$container.' style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>';
                     $tempArray[] = $awbString;
-                    if(!empty($row['sf_challan_file'])) {  
-                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['sf_challan_file'].'" target="_blank">'.$row["sf_challan_number"].'</a>';
+                    if(!empty($row['wh_challan_file'])) {  
+                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['wh_challan_file'].'" target="_blank">'.$row["wh_challan_number"].'</a>';
                     }
                     $tempArray[] = $tempString;
                      if(!empty($row['partner_challan_file'])) {
@@ -7333,15 +7341,15 @@ class Partner extends CI_Controller {
                     }
                     $tempArray[] = $tempString2;
                     
-                     if (!is_null($row['defective_part_shipped_date'])) {
-                         $tempString3 =  date("d-M-Y", strtotime($row['defective_part_shipped_date']));
+                     if (!is_null($row['wh_to_partner_defective_shipped_date'])) {
+                         $tempString3 =  date("d-M-Y", strtotime($row['wh_to_partner_defective_shipped_date']));
                      }
                     $tempArray[] = $tempString3;
                     
                      $bookingIdTemp = "'".$row['booking_id']."'";
                      $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                    
-                    $tempArray[] = $row['remarks_defective_part_by_sf'];
+                    $tempArray[] = $row['remarks_defective_part_by_wh'];
                     if($row['is_consumed'] == 1) {
                         $tempArray[] = 'Yes'; 
                     }else if($row['is_consumed'] == 0) {
@@ -7467,8 +7475,8 @@ class Partner extends CI_Controller {
         $state=0;
         $postData = $this->input->post();
         $columnMappingArray = array("column_2"=>"booking_details.request_type","column_3"=>"sc.cancellation_reason",
-            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')",
-            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y'))");    
+            "column_6"=>"booking_details.city", "column_7"=>"booking_details.state","column_8"=>"STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')",
+            "column_9"=>"DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'))");    
         $order_by = "ORDER BY booking_details.booking_id DESC";
         if(array_key_exists("order", $postData)){
                $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -8623,7 +8631,90 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
         }
     }
+    
+    /**
+     * @desc This function is used to get part type data of non inventory partners.
+     * @author Ankit Rajvanshi
+     */
+    function get_non_inventory_partners_part_type() {
+        // initialize variables
+        $post_data = $this->input->post();
+        $partner_id = $post_data['partner_id'];
+        $service_id = $post_data['service_id'];
+        
+        // fetch data. 
+        $data = $this->inventory_model->get_non_inventory_partners_part_type('non_inventory_partners_part_type.*,inventory_parts_type.part_type', ['non_inventory_partners_part_type.partner_id' => $partner_id, 'non_inventory_partners_part_type.service_id' => $service_id], true);
+        
+        // table generation in html format
+        $table = '';    
+        if(!empty($data)) { 
+            $table = '<hr /><table class="table table-bordered table-condensed" style="margin-left:1%;">';
+            $table .= '<thead><tr><th width="10%">S. No.</th><th width="50%">Part Type</th><th width="25%">Is Defective/Ok Required</th><th width="20%">Action</th></tr></thead>';
+            $table .= '<tbody>';
+            foreach($data as $key => $part) {
+                $table .= '<tr>';
+                $table .= '<td>'.++$key.'</td>';
+                $table .= '<td>'.$part['part_type'].'</td>';
+                if(!empty($part['is_defective_required'])) {
+                    $table .= '<td>Yes</td>';
+                    $table .= '<td><a href="javascript:void(0);" class="btn btn-danger" title="Part Not Required" onclick="update_non_inventory_partners_part_type('.$part['id'].', \'0\')"><i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i></a></td>';
+                } else {
+                    $table .= '<td>No</td>';
+                    $table .= '<td><a href="javascript:void(0);" class="btn btn-primary" title="Part Required" onclick="update_non_inventory_partners_part_type('.$part['id'].', 1)"><i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i></a></td>';
+                }
+                $table .= '</tr>';
+            }
+            $table .= '<tbody>';
+            $table .= '</table>';
+        }
+        
+        echo $table;
+    }
+    
+    /**
+     * @desc : This method is used to process form data of defective/ok part required tab from edit partner panel
+     * @author : Ankit Rajvanshi
+     */
+    function process_defective_required_on_spare_parts() {
+        log_message('info', __FUNCTION__ . " Defective/Ok part required of Spare Parts " . json_encode($_POST));
+        // initialize variables
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $is_defective_required = $this->input->post('is_defective_required_1');
+        $part = $this->input->post('part');
+        
+        // process data & prepare array
+        if(!empty($part[0]) && !empty($part[0]['parts_type'])) {
+            $data = [];
+            foreach($part[0]['parts_type'] as $key => $part_type_id) {
+                $data[$key]['partner_id'] = $partner_id;
+                $data[$key]['service_id'] = $part[0]['appliance'];
+                $data[$key]['is_defective_required'] = $is_defective_required;
+                $data[$key]['inventory_part_type_id'] = $part_type_id;
+            }
+            
+            $this->inventory_model->insert_non_inventory_partners_part_type($data);
+            
+            $this->session->set_userdata(array('success' => 'Successfuly Inserted.'));
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);            
+        }
+    }
 
+    /**
+     * @desc : This method is used to update data of non_inventory_partners_part_type.
+     * @author : Ankit Rajvanshi
+     */
+    function update_non_inventory_partners_part_type() {
+        // update data.
+        $post_data = $this->input->post();
+        $this->inventory_model->update_non_inventory_partners_part_type(
+            array('is_defective_required' => $post_data['is_defective_required']),
+            array('id' => $post_data['id'])
+        );       
+        
+        echo 'Data has been updated successfully.';
+    }
+    
     /* @desc: This method is used to load view for setting logo priority on web site
      * @param: void
      * @return:view
@@ -9447,37 +9538,112 @@ class Partner extends CI_Controller {
      * @author: Ghanshyam
      */
     function process_search_docket() {
-        $docket_no = $this->input->post("docket_no");
+        $docket_no = trim($this->input->post("docket_no"));
         $html = "";
         $partner_id = $this->session->userdata('partner_id');
-        $notFoundData = array();
-        if (!empty($docket_no)) {
-            $docket_no = explode(",", $docket_no);
-            $docket_no_array = array_filter($docket_no);
-            $where_in = array('awb_number' => $docket_no_array);
-            $data = $this->partner_model->get_docket_information($partner_id, $where_in);
-            //print_r($array_Consolidated);
-            $i = 1;
-            foreach ($data as $key => $value) {
-                $foundedData[] = $value['awb_number'];
-                $html .= "<tr>";
-                $html .= "<td>" . $i++ . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td><td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td><td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
-                if (!empty($value['courier_invoice_file'])) {
-                    $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
-                } else {
-                    $html .= "<td></td>";
+        $foundedData = $foundedData_array = array();
+        $i = 0;
+        $docket_no = explode(",", $docket_no);
+        $docket_no_array_all = array_filter($docket_no);
+        if (!empty($docket_no_array_all)) {
+
+            $docket_no_array_chunk = array_chunk($docket_no_array_all, 50); // Divided awb_number in 50-50 groups to avoide slow query
+
+            foreach ($docket_no_array_chunk as $key_chunk => $docket_no_array) {
+                $where_in = array('awb_number' => $docket_no_array);
+                //Search docket in courier_company_invoice_detail and spare_part_details
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,"
+                        . "courier_company_invoice_details.billable_weight,courier_company_invoice_details.actual_weight,courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "spare_parts_details.id,inventory_master_list.part_name,inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join spare_parts_details "
+                        . "on courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner or courier_company_invoice_details.awb_number=spare_parts_details.awb_by_sf or "
+                        . "courier_company_invoice_details.awb_number=spare_parts_details.awb_by_wh inner join inventory_master_list "
+                        . "on spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' "
+                        . "AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "') group by spare_parts_details.awb_by_partner, spare_parts_details.awb_by_wh,spare_parts_details.awb_by_sf";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
                 }
-                $html .= "</td><td>" . $value['create_date'] . "</td>";
-                $html .= "</tr>";
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail and inventory_ledger
+                $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, "
+                        . "GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id, "
+                        . "courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge, "
+                        . "courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, "
+                        . "courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
+                        . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,  "
+                        . "courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
+                        . "inventory_ledger.id,inventory_master_list.part_name, inventory_master_list.part_number "
+                        . "FROM (`courier_company_invoice_details`) inner join inventory_ledger on courier_company_invoice_details.id = inventory_ledger.courier_id   "
+                        . "inner join inventory_master_list on inventory_ledger.inventory_id = inventory_master_list.inventory_id WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " "
+                        . "group by inventory_ledger.courier_id;";
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+
+
+                $not_found_awb_number = array_diff($docket_no_array, $foundedData);
+                $where_in = array('awb_number' => $not_found_awb_number);
+                //Search docket in courier_company_invoice_detail
+                $sql = "Select *"
+                        . "FROM (`courier_company_invoice_details`) WHERE "
+                        . "courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')" . " ";
+
+
+                $result = $this->reusable_model->execute_custom_select_query($sql);
+
+                foreach ($result as $key => $value) {
+
+                    $foundedData[] = $value['awb_number'];
+                    $foundedData_array[$value['awb_number']] = $value;
+                }
+            }
+            if (!empty($foundedData_array)) {
+                //Below two lines will reorder output in same order in which it was input
+                $intersect_array = array_flip(array_intersect($docket_no_array_all, $foundedData));
+                $foundedData_array = array_merge($intersect_array, $foundedData_array);
+                //Reordering Done
+
+                foreach ($foundedData_array as $key => $value) {
+                    if (is_array($value)) {
+                        $html .= "<tr>";
+                        $html .= "<td>" . ++$i . "</td><td>" . $value['awb_number'] . "</td><td>" . $value['company_name'] . "</td>";
+                        if (!empty($value['part_names'])) {
+                            $html .= "<td>" . $value['part_names'] . "</td><td>" . $value['part_numbers'] . "</td>";
+                        } else {
+                            $html .= "<td></td><td></td>";
+                        }
+
+                        $html .= "<td>" . $value['courier_charge'] . "</td><td>" . $value['courier_invoice_id'] . "</td><td>" . $value['box_count'] . "</td><td>" . $value['small_box_count'] . "</td><td>" . $value['billable_weight'] . "</td><td>" . $value['actual_weight'] . "</td>";
+                        if (!empty($value['courier_invoice_file'])) {
+                            $html .= "<td><a href='https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $value['courier_invoice_file'] . "' target='_blank'>Click Here to view</a>";
+                        } else {
+                            $html .= "<td></td>";
+                        }
+                        $html .= "</td><td>" . $value['create_date'] . "</td>";
+                        $html .= "</tr>";
+                    }
+                }
             }
             $returndata['status'] = "success";
             $returndata['html'] = $html;
-            $returndata['notFound'] = implode(", ", array_diff($docket_no_array, $foundedData));
+            $returndata['notFound'] = implode(", ", array_diff($docket_no_array_all, $foundedData));
             echo json_encode($returndata);
         } else {
             $returndata['status'] = "error";
             echo json_encode($returndata);
         }
     }
+   
 
 }

@@ -501,7 +501,7 @@ class Invoice extends CI_Controller {
         $meta = $misc_data['meta'];
         $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
         $files = array();
-        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id);
+        $output_file_excel = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id, "-detailed.xlsx");
         //echo $c_files_name;
         array_push($files, $output_file_excel);
         log_message('info', __METHOD__ . "=> File created " . $output_file_excel);
@@ -584,30 +584,9 @@ class Invoice extends CI_Controller {
             
             $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, $output_file_excel, $pdf_attachement_url,PARTNER_COURIER_INVOICE_EMAIL_TAG);
             
-            if(!empty($misc_data['msl'])){
-                foreach ($misc_data['msl'] as $defective_id) {
-                    $c_id = explode(",", $defective_id['c_id']);
-                    foreach($c_id as $cid){
-                       $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-
-            if(!empty($misc_data['courier'])){
-                foreach ($misc_data['courier'] as $spare_array) {
-                    $s_id = explode(",", $spare_array['sp_id']);
-                    foreach($s_id as $spare_id){
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
-                    }
-                }
-            }
-            
+            //Map invoice with courier
             if(!empty($misc_data['final_courier'])){
-                foreach ($misc_data['final_courier'] as $spare_array) {
-                   
-                    $this->invoices_model->insert_billed_courier_invoice(array('courier_id' =>$spare_array['courier_id'], "entity_type" => "partner", 
-                        "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
-                }
+                $this->map_courier_invoice_id($misc_data, $meta, $partner_id);
             }
             
         } else {
@@ -639,6 +618,7 @@ class Invoice extends CI_Controller {
         $total_misc_charge = 0;
         $total_penalty_discount = 0;
         $penalty_booking_count = 0;
+        $total_courier_charge = 0;
         if(!empty($misc_data['misc'])){
             $total_misc_charge = (array_sum(array_column($misc_data['misc'], 'partner_charge')));
         }
@@ -722,10 +702,16 @@ class Invoice extends CI_Controller {
 
             log_message('info', __METHOD__ . "=> File created " . $sp_files_name);
         }
+        
+        if (!empty($misc_data['final_courier'])) {
+            $total_courier_charge = $meta['total_courier_charge'] = (array_sum(array_column($misc_data['final_courier'], 'courier_charges_by_sf')));
+            $c_files = $this->generate_partner_courier_excel($misc_data['final_courier'], $meta, $partner_id, "-courier-detailed.xlsx");
+            
+            array_push($files, $c_files);
+        }
 
         $this->combined_partner_invoice_sheet($output_file_excel, $files);
         array_push($files, $output_file_excel);
-        //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($meta['invoice_id'], $invoice_type);
         $convert = $this->invoice_lib->convert_invoice_file_into_pdf($misc_data, $invoice_type);
         $output_pdf_file_name = $convert['main_pdf_file_name'];
 
@@ -789,6 +775,7 @@ class Invoice extends CI_Controller {
                 'warehouse_storage_charges' => $misc_data['warehouse_storage_charge'],
                 'penalty_amount'=> $total_penalty_discount,
                 'penalty_bookings_count' => $penalty_booking_count,
+                'courier_charges' => $total_courier_charge,
                 'vertical' => SERVICE,
                 'category' => INSTALLATION_AND_REPAIR,
                 'sub_category' => CASH,
@@ -886,6 +873,10 @@ class Invoice extends CI_Controller {
                     $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
                 }
             }
+            //Map invoice with courier
+            if(!empty($misc_data['final_courier'])){
+                $this->map_courier_invoice_id($misc_data, $meta, $partner_id);
+            }
             
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
             if (file_exists(TMP_FOLDER . $meta['invoice_id'] . ".pdf")) {
@@ -912,6 +903,49 @@ class Invoice extends CI_Controller {
 
         return true;
     }
+    
+    /**
+     * @desc We are mapping invoice id with docket
+     * @param Array $misc_data
+     * @param Array $meta
+     * @param Int $partner_id
+     */
+    function map_courier_invoice_id($misc_data, $meta, $partner_id) {
+        /**
+         * @desc Here we are updating invoice id in the spare parts details table
+         */
+        if (!empty($misc_data['msl'])) {
+            foreach ($misc_data['msl'] as $defective_id) {
+                $c_id = explode(",", $defective_id['c_id']);
+                foreach ($c_id as $cid) {
+                    $this->inventory_model->update_courier_detail(array('id' => $cid), array('partner_invoice_id' => $meta['invoice_id']));
+                }
+            }
+        }
+        
+        /**
+         * @desc Here we are updating invoice id in the courier details table
+         */
+
+        if (!empty($misc_data['courier'])) {
+            foreach ($misc_data['courier'] as $spare_array) {
+                $s_id = explode(",", $spare_array['sp_id']);
+                foreach ($s_id as $spare_id) {
+                    $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_courier_invoice_id' => $meta['invoice_id']));
+                }
+            }
+        }
+        /**
+         * @desc Here we are inserting mapping invoice id with courier id
+         */
+        if (!empty($misc_data['final_courier'])) {
+            foreach ($misc_data['final_courier'] as $spare_array) {
+
+                $this->invoices_model->insert_billed_courier_invoice(array('courier_id' => $spare_array['courier_id'], "entity_type" => "partner",
+                    "invoice_id" => $meta['invoice_id'], 'basic_charge' => $spare_array['courier_charges_by_sf'], 'entity_id' => $partner_id));
+            }
+        }
+    }
 
     function download_invoice_files($invoice_id, $output_file_excel, $output_pdf_file_name) {
        ob_start();
@@ -921,12 +955,13 @@ class Invoice extends CI_Controller {
 
                 $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_pdf_file_name . " -o " . $output_file_pdf;
                 exec($cmd);
-
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . TMP_FOLDER . $invoice_id . '-draft.pdf'
                         . ' ' . $output_file_excel);
             } else {
+                echo 'zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel;
                 system('zip ' . TMP_FOLDER . $invoice_id . '.zip ' . TMP_FOLDER . $invoice_id . '-draft.xlsx' . ' ' . $output_file_excel);
             }
+            
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
@@ -979,7 +1014,7 @@ class Invoice extends CI_Controller {
 
     }
     
-    function generate_partner_courier_excel($data, $meta, $partner_id){
+    function generate_partner_courier_excel($data, $meta, $partner_id, $temp_name){
         if($partner_id == VIDEOCON_ID){
             //Partner is Videocon
             $template = 'Partner_invoice_detail_template-v2-courier-videocon.xlsx';
@@ -988,7 +1023,7 @@ class Invoice extends CI_Controller {
             //Partner other than Videocon
             $template = 'Partner_invoice_detail_template-v2-courier.xlsx';
         }
-        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . $temp_name;
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -3399,6 +3434,8 @@ exit();
                     $sc_details['last_payment_type'] = "";
                 }
                
+                $sc_details['fnf_security_amount'] = $this->get_fnf_summary_amount($service_center_id, $due_date);
+                
                 array_push($payment_data, $sc_details);
                 
                 $invoice_data = $this->get_paymnet_summary_invoice_data($service_center_id, $due_date);
@@ -3542,6 +3579,39 @@ exit();
             return 0;
         }
     }
+    
+    /**
+     * @desc : Method returns FNF Security Deposit.
+     * @param type $service_center_id
+     * @param type $due_date
+     * @return int
+     */
+    function get_fnf_summary_amount($service_center_id, $due_date=false){
+        $select_invoice = " CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END"
+                . " as fnf_amount";
+       
+        if($due_date){
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
+            "settle_amount" => 0);
+        }
+        else{
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0); 
+        }
+        
+        $where_invoice['where_in']['sub_category'] = array(FNF);
+        $where_invoice['length'] = -1;
+        $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+        
+        if(!empty($data)){
+            return $data[0]->fnf_amount;
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * @desc Used to get header of payment csv file
      * @return Array
@@ -3603,6 +3673,7 @@ exit();
         $sc_details['last_payment_date'] = "Last Payment Date";
         $sc_details['last_payment_amount'] = "Last Payment Amount";
         $sc_details['last_payment_type'] = "Last Payment Type";
+        $sc_details['fnf_security_amount'] = "FNF Security Deposit";
 
         return $sc_details;
     }
@@ -3840,6 +3911,11 @@ exit();
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        if(!empty($this->input->post('tds_rate'))) {
+            $data['tds_rate'] = $this->input->post('tds_rate');
+        } else {
+            $data['tds_rate'] = 0;
+        }
         $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
@@ -3847,7 +3923,7 @@ exit();
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag);
+                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag, $data['tds_rate']);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -3859,7 +3935,7 @@ exit();
             if($data['partner_vendor'] == "vendor"){
                   $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Debit", $agent_id);
+                    $amount, $data['tds_amount'], "Debit", $agent_id, NULL, $data['tds_rate']);
                 if($invoice_id){
                     $data['invoice_id'] = $invoice_id;
                     $data['is_advance'] = 1;
@@ -3880,7 +3956,7 @@ exit();
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null) { 
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null, $tds_rate = 0) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -3969,6 +4045,7 @@ exit();
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
+                    $data['tds_rate'] = $tds_rate;
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
@@ -6613,11 +6690,10 @@ exit();
     function get_security_amount_data() {
         $data = $this->get_security_amount_list_data();
         $post = $data['post'];
-        $total_records = $this->invoices_model->count_security_amount_list($post);
         $output = array(
             "draw" => $this->input->post('draw'),
-            "recordsTotal" => $total_records, 
-            "recordsFiltered" => $total_records,
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
             "data" => $data['data'],
         );
        echo json_encode($output);
@@ -6637,7 +6713,7 @@ exit();
 
         $post['column_order'] = array();
         //column which will be searchable in datatable search
-        $post['column_search'] = array('sc.name', 'vpi.invoice_id');
+        $post['column_search'] = array('service_centres.name', 'vendor_partner_invoices.invoice_id');
         $id = $this->session->userdata('id');   
         //To get SF data if login user is RM or ASM
         $sf_list = $this->vendor_model->get_employee_relation($id);
@@ -6651,25 +6727,26 @@ exit();
         $end_date = $this->input->post('to_date');
         $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
         //adding start date and end date filter for query     
-        $where['vpi.invoice_date >= "'.$start_date.'"'] = null;
-        $where['vpi.invoice_date < "'.$end_date.'"'] = null;
-        $where['vpi.vendor_partner'] = _247AROUND_SF_STRING;
-        $where['vpi.settle_amount'] = 0;
-        $where["vpi.sub_category"] = FNF;
+        $where['vendor_partner_invoices.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vendor_partner_invoices.invoice_date < "'.$end_date.'"'] = null;
+        $where['vendor_partner_invoices.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vendor_partner_invoices.settle_amount'] = 0;
+        $where["vendor_partner_invoices.sub_category"] = FNF;
         //Received SF for curent RM or ASM
         if($sf_list != ""){
-            $where["sc.id  IN (" .trim($sf_list, ',').")"] = null;
+            $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
         }
         
         //adding SF filter for query     
         if($service_centre_id != 0){
-            $where['sc.id'] = $service_centre_id;
+            $where['service_centres.id'] = $service_centre_id;
         }
         
         $post['where'] = $where;
+        $post['order_by'] = array("vendor_partner_invoices.invoice_date" => "desc");
 
-        $select = "vpi.invoice_id, vpi.invoice_date, sc.name, vpi.total_amount_collected as invoice_amount, vpi.sgst_tax_amount, vpi.cgst_tax_amount, vpi.igst_tax_amount  ";
-        $list = $this->invoices_model->get_security_amount_list($post, $select);
+        $select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.invoice_date, service_centres.name, vendor_partner_invoices.total_amount_collected as invoice_amount, vendor_partner_invoices.sgst_tax_amount, vendor_partner_invoices.cgst_tax_amount, vendor_partner_invoices.igst_tax_amount  ";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
         $data = array();
         $no = $post['start'];
         //create table data for each row
@@ -6739,6 +6816,578 @@ exit();
         {
             echo '';
         }
+    }
+    
+    /**
+     * @desc : This function is used to get list of MSL security amount 
+     * @return : Void
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_list(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_amount_list');
+    }
+    
+    /**
+     * @desc : This function is used to get list of MSL security amount. 
+     * @param : String $start_date
+     * @param : String $end_date
+     * @return : String
+     * @author Ankit Rajvanshi
+     * @date : 22-04-2020
+     */
+    function get_msl_security_amount_data() {
+        $data = $this->get_msl_security_amount_list_data();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->invoices_model->count_all_invoices($post),
+            "recordsFiltered" =>  $this->invoices_model->count_filtered_invoice('*', $post),
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+    
+     /**
+     *  @desc : This function is used to get data of msl security amount payment
+     *  @param : void
+     *  @return : void
+     *  @author Ankit Rajvanshi
+     */
+    function get_msl_security_amount_list_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('service_centres.name', 'vendor_partner_invoices.invoice_id');
+        $id = $this->session->userdata('id');   
+        //To get SF data if login user is RM or ASM
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        
+        $where = array();
+        $service_centre_id = $this->input->post('service_centre_id');
+        $start_date = date("Y-m-d", strtotime($this->input->post('from_date')));
+        $end_date = $this->input->post('to_date');
+        $end_date = date("Y-m-d", strtotime($end_date ." + 1 day"));
+        //adding start date and end date filter for query     
+        $where['vendor_partner_invoices.invoice_date >= "'.$start_date.'"'] = null;
+        $where['vendor_partner_invoices.invoice_date < "'.$end_date.'"'] = null;
+        $where['vendor_partner_invoices.vendor_partner'] = _247AROUND_SF_STRING;
+        $where['vendor_partner_invoices.settle_amount'] = 0;
+        $where["vendor_partner_invoices.sub_category"] = MSL_SECURITY_AMOUNT;
+        //Received SF for curent RM or ASM
+        if($sf_list != ""){
+            $where["service_centres.id  IN (" .trim($sf_list, ',').")"] = null;
+        }
+        
+        //adding SF filter for query     
+        if($service_centre_id != 0){
+            $where['service_centres.id'] = $service_centre_id;
+        }
+        
+        $post['where'] = $where;
+        $post['order_by'] = array("vendor_partner_invoices.invoice_date" => "desc");
+
+        $select = "vendor_partner_invoices.invoice_id, vendor_partner_invoices.invoice_date, service_centres.name, vendor_partner_invoices.total_amount_collected, vendor_partner_invoices.amount_collected_paid, vendor_partner_invoices.amount_paid ";
+        $list = $this->invoices_model->searchInvoicesdata($select, $post);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_msl_security_amount_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+    /**
+     *  @desc : This function is used to get rows for msl security amount table
+     *  @param : Array $model_list
+     *  @param : Integer $no
+     *  @return : Array
+     */
+     function get_msl_security_amount_table($model_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $model_list->invoice_id;
+        $row[] = $model_list->invoice_date;
+        $row[] = $model_list->name;
+        $row[] = $model_list->total_amount_collected;
+        
+        $settled_amount = $model_list->amount_paid + $model_list->amount_collected_paid;
+        if($settled_amount < 0) {
+            $settled_amount = -($settled_amount);
+        }
+        $row[] = $settled_amount;
+        return $row;
+    }
+
+    
+    /**
+     *  @desc : This function is used to get dashboard invoice list
+     *  @param : $String $sDate
+     *  @param : $String $eDate
+     *  @param : $return_array
+     *  @return : JSON object / Array
+     */
+    function get_dashboard_invoice_data($return_array = 0) {
+        $data = $this->get_dashboard_invoice_data_records($return_array);
+        if($return_array == 1){
+            return $this->create_invoice_table($data, $return_array);
+        }else{
+            echo $output = $this->create_invoice_table($data, $return_array);
+        }
+    }
+
+     /**
+     *  @desc : This function is used to get list of partner invoices
+     *  @param : $String $sDate
+     *  @param : $String $eDate
+     *  @param : $return_array
+     *  @return : Array
+     */
+    function get_dashboard_invoice_data_records($return_array) {
+        $sdate = date('Y-m-d', strtotime($this->input->post('sDate')));
+        $edate = date('Y-m-d', strtotime($this->input->post('eDate')."+1 days"));
+        $edate_exact = date('Y-m-d', strtotime($this->input->post('eDate')));
+        $i = 0;
+        $all_data_array = array();
+        //function to get all months for the date selected
+        $header = $this->get_months_between_two_dates($sdate, $edate_exact);
+        $all_data_array[] = $header;
+
+        $select_total_partner_invoice_amount = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, 'sub_category' => CASH, "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1'", array('year', 'month'));
+        if(empty($select_total_partner_invoice_amount)){
+            //If we get no response from query, then set response to empty array 
+            $select_total_partner_invoice_amount = array();
+        }
+        $select_total_partner_invoice_amount = $this->get_final_invoice_array($select_total_partner_invoice_amount, $header, 1);
+        $select_total_partner_invoice_amount = array_column($select_total_partner_invoice_amount, 1);
+        
+        $select_total_partner_invoice_booking = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(bud.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, booking_unit_details as bud where vpi.invoice_id = bud.partner_invoice_id"
+                                           . " and vendor_partner = '"._247AROUND_PARTNER_STRING."' and sub_category = '".CASH."' and amount_collected_paid > 0 and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' GROUP BY `year`, `month`";
+        $select_total_partner_invoice_booking = $this->invoices_model->execute_query($select_total_partner_invoice_booking);
+        if(empty($select_total_partner_invoice_booking)){
+            //If we get no response from query, then set response to empty array 
+            $select_total_partner_invoice_booking = array();
+        }
+        $select_total_partner_invoice_booking = $this->get_final_invoice_array($select_total_partner_invoice_booking, $header, 1);
+        $select_total_partner_invoice_booking = array_column($select_total_partner_invoice_booking, 1);
+        
+        //get average billing per calll
+        $partner_average_price_per_call = $this->get_sum_array_index_wise($select_total_partner_invoice_amount, $select_total_partner_invoice_booking, 2);
+        
+        $sf_invoice_list = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_SF_STRING, 'sub_category' => COMMISSION, "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1'", array('year', 'month'));
+        if(empty($sf_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $sf_invoice_list = array();
+        }
+        $sf_invoice_total_amount = $this->get_final_invoice_array($sf_invoice_list, $header, 1);
+        $sf_invoice_total_amount = array_column($sf_invoice_total_amount, 1);
+        
+        $select_total_sf_invoice_booking = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(bud.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, booking_unit_details as bud where vpi.invoice_id = bud.vendor_cash_invoice_id"
+                                           . " and vendor_partner = '"._247AROUND_SF_STRING."' and sub_category = '".COMMISSION."' and amount_collected_paid > 0 and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' GROUP BY `year`, `month`";
+        $select_total_sf_invoice_booking = $this->invoices_model->execute_query($select_total_sf_invoice_booking);
+        if(empty($select_total_sf_invoice_booking)){
+            //If we get no response from query, then set response to empty array 
+            $select_total_sf_invoice_booking = array();
+        }
+        $sf_invoice_total_booking = $this->get_final_invoice_array($select_total_sf_invoice_booking, $header, 1);
+        $sf_invoice_total_booking = array_column($sf_invoice_total_booking, 1);
+        
+        //get average billing per call
+        $sf_invoive_average_cost = $this->get_sum_array_index_wise($sf_invoice_total_amount, $sf_invoice_total_booking, 2);
+        
+        
+        $percentage_oow_vs_iw = $this->get_sum_array_index_wise($sf_invoice_total_booking, $select_total_partner_invoice_booking, 3);
+        
+        $spare_part_brand_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, "sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."')" => NULL
+            , "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', sum(parts_count) as '2'", array('year', 'month'));
+        
+        if(empty($spare_part_brand_invoice_details)){
+            //If we get no response from query, then set response to empty array 
+            $spare_part_brand_invoice_details = array();
+        }
+        $spare_part_brand_invoice_details = $this->get_final_invoice_array($spare_part_brand_invoice_details, $header, 2);
+        $spare_invoice_total_amount = array_column($spare_part_brand_invoice_details, 1);
+        $spare_iw_invoice_total_qty = array_column($spare_part_brand_invoice_details, 2);
+        
+        
+        $select_total_spare_brand_invoice_details = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(il.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, inventory_ledger as il where vpi.invoice_id = il.invoice_id"
+                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_PARTNER_STRING."' and vpi.sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."') and amount_collected_paid > 0 GROUP BY `year`, `month`";
+        $spare_part_brand_invoice_call_details = $this->invoices_model->execute_query($select_total_spare_brand_invoice_details);
+        if(empty($spare_part_brand_invoice_call_details)){
+            //If we get no response from query, then set response to empty array 
+            $spare_part_brand_invoice_call_details = array();
+        }
+        $spare_part_brand_invoice_call_details = $this->get_final_invoice_array($spare_part_brand_invoice_call_details, $header, 1);
+        $spare_iw_invoice_total_bookings = array_column($spare_part_brand_invoice_call_details, 1);
+        //get average of total invoices amount per bookings for partner
+        $spare_iw_invoice_avg_amount = array();
+        $spare_iw_invoice_avg_amount = $this->get_sum_array_index_wise($spare_invoice_total_amount, $spare_iw_invoice_total_bookings, 2);
+        
+        $spare_part_sf_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_SF_STRING, "sub_category" => OUT_OF_WARRANTY
+            , "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', sum(parts_count) as '2'", array('year', 'month'));
+        
+        if(empty($spare_part_sf_invoice_details)){
+            //If we get no response from query, then set response to empty array 
+            $spare_part_sf_invoice_details = array();
+        }
+        $spare_part_sf_invoice_details = $this->get_final_invoice_array($spare_part_sf_invoice_details, $header, 2);
+        $spare_invoice_total_amount_for_sf = array_column($spare_part_sf_invoice_details, 1);
+        $spare_oow_invoice_total_qty = array_column($spare_part_sf_invoice_details, 2);
+        
+        $select_total_spare_sf_invoice_details = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(bud.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, booking_unit_details as bud where vpi.invoice_id = bud.vendor_cash_invoice_id"
+                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_SF_STRING."' and vpi.sub_category ='".OUT_OF_WARRANTY."' and amount_collected_paid > 0 GROUP BY `year`, `month`";
+        $spare_part_sf_invoice_call_details = $this->invoices_model->execute_query($select_total_spare_sf_invoice_details);
+        if(empty($spare_part_sf_invoice_call_details)){
+            //If we get no response from query, then set response to empty array 
+            $spare_part_sf_invoice_call_details = array();
+        }
+        $spare_part_sf_invoice_call_details = $this->get_final_invoice_array($spare_part_sf_invoice_call_details, $header, 1);
+        $spare_oow_invoice_total_bookings = array_column($spare_part_sf_invoice_call_details, 1);
+        //get average of total invoices amount per bookings for SF
+        $spare_oow_invoice_avg_amount = array();
+        $spare_oow_invoice_avg_amount = $this->get_sum_array_index_wise($spare_invoice_total_amount_for_sf, $spare_oow_invoice_total_bookings, 2);
+
+        //Get buyback data details for SF
+        $sf_buyback_sale_invoice_list = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'type' => BUYBACK_VERTICAL, 'sub_category' =>  SALE, 'vendor_partner' => _247AROUND_SF_STRING, 'amount_collected_paid > 0' => NULL), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, sum(parts_count) as '2', DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1'", array('year', 'month'));
+        if(empty($sf_buyback_sale_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $sf_buyback_sale_invoice_list = array();
+        }
+        $sf_buyback_sale_invoice_list = $this->get_final_invoice_array($sf_buyback_sale_invoice_list, $header, 2);
+        $sf_buyback_invoice_total_amount = array_column($sf_buyback_sale_invoice_list, 1);
+        $sf_buyback_invoice_total_booking = array_column($sf_buyback_sale_invoice_list, 2);
+        
+        //Get buyback data details for partner
+        $partner_buyback_sale_invoice_list = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'type' => BUYBACK_VERTICAL, 'vendor_partner_id' =>  AMAZON_SELLER_ID, 'vendor_partner' => _247AROUND_PARTNER_STRING, 'amount_collected_paid > 0' => NULL, 'remarks like "9X-%"' => NULL), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, sum(parts_count) as '2', DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1'", array('year', 'month'));
+        if(empty($partner_buyback_sale_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $partner_buyback_sale_invoice_list = array();
+        }
+        $partner_buyback_sale_invoice_list = $this->get_final_invoice_array($partner_buyback_sale_invoice_list, $header, 2);
+        $partner_buyback_invoice_total_amount = array_column($partner_buyback_sale_invoice_list, 1);
+        $partner_buyback_invoice_total_booking = array_column($partner_buyback_sale_invoice_list, 2);
+        
+        //Get buyback data details for credit notes
+        $buyback_cn_invoice_list = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'type' => BUYBACK_VERTICAL, 'vendor_partner' => _247AROUND_SF_STRING, 'amount_collected_paid > 0' => NULL, 'sub_category' => CREDIT_NOTE), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1'", array('year', 'month'));
+        if(empty($buyback_cn_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $buyback_cn_invoice_list = array();
+        }
+        $buyback_cn_invoice_list = $this->get_final_invoice_array($buyback_cn_invoice_list, $header, 1);
+        $buyback_cn_invoice_total_amount = array_column($buyback_cn_invoice_list, 1);
+        
+        $total_buyback_amount_data = array();
+        $total_buyback_amount_data = $this->get_sum_array_index_wise($sf_buyback_invoice_total_amount, $partner_buyback_invoice_total_amount, 1);
+        $total_buyback_amount_data = $this->get_sum_array_index_wise($total_buyback_amount_data, $buyback_cn_invoice_total_amount, 4);
+        
+        $total_buyback_parts_count_data = array();
+        $total_buyback_parts_count_data = $this->get_sum_array_index_wise($partner_buyback_invoice_total_booking, $sf_buyback_invoice_total_booking, 1);
+        
+        $buyback_average_cost = $this->get_sum_array_index_wise($total_buyback_amount_data, $total_buyback_parts_count_data, 2);
+        
+        //Get 247ServiceBuddy list before required start date
+        $service_buddy_customer_list_old_data = $this->invoices_model->get_invoices_details(array('invoice_date < "'.$sdate.'"'=>NULL, 'category' => RECURRING_CHARGES, 'sub_category' => CRM, 'amount_collected_paid > 0' => NULL ), " distinct(vendor_partner_id) ");
+        if(empty($service_buddy_customer_list_old_data)){
+            //If we get no response from query, then set response to empty array 
+            //Get data for 247ServiceBuddy old customer, no old customer is present, so array will be empty
+            $service_buddy_old_customer_invoice_list = array();
+            $new_customer_condition = array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'category' => RECURRING_CHARGES, 'sub_category' => CRM, 'amount_collected_paid > 0' => NULL );
+            
+        }else{
+            $old_customer_array = implode(",", array_column($service_buddy_customer_list_old_data, 'vendor_partner_id'));
+            //Get data for 247ServiceBuddy old customer, get data of customers whose payment is already done atleast once before defined time period
+            $service_buddy_old_customer_invoice_list = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'category' => RECURRING_CHARGES, 'sub_category' => CRM, 'amount_collected_paid > 0' => NULL, 'vendor_partner_id in ('.$old_customer_array.')' => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, count(id) as '2', DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', ifnull(round((sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount)/ COUNT(id)), 2), 0) as '3'", array('year', 'month'));
+            // don't include list of old customer whose payment is already done atleast once before defined time period
+            $new_customer_condition = array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'category' => RECURRING_CHARGES, 'sub_category' => CRM, 'amount_collected_paid > 0' => NULL, 'vendor_partner_id not in ('.$old_customer_array.')' => NULL );
+        }
+
+        if(empty($service_buddy_old_customer_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $service_buddy_old_customer_invoice_list = array();
+        }
+        $service_buddy_old_customer_invoice_list = $this->get_final_invoice_array($service_buddy_old_customer_invoice_list, $header, 3);
+        $old_customer_invoice_total_amount = array_column($service_buddy_old_customer_invoice_list, 1);
+        $old_customer_invoice_total_count = array_column($service_buddy_old_customer_invoice_list, 2);
+        $old_customer_invoive_average_cost = array_column($service_buddy_old_customer_invoice_list, 3);
+        
+        //Get data for 247ServiceBuddy new customer
+        $service_buddy_new_customer_invoice_list = $this->invoices_model->get_invoices_details($new_customer_condition, "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, count(id) as '2', DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', ifnull(round((sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount)/ COUNT(id)), 2), 0) as '3'", array('year', 'month'));
+        if(empty($service_buddy_new_customer_invoice_list)){
+            //If we get no response from query, then set response to empty array 
+            $service_buddy_new_customer_invoice_list = array();
+        }
+        $service_buddy_new_customer_invoice_list = $this->get_final_invoice_array($service_buddy_new_customer_invoice_list, $header, 3);
+        $new_customer_invoice_total_amount = array_column($service_buddy_new_customer_invoice_list, 1);
+        $new_customer_invoice_total_count = array_column($service_buddy_new_customer_invoice_list, 2);
+        $new_customer_invoive_average_cost = array_column($service_buddy_new_customer_invoice_list, 3);
+        
+        //get sum of service revenues
+        $total_service_revenues = array();
+        $total_service_revenues = $this->get_sum_array_index_wise($total_service_revenues, $select_total_partner_invoice_amount, 1);
+        $total_service_revenues = $this->get_sum_array_index_wise($total_service_revenues, $sf_invoice_total_amount, 1);
+        //get sum of total calls
+        $total_calls = array();
+        $total_calls = $this->get_sum_array_index_wise($total_calls, $select_total_partner_invoice_booking, 1);
+        $total_calls = $this->get_sum_array_index_wise($total_calls, $sf_invoice_total_booking, 1);
+        
+        //get sum of total customers using our CRM service
+        $service_buddy_count = array();
+        $service_buddy_count = $this->get_sum_array_index_wise($service_buddy_count, $old_customer_invoice_total_count, 1);
+        $service_buddy_count = $this->get_sum_array_index_wise($service_buddy_count, $new_customer_invoice_total_count, 1);
+        
+        //get sum of total invoices for customer using our CRM service
+        $service_buddy_charges = array();
+        $service_buddy_charges = $this->get_sum_array_index_wise($service_buddy_charges, $old_customer_invoice_total_amount, 1);
+        $service_buddy_charges = $this->get_sum_array_index_wise($service_buddy_charges, $new_customer_invoice_total_amount, 1);
+        
+        $all_data_array[] = $select_total_partner_invoice_amount;
+        $all_data_array[] = $select_total_partner_invoice_booking;
+        $all_data_array[] = $partner_average_price_per_call;
+        $all_data_array[] = $sf_invoice_total_amount;
+        $all_data_array[] = $sf_invoice_total_booking;
+        $all_data_array[] = $percentage_oow_vs_iw;
+        $all_data_array[] = $sf_invoive_average_cost;
+        $all_data_array[] = $total_calls;
+        $all_data_array[] = $total_service_revenues;
+        $all_data_array[] = $spare_invoice_total_amount;
+        $all_data_array[] = $spare_iw_invoice_total_bookings;
+        $all_data_array[] = $spare_iw_invoice_total_qty;
+        $all_data_array[] = $spare_iw_invoice_avg_amount;
+        $all_data_array[] = $spare_invoice_total_amount_for_sf;
+        $all_data_array[] = $spare_oow_invoice_total_bookings;
+        $all_data_array[] = $spare_oow_invoice_total_qty;
+        $all_data_array[] = $spare_oow_invoice_avg_amount;
+        $all_data_array[] = $total_buyback_amount_data;
+        $all_data_array[] = $total_buyback_parts_count_data;
+        $all_data_array[] = $buyback_average_cost;
+        $all_data_array[] = $service_buddy_count;
+        $all_data_array[] = $old_customer_invoice_total_count;
+        $all_data_array[] = $new_customer_invoice_total_count;
+        $all_data_array[] = $old_customer_invoive_average_cost;
+        $all_data_array[] = $new_customer_invoive_average_cost;
+        $all_data_array[] = $service_buddy_charges;
+
+        return array(
+            'data' => $all_data_array
+        );
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get all months for the date selected
+     *  @param : String $start_date
+     *  @param : String end_date
+     *  @return : Array
+     */
+    function get_months_between_two_dates($start_date, $end_date){
+        $start_month = date("Y-m", strtotime($start_date));
+	$end_month = date("Y-m", strtotime($end_date));
+        $month_array = array();
+            while($start_month <= $end_month){
+                array_push($month_array, date("F-Y", strtotime($start_month)));
+                $start_month = date("Y-m", strtotime($start_month. " + 1 months"));	
+            }
+            return $month_array;    
+	}
+        
+     /**
+     *  @desc : This function is used to get all invoice data for graph
+     *  @param : Array $data
+     *  @param : Array $header
+     *  @param : Integer $num_rows_to_return
+     *  @return : Array
+     */
+    function get_final_invoice_array($data, $header, $num_rows_to_return){
+        $final_array = array();
+        $header_count = count($header);
+            
+        for($i=1; $i<=$header_count; $i++){
+            //loop each header month value to compare with month of row returned from DB
+            //at starting, set $found = 0, if value not found for month, then we have set that months records value to 0
+            $found = 0;
+            foreach($data as $details){
+                    if($details['invoice_month'] == $header[$i-1]){
+                        //month value matched
+                        $found = 1;
+                        for($j = 1; $j <= $num_rows_to_return; $j++){
+                            //We will retirn only those no of rows which are asked and their index should be present in $final_array
+                            $final_array[$i][$j] = $details[$j];
+                        }
+                        break;
+                    }
+
+            }
+            if($found == 0){
+                for($j = 1; $j <= $num_rows_to_return; $j++){
+                    //We will retirn only those no of rows which are asked and their index should be present in $final_array
+                    //month data not found in rows from DB,so  we have set that months records value to 0
+                    $final_array[$i][$j] = 0;
+                }
+            }
+        }
+
+        return $final_array;
+    }
+    
+    /**
+     *  @desc : This function is used to create table for invoice
+     *  @param : Array $data
+     *  @param : $return_array
+     *  @return : String
+     */
+    function create_invoice_table($data, $return_array){
+        // $return_array = 0 when we want to return HTML, $return_array = 1 when we want to return array
+        $table = "";
+        $array = array();
+        $i=0;
+        for($j=0; $j<count($data['data']); $j++){
+            //loop through each row
+            if(count($data['data'][$j]) > 0){
+                //Check if row array has data
+                if($return_array == 0){
+                    $th = "";
+                    $table.= "<tr>";
+                    //Set row description from invoice array
+                    $th.="<th ";
+                    if(INVOICE_DASHBOARD_SERVICE[$i][2] == 1){ $th.="bgcolor='#EFEC61'";}
+                    //Adding color in row description
+                    $th.=">".strtoupper(INVOICE_DASHBOARD_SERVICE[$i][0])."</th>";
+                    $table .= $th;
+                    foreach($data['data'][$j] as $row){
+                        if($i==0){   
+                            //We will show first row in every case 
+                            $table.= "<th>".$row."</th>";  
+                        }else{
+                            //Check if we have to show row as per INVOICE_DASHBOARD_SERVICE constant 
+                            $table.=$this->get_invoice_table_row(INVOICE_DASHBOARD_SERVICE[$i][1], $row, $return_array);
+                        }
+
+                    }
+                }else{
+                    //Set row description from invoice array
+                    $sub_array = array();
+                    $sub_array[] = strtoupper(INVOICE_DASHBOARD_SERVICE[$i][0]);
+                    foreach($data['data'][$j] as $row){
+                        if($i==0){   
+                            //We will show first row in every case 
+                            $sub_array[] = $row;  
+                        }else{
+                            //Check if we have to show row as per INVOICE_DASHBOARD_SERVICE constant 
+                            $sub_array[] = $this->get_invoice_table_row(INVOICE_DASHBOARD_SERVICE[$i][1], $row, $return_array);
+                        }
+
+                    }
+
+                }
+
+
+                if($return_array == 0){
+                    $table.= "</tr>";  
+                }else{
+                    array_push($array, $sub_array);
+                }
+                $i++;
+            }
+            if(isset(INVOICE_DASHBOARD_SERVICE[$i][1]) && INVOICE_DASHBOARD_SERVICE[$i][1] == 0){
+                //If value of row in INVOICE_DASHBOARD_SERVICE constant is set to 0,
+                // then iterate array again otherwise current row will be missed in table
+                $j--;
+            }
+        }
+        
+        if($return_array == 0){
+                return $table;
+            }else{
+                return $array; 
+            } 
+    }
+    
+     /**
+     *  @desc : This function is used to create table row for invoice
+     *  @param : Booleon $show_row
+     *  @param : String $row
+     *  @param : $return_array
+     *  @return : String
+     */
+    function get_invoice_table_row($show_row, $row, $return_array){
+        if($show_row == 0){
+            //Do not show data for this row
+            if($return_array == 0){
+                return "<td></td>"; 
+            }else{
+                return "";
+            }           
+        }else{
+            //Show data for this row
+            if($return_array == 0){
+                return "<td>".number_format($row)."</td>";  
+            }else{
+                return number_format($row); 
+            }       
+        }
+    }
+    
+    /**
+     *  @desc : This function is used to return sum of array values index wise
+     *  @param : Array $main_array
+     *  @param : Array $sub_array
+     *  @param : Integer $type
+     *  @return : Array $main_array
+     */
+    function get_sum_array_index_wise($main_array, $sub_array, $type = 1){
+        //type = 1 for add, type = 2 for divide, type = 3 for percentage
+        for($i = 0; $i < count($sub_array); $i++){
+            if($type == 1){
+                //loop through $sub_array so that we can do sum of its value in $main_array
+                //If we get index in $main_array, then we do sum of $main_array and $sub_array in that index other we set value to $sub_array index value
+                $main_array[$i] = (array_key_exists($i, $main_array) ? $main_array[$i] + $sub_array[$i] : $sub_array[$i]);
+            }else if($type == 2){
+                //loop through $main_array so that we can divide its value by $sub_array
+                $main_array[$i] = (array_key_exists($i, $main_array) ? (($sub_array[$i] == 0)  ? $main_array[$i] : ($main_array[$i] / $sub_array[$i])) : $main_array[$i]);
+            }else if($type == 3){
+                //loop through $main_array so that we can divide its value by $sub_array and get percentage
+                $main_array[$i] = (array_key_exists($i, $main_array) ? (($sub_array[$i] == 0)  ? 100 : (($main_array[$i] / $sub_array[$i]) * 100)) : 0);
+            }else if($type == 4){
+                //loop through $main_array so that we can subtract its value by $sub_array
+                $main_array[$i] = (array_key_exists($i, $main_array) ? $main_array[$i] - $sub_array[$i] : -$sub_array[$i]);
+            }
+            
+        }
+        return $main_array;
+    }
+    
+    /**
+     *  @desc : This function is used to download dashboard invoice report
+     *  @param : String sDate
+     *  @param : String $eDate
+     *  @return : void
+     *  @author Ankit Bhatt
+     *  @date : 17-04-2020
+     */
+    function download_dashboard_invoice_data(){
+       $sdate = date('Y-m-d', strtotime($this->input->post('sDate')));
+       $edate = date('Y-m-d', strtotime($this->input->post('eDate')));
+       $fileName = "Invoice_report_".$sdate.'_to_'.$edate;
+       //We are 1 as parameter in get_dashboard_invoice_data method because we want array not html string in reponse
+       $array = $this->get_dashboard_invoice_data(1);
+       $this->miscelleneous->downloadCSV($array, NULL, $fileName);
     }
     
 }

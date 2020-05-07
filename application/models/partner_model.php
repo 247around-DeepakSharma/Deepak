@@ -43,7 +43,7 @@ class Partner_model extends CI_Model {
 
     //Find order id for a partner
     function get_order_id_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL) {
-      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) AS ageing", FALSE);  
       $this->db->where(array("booking_details.partner_id" => $partner_id, "TRIM(CHAR(9) FROM TRIM(booking_details.order_id)) = '".$order_id."'" => NULL));
       if($booking_id != ""){
            $this->db->not_like('booking_details.booking_id', preg_replace("/[^0-9]/","",$booking_id));
@@ -181,7 +181,7 @@ function get_data_for_partner_callback($booking_id) {
              $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
         //do not show bookings for future as of now
-        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
+        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0";
 
           $query = $this->db->query("Select $select from booking_details
              JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -205,7 +205,7 @@ function get_data_for_partner_callback($booking_id) {
      function getPending_queries($partner_id ){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
-        $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+        $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR
                 booking_details.booking_date='')";
 
         $query = $this->db->query("Select services.services,
@@ -245,11 +245,12 @@ function get_data_for_partner_callback($booking_id) {
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
-                . ' booking_details.cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
-                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y"))<0 THEN 0 ELSE '
-                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END )  as tat');
+                . ' booking_cancellation_reasons.reason as cancellation_reason, booking_details.order_id,booking_details.is_upcountry,amount_due, upcountry_paid_by_customer'
+                . ',(CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d"))<0 THEN 0 ELSE '
+                . 'DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END )  as tat');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
+        $this->db->join('booking_cancellation_reasons','booking_details.cancellation_reason = booking_cancellation_reasons.id', 'left');
         $this->db->join('users','users.user_id = booking_details.user_id');
         if($state == 1){
             $this->db->join('agent_filters','agent_filters.state = booking_details.state', "left");
@@ -413,9 +414,9 @@ function get_data_for_partner_callback($booking_id) {
         } 
         if ($percentageLogic == 1){
             $subQueryArray['TAT']  = '(CASE WHEN service_center_closed_date IS NOT NULL AND !(booking_details.current_status = "Cancelled" OR booking_details.internal_status ="InProcess_Cancelled") '
-                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) < 0 THEN 0 ELSE'
-                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
-             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
+                    . 'THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) < 0 THEN 0 ELSE'
+                . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END) ELSE "" END) as TAT';
+             $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) ELSE "" END) as Ageing';
         }
         
         if(!empty($partner_id)) {
@@ -455,19 +456,21 @@ function get_data_for_partner_callback($booking_id) {
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
-			BD.current_status, BD.cancellation_reason, rating_stars,BD.partner_current_status,BD.partner_internal_status,
+			BD.current_status, booking_cancellation_reasons.reason as cancellation_reason, rating_stars,BD.partner_current_status,BD.partner_internal_status,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
 			UD.appliance_brand as brand, UD.model_number, UD.appliance_description as description,
 			name, phone_number, home_address, pincode, users.city
-			FROM booking_details as BD, users, services, booking_unit_details as UD
+			FROM booking_details as BD
+                        LEFT JOIN booking_cancellation_reasons ON (BD.cancellation_reason = booking_cancellation_reasons.id)
+                        , users, services, booking_unit_details as UD
 			WHERE BD.booking_id NOT REGEXP '^Q-' AND
 			BD.booking_id = UD.booking_id AND
 			BD.service_id = services.id AND
 			BD.user_id = users.user_id AND
 			( BD.partner_id = $partner_id OR BD.origin_partner_id = $partner_id ) AND
 			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
-			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
+			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%Y-%m-%d')) >= 0");
 
 	return $query->result_array();
     }
@@ -896,7 +899,7 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status,(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, spare_consumption_status.is_consumed";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status, spare_consumption_status.is_consumed";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -1789,7 +1792,7 @@ function get_data_for_partner_callback($booking_id) {
         $agingSubQuery = "";
         if($status == 'Pending'){
             $where = "booking_details.current_status IN ('Pending','Rescheduled')";
-            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) as Aging';
+            $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) as Aging';
         }
         else if($status == 'Completed'){
             $where = "booking_details.current_status IN ('Completed')";
@@ -1899,10 +1902,11 @@ function get_data_for_partner_callback($booking_id) {
                 . "booking_details.amount_due, GROUP_CONCAT(service_center_booking_action.internal_status) as combined_status,"
                 . "GROUP_CONCAT(booking_unit_details.appliance_brand) as appliance_brand,booking_details.booking_jobcard_filename,"
                 . "service_center_booking_action.internal_status,users.name,booking_details.booking_primary_contact_no,booking_details.city,booking_details.state,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
-                . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,service_center_booking_action.cancellation_reason",FALSE);
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,"
+                . "DATEDIFF(CURRENT_TIMESTAMP,  service_center_booking_action.closed_date) as age,booking_cancellation_reasons.reason as cancellation_reason",FALSE);
         $this->db->join("booking_details","booking_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("services","booking_details.service_id = services.id");
+        $this->db->join("booking_cancellation_reasons","service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id", "left");
         $this->db->join("booking_unit_details","booking_unit_details.booking_id = service_center_booking_action.booking_id");
         $this->db->join("users","users.user_id = booking_details.user_id");
         $this->db->group_by("service_center_booking_action.booking_id");
@@ -2686,7 +2690,7 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_booking_details_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL ) {
 
-      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) AS ageing", FALSE);  
       $where = array();
       $where['booking_details.partner_id'] = $partner_id;
       if(!empty($order_id)) {
@@ -2865,7 +2869,6 @@ function get_data_for_partner_callback($booking_id) {
                     `Requested Part Code`,
                     `Requested Part`,
                     `Part Requested Date`,
-                    `Part Warranty Status`,
                     `Spare Approval Date`,
                     `Spare approval Person Name`,
                     `Requested On Partner/Warehouse`,
@@ -3021,7 +3024,6 @@ function get_data_for_partner_callback($booking_id) {
                     '' AS 'Requested Part Code',
                     '' AS 'Requested Part',
                     '' AS 'Part Requested Date',
-                    '' AS 'Part Warranty Status',
                     '' AS 'Spare Approval Date',
                     '' AS 'Spare approval Person Name',
                     '' AS 'Requested On Partner/Warehouse',
@@ -3199,7 +3201,6 @@ function get_data_for_partner_callback($booking_id) {
                     requested_part_detail.part_number AS 'Requested Part Code',
                     spare_parts_details.parts_requested AS 'Requested Part',
                     spare_parts_details.date_of_request AS 'Part Requested Date',
-                    (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'Part In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Part Out-Warranty' ELSE '' END) AS 'Part Warranty Status',
                     spare_parts_details.spare_approval_date AS 'Spare Approval Date',
                     (CASE WHEN spare_parts_details.approval_entity_type = '247around' THEN spare_approval_person.full_name WHEN spare_parts_details.approval_entity_type = 'partner' THEN spare_approval_person_partner.agent_name ELSE ' ' END) AS 'Spare approval Person Name',
                     (CASE WHEN spare_parts_details.is_micro_wh = 1 THEN 'Micro-warehouse' WHEN spare_parts_details.is_micro_wh = 2 THEN 'Warehouse' ELSE 'Partner' END) AS 'Requested On Partner/Warehouse',
@@ -3269,34 +3270,6 @@ function get_data_for_partner_callback($booking_id) {
     function get_courier_lost_parts_details($spare_id_array) {
         $sql = "Select * from courier_lost_spare_status where spare_id in (".implode(',', $spare_id_array).") order by spare_id asc, create_date asc";
         return $query = $this->db->query($sql)->result_array();
-    }
-    /**
-     * @Desc: This function is used to get the courier company invoice details
-     * @params: $select string
-     * @params: $where string
-     * @return: array
-     * @author: Ghanshyam Ji Gupta
-     */
-    function get_docket_information($partner_id, $where_in = array()) {
-        if (!empty($partner_id) && !empty($where_in)) {
-            $sql = "Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,"
-                    . "courier_company_invoice_details.billable_weight,courier_company_invoice_details.actual_weight,courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,"
-                    . "courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file,courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,"
-                    . "spare_parts_details.id,inventory_master_list.part_name,inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join spare_parts_details "
-                    . "on courier_company_invoice_details.awb_number = spare_parts_details.awb_by_partner or courier_company_invoice_details.awb_number=spare_parts_details.awb_by_sf or "
-                    . "courier_company_invoice_details.awb_number=spare_parts_details.awb_by_wh inner join inventory_master_list "
-                    . "on spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' "
-                    . "AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "') group by spare_parts_details.awb_by_partner, spare_parts_details.awb_by_wh,spare_parts_details.awb_by_sf  UNION Select GROUP_CONCAT(inventory_master_list.part_number SEPARATOR '<br>') as part_numbers, 
-                    GROUP_CONCAT(inventory_master_list.part_name SEPARATOR '<br>') as part_names,courier_company_invoice_details.booking_id,
-                    courier_company_invoice_details.awb_number,courier_company_invoice_details.courier_charge,
-                    courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight,
-                    courier_company_invoice_details.update_date,courier_company_invoice_details.create_date,courier_company_invoice_details.courier_invoice_id,courier_company_invoice_details.courier_invoice_file, 
-                    courier_company_invoice_details.company_name,courier_company_invoice_details.box_count,courier_company_invoice_details.small_box_count,inventory_ledger.id,inventory_master_list.part_name,
-                    inventory_master_list.part_number FROM (`courier_company_invoice_details`) inner join inventory_ledger on courier_company_invoice_details.id = inventory_ledger.courier_id  
-                    inner join inventory_master_list on inventory_ledger.inventory_id = inventory_master_list.inventory_id WHERE courier_company_invoice_details.`partner_id` = '" . $partner_id . "' AND `awb_number` IN ('" . implode("','", $where_in[key($where_in)]) . "')"
-                    . " group by inventory_ledger.courier_id;";
-            return $query = $this->db->query($sql)->result_array();
-        }
     }
 
 }

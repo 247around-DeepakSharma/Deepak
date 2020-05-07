@@ -177,6 +177,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_shipped_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -212,6 +213,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_shipped_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 
@@ -245,6 +247,7 @@ class Spare_parts extends CI_Controller {
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "defective_shipped_by_wh" => $this->inventory_model->count_spare_filtered($post),
             "data" => $data,
         );
 

@@ -1894,7 +1894,7 @@ class Inventory_model extends CI_Model {
                 $updateCharge = TRUE;
             }
             else{
-                if($courier_company_detail[0]['courier_invoice_id'] == $data['invoice_id']){
+                if(empty($courier_company_detail[0]['courier_invoice_id'])){
                     $courier_company_data_update = array(
                         'company_name'=>$data['courier_name'],
                         'courier_charge'=>$data['courier_charges'],
@@ -1905,7 +1905,7 @@ class Inventory_model extends CI_Model {
                     $this->update_courier_company_invoice_details(array('id'=>$courier_company_detail[0]['id']), $courier_company_data_update);
                     $updateCharge = TRUE;
                 }
-                else if($courier_company_detail[0]['awb_number'] == $data['awb_number']){
+                else {
                     $returnData['inValidData'] = $data['awb_number'];
                 }
             }
@@ -3583,20 +3583,42 @@ class Inventory_model extends CI_Model {
     
     /**
      * Function returns whether defective part is required or not from inventory master list.
+     * Handle all cases inventory & non inventory.
      * @param type $inventory_id
      * @author Ankit Rajvanshi
      */
-    function is_defective_part_required($inventory_id) {
-        /* for non inventory cases defective part must be return that's why returning 1 in case of inventory id is empty */
-        if(empty($inventory_id)) {
-            return 1;
-        }
+    function is_defective_part_required($booking_id, $inventory_id, $partner_id, $part_type) {
         
-        /* Execute query to select is_defective_required from inventory_master_list table */
-        $this->db->select('is_defective_required');
-        $this->db->from('inventory_master_list');
-        $this->db->where("inventory_id = {$inventory_id}");
-        return $this->db->get()->result_array()[0]['is_defective_required'];
+        /**
+         * For those partners whose inventory is managing by 247. 
+         * Execute query to get is_defective_required from inventory_master_list table. 
+         */
+        if(!empty($inventory_id)) {
+            $inventory_master_list = $this->get_inventory_master_list_data('is_defective_required', ['inventory_id' => $inventory_id]);
+            return $inventory_master_list[0]['is_defective_required'];
+        } else {
+            /**
+             * For those partners whose inventory is not managing by 247.
+             * Execute query to get is_defective_required from non_inventory_partners_part_type table. 
+             */
+            
+            /* Get service id */
+            $service_id = $this->booking_model->get_booking_details('service_id', ['booking_id' => $booking_id])[0]['service_id'];
+            /* Get inventory part type id */
+            $inventory_part_type = $this->get_inventory_parts_type_details('inventory_parts_type.id', ['service_id' => $service_id, 'part_type' => $part_type]);
+            /* get defective/ok part required or not. */
+            if(!empty($inventory_part_type)) {
+                $non_inventory_part_type = $this->get_non_inventory_partners_part_type('is_defective_required', ['partner_id' => $partner_id, 'inventory_part_type_id' => $inventory_part_type[0]['id']]);
+                
+                if(!empty($non_inventory_part_type)) {
+                    return $non_inventory_part_type[0]['is_defective_required'];
+                }
+            } 
+            
+            /* for non inventory cases defective part must be return that's why returning 1 by default in case of inventory id is empty */
+            return true;
+        }
+     
     }
     
     /**
@@ -3772,4 +3794,62 @@ class Inventory_model extends CI_Model {
             return false;
         }
     }
+    
+    /**
+     * @desc: This function is used to insert data in non_inventory_partners_part_type table.
+     * params: Array of data
+     * return : boolean
+     * @author Ankit Rajvanshi
+     */
+    function insert_non_inventory_partners_part_type($data){
+        
+        $this->db->insert_batch('non_inventory_partners_part_type', $data);
+         if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * @desc This function is used to get data from non_inventory_partners_part_type table.
+     * @param type $select
+     * @param type $where
+     * @return Array
+     * @author Ankit Rajvanshi
+     */
+    
+    function get_non_inventory_partners_part_type($select, $where, $is_join = false) {
+
+        $this->db->from('non_inventory_partners_part_type');
+        $this->db->select($select);
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        
+        if($is_join) {
+            $this->db->join('inventory_parts_type', 'non_inventory_partners_part_type.inventory_part_type_id = inventory_parts_type.id', "left");
+        }
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /*
+     * @Desc: This function is used to update non_inventory_partners_part_type
+     * @data: Array
+     * @where: Array, Int id
+     * @return: boolean
+     */
+    function update_non_inventory_partners_part_type($data,$where){
+        $this->db->where($where);
+	$this->db->update('non_inventory_partners_part_type', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }    
 }

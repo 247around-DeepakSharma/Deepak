@@ -53,13 +53,13 @@
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="Vendor Amounts">Vendor Charge </label>
-                                        <input type="number" step=".02" class="form-control" id="vendor_charge_0" placeholder="Vendor Amount" name="misc[0][vendor_charge]" value = "0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
+                                        <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge_0" placeholder="Vendor Amount" name="misc[0][vendor_charge]" value = "0" data-part-index ="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
                                     </div>
                                 </div>
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="partner Charge">Partner Charge </label>
-                                        <input type="number" step=".02" class="form-control" id="partner_charge_0" placeholder="Enter Partner Charge" name="misc[0][partner_charge]" value = "0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
+                                        <input type="number" step=".02" class="form-control partner_charge" id="partner_charge_0" placeholder="Enter Partner Charge" name="misc[0][partner_charge]" value = "0" data-part-index="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
                                     </div>
                                 </div>
                                 <div class="col-md-1 text-center" style="margin-top:20px;">
@@ -89,13 +89,13 @@
                                     <div class="col-md-4 " style="width:17%;">
                                         <div class="form-group col-md-12  ">
                                             <label for="Vendor Amounts">Vendor Charge </label>
-                                            <input type="number" step=".02" class="form-control" id="vendor_charge" placeholder="Vendor Amount" value = "0" >
+                                            <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge" placeholder="Vendor Amount" value = "0" >
                                         </div>
                                     </div>
                                     <div class="col-md-4 " style="width:17%;">
                                         <div class="form-group col-md-12  ">
                                             <label for="partner Charge">Partner Charge </label>
-                                            <input type="number" step=".02" class="form-control" id="partner_charge" placeholder="Enter Partner Charge" value = "0" >
+                                            <input type="number" step=".02" class="form-control partner_charge" id="partner_charge" placeholder="Enter Partner Charge" value = "0" >
                                         </div>
                                     </div>
                                     <div class="col-md-1 text-center" style="margin-top:20px;">
@@ -158,8 +158,10 @@
            $clone
                .find('[id="product_or_services"]').attr('name', 'misc[' + partIndex + '][product_or_services]').attr('id','product_or_services'+partIndex).attr('required','').end()
                .find('[id="description"]').attr('name', 'misc[' + partIndex + '][description]').attr('id','description_'+partIndex).attr('required','').end()
-               .find('[id="vendor_charge"]').attr('name', 'misc[' + partIndex + '][vendor_charge]').attr('id','vendor_charge_'+partIndex).end()
-               .find('[id="partner_charge"]').attr('name', 'misc[' + partIndex + '][partner_charge]').attr('id','partner_charge_'+partIndex).end();
+               .find('[id="vendor_charge"]').attr('name', 'misc[' + partIndex + '][vendor_charge]').attr('id','vendor_charge_'+partIndex).attr('data-part-index',partIndex).end()
+               .find('[id="partner_charge"]').attr('name', 'misc[' + partIndex + '][partner_charge]').attr('id','partner_charge_'+partIndex).attr('data-part-index',partIndex).end();
+               $('.vendor_charge').bind('change');
+               $('.partner_charge').bind('change');
     
        })
     
@@ -170,6 +172,40 @@
                partIndex = partIndex -1;
            $row.remove();
        });
+       // CRM-6064 Vendor Charges can't be greater than Partner Offerings
+       // When partner charge text change
+       $(document).on('change','.partner_charge',function(){
+           var index = $(this).attr('data-part-index');           
+           var partner_charge = $('#partner_charge_'+index).val();
+           var vendor_charge = $('#vendor_charge_'+index).val();
+           
+           if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+               alert('Vendor chages can\'t greater than partner charges');
+               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).css('border-color','red');
+               $('#vendor_charge_'+index).focus();
+           }else if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+                $('#vendor_charge_'+index).css('border-color','');
+           }
+           
+       });
+       // vendor change text changed 
+       $(document).on('change','.vendor_charge',function(){          
+           var index = $(this).attr('data-part-index');           
+           var partner_charge = $('#partner_charge_'+index).val();
+           var vendor_charge = $('#vendor_charge_'+index).val();
+                      
+           if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+               alert('Vendor chages can\'t greater than partner charges');
+               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).css('border-color','red');
+               $('#vendor_charge_'+index).focus();
+           }else if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+                $('#vendor_charge_'+index).css('border-color','');
+           }
+           
+       });
+       // End- Vendor Charges can't be greater than Partner Offerings
        
 </script>
 <?php 

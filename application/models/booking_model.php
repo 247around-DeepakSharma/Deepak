@@ -103,13 +103,19 @@ class Booking_model extends CI_Model {
      * @param: booking id, appliance id
      * @return:  Array
      */
-    function getunit_details($booking_id="", $appliance_id=""){
+    function getunit_details($booking_id="", $appliance_id="",$spare_extra=FALSE){
         $where = "";
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+
+           if($spare_extra){
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`,booking_unit_details.price_tags as uprice_tag,booking_unit_details.partner_net_payable as partner_net_pay
             from booking_unit_details Where $where  ";
+           }else{
+           $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+            from booking_unit_details Where $where  ";   
+           }
 
         } else if ($appliance_id != "") {
 
@@ -208,7 +214,7 @@ class Booking_model extends CI_Model {
      */
     function get_booking_to_cancel_not_approved_upcountry(){
         $sql =" SELECT booking_id,partner_id FROM booking_details where "
-                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -3 "
+                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > -3 "
                 . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
         $query = $this->db->query($sql);
         return $query->result_array();      
@@ -514,12 +520,12 @@ class Booking_model extends CI_Model {
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
         } else {
-            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
         
         if($partner_id === true){
@@ -556,12 +562,12 @@ class Booking_model extends CI_Model {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
 
         } else {
-            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= -1";
         }
         
         if($partner_id === true){
@@ -585,7 +591,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
             booking_details.type = '"._247AROUND_BOOKING."' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%Y-%m-%d') desc $add_limit"
         );
 
        // echo $this->db->last_query();
@@ -640,7 +646,7 @@ class Booking_model extends CI_Model {
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE booking_details.current_status = '"._247AROUND_FOLLOWUP."' $where
-        AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+        AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
 	$count = $query->result_array();
@@ -736,8 +742,10 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT `services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name
-               . "from booking_details, users, services " . $service_centre .$partner
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason "
+               . "from booking_details "
+               . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
+               . " users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
@@ -748,7 +756,7 @@ class Booking_model extends CI_Model {
         $post['is_original_inventory']=1;
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight ', array('spare_parts_details.booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks, sc.name AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf, ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, cci_details.courier_pod_file ', array('spare_parts_details.booking_id' => $booking_id),false,false,false,$post, TRUE, TRUE, TRUE, TRUE, TRUE);
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -788,8 +796,10 @@ class Booking_model extends CI_Model {
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name "
-               . "from booking_details, users, services ,partners "
+            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
+               . "from booking_details "
+               . "LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id), "
+               . "users, services ,partners "
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  "
@@ -1959,9 +1969,12 @@ class Booking_model extends CI_Model {
      * @param String $booking_id
      * @return boolean
      */
-    function get_booking_state_change($booking_id){
+    function get_booking_state_change($booking_id,$where=''){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->like('booking_id',$trimed_booking_id);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get('booking_state_change');
 
@@ -2175,6 +2188,7 @@ class Booking_model extends CI_Model {
     function get_partner_logo($select,$where){
         $this->db->select($select);
         $this->db->where($where);
+        $this->db->order_by('logo_priority','ASC');
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
     }
@@ -2378,7 +2392,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
-        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
+        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date = '')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -2462,7 +2476,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_queries($post,$pincode_status,$query_status) {
-        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status, "count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }  
@@ -2473,7 +2487,7 @@ class Booking_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_queries($post,$pincode_status,$query_status){
-        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y'),'%d-%b-%Y') as booking_day");
+        $this->_get_queries($post,$pincode_status,$query_status,"count(distinct(booking_details.booking_id)) as numrows, DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day");
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -2657,7 +2671,7 @@ class Booking_model extends CI_Model {
         return $this->db->affected_rows();
     }
     function get_booking_tat_required_data($booking_id){
-        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,"
+        $sql = "SELECT booking_details.partner_id,booking_details.booking_id,booking_details.request_type,booking_details.create_date,STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') as initial_booking_date,"
                 . "booking_details.is_upcountry,date(booking_details.service_center_closed_date) as sf_closed_date,"
                 . "date(booking_details.closed_date) as around_closed_date,spare_parts_details.id as spare_id,spare_parts_details.status as spare_status,date(spare_parts_details.date_of_request) as part_request_date,"
                 . "date(spare_parts_details.acknowledge_date) as spare_receieved_date ,"
@@ -2726,7 +2740,7 @@ class Booking_model extends CI_Model {
                 ."then 1 else 0 end) `install_pending`,"
                  ."sum(case when (request_type not like '%Repeat%' AND  request_type not LIKE'%Repair%') and(current_status='Cancelled') "
                 ."then 1 else 0 end) `install_cancalled`"
-                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
+                ."from booking_details where STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d') >=DATE_SUB(CURDATE(), INTERVAL 1 MONTH )"
                 ."and partner_id IN ('".$partner_id."')";
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -2963,5 +2977,152 @@ class Booking_model extends CI_Model {
         }
         return $res;
     }
+   
+    /**
+     * @Desc: This function is used to get Questionnaire for review team
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire($select="*", $where = array())
+    {
+        $this->db->select($select);
+        $this->db->from("review_questionare");
+        $this->db->join("review_request_type_mapping", "review_questionare.q_id = review_request_type_mapping.q_id", "left");
+        $this->db->join("request_type", "review_request_type_mapping.request_type_id = request_type.id", "left");
+        $this->db->where(['review_request_type_mapping.active' => 1, 'review_questionare.active' => 1]);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->order_by("review_questionare.sequence","asc");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: THis function fetches all options against given questions
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire_options_checklist($select="*", $where_in = array())
+    {
+        $this->db->select($select);
+        $this->db->from("review_questionare_checklist");
+        $this->db->where(['review_questionare_checklist.active' => 1]);
+        if(!empty($where_in)){
+            $this->db->where_in($where_in);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: THis function saves booking review questionnaire data against booking
+     * @param : int booking_id (column id from booking_details),
+     * @param array $data :Array of answers for questions 
+     * @param $column_name : tells whether value is to be save in remarks column or checklist Id column
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function save_questionnaire_checklist_data($booking_id, $data, $column_name){
+        foreach($data as $q_id => $answer){
+            $arr_where = ['q_id' => $q_id, 'booking_id' => $booking_id];
+            $this->db->where($arr_where);
+            $query = $this->db->get('review_booking_checklist');
 
+            if ($query->num_rows() > 0 ) 
+            {
+               $this->db->where($arr_where);
+               $this->db->update('review_booking_checklist', [$column_name => $answer]);
+            } else {
+               $created_by = !empty($this->session->userdata('id')) ? $this->session->userdata('id') : "";
+               $data = ['q_id' => $q_id, 'booking_id' => $booking_id, $column_name => $answer, 'created_by' => $created_by];
+               $this->db->insert('review_booking_checklist',$data);
+            }
+        }        
+    }
+    
+    /**
+     * @Desc: THis function fetches all saved answers for the questionnaire against booking
+     * @param : string select statement
+     * @param : int booking_id (column id from booking_details)
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 20-04-2020
+     */
+    function get_questionnaire_filled_answers($select="*", $booking_id)
+    {
+        $this->db->select($select);
+        $this->db->from("review_booking_checklist");
+        $this->db->where(['booking_id' => $booking_id]);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function fetches all dissatisfactory reasons of poor rating
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 21-04-2020
+     */
+    function get_dissatisfactory_reasons($where = array())
+    {
+        $this->db->select('*');
+        $this->db->from("customer_dissatisfactory_reasons");
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function fetches records from booking_amount_differences Table 
+     * (Amount that are filled by SF and Admin against a booking)
+     * @return: array
+     * @author Prity Sharma
+     * @created_on 21-04-2020
+     */
+    function get_booking_amount_history($where = array(), $select = '*'){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get('booking_amount_differences');
+        return $query->result_array();
+    }
+    
+    /**
+     * This function is used to insert record in booking_amount_differences
+     * @param type $data
+     * @return (int) Inserted ID
+    */     
+    function insert_booking_amount_history($data){
+        $this->db->insert('booking_amount_differences', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * This function is used to update record in booking_amount_differences
+     * @param type $data
+     * @param type $where
+     * @return type
+     */
+    function update_booking_amount_history($data, $where){
+        $this->db->where($where);
+        $result = $this->db->update('booking_amount_differences', $data);
+        return $result;
+    }
+
+    /**
+     * This function is used to update record in booking_amount_differences
+     * @param type $data
+     * @param type $where
+     * @return type
+     */
+    function getBookingLastSpare($booking_id){
+    $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
+    return $this->db->query($sql)->result();
+    }
 }

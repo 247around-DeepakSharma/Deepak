@@ -482,13 +482,16 @@ class engineerApi extends CI_Controller {
             /*   this API used to get parents of booking */
             case 'checkBookingParents':
                 $this->getBookingParents();  //// Getting parents
-                break;
+                break; 
 
             /*   this API used to All Acceceries */
             case 'getAccessories':
                 $this->getgetAccessoriesList();  //// Getting parents
                 break;
-
+            /*   this API used to send OTP for Cancel/Rescedule */
+            case 'sendCancelRescheduleOTP':
+                $this->sendCancelRescheduleOTPCustomer();  //// Sending OTP
+                break;
 
             default:
                 break;
@@ -1157,7 +1160,7 @@ class engineerApi extends CI_Controller {
       $booking_id = $requestData['booking_id'];
       $booking_date = $requestData['booking_date'];
       //Format = DD-MM-YYYY for database
-      $booking_date_formatted = date("d-m-Y", strtotime($booking_date));
+      $booking_date_formatted = date("Y-m-d", strtotime($booking_date));
       $booking_time = $requestData['booking_time'];
       $reschedule_date = date('Y-m-d H:i:s');
 
@@ -1475,7 +1478,7 @@ class engineerApi extends CI_Controller {
 //             $sms['smsData']['request_type'] = $whatsapp_array['request'];
 //             $sms['smsData']['appliance'] = $whatsapp_array['appliance'];
 //             $sms['smsData']['booking_id'] = $whatsapp_array['booking_id'];
-//             $sms['smsData']['cdate'] = date("d-M-Y");
+//             $sms['smsData']['cdate'] = date("Y-m-d");
 //             $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
 //             $sms['smsData']['partner'] = $whatsapp_array['partner'];
 //             $smsBody = vsprintf($template, $sms['smsData']);
@@ -2065,13 +2068,13 @@ class engineerApi extends CI_Controller {
         $missed_slots = $this->apis->getMissedBookingSlots();
         if ($missed_slots) {
             if (count($missed_slots) == "1") {
-                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '" . $missed_slots[0] . "'))"] = NULL;
+                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0) AND booking_details.booking_timeslot = '" . $missed_slots[0] . "'))"] = NULL;
             }
             if (count($missed_slots) == "2") {
-                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '" . $missed_slots[0] . "' OR booking_details.booking_timeslot = '" . $missed_slots[1] . "')))"] = NULL;
+                $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0) AND (booking_details.booking_timeslot = '" . $missed_slots[0] . "' OR booking_details.booking_timeslot = '" . $missed_slots[1] . "')))"] = NULL;
             }
         } else {
-            $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
+            $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 0)"] = NULL;
         }
         $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false, false, true);
         return $missed_bookings;
@@ -2085,7 +2088,7 @@ class engineerApi extends CI_Controller {
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
             "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = -1)" => NULL,
+            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = -1)" => NULL,
             "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
         );
         $tommorow_bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, false, true);
@@ -2100,7 +2103,7 @@ class engineerApi extends CI_Controller {
             "booking_details.booking_timeslot" => $slot,
             "engineer_booking_action.internal_status != '" . _247AROUND_CANCELLED . "'" => NULL,
             "engineer_booking_action.internal_status != '" . _247AROUND_COMPLETED . "'" => NULL,
-            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
+            "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) = 0)" => NULL,
             "service_center_booking_action.current_status = '" . _247AROUND_PENDING . "'" => NULL,
             "(booking_details.current_status = '" . _247AROUND_PENDING . "' OR booking_details.current_status = '" . _247AROUND_RESCHEDULED . "')" => NULL
         );
@@ -2128,6 +2131,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
         }
@@ -2164,6 +2169,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $missed_bookings[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $missed_bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2205,6 +2212,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $tomorrowBooking[$key]['spares'] = $spares_details;
+                    $state = $value['state'];
+                    $tomorrowBooking[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
                 }
             }
             //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
@@ -2511,6 +2520,10 @@ class engineerApi extends CI_Controller {
                 }
             }
             if ($check_serial['status']) {
+		/* Check for duplicate Part Request */
+                $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
+		if($duplicate_part['status'])
+		{				
                 /* Check part warranty status */
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
                 foreach ($requestData['part'] as $key => $value) {
@@ -2603,7 +2616,12 @@ class engineerApi extends CI_Controller {
                   log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
                   $this->sendJsonResponse(array('0035', $response->message));
                   }
-                 */
+                 */ 
+		}else{
+		log_message("info", __METHOD__ . "Duplicate Part Request");
+                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+		}					
+				 		 
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
@@ -2612,6 +2630,30 @@ class engineerApi extends CI_Controller {
             log_message("info", __METHOD__ . "Request validation failed " . $validation['message']);
             $this->sendJsonResponse(array('0036', $validation['message']));
         }
+    }
+
+
+
+    /**
+     * @desc This function is used to check same part already requested or not.
+     * DO Not allow to sf to request part if same part already requested
+     * @return Array
+     * @Author : Abhishek Awasthi
+     */
+    function is_part_already_requested($parts_requestedm,$booking_id) {
+        $array = array();
+        foreach ($parts_requested as $value) {
+            if (isset($value['parts_type'])) {
+                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+                    "parts_requested_type" => $value['parts_type']));
+                if (!empty($data)) {
+                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+                    break;
+                }
+            }
+        }
+        return $array;
     }
 
     function validateSparePartsOrderRequest($requestData) {
@@ -3856,6 +3898,9 @@ class engineerApi extends CI_Controller {
                         $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] = $spares_details;
 
+                        $state = $value['state'];
+                        $data['Bookings'][$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
@@ -4471,6 +4516,35 @@ class engineerApi extends CI_Controller {
         }
     }
 
+   /**
+     * @Desc: This function is to used to show accessories list
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 14-04-2020
+     */
+    function  getCoronaCoordinates($state){
+
+        // if (!empty($state)) {    
+        // $state_name = str_replace(' ', '', $state);
+        // $state_name = strtoupper($state_name);
+        // $states_json =   file_get_contents(TMP_FOLDER.'states.json');
+        // $states_array = json_decode($states_json,true);
+        // $state_coordinates = $states_array[$state_name][0];
+        // $latlong =array();
+        $supcordinate = array();
+        // foreach($state_coordinates as $key => $coordinate){
+        //     $latlong['long'] = $coordinate[0];
+        //     $latlong['lat'] = $coordinate[1];
+        //    // $supcordinate[] = $latlong;
+        // }
+
+        return $supcordinate; // All Data in response//
+    //    } 
+
+    }
+
+
     /**
      * @Desc: This function is to used to show accessories list
      * @params: void
@@ -4492,6 +4566,50 @@ class engineerApi extends CI_Controller {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("0101", 'No Accessories  Found'));
+        }
+
+    }
+
+    /**
+     * @Desc: This function is to used to send OTP for Cancel/Reschedule
+     * @params: void
+     * @return: JSON
+     * @author Abhishek Awasthi
+     * @date : 29-04-2020
+     */
+
+    function sendCancelRescheduleOTPCustomer(){
+
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("booking_id"), $requestData);
+        if ($validation['status']) {
+           $booking_id = $requestData['booking_id'];
+           if($requestData['tag']=='CANCEL'){
+           $tag =  BOOKING_CANCEL_OTP_SMS_TAG;
+           }else{
+           $tag =  BOOKING_RESCHEDULE_OTP_SMS_TAG;
+           }
+            
+            $sms = [];
+        // get booking contact number.
+            $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+            $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
+            $user_id = $booking_deatils['user_id'];
+            $otp = rand(1000,9999);
+            $sms['tag'] = $tag;
+            $sms['phone_no'] = $booking_primary_contact_number;
+            $sms['booking_id'] = $booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $user_id;
+            $sms['smsData']['otp'] = $otp;
+            $this->notify->send_sms_msg91($sms);
+            $this->jsonResponseString['response'] = $otp; // All Data in response//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+           // print_r($result); exit; 
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("0103", 'OTP Not Sent'));
         }
 
     }

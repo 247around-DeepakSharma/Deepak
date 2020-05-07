@@ -21,7 +21,7 @@
     function load_cancelled_status_admin(booking_id){
         $.ajax({
            type: 'post',
-           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status_with_reason/' + booking_id,
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id+'/1',
            success: function (response) {
                var obj = JSON.parse(response);
               if(obj.status=='success'){
@@ -29,6 +29,21 @@
                 $('[data-toggle="popover"]').popover();
               }else{
                   $("#cancelled_reason_"+booking_id).html('');
+              }
+          }
+       });
+    }
+    function booking_cancelled_rejected_count(booking_id){
+        $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/booking_cancelled_rejected_count/'+booking_id,
+           success: function (response) {
+               var obj = JSON.parse(response);
+              if(obj.status=='success' && obj.count > 2){
+                $("#cancelled_rejected_"+booking_id).html("<div style='background:#f14747;padding:5px;margin-top:5px;color:#fff;border-radius: 3px;'>Booking Cancellation rejected more than 2 times</div>");
+                $('[data-toggle="popover"]').popover();
+              }else{
+                  $("#cancelled_rejected_"+booking_id).html('');
               }
           }
        });
