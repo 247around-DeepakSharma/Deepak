@@ -357,9 +357,10 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?>  <?php } ?></label>
+
+                                            <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
+                                                <input type="file" required="required" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
                                             </div>
                                         </div>
                                     </div>
@@ -507,9 +508,9 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defect_pic" class="col-md-4">Defect Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
+                                            <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control defect_pic" id="defect_pic" name="defect_pic[0]" >
+                                                <input type="file" required="" class="form-control defect_pic" id="defect_pic" name="defect_pic[0]" >
                                             </div>
                                         </div>
                                     </div>
