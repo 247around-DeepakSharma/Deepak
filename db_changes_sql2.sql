@@ -2505,4 +2505,5 @@ values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 
-----tEST
+---Ghanshyam 2020-05-07
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('partner', 'Search Docket', NULL, 'partner/search_docket', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);
