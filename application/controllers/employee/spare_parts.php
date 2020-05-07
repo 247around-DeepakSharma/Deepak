@@ -3899,7 +3899,7 @@ class Spare_parts extends CI_Controller {
         $spare_id = base64_decode(urldecode($code));
         $where = array('spare_parts_details.id' => $spare_id);
         /*  Getting spare and symptom data */
-        //$post = array('symptom'=>1);
+        $post = array('symptom'=>1);
         $select = 'spare_parts_details.id,spare_parts_details.defect_pic,spare_parts_details.spare_request_symptom,spare_parts_details.partner_id,spare_parts_details.shipped_quantity,spare_parts_details.quantity, spare_parts_details.date_of_request,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.date_of_purchase,spare_parts_details.model_number,'
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
@@ -3910,8 +3910,8 @@ class Spare_parts extends CI_Controller {
         $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
 
-        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
-        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+        $data['bookinghistory'] = $this->booking_model->getbooking_history($spare_parts_details[0]['booking_id']);
+        $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $spare_parts_details[0]['booking_id']));
         $price_tags_symptom = array();
         foreach ($unit_details as $value) {
          $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
