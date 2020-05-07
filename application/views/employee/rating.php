@@ -107,17 +107,21 @@
             </div>
         </div>
         <!-- Add section to save dissatisfactory reason in case of Poor Rating i.e. < 3--> 
-        <div class="col-md-12 dissatisfactory-reason-div" style="padding:15px;display:none;">
-            <label for="dissatisfactory_reason" class="col-md-2" style="margin-left: 13px;">Dissatisfactory Reason</label>
-            <div class="col-md-9">
-                <select type="text" class="form-control"  name="dissatisfactory_reason" id="dissatisfactory_reason" style="width:30%" required>
-                    <option value="" disabled selected>Select Dissatisfactory Reason</option>
-                    <?php
-                    foreach($dissatisfactory_reasons as $dissatisfactory_reason){
-                        echo "<option value='".$dissatisfactory_reason['id']."'>".$dissatisfactory_reason['reason']."</option>";                              
-                    }
-                    ?>
-                </select>
+        <div class="col-md-12 dissatisfactory-reason-div" style="display:none;">
+            <div class="col-md-6">            
+                <div class="form-group">
+                    <label for="dissatisfactory_reason" class="col-md-2" style="margin-left: 13px;">Dissatisfactory Reason</label>
+                    <div class="col-md-6">
+                        <Select type="text" class="form-control"  name="dissatisfactory_reason" id="dissatisfactory_reason" style="margin-left: 117px;width: 96%;">
+                            <option value="" disabled selected>Select Dissatisfactory Reason</option>
+                            <?php
+                            foreach($dissatisfactory_reasons as $dissatisfactory_reason){
+                                echo "<option value='".$dissatisfactory_reason['id']."'>".$dissatisfactory_reason['reason']."</option>";                              
+                            }
+                            ?>
+                        </Select>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-12">
@@ -183,10 +187,12 @@
     
     $("#rating_star").change(function(){
         // Hide dissatisfactory reason combo if Rating > 3 else show
-        $(".dissatisfactory-reason-div").hide();
+        $("#dissatisfactory_reason").attr("required", false);
+        $(".dissatisfactory-reason-div").hide();        
         if($(this).val() < 3)
         {
             $(".dissatisfactory-reason-div").show();
+            $("#dissatisfactory_reason").attr("required", true);
         }
     });
 </script>
