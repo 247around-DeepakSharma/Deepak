@@ -2819,6 +2819,8 @@ class Spare_parts extends CI_Controller {
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
+                
+                $check_defective_required_inventory_id = $spare_parts_details[0]['requested_inventory_id'];
                 $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                 if ($entity_type == _247AROUND_PARTNER_STRING && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
 
@@ -2853,6 +2855,7 @@ class Spare_parts extends CI_Controller {
                             $spare_data['parts_requested_type'] = $warehouse_details['type'];
                             $spare_data['quantity'] = $data['quantity'];
                             $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                            $check_defective_required_inventory_id = $warehouse_details['inventory_id'];
                             //$data['shipped_quantity'] = $data['quantity'];
                             // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
                             
@@ -2892,7 +2895,7 @@ class Spare_parts extends CI_Controller {
 
                 if ($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                     //$spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
-                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($warehouse_details['inventory_id']);
+                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($check_defective_required_inventory_id);
                 } else {
                     $spare_data['defective_part_required'] = 0;
                 }
