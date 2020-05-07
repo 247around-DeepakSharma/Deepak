@@ -2378,6 +2378,7 @@ insert into query_report(main_description, query1_description, query2_descriptio
 values('payment_through_paytm_today', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE()  and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE() and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
+<<<<<<< HEAD
 values('Total_GST_Credit_Hold_Amount_This_Month', 'Total Amount', '',"SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` where sub_category = 'GST Credit Note' and invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01');", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
@@ -2501,3 +2502,7 @@ Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,
 values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
 2,36,'admin,developer,regionalmanager,areasalesmanager',
 'main_nav',1);
+values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+
+----tEST
