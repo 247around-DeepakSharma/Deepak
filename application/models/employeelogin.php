@@ -16,7 +16,7 @@ class Employeelogin extends CI_Model{
       *  @retun: array(result)
       */
       function login($employee_id,$employee_password) {
-        $sql = "SELECT * FROM employee WHERE employee_id = '$employee_id' AND employee_password = '$employee_password' AND active = 1"; 
+        $sql = "SELECT * FROM employee WHERE employee_id = ".$this->db->escape($employee_id)." AND employee_password = ".$this->db->escape($employee_password)." AND active = 1"; 
         $data = $this->db->query($sql)->result_array(); 
         /**
          * If warehouse person logged in then get wh name.
