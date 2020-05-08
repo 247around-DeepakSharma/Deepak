@@ -719,9 +719,6 @@ class Around_scheduler extends CI_Controller {
 
     function send_mail_for_bank_details_notification() {
         $idArray = array();
-        // initialize to and cc arrays
-        $to = array();
-        $cc = array();
         log_message('info', __METHOD__ . '=> Entering...');
         $where = array("(account_holders_bank_details.bank_name IS NULL
                          OR account_holders_bank_details.bank_account IS NULL
@@ -740,6 +737,10 @@ class Around_scheduler extends CI_Controller {
         $data = array_merge($data_1, $data_2);
         if (!empty($data)) {
             foreach ($data as $val) {
+                // initialize to and cc arrays
+                $to = array();
+                $cc = array();
+                
                 $idArray[] = $val['id'];
                 $arr_rm_asm_mails = $this->vendor_model->get_rm_sf_relation_by_sf_id($val['id']);
                 $asm_mail = !empty($arr_rm_asm_mails[0]['official_email']) ? $arr_rm_asm_mails[0]['official_email'] : "";
