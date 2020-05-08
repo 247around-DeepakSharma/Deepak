@@ -35,7 +35,7 @@
                                     <td><?= $row['booking_id']; ?></td>
                                     <td><?= $row['customername']; ?></td>
                                     <td><?= $row['services']; ?></td>
-                                    <td><?= $row['booking_date']; ?></td>
+                                    <td><?= date("d-M-Y", strtotime($row['booking_date'])); ?></td>
                                     <td><?php echo $row['partner_internal_status']; ?></td>
                                     <td>
                                         <?php
