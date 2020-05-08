@@ -22,6 +22,9 @@
     #sales_partner_div .select2-container--default{
         width:500px !important;
     }
+    #invoice_datatable tbody th{
+        text-align: right;
+    }
 </style>
 <!-- page content -->
 <div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
@@ -2067,7 +2070,7 @@
     function dashboard_click_total_invoice_data(){
         url = baseUrl + '/employee/invoice/get_dashboard_invoice_data';
         $('#loader_gif_total_invoice').show();
-        $("#invoice_datatable").html("");
+        $("#invoice_datatable tbody").html("");
         $('#chart_total_invoice_div').fadeIn();
         $.ajax({
            type: 'POST',
@@ -2076,7 +2079,7 @@
          })
          .done (function(data) { 
             $('#loader_gif_total_invoice').hide();
-            $("#invoice_datatable").html(data);
+            $("#invoice_datatable tbody").html(data);
          })
          .fail(function(jqXHR, textStatus, errorThrown){
              $('#loader_gif_total_invoice').hide();
