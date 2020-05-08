@@ -58,7 +58,7 @@
     margin-left: 10px;
     
 }
-select,input[type=file][readonly]
+input[type=file][readonly]
 {
     pointer-events: none;
 }
