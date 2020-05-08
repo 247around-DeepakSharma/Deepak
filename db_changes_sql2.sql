@@ -2547,3 +2547,6 @@ ALTER TABLE `challan_item_details`
   ADD KEY `challan_no` (`challan_no`);
   ALTER TABLE `challan_item_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+  ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
+  
