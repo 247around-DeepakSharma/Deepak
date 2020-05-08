@@ -1696,9 +1696,11 @@ class Spare_parts extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
-        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=229001&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
         $data = file_get_contents($url);
         $result = json_decode($data, true);
+
+        if(isset($result['results'][0])){
         $lat = $result['results'][0]['geometry']['location']['lat'];
         $long = $result['results'][0]['geometry']['location']['lng'];
         $payloadName = '{ 
@@ -1717,6 +1719,10 @@ class Spare_parts extends CI_Controller {
         $response = json_decode($return,true);
         $return_data = $response['data'][0];
         return $return_data;
+        }else{
+        $return_data = array();   
+        return $return_data;   
+        }
 
     }
 
@@ -1736,6 +1742,20 @@ class Spare_parts extends CI_Controller {
         $district = $response['district'];
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone'];    
+
+        if($districtZoneType=='Red Zone'){
+        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        }
+        if($districtZoneType=='Orange Zone'){
+        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        }
+
+        if($districtZoneType=='Green Zone'){
+        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        }
+
+        }else{
+        $districtZoneType = 'NA';   
         }
 
         $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a><br> Covid Zone: '.$districtZoneType;

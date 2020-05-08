@@ -3946,6 +3946,26 @@ class Booking extends CI_Controller {
     private function get_completed_cancelled_bookings_table($order_list, $no, $booking_status){
         $row = array();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $response = $this->getBookingCovidZoneAndContZone($order_list->booking_pincode);
+        if(!empty($response)){
+        $containmentZoneName = $response['containmentZoneName'];
+        $containmentsAvailability = $response['containmentsAvailability'];
+        $district = $response['district'];
+        $districtZoneType = $response['districtZoneType'];
+
+        if($districtZoneType=='Red Zone'){
+        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        }else if($districtZoneType=='Orange Zone'){
+        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        }else{
+        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        }
+
+        $inContainmentZone = $response['inContainmentZone'];    
+        }else{
+
+        $districtZoneType = '<span class="label label-success">NA</span>';   
+        }
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
             $sn .= "open_upcountry_model(".'"'.$order_list->assigned_vendor_id.'"';
@@ -3983,7 +4003,7 @@ class Booking extends CI_Controller {
         
         
         $row[] = $no.$sn;
-        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
+        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><br> Covid Zone : ".$districtZoneType;
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
@@ -4326,6 +4346,44 @@ class Booking extends CI_Controller {
      $receivedate =  $this->booking_model->getBookingLastSpare($booking_id)[0];
      return $receivedate->acknowledge_date;
     }
+
+
+
+        /**
+     * @desc this function is used get zone and contaminant center of booking pincode
+     * @param  $pincode
+     * @return Array
+     */
+    function getBookingCovidZoneAndContZone($pincode){
+
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $data = file_get_contents($url);
+        $result = json_decode($data, true);
+        if(isset($result['results'][0])){
+        $lat = $result['results'][0]['geometry']['location']['lat'];
+        $long = $result['results'][0]['geometry']['location']['lng'];
+        $payloadName = '{ 
+           "key": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdHkiOiJhYmhpc2hla2FAMjQ3YXJvdW5kLmNvbSJ9.QU52PoO_E12SF8D4gi0sqlbTaxXxwOb8B8FWiwKRMdM", 
+           "latlngs": [['.$lat.','.$long.']]
+        }';
+        $ch = curl_init('https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $return = curl_exec($ch);
+        curl_close($ch);
+        $response = json_decode($return,true);
+        $return_data = $response['data'][0];
+        return $return_data;
+        }else{
+        $return_data =array();
+        return $return_data;
+        }
+
+    }
     
     /**
      *  @desc : This function is used to make the table for pending bookings
@@ -4348,6 +4406,28 @@ class Booking extends CI_Controller {
         }
 
         $last_spare = $this->getBookingLastSpare($order_list->booking_id);
+        $response = $this->getBookingCovidZoneAndContZone($order_list->booking_pincode);
+        if(!empty($response)){
+        $containmentZoneName = $response['containmentZoneName'];
+        $containmentsAvailability = $response['containmentsAvailability'];
+        $district = $response['district'];
+        $districtZoneType = $response['districtZoneType'];
+        $inContainmentZone = $response['inContainmentZone']; 
+
+        if($districtZoneType=='Red Zone'){
+        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        }
+        if($districtZoneType=='Orange Zone'){
+        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        }
+        if($districtZoneType=='Green Zone'){
+        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        }
+        }else{
+        $districtZoneType = '<span class="label label-success">NA</span>';  
+        }
+
+
         
 //        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
 //        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
@@ -4468,11 +4548,12 @@ class Booking extends CI_Controller {
             }
          }
         $row[] = $no.$sn;
+
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span><br> Covid Zone: ".$districtZoneType;
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span> <br> Covid Zone: ".$districtZoneType;
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -4480,7 +4561,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status." Latest Ack Date : ".$last_spare;
+        $row[] = $escalation." ".$order_list->partner_internal_status." <br> Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;
