@@ -743,7 +743,7 @@ class Spare_parts extends CI_Controller {
         /* getting symptom and show in table */
         $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
-                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number,booking_details.booking_pincode ";
 
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request', NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
@@ -1681,7 +1681,39 @@ class Spare_parts extends CI_Controller {
         
     }        
 
-    
+
+
+    /**
+     * @desc this function is used get zone and contaminant center of booking pincode
+     * @param  $pincode
+     * @return Array
+     */
+    function getBookingCovidZoneAndContZone($pincode){
+
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=229001&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $data = file_get_contents($url);
+        $result = json_decode($data, true);
+        $lat = $result['results'][0]['geometry']['location']['lat'];
+        $long = $result['results'][0]['geometry']['location']['lng'];
+        $payloadName = '{ 
+           "key": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdHkiOiJhYmhpc2hla2FAMjQ3YXJvdW5kLmNvbSJ9.QU52PoO_E12SF8D4gi0sqlbTaxXxwOb8B8FWiwKRMdM", 
+           "latlngs": [['.$lat.','.$long.']]
+        }';
+        $ch = curl_init('https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $return = curl_exec($ch);
+        curl_close($ch);
+        $response = json_decode($return,true);
+        $return_data = $response['data'][0];
+        return $return_data;
+
+    }
+
     /**
      * @desc this function is used to create table row data for the spare parts ron approval
      * @param Array $spare_list
@@ -1691,10 +1723,19 @@ class Spare_parts extends CI_Controller {
     function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []) {
         $row = array();
         $row[] = $no;
-        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
-        if($spare_list->is_micro_wh == 1){
-         $spare_pending_on = 'Micro-warehouse';   
-        }elseif ($spare_list->is_micro_wh == 2) {
+        $response = $this->getBookingCovidZoneAndContZone($spare_list->booking_pincode);
+        if(!empty($response)){
+        $containmentZoneName = $response['containmentZoneName'];
+        $containmentsAvailability = $response['containmentsAvailability'];
+        $district = $response['district'];
+        $districtZoneType = $response['districtZoneType'];
+        $inContainmentZone = $response['inContainmentZone'];    
+        }
+
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a><br> Covid Zone: '.$districtZoneType;
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
             if(!empty($wh_details)){
             $spare_pending_on = $wh_details[0]['district'] . ' Warehouse'; 
