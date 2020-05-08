@@ -755,6 +755,8 @@ define('DASHBOARD_INVOICE_PROCESS_2', 'dashboard_process_2');
 define('DASHBOARD_INVOICE_PROCESS_3', 'dashboard_process_3');
 define('DASHBOARD_INVOICE_PROCESS_4', 'dashboard_process_4');
 define('DASHBOARD_INVOICE_PROCESS_5', 'dashboard_process_5');
-
+define('GEOCODING_GOOGLE_API_KEY', 'AIzaSyDZhTLknFJV2QVVGuOOF3ELhXjMwmqdQb0');
+define('GEOIQ_API_KEY', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdHkiOiJhYmhpc2hla2FAMjQ3YXJvdW5kLmNvbSJ9.QU52PoO_E12SF8D4gi0sqlbTaxXxwOb8B8FWiwKRMdM');
+define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

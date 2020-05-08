@@ -1690,7 +1690,7 @@ class Spare_parts extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
-        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=AIzaSyB4pxS4j-_NBuxwcSwSFJ2ZFU-7uep1hKc";
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
 
@@ -1698,10 +1698,10 @@ class Spare_parts extends CI_Controller {
         $lat = $result['results'][0]['geometry']['location']['lat'];
         $long = $result['results'][0]['geometry']['location']['lng'];
         $payloadName = '{ 
-           "key": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdHkiOiJhYmhpc2hla2FAMjQ3YXJvdW5kLmNvbSJ9.QU52PoO_E12SF8D4gi0sqlbTaxXxwOb8B8FWiwKRMdM", 
+           "key": "'.GEOIQ_API_KEY.'", 
            "latlngs": [['.$lat.','.$long.']]
         }';
-        $ch = curl_init('https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
+        $ch = curl_init(GEOIQ_HOST);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
