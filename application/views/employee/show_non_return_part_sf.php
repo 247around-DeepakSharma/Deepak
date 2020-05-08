@@ -18,12 +18,19 @@
     .pull-right{
         padding: 0 0 0 19px;
     }
-    #no_return_parts_by_sf_processing{
-
-
-    }
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 9999999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+  }
 </style>
 <div class="right_col" role="main">
+    <div class="loader"></div>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
@@ -32,6 +39,9 @@
 
                     </h3>
                     <hr>
+                    <div class="row">
+                    </div>
+                    <button class="btn btn-success pull-right" id="generate_invoice_btn">Generate Invoice</button>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -95,7 +105,7 @@
                     url: "<?php echo base_url(); ?>employee/inventory/get_no_return_parts_by_sf_list",
                     type: "POST",
                     data: function (d) {
-
+                        
                     }
                 }
             });
@@ -147,12 +157,6 @@
 
             };
 
-
-
-            $("#no_return_parts_by_sf_processing").text("Processing........");
-
-
-
             $('body').on('click', '#selectbox_all', function () {
                 // do something
 
@@ -172,7 +176,59 @@
                 }
 
             });
+                
+            $("#generate_invoice_btn").click(function(){
+            $("#generate_invoice_btn").attr('disabled',true);
+            var all_spare_details = new Array();
+            var partner_id = new Array();
+            $('.select_part').each(function () {
+                if (this.checked) { 
+                    //array to store values needed for each spare part
+                    var spare_details = {"spare_id" : $(this).attr("data-spare-id"), "is_micro_wh" : $(this).attr("data-is-micro-wh"), "inventory_id" : $(this).attr("data-shipped-inventory-id"), 
+                        "booking_partner_id" : $(this).attr("data-partner-id"), "shipping_quantity" : $(this).attr("data-shipping-quantity"), "part_name" : $(this).attr("data-part-name")
+                        ,"booking_id" : $(this).attr("data-booking-id") ,"defective_return_to_entity_id" : $(this).attr("data-defective-return-to-entity-id"),"sc_code" : $(this).attr("data-sc-code")};
+                    all_spare_details.push(spare_details);
+                    partner_id.push($(this).attr("data-partner-id"));
+                }
+            });
+            if(all_spare_details.length > 0) {
+                var total_partners = jQuery.unique(partner_id).length;
+                if(total_partners > 1) {
+                    alert('Please select parts for single partner only.');
+                    $("#generate_invoice_btn").attr('disabled',false);
+                    return false;
+                }  
+                var c = confirm("Are You Sure?");
+                if(!c) {
+                    $("#generate_invoice_btn").attr('disabled',false);
+                    return false;
+                }
+                $(".loader").css("display","block");
+                            
+                    var url = '<?php echo base_url(); ?>employee/invoice/generate_reverse_purchase_invoice_non_return_parts';
+                    //generate reverse puchase invoice for SF and challan for partner
+                     $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {data : JSON.stringify(all_spare_details)},
+                        success: function (data) {
+                         //   console.log("res="+data);
+                            $(".loader").css("display","none");
+                            alert(data);
+                            location.reload();
+                        }
+                    });
 
+
+            }
+            else {
+                alert("Please Select At Least One Checkbox");
+                $("#generate_invoice_btn").attr('disabled',false);
+            }
+
+
+            });
+            
 
 
         </script>

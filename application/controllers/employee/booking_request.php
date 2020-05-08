@@ -1068,9 +1068,10 @@ class Booking_request extends CI_Controller {
                         $this->session->set_userdata('file_error', $msg);
 
                         // saving history of failure.
-                        $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
+                        if(!empty($data) && !empty($partner_id)){
+                            $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
                                     $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", "partner", $partner_id);
-
+                        }
                         echo '0';exit;
                     }
                     

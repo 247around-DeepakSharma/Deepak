@@ -2507,3 +2507,43 @@ values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_a
 
 ---Ghanshyam 2020-05-07
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('partner', 'Search Docket', NULL, 'partner/search_docket', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);
+---Ankit Bhatt ---
+CREATE TABLE `challan_item_details` (
+  `id` int(11) NOT NULL,
+  `invoice_id` varchar(64) NOT NULL,
+  `inventory_id` int(11) DEFAULT NULL,
+  `settle_qty` int(11) DEFAULT '0',
+  `is_settle` int(1) DEFAULT '0',
+  `spare_id` int(11) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `product_or_services` varchar(28) DEFAULT NULL,
+  `hsn_code` varchar(28) DEFAULT NULL,
+  `qty` int(11) NOT NULL DEFAULT '0',
+  `rate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `taxable_value` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `cgst_tax_rate` decimal(10,2) DEFAULT NULL,
+  `cgst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `sgst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `sgst_tax_rate` decimal(10,2) DEFAULT NULL,
+  `igst_tax_amount` decimal(10,2) DEFAULT '0.00',
+  `igst_tax_rate` int(11) DEFAULT NULL,
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `from_gst_id` int(11) DEFAULT NULL,
+  `to_gst_id` int(11) DEFAULT NULL,
+  `is_invoice_generated` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 - invoice not generated,1 - invoice_generated, 2 - challan rejected',
+  `partner_id` int(11) NOT NULL,
+  `challan_no` varchar(24) NOT NULL,
+  `state_code` int(11) DEFAULT NULL,
+  `from_address` varchar(512) DEFAULT NULL,
+  `to_address` varchar(512) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `challan_item_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `partner_id` (`partner_id`),
+  ADD KEY `spare_id` (`spare_id`),
+  ADD KEY `challan_no` (`challan_no`);
+  ALTER TABLE `challan_item_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

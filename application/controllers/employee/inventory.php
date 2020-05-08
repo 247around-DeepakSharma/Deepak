@@ -5741,7 +5741,7 @@ class Inventory extends CI_Controller {
                         $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
                         $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
 
-                        $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $courier_company_details_id);
+                //        $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $courier_company_details_id);
                         if (!empty($invoice['invoice'][0])) {
                             $eway_details['invoice_id'] = $invoice['invoice'][0];
                         }

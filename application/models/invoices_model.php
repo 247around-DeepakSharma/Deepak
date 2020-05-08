@@ -3749,4 +3749,15 @@ class invoices_model extends CI_Model {
         $result = $this->db->query($query);
         return $result->result_array();
     }
+    
+    /**
+     *  @desc : This function is used to save challan data
+     *  @param : Array $challan_details
+     *  @author Ankit Bhatt
+     *  @date : 28-04-2020
+     */
+    function insert_challan_breakup($challan_details){
+        return $this->db->insert_batch("challan_item_details", $challan_details);
+    }
+    
 }
