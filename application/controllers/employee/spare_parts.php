@@ -2898,6 +2898,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
+				
+				$check_defective_required_inventory_id = $spare_parts_details[0]['requested_inventory_id'];
                 $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                 if ($entity_type == _247AROUND_PARTNER_STRING && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                     /** search if there is any warehouse for requested spare parts
@@ -2930,6 +2932,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 $spare_data['parts_requested_type'] = $warehouse_details['type'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+								$check_defective_required_inventory_id = $warehouse_details['inventory_id'];
                                 //$data['shipped_quantity'] = $data['quantity'];
                                 // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
                                     
@@ -2956,6 +2959,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 }
                                 $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                                 $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+								$spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
                             }
 
                     } else {
@@ -2964,8 +2968,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $is_micro_wh = $spare_data['is_micro_wh'] = 0;
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                         $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+						$spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
                     }
-                } 
+                } else {
+					$spare_data['partner_id'] = $partner_id;
+					$spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
+				} 
                        
                 $spare_data['part_requested_on_approval'] = 1;
 
@@ -2973,7 +2981,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                 if ($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                     //$spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
-                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $warehouse_details['inventory_id'], $spare_data['partner_id'], $spare_data['parts_requested_type']);
+                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $check_defective_required_inventory_id, $spare_data['partner_id'], $spare_data['parts_requested_type']);
                 } else {
                     $spare_data['defective_part_required'] = 0;
                 }
