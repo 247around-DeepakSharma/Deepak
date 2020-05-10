@@ -10304,6 +10304,8 @@ class Inventory extends CI_Controller {
 
         echo json_encode($array);
     }
+
+
     /**
      *  @desc : This function is used to count number of times canceled status of booking rejected by admin 
      *  @param : booking_id

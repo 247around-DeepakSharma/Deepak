@@ -2562,3 +2562,6 @@ ADD COLUMN `is_sf_agreement_signed` INT(1) NOT NULL DEFAULT 0 AFTER `agreement_f
 insert into boloaaka.email_template (tag,subject,template,booking_id,`from`,`to`,cc,bcc,active)
 values('agreement_email_template','',
 '','','booking@247around.com','','','accounts@247around.com',1);
+
+ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
+  

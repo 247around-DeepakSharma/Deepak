@@ -7265,9 +7265,14 @@ exit();
                     $th = "";
                     $table.= "<tr>";
                     //Set row description from invoice array
-                    $th.="<th ";
-                    if(INVOICE_DASHBOARD_SERVICE[$i][2] == 1){ $th.="bgcolor='#EFEC61'";}
-                    //Adding color in row description
+                    $th.="<th style='width:30%;text-align:left;' ";
+                    if(INVOICE_DASHBOARD_SERVICE[$i][2] == 1){ 
+                        //Dark color to highlight sections
+                        $th.="bgcolor='#EFEC61'";
+                    }else if(INVOICE_DASHBOARD_SERVICE[$i][2] == 2){ 
+                        //Light color to highlight sections
+                        $th.="bgcolor='#ffff99'";
+                    }
                     $th.=">".strtoupper(INVOICE_DASHBOARD_SERVICE[$i][0])."</th>";
                     $table .= $th;
                     foreach($data['data'][$j] as $row){
