@@ -45,10 +45,11 @@ class SFAgreement extends CI_Controller {
         $sf_email = $this->input->post('sf_email');
         $sf_ip = $this->input->post('sf_ip');
         $secret_code = $this->input->post('secret_code');
-        $sf_deatils = $this->around_scheduler_model->get_sf_details($sf_email,1);
+        $sf_deatils = $this->around_scheduler_model->get_sf_details($sf_email, 1);
         if (!empty($sf_deatils)) {
             if (empty($sf_deatils[0]['owner_email'])) {
-                return;
+                echo json_encode(array('success' => 0), true);
+                die;
             }
             // get email template
             $email_template = $this->booking_model->get_booking_email_template('agreement_email_template');
@@ -84,7 +85,8 @@ class SFAgreement extends CI_Controller {
                         'agreement_email_reminder_date' => '0000-00-00',
                         'agreement_file_name' => $response_file_name,
                         'is_sf_agreement_signed' => 1,
-                        'agreement_sign_datetime' => date('Y-m-d H:i:s')
+                        'agreement_sign_datetime' => date('Y-m-d H:i:s'),
+                        'agreement_ip_address' => $sf_ip
                     );
                     $where = 'id = ' . $sf_deatils[0]['id'];
                     $this->reusable_model->update_table('service_centres', $capture_data, $where);
