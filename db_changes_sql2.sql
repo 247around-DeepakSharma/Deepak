@@ -2547,3 +2547,7 @@ ALTER TABLE `challan_item_details`
   ADD KEY `challan_no` (`challan_no`);
   ALTER TABLE `challan_item_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Savendra CRM-5967 - 74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `is_sf_agreement_signed` INT(1) NULL AFTER `agreement_file_name`;

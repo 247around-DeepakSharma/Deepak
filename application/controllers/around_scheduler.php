@@ -2849,4 +2849,17 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('SFauthorization_certificate');
         $this->sfauthorization_certificate->create_new_certificate(1);
     }
+    
+    //CRM-5471 Send agreement copy in email to SF owner's email
+    function send_agreement_to_sf(){
+        $email = 'sarvendrag@247around.com';
+        $this->load->library('SFAgreement');
+        $this->sfagreement->send_email_agreement_to_sf($email);
+    }
+    //CRM-5471 Send agreement reminder email to SF owner's email
+    function send_agreement_reminder_to_sf($reminder_date = NULL){
+        $this->load->library('SFAgreement');
+        $reminder_date = date('Y-m-d');
+        $this->sfagreement->send_reminder($reminder_date);
+    }
 }
