@@ -338,7 +338,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <label for="symptom" class="col-md-4">Symptom * </label>
                                             <div class="col-md-6">
                                                 <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
                                                         <option selected disabled>Select Symptom</option>
@@ -489,7 +489,7 @@
                                     <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="symptom" class="col-md-4">Symptom </label>
+                                            <label for="symptom" class="col-md-4">Symptom *</label>
                                             <div class="col-md-6">
                                                 <select class="form-control symptom " id="symptom" name="part[0][symptom]" >
                                                         <option selected disabled>Select Symptom</option>
@@ -510,7 +510,7 @@
                                         <div class="form-group">
                                             <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" required="" class="form-control " id="defect_pic"  >
+                                                <input type="file"   class="form-control " id="defect_pic" name="" >
                                             </div>
                                         </div>
                                     </div>
