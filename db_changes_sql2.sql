@@ -2548,5 +2548,20 @@ ALTER TABLE `challan_item_details`
   ALTER TABLE `challan_item_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-  ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
+-- Sarvendra 05-05-2020 - CRM-5471 - 74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `agreement_email_sent` INT(1) NOT NULL DEFAULT 0 AFTER `is_approved`,
+ADD COLUMN `agreement_secret_code` VARCHAR(10) NULL DEFAULT NULL AFTER `agreement_email_sent`,
+ADD COLUMN `agreement_ip_address` VARCHAR(20) NULL DEFAULT NULL AFTER `agreement_secret_code`,
+ADD COLUMN `agreement_sign_datetime` TIMESTAMP NULL DEFAULT '0000-00-00 00:00:00' AFTER `agreement_ip_address`,
+ADD COLUMN `agreement_email_sent_date` DATE NOT NULL DEFAULT '0000-00-00' AFTER `agreement_sign_datetime`,
+ADD COLUMN `agreement_email_reminder_date` DATE NOT NULL DEFAULT '0000-00-00' AFTER `agreement_email_sent_date`,
+ADD COLUMN `agreement_file_name` TEXT NULL DEFAULT NULL AFTER `agreement_email_reminder_date`,
+ADD COLUMN `is_sf_agreement_signed` INT(1) NOT NULL DEFAULT 0 AFTER `agreement_file_name`;
+
+insert into boloaaka.email_template (tag,subject,template,booking_id,`from`,`to`,cc,bcc,active)
+values('agreement_email_template','',
+'','','booking@247around.com','','','accounts@247around.com',1);
+
+ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   

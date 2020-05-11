@@ -1294,7 +1294,7 @@ class Around_scheduler extends CI_Controller {
 
             $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as parts_shipped, "
                     . " spare_parts_details.booking_id, users.name, spare_parts_details.update_date, "
-                    . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%d-%m-%Y')) AS age_of_part_pending ";
+                    . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) AS age_of_part_pending ";
 
             $group_by = "spare_parts_details.booking_id";
             $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', spare_parts_details.create_date ASC";
@@ -2077,6 +2077,7 @@ class Around_scheduler extends CI_Controller {
             $email_template = $this->booking_model->get_booking_email_template(VENDOR_GST_RETURN_WARNING);
             if(!empty($email_template)){
                 $table = $this->table->generate();
+                //$subject = vsprintf($email_template[4], array($vendor_value->company_name));
                 $subject = $email_template[4];
                 $message = vsprintf($email_template[0], array($vendor_value->company_name, $vendor_value->gst_no, $table)); 
                 $email_from = $email_template[2];
@@ -2254,7 +2255,7 @@ class Around_scheduler extends CI_Controller {
      * It called By Cron
      */
     function auto_review_booking(){
-        $data = $this->service_centers_model->get_admin_review_bookings(NULL, "All", array(), 0,NULL,-1);
+        $data = $this->service_centers_model->get_admin_review_bookings(NULL, "Completed", array(), 0,NULL,-1);
         if(!empty($data)){
             $requested_bookings = array_column($data, 'booking_id');
             $partner_id_array =   array_column($data, 'partner_id', 'booking_id');
@@ -2330,7 +2331,7 @@ class Around_scheduler extends CI_Controller {
         }
     }
         
-    /*
+   /*
      * @desc - This function is used to send email to Trackon couriers
      * @param - empty
      * @return - empty
@@ -2595,7 +2596,6 @@ class Around_scheduler extends CI_Controller {
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
-    
     /**
      * @desc This function is used to send sms sharp bookings 
      */
@@ -2646,6 +2646,9 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
+
+
+   
     
     /**
      * @desc This is used to validate gst for all active vendors
@@ -2736,6 +2739,7 @@ class Around_scheduler extends CI_Controller {
 
         }
 
+
      }catch(Exception $e) {
         $remark = "Cron is not executed because : ".$e->getMessage();
      }
@@ -2748,15 +2752,13 @@ class Around_scheduler extends CI_Controller {
         );
 
         $this->around_scheduler_model->save_cron_log($data);
-
     }
     
     /**
      * @desc : This method is used to update status of those spare parts where defectives are not shipped for more than 45 days.
      * @author Ankit Rajvanshi
      */
-    function change_spares_status_pending_for_more_than_45_days() 
-    {
+    function change_spares_status_pending_for_more_than_45_days() {
         // fetch data from spare parts details.
         $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
         /**
@@ -2783,13 +2785,11 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
     /**
      * @desc : This method is used to generate challans of defective/ok parts to be shipped.
      * @author Ankit Rajvanshi
      */
-    function generate_challan_of_spare_parts() 
-    {
+    function generate_challan_of_spare_parts() {
         // fetch data from spare parts details.
         $spare_part_details = $this->around_scheduler_model->generate_challan_of_to_be_shipped_parts();
         /**
@@ -2849,4 +2849,18 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('SFauthorization_certificate');
         $this->sfauthorization_certificate->create_new_certificate(1);
     }
+    
+    //CRM-5471 Send agreement copy in email to SF owner's email
+    function send_agreement_to_sf(){
+        $email = 'sarvendrag@247around.com';
+        $this->load->library('SFAgreement');
+        $this->sfagreement->send_email_agreement_to_sf($email);
+    }
+    //CRM-5471 Send agreement reminder email to SF owner's email
+    function send_agreement_reminder_to_sf($reminder_date = NULL){
+        $this->load->library('SFAgreement');
+        $reminder_date = date('Y-m-d');
+        $this->sfagreement->send_reminder($reminder_date);
+    }
+
 }
