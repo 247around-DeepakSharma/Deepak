@@ -7768,7 +7768,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             "colCount" => 0,
             "colData" => array(
                 0 => 'Total',
-                7 => 0.00, //total occurs in col 11 in datatable
+                8 => 0.00, //total occurs in col 11 in datatable
             )
         );
 
@@ -7795,7 +7795,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $data[] = $row;
             
             $tSum = $this->get_courier_charges_total($invoice_list);
-            $rowSums['colData'][7] += $tSum['total'];
+            $rowSums['colData'][8] += $tSum['total'];
             $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
         }
                    
@@ -7841,7 +7841,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             "colCount" => 0,
             "colData" => array(
                 0 => 'Total',
-                5 => 0.00, //total occurs in col 11 in datatable
+                6 => 0.00, //total occurs in col 11 in datatable
             )
         );
 
@@ -7860,7 +7860,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $data[] = $row;
             
             $tSum = $this->get_courier_charges_total($invoice_list);
-            $rowSums['colData'][5] += $tSum['total'];
+            $rowSums['colData'][6] += $tSum['total'];
             $rowSums["colCount"] = (count($row) > $rowSums['colCount']) ? count($row) : $rowSums["colCount"];
         }
                    

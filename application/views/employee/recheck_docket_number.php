@@ -167,7 +167,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="reject_courier_invoice()">Submit</button>
+                <button type="button" class="btn btn-success" onclick="reject_courier_invoice()" id="reject_courier_invoice">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -188,11 +188,14 @@ var ingnored_docket_number_table;
 var courier_invoice_table;
 
 function open_reject_remark_model(id){
+    $("#reject_courier_invoice").attr("disabled", false);
+    $("#reject_remarks").val('');
     $("#courier_invoice_id").val(id);
 }
 
 function reject_courier_invoice(){
     if($("#reject_remarks").val()){
+        $("#reject_courier_invoice").attr("disabled", true);
         $.ajax({
             url: "<?php echo base_url() ?>employee/inventory/reject_courier_invoice",
             type: "POST",
