@@ -223,7 +223,7 @@
                                                 <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
                                                         <option selected disabled>Select Symptom</option>
                                                         <?php foreach($technical_problem as $problem){ ?>
-                                                            <option <?php if($problem['id']==$spare_parts_details['symptom']){ echo 'selected';} ?>  value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
+                                                            <option <?php if($problem['id']==$spare_parts_details['spare_request_symptom']){ echo 'selected';} ?>  value="<?php echo $problem['id'] ?>" ><?php echo $problem['symptom'] ?></option>
 
                                                         <?php }  ?>
 
