@@ -338,7 +338,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="symptom" class="col-md-4">Symptom * </label>
+                                            <label for="symptom" class="col-md-4">Symptom  </label>
                                             <div class="col-md-6">
                                                 <select class="form-control symptom " id="symptom_0" name="part[0][symptom]" >
                                                         <option selected disabled>Select Symptom</option>
@@ -489,7 +489,7 @@
                                     <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="symptom" class="col-md-4">Symptom *</label>
+                                            <label for="symptom" class="col-md-4">Symptom </label>
                                             <div class="col-md-6">
                                                 <select class="form-control symptom " id="symptom" name="part[0][symptom]" >
                                                         <option selected disabled>Select Symptom</option>
