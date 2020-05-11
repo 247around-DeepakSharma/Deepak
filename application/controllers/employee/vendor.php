@@ -6518,7 +6518,16 @@ class vendor extends CI_Controller {
             return;
         }
         $id = $this->session->userdata('id');
-        $data['records'] = $this->vendor_model->get_unapproved_sf_list($id);
+        $sql = "SELECT
+                    service_centres.*
+                FROM
+                    employee 
+                    JOIN agent_state_mapping ON (agent_state_mapping.agent_id = employee.id)
+                    JOIN state_code ON (state_code.state_code = agent_state_mapping.state_code)
+                    JOIN service_centres ON (state_code.state = service_centres.state and service_centres.is_approved = 0)
+                WHERE 
+                    employee.id =" . $id;
+        $data['records'] = $this->reusable_model->execute_custom_select_query($sql);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
     }

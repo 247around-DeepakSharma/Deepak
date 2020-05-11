@@ -2148,7 +2148,7 @@ function manageAccountNameField(value){
             $('#'+container+' #pan_file').css('pointer-events', 'none');
             $('#'+container+' #pan_file').attr('readonly');
             $('#'+container+' #pan_file').css('background-color','');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }       
         
         if($('#'+container+' #gst_no').val() != ''){
@@ -2171,27 +2171,27 @@ function manageAccountNameField(value){
             $('#'+container+' #gst_file').css('pointer-events', 'none');
             $('#'+container+' #gst_file').attr('readonly');
             $('#'+container+' #gst_file').css('background-color','');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
               
         if($('#'+container+' #signature_file_hd').val() != ''){
             $('#'+container+' #signature_file').css('pointer-events', 'none');
             $('#'+container+' #signature_file').css('background-color', '');
             $('#'+container+' #signature_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
             
         }
         if($('#'+container+' #address_proof_file_hd').val() !== ''){
             $('#'+container+' #address_proof_file').css('pointer-events', 'none');
             $('#'+container+' #address_proof_file').css('background-color', '');
             $('#'+container+' #address_proof_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
         if($('#'+container+' #contract_file_hd').val() !== ''){
             $('#'+container+' #contract_file').css('pointer-events', 'none');
             $('#'+container+' #contract_file').css('background-color', '');
             $('#'+container+' #contract_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
     }
     
