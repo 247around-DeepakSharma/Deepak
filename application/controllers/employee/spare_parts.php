@@ -1782,7 +1782,7 @@ class Spare_parts extends CI_Controller {
         if(!empty($spare_list->defect_pic)){
         $row[] = '<a  class="btn btn-success" href="' . S3_WEBSITE_URL. 'misc-images/'.$spare_list->defect_pic.'" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>';
         }else{
-        $row[] = '<a  class="btn btn-danger" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        $row[] = 'NA';
         }
         
         $row[] = $spare_list->request_type;
