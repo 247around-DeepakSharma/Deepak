@@ -3193,6 +3193,9 @@ function generate_image($base64, $image_name,$directory){
             $select[] = "vendor_pincode_mapping.City";
             $groupBY[] = 'vendor_pincode_mapping.City';
         }
+        //add 2 columns upcountry and Municipal Limit in the Partner Serviceability Report
+        $select[] = "CASE when service_centres.is_upcountry = '1' then 'Upcountry' Else 'Local' End as Flag";
+        $select[] = "service_centres.min_upcountry_distance as municipal_limit";
         $join['service_centres'] =  'service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.on_off = 1 AND service_centres.active = 1';
         $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
         foreach($data as $dataValues){
