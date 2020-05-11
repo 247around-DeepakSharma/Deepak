@@ -350,11 +350,18 @@
                         
                                 ?>
                                 <li>
-                                    <a href="https://drive.google.com/drive/folders/1_ptRWlu7r8kGUHfiTbHVx3f-UrQxJPyX" target="_blank">
-                                        <i class="fa fa-laptop" data-toggle="tooltip" data-placement="right" title="" data-original-title="Tutorials"></i>
+                                        <a data-toggle="tooltip" data-placement="right" title="" data-original-title="Tutorials">
+                                        <i class="fa fa-laptop"></i> 
+                                        <span class="side_menu_list_title">Tutorials </span>
+                                        <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu" style="display:none !important;"> 
+                                            <li><a href="https://www.youtube.com/playlist?list=PL7xFReqICvbC5vXLAzyAr4K7dMhMKrRQI" target="_blank">Training Videos</a></li>
+                                            <li><a href="https://drive.google.com/open?id=1_ptRWlu7r8kGUHfiTbHVx3f-UrQxJPyX" target="_blank">Training Documents </a></li>
+                                        </ul>
+                                  
+                               
                                         <!--<img id="crm_training" src="<?php// echo base_url(); ?>images/crm_training.png" style="width:20px;height:20px;">-->
-                                    </a>
-                                </li>
+                                  </li> 
                             </ul>
                         </div>
                     </div>
