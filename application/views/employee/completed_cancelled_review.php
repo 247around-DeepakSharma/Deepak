@@ -160,10 +160,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                             <tr id="<?php echo  "row_".$value['booking_id'] ?>">
                               <?php $offset++ ;?>
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?>
-                                <?php if ($value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                <?php if (isset($value['booking'][0]['is_upcountry']) && $value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
                               </td>
                               
-                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
+                              <td  style="text-align: left;white-space: inherit;"><?php if(isset($value['booking'][0]['vendor_name'])){ echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; } ?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
@@ -171,7 +171,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                   <input type="hidden" name="booking_warranty_status[]" value=''  class="booking_warranty_status_<?=$value['booking_id']?>">
                               </td>
 
-                            <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php if(isset($value['booking'][0]['partner_id'])){ echo $value['booking'][0]['partner_id']; } ?>" >
 
                             <td style="text-align: left;white-space: inherit; <?php if(isset($value['unit_details'][0]['mismatch_pincode'])){ if($value['unit_details'][0]['mismatch_pincode'] == 1){ echo "background-color:red;";} }?>">
                                  <table  class="table table-condensed">
@@ -245,15 +245,17 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                     </tbody>
                                  </table>
                               </td>
-                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['booking'][0]['amount_due']; ?></strong></td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php if(isset($value['booking'][0]['amount_due'])){ echo $value['booking'][0]['amount_due']; } ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
                               <?php
                                 $now = time();
-                                $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
-                                $datediff = $now - $initial_booking_date;
-                                $booking_age = 0;
-                                if($datediff >= 0){
-                                    $booking_age =  ceil($datediff / (60 * 60 * 24));
+                                if(isset($value['booking'][0]['initial_booking_date'])){
+                                    $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
+                                    $datediff = $now - $initial_booking_date;
+                                    $booking_age = 0;
+                                    if($datediff >= 0){
+                                        $booking_age =  ceil($datediff / (60 * 60 * 24));
+                                    }
                                 }
                                 
                               ?>
@@ -262,10 +264,14 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <?php
                                 if($review_status == "Completed" || $review_status == "Cancelled"){
                                     $booking_review_age = '--'; 
-                                    $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']);
-                                    $booking_closed_datediff = time() - $sf_booking_closed_date;
-                                    if($booking_closed_datediff >= 0){
-                                        $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
+                                    if(isset($value['booking'][0]['service_center_closed_date'])){
+                                        $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']); 
+
+
+                                        $booking_closed_datediff = time() - $sf_booking_closed_date;
+                                        if($booking_closed_datediff >= 0){
+                                            $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
+                                        }
                                     }
                               ?>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_review_age ?></strong></td>
