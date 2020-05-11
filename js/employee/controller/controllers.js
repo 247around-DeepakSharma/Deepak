@@ -1,5 +1,5 @@
 booking_advanced_search.controller("bookingAdvancedSearchController", function ($scope, $http) {
-    var get_url = baseUrl + "/booking/get_booking_advanced_search_optionlist";
+    var get_url = baseUrl + "/employee/booking/get_booking_advanced_search_optionlist";
     
         $http.get(get_url)
         .then(function (response) {
