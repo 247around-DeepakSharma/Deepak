@@ -94,7 +94,7 @@ class SFAgreement extends CI_Controller {
                     // Send Email
                     $subject = 'Agreement sign link';
 
-                    $link_url = S3_URL . $s3_folder . '/' . $response_file_name;
+                    $link_url = S3_WEBSITE_URL . $s3_folder . '/' . $response_file_name;
 
                     $body = '<p>Hi ' . $sf_deatils[0]['owner_name'] . ',<br />
                             Please download your signed agreement by click on below link add sign into agreement document. <br />';
