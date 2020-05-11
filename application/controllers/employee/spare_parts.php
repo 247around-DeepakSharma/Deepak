@@ -738,7 +738,7 @@ class Spare_parts extends CI_Controller {
     function get_approval_pending($post) {
         log_message('info', __METHOD__);
         /* getting symptom and show in table */
-        $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.defect_pic,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number,booking_details.booking_pincode ";
 
@@ -1788,7 +1788,7 @@ class Spare_parts extends CI_Controller {
         if(!empty($spare_list->defect_pic)){
         $row[] = '<a  class="btn btn-success" href="' . S3_WEBSITE_URL. 'misc-images/'.$spare_list->defect_pic.'" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>';
         }else{
-        $row[] = '<a  class="btn btn-danger" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        $row[] = 'NA';
         }
         
         $row[] = $spare_list->request_type;
