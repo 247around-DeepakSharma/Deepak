@@ -2495,7 +2495,7 @@ class Service_centers extends CI_Controller {
                         $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                     }
 
-                    if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
+                    if(isset($value['defect_pic']) && !empty($value['defect_pic'])){
                         $data['defect_pic'] = $value['defect_pic'];
                     }
 
