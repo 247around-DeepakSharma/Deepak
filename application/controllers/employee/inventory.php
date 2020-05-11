@@ -5679,18 +5679,19 @@ class Inventory extends CI_Controller {
 		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
        // $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
         $post['is_inventory'] = true;
-        $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where1, TRUE, FALSE, false, $post); 
-			
-		$agentid='';
-        $agent_name='';
-        $login_partner_id='';
-        $login_service_center_id='';
-        if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('service_center_agent_id');
-            $agent_name =$this->session->userdata('service_center_name');
+        $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where1, TRUE, FALSE, false, $post);
+
+        //$agentid = '';
+        $agent_name = '';
+        $login_partner_id = '';
+        $login_service_center_id = '';
+        if ($this->session->userdata('userType') == 'service_center') {
+            $agentid = $this->session->userdata('service_center_agent_id');
+            $agent_name = $this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
-            $login_partner_id =NULL;
-           
+            $login_partner_id = NULL;
+        }else{
+            $agentid = $this->session->userdata('id');
         }
 		
       $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);

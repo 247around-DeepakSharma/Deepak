@@ -3948,11 +3948,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (empty($this->session->userdata('userType'))) {
          redirect(base_url() . "employee/login");
         }
-    
-        $agentid='';
-        $agent_name='';
-        $login_partner_id='';
-        $login_service_center_id='';
+        //$agentid = '';
+        $agent_name = '';
+        $login_partner_id = '';
+        $login_service_center_id = '';
         if ($this->session->userdata('userType') == 'employee') {
             $agentid=$this->session->userdata('id');
             $agent_name =$this->session->userdata('emp_name');
@@ -3962,8 +3961,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $agentid=$this->session->userdata('service_center_agent_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
-            $login_partner_id =NULL;
-           
+            $login_partner_id = NULL;
+        }else{
+            $agentid = $this->session->userdata('id');
         }
 //        if(empty($agentid)){
 //            echo 'fail_agent_id_not_set';
