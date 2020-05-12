@@ -2565,3 +2565,4 @@ values('agreement_email_template','',
 
 ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   
+ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
