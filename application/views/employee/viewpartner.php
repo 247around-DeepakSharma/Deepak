@@ -325,14 +325,14 @@ if ($this->session->userdata('error')) {
         });
     }
     
-    $(".activate_partner").on('click', function(){
+    $(document).on('click',".activate_partner", function(){
         var partner_id = $(this).attr("id");
         if(confirm("Are you sure you want to Deactivate ?")){
             window.location = "<?php echo base_url() ?>employee/partner/deactivate/"+partner_id;
         } 
     });
     
-    $(".deactivate_partner").on('click', function(){
+    $(document).on('click',".deactivate_partner", function(){
         var partner_id = $(this).attr("id");
         if(confirm("Are you sure you want to Activate ?")){
             window.location = "<?php echo base_url() ?>employee/partner/activate/"+partner_id;
