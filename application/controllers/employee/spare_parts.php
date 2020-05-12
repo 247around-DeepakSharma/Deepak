@@ -1711,8 +1711,6 @@ class Spare_parts extends CI_Controller {
         }
 
         if(!empty($lat)){
-        $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
         $payloadName = '{ 
            "key": "'.GEOIQ_API_KEY.'", 
            "latlngs": [['.$lat.','.$long.']]
