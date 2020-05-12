@@ -5632,7 +5632,7 @@ class Inventory extends CI_Controller {
         $post['is_inventory'] = true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where1, TRUE, FALSE, false, $post);
 
-        $agentid = '';
+        //$agentid = '';
         $agent_name = '';
         $login_partner_id = '';
         $login_service_center_id = '';
@@ -5641,6 +5641,8 @@ class Inventory extends CI_Controller {
             $agent_name = $this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id = NULL;
+        }else{
+            $agentid = $this->session->userdata('id');
         }
 
         $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
