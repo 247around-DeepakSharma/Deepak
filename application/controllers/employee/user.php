@@ -1288,14 +1288,16 @@ class User extends CI_Controller {
         
         if(empty($district))
         {
-        $errormessage = "No district selected.";
-            $statusFlg = false;
-            $array_return['status'] = 'error';
-            $array_return['message'] = $errormessage;
+            $district = array();
+            //$errormessage = "No district selected.";
+            // $statusFlg = false;
+            // $array_return['status'] = 'error';
+            // $array_return['message'] = $errormessage;
         }
         ##########################check if state served by other ASM#####################################
-        if (!$isRM && $statusFlg) {
+        if (!$isRM && $statusFlg && !empty($reqDistrict)) {
             $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_ASM, $asmID);
+
             if (count($result) > 0) {
                 $stateString = implode(',', array_map(function ($entry) {
                             return $entry['district'];
@@ -1307,7 +1309,7 @@ class User extends CI_Controller {
             }
         }
         #########################check if District served by other RM#######################################
-        if ($rm_ID != 0 && $rm_ID != '' && $statusFlg) {
+        if ($rm_ID != 0 && $rm_ID != '' && $statusFlg  && !empty($reqDistrict)) {
             $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
             if (count($result) > 0) {
                 $stateString = implode(',', array_map(function ($entry) {
