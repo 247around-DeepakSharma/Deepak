@@ -5558,14 +5558,18 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
+            // Join with employee Table to fetch AM name
+            $post['join']['partners'] = "booking_details.partner_id  = partners.id";
+            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";            
+            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left"];
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as  Customer_Name,
-            services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
+            services.services,penalty_on_booking.active as penalty_active,users.phone_number,users.alternate_phone_number,booking_details.order_id,booking_details.request_type,booking_details.state,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
-            booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day, booking_details.create_date,
-             booking_details.partner_internal_status,DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  initial_booking_date";
+            booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name as SF_POC_Name,
+             service_centres.primary_contact_phone_1 as SF_POC_NUMBER,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day, booking_details.create_date,
+             booking_details.partner_internal_status,DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as  initial_booking_date, employee.full_name as RM, employee_am.full_name as AM ";
             
-            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',1); 
+            $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1,'',0);
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
             $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
