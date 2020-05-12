@@ -1104,10 +1104,10 @@ input[type=file][readonly]
                                         <div class="col-md-4" style="width:25%">
                                             <input type="text" class="form-control blockspacialchar"  name="service_tax" id="service_tax_no" value = "<?php if (isset($query[0]['registration_no'])) {
                                                 echo $query[0]['service_tax'];
-                                                } ?>" placeholder="service tax no" <?php if (isset($query[0]['registration_no'])) { echo 'readonly tabindex="-1"'; } ?>>
+                                                } ?>" placeholder="service tax no" <?php if (!empty($query[0]['registration_no'])) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="file" class="form-control"  name="service_tax_file" <?php if (isset($query[0]['registration_no'])) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control"  name="service_tax_file" <?php if (!empty($query[0]['registration_no'])) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
