@@ -3880,7 +3880,7 @@ class Spare_parts extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
 
-        $agentid = '';
+        //$agentid = '';
         $agent_name = '';
         $login_partner_id = '';
         $login_service_center_id = '';
@@ -3894,6 +3894,8 @@ class Spare_parts extends CI_Controller {
             $agent_name = $this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id = NULL;
+        }else{
+            $agentid = $this->session->userdata('id');
         }
 //        if(empty($agentid)){
 //            echo 'fail_agent_id_not_set';

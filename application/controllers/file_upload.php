@@ -1587,7 +1587,7 @@ class File_upload extends CI_Controller {
 
     function remap_in_bom_map($remap_bom_array) {
 
-        $agentid = '';
+        //$agentid = '';
         if ($this->session->userdata('userType') == 'employee') {
             $agentid = $this->session->userdata('id');
             $agent_name = $this->session->userdata('emp_name');
@@ -1603,6 +1603,8 @@ class File_upload extends CI_Controller {
             $agent_name = $this->session->userdata('partner_name');
             $login_service_center_id = $this->session->userdata('partner_id');
             $login_partner_id = NULL;
+        }else{
+            $agentid = $this->session->userdata('id');
         }
 
         foreach ($remap_bom_array as $rowkey => $rowvalue) {
