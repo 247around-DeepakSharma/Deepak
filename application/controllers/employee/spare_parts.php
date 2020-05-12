@@ -17,7 +17,11 @@ class Spare_parts extends CI_Controller {
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
         $this->load->model('vendor_model');
+        $this->load->model('indiapincode_model');
         
+
+
+
         $this->load->library('form_validation');
         $this->load->library('notify');
         $this->load->library('S3');
@@ -1690,11 +1694,19 @@ class Spare_parts extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
+        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+        if(!empty($coordinates)){
+        $lat = $coordinates[0]['latitude'];
+        $long = $coordinates[0]['longitude'];
+        }else{
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
+        $lat = $result['results'][0]['geometry']['location']['lat'];
+        $long = $result['results'][0]['geometry']['location']['lng'];
+        }
 
-        if(isset($result['results'][0])){
+        if(!empty($lat)){
         $lat = $result['results'][0]['geometry']['location']['lat'];
         $long = $result['results'][0]['geometry']['location']['lng'];
         $payloadName = '{ 

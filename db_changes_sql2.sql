@@ -2586,3 +2586,79 @@ CREATE TABLE `booking_amount_differences` (
   KEY `fk_booking_amount_differences` (`booking_id`),
   CONSTRAINT `fk_booking_amount_differences` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+
+--Sarvendra 04-05-2020 - CRM-6175
+--74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_year`;
+
+Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
+values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
+2,36,'admin,developer,regionalmanager,areasalesmanager',
+'main_nav',1);
+values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
+
+
+---Ghanshyam 2020-05-07
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES ('partner', 'Search Docket', NULL, 'partner/search_docket', '2', '148', 'Primary Contact,Area Sales Manager,Booking Manager,Call Center,Warehouse Incharge,Owner', 'main_nav', '1', CURRENT_TIMESTAMP);
+---Ankit Bhatt ---
+CREATE TABLE `challan_item_details` (
+  `id` int(11) NOT NULL,
+  `invoice_id` varchar(64) NOT NULL,
+  `inventory_id` int(11) DEFAULT NULL,
+  `settle_qty` int(11) DEFAULT '0',
+  `is_settle` int(1) DEFAULT '0',
+  `spare_id` int(11) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `product_or_services` varchar(28) DEFAULT NULL,
+  `hsn_code` varchar(28) DEFAULT NULL,
+  `qty` int(11) NOT NULL DEFAULT '0',
+  `rate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `taxable_value` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `cgst_tax_rate` decimal(10,2) DEFAULT NULL,
+  `cgst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `sgst_tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `sgst_tax_rate` decimal(10,2) DEFAULT NULL,
+  `igst_tax_amount` decimal(10,2) DEFAULT '0.00',
+  `igst_tax_rate` int(11) DEFAULT NULL,
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `from_gst_id` int(11) DEFAULT NULL,
+  `to_gst_id` int(11) DEFAULT NULL,
+  `is_invoice_generated` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 - invoice not generated,1 - invoice_generated, 2 - challan rejected',
+  `partner_id` int(11) NOT NULL,
+  `challan_no` varchar(24) NOT NULL,
+  `state_code` int(11) DEFAULT NULL,
+  `from_address` varchar(512) DEFAULT NULL,
+  `to_address` varchar(512) DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `challan_item_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `partner_id` (`partner_id`),
+  ADD KEY `spare_id` (`spare_id`),
+  ADD KEY `challan_no` (`challan_no`);
+  ALTER TABLE `challan_item_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Sarvendra 05-05-2020 - CRM-5471 - 74
+ALTER TABLE `boloaaka`.`service_centres` 
+ADD COLUMN `agreement_email_sent` INT(1) NOT NULL DEFAULT 0 AFTER `is_approved`,
+ADD COLUMN `agreement_secret_code` VARCHAR(10) NULL DEFAULT NULL AFTER `agreement_email_sent`,
+ADD COLUMN `agreement_ip_address` VARCHAR(20) NULL DEFAULT NULL AFTER `agreement_secret_code`,
+ADD COLUMN `agreement_sign_datetime` TIMESTAMP NULL DEFAULT '0000-00-00 00:00:00' AFTER `agreement_ip_address`,
+ADD COLUMN `agreement_email_sent_date` DATE NOT NULL DEFAULT '0000-00-00' AFTER `agreement_sign_datetime`,
+ADD COLUMN `agreement_email_reminder_date` DATE NOT NULL DEFAULT '0000-00-00' AFTER `agreement_email_sent_date`,
+ADD COLUMN `agreement_file_name` TEXT NULL DEFAULT NULL AFTER `agreement_email_reminder_date`,
+ADD COLUMN `is_sf_agreement_signed` INT(1) NOT NULL DEFAULT 0 AFTER `agreement_file_name`;
+
+insert into boloaaka.email_template (tag,subject,template,booking_id,`from`,`to`,cc,bcc,active)
+values('agreement_email_template','',
+'','','booking@247around.com','','','accounts@247around.com',1);
+
+ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
+  
+ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
