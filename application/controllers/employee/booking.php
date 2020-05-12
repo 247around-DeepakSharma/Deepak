@@ -4362,8 +4362,14 @@ class Booking extends CI_Controller {
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
+        if(isset($result['results'][0]['geometry'])){
         $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
+        $long = $result['results'][0]['geometry']['location']['lng'];   
+        }else{
+        $lat="";
+        $long=""; 
+        }
+
         }
 
         if(!empty($lat)){
