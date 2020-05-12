@@ -360,7 +360,7 @@
 
                                             <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file" required="required" class="form-control defect_pic" id="defect_pic_0" name="defect_pic[0]" >
+                                                <input type="file" required="required" class="form-control defect_pic spare_parts" id="defect_pic_0" name="defect_pic[0]" >
                                             </div>
                                         </div>
                                     </div>
@@ -510,7 +510,7 @@
                                         <div class="form-group">
                                             <label for="defect_pic" class="col-md-4">Defect Picture *</label>
                                             <div class="col-md-6">
-                                                <input type="file"   class="form-control " id="defect_pic" name="" >
+                                                <input type="file"   class="form-control defect_pic spare_parts " id="defect_pic">
                                             </div>
                                         </div>
                                     </div>
@@ -1029,6 +1029,17 @@ function alpha(e) {
                 if(id !== "defective_back_parts_pic"){
                     if($(this).val().length === 0){
                         alert('Please Upload Defective Back Part Image');
+                        checkbox_value = 0;
+                       return false;
+                    }
+                }
+            });
+            
+            $('.defect_pic').each(function() {
+                var id = $(this).attr('id');
+                if(id !== "defect_pic"){
+                    if($(this).val().length === 0){
+                        alert('Please Upload Defective Image');
                         checkbox_value = 0;
                        return false;
                     }
