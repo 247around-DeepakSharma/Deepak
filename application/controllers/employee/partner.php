@@ -233,7 +233,7 @@ class Partner extends CI_Controller {
                 $data['technical_solution'][0] = array("technical_solution" => "Default");
             }
         }
-        
+
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -244,18 +244,17 @@ class Partner extends CI_Controller {
                     }
                 }
                 /* getting symptom  and push in array*/
-                if(!empty($val['spare_request_symptom'])){
-                $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['spare_request_symptom']));
-                if(!empty($symptom)){
-                $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
-                }else{
-                $spare_parts_list[] = array_merge($val, array('symptom_text' => '-')); 
-                }
+                // if(!empty($val['spare_request_symptom'])){
+                // $symptom = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $val['spare_request_symptom']));
+                // if(!empty($symptom)){
+                // $spare_parts_list[] = array_merge($val, array('symptom_text' => $symptom[0]['symptom']));
+                // }else{
+                // $spare_parts_list[] = array_merge($val, array('symptom_text' => '-')); 
+                // }
                 
-                }
+                // }
             }
         }
-
         if (!empty($spare_parts_list)) {
             $data['booking_history']['spare_parts'] = $spare_parts_list;
         }
