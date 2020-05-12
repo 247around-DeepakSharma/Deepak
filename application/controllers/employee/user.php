@@ -828,7 +828,6 @@ class User extends CI_Controller {
             if(!empty($result_district_mapped)){
                  $this->session->set_flashdata('error','Some district already mapped with this agent, Please remove them first.');
                  redirect(base_url() . "employee/user/update_employee/".$data['id']);
-                 exit;
             }
         }
         $removeKeys = array('manager', 'subordinate');
