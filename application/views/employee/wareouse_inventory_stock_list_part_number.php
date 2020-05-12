@@ -153,6 +153,22 @@
         }else{
             alert("Select Stock Status");
         }
+
+        var partner = $('#partner_id').val();
+        if(partner){
+            inventory_stock_table.ajax.reload();
+        }else{
+            alert("Select Partner");
+        }
+
+        var part_number = $('#part_number').val();
+        if(part_number){
+            inventory_stock_table.ajax.reload();
+        }else{
+            alert("Please fill Part Number");
+        }
+
+        
     });
     
     function get_warehouse_inventory_stock_details(){
