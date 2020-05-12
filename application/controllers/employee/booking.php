@@ -5809,6 +5809,7 @@ class Booking extends CI_Controller {
             { 
                 $arrBookingsData = array_map(function($recData) {
                     $arrData['partner_id'] = $recData['partner_id'];
+                    $arrData['service_id'] = $recData['service_id'];
                     $arrData['booking_id'] = $recData['booking_id'];
                     $arrData['booking_create_date'] = $recData['booking_create_date'];
                     $arrData['model_number'] = !empty($recData['unit_details'][0]['model_number']) ? $recData['unit_details'][0]['model_number'] : "";
