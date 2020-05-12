@@ -195,7 +195,7 @@
                         <th>S.No.</th>
                         <th>Booking Id</th>
                         <th>User Name / Phone Number</th>
-                        <th>Service Name</th>
+                        <th>Appliance / Request Type</th>
                         <th>Brand</th>
                         <th>Booking Date</th>
                         <th>Booking Age</th>
