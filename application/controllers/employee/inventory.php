@@ -4686,12 +4686,14 @@ class Inventory extends CI_Controller {
 
     function insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id, $action_agent_id) {
         log_message('info', __METHOD__ . " ledger " . print_r($ledger, true) . " Form data " . json_encode($fomData, true) . " wh id " . $wh_id);
-        $spare = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $ledger['booking_id']), false);
-
+        $spare = $this->partner_model->get_spare_parts_by_any("*", array('spare_parts_details.booking_id' => $ledger['booking_id'],"spare_parts_details.purchase_invoice_id IS NOT NULL" => null), false);
+        
         if (!empty($spare)) {
             $newdata['booking_id'] = $ledger['booking_id'];
             $newdata['entity_type'] = _247AROUND_SF_STRING;
             $newdata['partner_id'] = $wh_id;
+            $newdata['defective_return_to_entity_id'] = $wh_id;
+            $newdata['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
             $newdata['service_center_id'] = $spare[0]['service_center_id'];
             $newdata['date_of_purchase'] = $spare[0]['date_of_purchase'];
             $newdata['purchase_invoice_id'] = $spare[0]['purchase_invoice_id'];
@@ -5323,12 +5325,14 @@ class Inventory extends CI_Controller {
         } else if ($this->session->userdata('service_center_id')) {
             $this->check_WH_UserSession();
         }
+        //$_POST = json_decode('{"data":"{\"0\":{\"inventory_id\":\"41390\",\"quantity\":\"1\",\"ledger_id\":\"76383\",\"part_name\":\"GOGGLE,3D,PR,AUO,T315HBV1-V1,SXL,BLACK\",\"part_number\":\"1100078055\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"},\"1\":{\"inventory_id\":\"48474\",\"quantity\":\"1\",\"ledger_id\":\"76384\",\"part_name\":\"ASSY,STAND BASE,32,METALLICA\",\"part_number\":\"1200051821\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"},\"2\":{\"inventory_id\":\"38938\",\"quantity\":\"1\",\"ledger_id\":\"76385\",\"part_name\":\"REMOTE,RF 2.4GHZ GYROSCP,TSY150,STV\",\"part_number\":\"1100065181\",\"booking_id\":\"LP-5242592005134\",\"invoice_id\":\"TXS-CED-05202013\",\"is_wh_micro\":\"1\"}}","sender_entity_id":"247130","sender_entity_type":"partner","receiver_entity_id":"15","receiver_entity_type":"vendor","sender_entity_name":" Videocon","receiver_entity_name":"247around Ghaziabad (Uttar Pradesh)"}', true);
+        
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $receiver_entity_id = $this->input->post('receiver_entity_id');
         $receiver_entity_type = $this->input->post('receiver_entity_type');
         $postData = json_decode($this->input->post('data'));
-
+        
         if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($receiver_entity_id) && !empty($receiver_entity_type) && !empty($postData)) {
             $template1 = array(
                 'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
@@ -5430,7 +5434,7 @@ class Inventory extends CI_Controller {
             $where['purchase_invoice_id'] = $data->invoice_id;
             $where['status'] = SPARE_PARTS_REQUESTED;
         }
-
+        
         if ($data->is_wh_micro == 2) {
             $where['sell_invoice_id'] = $data->invoice_id;
             $where['status IN ("' . SPARE_PARTS_SHIPPED . '","' . SPARE_SHIPPED_BY_PARTNER . '","' . SPARE_OOW_SHIPPED . '", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
@@ -5448,7 +5452,7 @@ class Inventory extends CI_Controller {
             // $this->vendor_model->update_service_center_action($data->booking_id, $sc_data);
         }
         if (!empty($data->booking_id)) {
-
+            
             $where['spare_parts_details.booking_id'] = $data->booking_id;
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             /// if warehouse then only///
