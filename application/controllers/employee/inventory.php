@@ -4311,7 +4311,6 @@ class Inventory extends CI_Controller {
                                     'courier_invoice_file' => $courier_file['message'],
                                     'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
                                     'created_by' => 1,
-                                    'shippment_date' => $courier_data['shipment_date'],
                                     'is_exist' => 1,
                                     'sender_city' => $from_city,
                                     'receiver_city' => $to_city,
