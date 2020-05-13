@@ -33,7 +33,8 @@ class Booking extends CI_Controller {
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
         $this->load->model('service_centre_charges_model');
-        $this->load->model('warranty_model');        
+        $this->load->model('warranty_model'); 
+        $this->load->model('indiapincode_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');
@@ -3953,18 +3954,20 @@ class Booking extends CI_Controller {
         $district = $response['district'];
         $districtZoneType = $response['districtZoneType'];
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
-        }else if($districtZoneType=='Orange Zone'){
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
-        }else{
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
 
         $inContainmentZone = $response['inContainmentZone'];    
         }else{
 
-        $districtZoneType = '<span class="label label-success">NA</span>';   
+        $districtZoneType = '<span class="">NA</span>';   
         }
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
@@ -4356,12 +4359,25 @@ class Booking extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
+        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+        if(!empty($coordinates)){
+        $lat = $coordinates[0]['latitude'];
+        $long = $coordinates[0]['longitude'];
+        }else{
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
-        if(isset($result['results'][0])){
+        if(isset($result['results'][0]['geometry'])){
         $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
+        $long = $result['results'][0]['geometry']['location']['lng'];   
+        }else{
+        $lat="";
+        $long=""; 
+        }
+
+        }
+
+        if(!empty($lat)){
         $payloadName = '{ 
            "key": "'.GEOIQ_API_KEY.'", 
            "latlngs": [['.$lat.','.$long.']]
@@ -4414,17 +4430,17 @@ class Booking extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone']; 
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Orange Zone'){
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Green Zone'){
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
         }else{
-        $districtZoneType = '<span class="label label-success">NA</span>';  
+        $districtZoneType = '<span class="">NA</span>';  
         }
 
 
@@ -5899,16 +5915,19 @@ class Booking extends CI_Controller {
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
+            unset($data[$k]['service_id']);
             unset($data[$k]['booking']);
             unset($data[$k]['spare_parts']);
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
+            unset($data[$k]['service_center_closed_date']);
             unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
+            unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
+        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
             
     function sms_test($number,$text){

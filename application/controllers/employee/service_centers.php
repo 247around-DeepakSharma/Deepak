@@ -6528,7 +6528,7 @@ class Service_centers extends CI_Controller {
                                 $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
-                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, spare_parts_details.shipped_quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.partner_challan_number,spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, spare_parts_details.shipped_quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
                                 $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
                                 //Recreate Challan file if shipped part is different from requested part
                                if (!empty($part_details_challan) && ($part_details_challan[0]['partner_challan_number']=='' || $part_details_challan[0]['requested_inventory_id']!=$part_details_challan[0]['shipped_inventory_id'])) {
@@ -6560,6 +6560,7 @@ class Service_centers extends CI_Controller {
                                     $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $spare_id;
                                     $async_data['booking_id'] = $booking_id;
                                     $this->asynchronous_lib->do_background_process($url, $async_data);
+                                    sleep(40);
                                 }
                             }
                         } else {

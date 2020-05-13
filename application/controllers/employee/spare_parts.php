@@ -16,6 +16,8 @@ class Spare_parts extends CI_Controller {
         $this->load->model('service_centers_model');
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
+        $this->load->model('indiapincode_model');
+        
 
 
         $this->load->library('form_validation');
@@ -1696,13 +1698,24 @@ class Spare_parts extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
+        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+        if(!empty($coordinates)){
+        $lat = $coordinates[0]['latitude'];
+        $long = $coordinates[0]['longitude'];
+        }else{
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
-
-        if(isset($result['results'][0])){
+        if(isset($result['results'][0]['geometry'])){
         $lat = $result['results'][0]['geometry']['location']['lat'];
         $long = $result['results'][0]['geometry']['location']['lng'];
+        }else{
+        $lat="";
+        $long="";    
+        }
+        }
+
+        if(!empty($lat)){
         $payloadName = '{ 
            "key": "'.GEOIQ_API_KEY.'", 
            "latlngs": [['.$lat.','.$long.']]
@@ -1743,14 +1756,13 @@ class Spare_parts extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone'];    
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Orange Zone'){
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
         }
-
-        if($districtZoneType=='Green Zone'){
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
 
