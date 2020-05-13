@@ -4365,14 +4365,16 @@ exit();
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
+        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_shipped, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
+
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email", array('id' => $sp_data[0]->service_center_id));
             
             $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
+            $part_shipped = !(empty($sp_data[0]->parts_shipped))?$sp_data[0]->parts_shipped:$sp_data[0]->parts_requested;
             
             $inventory_id = "";
             $where_cond = array('part_type' => $ptype, 'service_id' => $sp_data[0]->service_id);
@@ -4392,9 +4394,9 @@ exit();
             $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                
             $repair_around_oow_percentage = $margin['oow_around_margin']/100;
-            
+
             $data = array();
-            $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
+            $data[0]['description'] = ucwords($part_shipped) . " (" . $sp_data[0]->booking_id . ") ";
             $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
             $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
@@ -4423,6 +4425,7 @@ exit();
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);
 
