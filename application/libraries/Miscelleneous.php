@@ -2991,11 +2991,15 @@ function generate_image($base64, $image_name,$directory){
 //        }
     }
     
-    function convert_html_to_pdf($html, $booking_id, $filename, $s3_folder) {
+    function convert_html_to_pdf($html, $booking_id, $filename, $s3_folder,$backgournd_url='') {
 
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
+        if($backgournd_url != ''){
+            $mpdf->SetDefaultBodyCSS('background', $backgournd_url);
+            $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+        }
         $t = $mpdf->WriteHTML($html);
         $tempfilePath = TMP_FOLDER . $filename;
         $mpdf->Output($tempfilePath, 'F');

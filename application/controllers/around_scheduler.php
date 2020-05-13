@@ -2844,10 +2844,16 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
-    //CRM-6107 Send autogenrated authorization certificate to SF
-    function send_authorization_certificate(){
+    //CRM-6107 Send autogenrated authorization certificate to all SF
+    function send_authorization_certificate($vendor_id = NULL){
         $this->load->library('SFauthorization_certificate');
-        $this->sfauthorization_certificate->create_new_certificate(1);
+        if($this->sfauthorization_certificate->create_new_certificate($vendor_id)){
+            echo "Send autogenrated authorization certificate to SF successfully.";
+            die;
+        }else{
+            echo "Authorization certificate process is failed due to some issue.";
+            die;
+        }
     }
     
     //CRM-5471 Send agreement copy in email to SF owner's email
