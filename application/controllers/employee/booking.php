@@ -3954,18 +3954,20 @@ class Booking extends CI_Controller {
         $district = $response['district'];
         $districtZoneType = $response['districtZoneType'];
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
-        }else if($districtZoneType=='Orange Zone'){
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
-        }else{
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
 
         $inContainmentZone = $response['inContainmentZone'];    
         }else{
 
-        $districtZoneType = '<span class="label label-success">NA</span>';   
+        $districtZoneType = '<span class="">NA</span>';   
         }
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
@@ -4428,17 +4430,17 @@ class Booking extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone']; 
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Orange Zone'){
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Green Zone'){
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
         }else{
-        $districtZoneType = '<span class="label label-success">NA</span>';  
+        $districtZoneType = '<span class="">NA</span>';  
         }
 
 
@@ -5913,16 +5915,19 @@ class Booking extends CI_Controller {
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
+            unset($data[$k]['service_id']);
             unset($data[$k]['booking']);
             unset($data[$k]['spare_parts']);
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
+            unset($data[$k]['service_center_closed_date']);
             unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
+            unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
+        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
             
     function sms_test($number,$text){

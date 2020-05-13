@@ -302,7 +302,7 @@ class Service_centers_model extends CI_Model {
         
          if(!$select){
              $select = "sc.booking_id,booking_details.service_id,sc.amount_paid,sc.admin_remarks,booking_cancellation_reasons.reason as cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
-                . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as age"
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as age, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,'%Y-%m-%d')) as review_age"
                 . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
