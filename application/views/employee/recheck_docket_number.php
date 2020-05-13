@@ -371,19 +371,21 @@ function reject_courier_invoice(){
     
     
     function recheck_docket_nember(id, awb_no, courier_charge){
-        $.ajax({
-            url: "<?php echo base_url() ?>employee/inventory/process_recheck_docket_number",
-            type: "POST",
-            data: {id:id, awb_no:awb_no, courier_charge:courier_charge}
-        }).done(function (response) { 
-            if(response){
-                alert('Update Successfully.');
-                location.reload();
-            }
-            else{
-                alert('AWB number not found.');
-            }
-        });
+        if(confirm('Are you sure you want recheck?')){
+            $.ajax({
+                url: "<?php echo base_url() ?>employee/inventory/process_recheck_docket_number",
+                type: "POST",
+                data: {id:id, awb_no:awb_no, courier_charge:courier_charge}
+            }).done(function (response) { 
+                if(response){
+                    alert('Update Successfully.');
+                    location.reload();
+                }
+                else{
+                    alert('AWB number not found.');
+                }
+            });
+        }
     }
 </script>
 
