@@ -10196,9 +10196,9 @@ class Inventory extends CI_Controller {
 
                 $array_defective_item_at_warehouse = array(strtoupper(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE), strtoupper(Ok_PARTS_RECEIVED_BY_WAREHOUSE));
 
-                $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED));
+                $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
 
-                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE));
+                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_REJECTED), strtoupper(OK_PARTS_REJECTED));
 
                 $completed_cancelled_array = array(_247AROUND_CANCELLED, 'Booking Completed - Defective Part Shipped By SF', 'Booking Completed - Defective Part To Be Shipped By SF', SPARE_PARTS_CANCELLED, 'Part Lost', 'Booking Completed - Ok Part To Be Shipped By SF', 'Booking Completed - Defective Part Rejected By Partner', 'Booking Completed By Service Centre', _247AROUND_COMPLETED, 'Cancelled - Customer not reachable / Customer not picked phone', NRN_APPROVED_BY_PARTNER, BOOKING_COMPLETED_BY_ENGINEER_STATUS, 'Cancelled - Refused By Customer', 'Cancelled - Customer out of station', 'Booking Completed - Defective Part Received By Partner', 'Booking Completed - Defective Part Rejected By Warehouse', 'Booking Completed - Defective Part Received By Warehouse', BOOKING_CANCELLED_BY_ENGINEER_STATUS, 'Booking Cancelled By Service Centre', 'Cancelled (Customer Refused Service)', 'Booking In Progress - Spare Parts Cancelled');
                 $completed_cancelled_array = array_map('strtoupper', $completed_cancelled_array);
@@ -10253,7 +10253,7 @@ class Inventory extends CI_Controller {
 
 
 
-                $difference = $total_Inward + $total_Outward + $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
+                $difference = $total_Inward - $total_Outward - $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
 
                 /*
                  * Change All Amount values to 2 decimal places
