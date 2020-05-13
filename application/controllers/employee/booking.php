@@ -5913,16 +5913,19 @@ class Booking extends CI_Controller {
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
+            unset($data[$k]['service_id']);
             unset($data[$k]['booking']);
             unset($data[$k]['spare_parts']);
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
+            unset($data[$k]['service_center_closed_date']);
             unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
+            unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
+        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
@@ -6169,6 +6172,10 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             $arr_post = $this->input->post();
+            if(empty($arr_post['selected_price_tags'])){
+                redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+            }
+            else{
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
                 if ($checkValidation) {
@@ -6225,7 +6232,9 @@ class Booking extends CI_Controller {
                 $error = & load_class('Exceptions', 'core');
                 echo $error->show_error($heading, $message, 'custom_error');
             }
-        } else {
+        }
+        }
+         else {
             echo "Booking Id Not Exist...\n Already Updated.";
         }
     }
