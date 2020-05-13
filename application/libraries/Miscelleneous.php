@@ -2969,7 +2969,6 @@ function generate_image($base64, $image_name,$directory){
 //        }
     }
     
-
     function convert_html_to_pdf($html, $booking_id, $filename, $s3_folder,$backgournd_url='') {
 
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
