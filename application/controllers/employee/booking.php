@@ -3954,18 +3954,20 @@ class Booking extends CI_Controller {
         $district = $response['district'];
         $districtZoneType = $response['districtZoneType'];
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
-        }else if($districtZoneType=='Orange Zone'){
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
-        }else{
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
 
         $inContainmentZone = $response['inContainmentZone'];    
         }else{
 
-        $districtZoneType = '<span class="label label-success">NA</span>';   
+        $districtZoneType = '<span class="">NA</span>';   
         }
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
@@ -4428,17 +4430,17 @@ class Booking extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone']; 
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Orange Zone'){
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Green Zone'){
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
         }else{
-        $districtZoneType = '<span class="label label-success">NA</span>';  
+        $districtZoneType = '<span class="">NA</span>';  
         }
 
 

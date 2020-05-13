@@ -13,52 +13,55 @@ td, th {
 </style>
 <script src="<?php echo base_url()?>js/jquery.js"></script>
 <?php foreach ($details as  $value) { ?>
-    <table style="width:100%">
+<div style="display:inline; height: 470px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
+    <table>
         <tr>
-            <th style="border-right:none; height:90px;" > <img style='vertical-align:middle;width:50px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/logo.jpg"; ?>"></th>
-            <th  style="border-left:none;" colspan="3" width="70%"><h2><u><?php if(!empty($value['consumed_part_status'])){ echo $value['consumed_part_status']; } ?> Spare Tag</h2></strong></th>
+            <th style="border-right:none;" > <img style='vertical-align:middle;width:30px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/logo.jpg"; ?>"></th>
+            <th  style="border-left:none;" colspan="3"><h3><u><?php if(!empty($value['consumed_part_status'])){ echo $value['consumed_part_status']; } ?> Spare Tag</h3></strong></th>
         </tr>
         <tr>
-            <td>Partner</td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['public_name'])){     echo $value['public_name'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Partner</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['public_name'])){     echo $value['public_name'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Booking Id</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['booking_id'])){     echo $value['booking_id'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Booking Id</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['booking_id'])){     echo $value['booking_id'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Model Number</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['model_number'])){     echo $value['model_number'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Model Number</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['model_number'])){     echo $value['model_number'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Serial Number</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['serial_number'])){     echo $value['serial_number'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Serial Number</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['serial_number'])){     echo $value['serial_number'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Part Number</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['part_number'])){     echo $value['part_number'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Part Number</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['part_number'])){     echo $value['part_number'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Part Name</strong></td>
-            <td colspan="3" width="70%" style="height:40px;"><strong><?php if(!empty($value['part_name'])){     echo $value['part_name'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Part Name</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['part_name'])){     echo substr($value['part_name'], 0, 30);} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Qty</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['shipped_quantity'])){     echo $value['shipped_quantity'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Qty</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['shipped_quantity'])){     echo $value['shipped_quantity'];} ?></strong></td>
         </tr>
         <tr>
-            <td><strong>Symptom</strong></td>
-            <td colspan="3" style="height:40px;"><strong><?php if(!empty($value['symptom'])){     echo $value['symptom'];} ?></strong></td>
+            <td style="font-size: 13px;"><strong>Symptom</strong></td>
+            <td colspan="3" style="font-size: 13px;"><strong><?php if(!empty($value['symptom'])){ echo $value['symptom'];} ?></strong></td>
         </tr>
         <tr>
-            <td style="border-right:none; height:55px;"><strong>SF/Eng Sign</strong></td>
-            <td style="border-left:none; border-right:none; height:55px;">-----------------------------</td>
-            <td style="border-right:none; border-left:none; height:55px;"><strong>RM/ASM Auth</strong></td>
-            <td style="border-left:none; height:55px;">-----------------------------</td>
+            <td style="font-size: 13px;border-right:none;"><strong>SF/Eng Sign</strong></td>
+            <td style="font-size: 13px;border-left:none;">--------</td>
+            <td style="font-size: 13px; border-right:none;"><strong>RM/ASM Auth</strong></td>
+            <td style="font-size: 13px;border-left:none;">-----------</td>
         </tr>
     </table>
-<br><br>
+<br>
+</div>
 <?php } ?>
+<br><br><br><br>
 <script>
  $(window).load(function(){
     window.print();
