@@ -2956,6 +2956,7 @@ class Spare_parts extends CI_Controller {
                             }
                             $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                             $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                            $spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
                         }
                     } else {
                         $spare_data['partner_id'] = $partner_id;
@@ -2963,15 +2964,19 @@ class Spare_parts extends CI_Controller {
                         $is_micro_wh = $spare_data['is_micro_wh'] = 0;
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                         $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                        $spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
                     }
-                }
+                } else {
+                        $spare_data['partner_id'] = $partner_id;
+                        $spare_data['parts_requested_type'] = $spare_parts_details[0]['parts_requested_type'];
+                } 
 
                 $spare_data['part_requested_on_approval'] = 1;
                 $spare_data['part_warranty_status'] = $part_warranty_status;
 
                 if ($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
                     //$spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
-                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($check_defective_required_inventory_id);
+                    $spare_data['defective_part_required'] = $this->inventory_model->is_defective_part_required($booking_id, $check_defective_required_inventory_id, $spare_data['partner_id'], $spare_data['parts_requested_type']);
                 } else {
                     $spare_data['defective_part_required'] = 0;
                 }
@@ -4585,6 +4590,7 @@ class Spare_parts extends CI_Controller {
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
         
+        //$post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
         //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
         $post['is_inventory'] = TRUE;
 

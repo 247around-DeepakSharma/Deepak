@@ -3486,6 +3486,7 @@ class Inventory_model extends CI_Model {
         }
 
         $query = $this->db->get();
+        //echo $this->db->last_query();
         return $query->result();
     }
 
@@ -3514,6 +3515,11 @@ class Inventory_model extends CI_Model {
 
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
+        }
+        
+        if(empty($post['search']['value'])){
+           $where = 'spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))';
+           $this->db->where($where);  
         }
 
         if (!empty($post['search']['value'])) {

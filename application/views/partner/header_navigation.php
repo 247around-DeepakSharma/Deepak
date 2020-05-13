@@ -271,7 +271,7 @@
                                 </form>
                             </li>
 
-                            <li><a style="color:#db241b !important;font-size:30px;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
+                            
 
                         </ul>
                     </nav>
@@ -362,6 +362,10 @@
                                
                                         <!--<img id="crm_training" src="<?php// echo base_url(); ?>images/crm_training.png" style="width:20px;height:20px;">-->
                                   </li> 
+
+                                  <li>
+                                    <a style="cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" ><img src="<?php echo base_url(); ?>images/virus.png" /></a></li>
+
                             </ul>
                         </div>
                     </div>
@@ -404,7 +408,7 @@
 
   <!-- Modal content -->
  
-  <div class="modal-content">
+  <div class="modal-content" style="width: 60%;margin: 0 auto;">
       <div class="modal-header">
         <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
         <h4 style="font-weight:900;" class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h4>
