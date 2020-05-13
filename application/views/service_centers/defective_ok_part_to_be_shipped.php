@@ -592,7 +592,7 @@ if ($this->uri->segment(3)) {
         }
 
         $(".checkbox_spare_tag").prop('checked', $(this).prop("checked"));
-        $("#button_send").val("Print Shipment Address");
+        $("#button_send").val("Print Tag Address");
         $("#button_send").attr("type", "submit");
         $("#button_send").removeAttr("data-target");
 
