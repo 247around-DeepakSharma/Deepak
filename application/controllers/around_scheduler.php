@@ -2843,4 +2843,29 @@ class Around_scheduler extends CI_Controller {
             $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
         }
     }
+
+    //CRM-6107 Send autogenrated authorization certificate to all SF
+    function send_authorization_certificate($vendor_id = NULL){
+        $this->load->library('SFauthorization_certificate');
+        if($this->sfauthorization_certificate->create_new_certificate($vendor_id)){
+            echo "Send autogenrated authorization certificate to SF successfully.";
+            die;
+        }else{
+            echo "Authorization certificate process is failed due to some issue.";
+            die;
+        }
+    }
+    
+    //CRM-5471 Send agreement copy in email to SF owner's email
+    function send_agreement_to_sf(){
+        $email = 'sarvendrag@247around.com';
+        $this->load->library('SFAgreement');
+        $this->sfagreement->send_email_agreement_to_sf($email);
+    }
+    //CRM-5471 Send agreement reminder email to SF owner's email
+    function send_agreement_reminder_to_sf($reminder_date = NULL){
+        $this->load->library('SFAgreement');
+        $reminder_date = date('Y-m-d');
+        $this->sfagreement->send_reminder($reminder_date);
+    }
 }
