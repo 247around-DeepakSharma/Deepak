@@ -4438,7 +4438,7 @@ class Booking extends CI_Controller {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
         }else{
-        $districtZoneType = '<span class="label label-success">NA</span>';  
+        $districtZoneType = '<span class="">NA</span>';  
         }
 
 
