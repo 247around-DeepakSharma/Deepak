@@ -33,7 +33,8 @@ class Booking extends CI_Controller {
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
         $this->load->model('service_centre_charges_model');
-        $this->load->model('warranty_model');        
+        $this->load->model('warranty_model'); 
+        $this->load->model('indiapincode_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');
@@ -4356,12 +4357,25 @@ class Booking extends CI_Controller {
      */
     function getBookingCovidZoneAndContZone($pincode){
 
+        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+        if(!empty($coordinates)){
+        $lat = $coordinates[0]['latitude'];
+        $long = $coordinates[0]['longitude'];
+        }else{
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
-        if(isset($result['results'][0])){
+        if(isset($result['results'][0]['geometry'])){
         $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
+        $long = $result['results'][0]['geometry']['location']['lng'];   
+        }else{
+        $lat="";
+        $long=""; 
+        }
+
+        }
+
+        if(!empty($lat)){
         $payloadName = '{ 
            "key": "'.GEOIQ_API_KEY.'", 
            "latlngs": [['.$lat.','.$long.']]

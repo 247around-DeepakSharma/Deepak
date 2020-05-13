@@ -129,6 +129,21 @@ class Indiapincode_model extends CI_Model {
         return $query->result_array();
 
     }
+
+
+    /*
+     *  @param : void pincode
+     *  @return : array of coordinates
+     *  @author : Abhishek Awasthi
+     */
+    function getPinCoordinates($pincode){
+        $this->db->distinct();
+        $this->db->select('latitude,longitude');
+        $this->db->where('latitude IS NOT NULL',NULL);
+        $this->db->where('pincode',$pincode);
+        $query = $this->db->get('india_pincode');
+        return $query->result_array();
+    }
     
     
 
