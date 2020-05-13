@@ -1249,8 +1249,7 @@ class service_centre_charges extends CI_Controller {
         $data['is_upcountry'] = $form_data['free_upcountry'];
         $data['customer_total'] = $form_data['free_customer_total'];
         $data['customer_net_payable'] = 0;
-        $data['free_partner_extra_spare'] = $form_data['free_partner_extra_spare'];
-
+        $data['partner_spare_extra_charge'] = $form_data['free_partner_extra_spare'];
         $data['partner_net_payable'] = $form_data['free_customer_total'];
         $vendor_tax = $form_data['free_vendor_total'] * SERVICE_TAX_RATE;
         $vendor_total = $form_data['free_vendor_total'] + $vendor_tax;
