@@ -592,7 +592,7 @@ if ($this->uri->segment(3)) {
         }
 
         $(".checkbox_spare_tag").prop('checked', $(this).prop("checked"));
-        $("#button_send").val("Print Shipment Address");
+        $("#button_send").val("Print Spare Tag");
         $("#button_send").attr("type", "submit");
         $("#button_send").removeAttr("data-target");
 
@@ -688,6 +688,15 @@ if ($this->uri->segment(3)) {
         }
     });
 
+    $(".checkbox_spare_tag").click(function () {
+        if ($('.checkbox_spare_tag:checkbox:checked').length > 0) {
+            $("#button_send").val("Print Spare Tag");
+            $("#button_send").attr("type", "submit");
+            $("#button_send").removeAttr("data-target");
+        }
+    });
+    
+    
     $(".checkbox_address").click(function () {
         if ($('.checkbox_address:checkbox:checked').length > 0) {
             $("#button_send").val("Print Shipment Address");

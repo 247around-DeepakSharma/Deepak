@@ -1756,14 +1756,13 @@ class Spare_parts extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
         $inContainmentZone = $response['inContainmentZone'];    
 
-        if($districtZoneType=='Red Zone'){
+        if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
         }
-        if($districtZoneType=='Orange Zone'){
+        if (strpos($districtZoneType, 'Orange') !== false) {
         $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
         }
-
-        if($districtZoneType=='Green Zone'){
+        if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
         }
 
