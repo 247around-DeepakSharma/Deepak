@@ -190,6 +190,9 @@
                                                 ?>" placeholder="Company Name">
                                             <?php echo form_error('company_name'); ?>
                                         </div>
+                                          <div class="col-sm-2" >
+                                            <i class="fa fa-clipboard" title="Copy to clipboard" style="font-size:20px; padding:3px; cursor: pointer; border: 1.5px #555 solid" onclick="copy_text('company_name')"></i> 
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -200,12 +203,15 @@
                                         ?>">
                                         <label  for="name" class="col-md-3">Display Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" id="name" name="name" value = "<?php
+                                            <input  type="text" class="form-control blockspacialchar" id="display_name" name="name" value = "<?php
                                                 if (isset($query[0]['name'])) {
                                                     echo $query[0]['name'];
                                                 }
                                                 ?>" placeholder="Public Name" onchange="remove_white_space(this.value)">
                                             <?php echo form_error('name'); ?>
+                                        </div>
+                                        <div class="col-sm-2" >
+                                            <i class="fa fa-clipboard" title="Copy to clipboard" style="font-size:20px; padding:3px; cursor: pointer; border: 1.5px #555 solid" onclick="copy_text('display_name')"></i> 
                                         </div>
                                     </div>
                                 </div>
@@ -450,31 +456,31 @@
                             <div class="row">
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
                                 </label>
                                     </div>
                                                 <?php if(!$saas_module){ ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
                                 </label>
                                 </div>
                                                 <?php }?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
                                 </div>
                                   <?php if(!$saas_module){ ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
                                 </label>
                                 </div>
                                   <?php } ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
                                 </label>
                                 </div>
                             </div>
@@ -493,7 +499,7 @@
                                                 echo "checked";
                                             }
                                         }
-                                        ?> >
+                                        ?> class='checkbox_input'>
                                 <?php echo $day; ?> &nbsp;&nbsp;&nbsp;
                                 </label>
                                 <?php } ?>
@@ -1497,6 +1503,11 @@
 
 <!--Validation for page1-->
 <script type="text/javascript">
+     function copy_text(id) { 
+        var value = document.getElementById(id); 
+        value.select(); 
+        document.execCommand("copy");
+    } 
 
     $(document).ready(function(){
         
@@ -2120,9 +2131,10 @@ function manageAccountNameField(value){
     // CRM-5620 disbled company name and document details on edit SF deatils
     function edit_form() {
         var container = $('#edit_service_center').attr('container');
-        $('#'+container).find('.form-control, .select2, #submit_btn').css('pointer-events', 'auto');
+        $('#'+container).find('.form-control, .select2, .checkbox_input, #submit_btn').css('pointer-events', 'auto');
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel').css('display', 'inline');
+        $('#container-1').css('pointer-events', 'auto');
         
         if($('#'+container+' #company_name').val() != ''){
             $('#'+container+' #company_name').css('pointer-events', 'none');
