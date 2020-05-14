@@ -392,10 +392,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
       <div class="modal-dialog" style=" height: 90% !important;">
          <!-- Modal content-->
          <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <br />
-          </div>
             <div class="modal-body">
                 <div id="commentbox_<?=$review_status?>_<?=$is_partner?>"></div>
             </div>
