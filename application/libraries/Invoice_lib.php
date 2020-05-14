@@ -754,7 +754,7 @@ class Invoice_lib {
                 }else{
                     $tmp_arr['consumption'] = 'NA';
                 }
-            
+                
                 if (isset($value2[0]['courier_name']) && !empty($value2[0]['courier_name'])) {
                     $tmp_arr['courier_name'] = $value2[0]['courier_name'];
                 } else {
