@@ -4431,13 +4431,13 @@ class Booking extends CI_Controller {
         $inContainmentZone = $response['inContainmentZone']; 
 
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = '<span style="background-color: #d9534f;padding-left:36px;"></span>';
+        $districtZoneType = '<br><span style="background-color: #d9534f;padding-left:36px;"></span>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<span style="background-color: #ef920d;padding-left:36px; "></span>';
+        $districtZoneType = '<br><span style="background-color: #ef920d;padding-left:36px; "></span>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<span style="background-color: #5cb85c;padding-left:36px; "></span>';
+        $districtZoneType = '<br><span style="background-color: #5cb85c;padding-left:36px; "></span>';
         }
         }else{
         $districtZoneType = '<span class=""></span>';  
