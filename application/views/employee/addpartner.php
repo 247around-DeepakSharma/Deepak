@@ -1281,7 +1281,7 @@ input[type=file][readonly]
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <p><b>Contracts</b></p>
-                            <button type="button" class="btn btn-success" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" id="add_more_1" onclick="add_more_fields(this.id)">Add More Contracts</button>
+                            <button type="button" class="btn btn-success add-extra-row" style="float:right;margin-top: -33px;background: #31b0d5;border-color: #31b0d5;" id="add_more_1" onclick="add_more_fields(this.id)">Add More Contracts</button>
                         </div>
                         <div class="panel-body contract_holder" id="contract_holder_1">
                             <div class="col-md-6 form-group <?php if (form_error('agreement_start_date')) {
@@ -1367,6 +1367,9 @@ input[type=file][readonly]
                                 </div>
 <!--                                <hr style="border: 1px solid #a1e8a1;">-->
                             </div>
+                            <div class="col-md-6">
+                                <a class="hide-section form-control" title="Remove Contract" style="float:right;width:5%;display:none;"><span class="glyphicon glyphicon-minus"></span></a>
+                            </div>
                         </div>
                         <div id="cloned"></div>
                     </div>
@@ -1386,7 +1389,7 @@ input[type=file][readonly]
                 if(!empty($results['partner_contracts'])){
                     ?>
             <div id="exist_documents">
-                <table class="table">
+                <table class="table" id="contract-table">
                     <thead>
                         <tr>
                             <th>S.N</th>
@@ -1409,14 +1412,15 @@ input[type=file][readonly]
                             <td><?php echo $value['collateral_type'] ?></td>
                             <td><a target="_blank" href="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".urlencode($value['file']);?>"><?php echo $value['file'] ?></a></td>
                             <td><?php echo $value['document_description'] ?></td>
-                            <td><?php echo date("d-M-Y", strtotime($value['start_date'])) ?></td>
-                            <td><?php echo date("d-M-Y", strtotime($value['end_date'])) ?></td>
+                            <td><?php echo date('d-M-Y', strtotime($value['start_date'])) ?></td>
+                            <td><?php echo date('d-M-Y', strtotime($value['end_date'])) ?></td>
                         </tr>
-                        <tr>
+                        
                             <?php
                                 }
                                 }
                                 ?>
+                            </tbody>
                 </table>
             </div>
             <?php
@@ -3925,7 +3929,19 @@ input[type=file][readonly]
        }
     });
     
+    $('#contract-table').dataTable({
+        'columnDefs': [ {
+            'targets': [0,1,2,3,4,5], // column index (start from 0)
+            'orderable': false, // set orderable false for selected columns
+         }]
+    });
 </script>
+<style>
+    #contract-table_filter {
+        float:right;
+    }
+    
+</style>
 <script type="text/javascript">
     var serialNo;
     $.validator.addMethod("regx", function (value, element, regexpr) {
@@ -4162,6 +4178,14 @@ input[type=file][readonly]
         document.getElementById("cloned").appendChild(clone); 
         //var targetDiv = document.getElementById("contract_holder_"+(id_number+1)).getElementsByClassName("contract_type")[0];
         //targetDiv.id = "contract_type_"+(id_number+1);
+        
+        $('#contract_holder_'+(id_number+1)).children('div').children('.hide-section').css('display', 'inline-block');
+        $('#contract_holder_'+(id_number+1)).children('div').children('.hide-section').attr('onClick', 'hide_section('+(id_number+1)+')');
+    }
+    
+    function hide_section(remove_btn_id) {
+        $('#contract_holder_'+(remove_btn_id)).remove();
+        $('.add-extra-row').attr('id', 'add_more_'+(remove_btn_id - 1))
     }
     
     function create_drop_down(brandMappingJson){
