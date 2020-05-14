@@ -468,7 +468,8 @@ class Service_centers_model extends CI_Model {
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
          //log_message('info', __FUNCTION__  .$this->db->last_query());
-         //echo $this->db->last_query();
+//        echo $this->db->last_query();
+//        die();
         return $query->result_array();
     }
 
