@@ -1249,6 +1249,11 @@ class Service_centers extends CI_Controller {
 
             // push AM mail and ASM mail in To
             array_push($to, $asm_email, $am_email);
+            // If ASM is not mapped to SF, send mail to RM
+            if(empty($asm_email)){
+                $rm_email = $this->get_rm_email($this->session->userdata('service_center_id'));
+                array_push($to, $rm_email);
+            }
             // Remove Blank emails
             $to = array_filter($to);
             $to = implode(',', $to);
