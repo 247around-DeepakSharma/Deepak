@@ -6169,10 +6169,6 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             $arr_post = $this->input->post();
-            if(empty($arr_post['selected_price_tags'])){
-                redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-            }
-            else{
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
                 if ($checkValidation) {
@@ -6229,9 +6225,7 @@ class Booking extends CI_Controller {
                 $error = & load_class('Exceptions', 'core');
                 echo $error->show_error($heading, $message, 'custom_error');
             }
-        }
-        }
-         else {
+        } else {
             echo "Booking Id Not Exist...\n Already Updated.";
         }
     }
