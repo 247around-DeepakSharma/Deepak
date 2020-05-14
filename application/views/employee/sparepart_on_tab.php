@@ -1846,6 +1846,7 @@
         $('#download_spare_oot').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         $.ajax({
                 type: 'POST',
+				dataType: 'json',
                 url: '<?php echo base_url(); ?>employee/spare_parts/download_spare_oot_data',
                 data: { download_flag :true},
                 success: function (data) {
