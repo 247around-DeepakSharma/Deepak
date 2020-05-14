@@ -36,8 +36,8 @@
                                 <th>Booking Timeslot</th>
                                 <th>Booking Type</th>
                                 <th>Purchase Date</th>
-                                <th>Booking Warranty Status</th>
-                                <th>Current Warranty Status</th>
+                                <th>Booking Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
+                                <th>Current Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                 <th>Status</th>
                                 <th>View</th>
                                 <th>Go To Booking </th>
