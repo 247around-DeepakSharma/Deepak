@@ -2156,8 +2156,9 @@ class Inventory_model extends CI_Model {
     }
     
     function _querySearchCourierInvoice($select, $post){
+        $this->db->select($select);
         $this->db->from('courier_company_invoice_details');
-        $this->db->select($select, FALSE);
+        $this->db->join('billed_docket', 'courier_company_invoice_details.id = billed_docket.courier_id');
 
         if (!empty($post['where'])) {
             $this->db->where($post['where'], FALSE);
