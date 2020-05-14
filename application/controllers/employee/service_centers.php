@@ -6535,10 +6535,21 @@ class Service_centers extends CI_Controller {
                                 $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
-                                $select = 'booking_details.booking_id, spare_parts_details.id,spare_parts_details.partner_challan_number,spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, spare_parts_details.shipped_quantity, im.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
+                                $select = 'booking_details.booking_id, booking_details.service_id, spare_parts_details.id,spare_parts_details.partner_challan_number,spare_parts_details.requested_inventory_id,spare_parts_details.shipped_parts_type, spare_parts_details.shipped_inventory_id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested,spare_parts_details.parts_shipped, spare_parts_details.challan_approx_value, spare_parts_details.quantity, spare_parts_details.shipped_quantity, im.part_number,im.price,im.gst_rate, spare_parts_details.partner_id,booking_details.assigned_vendor_id,spare_consumption_status.consumed_status';
                                 $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
                                 //Recreate Challan file if shipped part is different from requested part
                                if (!empty($part_details_challan) && ($part_details_challan[0]['partner_challan_number']=='' || $part_details_challan[0]['requested_inventory_id']!=$part_details_challan[0]['shipped_inventory_id'])) {
+                                    if($part_details_challan[0]['requested_inventory_id']!=$part_details_challan[0]['shipped_inventory_id'] && $part_details['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){
+                                        $margin = $this->inventory_model->get_oow_margin($part_details_challan[0]['shipped_inventory_id'], array('part_type' => $part_details_challan[0]['shipped_parts_type'],'inventory_parts_type.service_id' => $part_details_challan[0]['service_id']));
+                                        $estimate_cost = round((($part_details_challan[0]['price'] + ( $part_details_challan[0]['price'] * $part_details_challan[0]['gst_rate']) / 100) * $part_details_challan[0]['shipped_quantity']), 2);
+                                        $spare_oow_est_margin = $margin['oow_est_margin']/100;
+                                        $spare_oow_around_margin=$margin['oow_around_margin']/100;
+                                        $data_price_update['purchase_price'] = $estimate_cost;
+                                        $data_price_update['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
+                                        $data_price_update['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_around_margin);
+                                        $where_price_update = array('id' => $spare_id);
+                                        $this->service_centers_model->update_spare_parts($where_price_update, $data_price_update);
+                                    }
                                     $this->generate_challan_to_sf($part_details_challan);
                                 }
                             }
@@ -6567,7 +6578,9 @@ class Service_centers extends CI_Controller {
                                     $url = base_url() . "employee/invoice/generate_oow_parts_invoice/" . $spare_id;
                                     $async_data['booking_id'] = $booking_id;
                                     $this->asynchronous_lib->do_background_process($url, $async_data);
+                                    if(count($part) > 1){
                                     sleep(40);
+                                    }
                                 }
                             }
                         } else {
