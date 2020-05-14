@@ -4428,16 +4428,16 @@ class Booking extends CI_Controller {
         $inContainmentZone = $response['inContainmentZone']; 
 
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #d9534f;">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #d9534f;"></span>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #ef920d; ">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #ef920d; "></span>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #5cb85c; ">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<span style="height: 25px;width: 25px;background-color: #5cb85c; "></span>';
         }
         }else{
-        $districtZoneType = '<span class="">NA</span>';  
+        $districtZoneType = '<span class=""></span>';  
         }
 
 
@@ -4575,7 +4575,7 @@ class Booking extends CI_Controller {
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span> <br> Covid Zone: ".$districtZoneType;
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>;
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
