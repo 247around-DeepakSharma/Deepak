@@ -4936,6 +4936,15 @@ class Partner extends CI_Controller {
                 );
                 continue;
             }
+            // If start date is bigger than end date then return error.
+            if ((strtotime($start_date_array[$index])) > (strtotime($end_date_array[$index]))) {
+                $failedContracts[] = array(
+                    "index"=>$index+1,
+                    "contract_type"=>$contract_type_array[$index],
+                    "reason"=>"Start date must be smaller than end date."
+                );            
+            }
+            
             if (($_FILES['contract_file']['error'][$index] != 4) && !empty($_FILES['contract_file']['tmp_name'][$index])) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
                 $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
@@ -4951,7 +4960,7 @@ class Partner extends CI_Controller {
                 $insertArray = array("entity_id" => $partner_id, "entity_type" => "partner", "collateral_id" => $contract_type,
                     "document_description" => $contract_description_array[$index], 'file' => $contract_file, "start_date" => $start_date_array[$index], 'end_date' => $end_date_array[$index]);
                 $finalInsertArray[] = $insertArray;
-                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type[$index]."'");
+                $contract_type_tag = $this->reusable_model->execute_custom_select_query("SELECT `collateral_tag`, collateral_type FROM `collateral_type` WHERE `id`='".$contract_type."'");
                 $emailArray = array("Contract_Type"=>$contract_type_tag[0]['collateral_type'], "Partnership_Start_Date"=>$start_date_array[$index], "Partnership_End_Date"=>$end_date_array[$index], "Contract_Description" => $contract_description_array[$index]);
             }
         }
