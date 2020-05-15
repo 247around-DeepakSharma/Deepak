@@ -7243,7 +7243,29 @@ class Partner extends CI_Controller {
                     if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
                        $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
                     }
-                    $tempArray[] =  $sn. $tempString;
+ 
+                  /*  COVID */
+                  $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row->district);
+                  if(!empty($response_db)){
+                  $result = json_decode($response_db[0]['zone'],true);
+                  $response = $result;
+                  }
+                  if(!empty($response)){
+                  $districtZoneType = $response['zone'];
+                  if (strpos($districtZoneType, 'Red') !== false) {
+                  $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Orange') !== false) {
+                  $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Green') !== false) {
+                  $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+                  }    
+                  }else{
+                  $districtZoneType = '<span></span>';   
+                  }
+
+                    $tempArray[] =  $sn. $tempString. $districtZoneType;
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] =  $row['services'];
                     $tempArray[] =  $row['name'];
