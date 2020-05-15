@@ -7245,7 +7245,7 @@ class Partner extends CI_Controller {
                     }
  
                   /*  COVID */
-                  $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row->district);
+                  $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row['district']);
                   if(!empty($response_db)){
                   $result = json_decode($response_db[0]['zone'],true);
                   $response = $result;
