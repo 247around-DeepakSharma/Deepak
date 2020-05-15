@@ -555,7 +555,13 @@ class Miscelleneous {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
         $data['internal_status'] = $cancellation_text;
         $data['cancellation_reason'] = $cancellation_reason;
-        $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
+        // Get cancellation reason Text from Id
+        $cancellation_reason_text = "";
+        if(!empty($cancellation_reason)){
+            $arr_cancellation_reason =  $this->My_CI->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
+            $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+        }
+        $historyRemarks = $cancellation_reason_text."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
         $data['current_status'] = _247AROUND_CANCELLED;
