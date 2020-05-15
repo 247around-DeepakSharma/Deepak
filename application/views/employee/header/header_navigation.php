@@ -197,7 +197,7 @@
             <?php } ?>
             <!-- Admin SF authorization certificate link-->
             <li><a href="<?php echo base_url('employee/SF_authorization_certificate'); ?>">SF Authorization Certificate</a></li>
-            <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
+           <li><a style="color:#00ff7e;font-weight:900;cursor:pointer;" id="myBtn" data-toggle="modal" data-target="#myModalCovid" >COVID-19</a></li>
             </ul>
            
                 
