@@ -161,11 +161,8 @@ function send_remarks_multitab(review_status, is_partner) {
 
 }
 
-function review_search(status,is_partner){
-    var sub_id = "";
-    if($('#sub_id').length && $('#sub_id').val() != ''){
-        sub_id = $('#sub_id').val();
-    }
+function review_search(status,is_partner,sub_id){
+    sub_id = sub_id || '';
     var bookingID = $('#search_'+status+'_'+is_partner+sub_id).val();
      
     if(bookingID == '') {
@@ -194,10 +191,22 @@ function review_search(status,is_partner){
 	partner = $(partner_input_id).val();
     }
     
-    var request_type = '';
     if($('#request_type_'+is_partner+'_'+status+sub_id).length && $('#request_type_'+is_partner+'_'+status+sub_id).val() != '') {
+    var request_type = '0';
         var request_type_id = '#request_type_'+is_partner+'_'+status+sub_id;
         request_type = $(request_type_id).val();
+    }
+    
+    // set value for the Review Range filter
+    var min_review_age = 0;
+    var max_review_age = 0;
+    if($('#review_age_min_'+is_partner+'_'+status+sub_id).length && $('#review_age_min_'+is_partner+'_'+status+sub_id).val() != '') {
+        var min_review_age_id = '#review_age_min_'+is_partner+'_'+status+sub_id;
+        min_review_age = $(min_review_age_id).val();
+    }
+    if($('#review_age_max_'+is_partner+'_'+status+sub_id).length && $('#review_age_max_'+is_partner+'_'+status+sub_id).val() != '') {
+        var max_review_age_id = '#review_age_max_'+is_partner+'_'+status+sub_id;
+        max_review_age = $(max_review_age_id).val();
     }
     var tab = "#tabs-3";
     if(status == "Completed"){
@@ -212,6 +221,5 @@ function review_search(status,is_partner){
     if(sub_id != ""){
         var tab = "#tabs-6";
     }
-
-    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type, tab,0);
+    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age, tab,0);
 }
