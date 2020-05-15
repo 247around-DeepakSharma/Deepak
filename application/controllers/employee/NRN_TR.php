@@ -12,7 +12,11 @@ class NRN_TR extends CI_Controller {
 
     function __Construct() {
         parent::__Construct();
-
+        $this->checkUserSession();
+        if (strtolower($this->session->userdata('partner_name')) != 'akai') {
+            $this->session->sess_destroy();
+            redirect(base_url() . "partner/login");
+        }
         $this->load->model('partner_model');
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -108,20 +112,19 @@ class NRN_TR extends CI_Controller {
 
     function insert_nrn_details() {
         $nrn_details = $this->input->post();
-        $nrn_details['physical_status_remark_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['physical_status_remark_date'])));
-        $nrn_details['tr_reporting_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['tr_reporting_date'])));
-        $nrn_details['booking_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['booking_date'])));
-        $nrn_details['purchase_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date'])));
-        $nrn_details['approval_rejection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['approval_rejection_date'])));
-        $nrn_details['defective_receiving_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['defective_receiving_date'])));
-        $nrn_details['replacement_dispatch_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_dispatch_date'])));
-        $nrn_details['replacement_delivery_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_delivery_date'])));
-        $nrn_details['category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['category_after_inspection_date'])));
-        $nrn_details['final_pdi_category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_pdi_category_after_inspection_date'])));
-        $nrn_details['vendor_warranty_expire_month'] = date("Y-m-t", strtotime(str_replace('/', '-', '1/' . $nrn_details['vendor_warranty_expire_month'])));
-        $nrn_details['final_defective_status_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_defective_status_date'])));
-        $nrn_details['vendor_reversal_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['vendor_reversal_date'])));
-
+        $nrn_details['physical_status_remark_date'] = $nrn_details['physical_status_remark_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['physical_status_remark_date']))) : '';
+        $nrn_details['tr_reporting_date'] = $nrn_details['tr_reporting_date']!= '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['tr_reporting_date']))) : '';
+        $nrn_details['booking_date'] = $nrn_details['booking_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['booking_date']))) : '';
+        $nrn_details['purchase_date'] = $nrn_details['purchase_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date']))) : '';
+        $nrn_details['approval_rejection_date'] = $nrn_details['approval_rejection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['approval_rejection_date']))) : '';
+        $nrn_details['defective_receiving_date'] = $nrn_details['defective_receiving_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['defective_receiving_date']))) : '';
+        $nrn_details['replacement_dispatch_date'] = $nrn_details['replacement_dispatch_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_dispatch_date']))) : '';
+        $nrn_details['replacement_delivery_date'] = $nrn_details['replacement_delivery_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_delivery_date']))) : '';
+        $nrn_details['category_after_inspection_date'] = $nrn_details['category_after_inspection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['category_after_inspection_date']))) : '';
+        $nrn_details['final_pdi_category_after_inspection_date'] = $nrn_details['final_pdi_category_after_inspection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_pdi_category_after_inspection_date']))) : '';
+        $nrn_details['vendor_warranty_expire_month'] = $nrn_details['vendor_warranty_expire_month'] != '' ? date("Y-m-t", strtotime(str_replace('/', '-', '1/' . $nrn_details['vendor_warranty_expire_month']))) : '';
+        $nrn_details['final_defective_status_date'] = $nrn_details['final_defective_status_date'] ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_defective_status_date']))) : '';
+        $nrn_details['vendor_reversal_date'] = $nrn_details['vendor_reversal_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['vendor_reversal_date']))) : '';
         $this->load->model('nrn_model');
         $this->nrn_model->insert_nrn_details($nrn_details);
         return TRUE;
@@ -146,9 +149,17 @@ class NRN_TR extends CI_Controller {
             $nrn_record = array();
             $this->load->model('nrn_model');
             $nrn_record = $this->nrn_model->get_nrn_records($nrn_id);
+            $partner_details = $this->session->userdata;
+            if (empty($partner_details['partner_id']) || $partner_details['partner_id'] == '') {
+                $this->session->set_flashdata('error', 'Invalid partner');
+                redirect('partner/list_nrn_records');
+            }
+            // Create dropdown options data array 
+            //$data['partner_id'] = $partner_details['partner_id'];
+            //$data['brand'] = $partner_details['partner_name'];
+            //$data['partner_type'] = 'OEM';
             $data['nrn_record'] = ($nrn_record !== NULL) ? $nrn_record[0] : array();
             $data['crm_name'] = array('' => 'Select CRM', '247' => '247', 'AKAI' => 'AKAI');
-            $data['products'] = array('' => 'Select Product', 'LED' => 'LED', 'AC' => 'AC', 'Washing Machine' => 'Washing Machine');
             $data['owners'] = array('' => 'Select Owner', 'Customer' => 'Customer', 'Sub-Dealer' => 'Sub-Dealer', 'Dealer' => 'Dealer');
             $data['physical_status'] = array('' => 'Select Physical Status', 'Defective' => 'Defective', 'DOA' => 'DOA', 'Damage' => 'Damage');
             $data['make'] = array('' => 'Select Make', 'MEPL' => 'MEPL', 'VEIRA' => 'VEIRA', 'CHANGHONG' => 'CHANGHONG', 'HISENS' => 'HISENS', 'JPE' => 'JPE', 'KTC' => 'KTC', 'CHIGO' => 'CHIGO', 'TCL' => 'TCL', 'AMBER' => 'AMBER', 'E-VISION' => 'E-VISION', 'DIXON' => 'DIXON', 'VIMALPLAST' => 'VIMALPLAST', 'SUN INDUSTRIES' => 'SUN INDUSTRIES');
@@ -181,19 +192,19 @@ class NRN_TR extends CI_Controller {
 
     function update_nrn_details() {
         $nrn_details = $this->input->post();
-        $nrn_details['physical_status_remark_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['physical_status_remark_date'])));
-        $nrn_details['tr_reporting_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['tr_reporting_date'])));
-        $nrn_details['booking_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['booking_date'])));
-        $nrn_details['purchase_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date'])));
-        $nrn_details['approval_rejection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['approval_rejection_date'])));
-        $nrn_details['defective_receiving_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['defective_receiving_date'])));
-        $nrn_details['replacement_dispatch_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_dispatch_date'])));
-        $nrn_details['replacement_delivery_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_delivery_date'])));
-        $nrn_details['category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['category_after_inspection_date'])));
-        $nrn_details['final_pdi_category_after_inspection_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_pdi_category_after_inspection_date'])));
-        $nrn_details['vendor_warranty_expire_month'] = date("Y-m-t", strtotime(str_replace('/', '-', '1/' . $nrn_details['vendor_warranty_expire_month'])));
-        $nrn_details['final_defective_status_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_defective_status_date'])));
-        $nrn_details['vendor_reversal_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['vendor_reversal_date'])));
+        $nrn_details['physical_status_remark_date'] = $nrn_details['physical_status_remark_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['physical_status_remark_date']))) : '';
+        $nrn_details['tr_reporting_date'] = $nrn_details['tr_reporting_date']!= '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['tr_reporting_date']))) : '';
+        $nrn_details['booking_date'] = $nrn_details['booking_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['booking_date']))) : '';
+        $nrn_details['purchase_date'] = $nrn_details['purchase_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['purchase_date']))) : '';
+        $nrn_details['approval_rejection_date'] = $nrn_details['approval_rejection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['approval_rejection_date']))) : '';
+        $nrn_details['defective_receiving_date'] = $nrn_details['defective_receiving_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['defective_receiving_date']))) : '';
+        $nrn_details['replacement_dispatch_date'] = $nrn_details['replacement_dispatch_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_dispatch_date']))) : '';
+        $nrn_details['replacement_delivery_date'] = $nrn_details['replacement_delivery_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['replacement_delivery_date']))) : '';
+        $nrn_details['category_after_inspection_date'] = $nrn_details['category_after_inspection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['category_after_inspection_date']))) : '';
+        $nrn_details['final_pdi_category_after_inspection_date'] = $nrn_details['final_pdi_category_after_inspection_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_pdi_category_after_inspection_date']))) : '';
+        $nrn_details['vendor_warranty_expire_month'] = $nrn_details['vendor_warranty_expire_month'] != '' ? date("Y-m-t", strtotime(str_replace('/', '-', '1/' . $nrn_details['vendor_warranty_expire_month']))) : '';
+        $nrn_details['final_defective_status_date'] = $nrn_details['final_defective_status_date'] ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['final_defective_status_date']))) : '';
+        $nrn_details['vendor_reversal_date'] = $nrn_details['vendor_reversal_date'] != '' ? date("Y-m-d", strtotime(str_replace('/', '-', $nrn_details['vendor_reversal_date']))) : '';
         $nrn_id = $nrn_details['nrn_id'];
 
         $this->load->model('nrn_model');
@@ -244,6 +255,7 @@ class NRN_TR extends CI_Controller {
         $partner_type = $this->input->post('partner_type');
 
         $partner_id = $this->input->post('partner_id');
+        $selected_category = $this->input->post('category') != '' ? $this->input->post('category') : '';
         if ($partner_type == OEM) {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $brand);
         } else {
@@ -256,9 +268,13 @@ class NRN_TR extends CI_Controller {
             $result = $this->booking_model->getCategoryForService($service_id, $partner_id, $isWbrand);
         }
 
-        echo "<option selected disabled>Select Appliance Category</option>";
+        echo "<option disabled>Select Appliance Category</option>";
         foreach ($result as $category) {
-            echo "<option>$category[category]</option>";
+            $selected = '';
+            if ($selected_category == $category['category']) {
+                $selected = ' selected';
+            }
+            echo "<option $selected >$category[category]</option>";
         }
     }
 
@@ -273,6 +289,7 @@ class NRN_TR extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_id = $this->input->post('partner_id');
         $partner_type = $this->input->post('partner_type');
+        $selected_capacity = $this->input->post('capacity') != '' ? $this->input->post('capacity') : '';
 
 
         if ($partner_type == OEM) {
@@ -288,7 +305,11 @@ class NRN_TR extends CI_Controller {
         }
 
         foreach ($result as $capacity) {
-            echo "<option>$capacity[capacity]</option>";
+            $selected = '';
+            if ($selected_capacity == $capacity['capacity']) {
+                $selected = ' selected';
+            }
+            echo "<option $selected>$capacity[capacity]</option>";
         }
     }
 
@@ -304,6 +325,7 @@ class NRN_TR extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $capacity = $this->input->post('capacity');
         $partner_type = $this->input->post('partner_type');
+        $selected_product_model_no = $this->input->post('product_model_no');
 
         $where = array('partner_appliance_details.service_id' => $service_id,
             'partner_appliance_details.partner_id' => $partner_id,
@@ -327,9 +349,14 @@ class NRN_TR extends CI_Controller {
             $flag = false;
             $option = "<option selected disabled>Select Model Number</option>";
             foreach ($result as $value) {
+                $selected = '';
                 if (!empty(trim($value['model']))) {
                     $flag = true;
-                    $option .= "<option value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
+
+                    if ($selected_product_model_no == $value['model_number']) {
+                        $selected = ' selected';
+                    }
+                    $option .= "<option $selected value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
                 }
             }
             if ($flag) {
@@ -343,7 +370,7 @@ class NRN_TR extends CI_Controller {
             $res['status'] = FALSE;
             $res['msg'] = 'no data found';
         }
-        echo $res;
+        echo json_encode($res, true);
     }
 
     /*
@@ -353,6 +380,7 @@ class NRN_TR extends CI_Controller {
 
     function get_appliances($selected_service_id = NULL) {
         $partner_id = $this->input->post('partner_id');
+        $selected_service_id = $this->input->post('service_id') != '' ? $this->input->post('service_id') : '';
         $partner_details = $this->partner_model->getpartner_details("partners.id, public_name, "
                 . "postpaid_credit_period, is_active, postpaid_notification_limit, postpaid_grace_period, is_prepaid,partner_type, "
                 . "invoice_email_to,invoice_email_cc", array('partners.id' => $partner_id));
@@ -384,19 +412,35 @@ class NRN_TR extends CI_Controller {
             } else {
                 $data['prepaid_msg'] = "";
             }
-            $data['services'] = "<option selected disabled value=''>Select Product</option>";
+
+
+            $data['services'] = "<option disabled value=''>Select Product</option>";
             foreach ($services as $appliance) {
-                $data['services'] .= "<option ";
+                $selected = "";
                 if ($selected_service_id == $appliance->id) {
-                    $data['services'] .= " selected ";
+                    $selected = " selected ";
                 } else if (count($services) == 1) {
-                    $data['services'] .= " selected ";
+                    $selected = " selected ";
                 }
-                $data['services'] .= " value='" . $appliance->id . "'>$appliance->services</option>";
+                $data['services'] .= "<option $selected  value='" . $appliance->id . "'>$appliance->services</option>";
             }
         }
 
         echo $data['services'];
+    }
+
+    /**
+     * @desc: This function will check Session
+     * @param: void
+     * @return: true if details matches else session is distroyed.
+     */
+    function checkUserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) {
+            return TRUE;
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "partner/login");
+        }
     }
 
 }
