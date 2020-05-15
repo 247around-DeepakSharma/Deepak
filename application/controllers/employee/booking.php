@@ -4031,7 +4031,7 @@ class Booking extends CI_Controller {
                 $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                 $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
             }else if($booking_status === _247AROUND_CANCELLED){
-                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit' target='_blank' disabled><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
             }
             if($booking_status === _247AROUND_COMPLETED &&  $order_list->amount_paid > 0){
                  $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
@@ -5757,7 +5757,7 @@ class Booking extends CI_Controller {
      }
     }
     
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0){
         $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
@@ -5817,10 +5817,17 @@ class Booking extends CI_Controller {
            $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
         }
+        // Added filter for Review Range
+        if(!empty($min_review_age) || !empty($max_review_age)) {
+           $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$min_review_age.'" AND "'.$max_review_age.'") '] = NULL;
+        }
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
         $data['request_type_selected'] = $request_type;
+        $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : "";
+        $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : "";
+           
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){
@@ -5848,7 +5855,7 @@ class Booking extends CI_Controller {
                     $arrData['extended_warranty_period'] = 0;
                     // Choose only Videocon bookings whose model and dop exists
                     // ADDED THIS CONDITION ALSO ($recData['partner_id'] != VIDEOCON_ID) 
-                    if(empty($arrData['model_number']) || empty($arrData['purchase_date']) || $arrData['purchase_date'] == '0000-00-00'):
+                    if(empty($arrData['purchase_date']) || $arrData['purchase_date'] == '0000-00-00'):
                         return;
                     endif;
                     return $arrData;

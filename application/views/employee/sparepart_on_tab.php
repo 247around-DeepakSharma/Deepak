@@ -751,7 +751,7 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="total_part_shipped_to_sf">
+<div role="tabpanel" class="tab-pane" id="total_parts_shipped_to_sf">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-1 pull-right" style="padding: 10px;">       

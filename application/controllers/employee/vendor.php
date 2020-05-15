@@ -835,8 +835,6 @@ class vendor extends CI_Controller {
         $post = $this->get_post_data();
         $post['column_order'] = array();
         $post['column_search'] = array('service_centres.name', 'service_centres.company_name', 'state', 'district');
-        $post['where']['account_holders_bank_details.entity_type'] = 'SF';
-        $post['where']['account_holders_bank_details.is_active'] = 1;
         if ($_POST['active'] == 1) {
             $post['where']['service_centres.active'] = 1;
         }
