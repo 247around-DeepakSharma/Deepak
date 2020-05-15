@@ -3961,9 +3961,7 @@ class Booking extends CI_Controller {
         }
         if (strpos($districtZoneType, 'Green') !== false) {
         $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
-        }
-
-        $inContainmentZone = $response['inContainmentZone'];    
+        }   
         }else{
 
         $districtZoneType = '<span class=""></span>';   
