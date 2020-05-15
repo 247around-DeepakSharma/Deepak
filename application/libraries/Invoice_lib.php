@@ -761,10 +761,11 @@ class Invoice_lib {
                 }else{
                     $tmp_arr['consumption'] = 'NA';
                 }
-                if(!empty($value2[0]['courier_name'])){
-                $tmp_arr['courier_name'] = $value2[0]['courier_name'];
-                }else{
-                $tmp_arr['courier_name'] = 'NA';
+           
+                if (isset($value2[0]['courier_name']) && !empty($value2[0]['courier_name'])) {
+                    $tmp_arr['courier_name'] = $value2[0]['courier_name'];
+                } else {
+                    $tmp_arr['courier_name'] = 'NA';
                 }
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
