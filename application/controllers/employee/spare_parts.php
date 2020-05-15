@@ -1749,15 +1749,12 @@ class Spare_parts extends CI_Controller {
     function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []) {
         $row = array();
         $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($spare_list->city);
+        if(!empty($response_db)){
         $result = json_decode($response_db[0]['zone'],true);
-        $response = $result['data'][0];
-        if(!empty($response)){
-        $containmentZoneName = $response['containmentZoneName'];
-        $containmentsAvailability = $response['containmentsAvailability'];
-        $district = $response['district'];
-        $districtZoneType = $response['districtZoneType'];
-        $inContainmentZone = $response['inContainmentZone'];    
-
+        $response = $result;
+        }
+        if(!empty($response)){    
+        $districtZoneType = $response['zone'];
         if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
         }
