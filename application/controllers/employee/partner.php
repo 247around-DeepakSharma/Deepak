@@ -6951,11 +6951,32 @@ class Partner extends CI_Controller {
              $tempString = "'".$row->booking_id."'";
              $tempString2 = "'".$row->amount_due."'";
              $tempString3 = "'".$row->flat_upcountry."'";
+             /*  COVID */
+             $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row->district);
+             if(!empty($response_db)){
+             $result = json_decode($response_db[0]['zone'],true);
+             $response = $result;
+             }
+             if(!empty($response)){
+             $districtZoneType = $response['zone'];
+             if (strpos($districtZoneType, 'Red') !== false) {
+             $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Orange') !== false) {
+             $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Green') !== false) {
+             $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+             }    
+             }else{
+             $districtZoneType = '<span></span>';   
+             }
+
               if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
                  $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.','.$tempString3.')"
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
-             $tempArray[] = $sn_no . $upcountryString;
+             $tempArray[] = $sn_no . $upcountryString. $districtZoneType;
             if($row->booking_files_purchase_inv){
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }
@@ -7203,7 +7224,7 @@ class Partner extends CI_Controller {
         $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
-                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name,booking_details.district, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
@@ -7222,7 +7243,29 @@ class Partner extends CI_Controller {
                     if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
                        $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
                     }
-                    $tempArray[] =  $sn. $tempString;
+ 
+                  /*  COVID */
+                  $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row['district']);
+                  if(!empty($response_db)){
+                  $result = json_decode($response_db[0]['zone'],true);
+                  $response = $result;
+                  }
+                  if(!empty($response)){
+                  $districtZoneType = $response['zone'];
+                  if (strpos($districtZoneType, 'Red') !== false) {
+                  $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Orange') !== false) {
+                  $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Green') !== false) {
+                  $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+                  }    
+                  }else{
+                  $districtZoneType = '<span></span>';   
+                  }
+
+                    $tempArray[] =  $sn. $tempString. $districtZoneType;
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] =  $row['services'];
                     $tempArray[] =  $row['name'];

@@ -100,6 +100,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.is_penalty, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
+                . " bd.district, "
                 . " bd.create_date, "
                 . " bd.order_id, "
                 . " sc.current_status as service_center_current_status, "      

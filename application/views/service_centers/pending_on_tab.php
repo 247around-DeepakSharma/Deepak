@@ -55,6 +55,7 @@
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <br> <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -299,6 +300,7 @@
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>','<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -530,6 +532,7 @@
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -759,6 +762,7 @@
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
+                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -950,6 +954,7 @@
                                 <tr style="text-align: center;">
                                     <td>
                                         <?php echo $sn_no1; ?>
+                                        
                                     </td>
                                     <td>
                                         
@@ -1209,6 +1214,21 @@
                     }
                 });
             }
+
+        });
+
+
+        $('.covid_district').each(function(){
+
+            let district = $(this).attr('data-district');
+                        $.ajax({
+                        type: 'post',
+                        url: '<?php echo base_url()  ?>employee/booking/getCovidZone/'+district,
+                        data: {},
+                        success: function (response) {
+                          $(this).html(response);
+                       }
+                    });
 
         });
 
