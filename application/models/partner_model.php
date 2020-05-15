@@ -434,7 +434,9 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
-            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id";
+            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
+            LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
+            LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)";
         
         //$is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         //if($is_saas) {
@@ -2956,9 +2958,9 @@ function get_data_for_partner_callback($booking_id) {
                     END AS 'Closing Remarks',
                     (
                       CASE WHEN(
-                            booking_details.current_status = booking_details.current_status = 'Cancelled'
-                      ) THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(
-                            service_center_booking_action.cancellation_reason
+                            booking_details.current_status = 'Cancelled'
+                      ) THEN b_cr.reason ELSE GROUP_CONCAT(
+                            ssba_cr.reason
                       )
                     END
                     ) AS 'Cancellation Remarks',
@@ -3048,6 +3050,9 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
                     LEFT JOIN partner_channel ON (booking_details.created_source = partner_channel.id)
                     LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
+                    LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
+                    LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
+                    
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
@@ -3130,8 +3135,8 @@ function get_data_for_partner_callback($booking_id) {
                     (
                       CASE WHEN(
                             booking_details.current_status = booking_details.current_status = 'Cancelled'
-                      ) THEN booking_details.cancellation_reason ELSE GROUP_CONCAT(
-                            service_center_booking_action.cancellation_reason
+                      ) THEN b_cr.reason ELSE GROUP_CONCAT(
+                            ssba_cr.reason
                       )
                     END
                     ) AS 'Cancellation Remarks',
@@ -3237,6 +3242,8 @@ function get_data_for_partner_callback($booking_id) {
                 LEFT JOIN engineer_details ON (booking_details.assigned_engineer_id = engineer_details.id)
                 LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
                 LEFT JOIN spare_consumption_status ON (spare_parts_details.consumed_part_status_id = spare_consumption_status.id)
+                LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
+                LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
             WHERE {$where}
                 AND product_or_services != 'Product' AND spare_parts_details.booking_id is not null 
             GROUP BY
