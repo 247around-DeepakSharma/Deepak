@@ -3947,7 +3947,11 @@ class Booking extends CI_Controller {
     private function get_completed_cancelled_bookings_table($order_list, $no, $booking_status){
         $row = array();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $response = $this->getBookingCovidZoneAndContZone($order_list->booking_pincode);
+        $response_db = $this->getBookingCovidZoneAndContZone($order_list->city);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result['data'][0];
+        }
         if(!empty($response)){
         $containmentZoneName = $response['containmentZoneName'];
         $containmentsAvailability = $response['containmentsAvailability'];
@@ -3955,19 +3959,19 @@ class Booking extends CI_Controller {
         $districtZoneType = $response['districtZoneType'];
 
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
         }
 
         $inContainmentZone = $response['inContainmentZone'];    
         }else{
 
-        $districtZoneType = '<span class="">NA</span>';   
+        $districtZoneType = '<span class=""></span>';   
         }
         if($order_list->is_upcountry === '1'){
             $sn = "<i class='fa fa-road' aria-hidden='true' onclick='";
@@ -4005,8 +4009,8 @@ class Booking extends CI_Controller {
         
         
         
-        $row[] = $no.$sn;
-        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><br> Covid Zone : ".$districtZoneType;
+        $row[] = $no.$sn."<br>".$districtZoneType;
+        $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
         $row[] = $order_list->services;
         $row[] = "<a href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$order_list->service_centre_name</a>";
@@ -4357,48 +4361,56 @@ class Booking extends CI_Controller {
      * @param  $pincode
      * @return Array
      */
-    function getBookingCovidZoneAndContZone($pincode){
+    function getBookingCovidZoneAndContZone($city){
+        $return_data = $this->indiapincode_model->getPinCoordinates($city);
+        // if(!empty($coordinates)){
+        // $lat = $coordinates[0]['latitude'];
+        // $long = $coordinates[0]['longitude'];
+        // }
+        // else{
+        // $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
+        // $data = file_get_contents($url);
+        // $result = json_decode($data, true);
+        // if(isset($result['results'][0]['geometry'])){
+        // $lat = $result['results'][0]['geometry']['location']['lat'];
+        // $long = $result['results'][0]['geometry']['location']['lng'];   
+        // }else{
+        // $lat="";
+        // $long=""; 
+        // }
 
-        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
-        if(!empty($coordinates)){
-        $lat = $coordinates[0]['latitude'];
-        $long = $coordinates[0]['longitude'];
-        }else{
-        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
-        $data = file_get_contents($url);
-        $result = json_decode($data, true);
-        if(isset($result['results'][0]['geometry'])){
-        $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];   
-        }else{
-        $lat="";
-        $long=""; 
-        }
+        // }
 
-        }
-
-        if(!empty($lat)){
-        $payloadName = '{ 
-           "key": "'.GEOIQ_API_KEY.'", 
-           "latlngs": [['.$lat.','.$long.']]
-        }';
-        $ch = curl_init(GEOIQ_HOST);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $return = curl_exec($ch);
-        curl_close($ch);
-        $response = json_decode($return,true);
-        $return_data = $response['data'][0];
+        if(!empty($return_data)){
         return $return_data;
         }else{
-        $return_data =array();
         return $return_data;
         }
 
+    }
+
+    /**
+     * @desc this function is used get zone and contaminant center of booking pincode
+     * @param  $pincode
+     * @return Array
+     */
+    function getCovidZone($district){
+        $return_data = $this->indiapincode_model->getPinCoordinates($district);
+        if(!empty($response)){
+        $districtZoneType = $response['zone_color'];
+        if (strpos($districtZoneType, 'Red') !== false) {
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+        }
+        }else{
+        $districtZoneType = '<br><span></span>';   
+        }
+        echo $districtZoneType;
     }
     
     /**
@@ -4422,13 +4434,13 @@ class Booking extends CI_Controller {
         }
 
         $last_spare = $this->getBookingLastSpare($order_list->booking_id);
-        $response = $this->getBookingCovidZoneAndContZone($order_list->booking_pincode);
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($order_list->city);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result;
+        }
         if(!empty($response)){
-        $containmentZoneName = $response['containmentZoneName'];
-        $containmentsAvailability = $response['containmentsAvailability'];
-        $district = $response['district'];
-        $districtZoneType = $response['districtZoneType'];
-        $inContainmentZone = $response['inContainmentZone']; 
+        $districtZoneType = $response['zone'];
 
         if (strpos($districtZoneType, 'Red') !== false) {
         $districtZoneType = '<br><span class="label label-success" >COVID ZONE</span>';

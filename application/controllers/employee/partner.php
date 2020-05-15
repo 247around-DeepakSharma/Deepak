@@ -6951,11 +6951,32 @@ class Partner extends CI_Controller {
              $tempString = "'".$row->booking_id."'";
              $tempString2 = "'".$row->amount_due."'";
              $tempString3 = "'".$row->flat_upcountry."'";
+             /*  COVID */
+             $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row->district);
+             if(!empty($response_db)){
+             $result = json_decode($response_db[0]['zone'],true);
+             $response = $result;
+             }
+             if(!empty($response)){
+             $districtZoneType = $response['zone'];
+             if (strpos($districtZoneType, 'Red') !== false) {
+             $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Orange') !== false) {
+             $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Green') !== false) {
+             $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+             }    
+             }else{
+             $districtZoneType = '<span></span>';   
+             }
+
               if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
                  $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.','.$tempString3.')"
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
-             $tempArray[] = $sn_no . $upcountryString;
+             $tempArray[] = $sn_no . $upcountryString. $districtZoneType;
             if($row->booking_files_purchase_inv){
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }

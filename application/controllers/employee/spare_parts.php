@@ -1696,48 +1696,49 @@ class Spare_parts extends CI_Controller {
      * @param  $pincode
      * @return Array
      */
-    function getBookingCovidZoneAndContZone($pincode){
+    // function getBookingCovidZoneAndContZone($pincode){
 
-        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
-        if(!empty($coordinates)){
-        $lat = $coordinates[0]['latitude'];
-        $long = $coordinates[0]['longitude'];
-        }else{
-        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
-        $data = file_get_contents($url);
-        $result = json_decode($data, true);
-        if(isset($result['results'][0]['geometry'])){
-        $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
-        }else{
-        $lat="";
-        $long="";    
-        }
-        }
+    //     $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+    //     if(!empty($coordinates)){
+    //     $lat = $coordinates[0]['latitude'];
+    //     $long = $coordinates[0]['longitude'];
+    //     }else{
+    //     $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
+    //     $data = file_get_contents($url);
+    //     $result = json_decode($data, true);
+    //     if(isset($result['results'][0]['geometry'])){
+    //     $lat = $result['results'][0]['geometry']['location']['lat'];
+    //     $long = $result['results'][0]['geometry']['location']['lng'];
+    //     }else{
+    //     $lat="";
+    //     $long="";    
+    //     }
+    //     }
 
-        if(!empty($lat)){
-        $payloadName = '{ 
-           "key": "'.GEOIQ_API_KEY.'", 
-           "latlngs": [['.$lat.','.$long.']]
-        }';
-        $ch = curl_init(GEOIQ_HOST);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $return = curl_exec($ch);
-        curl_close($ch);
-        $response = json_decode($return,true);
-        $return_data = $response['data'][0];
-        return $return_data;
-        }else{
-        $return_data = array();   
-        return $return_data;   
-        }
+    //     if(!empty($lat)){
+    //     $payloadName = '{ 
+    //        "key": "'.GEOIQ_API_KEY.'", 
+    //        "latlngs": [['.$lat.','.$long.']]
+    //     }';
+    //     $ch = curl_init(GEOIQ_HOST);
+    //     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    //     curl_setopt($ch, CURLOPT_HEADER, 0);
+    //     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    //     curl_setopt($ch, CURLOPT_POST, 1);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    //     $return = curl_exec($ch);
+    //     curl_close($ch);
+    //     $response = json_decode($return,true);
+    //     $return_data = $response['data'][0];
+    //     return $return_data;
+    //     }else{
+    //     $return_data = array();   
+    //     return $return_data;   
+    //     }
 
-    }
+    // }
+
 
     /**
      * @desc this function is used to create table row data for the spare parts ron approval
@@ -1747,8 +1748,9 @@ class Spare_parts extends CI_Controller {
      */
     function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []) {
         $row = array();
-        $row[] = $no;
-        $response = $this->getBookingCovidZoneAndContZone($spare_list->booking_pincode);
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($spare_list->city);
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result['data'][0];
         if(!empty($response)){
         $containmentZoneName = $response['containmentZoneName'];
         $containmentsAvailability = $response['containmentsAvailability'];
@@ -1757,20 +1759,20 @@ class Spare_parts extends CI_Controller {
         $inContainmentZone = $response['inContainmentZone'];    
 
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
         }
 
         }else{
-        $districtZoneType = 'NA';   
+        $districtZoneType = '';   
         }
-
-        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a><br> Covid Zone: '.$districtZoneType;
+        $row[] = $no."<br>".$districtZoneType;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         if ($spare_list->is_micro_wh == 1) {
             $spare_pending_on = 'Micro-warehouse';
         } elseif ($spare_list->is_micro_wh == 2) {
