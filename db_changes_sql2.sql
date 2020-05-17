@@ -2662,3 +2662,7 @@ values('agreement_email_template','',
 ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   
 ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
+
+-- Prity 15-05-2020
+-- 73Branch
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Cancelled\') THEN b_cr.reason ELSE GROUP_CONCAT(ssba_cr.reason) END) AS \'Cancellation Remarks\'' WHERE (`id` = '37');

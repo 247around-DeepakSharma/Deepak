@@ -611,7 +611,6 @@ class Login extends CI_Controller {
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0,$sc_details[0]['primary_contact_email'],$agent['full_name']);
                 
                 if($this->session->userdata('is_sf') === '1'){
-
                     //CRM-6107 validate SF has authorization certificate 
                     if(validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'],$sc_details[0]['auth_certificate_file_name'],$sc_details[0]['auth_certificate_validate_year']) !== FALSE){
                        $this->session->set_userdata(array(
