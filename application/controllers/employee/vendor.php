@@ -46,7 +46,7 @@ class vendor extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('invoice_lib');
-       $this->load->helper(array('form', 'url', 'file', 'array'));
+        $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
         $this->load->model('push_notification_model');
         $this->load->model('indiapincode_model');
@@ -833,12 +833,8 @@ class vendor extends CI_Controller {
      */
     function get_vendor_list_ajax() {
         $post = $this->get_post_data();
-        // echo "<pre>";
-        // print_r($_POST);
-        $post[''] = array();
         $post['column_order'] = array();
         $post['column_search'] = array('service_centres.name', 'service_centres.company_name', 'state', 'district');
-
         if ($_POST['active'] == 1) {
             $post['where']['service_centres.active'] = 1;
         }
@@ -915,8 +911,31 @@ class vendor extends CI_Controller {
             $where['asm_id'] = $this->session->userdata('id');
         }
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($vendor_list['district']);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result;
+
+        }
+        
+        if(!empty($response)){
+        $districtZoneType = $response['zone'];
+
+        if (strpos($districtZoneType, 'Red') !== false) {
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+        }   
+        }else{
+        $districtZoneType = '<span></span>';   
+        }        
+        
         $row = array();
-        $row[] = $no;
+        $row[] = $no. $districtZoneType;
         $row[] = '<a href="' . base_url() . 'employee/vendor/editvendor/' . $vendor_list['id'] . '"  >' . $vendor_list['name'] . '( ' . $vendor_list['id'] . ' )</a>';
 
         if ($vendor_list['is_wh'] != 1) {

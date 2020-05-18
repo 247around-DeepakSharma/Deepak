@@ -505,7 +505,6 @@ class Service_centers extends CI_Controller {
         if (count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
-
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
@@ -533,7 +532,11 @@ class Service_centers extends CI_Controller {
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-
+        $curr_status = $booking_details['current_status'];
+            if ($curr_status == _247AROUND_COMPLETED || $curr_status == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
@@ -1139,7 +1142,11 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
-
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
+            if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
         if (($this->form_validation->run() == FALSE) || $booking_id == "" || $booking_id == NULL) {
             log_message('info', __FUNCTION__ . " Form validation failed Booking ID: " . $booking_id);
             $this->cancel_booking_form(urlencode(base64_encode($booking_id)));
@@ -2117,8 +2124,15 @@ class Service_centers extends CI_Controller {
 
             $response = array();
         }
+       
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
+         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
+        if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot update the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
+        
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
         if ($is_booking_able_to_reschedule === FALSE) {
             if (!$this->input->post("call_from_api")) {

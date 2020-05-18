@@ -742,7 +742,7 @@ class Spare_parts extends CI_Controller {
         /* getting symptom and show in table */
         $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.defect_pic,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
-                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number,booking_details.booking_pincode ";
+                . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number,booking_details.booking_pincode,booking_details.district as city ";
 
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request', NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
@@ -915,9 +915,9 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
+        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
@@ -973,9 +973,9 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->booking_primary_contact_no;
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
+        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
@@ -1696,48 +1696,49 @@ class Spare_parts extends CI_Controller {
      * @param  $pincode
      * @return Array
      */
-    function getBookingCovidZoneAndContZone($pincode){
+    // function getBookingCovidZoneAndContZone($pincode){
 
-        $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
-        if(!empty($coordinates)){
-        $lat = $coordinates[0]['latitude'];
-        $long = $coordinates[0]['longitude'];
-        }else{
-        $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
-        $data = file_get_contents($url);
-        $result = json_decode($data, true);
-        if(isset($result['results'][0]['geometry'])){
-        $lat = $result['results'][0]['geometry']['location']['lat'];
-        $long = $result['results'][0]['geometry']['location']['lng'];
-        }else{
-        $lat="";
-        $long="";    
-        }
-        }
+    //     $coordinates = $this->indiapincode_model->getPinCoordinates($pincode);
+    //     if(!empty($coordinates)){
+    //     $lat = $coordinates[0]['latitude'];
+    //     $long = $coordinates[0]['longitude'];
+    //     }else{
+    //     $url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$pincode."&key=".GEOCODING_GOOGLE_API_KEY;
+    //     $data = file_get_contents($url);
+    //     $result = json_decode($data, true);
+    //     if(isset($result['results'][0]['geometry'])){
+    //     $lat = $result['results'][0]['geometry']['location']['lat'];
+    //     $long = $result['results'][0]['geometry']['location']['lng'];
+    //     }else{
+    //     $lat="";
+    //     $long="";    
+    //     }
+    //     }
 
-        if(!empty($lat)){
-        $payloadName = '{ 
-           "key": "'.GEOIQ_API_KEY.'", 
-           "latlngs": [['.$lat.','.$long.']]
-        }';
-        $ch = curl_init(GEOIQ_HOST);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $return = curl_exec($ch);
-        curl_close($ch);
-        $response = json_decode($return,true);
-        $return_data = $response['data'][0];
-        return $return_data;
-        }else{
-        $return_data = array();   
-        return $return_data;   
-        }
+    //     if(!empty($lat)){
+    //     $payloadName = '{ 
+    //        "key": "'.GEOIQ_API_KEY.'", 
+    //        "latlngs": [['.$lat.','.$long.']]
+    //     }';
+    //     $ch = curl_init(GEOIQ_HOST);
+    //     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    //     curl_setopt($ch, CURLOPT_HEADER, 0);
+    //     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    //     curl_setopt($ch, CURLOPT_POST, 1);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    //     $return = curl_exec($ch);
+    //     curl_close($ch);
+    //     $response = json_decode($return,true);
+    //     $return_data = $response['data'][0];
+    //     return $return_data;
+    //     }else{
+    //     $return_data = array();   
+    //     return $return_data;   
+    //     }
 
-    }
+    // }
+
 
     /**
      * @desc this function is used to create table row data for the spare parts ron approval
@@ -1747,30 +1748,28 @@ class Spare_parts extends CI_Controller {
      */
     function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []) {
         $row = array();
-        $row[] = $no;
-        $response = $this->getBookingCovidZoneAndContZone($spare_list->booking_pincode);
-        if(!empty($response)){
-        $containmentZoneName = $response['containmentZoneName'];
-        $containmentsAvailability = $response['containmentsAvailability'];
-        $district = $response['district'];
-        $districtZoneType = $response['districtZoneType'];
-        $inContainmentZone = $response['inContainmentZone'];    
-
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($spare_list->city);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result;
+        }
+        if(!empty($response)){    
+        $districtZoneType = $response['zone'];
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = '<span class="label label-danger">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<span class="label label-warning">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<span class="label label-success">'.$response['districtZoneType'].'</span>';
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
         }
 
         }else{
-        $districtZoneType = 'NA';   
+        $districtZoneType = '';   
         }
-
-        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a><br> Covid Zone: '.$districtZoneType;
+        $row[] = $no."<br>".$districtZoneType;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
         if ($spare_list->is_micro_wh == 1) {
             $spare_pending_on = 'Micro-warehouse';
         } elseif ($spare_list->is_micro_wh == 2) {
@@ -4570,7 +4569,7 @@ class Spare_parts extends CI_Controller {
      */
      function get_defective_part_out_of_tat_pending($post) {
 
-        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  booking_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  spare_parts_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
                 . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status,  booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
                 . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
                 . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"

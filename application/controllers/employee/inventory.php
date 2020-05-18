@@ -7533,8 +7533,14 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
 
-            $sc_close_date = $this->reusable_model->get_search_query('booking_details', 'service_center_closed_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL)->result_array();
-
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $data['add_more'] = false;
+            if (isset($sc_close_date[0]['request_type']) && $sc_close_date[0]['request_type'] == REPAIR_OOW_TAG) {
+                $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking_id, "new_state" => SPARE_OOW_EST_GIVEN));
+                if (!empty($s_change)) {
+                    $data['add_more'] = true;
+                }
+            }
 
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
                 echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));

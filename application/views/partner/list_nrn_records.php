@@ -27,15 +27,17 @@
                                     </div>';
         }
         ?>
-        <?php if($this->session->flashdata('success')){
-                
-                 echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;">
+        <?php
+        if ($this->session->flashdata('success')) {
+
+            echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;">
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
                    <strong>' . $this->session->flashdata('success') . '</strong>
                </div>';
-            } ?>
+        }
+        ?>
     </div>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -43,7 +45,7 @@
         </div>
     </div>
     <div class="row">
-        
+
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_content">
