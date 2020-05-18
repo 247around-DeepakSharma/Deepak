@@ -6397,6 +6397,8 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
+            $part_details_challan_bulk = array();
+            $generate_bulk_challan = false;
             //$courier_image['status']           
             if (1) {
 
@@ -6564,6 +6566,10 @@ class Service_centers extends CI_Controller {
                                     }
                                     $this->generate_challan_to_sf($part_details_challan);
                                 }
+                                if (!empty($part_details_challan) && ($part_details_challan[0]['partner_challan_number']!='' && $part_details_challan[0]['requested_inventory_id']!=$part_details_challan[0]['shipped_inventory_id'])) {
+                                  $generate_bulk_challan = true;
+                                }
+                                $part_details_challan_bulk[]=$part_details_challan[0];
                             }
 
                             if ($response) {
@@ -6591,7 +6597,7 @@ class Service_centers extends CI_Controller {
                                     $async_data['booking_id'] = $booking_id;
                                     $this->asynchronous_lib->do_background_process($url, $async_data);
                                     if(count($part) > 1){
-                                    sleep(40);
+                                    sleep(20);
                                     }
                                 }
                             }
@@ -6629,6 +6635,10 @@ class Service_centers extends CI_Controller {
                             }
                         $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
                     }
+                }
+                //If challan was already generated and some part shipped different from requested then regenerate challan
+                if(!empty($part_details_challan_bulk) && $generate_bulk_challan == true){
+                    $this->generate_challan_to_sf($part_details_challan_bulk);
                 }
 
                 if ($status) {
