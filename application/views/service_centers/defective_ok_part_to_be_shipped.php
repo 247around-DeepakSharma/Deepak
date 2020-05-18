@@ -88,10 +88,10 @@ if ($this->uri->segment(3)) {
                                             <td>
 
                                         <?php if (!$partner_on_saas) { ?>
-                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" <?php if(empty($row['challan_file'])){echo 'disabled';} ?>/>
+                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" id="download_challan_<?php echo  $i; ?>" name="download_challan[]"  value="<?php echo $row['challan_file']; ?>" <?php if(empty($row['challan_file'])){echo 'disabled';} ?>/>
                                         <?php } else { ?>
 
-                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]" id="download_challan_<?php echo $i; ?>" value="<?php echo $row['id'] ?>" />
+                                                    <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" id="download_challan_<?php echo  $i; ?>" name="download_challan[<?php echo $row['defective_return_to_entity_id']; ?>][]" id="download_challan_<?php echo $i; ?>" value="<?php echo $row['id'] ?>" />
 
                                         <?php } ?>
 
@@ -687,7 +687,7 @@ if ($this->uri->segment(3)) {
             $("#button_send").removeAttr("data-target");
         }
     });
-
+    
     $(".checkbox_spare_tag").click(function () {
         if ($('.checkbox_spare_tag:checkbox:checked').length > 0) {
             $("#button_send").val("Print Spare Tag");
