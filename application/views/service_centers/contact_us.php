@@ -69,8 +69,8 @@
 <div class="modal-body">
     <div class="row">
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 182px;">
-                <div class="container">
+            <div class="card" style="padding: 10px 2px; height: 300px;">
+                <div class="container" style="width: 100%; height:100%; word-break: break-all;">
 <!--                    <h5><b>Pickup & Dispatch</b></h5> 
                     <p>Delhi Office</p>
                     <p>warehouse_noida@247around.com</p>-->
@@ -81,8 +81,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 182px;">
-                <div class="container">
+            <div class="card" style="padding: 10px 2px; height: 300px;">
+                <div class="container" style="width: 100%; height:100%; word-break: break-all;">
                     <h5><b>Aurangabad Warehouse</b></h5> 
                     <p><i class="fa fa-newspaper-o"></i> Dhade No-1 Plot 13, Phase 3 Near <br>Ekdant Udyog Mitra Coprative <br>Estate Chitegaon, Ta Paithan, <br>Dist Aurangabad</li></p>
                     <p><i class="fa fa-envelope"></i> warehouse_aurangabad@247around<br>.com</p>
@@ -90,8 +90,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card" style="padding: 10px 2px; height: 182px;">
-                <div class="container">
+            <div class="card" style="padding: 10px 2px; height: 300px;">
+                <div class="container" style="width: 100%; height:100%; word-break: break-all;">
 <!--                <h5><b>Escalation</b></h5> 
                     <p><b>Mr. Sachin Sharma</b></p>
                     <p>Delhi Office</p>
