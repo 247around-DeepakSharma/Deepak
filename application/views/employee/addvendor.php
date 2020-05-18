@@ -190,6 +190,9 @@
                                                 ?>" placeholder="Company Name">
                                             <?php echo form_error('company_name'); ?>
                                         </div>
+                                        <div class="col-sm-2" >
+                                        <i class="fa fa-clipboard" title="Copy to clipboard" style="font-size:20px; padding:3px; cursor: pointer; border: 1.5px #555 solid" onclick="copy_text('company_name')"></i> 
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -206,6 +209,9 @@
                                                 }
                                                 ?>" placeholder="Public Name" onchange="remove_white_space(this.value)">
                                             <?php echo form_error('name'); ?>
+                                        </div>
+                                        <div class="col-sm-2" >
+                                        <i class="fa fa-clipboard" title="Copy to clipboard" style="font-size:20px; padding:3px; cursor: pointer; border: 1.5px #555 solid" onclick="copy_text('name')"></i> 
                                         </div>
                                     </div>
                                 </div>
@@ -1487,6 +1493,11 @@
 
 <!--Validation for page1-->
 <script type="text/javascript">
+    function copy_text(id) { 
+        var value = document.getElementById(id); 
+        value.select(); 
+        document.execCommand("copy");
+    } 
 
     $(document).ready(function(){
         
@@ -2113,6 +2124,7 @@ function manageAccountNameField(value){
         $('#'+container).find('.form-control, .select2, #submit_btn').css('pointer-events', 'auto');
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel').css('display', 'inline');
+        $('#container-1').css('pointer-events', 'auto');
         
         if($('#'+container+' #company_name').val() != ''){
             $('#'+container+' #company_name').css('pointer-events', 'none');
