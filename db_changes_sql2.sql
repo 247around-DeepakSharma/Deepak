@@ -2666,3 +2666,45 @@ ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `
 -- Prity 15-05-2020
 -- 73Branch
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Cancelled\') THEN b_cr.reason ELSE GROUP_CONCAT(ssba_cr.reason) END) AS \'Cancellation Remarks\'' WHERE (`id` = '37');
+
+-- Sarvendra CRM-5967
+--73 Branch
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `service_id` INT(11) NOT NULL AFTER `vendor_reversal_category`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `brand` VARCHAR(255) NOT NULL AFTER `service_id`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `partner_type` VARCHAR(255) NOT NULL AFTER `brand`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `partner_id` VARCHAR(255) NOT NULL AFTER `partner_type`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+CHANGE COLUMN `booking_date` `booking_date` DATE NULL DEFAULT NULL COMMENT '	' ,
+CHANGE COLUMN `tr_reporting_date` `tr_reporting_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `purchase_date` `purchase_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `make` `make` TEXT NULL DEFAULT NULL ,
+CHANGE COLUMN `customer_name` `customer_name` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `state` `state` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `branch` `branch` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `approval_rejection_date` `approval_rejection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `hdpl_invoice_no` `hdpl_invoice_no` VARCHAR(45) NULL DEFAULT NULL ,
+CHANGE COLUMN `hdpl_point` `hdpl_point` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `vendor_warranty_expire_month` `vendor_warranty_expire_month` VARCHAR(10) NULL DEFAULT NULL ,
+CHANGE COLUMN `action_plan` `action_plan` ENUM('Customer + Sub-dealer', 'Distributor') NULL DEFAULT NULL ,
+CHANGE COLUMN `asf_distributor_pincode` `asf_distributor_pincode` VARCHAR(6) NULL DEFAULT NULL ,
+CHANGE COLUMN `control_no` `control_no` VARCHAR(45) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_status` `replacement_status` ENUM('Dispatched', 'Pending', 'NA') NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_with_accessory` `replacement_with_accessory` ENUM('Yes', 'No', 'NA') NULL DEFAULT NULL ,
+CHANGE COLUMN `defective_receiving_date` `defective_receiving_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `tr_status` `tr_status` ENUM('Open', 'Close') NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_awb_no` `replacement_awb_no` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_courier_name` `replacement_courier_name` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_dispatch_date` `replacement_dispatch_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_delivery_date` `replacement_delivery_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `category_after_inspection_date` `category_after_inspection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `final_pdi_category_after_inspection_date` `final_pdi_category_after_inspection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
