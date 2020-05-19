@@ -268,7 +268,7 @@
                                     <label for="shipped_spare_parts_boxes_count" class="col-md-4">Small Box Count</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
-                                            <option selected="" disabled="" value="">Select Small Boxes</option>
+                                            <option selected="" value="">Select Small Boxes</option>
                                             <?php for ($i = 1; $i < 11; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
@@ -531,10 +531,10 @@
           return false;
         }
         
-        if(!postData['shipped_spare_parts_boxes_count']){
+        /*if(!postData['shipped_spare_parts_boxes_count']){
           alert('Boxes Count Should Not Be Blank.'); 
           return false;
-        }
+        }*/
         
         if(!postData['shipped_spare_parts_weight_in_kg']){
           alert('Weight In KG Should Not Be Blank.'); 
