@@ -1,3 +1,8 @@
+<style>
+    #auth_cert_filter{
+        float:right;
+    }
+</style>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title" style="border-bottom: none;">
@@ -24,9 +29,9 @@
                             <?php foreach ($service_centers as $service_center) { ?>
 
                                 <tr>
-                                    <td><?php echo $service_center['company_name']; ?></td>
+                                    <td><?php echo $service_center['name']; ?></td>
                                     <td><?php echo $service_center['auth_certificate_validate_year']; ?></td>
-                                    <td> <?php if ($service_center['auth_certificate_file_name'] != NULL) { ?> <a href="<?php echo S3_WEBSITE_URL . 'authorization_certificate/' . $service_center['auth_certificate_file_name']; ?>" target="_blank">certificate</a> <?php } ?></td>
+                                    <td> <?php if ($service_center['auth_certificate_file_name'] != NULL) { ?> <a href="<?php echo S3_WEBSITE_URL . 'authorization_certificate/' . $service_center['auth_certificate_file_name']; ?>" target="_blank">Certificate</a> <?php } ?></td>
                                     <td>
                                         <?php
                                         $financial_year = '';
@@ -59,7 +64,11 @@
 <script>
     $(document).ready(function () {
         $('#auth_cert').DataTable({
-            "order": [[2, "desc"]]
+            "order": [[0, "desc"]],
+            'columnDefs': [{
+                    'targets': [2, 3], // column index (start from 0)
+                    'orderable': false, // set orderable false for selected columns
+                }]
         });
     });
 

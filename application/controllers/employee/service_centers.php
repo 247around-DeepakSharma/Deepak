@@ -533,7 +533,12 @@ class Service_centers extends CI_Controller {
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-
+            // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.
+            $curr_status = $booking_details['current_status'];
+            if ($curr_status == _247AROUND_COMPLETED || $curr_status == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
@@ -1139,7 +1144,12 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
-
+         // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
+        $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
+            if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
         if (($this->form_validation->run() == FALSE) || $booking_id == "" || $booking_id == NULL) {
             log_message('info', __FUNCTION__ . " Form validation failed Booking ID: " . $booking_id);
             $this->cancel_booking_form(urlencode(base64_encode($booking_id)));
@@ -2118,6 +2128,12 @@ class Service_centers extends CI_Controller {
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
+         //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
+         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
+        if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
+             $this->session->set_userdata('error', "Booking is already $booking_details. You cannot update the booking.");
+            redirect(base_url() . "service_center/pending_booking");
+        }
         if ($is_booking_able_to_reschedule === FALSE) {
             if (!$this->input->post("call_from_api")) {
               //  $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
@@ -6383,7 +6399,9 @@ class Service_centers extends CI_Controller {
             } else {
                 $courier_image = $this->upload_courier_image_file($booking_id);
             }
-            
+            $part_details_challan_bulk = array();
+            $generate_bulk_challan = false;
+            //$courier_image['status']
             if (1) {
                 
                 $part = $this->input->post("part");
@@ -6552,6 +6570,10 @@ class Service_centers extends CI_Controller {
                                     }
                                     $this->generate_challan_to_sf($part_details_challan);
                                 }
+                                if (!empty($part_details_challan) && ($part_details_challan[0]['partner_challan_number']!='' && $part_details_challan[0]['requested_inventory_id']!=$part_details_challan[0]['shipped_inventory_id'])) {
+                                  $generate_bulk_challan = true;
+                                }
+                                $part_details_challan_bulk[]=$part_details_challan[0];
                             }
 
                             if ($response) {
@@ -6579,7 +6601,7 @@ class Service_centers extends CI_Controller {
                                     $async_data['booking_id'] = $booking_id;
                                     $this->asynchronous_lib->do_background_process($url, $async_data);
                                     if(count($part) > 1){
-                                    sleep(40);
+                                    sleep(20);
                                     }
                                 }
                             }
@@ -6617,6 +6639,10 @@ class Service_centers extends CI_Controller {
                             }
                         $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
                     }
+                }
+                //If challan was already generated and some part shipped different from requested then regenerate challan
+                if(!empty($part_details_challan_bulk) && $generate_bulk_challan == true){
+                    $this->generate_challan_to_sf($part_details_challan_bulk);
                 }
 
                 if ($status) {

@@ -100,7 +100,7 @@ var ad_table;
             ],
             // Load data for the table's content from an Ajax source
             "ajax": {
-                "url": baseUrl+"/booking/get_advance_search_result_view",
+                "url": baseUrl+"/employee/booking/get_advance_search_result_view",
                 "type": "POST",
                 "data": function(d){
                     d.booking_date = $('input[name="booking_date"]').val();

@@ -163,12 +163,9 @@ class Warranty_model extends CI_Model {
 
         $this->db->select($strSelect);
         $this->db->from('booking_details');
-        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id', 'Left');
-            $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'Left');
-        $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id', 'Left');
-        $this->db->where('booking_unit_details.booking_status <> "'._247AROUND_CANCELLED.'"',NULL);
-        $this->db->where('spare_parts_details.status <> "'._247AROUND_CANCELLED.'"',NULL);
-        $this->db->where('service_center_booking_action.current_status <> "'._247AROUND_CANCELLED.'"',NULL);
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id AND spare_parts_details.status <> "'._247AROUND_CANCELLED.'"', 'Left');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id AND booking_unit_details.booking_status <> "'._247AROUND_CANCELLED.'"', 'Left');
+        $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id AND service_center_booking_action.current_status <> "'._247AROUND_CANCELLED.'"', 'Left');
         $this->db->where_in('booking_details.booking_id',$arrBookingIds);
         $this->db->group_by('booking_details.booking_id');
         $query = $this->db->get();
