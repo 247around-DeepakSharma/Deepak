@@ -508,11 +508,11 @@ class Login extends CI_Controller {
            
             if ($this->session->userdata('is_sf') === '1') {
                 //CRM-6107 validate SF has authorization certificate 
-                if(validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'],$sc_details[0]['auth_certificate_file_name'],$sc_details[0]['auth_certificate_validate_year']) !== FALSE){
-                   /*$this->session->set_userdata(array(
-                    'has_authorization_certificate'=>$sc_details[0]['has_authorization_certificate'],
-                    'auth_certificate_file_name'=>$sc_details[0]['auth_certificate_file_name']
-                        ));*/
+                if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
+                    $this->session->set_userdata(array(
+                        'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                        'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                    ));
                     echo "service_center/dashboard";
                     return;
                 }
@@ -612,11 +612,11 @@ class Login extends CI_Controller {
                 
                 if($this->session->userdata('is_sf') === '1'){
                     //CRM-6107 validate SF has authorization certificate 
-                    if(validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'],$sc_details[0]['auth_certificate_file_name'],$sc_details[0]['auth_certificate_validate_year']) !== FALSE){
-                       /*$this->session->set_userdata(array(
-                        'has_authorization_certificate'=>$sc_details[0]['has_authorization_certificate'],
-                        'auth_certificate_file_name'=>$sc_details[0]['auth_certificate_file_name']
-                            ));*/
+                    if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
+                        $this->session->set_userdata(array(
+                            'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                            'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                        ));
                         redirect(base_url() . "service_center/dashboard");
                     }
                     $userSession = array('error' => 'Authorization certificate has been expired!');
