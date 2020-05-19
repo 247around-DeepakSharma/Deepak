@@ -1118,7 +1118,7 @@ class Service_centers extends CI_Controller {
 
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
-        $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
+
         if ($this->session->userdata('is_engineer_app') == 1) {
             $en_where = array("booking_id" => $booking_id,
                 "service_center_id" => $this->session->userdata('service_center_id')
