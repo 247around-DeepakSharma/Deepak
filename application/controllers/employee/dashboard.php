@@ -3577,7 +3577,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * 
      */
     function get_booking_cancellation_reasons() {
-
         $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))) : date('Y-m-01');
         $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
         log_message('info', __METHOD__ . $sdate . "  .... " . $edate);

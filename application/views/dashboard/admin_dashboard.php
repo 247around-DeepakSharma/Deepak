@@ -226,94 +226,6 @@
         </div>
     </div>
     
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
-            <div class="x_panel">
-                <div class="x_title" style="padding-left: 0px;">
-                    <h2>Brand Sales Report</h2>
-                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                    <div class="clearfix"></div>
-                </div>
-                <div id="brand_sales_reporting" class="collapse in">
-                <div class="table-responsive" id="escalation_data">
-                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
-                    <div class="col-md-3">
-                        <div class="item form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
-                                <label for="">Year</label>
-                                <select class="form-control filter_table" id="sales_year" name="sales_year">
-                                    <option value="">Select Year</option>
-                                    <?php $from_year = 2015;
-                                            $to_year = date('Y');
-                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
-                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                        <div class="col-md-6" id="sales_partner_div">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Partner</label>
-                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
-                                <?php foreach($partners as $val){ ?>
-                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
-                               
-                                <?php } ?>
-                            </select>
-                        </div>
-                </div>
-                    </div>
-                    
-                  
-               
-                       
-                   <div class="col-md-3">
-                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
-                   </div>
-                         </form>
-                    <br>
-                <div class="clear"></div>
-               
-                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
-                    <thead>
-                        <tr>
-                            <th>Brand</th>
-                            <th>January</th>
-                            <th>February</th>
-                            <th>March</th>
-                            <th>April</th>
-                            <th>May</th>
-                            <th>June</th>
-                            <th>July</th>
-                            <th>August</th>
-                            <th>September</th>
-                            <th>October</th>
-                            <th>November</th>
-                            <th>December</th>
-                            <th>Total</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
-                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-            </div>
-                    
-                    <div id="brand_sales_chart">
-                        
-                    </div>
-                    
-            </div> 
-            </div>
-        </div>
-    </div>
-    
-    
         <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -501,6 +413,94 @@
             </div>
         </div>
     </div>
+    
+        <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Brand Sales Report</h2>
+                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="brand_sales_reporting" class="collapse in">
+                <div class="table-responsive" id="escalation_data">
+                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
+                    <div class="col-md-3">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <label for="">Year</label>
+                                <select class="form-control filter_table" id="sales_year" name="sales_year">
+                                    <option value="">Select Year</option>
+                                    <?php $from_year = 2015;
+                                            $to_year = date('Y');
+                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
+                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                        <div class="col-md-6" id="sales_partner_div">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Partner</label>
+                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
+                                <?php foreach($partners as $val){ ?>
+                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                               
+                                <?php } ?>
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    
+                  
+               
+                       
+                   <div class="col-md-3">
+                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                   </div>
+                         </form>
+                    <br>
+                <div class="clear"></div>
+               
+                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>January</th>
+                            <th>February</th>
+                            <th>March</th>
+                            <th>April</th>
+                            <th>May</th>
+                            <th>June</th>
+                            <th>July</th>
+                            <th>August</th>
+                            <th>September</th>
+                            <th>October</th>
+                            <th>November</th>
+                            <th>December</th>
+                            <th>Total</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+                    
+                    <div id="brand_sales_chart">
+                        
+                    </div>
+                    
+            </div> 
+            </div>
+        </div>
+    </div>
+ 
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Partner Booking Status -->
@@ -1212,6 +1212,7 @@
             </div>
         </div>
         <!-- RM wise booking status -->
+        
         <!-- Booking cancellation -->
         <div class="row" style="margin-top:10px;">
         <div class="col-md-12 col-sm-12 col-xs-12" id="based_on_booking_cancellation_reason" style="padding-right:0px !important">
@@ -1220,19 +1221,19 @@
                     <div class="col-md-5"><h2>Booking cancellation reason wise <small></small></h2></div>
                     <div class="col-md-6">
                         <small>
-                        <div class="nav navbar-right panel_toolbox">
-                            <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
-                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                <span></span> <b class="caret"></b>
+                            <div class="nav navbar-right panel_toolbox">
+                                <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span> <b class="caret"></b>
+                                </div>
                             </div>
-                        </div>
                         </small>
                     </div>
                     <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#booking_cancellation_chart_div" data-toggle="collapse" onclick="get_bookings_cancellation_reason()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
-                    <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 <div class="x_content collapse" id="booking_cancellation_chart_div">
                     <div id="booking_cancellation_chart"></div>
@@ -1564,7 +1565,15 @@
 <!-- Chart Script -->
 <script>
     $('#request_type').select2();
-    $('#sales_partner').select2({ maximumSelectionLength: 5 });
+    $('#sales_partner').select2({ multiple: true,maximumSelectionLength: 5 });
+    $("#sales_partner").on("select2:select", function(e) {
+       if (
+         $(this).select2("data").length >=
+         $(this).data("select2").results.data.maximumSelectionLength
+       ) {
+         $(this).select2("close");
+       }
+     });
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
@@ -3408,7 +3417,7 @@ function initiate_escalation_data(){
         $('#state_type_booking_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
@@ -3432,7 +3441,7 @@ function initiate_escalation_data(){
         $('#booking_cancellation_chart_div').fadeOut();
         var startDate = '<?php echo date('Y-m-01') ?>';
         var endDate = '<?php echo date('Y-m-t') ?>';
-        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};        
         sendAjaxRequest(data,url,post_request).done(function(response){
             //console.log(response);
