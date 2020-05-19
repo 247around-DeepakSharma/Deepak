@@ -1719,7 +1719,7 @@
           total_part_shipped_to_sf_table = $('#total_part_shipped_to_sf_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[15, "asc"]], 
+            order: [[15, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],

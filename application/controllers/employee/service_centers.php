@@ -532,6 +532,7 @@ class Service_centers extends CI_Controller {
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+        // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.   
         $curr_status = $booking_details['current_status'];
             if ($curr_status == _247AROUND_COMPLETED || $curr_status == _247AROUND_CANCELLED) {
              $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
@@ -1142,6 +1143,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
+        // if current status of the booking is Completed or Cancelled then the booking cannot be cancelled again.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
             if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
              $this->session->set_userdata('error', "Booking is already $booking_details. You cannot cancel the booking.");
@@ -2127,6 +2129,7 @@ class Service_centers extends CI_Controller {
        
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
+        //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
          $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
         if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
              $this->session->set_userdata('error', "Booking is already $booking_details. You cannot update the booking.");
