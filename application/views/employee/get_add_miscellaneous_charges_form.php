@@ -179,7 +179,7 @@
            var partner_charge = $('#partner_charge_'+index).val();
            var vendor_charge = $('#vendor_charge_'+index).val();
            
-           if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+           if(parseFloat(vendor_charge) >= 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
                alert('Vendor chages can\'t greater than partner charges');
                $('#vendor_charge_'+index).val('');
                $('#vendor_charge_'+index).css('border-color','red');
@@ -195,7 +195,7 @@
            var partner_charge = $('#partner_charge_'+index).val();
            var vendor_charge = $('#vendor_charge_'+index).val();
                       
-           if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+           if(parseFloat(partner_charge) >= 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
                alert('Vendor chages can\'t greater than partner charges');
                $('#vendor_charge_'+index).val('');
                $('#vendor_charge_'+index).css('border-color','red');
