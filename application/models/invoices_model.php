@@ -729,7 +729,6 @@ class invoices_model extends CI_Model {
 
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
         $courier  = $this->generate_partner_courier_invoice($partner_id, $from_date, $to_date, 0);
         
         $spare_parts_open_cell_led_bar_data = array();
@@ -773,7 +772,7 @@ class invoices_model extends CI_Model {
         $result['spare_requested_data'] = $spare_requested_data;
         $result['open_cell'] = array();
         $result['nrn'] = array();
-        $result['msl_packaging_data'] = array();
+        $result['all_packaging_data'] = array();
         
         if(!empty($courier) && isset($courier['final_courier']) 
                 && !empty($courier['final_courier'])){
@@ -793,6 +792,8 @@ class invoices_model extends CI_Model {
                 $result['courier'] = $courier['courier'];
                 $result['final_courier'] = $courier['final_courier'];
                 $result['msl'] = $courier['msl'];
+                
+                unset($courier);
             }
         }
         
@@ -808,88 +809,146 @@ class invoices_model extends CI_Model {
                 $up_country[0]['taxable_value'] = sprintf("%.2f", $upcountry_data[0]['total_upcountry_price']);
                 $result['result'] = array_merge($result['result'], $up_country);
                 $result['upcountry'] = $upcountry_data;
+                
+                unset($upcountry_data);
             }
             
         }
 
-        if (!empty($packaging_charge)) {
-            $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
-            if (!empty($packaging)) {
+        $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+            "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
+        if (!empty($packaging)) {
+
+            $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date,  $packaging[0]['fixed_charges']);
+            if(!empty($packaging_charge)){
                 $c_data = array();
-                $c_data[0]['description'] = $packaging[0]['description'];
-                $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($packaging_charge);
-                $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
-                $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
-                $c_data[0]['product_or_services'] = $packaging[0]['description'];
-                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $packaging[0]['fixed_charges']));
-                $result['result'] = array_merge($result['result'], $c_data);
-                
-                $result['packaging_rate'] = $packaging[0]['fixed_charges'];
-                $result['packaging_quantity'] = count($packaging_charge);
-               
-                $result['packaging_data'] = $packaging_charge;
+            $c_data[0]['description'] = $packaging[0]['description'];
+            $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
+            $c_data[0]['qty'] = count($packaging_charge);
+            $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
+            $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
+            $c_data[0]['product_or_services'] = $packaging[0]['description'];
+            $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $packaging[0]['fixed_charges']));
+            $result['result'] = array_merge($result['result'], $c_data);
+
+            $result['packaging_rate'] = $packaging[0]['fixed_charges'];
+            $result['packaging_quantity'] = count($packaging_charge);
+
+            $result['packaging_data'] = $packaging_charge;
+//            $result['all_packaging_data'] = $packaging;
+
+            unset($packaging);
             }
         }
+       
         
         $msl_large_box_packaging_charge = array();
         
         $msl_l_packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_RATE_LARGE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_LARGE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
         
         if (!empty($msl_l_packaging)) {
             
             // We will get data only if large MSL box price will be greater than 0
             //get data for MSL courier packaging charges for large box
-            $msl_large_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, LARGE_MSL_BOX);
+            $msl_large_box_packaging_charge = $this->warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, $msl_l_packaging[0]['fixed_charges'], LARGE_MSL_BOX);
  
             if (!empty($msl_large_box_packaging_charge)) {
                 $c_data = array();
-                $c_data[0]['description'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['description'] = $msl_l_packaging[0]['description'];
                 $c_data[0]['hsn_code'] = $msl_l_packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($msl_large_box_packaging_charge);
+                $c_data[0]['qty'] = sprintf("%.2f", (array_sum(array_column($msl_large_box_packaging_charge, 'msl_box'))));
                 $c_data[0]['rate'] = $msl_l_packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $msl_l_packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
                 $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $msl_l_packaging[0]['fixed_charges']));
                 $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['all_packaging_data'] = $msl_large_box_packaging_charge;
+                
+                unset($msl_large_box_packaging_charge);
+                unset($msl_l_packaging);
             }
         }
         
         $msl_small_box_packaging_charge = array();
         
         $msl_s_packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_RATE_SMALL_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MSL_PACKAGING_SMALL_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
         if (!empty($msl_s_packaging)) {
             
             // We will get data only if small MSL box price will be greater than 0
            //get data for MSL courier packaging charges for large box
-           $msl_small_box_packaging_charge = $this->get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, SMALL_MSL_BOX);
+           $msl_small_box_packaging_charge = $this->warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, $msl_s_packaging[0]['fixed_charges'], SMALL_MSL_BOX);
             if (!empty($msl_small_box_packaging_charge)) {
                 $c_data = array();
-                $c_data[0]['description'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['description'] = $msl_s_packaging[0]['description'];
                 $c_data[0]['hsn_code'] = $msl_s_packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($msl_small_box_packaging_charge);
+                $c_data[0]['qty'] = sprintf("%.2f", (array_sum(array_column($msl_small_box_packaging_charge, 'msl_box'))));
                 $c_data[0]['rate'] = $msl_s_packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $msl_s_packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
                 $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $msl_s_packaging[0]['fixed_charges']));
                 $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['all_packaging_data'] = array_merge($result['all_packaging_data'],$msl_small_box_packaging_charge );
+                
+                unset($msl_small_box_packaging_charge);
+                unset($msl_s_packaging);
+                
             }
         }
         
-        //merge small and large MSL box data into common array
-        $msl_packaging_charge = array_merge($msl_large_box_packaging_charge, $msl_small_box_packaging_charge);
-        
-        if (!empty($msl_packaging_charge)) {
-            $total_msl_box_count = array_sum(array_column($msl_packaging_charge, 'msl_box'));
-            $total_msl_packaging_charge = sprintf("%.2f", (array_sum(array_column($msl_packaging_charge, 'total_charge'))));
-            $msl_packaging_charge[0]['total_msl_box_packaging_charge'] = $total_msl_packaging_charge;
-            $msl_packaging_charge[0]['total_msl_box_count'] = $total_msl_box_count;
-            $result['msl_packaging_data'] = $msl_packaging_charge;
+        $defective_part_return_rate = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "variable_charges_type.type" => DEFECTIVE_PACKAGING_SMALL_TAG, 'fixed_charges > 0' => NULL, 
+            "vendor_partner_variable_charges.status" => 1));
+        if(!empty($defective_part_return_rate)){
+            $def_pack = $this->get_defective_return_packaging_charge($partner_id, $from_date, $to_date, SMALL_MSL_BOX, $defective_part_return_rate[0]['fixed_charges']);
+            if (!empty($def_pack)) {
+                $c_data = array();
+                $c_data[0]['description'] = $defective_part_return_rate[0]['description'];
+                $c_data[0]['hsn_code'] = $defective_part_return_rate[0]['hsn_code'];
+                $c_data[0]['qty'] = sprintf("%.2f", (array_sum(array_column($def_pack, 'msl_box'))));
+                $c_data[0]['rate'] = $defective_part_return_rate[0]['fixed_charges'];
+                $c_data[0]['gst_rate'] = $defective_part_return_rate[0]['gst_rate'];
+                $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $defective_part_return_rate[0]['fixed_charges']));
+                $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['all_packaging_data'] = array_merge($result['all_packaging_data'],$def_pack );
+                unset($def_pack);
+                unset($defective_part_return_rate);
+            }
         }
+        
+        $defective_l_return = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
+                "entity_id" => $partner_id, "variable_charges_type.type" => DEFECTIVE_PACKAGING_LARGE_TAG, 'fixed_charges > 0' => NULL, 
+            "vendor_partner_variable_charges.status" => 1));
 
+        if(!empty($defective_l_return)){
+            $def_pack1 = $this->get_defective_return_packaging_charge($partner_id, $from_date, $to_date, LARGE_MSL_BOX, $defective_part_return_rate[0]['fixed_charges']);
+            if (!empty($def_pack1)) {
+                $c_data = array();
+                $c_data[0]['description'] = $defective_l_return[0]['description'];
+                $c_data[0]['hsn_code'] = $defective_l_return[0]['hsn_code'];
+                $c_data[0]['qty'] = sprintf("%.2f", (array_sum(array_column($def_pack1, 'msl_box'))));
+                $c_data[0]['rate'] = $defective_l_return[0]['fixed_charges'];
+                $c_data[0]['gst_rate'] = $defective_l_return[0]['gst_rate'];
+                $c_data[0]['product_or_services'] = MSL_PACKAGING_CHARGES;
+                $c_data[0]['taxable_value'] = sprintf("%.2f",($c_data[0]['qty'] * $defective_l_return[0]['fixed_charges']));
+                $result['result'] = array_merge($result['result'], $c_data);
+                
+                $result['all_packaging_data'] = array_merge($result['all_packaging_data'],$def_pack1 );
+                unset($def_pack1);
+                unset($defective_l_return);
+            }
+        }
+        
+        if(isset($result['all_packaging_data']) && !empty($result['all_packaging_data'])){
+            $result['all_packaging_data'][0]['total_msl_box_packaging_charge'] = sprintf("%.2f", (array_sum(array_column($result['all_packaging_data'], 'total_charge'))));
+            $result['all_packaging_data'][0]['total_msl_box_count'] = sprintf("%.2f", (array_sum(array_column($result['all_packaging_data'], 'msl_box'))));
+        }
+        
         if (!empty($misc)) {
             $m = array();
             $m[0]['description'] = 'Miscellaneous Charge';
@@ -1161,7 +1220,7 @@ class invoices_model extends CI_Model {
             $data['packaging_data'] = $result_data['packaging_data'];
             $data['open_cell'] = $result_data['open_cell'];
             $data['nrn'] = $result_data['nrn'];
-            $data['msl_packaging_data'] = $result_data['msl_packaging_data'];
+            $data['msl_packaging_data'] = $result_data['all_packaging_data'];
             $data['msl'] = $result_data['msl'];
             $data['courier'] = $result_data['courier'];
             $data['final_courier'] = $result_data['final_courier'];
@@ -2726,9 +2785,10 @@ class invoices_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-    function get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date){
+    function get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date, $packaging_rate){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, bd.booking_id, sp.parts_shipped as part_name, DATE_FORMAT(sp.shipped_date, "%d-%b-%Y") as shipped_date, '
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, bd.booking_id, sp.parts_shipped as part_name, '.$packaging_rate.' as rate, '
+                . ' DATE_FORMAT(sp.shipped_date, "%d-%b-%Y") as shipped_date, "3" AS box_type, '.$packaging_rate.' AS total_charge, '
                 . ' sp.awb_by_partner as awb, sp.courier_name_by_partner as courier_name '
                 . ' FROM spare_parts_details as sp '
                 . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
@@ -2740,6 +2800,7 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_packaging_invoice_id IS NULL'
+                . ' AND sp.part_warranty_status = 1 '
                 . ' GROUP BY bd.booking_id,sp.parts_shipped  ';
                 
        
@@ -2841,51 +2902,74 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function get_partner_invoice_warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, $box_type){
+    function warehouse_msl_packaging_courier_data($partner_id, $from_date, $to_date, $pacakage_rate, $box_type){
         log_message('info', __METHOD__. " Enterring..");
-        $msl_box_packaging_price = array();
-        $where =  ' ccid.partner_id = "'.$partner_id.'" '
-                . ' AND ccid.awb_number IS NOT NULL '
-                . ' AND ccid.shippment_date >= "'.$from_date.'" '
-                . ' AND ccid.shippment_date < "'.$to_date.'" '
-                . ' AND bmp.courier_id is null';
-        $select = 'SELECT ccid.id, ccid.booking_id, DATE_FORMAT(ccid.shippment_date, "%d-%b-%Y") as shipped_date, ccid.awb_number as awb, ccid.company_name as courier_name';
-        $join_courier_details = ' FROM courier_company_invoice_details as ccid JOIN  courier_details as cd ON ccid.awb_number = cd.AWB_no  ';
-        $join_spare_parts_details = ' FROM courier_company_invoice_details as ccid JOIN  spare_parts_details as spd ON ccid.awb_number = spd.awb_by_wh  ';
-        $join_billed_msl_package = " left join billed_msl_package as bmp on (ccid.id = bmp.courier_id)";
+        
+            $s =' ccid.id, ccid.id as sp_id, ccid.booking_id, "" AS part_name, DATE_FORMAT(ccid.shippment_date, "%d-%b-%Y") as shipped_date, ccid.awb_number as awb, '
+                . 'ccid.company_name as courier_name,  '.$box_type.' as box_type, ';
+        
+            
+            if($box_type == LARGE_MSL_BOX){
+                $box_count_type = "ccid.box_count";
+                $s .= ' ccid.box_count as msl_box, ccid.box_count * '.$pacakage_rate.'  as total_charge, '.$pacakage_rate.' as msl_box_price';
+            } else {
+                $box_count_type = "ccid.small_box_count";
+                $s .= ' ccid.small_box_count as msl_box, ccid.small_box_count * '.$pacakage_rate.'  as total_charge, '.$pacakage_rate.' as msl_box_price';
+            }
+            $this->db->distinct();
+            $this->db->select($s, false);
+            $this->db->from('courier_company_invoice_details as ccid');
+            $this->db->join('courier_details as cd', 'cd.AWB_no = ccid.awb_number');
+            $this->db->join('billed_msl_package as bmp', 'ccid.id = bmp.courier_id', 'left');
+            $this->db->where($box_count_type.' > 0', NULL);
+            $this->db->where('bill_to_partner', $partner_id);
+            $this->db->where('cd.sender_entity_type', _247AROUND_SF_STRING);
+            $this->db->where('bmp.courier_id is NULL', NULL);
+            $this->db->where('ccid.shippment_date >= ', $from_date);
+            $this->db->where('ccid.shippment_date < ', $to_date);
+            $this->db->where($box_count_type." > 0 ", NULL);
+
+            $query = $this->db->get();
+            return $query->result_array($query);
+        
+    }
+    
+    function get_defective_return_packaging_charge($partner_id, $from_date, $to_date, $box_type, $pacakage_rate ){
+        log_message('info', __METHOD__. " Enterring..");
+        
+        $sql = "SELECT DISTINCT cc.id, GROUP_CONCAT( Distinct s.id) as sp_id, 
+                GROUP_CONCAT(distinct s.booking_id) as booking_id, company_name as courier_name, cc.awb_number as awb, $box_type as box_type, ";
         
         if($box_type == LARGE_MSL_BOX){
             
-            $select .= ", '1' as box_type ";
-            //get data for large MSL box
-            $msl_condition = " AND ccid.box_count > 0";
-            $msl_select = ', ccid.box_count as msl_box, ccid.box_count * ' . LARGE_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.LARGE_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
-        }else{
-            $select .= ", '0' as box_type ";
-            //get data for small MSL box
-            $msl_condition = " AND ccid.small_box_count > 0";
-            $msl_select = ', ccid.small_box_count as msl_box, ccid.small_box_count * ' . SMALL_MSL_BOX_PACKAGING_PRICE. ' as total_charge, '.SMALL_MSL_BOX_PACKAGING_PRICE.' as msl_box_price';
+            $box_count_type = "cc.box_count";
+            $sql .= ' cc.box_count as msl_box, cc.box_count * '.$pacakage_rate.'  as total_charge, '.$pacakage_rate.' as msl_box_price, ';
+        } else {
+            
+            $box_count_type = "cc.small_box_count";
+            $sql .= ' cc.small_box_count as msl_box, cc.small_box_count * '.$pacakage_rate.'  as total_charge, '.$pacakage_rate.' as msl_box_price, ';
         }
-        //join with courier_details table
-        $sql = $select.$msl_select.$join_courier_details.$join_billed_msl_package
-            . ' WHERE '
-            . $where
-            . $msl_condition;
-
+                
+        $sql .=  " DATE_FORMAT(cc.shippment_date, '%d-%b-%Y') as shipped_date,  
+                   GROUP_CONCAT(s.parts_shipped) as part_name,
+                   awb_by_wh as awb, bm.courier_id 
+                   FROM spare_parts_details as s 
+                    JOIN courier_company_invoice_details cc ON s.awb_by_wh = cc.awb_number 
+                    JOIN booking_details as bd ON bd.booking_id = s.booking_id  
+                    LEFT JOIN billed_msl_package as bm ON bm.courier_id = cc.id 
+                    AND bm.entity_id = bd.partner_id 
+                    WHERE s.awb_by_wh IS NOT NULL 
+                        AND bd.partner_id = $partner_id 
+                        AND cc.shippment_date >= '".$from_date."'
+                        AND cc.shippment_date <  '".$to_date."'  
+                        AND bm.courier_id iS NULL
+                        AND $box_count_type > 0
+                    group by bd.partner_id, cc.awb_number";
+        
         $query = $this->db->query($sql);
-        $result = $query->result_array();
-        $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
-
-        //join with spare_parts_details table
-        $sql = $select.$msl_select.$join_spare_parts_details.$join_billed_msl_package
-            . ' WHERE '
-            . $where
-            . $msl_condition;
-
-        $query = $this->db->query($sql);
-        $result = $query->result_array();
-        $msl_box_packaging_price = array_merge($msl_box_packaging_price, $result);
-        return $msl_box_packaging_price;
+        
+        return $query->result_array();
+    
     }
     
     /**
@@ -3524,7 +3608,6 @@ class invoices_model extends CI_Model {
             $this->db->set($Update);
             $this->db->where($where);
             $this->db->update('sf_payment_hold_reason');
-            echo $this->db->last_query();
             return true;
         } else {
             return false;
