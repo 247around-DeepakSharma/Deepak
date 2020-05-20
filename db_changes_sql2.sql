@@ -2630,3 +2630,6 @@ ALTER TABLE service_center_booking_action ADD COLUMN `cancellation_reason` int(1
 ALTER TABLE service_center_booking_action ADD CONSTRAINT `fk_scba_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
 UPDATE service_center_booking_action JOIN booking_cancellation_reasons ON (service_center_booking_action.cancellation_reason_old = booking_cancellation_reasons.reason) set service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id;  
 
+-- Sarvendra CRM-6281
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authorization_certificate', '1', '', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager,areasalesmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
