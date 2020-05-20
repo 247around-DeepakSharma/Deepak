@@ -868,6 +868,7 @@ class Invoice extends CI_Controller {
                         'entity_id' => $partner_id,
                         'invoice_id' => $meta['invoice_id'],
                         'box_count' => $msl_courier_details['msl_box'],
+                        'booking_id' => $msl_courier_details['booking_id'],
                         'rate' => $msl_courier_details['msl_box_price']
                     );
                     $this->invoices_model->insert_msl_packaging_data($msl_courier_data);
@@ -971,6 +972,7 @@ class Invoice extends CI_Controller {
             $res1 = 0;
             system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
             if(file_exists(TMP_FOLDER . $invoice_id. '.zip')) {
+                system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
                readfile(TMP_FOLDER . $invoice_id. '.zip'); 
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
@@ -2899,7 +2901,8 @@ exit();
             //Get Invocie details from Vendor Partner Invoice Table
             $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
             $invoice_details['invoice_breakup'] = $this->invoices_model->get_breakup_invoice_details("*", array('invoice_id' => $invoice_id));
-            $invoice_details['can_update_invoice'] = $this->can_update_invoice($invoice_details['invoice_details'][0]['invoice_date']);
+            //$invoice_details['can_update_invoice'] = $this->can_update_invoice($invoice_details['invoice_details'][0]['invoice_date']);
+            $invoice_details['can_update_invoice'] = true;
         }else{
             $invoice_details['can_update_invoice'] = true;
         }
