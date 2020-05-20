@@ -2618,3 +2618,15 @@ insert into boloaaka.email_template (tag,subject,template,booking_id,from,to,cc,
 values('sf_permanent_on_off_is_micro_wh','',
 'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
 '','booking@247around.com','','accounts@247around.com','',1);
+
+-- Prity
+-- 73 Release
+ALTER TABLE booking_details CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE booking_details ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE booking_details ADD CONSTRAINT `fk_bd_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE booking_details JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason_old = booking_cancellation_reasons.reason) set booking_details.cancellation_reason = booking_cancellation_reasons.id;  
+ALTER TABLE service_center_booking_action CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE service_center_booking_action ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE service_center_booking_action ADD CONSTRAINT `fk_scba_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE service_center_booking_action JOIN booking_cancellation_reasons ON (service_center_booking_action.cancellation_reason_old = booking_cancellation_reasons.reason) set service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id;  
+
