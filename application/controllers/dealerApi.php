@@ -406,6 +406,14 @@ class dealerApi extends CI_Controller {
                 $this->getSpareTabDataForBooking(); /* get Spare Details API */
                 break;
 
+            case 'getEscalationReason':
+                $this->getEscalationReason(); /* get Spare Details API */
+                break;
+
+            case 'submitEscalation':
+                $this->submitEscalation(); /* get Spare Details API */
+                break;
+
             default:
                 break;
         }
