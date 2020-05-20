@@ -201,7 +201,7 @@ class around_generic_lib {
 function getEscalationReason($entity_type){
 
 $data = array();
-$data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>$entity_type,'active'=> '1','process_type'=>'escalation'));
+$data['escalation_reason'] = $this->My_CI->vendor_model->getEscalationReason(array('entity'=>$entity_type,'active'=> '1','process_type'=>'escalation'));
 
 return $data;
 
