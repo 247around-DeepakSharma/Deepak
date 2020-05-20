@@ -111,9 +111,9 @@ define('SMALL_MSL_BOX_PACKAGING_PRICE', '5');
 //MSL Packaging charges invoice
 define('MSL_PACKAGING_CHARGES', 'MSL Packaging Charges');
 //large MSL box type
-define('LARGE_MSL_BOX', 'LARGE_MSL_BOX');
+define('LARGE_MSL_BOX', '1');
 //small MSL box type
-define('SMALL_MSL_BOX', 'SMALL_MSL_BOX');
+define('SMALL_MSL_BOX', '2');
 //message to display when invoice update time is expired
 define('INVOICE_CANNOT_BE_UPDATED_AFTER_DEFINED_TIME', 'Cannot update invoice after 8th of next month.');
 //debit penalty
@@ -136,4 +136,8 @@ define("INVOICE_DASHBOARD_SERVICE", array(array("All Sales / Purchase Nos. Are W
                                   , array("", 0, 0), array("247ServiceBuddy", 0, 1), array("Number of Customers Paying Annual Fees", 1, 0), array("Old Customers", 1, 0), array("New Customers", 1, 0), array("Annual Fee Per Customer (Old)", 1, 0), array("Annual Fee Per Customer (New)", 1, 0) 
                                   , array("", 0, 0), array("Total CRM Saas Revenues", 1, 2)  ));
 
+define('MSL_PACKAGING_LARGE_TAG', 'msl-packaging-variable-large-box');
+define('MSL_PACKAGING_SMALL_TAG', 'msl-packaging-variable-small-box');
+define('DEFECTIVE_PACKAGING_SMALL_TAG', 'defective-packaging-variable-small-box');
+define('DEFECTIVE_PACKAGING_LARGE_TAG', 'defective-packaging-variable-large-box');
 ?>
