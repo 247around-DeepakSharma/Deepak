@@ -3510,6 +3510,10 @@ function initiate_escalation_data(){
        var _sales_year = $('#sales_year').val(); 
        var _sales_partners = $('#sales_partner').val();
        if(_sales_year !== '' && (_sales_partners.length > 0 && _sales_partners.length < 6)){
+           var sales_partner_text = [];
+           $('#sales_partner option:selected').each(function(){
+               sales_partner_text.push($(this).text().split(' ').join(''));
+           });
            $.ajax({
                type:'POST',
                url:'<?php echo base_url('employee/dashboard/brand_sales_analytics') ?>',
@@ -3519,6 +3523,7 @@ function initiate_escalation_data(){
                    $('#loader_gif_brand_sales').css('display','none');
                    $('#brand_sales tbody').html(data.table_data);
                    console.log(data.series);
+                   brand_sales_analysis_table(sales_partner_text);
                    brand_sales_bar_chart(data.series);
                },beforeSend: function(){
                     $('#brand_sales tbody').html('');
@@ -3527,20 +3532,38 @@ function initiate_escalation_data(){
            });        
         }
     });
-   $(document).ready(function(){
+    function brand_sales_analysis_table(sales_partner_text){
         $('#brand_sales').DataTable({
-            dom: 'Bfrtip',
-            searching: false,
-            paging: false,
-            buttons: [{
-                extend: 'excel',
-                text: 'Export',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12]
-                }
-            }]
-        });
-    });
+             dom: 'Bfrtip',
+             searching: false,
+             paging: false,
+             buttons: [{
+                 extend: 'excelHtml5',
+                 text: 'Export',
+                 title: sales_partner_text.join('_')+'_'+$('#sales_year').val()+'_sales_report',
+                 exportOptions: {
+                     format: {
+                         header: function ( data, columnIdx ) {
+                                return data;
+                            },
+                         body: function ( data, column, row ) {
+                             $(row).each(function(){
+                                 console.log(column + '===' +data);
+                             });
+                             
+                             //if it is html, return the text of the html instead of html
+                             if (/<\/?[^>]*>/.test(data)) {                                    
+                                 return $(data).text();
+                             } else {
+                                 return data;
+                             }                                                                
+                         }
+                     }
+                 }
+             }]
+         });
+     }
+  
    function brand_sales_bar_chart(series){ 
     Highcharts.chart('brand_sales_chart', {
     chart: {
