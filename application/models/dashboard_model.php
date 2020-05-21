@@ -343,8 +343,7 @@ class dashboard_model extends CI_Model {
         $this->db->group_by('bsc.booking_id');
         
         // return query object
-        $query = $this->db->get();
-        echo '<pre>';print_r($this->db->last_query());exit;        
+        $query = $this->db->get();        
         return $query;
     }
         
