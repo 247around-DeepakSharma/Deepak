@@ -399,7 +399,7 @@
                 response = JSON.parse(response);
                 response = response['employee_rm'];
 
-                        var r = confirm('This region is already mapped with '+ response[0].full_name +'. Are you sure you want to un-map ' + selValue1 +' from '+ name +'.');
+                        var r = confirm(selValue + ' region is already mapped with '+response[0].full_name +'. Are you sure you want to un-map '+ selValue +' from '+ response[0].full_name +' and map it to '+ name +'.');
                         if(r == true){
                             console.log('RM Changed')
                         }
