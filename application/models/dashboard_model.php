@@ -1067,11 +1067,10 @@ class dashboard_model extends CI_Model {
      * @return Array
      */
     function get_booking_cancellation_reasons($startDate, $endDate) {
-        $this->db->select('booking_cancellation_reasons.reason as cancellation_reason,count(*) as count');
+        $this->db->select('IFNULL(booking_cancellation_reasons.reason,"Others") as cancellation_reason,count(*) as count');
         $this->db->where("(current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate'");
-        $this->db->where('cancellation_reason IS NOT NULL');
         $this->db->from('booking_details');
-        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id',' LEFT');
         $this->db->group_by('cancellation_reason');
         $query = $this->db->get();
         return $query->result_array();
