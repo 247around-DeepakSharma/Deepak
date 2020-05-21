@@ -1361,9 +1361,9 @@ function getCapacityCategoryForModel(model_number, div_id) {
     postData['partner_id'] = $("#partner_id").val();
     sendAjaxRequest(postData, CategoryCapacityForModelUrl).done(function (data) {
         var obj = JSON.parse(data);
-        $("#appliance_brand_" + div_no[2]).val(obj[0]['brand']);
-        $("#appliance_category_" + div_no[2]).val(obj[0]['category']);
-        $("#appliance_capacity_" + div_no[2]).val(obj[0]['capacity']);
+        $("#appliance_brand_" + div_no[2]).val($.trim(obj[0]['brand']));
+        $("#appliance_category_" + div_no[2]).val($.trim(obj[0]['category']));
+        $("#appliance_capacity_" + div_no[2]).val($.trim(obj[0]['capacity']));
         
         getPricesForCategoryCapacity(div_id,false);
     });
