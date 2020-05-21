@@ -177,7 +177,7 @@ class vendor extends CI_Controller {
                    //Send SF Update email
                    $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
-                   $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
+                   $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
             }
         } else {
@@ -5715,7 +5715,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
                 $this->session->set_userdata('vendor_added', 'Vendor Documents Has been updated Successfully , Please Fill other details');
-                $this->session->set_flashdata('current_tab', 2);
+                $this->session->set_userdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
     }
@@ -5733,8 +5733,8 @@ class vendor extends CI_Controller {
             $this->vendor_model->map_vendor_brands($this->input->post('id'), $this->input->post('brands'));
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-            $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
-			$this->session->set_flashdata('current_tab', 3);
+            $this->session->set_userdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
+			$this->session->set_userdata('current_tab', 3);
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
     }
@@ -5813,9 +5813,9 @@ class vendor extends CI_Controller {
             $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
         }
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-        $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
+        $this->session->set_userdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-		$this->session->set_flashdata('current_tab', 4);
+		$this->session->set_userdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -5859,9 +5859,9 @@ class vendor extends CI_Controller {
                 $bank_data['is_rejected']= '0';
                 $this->notify->insert_state_change('', NEW_SF_BANK_DETAILS, NEW_SF_BANK_DETAILS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
+                $this->session->set_userdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
-				$this->session->set_flashdata('current_tab', 5);
+				$this->session->set_userdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){

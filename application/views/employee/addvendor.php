@@ -66,7 +66,12 @@
 <div id="page-wrapper">
     <div class="row">
 	<?php
-	$current_tab=$this->session->flashdata('current_tab');
+        if($this->session->userdata('current_tab')){
+            $current_tab=$this->session->userdata('current_tab');
+        }else{
+            $current_tab='';
+        }
+	
 	if($current_tab=='')
 	{
 		$current_tab=1;
@@ -157,8 +162,8 @@
             </div>
         </div>
         <?php
-        if($this->session->flashdata('vendor_added')){
-            echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->flashdata('vendor_added')."</p>";
+        if($this->session->userdata('vendor_added')){
+            echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->userdata('vendor_added')."</p>";
         }
         ?>
         <div id="container-1" class="panel-body form_container" style="<?php if($current_tab!=1){ ?>display:none;<?php } ?>padding-top: 0px;">
@@ -2231,3 +2236,5 @@ function manageAccountNameField(value){
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
 <?php if($this->session->userdata('vendor_added')){$this->session->unset_userdata('vendor_added');}?>
+<?php if($this->session->userdata('current_tab')){$this->session->unset_userdata('current_tab');}?>
+
