@@ -9504,7 +9504,7 @@ class Service_centers extends CI_Controller {
             $data = [];
             $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
             $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
-            $this->miscelleneous->update_spare_consumption_status($data, $post_data['booking_id']);
+            $this->miscelleneous->update_spare_consumption_status($data, $data['spare_part_detail']['booking_id']);
             
             return true;
         }
