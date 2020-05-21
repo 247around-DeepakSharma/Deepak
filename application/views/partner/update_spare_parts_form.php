@@ -665,7 +665,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         maxDate: false,
-        minDate:new Date(),
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
+        maxDate: false,
+        setDate: new Date(),
         locale:{
             format: 'YYYY-MM-DD'
         }
