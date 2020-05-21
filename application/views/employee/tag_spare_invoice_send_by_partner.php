@@ -661,16 +661,22 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(), //date_before_15_days,
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(), //date_before_15_days,
             maxDate: false,//'today',
+            setDate: new Date(),
             locale:{
-                format: 'DD/MM/YYYY'
+                format: 'YYYY-MM-DD'
             }
         });
         
         
         $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+            $(this).val(picker.startDate.format('YYYY-MM-DD'));
         });
 
         $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -1225,15 +1231,21 @@
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(), //date_before_15_days,
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+            }(), //date_before_15_days,
             maxDate: false,//'today',
+            setDate: new Date(),
             locale:{
-                format: 'DD/MM/YYYY'
+                format: 'YYYY-MM-DD'
             }
     });
         
     $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+        $(this).val(picker.startDate.format('YYYY-MM-DD'));
     });
 
     $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
