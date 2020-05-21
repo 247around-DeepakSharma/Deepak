@@ -373,11 +373,11 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
-                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
-                                    <input type="hidden" value='<?php echo json_encode($sf);?>' name="data">
-                                    <input type="hidden" value='<?php echo json_encode($sf_state);?>' name="data_state">
-                                    <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
-                                    </form>
+                            <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
+                                <input type="hidden" value='<?php if(isset($sf['TAT'])) { echo json_encode($sf['TAT']); } else { echo json_encode($sf); } ?>' name="data">
+                                <input type="hidden" value='<?php echo json_encode($sf_state);?>' name="data_state">
+                                <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
+                            </form>
                                <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table">
     <thead>
         <tr style="background: #405467;color: #fff;margin-top: 5px;">

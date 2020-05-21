@@ -2466,14 +2466,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         foreach($data as $values){
             $tempArray = array();
             $entity = $values['entity'];
-//            if($this->session->userdata('partner_id')){
-//                    if($values['id'] !="00"){
-//                        $entity =  "247Around_Service_Center_".$values['id'];
-//                    }
-//                    else{
-//                        $entity =  wordwrap($values['entity'], 30, "<br />\n");
-//                    }
-//                }
             $onlyID = "00";
             $onlyIDArray = explode("_",$values['id']);
             if(isset($onlyIDArray[1])){
