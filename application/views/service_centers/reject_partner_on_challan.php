@@ -184,7 +184,7 @@
             }).fail(function(data){
                 alert(data);
             }).success(function(data){
-               alert('Part has been resend successfully.'); 
+               alert('Part has been updated successfully.'); 
                $('#spare_'+spare_id).hide();
             });
         } 
@@ -201,7 +201,7 @@
             }).fail(function(data){
                 alert(data);
             }).success(function(data){
-               alert('Part has been accepted successfully.'); 
+               alert('Part has been updated successfully.'); 
                $('#spare_'+spare_id).hide();
             });
         } 
