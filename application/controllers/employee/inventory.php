@@ -10106,12 +10106,14 @@ class Inventory extends CI_Controller {
             $grand_intransit_part_count = 0;
             $grand_intransit_part_amount = 0;
             $row_count = 0;
+
             foreach ($partner_id_array as $key => $partner_id) {
                 $post['length'] = -1;
                 $array_partner_detail = array();
                 $total_Inward = 0;
                 $total_Outward = 0;
                 $difference = 0;
+                $saleout_warranty = 0;
                 /*
                  * Get total Inward (Purchased) and Outward(Sold) Iventory Stock List
                  */
@@ -10201,6 +10203,12 @@ class Inventory extends CI_Controller {
                 $total_part_count = 0;
                 $total_part_amount = 0;
 
+                $select = 'SUM(spare_parts_details.sell_price)  as total_sell_price';
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_purchase_invoice_id is  null'=>NULL,'spare_parts_details.part_warranty_status'=>2),true);
+                if(!empty($spare_parts_details)){
+                    $saleout_warranty = $spare_parts_details[0]['total_sell_price'];
+                }
+
                 $array_defective_item_at_warehouse = array(strtoupper(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE), strtoupper(Ok_PARTS_RECEIVED_BY_WAREHOUSE));
 
                 $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
@@ -10260,7 +10268,7 @@ class Inventory extends CI_Controller {
 
 
 
-                $difference = $total_Inward - $total_Outward - $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
+                $difference = $total_Inward-$total_Outward-$defective_amount_at_wharehouse-$in_transit_part_amount-$total_part_amount-$whfreshStock_amount-$whfreshStock_amount_micro-$saleout_warranty;
 
                 /*
                  * Change All Amount values to 2 decimal places
@@ -10302,11 +10310,11 @@ class Inventory extends CI_Controller {
                 } else {
                     $percentage = '';
                 }
-                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
+                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro,$saleout_warranty, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
             }
-            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
+            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '','', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
         } else {
-            $array['data'][] = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+            $array['data'][] = array('', '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', '', '', '', '', '');
         }
 
         $array['draw'] = $_POST['draw'];
