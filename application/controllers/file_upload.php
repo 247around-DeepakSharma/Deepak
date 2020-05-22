@@ -130,7 +130,9 @@ class File_upload extends CI_Controller {
                             redirect(base_url() . $redirect_to);
                         } else {
                             $this->session->set_flashdata('details', $response['message']);
+                            if(!empty($redirect_to)){
                             redirect(base_url() . $redirect_to);
+                            }
                         }
                     }
                 } else {
