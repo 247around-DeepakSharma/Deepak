@@ -4011,7 +4011,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
        $data['calls'] = $calls;
-       
+       $data['year'] = $year;
+       // create data for Bar Chart
        foreach($calls as $partner => $months){
            $node = array();
            $node['name'] = $calls[$partner]['public_name'];

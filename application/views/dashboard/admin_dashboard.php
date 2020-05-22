@@ -3459,7 +3459,12 @@ function initiate_escalation_data(){
         }
     });
     function brand_sales_analysis_table(sales_partner_text){
-        $('#brand_sales').DataTable({
+        if ( $.fn.dataTable.isDataTable( '#brand_sales' ) ) {
+            table = $('#brand_sales').DataTable();
+        }
+        else {
+                    
+           table = $('#brand_sales').DataTable({
              dom: 'Bfrtip',
              searching: false,
              paging: false,
@@ -3473,11 +3478,7 @@ function initiate_escalation_data(){
                                 return data;
                             },
                          body: function ( data, column, row ) {
-                             $(row).each(function(){
-                                 console.log(column + '===' +data);
-                             });
-                             
-                             //if it is html, return the text of the html instead of html
+                            //if it is html, return the text of the html instead of html
                              if (/<\/?[^>]*>/.test(data)) {                                    
                                  return $(data).text();
                              } else {
@@ -3488,6 +3489,7 @@ function initiate_escalation_data(){
                  }
              }]
          });
+        }
      }
   
    function brand_sales_bar_chart(series){ 
