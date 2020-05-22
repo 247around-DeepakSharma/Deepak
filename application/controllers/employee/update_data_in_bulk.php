@@ -38,8 +38,13 @@ class update_data_in_bulk extends CI_Controller {
                         // If ASM not found ,get RM details
                         if(empty($resultTemp)){
                             $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                            $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
                         }
-                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        else
+                        {
+                            $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        }
+                        
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
