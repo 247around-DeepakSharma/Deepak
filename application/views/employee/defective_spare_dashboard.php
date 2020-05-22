@@ -53,11 +53,12 @@
                                                         <th>Outward</th>
                                                         <th>WH fresh stock</th>
                                                         <th>Micro Fresh Stock</th>
-                                                        <th>defective @ wh</th>
-                                                        <th>Out TAT - Part Count, Complete & Cancelled</th>
-                                                        <th>Out TAT - Part Amount, Complete & Cancelled</th>
-                                                        <th>Out TAT - Part Count, Pending & Rescheduled</th>
-                                                        <th>Out TAT - Part Amount , Pending & Rescheduled</th>
+                                                        <th>Sale Out Warranty</th>
+                                                        <th>Defective @ wh</th>
+                                                        <th>Out TAT - Part Count (Complete & Cancelled)</th>
+                                                        <th>Out TAT - Part Amount (Complete & Cancelled)</th>
+                                                        <th>Out TAT - Part Count (Pending & Rescheduled)</th>
+                                                        <th>Out TAT - Part Amount (Pending & Rescheduled)</th>
                                                         <th>IN Transit Part Count</th>
                                                         <th>IN Transit Amount</th>
                                                         <th>IN TAT- Part Count, Complete & Cancelled</th>
@@ -66,7 +67,7 @@
                                                         <th>IN TAT Amount</th>
                                                         <th>Total Part Count (out+in)</th>
                                                         <th>Total Amount (out+in)</th>
-                                                        <th>diff</th>
+                                                        <th>Difference</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
