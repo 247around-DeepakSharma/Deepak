@@ -113,7 +113,7 @@
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>Zone</th>
                             <th>Day0</th>
                             <th>Day1</th>
                             <th>Day2</th>
@@ -121,7 +121,7 @@
                             <th>Day4</th>
                             <th>Day5 - Day7</th>
                             <th>Day8 - Day15</th>
-                            <th> Day15 (Total)</th>
+                            <th> >Day15 (Total)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -274,7 +274,7 @@
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>Zone</th>
                             <th>Day0</th>
                             <th>Day1</th>
                             <th>Day2</th>
@@ -282,7 +282,7 @@
                             <th>Day4</th>
                             <th>Day5 - Day7</th>
                             <th>Day8 - Day15</th>
-                            <th>Day15</th>
+                            <th>>Day15</th>
                             <th>Total</th>
                         </tr>
                     </thead>
