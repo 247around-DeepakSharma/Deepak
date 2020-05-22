@@ -1156,15 +1156,21 @@ class Service_centers extends CI_Controller {
 
             $cancellation_reason = trim($this->input->post('cancellation_reason'));
             $cancellation_text = $this->input->post('cancellation_reason_text');
+            // Get cancellation reason Text from Id
+            $cancellation_reason_text = "";
+            if(!empty($cancellation_reason)){
+                $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
+                $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+            }
             $correctpin = $this->input->post('correct_pincode');
-            $can_state_change = $cancellation_reason;
+            $can_state_change = $cancellation_reason_text;
             $partner_id = $this->input->post('partner_id');
             $city = $this->input->post('city');
             $booking_pincode = $this->input->post('booking_pincode');
             $brand = $this->input->post('brand');
 
             if (!empty($cancellation_text)) {
-                $can_state_change = $cancellation_reason . " - " . $cancellation_text;
+                $can_state_change = $cancellation_reason_text . " - " . $cancellation_text;
             }
 
 
@@ -9500,12 +9506,12 @@ class Service_centers extends CI_Controller {
         
         $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-        
+        $booking_id = $data['spare_part_detail']['booking_id'];
         if (!empty($post_data['change'])) {
             $data = [];
             $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
             $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
-            $this->miscelleneous->update_spare_consumption_status($data, $data['spare_part_detail']['booking_id']);
+            $this->miscelleneous->update_spare_consumption_status($data, $booking_id);
             
             return true;
         }

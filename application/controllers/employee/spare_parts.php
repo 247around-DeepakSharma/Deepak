@@ -4587,7 +4587,8 @@ class Spare_parts extends CI_Controller {
         $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_required'] = 1;
-        $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
+        $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
+        $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
         
         //$post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
         //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;

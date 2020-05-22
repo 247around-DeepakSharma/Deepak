@@ -5790,7 +5790,7 @@ class Booking extends CI_Controller {
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'"'] = NULL;
+                $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
             }
         }        
         
