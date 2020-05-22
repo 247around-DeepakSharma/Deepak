@@ -2001,10 +2001,10 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,booking_details.district,"
                     . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id,booking_details.district, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $incentive_select = "sum(partner_incentive) as total_earning";
             $incentive_where = array(
@@ -2134,8 +2134,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $bookings[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
         }
@@ -2148,7 +2148,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
-                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2172,8 +2172,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $missed_bookings[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $missed_bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $missed_bookings[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2191,7 +2191,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
-                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2215,8 +2215,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $tomorrowBooking[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $tomorrowBooking[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $tomorrowBooking[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
           //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
@@ -3904,8 +3904,8 @@ class engineerApi extends CI_Controller {
                         $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
 
-                        $state = $value['state'];
-                        $data['Bookings'][$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                        $city = $value['district'];
+                        $data['Bookings'][$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -4572,38 +4572,6 @@ function submitPreviousPartsConsumptionData(){
             $this->sendJsonResponse(array("0099", 'No parents  Found'));
         }
     }
-
-
- 
-   /**
-     * @Desc: This function is to used to show accessories list
-     * @params: void
-     * @return: JSON
-     * @author Abhishek Awasthi
-     * @date : 14-04-2020
-     */
-    function  getCoronaCoordinates($state){
-
- 
-        // if (!empty($state)) {    
-        // $state_name = str_replace(' ', '', $state);
-        // $state_name = strtoupper($state_name);
-        // $states_json =   file_get_contents(TMP_FOLDER.'states.json');
-        // $states_array = json_decode($states_json,true);
-        // $state_coordinates = $states_array[$state_name][0];
-        // $latlong =array();
-        $supcordinate = array();
-        // foreach($state_coordinates as $key => $coordinate){
-        //     $latlong['long'] = $coordinate[0];
-        //     $latlong['lat'] = $coordinate[1];
-        //    // $supcordinate[] = $latlong;
-        // }
-
-        return $supcordinate; // All Data in response//
-       // } 
-
-    }
-
 
     /**
      * @Desc: This function is to used to show accessories list
