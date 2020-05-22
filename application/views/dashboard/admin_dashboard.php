@@ -1958,7 +1958,8 @@
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_completed_booking(response);
             }
             else{
@@ -1979,7 +1980,8 @@
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_cancelled_booking(response);
             }
             else{
@@ -3030,7 +3032,8 @@ function initiate_escalation_data(){
         url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Completed';
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_completed_booking(response);   
             }
             else{
@@ -3109,8 +3112,8 @@ function initiate_escalation_data(){
         url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            //console.log(response);
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_cancelled_booking(response);
             }
             else{
