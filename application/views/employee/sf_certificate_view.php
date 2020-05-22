@@ -26,6 +26,7 @@
             <center>Validity: <?php echo $financial_year; ?> </center>
             <br/><br/></td>
     </tr>
+    
     <tr style="vertical-align: top;">
         <td style="text-align:right">
             <img style="margin-right: -257px;" src="<?php echo $sign; ?>" />

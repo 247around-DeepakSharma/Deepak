@@ -67,6 +67,7 @@ class SFauthorization_certificate {
             } else {
                 $financial_year = '01 April ' . (date('Y') - 1) . ' to 31 March ' . date('Y');
             }
+            
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
             $data['stamp'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['stamp_img_name'];
