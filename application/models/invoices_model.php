@@ -928,7 +928,7 @@ class invoices_model extends CI_Model {
             "vendor_partner_variable_charges.status" => 1));
 
         if(!empty($defective_l_return)){
-            $def_pack1 = $this->get_defective_return_packaging_charge($partner_id, $from_date, $to_date, LARGE_MSL_BOX, $defective_part_return_rate[0]['fixed_charges']);
+            $def_pack1 = $this->get_defective_return_packaging_charge($partner_id, $from_date, $to_date, LARGE_MSL_BOX, $defective_l_return[0]['fixed_charges']);
             if (!empty($def_pack1)) {
                 $c_data = array();
                 $c_data[0]['description'] = $defective_l_return[0]['description'];
