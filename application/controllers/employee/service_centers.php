@@ -9511,12 +9511,12 @@ class Service_centers extends CI_Controller {
         
         $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-        
+        $booking_id = $data['spare_part_detail']['booking_id'];
         if (!empty($post_data['change'])) {
             $data = [];
             $data['spare_consumption_status'][$post_data['spare_id']] = $post_data['spare_consumption_status'][$post_data['spare_id']];
             $data['consumption_remarks'][$post_data['spare_id']] = $post_data['change_consumption_remarks'];
-            $this->miscelleneous->update_spare_consumption_status($data, $data['spare_part_detail']['booking_id']);
+            $this->miscelleneous->update_spare_consumption_status($data, $booking_id);
             
             return true;
         }
