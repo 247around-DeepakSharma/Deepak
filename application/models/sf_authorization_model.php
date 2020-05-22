@@ -59,5 +59,14 @@ class SF_authorization_model extends CI_Model {
         $query = $this->reusable_model->get_search_query('service_centres',$select,$where,NULL,NULL,NULL,NULL,NULL);
         return $query->result_array();
     }
+    
+    /*
+     * Get auth certificate images
+     */
+    function get_auth_certificate_setting() {
+        $select = '*';
+        $query = $this->reusable_model->get_search_query('sf_auth_certificate_setting',$select,'',NULL,NULL,NULL,NULL,NULL);
+        return $query->result_array();
+    }
 
 }
