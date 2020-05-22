@@ -12,7 +12,9 @@ foreach ($calls as $partner => $months) {
                     if ($i == 1) {
                         $mtd = '';
                     } else {
-                        if ($months[$i]['call_count'] == 0 && $months[$i - 1]['call_count'] == 0) {
+                        if($year == date('Y') && $i == date('m')){
+                            $mtd = 0;
+                        }else if ($months[$i]['call_count'] == 0 && $months[$i - 1]['call_count'] == 0) {
                             $mtd = 0;
                         }else if ($months[$i]['call_count'] > 0 && $months[$i - 1]['call_count'] == 0) {
                             $mtd = 100;
@@ -35,7 +37,9 @@ foreach ($calls as $partner => $months) {
                     if ($i == 1) {
                         $mtd = 0;
                     } else {
-                        if ($months[$i]['call_count'] == 0 && $months[$i - 1]['call_count'] == 0) {
+                        if($year == date('Y') && $i == date('m')){
+                            $mtd = 0;
+                        }else if ($months[$i]['call_count'] == 0 && $months[$i - 1]['call_count'] == 0) {
                             $mtd = 0;
                         }else if ($months[$i]['call_count'] > 0 && $months[$i - 1]['call_count'] == 0) {
                             $mtd = 100;
