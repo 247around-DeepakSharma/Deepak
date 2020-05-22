@@ -61,6 +61,7 @@ class SFauthorization_certificate {
             } else {
                 $financial_year = '01 April ' . (date('Y') - 1) . ' to 31 March ' . date('Y');
             }
+            
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
             $html = $this->CI->load->view('employee/sf_certificate_view', $data, true);
