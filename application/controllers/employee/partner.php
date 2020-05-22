@@ -9635,8 +9635,8 @@ class Partner extends CI_Controller {
             $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
             $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";      
             $tempArray[] = $row['quantity'];
-            if (!is_null($row['received_defective_part_date'])) {
-                 $tempString2 =   date("d-M-Y", strtotime($row['received_defective_part_date']));
+            if (!is_null($row['defective_part_received_date_by_wh'])) {
+                 $tempString2 =   date("d-M-Y", strtotime($row['defective_part_received_date_by_wh']));
             }
             $tempArray[] = $tempString2;
             $tempArray[] = $row['awb_by_partner'];
