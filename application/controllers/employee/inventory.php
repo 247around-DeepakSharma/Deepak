@@ -8086,7 +8086,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         /* Check if any record exists in inventory_master_list table if exists then return message.*/
         if(!empty($this->input->post('check_non_inventory'))) {
-            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('service_id' => $this->input->post('service_id')));
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
             if(!empty($inventory_master_list)) {
                 $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
             }
