@@ -5454,7 +5454,7 @@ input[type=file][readonly]
                 method:'POST',
                 async: false,
                 url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-                data: {request_type:'part_type_to_margin',service_id:service_id,check_non_inventory:check_non_inventory},
+                data: {request_type:'part_type_to_margin',service_id:service_id,check_non_inventory:check_non_inventory,partner_id:$("#partner_id").val()},
                 success:function(data){ 
                     if(data == '<?php echo UPDATE_INVENTORY_MASTER_LIST_MSG; ?>') {
                         alert(data);
