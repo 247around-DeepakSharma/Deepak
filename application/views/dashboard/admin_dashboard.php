@@ -129,11 +129,15 @@
                    </div>
                     <br>
                 <div class="clear"></div>
+                <p ng-if='completedBookingByRM.leg_1 !== undefined'>
+                    <?php echo LEG_DESCRIPTION ; ?>
+                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
                             <th>S.no</th>
                             <th>RM</th>
+                            <th ng-if='completedBookingByRM.leg_1 !== undefined'></th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -145,13 +149,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
+                        <tr class="tat-report" data-rm-row-id="{{completedBookingByRM.TAT[$index].id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href  onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.leg_1[$index].id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.TAT[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
-                                   {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
-                                   
+                                   {{completedBookingByRM.TAT[$index].entity}} </button>
+                                <span ng-if="completedBookingByRM.TAT[$index].id == '00'"></span>
+                                <span ng-if="completedBookingByRM.TAT[$index].id != '00'">
+                                    <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{completedBookingByRM.TAT[$index].id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))" style="margin-top: 10px;">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </td>
+                            <td>
+                                <p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p>
+                            </td>                                   
                            <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_0}} ({{completedBookingByRM.leg_1[$index].TAT_0_per}}%)<br>
                                {{completedBookingByRM.leg_2[$index].TAT_0}} ({{completedBookingByRM.leg_2[$index].TAT_0_per}}%)<br>
                                {{completedBookingByRM.TAT[$index].TAT_0}} ({{completedBookingByRM.TAT[$index].TAT_0_per}}%) </td>
@@ -613,6 +625,9 @@
                 </div>
                     <br>
                 <div class="clear"></div>
+                <p ng-if='completedBookingByAM.leg_1 !== undefined'>
+                    <?php echo LEG_DESCRIPTION ; ?>
+                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
@@ -631,8 +646,7 @@
                     <tbody>
                         <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByAM.TAT[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
                                    {{completedBookingByAM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
@@ -670,7 +684,6 @@
                         </tr>
                         <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
@@ -2247,30 +2260,91 @@
         });
     }
     function create_arm_tat_report_table(tableRow,data){
+        html_leg_tbl = "";
+        if(!!data.leg_1 && data.leg_1.length>0){
+            html_leg_tbl = "<th></th>";
+        }
         html='<table class="table table-striped table-bordered sub-table">'
-                +'<thead><tr><th>S.no</th><th>ASM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+                +'<thead><tr><th>S.no</th><th>ASM</th>'
+                +html_leg_tbl
+                +'<th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
         if(!!data.TAT && data.TAT.length>0){
             html += "<tbody>";
             for(var i in data.TAT){
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
                 if(data.TAT[i].id === "00"){
-                    html += "<td><button class='btn btn-info'>"+ data.TAT[i].entity+ "</button></td>";
+                    html += "<td>"+ data.TAT[i].entity+ "</td>";
                 }else{
                     html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
                 }
-                html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
-                html += '</tr>';
+                // Show leg wise ASM Report
+                if(!!data.leg_1 && data.leg_1.length>0){
+                    html += "<td>leg_1<br/>leg_2<br/>Total</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_0+ "("+ data.leg_1[i].TAT_0_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_0+ "("+ data.leg_2[i].TAT_0_per+ "%)<br/>"
+                            + data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_1+ "("+ data.leg_1[i].TAT_1_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_1+ "("+ data.leg_2[i].TAT_1_per+ "%)<br/>"
+                            + data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_2+ "("+ data.leg_1[i].TAT_2_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_2+ "("+ data.leg_2[i].TAT_2_per+ "%)<br/>"
+                            + data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_3+ "("+ data.leg_1[i].TAT_3_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_3+ "("+ data.leg_2[i].TAT_3_per+ "%)<br/>"
+                            + data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_4+ "("+ data.leg_1[i].TAT_4_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_4+ "("+ data.leg_2[i].TAT_4_per+ "%)<br/>"
+                            + data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_5+ "("+ data.leg_1[i].TAT_5_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_5+ "("+ data.leg_2[i].TAT_5_per+ "%)<br/>"
+                            + data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_8+ "("+ data.leg_1[i].TAT_8_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_8+ "("+ data.leg_2[i].TAT_8_per+ "%)<br/>"
+                            + data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_16+ "("+ data.leg_1[i].TAT_16_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_16+ "("+ data.leg_2[i].TAT_16_per+ "%)<br/>"
+                            + data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)"
+                            + "</td>";
+                    html += '</tr>';
+                }
+                else
+                {
+                    html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
+                    html += '</tr>';
+                }                
             }
-            html += "</tbody></table>";
-            html = "<td colspan=10>"+ html+ "</td>"
+            
+            html += "</tbody></table>";            
+            if(!!data.leg_1 && data.leg_1.length>0){
+                html = "<td colspan=11>"+ html+ "</td>"
+            }
+            else
+            {
+                html = "<td colspan=10>"+ html+ "</td>"
+            }
             $("#arm_table_"+ tableRow).empty().html(html);
             $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
         }else{
@@ -2379,42 +2453,42 @@
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
                              +'</form></td>';
-                total += data[i].TAT_0;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
-                             +'</form></td>';
-                total += data[i].TAT_1;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_2;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_3;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_4;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_5;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_8;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_16;
+                    total += data[i].TAT_0;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
+                                 +'</form></td>';
+                    total += data[i].TAT_1;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_2;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_3;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_4;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_5;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_8;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_16;
                     html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                                 +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_Total_bookings + '">'
                                 +'<input type="submit" value="'+ data[i].Total_Pending + ' ('+ data[i].TAT_total_per + '%)"  class="btn btn-'+ ((data[i].Total_Pending<1)?'success':'danger')+ '">'
