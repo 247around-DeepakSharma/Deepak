@@ -1239,6 +1239,10 @@ class File_upload extends CI_Controller {
                             $validate_model_number = false;
                         } else if (strpos($rowData['model'], '"')) {
                             $validate_model_number = false;
+                        }else if (strpos($rowData['model'], '”')) {
+                            $validate_model_number = false;
+                        }else if (strpos($rowData['model'], "’")) {
+                            $validate_model_number = false;
                         }
                         if ($validate_model_number) {
                             $partner_model_id = "";

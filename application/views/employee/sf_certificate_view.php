@@ -26,10 +26,11 @@
             <center>Validity: <?php echo $financial_year; ?> </center>
             <br/><br/></td>
     </tr>
+    
     <tr style="vertical-align: top;">
         <td style="text-align:right">
-            <img style="margin-right: -257px;" src="<?php echo base_url('images/anujsign.png'); ?>" />
-            <img src="<?php echo base_url('images/stamp.png'); ?>" />
+            <img style="margin-right: -257px;" src="<?php echo $sign; ?>" />
+            <img src="<?php echo $stamp; ?>" />
         </td>
     </tr>
     <tr style="vertical-align: top;">
