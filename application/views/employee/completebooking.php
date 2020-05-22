@@ -716,7 +716,14 @@
                                 $is_upcountry = 1;
                             }
                             ?>
+
+                            <?php
+                            //if booking is cancelled on Admin panel, complete button gets disabled. 
+                            if($booking_history[0]['current_status']!=_247AROUND_CANCELLED){ ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $is_upcountry; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
+                            <?php } else {?>
+                                <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $is_upcountry; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking" disabled tabindex=-1>
+                                <?php }?> 
                             <?php } else {
                                 
                             }?>

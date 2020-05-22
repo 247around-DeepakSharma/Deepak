@@ -579,7 +579,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
+        maxDate: false,
+        setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
         }
@@ -963,6 +970,9 @@
                         $('body').loadingModal('destroy');
                         $("#courier_image").css("display", "block");
                         $("#courier_price_by_partner").css("display", "block");
+                        if($("#courier_price_by_partner").val()!=''){
+                            $("#courier_price_by_partner").val(parseInt($("#courier_price_by_partner").val()));
+                        }
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").val("");
                         $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");

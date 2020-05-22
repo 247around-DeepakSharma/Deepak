@@ -2275,13 +2275,13 @@ UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `hea
  
 -- Prity Sharma 08-04-2020
 -- 73 Branch
-ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
 UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
 UPDATE `rm_region_mapping` set region = 3 WHERE rm_id = '38';
 UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
-ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
+ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 RENAME TABLE rm_region_mapping TO rm_zone_mapping;
+ALTER TABLE `rm_zone_mapping` ADD CONSTRAINT `FK_rm_zone_mapping_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones` (`id`);
 
 --Ankit Bhatt 2020-04-08
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
@@ -2612,3 +2612,24 @@ CHANGE COLUMN `category_after_inspection_date` `category_after_inspection_date` 
 CHANGE COLUMN `final_pdi_category_after_inspection_date` `final_pdi_category_after_inspection_date` DATE NULL DEFAULT NULL ,
 CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE NULL DEFAULT NULL ,
 CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
+
+-- Sarvendra CRM-3450
+insert into boloaaka.email_template (tag,subject,template,booking_id,from,to,cc,bcc,active)
+values('sf_permanent_on_off_is_micro_wh','',
+'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
+'','booking@247around.com','','accounts@247around.com','',1);
+
+-- Prity
+-- 73 Release
+ALTER TABLE booking_details CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE booking_details ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE booking_details ADD CONSTRAINT `fk_bd_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE booking_details JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason_old = booking_cancellation_reasons.reason) set booking_details.cancellation_reason = booking_cancellation_reasons.id;  
+ALTER TABLE service_center_booking_action CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE service_center_booking_action ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE service_center_booking_action ADD CONSTRAINT `fk_scba_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE service_center_booking_action JOIN booking_cancellation_reasons ON (service_center_booking_action.cancellation_reason_old = booking_cancellation_reasons.reason) set service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id;  
+
+-- Sarvendra CRM-6281
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authorization_certificate', '1', '', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager,areasalesmanager', 'main_nav', '1', CURRENT_TIMESTAMP);

@@ -53,13 +53,13 @@
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="Vendor Amounts">Vendor Charge </label>
-                                        <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge_0" placeholder="Vendor Amount" name="misc[0][vendor_charge]" value = "0" data-part-index ="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
+                                        <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge_0" placeholder="Vendor Amount" name="misc[0][vendor_charge]" value = "0" data-part-index ="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4 " style="width:17%;">
                                     <div class="form-group col-md-12  ">
                                         <label for="partner Charge">Partner Charge </label>
-                                        <input type="number" step=".02" class="form-control partner_charge" id="partner_charge_0" placeholder="Enter Partner Charge" name="misc[0][partner_charge]" value = "0" data-part-index="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" >
+                                        <input type="number" step=".02" class="form-control partner_charge" id="partner_charge_0" placeholder="Enter Partner Charge" name="misc[0][partner_charge]" value = "0" data-part-index="0" onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13 || event.charCode == 46" required>
                                     </div>
                                 </div>
                                 <div class="col-md-1 text-center" style="margin-top:20px;">
@@ -89,13 +89,13 @@
                                     <div class="col-md-4 " style="width:17%;">
                                         <div class="form-group col-md-12  ">
                                             <label for="Vendor Amounts">Vendor Charge </label>
-                                            <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge" placeholder="Vendor Amount" value = "0" >
+                                            <input type="number" step=".02" class="form-control vendor_charge" id="vendor_charge" placeholder="Vendor Amount" value = "0">
                                         </div>
                                     </div>
                                     <div class="col-md-4 " style="width:17%;">
                                         <div class="form-group col-md-12  ">
                                             <label for="partner Charge">Partner Charge </label>
-                                            <input type="number" step=".02" class="form-control partner_charge" id="partner_charge" placeholder="Enter Partner Charge" value = "0" >
+                                            <input type="number" step=".02" class="form-control partner_charge" id="partner_charge" placeholder="Enter Partner Charge" value = "0">
                                         </div>
                                     </div>
                                     <div class="col-md-1 text-center" style="margin-top:20px;">
@@ -178,14 +178,23 @@
            var index = $(this).attr('data-part-index');           
            var partner_charge = $('#partner_charge_'+index).val();
            var vendor_charge = $('#vendor_charge_'+index).val();
-           
-           if(parseFloat(vendor_charge) >= 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+           if(partner_charge === ''){
+               $('#partner_charge_'+index).val('0');
+               $('#partner_charge_'+index).css('border-color','');
+               return false;
+           }
+           if((parseFloat(vendor_charge) < 0) || (parseFloat(partner_charge) < 0)){
+               $('#partner_charge_'+index).val('0');
+               return false;
+           }
+           if(parseFloat(vendor_charge) > parseFloat(partner_charge)){
                alert('Vendor chages can\'t greater than partner charges');
-               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).val('0');
                $('#vendor_charge_'+index).css('border-color','red');
                $('#vendor_charge_'+index).focus();
-           }else if(parseFloat(vendor_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+           }else if(parseFloat(vendor_charge) <= parseFloat(partner_charge)){
                 $('#vendor_charge_'+index).css('border-color','');
+                 $('#partner_charge_'+index).css('border-color','');
            }
            
        });
@@ -194,16 +203,44 @@
            var index = $(this).attr('data-part-index');           
            var partner_charge = $('#partner_charge_'+index).val();
            var vendor_charge = $('#vendor_charge_'+index).val();
-                      
-           if(parseFloat(partner_charge) >= 0 && (parseFloat(vendor_charge) > parseFloat(partner_charge))){
+           if(vendor_charge == ''){
+               $('#vendor_charge_'+index).val('0');
+               $('#vendor_charge_'+index).css('border-color','');
+               return false;
+           }
+           if((parseFloat(vendor_charge) < 0) || (parseFloat(partner_charge) < 0)){
+               $('#vendor_charge_'+index).val('0');
+               return false;
+           }
+                    
+           if(parseFloat(vendor_charge) > parseFloat(partner_charge)){
                alert('Vendor chages can\'t greater than partner charges');
-               $('#vendor_charge_'+index).val('');
+               $('#vendor_charge_'+index).val('0');
                $('#vendor_charge_'+index).css('border-color','red');
                $('#vendor_charge_'+index).focus();
-           }else if(parseFloat(partner_charge) > 0 && (parseFloat(vendor_charge) <= parseFloat(partner_charge))){
+           }else if(parseFloat(vendor_charge) <= parseFloat(partner_charge)){
                 $('#vendor_charge_'+index).css('border-color','');
            }
            
+       });
+       $('#misc_charges').on('submit',function(){
+           var flag = true;
+           $('.partner_charge').each(function(){
+               if($(this).attr('data-part-index') != undefined){
+                var partner_charges = parseFloat($(this).val());
+                console.log($(this).attr('data-part-index'));
+                if(partner_charges == 0){
+                    flag = false;
+                    $(this).val('0');
+                    $(this).css('border-color','red');
+                }
+            }
+           });
+           if(!flag){
+               alert('Partner charges sholud greater than zero.');
+               return false;
+           }
+           return true;
        });
        // End- Vendor Charges can't be greater than Partner Offerings
        

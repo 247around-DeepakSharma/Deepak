@@ -1933,8 +1933,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     unset( $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
                             . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
                             . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND booking_details.request_type NOT LIKE "%AMC%")']);
-//                    unset($join['spare_parts_details']);
-//                    unset($joinType['spare_parts_details']);
                 }
                 if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
                     unset($where['spare_parts_details.booking_id IS NULL']);
@@ -2098,7 +2096,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['joinType']['zones'] = 'left';
 	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
-            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+            $conditionsArray['orderBy']['entity'] = 'asc';
+            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
         if($is_pending){
@@ -2466,14 +2465,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         foreach($data as $values){
             $tempArray = array();
             $entity = $values['entity'];
-//            if($this->session->userdata('partner_id')){
-//                    if($values['id'] !="00"){
-//                        $entity =  "247Around_Service_Center_".$values['id'];
-//                    }
-//                    else{
-//                        $entity =  wordwrap($values['entity'], 30, "<br />\n");
-//                    }
-//                }
             $onlyID = "00";
             $onlyIDArray = explode("_",$values['id']);
             if(isset($onlyIDArray[1])){
@@ -4018,7 +4009,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
        $data['calls'] = $calls;
-       
+       $data['year'] = $year;
+       // create data for Bar Chart
        foreach($calls as $partner => $months){
            $node = array();
            $node['name'] = $calls[$partner]['public_name'];

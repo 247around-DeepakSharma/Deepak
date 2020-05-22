@@ -212,12 +212,12 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: new Date() /*function(){
-            var today = new Date();
-            var yesterday = new Date();
-            yesterday.setDate(today.getDate() - 2);
-            return yesterday;
-        }()*/,
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
         maxDate: false,//new Date(),
         setDate: new Date(),
         locale: {
