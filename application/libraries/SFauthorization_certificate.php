@@ -20,25 +20,30 @@ class SFauthorization_certificate {
     function create_new_certificate($vendor_id = NULL) {
         $finacial_year = $this->finacial_year();
         $sf_details = $this->CI->sf_authorization_model->get_sf_details($finacial_year);
+            // Get auth certificate setting sing,stamp,letter_pad images
+            $cert_setting = $this->CI->sf_authorization_model->get_auth_certificate_setting();
         if (!empty($sf_details)) {
             foreach ($sf_details as $sf_detail) {
                 if ($vendor_id != NULL && $vendor_id != $sf_detail['id']) {
                     continue;
                 }
                 $sf_id = $sf_detail['id'];
-                $html = $this->create_auth_certificate_html($sf_detail);
-                if ($html != '') {
-                    // pdf file name
-                    $filename = preg_replace('/[\s\/]+/', '', $sf_detail['company_name']) . '_auth_certificate_' . time();
-                    // store autorization certificate into S3 bucket
-                    $s3_folder = 'authorization_certificate';
-                    $backgournd_url = 'url("' . base_url('images/247_letter_head.jpg') . '")';
-                    // Convert HTML to pdf and upload pdf to S3 bucket and get responce data
-                    $response_data = $this->CI->miscelleneous->convert_html_to_pdf($html, $sf_detail['id'], $filename, $s3_folder, $backgournd_url);
-                    $response_data = json_decode($response_data, true);
-                    if ($response_data['response'] == 'Success') {
-                        $response_file_name = $response_data['output_pdf_file'];
-                        $this->CI->sf_authorization_model->update_authorization_certificate_details($sf_id, $response_file_name, $finacial_year);
+                    if (!empty($cert_setting)) {
+                        $html = $this->create_auth_certificate_html($sf_detail, $cert_setting);
+                    if ($html != '') {
+                        // pdf file name
+                        $filename = preg_replace('/[\s\/]+/', '', $sf_detail['company_name']) . '_auth_certificate_' . time();
+                        // store autorization certificate into S3 bucket
+                        $s3_folder = 'authorization_certificate';
+                            $letter_pad = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['letter_pad_img_name'];
+                            $backgournd_url = 'url("' . $letter_pad . '")';
+                        // Convert HTML to pdf and upload pdf to S3 bucket and get responce data
+                        $response_data = $this->CI->miscelleneous->convert_html_to_pdf($html, $sf_detail['id'], $filename, $s3_folder, $backgournd_url);
+                        $response_data = json_decode($response_data, true);
+                        if ($response_data['response'] == 'Success') {
+                            $response_file_name = $response_data['output_pdf_file'];
+                            $this->CI->sf_authorization_model->update_authorization_certificate_details($sf_id, $response_file_name, $finacial_year);
+                        }
                     }
                 }
             }
@@ -51,7 +56,8 @@ class SFauthorization_certificate {
      * return html
      */
 
-    function create_auth_certificate_html($sf_deatils) {
+
+    function create_auth_certificate_html($sf_deatils,$cert_setting) {
         $html = '';
         if ($sf_deatils) {
             $financial_year = '';
@@ -64,6 +70,8 @@ class SFauthorization_certificate {
             
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
+                $data['stamp'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['stamp_img_name'];
+                $data['sign'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['sign_img_name'];
             $html = $this->CI->load->view('employee/sf_certificate_view', $data, true);
         }
         return $html;
