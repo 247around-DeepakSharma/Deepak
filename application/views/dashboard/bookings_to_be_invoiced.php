@@ -55,7 +55,7 @@
                 <span class="collape_icon" href="#section_2" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
-            <div id="section_2" class="collapse">
+            <div id="section_2">
                 <div class="col-md-4">
                     <label class="control-label" for="daterange">Date</label><br>
                     <?php
@@ -105,7 +105,7 @@
                 <span class="collape_icon" href="#section_3" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
-            <div id="section_3" class="collapse">
+            <div id="section_3">
                 <div class="col-md-4">
                     <label class="control-label" for="daterange">Date</label><br>
                     <?php
@@ -154,7 +154,7 @@
                 <span class="collape_icon" href="#section_4" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
-            <div id="section_4" class="collapse">
+            <div id="section_4">
                 <div class="col-md-4">
                     <label class="control-label" for="daterange">Date</label><br>
                     <?php
@@ -203,7 +203,7 @@
                 <span class="collape_icon" href="#section_5" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
-            <div id="section_5" class="collapse">
+            <div id="section_5">
                 <div class="col-md-4">
                     <label class="control-label" for="daterange">Date</label><br>
                     <?php
@@ -368,8 +368,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -403,8 +403,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -439,8 +439,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -475,8 +475,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -511,8 +511,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -533,7 +533,6 @@
 
     $('.export').on('click', function(data) {
         var tableId = $(this).data('id');
-        alert(tableId);
         var date = $('#data_range_'+tableId).val();
         if(date == '' || date == null) {
             alert('Please select date.');
