@@ -1067,6 +1067,7 @@ class dashboard_model extends CI_Model {
      * @return Array
      */
     function get_booking_cancellation_reasons($startDate, $endDate) {
+        $this->db->_protect_identifiers = FALSE; 
         $this->db->select('IFNULL(booking_cancellation_reasons.reason,"Others") as cancellation_reason,count(*) as count');
         $this->db->where("(current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate'");
         $this->db->from('booking_details');
