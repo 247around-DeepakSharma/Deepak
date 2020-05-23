@@ -6035,7 +6035,6 @@ class Service_centers extends CI_Controller {
 
     function warehouse_default_page() {
         
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         if(!empty($this->session->userdata('warehouse_id'))) {
             $this->checkEmployeeUserSession();
             $this->miscelleneous->load_nav_header();
@@ -6043,7 +6042,8 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
             $this->load->view('service_centers/header');
         }
-       
+        
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->load->view('service_centers/warehouse_default_page', $data);
     }
 
