@@ -1245,14 +1245,12 @@ class Inventory extends CI_Controller {
                      * If defective part not required after booking completion then change spare status accordingly.
                      * @modifiedBy Ankit Rajvanshi
                      */
-//                    if(!empty($booking_details['service_center_closed_date'])) {
-                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    if(!empty($booking_details['service_center_closed_date'])) {
                         $data['status'] = _247AROUND_COMPLETED;
                         if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
-//                    }
+                    }
                     
                     break;
 
@@ -1289,13 +1287,15 @@ class Inventory extends CI_Controller {
                      */
 //                    if(!empty($booking_details['service_center_closed_date'])) {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
-                            $data['status'] = DEFECTIVE_PARTS_PENDING;
-                        } else {
-                            $data['status'] = OK_PART_TO_BE_SHIPPED;
-                        }                 
-
+                        if(!empty($spare_part_detail['consumed_part_status_id'])) {
+                            $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                            if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                                $data['status'] = DEFECTIVE_PARTS_PENDING;
+                            } else {
+                                $data['status'] = OK_PART_TO_BE_SHIPPED;
+                            }                 
+                        }
+                        
                         if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
