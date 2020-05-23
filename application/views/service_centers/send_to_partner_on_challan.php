@@ -406,7 +406,7 @@
          changeMonth: true,
          changeYear: true,
          maxDate: "0",
-         minDate: "+3d"
+         minDate: -3
 
      }
         );
