@@ -365,7 +365,7 @@
 
                         <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
 
-                        <?php if(isset($this->session->userdata('has_authorization_certificate')) &&  isset($this->session->userdata('auth_certificate_file_name')) && !empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1 && ($this->session->userdata('auth_certificate_file_name') != '' && $this->session->userdata('auth_certificate_file_name') != NULL)){ ?>
+                        <?php if(!empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1 && ($this->session->userdata('auth_certificate_file_name') != '' && $this->session->userdata('auth_certificate_file_name') != NULL)){ ?>
                             <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
                         <?php } ?>
                         
@@ -480,10 +480,10 @@
 </div>
 <?php
 // Unset SF authorization certificate session CRM-6107
-if (isset($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') != '') {
+if ($this->session->userdata('has_authorization_certificate')) {
     $this->session->unset_userdata('has_authorization_certificate');
 }
-if (isset($this->session->userdata('auth_certificate_file_name')) && $this->session->userdata('auth_certificate_file_name') != '') {
+if ($this->session->userdata('auth_certificate_file_name')) {
     $this->session->unset_userdata('auth_certificate_file_name');
 }
 ?>
