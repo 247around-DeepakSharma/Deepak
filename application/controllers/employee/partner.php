@@ -3036,7 +3036,7 @@ class Partner extends CI_Controller {
                 $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
             }                       
             
-            $userSession = array('success' => 'Defective/Ok Parts Rejected To SF');
+            $userSession = array('success' => 'Defective/Ok Parts has been Rejected.');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else {
@@ -3105,7 +3105,7 @@ class Partner extends CI_Controller {
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $this->booking_model->update_booking($booking_id, $booking);
             }
-            $userSession = array('success' => 'Defective Parts Rejected To SF');
+            $userSession = array('success' => 'Defective Parts has been Rejected.');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
