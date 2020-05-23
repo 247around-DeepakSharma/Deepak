@@ -1089,6 +1089,7 @@ class User_invoice extends CI_Controller {
                     else {
 //                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
                         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,state,address,company_name,name as public_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("service_centres.id" => $receiver_entity_id));
+                        $entity_gst_details = [];
                     }
                     
                     //generate courier details table
@@ -1213,9 +1214,14 @@ class User_invoice extends CI_Controller {
                                 $from_city = $sc_details[0]['district'];
                                 $from_state = $sc_details[0]['state'];
                                 
-                                $to_city = $entity_details[0]['district'];
-                                $to_state = $entity_details[0]['state'];
-
+                                if(!empty($entity_gst_details)) {
+                                    $to_city = $entity_gst_details[0]['district'];
+                                    $to_state = $entity_gst_details[0]['state'];
+                                } else {
+                                    $to_city = $entity_details[0]['district'];
+                                    $to_state = $entity_details[0]['state'];
+                                }
+                                
                                 $awb_data = array(
                                     'awb_number' => trim($return_data['awb']),
                                     'company_name' => trim($return_data['courier_name']),
