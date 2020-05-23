@@ -3616,6 +3616,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $table_data .= '<td><input class="form-control check_1" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_1.'['.$d['id'].']" value="1"></td>';
                 $table_data .= '</tr>';
             }
+        } else {
+            $table_data .= '<tr><td colspan="6">No Data Found.</td></tr>';
         }
         
         echo $table_data;
@@ -3631,7 +3633,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $date = $post_data['date'];
         
         // define select variable.
-        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges,  booking_unit_details.id,
                 booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
                 booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
         
@@ -3673,6 +3675,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $table_data .= '<td><input class="form-control check_2" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_2.'['.$d['id'].']" value="1"></td>';
                 $table_data .= '</tr>';
             }
+        } else {
+            $table_data .= '<tr><td colspan="7">No Data Found.</td></tr>';
         }
         
         echo $table_data;
@@ -3687,7 +3691,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $date = $post_data['date'];
         
         // define select variable.
-        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges, 
+        $select = 'booking_details.booking_id, booking_unit_details.customer_paid_basic_charges,  booking_unit_details.id,
                 booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
                 booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
         
@@ -3719,6 +3723,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $table_data .= '<td><input class="form-control check_3" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_3.'['.$d['id'].']" value="1"></td>';
                 $table_data .= '</tr>';
             }
+        } else {
+            $table_data .= '<tr><td colspan="6">No Data Found.</td></tr>';
         }
         
         echo $table_data;
@@ -3732,7 +3738,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $post_data = $this->input->post();
         $date = $post_data['date'];
         // define select variable.
-        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges,  booking_unit_details.id,
                 booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
                 booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
         
@@ -3764,6 +3770,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $table_data .= '<td><input class="form-control check_4" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_4.'['.$d['id'].']" value="1"></td>';
                 $table_data .= '</tr>';
             }
+        } else {
+            $table_data .= '<tr><td colspan="6">No Data Found.</td></tr>';
         }
         
         echo $table_data;
@@ -3778,7 +3786,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $date = $post_data['date'];
         
         // define select variable.
-        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges, 
+        $select = 'booking_details.booking_id, booking_unit_details.id, booking_unit_details.customer_paid_basic_charges,  booking_unit_details.id,
                 booking_unit_details.customer_paid_parts, booking_unit_details.customer_paid_extra_charges,
                 booking_unit_details.serial_number, booking_unit_details.serial_number_pic';
         
@@ -3810,6 +3818,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $table_data .= '<td><input class="form-control check_5" type="checkbox" name="'.DASHBOARD_INVOICE_PROCESS_5.'['.$d['id'].']" value="1"></td>';
                 $table_data .= '</tr>';
             }
+        } else {
+            $table_data .= '<tr><td colspan="6">No Data Found.</td></tr>';
         }
         
         echo $table_data;
