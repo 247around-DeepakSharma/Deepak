@@ -30,7 +30,7 @@ class SF_authorization_model extends CI_Model {
 
     function get_sf_details($finacial_year) {
         $select = 'id,name,company_name,address,pincode,state,district,landmark,appliances';
-        $where = 'active = 1 AND is_sf = 1 AND ((auth_certificate_validate_year != "' . $finacial_year . '" OR auth_certificate_validate_year IS NULL)';
+        $where = 'active = 1 AND is_sf = 1 AND is_wh = 0 AND ((auth_certificate_validate_year != "' . $finacial_year . '" OR auth_certificate_validate_year IS NULL)';
         $where .= ' OR (auth_certificate_validate_year = "' . $finacial_year . '" AND has_authorization_certificate = 0))';
         $query = $this->reusable_model->get_search_query('service_centres', $select, $where, NULL, NULL, NULL, NULL, NULL);
         return $query->result_array();
@@ -47,7 +47,7 @@ class SF_authorization_model extends CI_Model {
             'auth_certificate_file_name' => $file_name,
             'auth_certificate_validate_year' => $finacial_year
         );
-        $where = "id = $sf_id AND active = 1 AND is_sf = 1";
+        $where = "id = $sf_id AND active = 1 AND is_sf = 1 AND is_wh = 0";
         return $this->reusable_model->update_table('service_centres', $data, $where);
     }
 
@@ -57,7 +57,7 @@ class SF_authorization_model extends CI_Model {
 
     function get_all_active_sf_details() {
         $select = 'id,name,company_name,auth_certificate_validate_year,auth_certificate_file_name,has_authorization_certificate';
-        $where = 'active = 1 AND is_sf = 1';
+        $where = 'active = 1 AND is_sf = 1 AND is_wh = 0';
         $query = $this->reusable_model->get_search_query('service_centres', $select, $where, NULL, NULL, NULL, NULL, NULL);
         return $query->result_array();
     }

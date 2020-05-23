@@ -2744,7 +2744,6 @@ VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authoriz
     INSERT INTO `boloaaka`.`sf_auth_certificate_setting` (`letter_pad_img_name`, `stamp_img_name`, `sign_img_name`, `s3_directory_name`) VALUES ('247_letter_head_sample.jpg', 'stamp_sample.png', 'anujsign_sample.jpg', 'authorization_certificate');
 
 
-
 -- Raman
 -- 22-May-2020 CRM-6286
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
