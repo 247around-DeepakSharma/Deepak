@@ -284,7 +284,7 @@
                 if(response === 'Error'){
                     
                 } else {
-                    $('#partner_id2').html(response);
+                    $('#partner_id3').html(response);
                     var option_length = $('#partner_id3').children('option').length;
                     if(option_length == 2){
                         $("#partner_id3").change();   
