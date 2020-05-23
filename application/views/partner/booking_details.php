@@ -72,8 +72,8 @@
                                         
                                     </tr>
                                     <tr>
-                                        <th>City: </th>
-                                        <td><?php echo $booking_history[0]['city']; ?></td>
+                                        <th>City/District: </th>
+                                        <td><?php echo $booking_history[0]['city']; ?>/<?php echo $booking_history[0]['district']; ?></td>
                                         <th>State: </th>
                                         <td><?php echo $booking_history[0]['state']; ?></td>
                                     </tr>
