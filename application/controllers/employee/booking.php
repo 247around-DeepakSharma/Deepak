@@ -4429,7 +4429,7 @@ class Booking extends CI_Controller {
         }
 
         $last_spare = $this->getBookingLastSpare($order_list->booking_id);
-        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($order_list->city);
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($order_list->district);
         if(!empty($response_db)){
         $result = json_decode($response_db[0]['zone'],true);
         $response = $result;
