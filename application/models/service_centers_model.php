@@ -471,6 +471,19 @@ class Service_centers_model extends CI_Model {
          //log_message('info', __FUNCTION__  .$this->db->last_query());
         return $query->result_array();
     }
+    /**
+     * @desc:This method uised to get spare pending for acknowlwdge of particular booking
+     * @param String $booking_id, $id
+     * @return type Array
+     */
+    function get_spare_part_pending_for_acknowledge($booking_id, $id){
+       $sql = "SELECT spare_parts_details.id FROM (`spare_parts_details`)  WHERE "
+                    . "`spare_parts_details`.`booking_id` = '$booking_id' AND `spare_parts_details`.`status` in ('".SPARE_PARTS_SHIPPED_BY_WAREHOUSE."','".SPARE_PARTS_REQUESTED."') "
+                    . "AND `spare_parts_details`.`id` != '".$id."'";
+        $query = $this->db->query($sql);
+         //log_message('info', __FUNCTION__  .$this->db->last_query());
+        return $query->result_array();
+    }
 
 
     function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL,$post=array()){

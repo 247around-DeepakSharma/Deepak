@@ -478,12 +478,12 @@
 </div>
 <?php
 // Unset SF authorization certificate session CRM-6107
-//if ($this->session->userdata('has_authorization_certificate')) {
+if ($this->session->userdata('has_authorization_certificate')) {
     $this->session->unset_userdata('has_authorization_certificate');
-//}
-//if ($this->session->userdata('auth_certificate_file_name')) {
+}
+if ($this->session->userdata('auth_certificate_file_name')) {
     $this->session->unset_userdata('auth_certificate_file_name');
-//}
+}
 ?>
 <!-- End -->
 <script>

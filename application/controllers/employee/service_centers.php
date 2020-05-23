@@ -1156,15 +1156,21 @@ class Service_centers extends CI_Controller {
 
             $cancellation_reason = trim($this->input->post('cancellation_reason'));
             $cancellation_text = $this->input->post('cancellation_reason_text');
+            // Get cancellation reason Text from Id
+            $cancellation_reason_text = "";
+            if(!empty($cancellation_reason)){
+                $arr_cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
+                $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+            }
             $correctpin = $this->input->post('correct_pincode');
-            $can_state_change = $cancellation_reason;
+            $can_state_change = $cancellation_reason_text;
             $partner_id = $this->input->post('partner_id');
             $city = $this->input->post('city');
             $booking_pincode = $this->input->post('booking_pincode');
             $brand = $this->input->post('brand');
 
             if (!empty($cancellation_text)) {
-                $can_state_change = $cancellation_reason . " - " . $cancellation_text;
+                $can_state_change = $cancellation_reason_text . " - " . $cancellation_text;
             }
 
 
@@ -2920,7 +2926,11 @@ class Service_centers extends CI_Controller {
             $this->checkUserSession();
         }
         if (!empty($booking_id)) {
-
+            $update_service_center_bokking_action = true;
+            $get_all_other_booking_pending = $this->service_centers_model->get_spare_part_pending_for_acknowledge($booking_id, $id);
+            if(!empty($get_all_other_booking_pending)){
+                $update_service_center_bokking_action = false;
+            }
             $where = array('id' => $id);
             $sp_data['service_center_id'] = $service_center_id;
             $sp_data['acknowledge_date'] = date('Y-m-d');
@@ -2971,7 +2981,12 @@ class Service_centers extends CI_Controller {
                         $actor = $booking['actor'] = $partner_status[2];
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
-                    $b_status = $this->booking_model->update_booking($booking_id, $booking);
+                    if($update_service_center_bokking_action){
+                        $b_status = $this->booking_model->update_booking($booking_id, $booking);
+                    }else{
+                        $b_status = 1;
+                    }
+
                     if ($b_status) {
                         
                         /* Insert Spare Tracking Details */
@@ -2979,14 +2994,14 @@ class Service_centers extends CI_Controller {
                             $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => 'SF acknowledged to receive spare parts', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
                             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                         }
-
+                        if($update_service_center_bokking_action){
                         $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id, $id);
-
 
                         $sc_data['current_status'] = _247AROUND_PENDING;
                         $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        }
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
                             $this->session->set_userdata($userSession);
@@ -3005,8 +3020,9 @@ class Service_centers extends CI_Controller {
                     }
                 } else {
 
-
+                    if($update_service_center_bokking_action){
                     $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    }
                     if ($this->session->userdata('service_center_id')) {
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);
@@ -6019,7 +6035,6 @@ class Service_centers extends CI_Controller {
 
     function warehouse_default_page() {
         
-        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         if(!empty($this->session->userdata('warehouse_id'))) {
             $this->checkEmployeeUserSession();
             $this->miscelleneous->load_nav_header();
@@ -6027,7 +6042,8 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
             $this->load->view('service_centers/header');
         }
-       
+        
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->load->view('service_centers/warehouse_default_page', $data);
     }
 
