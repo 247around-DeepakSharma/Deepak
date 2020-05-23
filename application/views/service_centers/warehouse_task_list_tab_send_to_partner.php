@@ -428,7 +428,7 @@
          changeMonth: true,
          changeYear: true,
          maxDate: "0",
-         minDate: "+3d"
+         minDate: -3
 
      });
 //    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
