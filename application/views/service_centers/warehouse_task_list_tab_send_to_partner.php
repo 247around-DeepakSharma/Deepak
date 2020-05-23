@@ -149,7 +149,7 @@
     <!-- courier Information when warehouse Shipped defective parts to partner -->
     <div class="courier_model">
         <div id="courier_model" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg" style="width:100% !important;">
 
               <!-- Modal content-->
               <div class="modal-content">
@@ -236,8 +236,8 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
                                     </div>
                                 </div>
                             </div>
@@ -423,7 +423,14 @@
     });
     
     var postData = {};
-    $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
+    $("#defective_parts_shippped_date_by_wh").datepicker({
+        dateFormat: 'dd/mm/yy',
+         changeMonth: true,
+         changeYear: true,
+         maxDate: "0",
+         minDate: "+3d"
+
+     });
 //    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
@@ -734,3 +741,9 @@
     });
 </script>
 
+<style>
+.modal-dialog {
+    width: 100% !important;
+    margin: 30px auto;
+}
+</style>
