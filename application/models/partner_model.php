@@ -2950,14 +2950,14 @@ function get_data_for_partner_callback($booking_id) {
                     DATE_FORMAT(
                       STR_TO_DATE(
                             booking_details.initial_booking_date,
-                            '%d-%m-%Y'
+                            '%Y-%m-%d'
                       ),
                       '%d-%m-%Y'
                     ) AS 'First Booking Date',
                     DATE_FORMAT(
                       STR_TO_DATE(
                             booking_details.booking_date,
-                            '%d-%m-%Y'
+                            '%Y-%m-%d'
                       ),
                       '%d-%m-%Y'
                     ) AS 'Current Booking Date',
