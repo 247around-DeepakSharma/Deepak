@@ -2726,3 +2726,27 @@ ALTER TABLE service_center_booking_action ADD COLUMN `cancellation_reason` int(1
 ALTER TABLE service_center_booking_action ADD CONSTRAINT `fk_scba_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
 UPDATE service_center_booking_action JOIN booking_cancellation_reasons ON (service_center_booking_action.cancellation_reason_old = booking_cancellation_reasons.reason) set service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id;  
 
+-- Sarvendra CRM-6281
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authorization_certificate', '1', '', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager,areasalesmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+    --Sarvendra CRM-6107
+    CREATE TABLE `boloaaka`.`sf_auth_certificate_setting` (
+      `id` INT NOT NULL AUTO_INCREMENT,
+      `letter_pad_img_name` TEXT NULL,
+      `stamp_img_name` TEXT NULL,
+      `sign_img_name` VARCHAR(45) NULL,
+      `s3_directory_name` TEXT NULL,
+      `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      `modified_at` TIMESTAMP NULL,
+      PRIMARY KEY (`id`));
+
+    INSERT INTO `boloaaka`.`sf_auth_certificate_setting` (`letter_pad_img_name`, `stamp_img_name`, `sign_img_name`, `s3_directory_name`) VALUES ('247_letter_head_sample.jpg', 'stamp_sample.png', 'anujsign_sample.jpg', 'authorization_certificate');
+
+
+
+-- Raman
+-- 22-May-2020 CRM-6286
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"First Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 20;
