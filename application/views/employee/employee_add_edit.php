@@ -384,15 +384,8 @@
     $(".region_div .select2-selection__rendered").on('click',function(){
         selValue1 = $("#region").val()
     })
-    // if new employee join as a RM
-     var curr_name = $("#full_name").val();
-    if (curr_name){
-        name = ' and map it to '+ curr_name +'.'
-    }
-    else{
-        name = ""
-    }
-console.log(name);
+    //name of RM of current region
+    var name = $("#full_name").val();
 
     $("#region").change(function(){
         var selValue = $(this).val(); //change region 
@@ -406,7 +399,7 @@ console.log(name);
                 response = JSON.parse(response);
                 response = response['employee_rm'];
 
-                        var r = confirm(selValue + ' region is already mapped with '+response[0].full_name +'. Are you sure you want to un-map '+ selValue +' from '+ response[0].full_name + name);
+                        var r = confirm(selValue + ' region is already mapped with '+response[0].full_name +'. Are you sure you want to un-map '+ selValue +' from '+ response[0].full_name +' and map it to '+ name +'.');
 
                         if(r == true){
                             console.log('RM Changed')
