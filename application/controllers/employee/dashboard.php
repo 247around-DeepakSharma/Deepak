@@ -3668,7 +3668,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 if(empty($d['serial_number'])) {
                     $remark .= 'Serial Number does not exist.<br/>';
                 }
-                if(empty($d['serial_number'])) {
+                if(empty($d['serial_number_pic'])) {
                     $remark .= 'Serial Number Pic does not exist.<br/>';
                 }
                 $table_data .= '<td>'.$remark.'</td>';
