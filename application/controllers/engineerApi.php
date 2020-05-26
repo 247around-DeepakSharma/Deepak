@@ -2547,7 +2547,7 @@ class engineerApi extends CI_Controller {
                     }
 
                     //upload defect pic
-                    if ($value["defect_pic"]) {
+                    if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
                         $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
@@ -2619,7 +2619,7 @@ class engineerApi extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+                $this->sendJsonResponse(array('0077','Not Available'));			
 		}					
 				 		 
             } else {
@@ -2640,19 +2640,20 @@ class engineerApi extends CI_Controller {
      * @return Array
      * @Author : Abhishek Awasthi
      */
-    function is_part_already_requested($parts_requestedm,$booking_id) {
+    function is_part_already_requested($parts_requested,$booking_id) {
         $array = array();
-        foreach ($parts_requested as $value) {
-            if (isset($value['parts_type'])) {
-                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
-                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
-                    "parts_requested_type" => $value['parts_type']));
-                if (!empty($data)) {
-                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
-                    break;
-                }
-            }
-        }
+        // foreach ($parts_requested as $value) {
+        //     if (isset($value['parts_type'])) {
+        //         $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+        //             "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+        //             "parts_requested_type" => $value['parts_type']));
+        //         if (!empty($data)) {
+        //             $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+        //             break;
+        //         }
+        //     }
+        // }
+        $array = array("status" => true);
         return $array;
     }
 

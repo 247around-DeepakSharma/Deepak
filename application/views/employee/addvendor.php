@@ -582,73 +582,73 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                     <div class="panel-heading" style="background-color:#ECF0F1"><b>Registration Details</b></div>
-                    <div class="panel-body" id="registration-details">
-                        <div class="col-md-12">
-                            <div class="col-md-12" style="height: 59px;">
-                            <div class="col-md-4">
-                                <div class="form-group <?php
-                                    if (form_error('name_on_pan')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
-                                    <div class="col-md-7">
-                                        <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
-                                            if (isset($query[0]['name_on_pan'])) {
-                                                echo $query[0]['name_on_pan'];
-                                            }
-                                            ?>">
-
-                                        <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
+                        <div class="panel-body" id="registration-details">
+                            <div class="col-md-12">
+                                <div class="col-md-12" style="height: 59px;">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('name_on_pan')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
+                                        <div class="col-md-7">
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
+                                                if (isset($query[0]['name_on_pan'])) {
+                                                    echo $query[0]['name_on_pan'];
+                                                }
+                                                ?>">
+                                            
+                                            <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-3" style="margin-right:14px;">
-                                <div class="form-group  <?php
-                                    if (form_error('pan_no')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-<!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
-                                    <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
-                                        if (isset($query[0]['pan_no'])) {
-                                            echo $query[0]['pan_no'];
+                                <div class="col-md-3" style="margin-right:14px;">
+                                    <div class="form-group  <?php
+                                        if (form_error('pan_no')) {
+                                            echo 'has-error';
                                         }
-                                        ?>" style="width:117%">
-                                    <span class="err1"><?php echo form_error('pan_no'); ?></span>
+                                        ?>">
+<!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
+                                        <input type="text" class="form-control blockspacialchar"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
+                                            if (isset($query[0]['pan_no'])) {
+                                                echo $query[0]['pan_no'];
+                                            }
+                                            ?>" style="width:117%">
+                                        <span class="err1"><?php echo form_error('pan_no'); ?></span>
+                                    </div>
                                 </div>
-                            </div>
                                 <div class="col-md-3" style="margin-left:40px;">
-                        <div class="form-group">
-                                    <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
-                                    if (isset($query[0]['pan_file'])) {
-                                        echo $query[0]['pan_file'];
-                                    }
-                                    ?>">
-                            <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
-                                if (isset($query[0]['pan_file'])) {
-                                    echo $query[0]['pan_file'];
-                                }
-                                ?>"/>
-                                <?php echo form_error('pan_file'); ?>
-                            </div>
-                        </div>
-                        <div class="col-md-1" style="margin-left: 20px;">
-                                <?php
-                                    $src = base_url() . 'images/no_image.png';
-                                    $image_src = $src;
-                                    if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
-                                        //Path to be changed
-                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
-                                        $image_src = base_url().'images/view_image.png';
-                                    }
-                                    ?>
-                                <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
-                                <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                <?php }?>
-                            </div>
+                                    <div class="form-group">
+                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
+                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
+                                            if (isset($query[0]['pan_file'])) {
+                                                echo $query[0]['pan_file'];
+                                            }
+                                            ?>">
+                                            <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
+                                                if (isset($query[0]['pan_file'])) {
+                                                    echo $query[0]['pan_file'];
+                                                }
+                                                ?>"/>
+                                        <?php echo form_error('pan_file'); ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-1" style="margin-left: 20px;">
+                                    <?php
+                                        $src = base_url() . 'images/no_image.png';
+                                        $image_src = $src;
+                                        if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
+                                            //Path to be changed
+                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
+                                            $image_src = base_url().'images/view_image.png';
+                                        }
+                                        ?>
+                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                    <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
+                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                    <?php }?>
+                                </div>
                                     <?php if(!$saas_module) { ?>
                                         <div class="col-md-2">
                                             <div class="checkbox">
@@ -661,87 +661,87 @@
                                     <?php } ?>
                                     </div>
                                 <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
-                            <div class="col-md-12">
-                                <div class="gst_1">
-                                    <div class="col-md-4" style="height: 39px;">
-                                <div class="form-group <?php
-                                    if (form_error('gst_no')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <label  for="gst_no" class="col-md-4">GST No. <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control blockspacialchar" style="text-transform: uppercase;"  id ="gst_no" name="gst_no" value = "<?php
-                                            if (isset($query[0]['gst_no'])) {
-                                                echo $query[0]['gst_no'];
-                                            }
-                                            ?>" oninput="validateGSTNo()">
-                                        <span class="err1"> <?php echo form_error('gst_no'); ?></span>
-                                    </div>
-                                </div>
-                            </div>
-                                <div class="col-md-4">
-                                <div class="form-group">
-                                    <label  for="" class="col-md-4">GST Type</label>
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
-                                                echo $query[0]['gst_taxpayer_type'];
-                                                }  ?>" readonly="readonly">
-                                    </div>
-                                </div>
-                            </div>
-                                <div class="col-md-4">
-                                <div class="form-group">
-                                    <label  for="" class="col-md-4">GST Status</label>
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
-                                                echo $query[0]['gst_status'];
-                                            } ?>" readonly="readonly">
-                                        <input type="hidden" class="form-control"  id ="gst_cancelled_date" name="gst_cancelled_date" value="<?php if (isset($query[0]['gst_cancelled_date'])) {
-                                                echo $query[0]['gst_cancelled_date'];
-                                            }  ?>">
-                                    </div>
-                                </div>
-                            </div>
-                                    </div>
-                                <div class="gst_2">
-                            <div class="col-md-6">
-                                <div class="form-group <?php
-                                    if (form_error('gst_file')) {
-                                        echo 'has-error';
-                                    }
-                                    ?>">
-                                    <label for="gst_file" class="col-md-2 vertical-align" style="margin-right: 5%;">GST File</label>
-                                <div class="col-md-7">
-                                    <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
-                                        if (isset($query[0]['gst_file'])) {
-                                            echo $query[0]['gst_file'];
+                                <div class="col-md-12">
+                                    <div class="gst_1">
+                                        <div class="col-md-4" style="height: 39px;">
+                                    <div class="form-group <?php
+                                        if (form_error('gst_no')) {
+                                            echo 'has-error';
                                         }
                                         ?>">
-                                    <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
-                                    if (isset($query[0]['gst_file'])) {
-                                        echo $query[0]['gst_file'];
-                                    }
-                                    ?>"/>
-                                    <?php echo form_error('gst_file'); ?>
-                                </div>
-                                    <div class="col-md-2">
-                                        <?php
-                                            $src = base_url() . 'images/no_image.png';
-                                            $image_src = $src;
-                                            if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
-                                                //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['gst_file'];
-                                                $image_src = base_url().'images/view_image.png';
-                                            }
-                                            ?>
-                                        <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                                        <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
-                                        <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                        <?php }?>
+                                        <label  for="gst_no" class="col-md-4">GST No. <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control blockspacialchar" style="text-transform: uppercase;"  id ="gst_no" name="gst_no" value = "<?php
+                                                if (isset($query[0]['gst_no'])) {
+                                                    echo $query[0]['gst_no'];
+                                                }
+                                                ?>" oninput="validateGSTNo()">
+                                            <span class="err1"> <?php echo form_error('gst_no'); ?></span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Type</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_type" name="gst_type" value="<?php if (isset($query[0]['gst_taxpayer_type'])) {
+                                                    echo $query[0]['gst_taxpayer_type'];
+                                                    }  ?>" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="" class="col-md-4">GST Status</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  id ="gst_status" name="gst_status" value="<?php  if (isset($query[0]['gst_status'])) {
+                                                    echo $query[0]['gst_status'];
+                                                } ?>" readonly="readonly">
+                                            <input type="hidden" class="form-control"  id ="gst_cancelled_date" name="gst_cancelled_date" value="<?php if (isset($query[0]['gst_cancelled_date'])) {
+                                                    echo $query[0]['gst_cancelled_date'];
+                                                }  ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                        </div>
+                                    <div class="gst_2">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('gst_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="gst_file" class="col-md-2 vertical-align" style="margin-right: 5%;">GST File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  id="gst_file" name="gst_file" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>">
+                                                <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>"/>
+                                            <?php echo form_error('gst_file'); ?>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
+                                                if (isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['gst_file'];
+                                                    $image_src = base_url().'images/view_image.png';
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
                                 <?php if(!$saas_module) { ?>
                                     <div class="col-md-4" style="margin-left:0px;padding-left: 1%">
                                         <div class="checkbox">
@@ -2133,84 +2133,84 @@ function manageAccountNameField(value){
 </style>    
 
 <script>
-// CRM-5620 disbled company name and document details on edit SF deatils
-function edit_form() {
-    var container = $('#edit_service_center').attr('container');
-    $('#'+container).find('.form-control, .select2, .checkbox_input, #submit_btn').css('pointer-events', 'auto');
-    $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
-    $('#submit_btn, .cancel').css('display', 'inline');
-    $('#container-1').css('pointer-events', 'auto');
-
-    if($('#'+container+' #company_name').val() != ''){
-        $('#'+container+' #company_name').css('pointer-events', 'none');
-        $('#'+container+' #company_name').attr('readonly');
-        $('#'+container+' #company_name').css('background-color','');
+    // CRM-5620 disbled company name and document details on edit SF deatils
+    function edit_form() {
+        var container = $('#edit_service_center').attr('container');
+        $('#'+container).find('.form-control, .select2, .checkbox_input, #submit_btn').css('pointer-events', 'auto');
+        $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
+        $('#submit_btn, .cancel').css('display', 'inline');
+        $('#container-1').css('pointer-events', 'auto');
+        
+        if($('#'+container+' #company_name').val() != ''){
+            $('#'+container+' #company_name').css('pointer-events', 'none');
+            $('#'+container+' #company_name').attr('readonly');
+            $('#'+container+' #company_name').css('background-color','');
+        }
+        if($('#'+container+' #name').val() != ''){
+            $('#'+container+' #name').css('pointer-events', 'none');
+            $('#'+container+' #name').attr('readonly');
+            $('#'+container+' #name').css('background-color','');
+        }
+        if($('#'+container+' #name_on_pan').val() != ''){
+            $('#'+container+' #name_on_pan').css('pointer-events', 'none');
+            $('#'+container+' #name_on_pan').attr('readonly');
+            $('#'+container+' #name_on_pan').css('background-color','');
+        }
+        if($('#'+container+' #pan_no').val() != ''){
+            $('#'+container+' #pan_no').css('pointer-events', 'none');
+            $('#'+container+' #pan_no').attr('readonly');
+            $('#'+container+' #pan_no').css('background-color','');
+        }
+        if($('#'+container+' #pan_file_hd').val() != ''){
+            $('#'+container+' #pan_file').css('pointer-events', 'none');
+            $('#'+container+' #pan_file').attr('readonly');
+            $('#'+container+' #pan_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }       
+        
+        if($('#'+container+' #gst_no').val() != ''){
+            $('#'+container+' #gst_no').css('pointer-events', 'none');
+            $('#'+container+' #gst_no').attr('readonly');
+            $('#'+container+' #gst_no').css('background-color','');
+        }
+        if($('#'+container+' #gst_type').val() != ''){
+            $('#'+container+' #gst_type').css('pointer-events', 'none');
+            $('#'+container+' #gst_type').attr('readonly');
+            $('#'+container+' #gst_type').css('background-color','');
+        }
+        if($('#'+container+' #gst_status').val() != ''){
+            $('#'+container+' #gst_status').css('pointer-events', 'none');
+            $('#'+container+' #gst_status').attr('readonly');
+            $('#'+container+' #gst_status').css('background-color','');
+        }
+        
+        if($('#'+container+' #gst_file_hd').val() != ''){
+            $('#'+container+' #gst_file').css('pointer-events', 'none');
+            $('#'+container+' #gst_file').attr('readonly');
+            $('#'+container+' #gst_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }
+              
+        if($('#'+container+' #signature_file_hd').val() != ''){
+            $('#'+container+' #signature_file').css('pointer-events', 'none');
+            $('#'+container+' #signature_file').css('background-color', '');
+            $('#'+container+' #signature_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+            
+        }
+        if($('#'+container+' #address_proof_file_hd').val() !== ''){
+            $('#'+container+' #address_proof_file').css('pointer-events', 'none');
+            $('#'+container+' #address_proof_file').css('background-color', '');
+            $('#'+container+' #address_proof_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }
+        if($('#'+container+' #contract_file_hd').val() !== ''){
+            $('#'+container+' #contract_file').css('pointer-events', 'none');
+            $('#'+container+' #contract_file').css('background-color', '');
+            $('#'+container+' #contract_file').attr('readonly');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }
     }
-    if($('#'+container+' #name').val() != ''){
-        $('#'+container+' #name').css('pointer-events', 'none');
-        $('#'+container+' #name').attr('readonly');
-        $('#'+container+' #name').css('background-color','');
-    }
-    if($('#'+container+' #name_on_pan').val() != ''){
-        $('#'+container+' #name_on_pan').css('pointer-events', 'none');
-        $('#'+container+' #name_on_pan').attr('readonly');
-        $('#'+container+' #name_on_pan').css('background-color','');
-    }
-    if($('#'+container+' #pan_no').val() != ''){
-        $('#'+container+' #pan_no').css('pointer-events', 'none');
-        $('#'+container+' #pan_no').attr('readonly');
-        $('#'+container+' #pan_no').css('background-color','');
-    }
-    if($('#'+container+' #pan_file_hd').val() != ''){
-        $('#'+container+' #pan_file').css('pointer-events', 'none');
-        $('#'+container+' #pan_file').attr('readonly');
-        $('#'+container+' #pan_file').css('background-color','');
-        $('#'+container+' a[title="Remove Image"]').css('display','none');
-    }       
-
-    if($('#'+container+' #gst_no').val() != ''){
-        $('#'+container+' #gst_no').css('pointer-events', 'none');
-        $('#'+container+' #gst_no').attr('readonly');
-        $('#'+container+' #gst_no').css('background-color','');
-    }
-    if($('#'+container+' #gst_type').val() != ''){
-        $('#'+container+' #gst_type').css('pointer-events', 'none');
-        $('#'+container+' #gst_type').attr('readonly');
-        $('#'+container+' #gst_type').css('background-color','');
-    }
-    if($('#'+container+' #gst_status').val() != ''){
-        $('#'+container+' #gst_status').css('pointer-events', 'none');
-        $('#'+container+' #gst_status').attr('readonly');
-        $('#'+container+' #gst_status').css('background-color','');
-    }
-
-    if($('#'+container+' #gst_file_hd').val() != ''){
-        $('#'+container+' #gst_file').css('pointer-events', 'none');
-        $('#'+container+' #gst_file').attr('readonly');
-        $('#'+container+' #gst_file').css('background-color','');
-        $('#'+container+' a[title="Remove Image"]').css('display','none');
-    }
-
-    if($('#'+container+' #signature_file_hd').val() != ''){
-        $('#'+container+' #signature_file').css('pointer-events', 'none');
-        $('#'+container+' #signature_file').css('background-color', '');
-        $('#'+container+' #signature_file').attr('readonly');
-        $('#'+container+' a[title="Remove Image"]').css('display','none');
-
-    }
-    if($('#'+container+' #address_proof_file_hd').val() !== ''){
-        $('#'+container+' #address_proof_file').css('pointer-events', 'none');
-        $('#'+container+' #address_proof_file').css('background-color', '');
-        $('#'+container+' #address_proof_file').attr('readonly');
-        $('#'+container+' a[title="Remove Image"]').css('display','none');
-    }
-    if($('#'+container+' #contract_file_hd').val() !== ''){
-        $('#'+container+' #contract_file').css('pointer-events', 'none');
-        $('#'+container+' #contract_file').css('background-color', '');
-        $('#'+container+' #contract_file').attr('readonly');
-        $('#'+container+' a[title="Remove Image"]').css('display','none');
-    }
-}
     
     function check_documents() {
         var documents = ['name_on_pan', 'pan_no', 'gst_no'];
