@@ -4530,7 +4530,7 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata("partner_id")) {
             $s_partner_id = $this->session->userdata("partner_id");
             $track_entity_type = _247AROUND_PARTNER_STRING;
-        } if ($this->session->userdata("service_center_id")) {
+        } else if ($this->session->userdata("service_center_id")) {
             $s_partner_id = $this->session->userdata("service_center_id");
             $track_entity_type = _247AROUND_SF_STRING;
         } else {

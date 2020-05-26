@@ -790,7 +790,7 @@
         var data = {
             'sender_entity_id': $('#partner_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
-            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id')?>',
+            'receiver_entity_id': '<?php echo (!empty($this->session->userdata('warehouse_id')) ? $this->session->userdata('warehouse_id') : $this->session->userdata('service_center_id')); ?>',
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
             'is_wh_ack':0
         };
