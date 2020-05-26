@@ -1299,12 +1299,7 @@ class Spare_parts extends CI_Controller {
             }
             
             $row[] = '<a href="' . base_url() . 'employee/spare_parts/defective_spare_invoice/' . $spare_list->booking_id . '" class="btn btn-sm btn-primary" style="margin-left:5px" target="_blank">Generate Invoice</a>';
-
-        } else {
-            $row[] = "";
-            $row[] = "";
-        }
-        
+        } 
         return $row;
     }
     
