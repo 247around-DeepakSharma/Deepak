@@ -2653,7 +2653,7 @@ class engineerApi extends CI_Controller {
         //         }
         //     }
         // }
-        $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+        $array = array("status" => false);
         return $array;
     }
 
