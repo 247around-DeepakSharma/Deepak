@@ -2420,8 +2420,8 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['getPartOnModel'] = false;
             }
             /* getting booking and unit details and finding price tags for getting symptoom */
-            $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            $data['booking_history'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
             $price_tags_symptom = array();
             foreach ($unit_details as $value) {
                 $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
