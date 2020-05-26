@@ -3037,10 +3037,10 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+                $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {
-                $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+                $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
             }                       
             
             $userSession = array('success' => 'Defective/Ok Parts has been Rejected.');
@@ -3108,7 +3108,7 @@ class Partner extends CI_Controller {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
             
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+            $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $this->booking_model->update_booking($booking_id, $booking);
             }
