@@ -2415,6 +2415,8 @@ ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
 
+ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT 15;
+
 -- Prity 17-04-2020 (73 Branch)
 CREATE TABLE review_questionare (
   q_id int(11) NOT NULL AUTO_INCREMENT,
@@ -2749,3 +2751,23 @@ VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authoriz
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"First Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 20;
+
+-- Ankit Rajvanshi 73 branch
+INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES
+('Symptom', 'creation_symptom.symptom as \'Booking Symptom\'', 1, '', 1, 51),
+('SF Symptom', 'completion_symptom.symptom as \'Completion Symptom\'', 1, '', 1, 52),
+('Defect', 'defect.defect AS \'Defect\'', 1, '', 1, 53),
+('Solution', 'symptom_completion_solution.technical_solution AS \'Solution\'', 1, '', 1, 54);
+
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
+
+CREATE TABLE booking_unit_details_invoice_process (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    booking_unit_details_id int(11) NOT NULL,
+    dashboard_section_id varchar(50) NOT NULL,
+    is_processed tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
