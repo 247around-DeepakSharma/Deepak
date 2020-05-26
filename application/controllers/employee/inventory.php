@@ -1243,7 +1243,8 @@ class Inventory extends CI_Controller {
                      * If defective part not required after booking completion then change spare status accordingly.
                      * @modifiedBy Ankit Rajvanshi
                      */
-                    if(!empty($booking_details['service_center_closed_date'])) {
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    if(!empty($spare_part_detail['consumed_part_status_id'])) {
                         $data['status'] = _247AROUND_COMPLETED;
                         if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
