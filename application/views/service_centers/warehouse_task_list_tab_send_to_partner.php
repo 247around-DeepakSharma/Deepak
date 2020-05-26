@@ -537,6 +537,16 @@
             alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
             return false;
         }
+
+
+        let kg = $("#shipped_spare_parts_weight_in_kg").val();
+        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+        let total = parseInt(kg)+parseInt(gm);
+        if(!total){
+        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+        return false;
+        }
+
         var courier_price= parseFloat(postData['courier_price_by_wh']);
         if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
             $('#submit_courier_form').html("Submit").attr('disabled',false);
