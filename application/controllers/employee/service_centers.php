@@ -2133,13 +2133,13 @@ class Service_centers extends CI_Controller {
         }
         $f_status = true;
         $booking_id = $this->input->post('booking_id');
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
-         //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
+        //if current status of the booking is Completed or Cancelled then the booking cannot be Updated.
          $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['current_status'];
         if ($booking_details == _247AROUND_COMPLETED || $booking_details == _247AROUND_CANCELLED) {
              $this->session->set_userdata('error', "Booking is already $booking_details. You cannot update the booking.");
             redirect(base_url() . "service_center/pending_booking");
         }
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
         if ($is_booking_able_to_reschedule === FALSE) {
             if (!$this->input->post("call_from_api")) {
               //  $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
