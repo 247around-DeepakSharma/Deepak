@@ -664,7 +664,18 @@
 
                                 } else {
 
-                                    form.submit();
+
+                                    let kg = $("#shipped_spare_parts_weight_in_kg").val();
+                                    let gm = $("#shipped_spare_parts_weight_in_gram").val();
+                                    let total = parseInt(kg)+parseInt(gm);
+                                    if(!total){
+                                        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                    }else{
+                                     form.submit();   
+                                    }
+
+
+                                    
                                 }
 
                             }
@@ -998,10 +1009,8 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
+
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -1009,10 +1018,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -1020,10 +1026,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -1042,10 +1045,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -1053,10 +1053,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -1064,10 +1061,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
