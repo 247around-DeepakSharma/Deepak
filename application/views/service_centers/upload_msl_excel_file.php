@@ -301,12 +301,12 @@
             $('#partner_name').val(partner_name);
    });
    
-//   $("#wh_id").on('change',function(){
-//        var wh_name = $('#wh_id option:selected').text();
-//            $('#wh_name').val(wh_name);
-//        var is_micro = $("#wh_id").find(':selected').attr('data-warehose');
-//            $("#is_wh_micro").val(is_micro);
-//    });
+   $("#wh_id").on('change',function(){
+        var wh_name = $('#wh_id option:selected').text();
+            $('#wh_name').val(wh_name);
+        var is_micro = $("#wh_id").find(':selected').attr('data-warehose');
+            $("#is_wh_micro").val(is_micro);
+    });
     
     function get_vendor(is_wh,partner_id) {
         $.ajax({
