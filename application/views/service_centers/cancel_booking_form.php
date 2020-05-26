@@ -110,7 +110,7 @@
         <!-- Modal content-->
         <div class="modal-content" >
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" style="display:none;">&times;</button>
                 <h4 class="modal-title">Cancel Booking</h4>
             </div>
             <div class="modal-body" >
