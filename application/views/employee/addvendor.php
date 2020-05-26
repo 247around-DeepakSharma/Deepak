@@ -620,6 +620,12 @@
                                                 echo $query[0]['pan_file'];
                                             }
                                             ?>">
+
+                                            <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
+                                                if (isset($query[0]['pan_file'])) {
+                                                    echo $query[0]['pan_file'];
+                                                }
+                                                ?>"/>
                                         <?php echo form_error('pan_file'); ?>
                                     </div>
                                 </div>
@@ -707,6 +713,12 @@
                                                     echo $query[0]['gst_file'];
                                                 }
                                                 ?>">
+
+                                                <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>"/>
                                             <?php echo form_error('gst_file'); ?>
                                         </div>
                                         <div class="col-md-2">
