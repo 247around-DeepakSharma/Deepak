@@ -300,6 +300,17 @@ if ($this->uri->segment(3)) {
         {
             $("#courier_charges_by_sf").val($("#courier_charges_by_sf_hidden").val())
         }
+
+
+      let kg = $("#defective_parts_shipped_weight_in_kg").val();
+      let gm = $("#defective_parts_shipped_weight_in_gram").val();
+      let total = parseInt(kg)+parseInt(gm);
+      if(!total){
+      swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+      return false;
+      }
+
+
         var form_data = new FormData(document.getElementById("idForm"));
 
         $.ajax({
@@ -372,11 +383,6 @@ if ($this->uri->segment(3)) {
                 $(this).val('');
                 return false;
             }
-
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -385,10 +391,7 @@ if ($this->uri->segment(3)) {
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -396,10 +399,7 @@ if ($this->uri->segment(3)) {
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -419,10 +419,6 @@ if ($this->uri->segment(3)) {
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
 
         },
         "keypress": function () {
@@ -431,11 +427,7 @@ if ($this->uri->segment(3)) {
                 $(this).val('');
                 return false;
             }
-
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();

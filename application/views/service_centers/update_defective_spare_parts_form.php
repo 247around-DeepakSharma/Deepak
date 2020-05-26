@@ -218,7 +218,8 @@
         yesterday.setDate(today.getDate() - 3);
         return yesterday;
         }(),
-        maxDate: false,//new Date(),
+        maxDate: "0",
+        minDate: -3
         setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
@@ -250,10 +251,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -261,10 +259,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -272,10 +267,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -294,10 +286,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -305,10 +294,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-               $(this).val('');
-               return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -316,10 +302,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -392,7 +375,20 @@
                                 {
                                     $("#courier_charges_by_sf").val( $("#courier_charges_by_sf_hidden").val())
                                 }
-                                form.submit();
+
+                                let kg = $("#defective_parts_shipped_weight_in_kg").val();
+                                let gm = $("#defective_parts_shipped_weight_in_gram").val();
+                                let total = parseInt(kg)+parseInt(gm);
+                                if(!total){
+                                swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                }else{
+
+                                  form.submit();  
+                                }                               
+
+
+
+                                
                             }
                         });
                     }
