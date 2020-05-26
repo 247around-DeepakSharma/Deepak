@@ -2624,7 +2624,7 @@ class engineerApi extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+                $this->sendJsonResponse(array('0077','Not Available'));			
 		}					
 				 		 
             } else {
@@ -2658,7 +2658,7 @@ class engineerApi extends CI_Controller {
         //         }
         //     }
         // }
-        $array = array("status" => false);
+        $array = array("status" => true);
         return $array;
     }
 
