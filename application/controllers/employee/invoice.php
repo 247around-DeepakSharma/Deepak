@@ -225,8 +225,8 @@ class Invoice extends CI_Controller {
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
-                $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
-                $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+                $subject = vsprintf($email_template[4], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));
+                $message = vsprintf($email_template[0], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));
             }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
@@ -3915,6 +3915,11 @@ exit();
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
         $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        if(!empty($this->input->post('tds_rate'))) {
+            $data['tds_rate'] = $this->input->post('tds_rate');
+        } else {
+            $data['tds_rate'] = 0;
+        }
         $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
@@ -3922,7 +3927,7 @@ exit();
             
             $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag);
+                    $amount, $data['tds_amount'], "Credit", $agent_id, $flag, $data['tds_rate']);
             if($invoice_id){
                 $data['invoice_id'] = $invoice_id;
                 $data['is_advance'] = 1;
@@ -3934,7 +3939,7 @@ exit();
             if($data['partner_vendor'] == "vendor"){
                   $invoice_id = $this->advance_invoice_insert($data['partner_vendor'], 
                     $data['partner_vendor_id'], $data['transaction_date'],
-                    $amount, $data['tds_amount'], "Debit", $agent_id);
+                    $amount, $data['tds_amount'], "Debit", $agent_id, NULL, $data['tds_rate']);
                 if($invoice_id){
                     $data['invoice_id'] = $invoice_id;
                     $data['is_advance'] = 1;
@@ -3955,7 +3960,7 @@ exit();
         return $this->invoices_model->bankAccountTransaction($data);
     }
     
-    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null) { 
+    function advance_invoice_insert($vendor_partner, $vendor_partner_id, $date, $amount, $tds, $txntype, $agent_id, $flag=null, $tds_rate = 0) { 
 
         if ($vendor_partner == "vendor") {
             $entity = $this->vendor_model->getVendorDetails("is_cp, sc_code", array("id" => $vendor_partner_id));
@@ -4044,6 +4049,7 @@ exit();
                 $data['invoice_id'] = $this->create_invoice_id_to_insert("ARD-PV");
                 if($tds > 0){
                     $data['tds_amount'] = $tds;
+                    $data['tds_rate'] = $tds_rate;
                 }
                 $data['type'] = PARTNER_VOUCHER;
                 $response = $this->generate_partner_additional_invoice($entity[0], PARTNER_ADVANCE_DESCRIPTION,
@@ -4426,7 +4432,7 @@ exit();
             $data[0]['spare_id'] = $spare_id;
                 
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
-            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
+            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9", $invoice_date);
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
 
             if ($status) {
@@ -4619,15 +4625,15 @@ exit();
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) { 
+    function generate_micro_reverse_sale_invoice($spare_id) {
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
 
-        if (!empty($spare_id)) { 
+        if (!empty($spare_id)) {
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
                     . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity, service_centres.owner_email, service_centres.primary_contact_email  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
-                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
+                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
                            // $spare[0]['gst_number'] = TRUE;
