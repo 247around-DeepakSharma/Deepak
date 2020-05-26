@@ -236,6 +236,13 @@
 
 <script>
     function submitForm(){
+      let kg = $("#defective_parts_shipped_weight_in_kg").val();
+      let gm = $("#defective_parts_shipped_weight_in_gram").val();
+      let total = parseInt(kg)+parseInt(gm);
+      if(!total){
+      swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+      }else{
+
        event.preventDefault();
        $(".loader").removeClass('hide');
        var form_data = new FormData(document.getElementById("idForm"));
@@ -267,7 +274,7 @@
                    );
                         
                });
- 
+ }
     }
 
 
