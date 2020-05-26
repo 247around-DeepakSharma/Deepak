@@ -533,12 +533,12 @@ class Service_centers extends CI_Controller {
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-            // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.
+            // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.   
             $curr_status = $booking_details['current_status'];
             if ($curr_status == _247AROUND_COMPLETED || $curr_status == _247AROUND_CANCELLED) {
-             $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
-            redirect(base_url() . "service_center/pending_booking");
-        }
+                $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
+                redirect(base_url() . "service_center/pending_booking");
+            }
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
@@ -647,7 +647,7 @@ class Service_centers extends CI_Controller {
                                         $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                                     }
                                 }
-                                $data['sf_purchase_date'] = (!empty($purchase_date[$unit_id]) ? $purchase_date[$unit_id] : NULL);
+                                $data['sf_purchase_date'] = (!empty($purchase_date[$unit_id]) ? date("Y-m-d", strtotime($purchase_date[$unit_id])) : NULL);
                                 $data['sf_purchase_invoice'] = NULL;
                                 if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
                                     if (empty($purchase_invoice_file_name)) {
