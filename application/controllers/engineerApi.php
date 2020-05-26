@@ -2547,7 +2547,7 @@ class engineerApi extends CI_Controller {
                     }
 
                     //upload defect pic
-                    if ($value["defect_pic"]) {
+                    if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
                         $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
