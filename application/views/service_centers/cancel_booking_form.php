@@ -94,7 +94,7 @@
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
                     <?php } else { 
-                        if(!empty($engineer_data[0]) && !empty($engineer_data[0]['cancellation_reason'])) {
+                        if(!empty($engineer_data[0]) && !empty($engineer_data[0]['current_status']) && $engineer_data[0]['current_status'] == SF_BOOKING_INPROCESS_STATUS && $engineer_data[0]['internal_status'] == _247AROUND_CANCELLED) {
                     ?>
                         
                     <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_reason())" class="btn btn-danger btn-large">

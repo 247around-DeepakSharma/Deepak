@@ -1128,7 +1128,7 @@ class Service_centers extends CI_Controller {
             $en_where = array("booking_id" => $booking_id,
                 "service_center_id" => $this->session->userdata('service_center_id')
             );
-            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark, closed_date", $en_where);
+            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark, closed_date, current_status, internal_status", $en_where);
         }
 
         $this->load->view('service_centers/header');
