@@ -93,9 +93,18 @@
                     ?>
                     <?php if($isdisable) { ?>
                     <p style="margin-bottom:60px;"> <strong> <?php echo $status;?></strong></p>
-                    <?php } else { ?>
+                    <?php } else { 
+                        if(!empty($engineer_data[0]) && !empty($engineer_data[0]['cancellation_reason'])) {
+                    ?>
+                        
+                    <input type="submit" id="submitform" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_reason())" class="btn btn-danger btn-large">
+                    
+                    <?php 
+                        } else {
+                    ?>
+                    
                     <input type="submit" id="submitform" value="Proceed" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
-                    <?php } ?>
+                        <?php }} ?>
                   <?php } ?>
                   </div>
                </div>
@@ -151,6 +160,17 @@
      }
      
  });
+    
+    function check_reason() {
+        var reason = document.myForm.cancellation_reason.value;
+       
+        if (reason === '' ) {
+           alert("Cancellation reason is missing");
+           return false;
+        } 
+       
+       return true;
+    }
     
     var response = '';  
     function check_text() {
