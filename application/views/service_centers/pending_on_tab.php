@@ -1185,14 +1185,6 @@
 
 <?php } ?>
 <script>
-    $(document).ready(function(){
-
-        getBookingEngineers();
-
-    });
-
-
-
      function show_contacts(bookingID,create_booking_contacts_flag,partner_id){
                     $.ajax({
                         type: 'post',
@@ -1296,6 +1288,11 @@
             $("#relevant_content_modal").modal("show");
         }
     }
+
+
+    $(document).ready(function(){
+        getBookingEngineers();
+    });
     
     function getBookingEngineers(){
         $(".engineer_select").each(function(){  
