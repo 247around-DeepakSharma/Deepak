@@ -1299,7 +1299,7 @@
                         response = JSON.parse(response);
                         if(response.status){
                             if(response.already_engg){
-                            var html = "<option disabled >Select Engineer</option>"+response.html;
+                            var html = response.html;
                              $("#"+id).html(html);
                             }else{
                              $("#"+id).html(response.html);   
