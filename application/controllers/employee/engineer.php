@@ -249,7 +249,7 @@ function get_review_engineer_action_by_admin_list_table($review_list, $no){
         );
         if ($service_id && $service_center_id) {
             $engineer = $this->engineer_model->get_service_based_engineer($where, "engineer_details.id, name");
-            $html = "<option disabled selected >Select Engineer</option>";
+            $html = "";
             $already_engg = 0;
             if (!empty($engineer)) {
                 foreach ($engineer as $key => $value) {
