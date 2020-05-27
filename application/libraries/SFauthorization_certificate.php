@@ -70,8 +70,8 @@ class SFauthorization_certificate {
             
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
-                $data['stamp'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['stamp_img_name'];
-                $data['sign'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['sign_img_name'];
+            $data['stamp'] = base_url('images/stamp_sample.png');
+            $data['sign'] = base_url('images/anujsign_sample.jpg');
 
             $html = $this->CI->load->view('employee/sf_certificate_view', $data, true);
         }
