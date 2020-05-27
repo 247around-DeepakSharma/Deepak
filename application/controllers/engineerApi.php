@@ -3237,7 +3237,7 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3245,7 +3245,8 @@ class engineerApi extends CI_Controller {
             "partner_id" => $partner_id,
             "booking_create_date" => $booking_create_date,
             "purchase_date" => $purchase_date,
-            "model_number" => $model_number
+            "model_number" => $model_number,
+            "service_id"=>$service_id
         );
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
         $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
@@ -3257,7 +3258,6 @@ class engineerApi extends CI_Controller {
             unset($arrBookings[$key]);
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
-
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
@@ -3309,8 +3309,9 @@ class engineerApi extends CI_Controller {
             }
         }
         if ($check) {
-
-            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"]);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $service_id = $booking_details["booking_history"][0]['service_id'];
+            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"],$service_id);
 
             log_message("info", "Warrenty plan found");
             $this->jsonResponseString['response'] = $response;
@@ -3547,10 +3548,10 @@ class engineerApi extends CI_Controller {
                     "model_number" => $requestData["model_number"],
                     "service_id" => $booking_details["booking_history"][0]['service_id'],
                 );
-
+                $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;
