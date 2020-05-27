@@ -246,6 +246,14 @@ class Engineer extends CI_Controller {
         if ($service_id && $service_center_id) {
             $engineer = $this->engineer_model->get_service_based_engineer($where, "engineer_details.id, name");
             $html = "<option disabled selected>Select Engineer</option>";
+            foreach ($engineer as $key => $value) {
+                    $html .= "<option value='" . $value['id'] . "'";
+                    if ($this->input->post("engineer_id") == $value['id']) {
+                        $html = "<option disabled>Select Engineer</option>";
+                    }
+                     
+            }
+
             if (!empty($engineer)) {
                 foreach ($engineer as $key => $value) {
                     $html .= "<option value='" . $value['id'] . "'";
