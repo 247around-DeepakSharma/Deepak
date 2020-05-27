@@ -130,8 +130,8 @@ class Warranty_utilities {
                     return "DOP Not Valid";
                 elseif($recWarrantyData['booking_create_date'] == '1970-01-01'):
                     return "Booking Create Date Not Valid";
-//                elseif(empty($recWarrantyData['service_id'])):
-//                    return "Product Not Valid";
+                elseif(empty($recWarrantyData['service_id'])):
+                    return "Product Not Valid";
                 elseif(empty($recWarrantyData['partner_id'])):
                     return "Partner Not Valid";
                 elseif(empty($recWarrantyData['booking_id'])):
