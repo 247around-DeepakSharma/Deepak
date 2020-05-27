@@ -1302,7 +1302,8 @@
                             var html = response.html;
                              $("#"+id).html(html);
                             }else{
-                             $("#"+id).html(response.html);   
+                                var html2 = "<option disabled selected >Select Engineer</option>"+response.html;
+                             $("#"+id).html(html2);   
                             }
                             
                             $("#"+id).css("display", "inline");
