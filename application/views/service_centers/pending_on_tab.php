@@ -55,7 +55,6 @@
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <br> <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -155,7 +154,7 @@
                                             <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date) || ($row->service_center_current_status == _247AROUND_COMPLETED)) { ?>
                                                 <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                             <?php }else{ ?>
-                                                 <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>    
+                                                 <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                             <?php } }else{ ?>
                                                  <a href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                            <?php } ?>
@@ -300,7 +299,6 @@
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>','<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -532,7 +530,6 @@
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -762,7 +759,6 @@
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
-                                            <span class="covid_district" id="t<?php echo $row->booking_id; ?>" data-district="<?php echo $row->district; ?>"></span>
                                         </td>
                                         <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -954,7 +950,6 @@
                                 <tr style="text-align: center;">
                                     <td>
                                         <?php echo $sn_no1; ?>
-                                        
                                     </td>
                                     <td>
                                         
@@ -979,7 +974,7 @@
                                         <?php echo $row['parts_requested']; ?>
                                     </td>
                                     <td>
-                                        <?php if($row['shipped_date'] != "0000-00-00"){echo date("d-M-Y", strtotime($row['shipped_date']));} ?>
+                                        <?php if($row['shipped_date'] != "0000-00-00"){echo $row['shipped_date'];} ?>
                                     </td>     
                                     <td><?php echo $row['shipped_quantity']; ?></td>
                                     <td>
@@ -1185,57 +1180,6 @@
 
 <?php } ?>
 <script>
-
-    $(document).ready(function(){
-
-        $('body').on('click', '.engineer_select', function() {
-            var service_id = $(this).attr("service-id");
-            var engineer_id = $(this).attr("engineer-id");
-            var booking_id = $(this).attr("booking-id");
-            var id = $(this).attr("id");
-            if(service_id){
-                $.ajax({
-                    type: 'post',
-                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
-                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'booking_id':booking_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
-                    success: function (response) {
-                        response = JSON.parse(response);
-                        if(response.status){
-                            $("#"+id).html(response.html);
-                            $("#"+id).css("display", "inline");
-                            $("#"+id).parent().find("a").css("display", "none");
-                            $("#"+id).select2();
-                        }
-                        else{
-                            $("#"+id).parent().find("a").remove();
-                            $("#"+id).parent().append(response.html);
-                            $("#"+id).css("display", "none");
-                        }
-                    }
-                });
-            }
-
-        });
-
-
-        $('.covid_district').each(function(){
-
-            let district = $(this).attr('data-district');
-                        $.ajax({
-                        type: 'post',
-                        url: '<?php echo base_url()  ?>employee/booking/getCovidZone/'+district,
-                        data: {},
-                        success: function (response) {
-                          $(this).html(response);
-                       }
-                    });
-
-        });
-
-    });
-
-
-
      function show_contacts(bookingID,create_booking_contacts_flag,partner_id){
                     $.ajax({
                         type: 'post',
@@ -1340,6 +1284,40 @@
         }
     }
     
+    function getBookingEngineers(){
+        $(".engineer_select").each(function(){  
+            var service_id = $(this).attr("service-id");
+            var engineer_id = $(this).attr("engineer-id");
+            var booking_id = $(this).attr("booking-id");
+            var id = $(this).attr("id");
+            if(service_id){
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
+                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'booking_id':booking_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        if(response.status){
+                            $("#"+id).html(response.html);
+                            $("#"+id).css("display", "inline");
+                            $("#"+id).parent().find("a").css("display", "none");
+                            $("#"+id).select2();
+                        }
+                        else{
+                            $("#"+id).parent().find("a").remove();
+                            $("#"+id).parent().append(response.html);
+                            //$("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
+                            $("#"+id).css("display", "none");
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+    $(document).ready(function(){
+        getBookingEngineers();
+    });
     
     $(".engineer_select").change(function(){
         var booking_id = $(this).attr("booking-id");
