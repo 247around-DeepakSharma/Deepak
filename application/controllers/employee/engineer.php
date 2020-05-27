@@ -247,15 +247,18 @@ class Engineer extends CI_Controller {
             $engineer = $this->engineer_model->get_service_based_engineer($where, "engineer_details.id, name");
 
             $html = "<option disabled >Select Engineer</option>";
+            $already_engg = 0;
             if (!empty($engineer)) {
                 foreach ($engineer as $key => $value) {
                     $html .= "<option value='" . $value['id'] . "'";
                     if ($this->input->post("engineer_id") == $value['id']) {
                         $html .= "selected";
+                        $already_engg = 1;
                     }
                     $html .= ">" . $value['name'] . "</option>";
                 }
                 $response['status'] = true;
+                $response['already_engg'] = $already_engg;
                 $response['html'] = $html;
                 echo json_encode($response);
             } else {
