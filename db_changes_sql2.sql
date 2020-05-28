@@ -2731,3 +2731,10 @@ CREATE TABLE `review_questionare_checklist` (
  KEY `fk_ques_checklist_mapping` (`q_id`),
  CONSTRAINT `fk_ques_checklist_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Raman 73 
+ -- 28 May
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) END) ELSE \"\" END) as TAT' WHERE `partner_summary_report_mapping`.`id` = 25;
+
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
