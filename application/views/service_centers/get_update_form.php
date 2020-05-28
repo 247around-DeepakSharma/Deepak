@@ -907,24 +907,24 @@ function alpha(e) {
           }
          
             // ask otp to enter.
-            var booking_id = $('#booking_id').val();
-            var sms_template = '<?php echo BOOKING_RESCHEDULE_OTP_SMS_TAG; ?>';
-
-            // send one time password to customer and open popup.
-            $.ajax({
-                method : 'POST',
-                url: '<?php echo base_url(); ?>employee/service_centers/send_otp_customer',
-                data: {booking_id, sms_template},
-            }).done(function(data) {
-                response = $.trim(data);
-                $('#verified_otp').val(data);
-                $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
-                // hide modal after 5 mins.
-                setTimeout(function() {$('#CancelBookingOtpModal').modal('hide');}, 300000);
-                $('#submitform').val('Proceed');
-            });       
-
-                return false;
+//            var booking_id = $('#booking_id').val();
+//            var sms_template = '';
+//
+//            // send one time password to customer and open popup.
+//            $.ajax({
+//                method : 'POST',
+//                url: 'employee/service_centers/send_otp_customer',
+//                data: {booking_id, sms_template},
+//            }).done(function(data) {
+//                response = $.trim(data);
+//                $('#verified_otp').val(data);
+//                $('#CancelBookingOtpModal').modal({backdrop: 'static', keyboard: false});
+//                // hide modal after 5 mins.
+//                setTimeout(function() {$('#CancelBookingOtpModal').modal('hide');}, 300000);
+//                $('#submitform').val('Proceed');
+//            });       
+//
+//            return false;
       } else if(reason === "<?php echo SPARE_PARTS_REQUIRED;?>" || reason === "<?php echo SPARE_OOW_EST_REQUESTED; ?>"){
           var around_flag = $('#partner_flag').val();
           
@@ -1167,7 +1167,7 @@ function alpha(e) {
             $('#hide_remarks').show();
             $(".remarks").removeAttr("disabled");
         
-            $('#submitform').val('Proceed');
+            //$('#submitform').val('Proceed');
         }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
