@@ -307,7 +307,7 @@ class Do_background_process extends CI_Controller {
                     log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
                     if ($current_status == _247AROUND_CANCELLED) {
-                        $booking['cancellation_reason'] = $data[0]['cancellation_reason_text'];
+                        $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
                         $booking['internal_status'] = $value['cancellation_reason'];
                         $booking['api_call_status_updated_on_completed'] = DEPENDENCY_ON_CUSTOMER;
                     }

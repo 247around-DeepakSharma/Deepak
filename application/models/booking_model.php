@@ -1338,7 +1338,7 @@ class Booking_model extends CI_Model {
      * @return: Array()
      */
     function getbooking_charges($booking_id = "", $status="") {
-        $this->db->select("service_center_booking_action.*, booking_cancellation_reasons.reason as cancellation_reason_text");
+
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);
 	}
@@ -1349,7 +1349,6 @@ class Booking_model extends CI_Model {
         }
 
         $this->db->where_not_in('internal_status', "Reschedule");
-        $this->db->join('booking_cancellation_reasons', 'service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id', 'left');
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
