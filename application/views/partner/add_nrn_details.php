@@ -800,8 +800,8 @@
                                 }
                             });
                             var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[0] + '/' + dateAr[1] + '/' + dateAr[2];
-                            var newMonth = dateAr[1] + '/' + dateAr[2];
+                            var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
+                            var newMonth = dateAr[0] + '/' + dateAr[1];
                             $('#booking_date').data('daterangepicker').setStartDate(newDate);
                             $('#booking_date').val(newDate);
                             $('#nrn_month').val(newMonth);

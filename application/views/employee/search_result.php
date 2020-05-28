@@ -198,7 +198,7 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->potential_value; ?></td>
-                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                    <td><?php if(!empty($row->booking_date)) { echo date("d-M-Y", strtotime($row->booking_date)); } ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>">
                         <?php
                             echo $row->current_status;

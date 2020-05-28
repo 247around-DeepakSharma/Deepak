@@ -2771,3 +2771,6 @@ CREATE TABLE booking_unit_details_invoice_process (
     is_processed tinyint(1) NOT NULL DEFAULT 0,
     create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
+
+ALTER TABLE booking_details change column booking_date booking_date date NULL DEFAULT NULL;
+UPDATE booking_details set booking_date = NULL where booking_date = '0000-00-00';
