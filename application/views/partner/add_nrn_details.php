@@ -50,9 +50,7 @@
                                             <div class="form-group">
                                                 <label for="booking_id" class="col-md-4">Call/JobNo/Booking Id *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Call/JobNo/Booking Id" type="text" class="form-control" name="booking_id" id="booking_id" required value="<?php echo ($booking_id != '') ? $booking_id : ((set_value('booking_id') != '' ) ? set_value('booking_id') : ''); ?>"
-                                                           <?php if($booking_id != ''){ ?> readonly <?php } ?>
-                                                           />
+                                                    <input placeholder="Enter Call/JobNo/Booking Id" type="text" class="form-control" name="booking_id" id="booking_id" required="" value="<?php echo (set_value('booking_id') != '' ) ? set_value('booking_id') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -779,40 +777,6 @@
                 window.location.href = '<?php echo base_url("partner/list_nrn_records") ?>';
             }
         });
-       $(document).ready(function () {
-       if($('#booking_id').val() != ''){
-           var _booking_id = $('#booking_id').val();
-            
-
-
-                $.ajax({
-                    type: 'GET',
-                    url: '<?php echo base_url() . 'employee/NRN_TR/finduser?search_value=+'; ?>' + _booking_id,
-                    dataType: 'json',
-                    success: function (responce) {
-                        if (responce) {
-                            $('#customer_name').val(responce.Bookings[0].customername);
-                            $('#customer_location').val(responce.Bookings[0].booking_address);
-                            $('#state').val(responce.Bookings[0].state);
-                            $('#distributor_name').val(responce.Bookings[0].service_centre_name);
-                            $('#asf_name').val(responce.Bookings[0].primary_contact_name);
-                            $('#physical_status option').each(function (val) {
-                                //alert($(this).val());
-                                if (responce.Bookings[0].current_status === $(this).val()) {
-                                    $(this).attr('selected');
-                                }
-                            });
-                            var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
-                            var newMonth = dateAr[0] + '/' + dateAr[1];
-                            $('#booking_date').data('daterangepicker').setStartDate(newDate);
-                            $('#booking_date').val(newDate);
-                            $('#nrn_month').val(newMonth);
-                        }
-                    }
-                });
-           
-       }
         // Get booking data by sending booking id 
         $('#booking_id').on('change', function () {
             var _booking_id = $('#booking_id').val();
@@ -837,8 +801,8 @@
                                 }
                             });
                             var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
-                            var newMonth = dateAr[0] + '/' + dateAr[1];
+                            var newDate = dateAr[0] + '/' + dateAr[1] + '/' + dateAr[2];
+                            var newMonth = dateAr[1] + '/' + dateAr[2];
                             $('#booking_date').data('daterangepicker').setStartDate(newDate);
                             $('#booking_date').val(newDate);
                             $('#nrn_month').val(newMonth);
@@ -848,7 +812,7 @@
             }
         });
 
-        
+        $(document).ready(function () {
             var partner_type = $('#partner_type').val();
             var partner_id = $('#partner_id').val();
             $.ajax({
