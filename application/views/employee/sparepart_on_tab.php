@@ -518,9 +518,11 @@
                                         <th class="text-center" data-orderable="false">Pickup Request </th>
                                         <th class="text-center" data-orderable="false">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
+                                       <?php if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") { ?>
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Mark Courier Lost</th>
                                         <th class="text-center" data-orderable="false">Generate Invoice</th>
+                                       <?php } ?>
                                     </tr>
                                 </thead>
                             </table>

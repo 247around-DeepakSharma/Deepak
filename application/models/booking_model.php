@@ -2398,7 +2398,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
-        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date = '')",NULL);
+        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date IS NULL OR booking_details.booking_date = '0000-00-00')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }

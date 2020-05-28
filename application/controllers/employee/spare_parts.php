@@ -120,6 +120,7 @@ class Spare_parts extends CI_Controller {
                 $this->get_defective_parts_pending($post);
                 break;
             case 10:
+                // Parts Requested
                 $this->get_approval_pending($post);
                 break;
             case 11:
@@ -740,7 +741,7 @@ class Spare_parts extends CI_Controller {
     function get_approval_pending($post) {
         log_message('info', __METHOD__);
         /* getting symptom and show in table */
-        $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.defect_pic,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "symptom.symptom as symptom_text,spare_parts_details.defect_pic,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name, booking_details.service_id as service_id, "
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number,booking_details.booking_pincode,booking_details.district as city ";
 
@@ -758,6 +759,7 @@ class Spare_parts extends CI_Controller {
         if (!empty($arrList)) {
             $arrBookingsData = array_map(function($recData) {
                 $arrData['partner_id'] = $recData['partner_id'];
+                $arrData['service_id'] = $recData['service_id'];
                 $arrData['booking_id'] = $recData['booking_id'];
                 $arrData['booking_create_date'] = $recData['booking_create_date'];
                 $arrData['model_number'] = $recData['model_number'];
@@ -1293,10 +1295,7 @@ class Spare_parts extends CI_Controller {
             }
             
             $row[] = '<a href="' . base_url() . 'employee/spare_parts/defective_spare_invoice/' . $spare_list->booking_id . '" class="btn btn-sm btn-primary" style="margin-left:5px" target="_blank">Generate Invoice</a>';
-        } else {
-            $row[] = "";
-            $row[] = "";
-        }
+        } 
 
         return $row;
     }

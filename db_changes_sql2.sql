@@ -2674,3 +2674,60 @@ CREATE TABLE booking_unit_details_invoice_process (
     is_processed tinyint(1) NOT NULL DEFAULT 0,
     create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
+
+-- Prity 73
+CREATE TABLE `review_questionare` (
+  `q_id` int(11) NOT NULL AUTO_INCREMENT,
+  `question` varchar(500) NOT NULL,
+  `form` int(11) NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
+  `sequence` int(11) NOT NULL DEFAULT 1,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  `panel` int(11) NOT NULL COMMENT '1 => Admin, 2 => Partner',
+  PRIMARY KEY (`q_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_request_type_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `q_id` int(11) NOT NULL,
+  `request_type_id` int(11) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_ques_review_mapping` (`q_id`),
+  KEY `fk_request_type_review_mapping` (`request_type_id`),
+  CONSTRAINT `fk_request_type_question_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`),
+  CONSTRAINT `fk_request_type_request_mapping` FOREIGN KEY (`request_type_id`) REFERENCES `request_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_booking_checklist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL,
+  `q_id` int(11) NOT NULL,
+  `checklist_id` int(11) DEFAULT NULL,
+  `remarks` varchar(500) DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_booking_checklist_mapping` (`booking_id`),
+  KEY `fk_booking_ques_checklist_mapping` (`q_id`),
+  KEY `fk_booking_checklist_checklist_mapping` (`checklist_id`),
+  CONSTRAINT `fk_booking_checklist_checklist_mapping` FOREIGN KEY (`checklist_id`) REFERENCES `review_questionare_checklist` (`checklist_id`),
+  CONSTRAINT `fk_booking_checklist_mapping` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`),
+  CONSTRAINT `fk_booking_ques_checklist_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_questionare_checklist` (
+ `checklist_id` int(11) NOT NULL AUTO_INCREMENT,
+ `q_id` int(11) NOT NULL,
+ `answer` varchar(500) NOT NULL,
+ `active` tinyint(1) NOT NULL DEFAULT '1',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `created_by` int(11) NOT NULL,
+ PRIMARY KEY (`checklist_id`),
+ KEY `fk_ques_checklist_mapping` (`q_id`),
+ CONSTRAINT `fk_ques_checklist_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
