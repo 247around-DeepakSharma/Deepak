@@ -148,6 +148,8 @@ class Courier_tracking extends CI_Controller {
                 if(!empty($api_data['data'])){
                     $data['awb_details_by_api'] = $api_data['data'];
                     $data['awb_number'] = $awb_number;
+                    /* temporary flag to hand checkpoint status because checkpoint status not coming in response currently */
+                    $data['checkpoint_status'] = true;
                     
                 }else{
                     //log_message('info',  'no data found from API for awb number '.print_r($api_data,true));
@@ -160,6 +162,8 @@ class Courier_tracking extends CI_Controller {
                     
                     $data['awb_details_by_db'] = $this->get_awb_details($carrier_code,$awb_number);
                     $data['awb_number'] = $awb_number;
+                    /* temporary flag to hand checkpoint status because checkpoint status not coming in response currently */
+                    $data['checkpoint_status'] = false;
                     
                 }
             }else{
