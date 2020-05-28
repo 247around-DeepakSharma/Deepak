@@ -1121,11 +1121,23 @@ function alpha(e) {
     
     }
     
-        $('#reschedule_booking_otp_btn').on('click', function() {
+    $('#reschedule_booking_otp_btn').on('click', function() {
         var reschedule_booking_otp = $('#reschedule_booking_otp').val();
+//        if(reschedule_booking_otp == '' || reschedule_booking_otp == null) {
+//            alert('Please enter OTP.');
+//            return false;
+//        }
+//        if(reschedule_booking_otp == response) {
+//            $('#requested_parts').submit();
+//            return true;
+//        }
+//        
+//        alert('Entered OTP is incorrect.');
+//        return false;
+        
         if(reschedule_booking_otp == '' || reschedule_booking_otp == null) {
-            alert('Please enter OTP.');
-            return false;
+            $('#requested_parts').submit();
+            return true;
         }
         if(reschedule_booking_otp == response) {
             $('#requested_parts').submit();
