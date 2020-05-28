@@ -1686,7 +1686,7 @@ class Miscelleneous {
                         $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
                         // If ASM not found ,get RM details
                         if(empty($resultTemp)){
-                            $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                            $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
                         }
                         $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
