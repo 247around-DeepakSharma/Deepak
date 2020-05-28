@@ -26,8 +26,13 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Pending Spares On <?php echo $this->session->userdata('partner_name') ?> </h2>
+                    <?php if($this->session->userdata('partner_id') == 247034){ ?>
+                    <div class="pull-right"><a style="background-color: #2a3f54;border-color:#2a3f54;" target="_blank" href='<?php echo base_url('partner/list_nrn_records'); ?>' class='btn btn-sm btn-primary booking_tr_details'>List TR Detail</a>
+                        </div>
+                    <?php } ?>
                     <div class="pull-right"><button style="background-color: #2a3f54;border-color:#2a3f54;" id="spareDownload" onclick="downloadSpare()" class="btn btn-sm btn-primary">Download</button>
-                        <span style="color:#337ab7" id="messageSpare"></span></div>
+                        <span style="color:#337ab7" id="messageSpare"></span></div> 
+                    
                     <div class="right_holder" style="float:right;margin-right:10px;">
                             <select class="form-control " id="state_search_spare" style="border-radius:3px;" onchange="booking_search_spare()">
                     <option value="">States</option>
