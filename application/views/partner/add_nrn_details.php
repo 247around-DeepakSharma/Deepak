@@ -38,7 +38,7 @@
             }
             ?>
             <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Add New NRN Detail</div>
+                <div class="panel-heading">Add New TR Detail</div>
                 <div class="panel-body">
                     <form name="myForm" class="form-horizontal" id ="nrn_details_form" action="<?php echo base_url() ?>partner/add_nrn_details"  method="POST" enctype="multipart/form-data">
                         <legend>
