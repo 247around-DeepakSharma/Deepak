@@ -1191,6 +1191,7 @@ class service_centre_charges extends CI_Controller {
         $data['upcountry_partner_price'] = 0;
         $data['customer_total'] = 0;
         $data['customer_net_payable'] = 0;
+        $data['partner_spare_extra_charge'] = 0;
         $data['partner_net_payable'] = 0;
         $data['vendor_total'] = 0;
         $data['vendor_tax_basic_charges'] = 0;
@@ -1210,6 +1211,7 @@ class service_centre_charges extends CI_Controller {
         $data['is_upcountry'] = $form_data['paid_upcountry'];
         $data['customer_total'] = $form_data['paid_customer_total'];
         $data['customer_net_payable'] = $form_data['paid_customer_total'];
+        $data['partner_spare_extra_charge'] = 0;       
         $data['partner_net_payable'] = 0;
         $data['vendor_total'] = $form_data['paid_vendor_total'];
         $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE);
