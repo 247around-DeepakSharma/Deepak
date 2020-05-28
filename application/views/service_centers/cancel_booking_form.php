@@ -205,9 +205,19 @@
     
     $('#cancel_booking_otp_btn').on('click', function() {
         var cancel_booking_otp = $('#cancel_booking_otp').val();
+//        if(cancel_booking_otp == '' || cancel_booking_otp == null) {
+//            alert('Please enter OTP.');
+//            return false;
+//        }
+//        if(cancel_booking_otp == response) {
+//            $('#cancel_booking_form').submit();
+//            return true;
+//        }
+
+//        return false;
         if(cancel_booking_otp == '' || cancel_booking_otp == null) {
-            alert('Please enter OTP.');
-            return false;
+            $('#cancel_booking_form').submit();
+            return true;
         }
         if(cancel_booking_otp == response) {
             $('#cancel_booking_form').submit();
