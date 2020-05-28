@@ -1573,14 +1573,21 @@ class engineerApi extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
+
+                if(is_int($requestData["cancellationReason"])){
                 $where_cancel = array(
                     'id'=>$requestData["cancellationReason"]
                 ); 
                 $reason = $this->booking_model->cancelreason($where_cancel);
+                $cancel_reason = $reason[0]->reason;    
+                }else{
+                $cancel_reason = $requestData["cancellationReason"];  
+                }
+
 
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
 //  Appending Status of Engg //
-                $this->notify->insert_state_change($requestData["bookingID"], $reason[0]->reason, _247AROUND_PENDING,
+                $this->notify->insert_state_change($requestData["bookingID"],$cancel_reason, _247AROUND_PENDING,
                         BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App",
                         $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
