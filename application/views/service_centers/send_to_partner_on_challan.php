@@ -256,7 +256,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                             <option selected value="">Select Large Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                                 <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -269,7 +269,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
                                             <option selected="" value="">Select Small Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -812,7 +812,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='') ) {
+            if (weight_kg.length > 4 || (Number(weight_kg) < 1 && weight_kg !='') ) {
                 $(this).val('');
                 return false;
             }
@@ -827,7 +827,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
@@ -842,7 +842,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 4 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
@@ -857,7 +857,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || weight_kg < 0 ) {
+            if (weight_kg.length > 4 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }

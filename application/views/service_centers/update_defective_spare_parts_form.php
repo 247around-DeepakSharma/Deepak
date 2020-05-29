@@ -103,7 +103,7 @@
                                     <div class="col-md-6">
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -129,9 +129,6 @@
                                     </div>
                                     <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
-                                <?php
-                                    // print_r($value);
-                                    ?>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) {
