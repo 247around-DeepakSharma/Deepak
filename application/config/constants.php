@@ -734,7 +734,7 @@ define("ADMIN_REMARKS_MIN_LENGTH" , 40);
 define('BOOKING_SOURCE_API', 22);
 define('BOOKING_SOURCE_CRM', 23);
 define('BOOKING_SOURCE_Excel_File', 24);
-define('BOOKING_SOURCE_Website', 25);
+define('BOOKING_SOURCE_Website', 18);
 // Agents for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
