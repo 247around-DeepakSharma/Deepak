@@ -1564,8 +1564,8 @@ class Partner extends CI_Controller {
                     //$booking['potential_value'] = '';
                     $appliance_details['last_service_date'] = date('d-m-Y');
 
-                    $booking['booking_date'] = $requestData['booking_date'];
-                    $booking['initial_booking_date'] = $requestData['booking_date'];
+                    $booking['booking_date'] = date("Y-m-d", strtotime($requestData['booking_date']));
+                    $booking['initial_booking_date'] = date("Y-m-d", strtotime($requestData['booking_date']));
                     $booking['booking_timeslot'] = '';
                     $booking['booking_address'] = $user['home_address'];
 
