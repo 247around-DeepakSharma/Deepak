@@ -158,7 +158,7 @@ if ($this->uri->segment(3)) {
                                 <div class="col-md-6">
                                     <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -379,14 +379,14 @@ if ($this->uri->segment(3)) {
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 4) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -395,7 +395,7 @@ if ($this->uri->segment(3)) {
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 4) {
                 $(this).val('');
                 return false;
             }
@@ -403,7 +403,7 @@ if ($this->uri->segment(3)) {
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3 || weight_kg < 0) {
+            if (weight_kg.length > 4 || weight_kg < 0) {
                 $(this).val('');
                 return false;
             }

@@ -173,7 +173,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required>
                                             <option selected=""  value="">Select Large Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -186,7 +186,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
                                             <option selected=""  value="">Select Small Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -569,21 +569,21 @@
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
