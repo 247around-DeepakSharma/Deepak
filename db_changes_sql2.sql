@@ -2774,3 +2774,11 @@ CREATE TABLE booking_unit_details_invoice_process (
 
 ALTER TABLE booking_details change column booking_date booking_date date NULL DEFAULT NULL;
 UPDATE booking_details set booking_date = NULL where booking_date = '0000-00-00';
+
+-- Raman 73 
+ -- 28 May
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) END) ELSE \"\" END) as TAT' WHERE `partner_summary_report_mapping`.`id` = 25;
+
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
+
