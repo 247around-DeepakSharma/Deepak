@@ -147,17 +147,9 @@
                                     <div class="col-md-6">
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
-                                                                                        <option value="1">1</option>
-                                                                                        <option value="2">2</option>
-                                                                                        <option value="3">3</option>
-                                                                                        <option value="4">4</option>
-                                                                                        <option value="5">5</option>
-                                                                                        <option value="6">6</option>
-                                                                                        <option value="7">7</option>
-                                                                                        <option value="8">8</option>
-                                                                                        <option value="9">9</option>
-                                                                                        <option value="10">10</option>
-                                                                                    </select>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
+                                                <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
                                     </div>
                                                                     </div>
                                 <div class="form-group       " id="exist_courier_image_row">
