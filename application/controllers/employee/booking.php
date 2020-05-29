@@ -1745,8 +1745,8 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id = null) {
         if (empty($booking_id)) {
-            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : " . $_SERVER['HTTP_REFERER'];
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "", "BOOKING_VIEW_DETAILS");
+            // This is the case when user hits view details URL directly from the browser, without entering any Booking Id
+            // Manual Error
             return;
         }
 
@@ -2541,6 +2541,7 @@ class Booking extends CI_Controller {
         }
         // insert in booking files.
         $booking_file = [];
+        if(!empty($purchase_invoice_file_name)){
         $booking_file['booking_id'] = $booking_id;
         $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
         $booking_file['file_name'] = $purchase_invoice_file_name;
@@ -2548,6 +2549,7 @@ class Booking extends CI_Controller {
         //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
         $booking_file['create_date'] = date("Y-m-d H:i:s");
         $this->booking_model->insert_booking_file($booking_file);
+        }
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             
@@ -3703,7 +3705,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
@@ -5920,16 +5922,19 @@ class Booking extends CI_Controller {
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
+            unset($data[$k]['service_id']);
             unset($data[$k]['booking']);
             unset($data[$k]['spare_parts']);
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
+            unset($data[$k]['service_center_closed_date']);
             unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
+            unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
+        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
