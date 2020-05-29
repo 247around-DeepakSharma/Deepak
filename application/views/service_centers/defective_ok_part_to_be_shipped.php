@@ -50,13 +50,19 @@ if ($this->uri->segment(3)) {
                                                 <?php echo $row['name']; ?>
                                             </td>
                                             <td>
-                                                <?php if (!is_null($row['service_center_closed_date'])) {
-                                                    $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
-                                                    echo $age_shipped->days . " Days";
-                                                    
-                                                    if($age_shipped->days <= SF_SPARE_OOT_DAYS) {
+                                                <?php 
+                                                    $remaining_days = '';
+                                                    if (!is_null($row['service_center_closed_date'])) {
+                                                        $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
+                                                        echo $age_shipped->days . " Days";
+
+                                                        if($age_shipped->days <= SF_SPARE_OOT_DAYS) {
+
+                                                        $remaining_days = (int) SF_SPARE_OOT_DAYS - $age_shipped->days;  
                                                 ?>
-                                                <div class="blink text-danger" style="font-size:15px;"><?php echo PART_TO_BE_BILLED; ?></div>
+                                                <div class="blink" style="font-size:13px;font-weight:bold;color:#f5a142;"><?php echo PART_TO_BE_BILLED. ' in '.$remaining_days.' Days'; ?></div>
+                                                <?php } else { ?>
+                                                    <div class="text-danger" style="font-size:13px;font-weight:bold;"><?php ?></div>    
                                                 <?php } }?>
                                             </td>
                                             <td style="word-break: break-all;">
