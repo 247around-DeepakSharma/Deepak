@@ -95,12 +95,12 @@
                                     <tr>
                                         <th>Booking closed date: </th>
                                         <td><?php 
-                                        if($booking_history[0]['service_center_closed_date'])
+                                        if($booking_history[0]['service_center_closed_date'] > 0)
                                             {
-                                        echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); 
+                                                echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); 
                                             }
                                         else{
-                                            echo "";
+                                                echo "";
                                             }
                                         ?></td>
                                         <th>Rating Star </th>
