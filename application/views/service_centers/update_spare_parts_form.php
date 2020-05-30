@@ -458,7 +458,7 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -1005,7 +1005,7 @@
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -1014,7 +1014,7 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
@@ -1022,7 +1022,7 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -1030,7 +1030,7 @@
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2 || weight_kg < 0) {
+            if (weight_kg.length > 3 || weight_kg < 0) {
                 $(this).val('');
                 return false;
             }
