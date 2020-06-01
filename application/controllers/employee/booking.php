@@ -6381,7 +6381,7 @@ class Booking extends CI_Controller {
         $model_number = $this->input->post('model_number');
         // selecting category, capacity and brand of model from partner_appliance_details table
         $model_details = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $model_number,
-                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
         echo json_encode($model_details);
     }
 
