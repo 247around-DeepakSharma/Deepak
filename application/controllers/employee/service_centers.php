@@ -2198,7 +2198,7 @@ class Service_centers extends CI_Controller {
                     if (!$spare_shipped) {
                         if ($day == 2) {
                             $booking_id = $this->input->post('booking_id');
-                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
+                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE_VENDOR_CANCELLATION_ID;
                             $_POST['cancellation_reason_text'] = $sc_remarks;
                             $this->process_cancel_booking($booking_id);
 
