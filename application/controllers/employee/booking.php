@@ -598,7 +598,7 @@ class Booking extends CI_Controller {
                 } else {
                     $booking['internal_status'] = _247AROUND_FOLLOWUP;
                 }
-                if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+                if ($booking['internal_status'] == CUSTOMER_NOT_REACHABLE) {
                     $this->send_sms_email($booking_id, "Customer not reachable");
                 }
 
