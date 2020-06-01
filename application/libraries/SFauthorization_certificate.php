@@ -71,7 +71,7 @@ class SFauthorization_certificate {
             
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
-            $data['sign'] = base_url('images/stamp_with_image.jpg');
+            $data['sign'] = base_url('images/stamp_with_image.JPG');
             $html = $this->CI->load->view('employee/sf_certificate_view', $data, true);
         }
 
