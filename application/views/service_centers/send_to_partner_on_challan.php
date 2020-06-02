@@ -813,7 +813,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4 || (Number(weight_kg) < 1 && weight_kg !='') ) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='') ) {
                 $(this).val('');
                 return false;
             }
@@ -828,7 +828,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
@@ -843,7 +843,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
@@ -858,7 +858,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4 || weight_kg < 0 ) {
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
