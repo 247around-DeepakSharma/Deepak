@@ -242,7 +242,12 @@
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 4) {
+                $(this).val('');
+                return false;
+            }
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
@@ -250,7 +255,12 @@
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 4) {
+                $(this).val('');
+                return false;
+            }
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
@@ -258,7 +268,13 @@
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+
+            if (weight_kg.length > 4) {
+                $(this).val('');
+                return false;
+            }
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
@@ -266,10 +282,15 @@
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2 || weight_kg < 0 ) {
+            if (weight_kg.length > 4 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
+            
+            if (weight_kg > 1000) {
+                $(this).val('');
+                return false;
+            }            
         }
     });
     
