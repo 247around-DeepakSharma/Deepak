@@ -205,16 +205,11 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
-            
-             if (weight_kg > 1000) {
-                $(this).val('');
-                return false;
-            }
-            
+
             if ((weight_kg == '0' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
                 (weight_kg == '00' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' )) ||
                 (weight_kg == '000' && (weight_gram =='0' || weight_gram =='00' || weight_gram =='' ))) {
@@ -233,12 +228,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
@@ -261,12 +251,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -288,12 +273,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 4 || weight_kg < 0 ) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }
