@@ -916,7 +916,7 @@ function user_role_management(){
                 if($login[0]['groups'] == 'accountmanager'){
                     $is_am = 1;
                 }
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am, $login[0]['warehouse_id']);
                
                 $this->miscelleneous->set_header_navigation_in_cache("247Around");
                 $this->push_notification_lib->get_unsubscribers_by_cookies();
