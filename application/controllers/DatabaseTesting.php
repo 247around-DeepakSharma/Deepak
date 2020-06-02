@@ -730,6 +730,7 @@ function pending_count2(){
       echo "updated id--" .$value->id;
 
    }
+}
 
 function updateZonesDb(){
 $districts = file_get_contents('https://api.covid19india.org/zones.json');

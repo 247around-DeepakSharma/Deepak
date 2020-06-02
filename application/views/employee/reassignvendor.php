@@ -181,14 +181,13 @@
                                             }
                                             ?>
                                         </option>
-                                    <?php echo form_error('service_center'); ?>
                                     </select>
                                 </td>
 
                                  <td>
 
                                  <?php if(!empty($spare)){ ?>
-                                   <input type="checkbox" name="rm_responsible" value="1"   /> RM/AM Will take care of spare
+                                   <input type="checkbox" name="rm_responsible" value="1"   /> RM/ASM Will take care of spare
                                  <?php }  ?>
                                     
                                 </td>
@@ -205,8 +204,22 @@
                                 if(!empty($arr_validation_checks)) { ?>
                                     <center><h3 class='text-danger'><?php echo reset($arr_validation_checks);?></h3></center>
                                 <?php } else {?>
-                                    <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
-                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+                                <?php
+                                if($this->session->userdata('user_group') == _247AROUND_RM){ ?>
+                                <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+
+                                <?php } 
+                                elseif($this->session->userdata('user_group') == _247AROUND_ASM)
+                                { ?>
+                                <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+
+                                <?php }else{ ?>
+                                 <center><h3 class='text-danger'>Only RM/ASM are allowed to perform this action</h3></center>
+                                <?php }
+                                ?>                                  
+                                
                                 <?php } ?>
                             </div>
                         </center>

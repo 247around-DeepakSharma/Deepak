@@ -38,12 +38,12 @@
             }
             ?>
             <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Add New NRN Detail</div>
+                <div class="panel-heading">Add New TR Detail</div>
                 <div class="panel-body">
                     <form name="myForm" class="form-horizontal" id ="nrn_details_form" action="<?php echo base_url() ?>partner/add_nrn_details"  method="POST" enctype="multipart/form-data">
                         <legend>
                             <div class="row">
-                                <fieldset>247 CRM Based Initial Data
+                                <fieldset><center><b>247 CRM Based Initial Data</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -257,8 +257,9 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>As per Approval Mail (To be updated by Trivender)
+                                <fieldset><center><b>As per Approval Mail (To be updated by Trivender)</b></center>
                                     <div class="col-md-12">
+                                        <br/>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="col-md-4">Approval Status * </label>
@@ -376,7 +377,7 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>To be updated by Jatin <br/>
+                                <fieldset><center><b>To be updated by Jatin </b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -507,7 +508,7 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>To be updated by alligned AKAI ASM
+                                <fieldset><center><b>To be updated by alligned AKAI ASM</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -574,7 +575,7 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>Final PDI Status
+                                <fieldset><center><b>Final PDI Status</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -801,8 +802,8 @@
                                 }
                             });
                             var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[0] + '/' + dateAr[1] + '/' + dateAr[2];
-                            var newMonth = dateAr[1] + '/' + dateAr[2];
+                            var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
+                            var newMonth = dateAr[0] + '/' + dateAr[1];
                             $('#booking_date').data('daterangepicker').setStartDate(newDate);
                             $('#booking_date').val(newDate);
                             $('#nrn_month').val(newMonth);

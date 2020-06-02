@@ -1343,7 +1343,7 @@ class Booking_model extends CI_Model {
      * @return: Array()
      */
     function getbooking_charges($booking_id = "", $status="") {
-
+        $this->db->select("service_center_booking_action.*, booking_cancellation_reasons.reason as cancellation_reason_text");
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);
 	}
@@ -1354,6 +1354,7 @@ class Booking_model extends CI_Model {
         }
 
         $this->db->where_not_in('internal_status', "Reschedule");
+        $this->db->join('booking_cancellation_reasons', 'service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id', 'left');
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
@@ -2398,7 +2399,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
         $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
-        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date = '')",NULL);
+        $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0 OR booking_details.booking_date IS NULL OR booking_details.booking_date = '0000-00-00')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }

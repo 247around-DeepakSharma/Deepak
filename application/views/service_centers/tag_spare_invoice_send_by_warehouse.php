@@ -118,7 +118,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -128,7 +128,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="small_box_count" id="small_box_count" onchange="$('#box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>

@@ -41,7 +41,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <a href="<?php echo base_url('partner/add_nrn_details'); ?>" class="btn btn-primary">Add New NRN</a>
+            <a href="<?php echo base_url('partner/add_nrn_details'); ?>" class="btn btn-primary">Add New TR Detail</a>
         </div>
     </div>
     <div class="row">
@@ -99,10 +99,12 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('#datatable1').DataTable({
-            "paging": false,
+            "dom": 'l<"#toolbar">frtip',
+            "paging": true,
             "ordering": false,
-            "info": false
+            "info": true,
         });
+        $("div#toolbar").html('<center><b>TR Detail History</b></center>');
     });
     function editNRNRecord(nrn_id) {
         if (nrn_id !== '' || nrn_id !== undefined) {
@@ -119,5 +121,16 @@
     }
     #datatable1 td:nth-child(8){
         padding-left: 82px !important;
+    }
+    #toolbar{
+        width:30%;
+        float: left;
+        font-size: 18px;
+    }
+    #datatable1_length{
+        width: 35% !important;
+    }
+    #datatable1_filter{
+        width: 35% !important;
     }
 </style>

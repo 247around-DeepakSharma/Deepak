@@ -2392,7 +2392,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Warehouse Task', NULL, 'service_center/inventory', 1, NULL, 'inventory_manager', 'main_nav', 1, '2019-02-28 12:06:20');	
 
-ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
+ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT 15;
 
 
 -- Ankit Rajvanshi 20-04-2020
@@ -2655,4 +2655,86 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DA
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"First Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 20;
 
+-- Ankit Rajvanshi 73 branch
+INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES
+('Symptom', 'creation_symptom.symptom as \'Booking Symptom\'', 1, '', 1, 51),
+('SF Symptom', 'completion_symptom.symptom as \'Completion Symptom\'', 1, '', 1, 52),
+('Defect', 'defect.defect AS \'Defect\'', 1, '', 1, 53),
+('Solution', 'symptom_completion_solution.technical_solution AS \'Solution\'', 1, '', 1, 54);
 
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
+
+CREATE TABLE booking_unit_details_invoice_process (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    booking_unit_details_id int(11) NOT NULL,
+    dashboard_section_id varchar(50) NOT NULL,
+    is_processed tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
+
+-- Prity 73
+CREATE TABLE `review_questionare` (
+  `q_id` int(11) NOT NULL AUTO_INCREMENT,
+  `question` varchar(500) NOT NULL,
+  `form` int(11) NOT NULL COMMENT '1 => booking cancellation, 2 => booking completion',
+  `sequence` int(11) NOT NULL DEFAULT 1,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  `panel` int(11) NOT NULL COMMENT '1 => Admin, 2 => Partner',
+  PRIMARY KEY (`q_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_request_type_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `q_id` int(11) NOT NULL,
+  `request_type_id` int(11) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_ques_review_mapping` (`q_id`),
+  KEY `fk_request_type_review_mapping` (`request_type_id`),
+  CONSTRAINT `fk_request_type_question_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`),
+  CONSTRAINT `fk_request_type_request_mapping` FOREIGN KEY (`request_type_id`) REFERENCES `request_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_booking_checklist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL,
+  `q_id` int(11) NOT NULL,
+  `checklist_id` int(11) DEFAULT NULL,
+  `remarks` varchar(500) DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_booking_checklist_mapping` (`booking_id`),
+  KEY `fk_booking_ques_checklist_mapping` (`q_id`),
+  KEY `fk_booking_checklist_checklist_mapping` (`checklist_id`),
+  CONSTRAINT `fk_booking_checklist_checklist_mapping` FOREIGN KEY (`checklist_id`) REFERENCES `review_questionare_checklist` (`checklist_id`),
+  CONSTRAINT `fk_booking_checklist_mapping` FOREIGN KEY (`booking_id`) REFERENCES `booking_details` (`id`),
+  CONSTRAINT `fk_booking_ques_checklist_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `review_questionare_checklist` (
+ `checklist_id` int(11) NOT NULL AUTO_INCREMENT,
+ `q_id` int(11) NOT NULL,
+ `answer` varchar(500) NOT NULL,
+ `active` tinyint(1) NOT NULL DEFAULT '1',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `created_by` int(11) NOT NULL,
+ PRIMARY KEY (`checklist_id`),
+ KEY `fk_ques_checklist_mapping` (`q_id`),
+ CONSTRAINT `fk_ques_checklist_mapping` FOREIGN KEY (`q_id`) REFERENCES `review_questionare` (`q_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Raman 73 
+ -- 28 May
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) END) ELSE \"\" END) as TAT' WHERE `partner_summary_report_mapping`.`id` = 25;
+
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;

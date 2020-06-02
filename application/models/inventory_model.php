@@ -3518,6 +3518,13 @@ class Inventory_model extends CI_Model {
             $this->db->where($post['where']);
         }
         
+        if(isset($post['where_in'])){
+            foreach ($post['where_in'] as $index => $value) {
+
+                $this->db->where_in($index, $value);
+            }
+        }
+        
         if(empty($post['search']['value'])){
            $where = 'spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))';
            $this->db->where($where);  

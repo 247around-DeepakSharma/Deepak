@@ -598,7 +598,7 @@ class Booking extends CI_Controller {
                 } else {
                     $booking['internal_status'] = _247AROUND_FOLLOWUP;
                 }
-                if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+                if ($booking['internal_status'] == CUSTOMER_NOT_REACHABLE) {
                     $this->send_sms_email($booking_id, "Customer not reachable");
                 }
 
@@ -3705,7 +3705,7 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
@@ -4062,7 +4062,6 @@ class Booking extends CI_Controller {
             $row[] = "<a style='background-color: #fa0202;' class='btn btn-sm  col-md-12' href='#' title='Add Penalty'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
 
         }
-        
         
         
         return $row;
@@ -6382,7 +6381,7 @@ class Booking extends CI_Controller {
         $model_number = $this->input->post('model_number');
         // selecting category, capacity and brand of model from partner_appliance_details table
         $model_details = $this->partner_model->get_model_number('category, capacity, partner_appliance_details.brand', array('appliance_model_details.model_number' => $model_number,
-                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
         echo json_encode($model_details);
     }
 

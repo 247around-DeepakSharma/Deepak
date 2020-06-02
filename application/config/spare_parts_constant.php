@@ -206,4 +206,4 @@ define('SPARE_ACKNOWLEDGE_TEAM', 'Defective/Ok Acknowledge Team');
 // courier audit team
 define('COURIER_AUDIT_TEAM', 'Courier Audit Team');
 // part to be billed string
-define('PART_TO_BE_BILLED', 'Part To Be Billed');
+define('PART_TO_BE_BILLED', 'Part Return Warning -<br>To Be Billed');

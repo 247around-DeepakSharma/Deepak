@@ -1574,9 +1574,19 @@ class engineerApi extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
 
+                $where_cancel = array(
+                    'id'=>$requestData["cancellationReason"]
+                ); 
+                $reason = $this->booking_model->cancelreason($where_cancel);
+                if(!empty($reason) && !empty($reason[0]->reason)){
+                  $cancel_reason = $reason[0]->reason;  
+                }else{
+                  $cancel_reason = $requestData["cancellationReason"]; 
+                }
+                    
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
 //  Appending Status of Engg //
-                $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING,
+                $this->notify->insert_state_change($requestData["bookingID"],$cancel_reason, _247AROUND_PENDING,
                         BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App",
                         $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
@@ -2420,8 +2430,8 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['getPartOnModel'] = false;
             }
             /* getting booking and unit details and finding price tags for getting symptoom */
-            $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            $data['booking_history'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
             $price_tags_symptom = array();
             foreach ($unit_details as $value) {
                 $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
@@ -2547,7 +2557,7 @@ class engineerApi extends CI_Controller {
                     }
 
                     //upload defect pic
-                    if ($value["defect_pic"]) {
+                    if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
                         $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
@@ -2619,7 +2629,7 @@ class engineerApi extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+                $this->sendJsonResponse(array('0077','Not Available'));			
 		}					
 				 		 
             } else {
@@ -2640,19 +2650,20 @@ class engineerApi extends CI_Controller {
      * @return Array
      * @Author : Abhishek Awasthi
      */
-    function is_part_already_requested($parts_requestedm,$booking_id) {
+    function is_part_already_requested($parts_requested,$booking_id) {
         $array = array();
-        foreach ($parts_requested as $value) {
-            if (isset($value['parts_type'])) {
-                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
-                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
-                    "parts_requested_type" => $value['parts_type']));
-                if (!empty($data)) {
-                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
-                    break;
-                }
-            }
-        }
+        // foreach ($parts_requested as $value) {
+        //     if (isset($value['parts_type'])) {
+        //         $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+        //             "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+        //             "parts_requested_type" => $value['parts_type']));
+        //         if (!empty($data)) {
+        //             $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+        //             break;
+        //         }
+        //     }
+        // }
+        $array = array("status" => true);
         return $array;
     }
 
@@ -3236,7 +3247,7 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3244,7 +3255,8 @@ class engineerApi extends CI_Controller {
             "partner_id" => $partner_id,
             "booking_create_date" => $booking_create_date,
             "purchase_date" => $purchase_date,
-            "model_number" => $model_number
+            "model_number" => $model_number,
+            "service_id"=>$service_id
         );
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
         $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
@@ -3256,7 +3268,6 @@ class engineerApi extends CI_Controller {
             unset($arrBookings[$key]);
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
-
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
@@ -3308,8 +3319,9 @@ class engineerApi extends CI_Controller {
             }
         }
         if ($check) {
-
-            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"]);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $service_id = $booking_details["booking_history"][0]['service_id'];
+            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"],$service_id);
 
             log_message("info", "Warrenty plan found");
             $this->jsonResponseString['response'] = $response;
@@ -3546,10 +3558,10 @@ class engineerApi extends CI_Controller {
                     "model_number" => $requestData["model_number"],
                     "service_id" => $booking_details["booking_history"][0]['service_id'],
                 );
-
+                $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;

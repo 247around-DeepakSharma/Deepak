@@ -62,19 +62,19 @@ class SFauthorization_certificate {
         if ($sf_deatils) {
             $financial_year = '';
             $current_month = date('m');
+            $start_date = date('d M Y');
             if ($current_month > 3) {
-                $financial_year = '01 April ' . date('Y') . ' to 31 March ' . (date('Y') + 1);
+                $financial_year = $start_date . ' to 31 March ' . (date('Y') + 1);
             } else {
-                $financial_year = '01 April ' . (date('Y') - 1) . ' to 31 March ' . date('Y');
+                $financial_year = $start_date . ' to 31 March ' . date('Y');
             }
             
             $data['sf_deatils'] = $sf_deatils;
             $data['financial_year'] = $financial_year;
-                $data['stamp'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['stamp_img_name'];
-                $data['sign'] = S3_WEBSITE_URL . $cert_setting[0]['s3_directory_name'] . '/' . $cert_setting[0]['sign_img_name'];
-
+            $data['sign'] = base_url('images/stamp_with_image.JPG');
             $html = $this->CI->load->view('employee/sf_certificate_view', $data, true);
         }
+
         return $html;
     }
 

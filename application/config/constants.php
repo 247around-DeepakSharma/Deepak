@@ -65,7 +65,6 @@ define('FOPEN_READ_WRITE_CREATE','a+b');
 define('FOPEN_WRITE_CREATE_STRICT','xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT','x+b');
 
-define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
 //Agent ID used when Partner inserts a Booking by calling our API
@@ -179,8 +178,6 @@ define('Max_TIME_WITH_IN_ASSIGNED_ENGINEER', 3);
 define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
-
-define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
 
 define('CALLBACK_SCHEDULED', 'Callback Scheduled');
 //constant to define default brackets order id
@@ -723,7 +720,7 @@ define("ADMIN_REMARKS_MIN_LENGTH" , 40);
 define('BOOKING_SOURCE_API', 22);
 define('BOOKING_SOURCE_CRM', 23);
 define('BOOKING_SOURCE_Excel_File', 24);
-define('BOOKING_SOURCE_Website', 25);
+define('BOOKING_SOURCE_Website', 18);
 // Agents for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
@@ -747,6 +744,9 @@ define('DASHBOARD_INVOICE_PROCESS_5', 'dashboard_process_5');
 define('GEOCODING_GOOGLE_API_KEY', 'AIzaSyDZhTLknFJV2QVVGuOOF3ELhXjMwmqdQb0');
 define('GEOIQ_API_KEY', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdHkiOiJhYmhpc2hla2FAMjQ3YXJvdW5kLmNvbSJ9.QU52PoO_E12SF8D4gi0sqlbTaxXxwOb8B8FWiwKRMdM');
 define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
+
+// Leg_1 & leg_2 Default Count
+define('LEG_DEFAULT_COUNT', 16);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 

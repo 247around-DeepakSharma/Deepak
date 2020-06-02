@@ -50,13 +50,19 @@ if ($this->uri->segment(3)) {
                                                 <?php echo $row['name']; ?>
                                             </td>
                                             <td>
-                                                <?php if (!is_null($row['service_center_closed_date'])) {
-                                                    $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
-                                                    echo $age_shipped->days . " Days";
-                                                    
-                                                    if($age_shipped->days <= SF_SPARE_OOT_DAYS) {
+                                                <?php 
+                                                    $remaining_days = '';
+                                                    if (!is_null($row['service_center_closed_date'])) {
+                                                        $age_shipped = date_diff(date_create($row['service_center_closed_date']), date_create('today'));
+                                                        echo $age_shipped->days . " Days";
+
+                                                        if($age_shipped->days <= SF_SPARE_OOT_DAYS) {
+
+                                                        $remaining_days = (int) SF_SPARE_OOT_DAYS - $age_shipped->days;  
                                                 ?>
-                                                <div class="blink text-danger" style="font-size:15px;"><?php echo PART_TO_BE_BILLED; ?></div>
+                                                <div class="blink" style="font-size:13px;font-weight:bold;color:#f5a142;"><?php echo PART_TO_BE_BILLED. ' in '.$remaining_days.' Days'; ?></div>
+                                                <?php } else { ?>
+                                                    <div class="text-danger" style="font-size:13px;font-weight:bold;"><?php ?></div>    
                                                 <?php } }?>
                                             </td>
                                             <td style="word-break: break-all;">
@@ -158,7 +164,7 @@ if ($this->uri->segment(3)) {
                                 <div class="col-md-6">
                                     <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -300,6 +306,17 @@ if ($this->uri->segment(3)) {
         {
             $("#courier_charges_by_sf").val($("#courier_charges_by_sf_hidden").val())
         }
+
+
+      let kg = $("#defective_parts_shipped_weight_in_kg").val();
+      let gm = $("#defective_parts_shipped_weight_in_gram").val();
+      let total = parseInt(kg)+parseInt(gm);
+      if(!total){
+      swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+      return false;
+      }
+
+
         var form_data = new FormData(document.getElementById("idForm"));
 
         $.ajax({
@@ -368,42 +385,51 @@ if ($this->uri->segment(3)) {
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 4) {
                 $(this).val('');
                 return false;
             }
-
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 4) {
+                $(this).val('');
+                return false;
+            }
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 4) {
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3 || weight_kg < 0) {
+            if (weight_kg.length > 4 || weight_kg < 0) {
+                $(this).val('');
+                return false;
+            }
+            
+            if (weight_kg > 1000) {
                 $(this).val('');
                 return false;
             }
@@ -419,10 +445,6 @@ if ($this->uri->segment(3)) {
                 return false;
             }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
 
         },
         "keypress": function () {
@@ -431,11 +453,7 @@ if ($this->uri->segment(3)) {
                 $(this).val('');
                 return false;
             }
-
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
