@@ -385,24 +385,14 @@ if ($this->uri->segment(3)) {
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 4) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 4) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
@@ -411,12 +401,7 @@ if ($this->uri->segment(3)) {
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 4) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -424,12 +409,7 @@ if ($this->uri->segment(3)) {
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 4 || weight_kg < 0) {
-                $(this).val('');
-                return false;
-            }
-            
-            if (weight_kg > 1000) {
+            if (weight_kg.length > 3 || weight_kg < 0) {
                 $(this).val('');
                 return false;
             }
