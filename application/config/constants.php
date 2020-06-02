@@ -64,7 +64,6 @@ define('FOPEN_READ_WRITE_CREATE','a+b');
 define('FOPEN_WRITE_CREATE_STRICT','xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT','x+b');
 
-define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
 //Agent ID used when Partner inserts a Booking by calling our API
@@ -178,8 +177,6 @@ define('Max_TIME_WITH_IN_ASSIGNED_ENGINEER', 3);
 define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
-
-define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
 
 define('CALLBACK_SCHEDULED', 'Callback Scheduled');
 //constant to define default brackets order id

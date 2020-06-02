@@ -1581,8 +1581,9 @@ class engineerApi extends CI_Controller {
                     'id'=>$requestData["cancellationReason"]
                 ); 
                 $reason = $this->booking_model->cancelreason($where_cancel);
-                if(!empty($reason)){
-                  $cancel_reason = $reason[0]->reason;   
+
+                if(!empty($reason) && !empty($reason[0]->reason)){
+                  $cancel_reason = $reason[0]->reason;  
                 }else{
                   $cancel_reason = $requestData["cancellationReason"];
                 }
