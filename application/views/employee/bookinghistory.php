@@ -51,7 +51,7 @@
                             <td><?php echo $row->booking_id;?></td>
                             <td><?php echo $row->customername;?></td>
                             <td><?php echo $row->services;?></td>
-                            <td><?php echo date("d-M-Y", strtotime($row->booking_date));?></td>
+                            <td><?php if(!empty($row->booking_date) && $row->booking_date != '0000-00-00') { echo date("d-M-Y", strtotime($row->booking_date)); }?></td>
                             <td><?php echo $row->booking_timeslot;?></td>
                             <td><?php echo $row->request_type;?></td>
                             <td id='purchase_date_<?php echo $row->booking_id;?>'></td>

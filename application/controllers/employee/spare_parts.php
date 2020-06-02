@@ -3449,7 +3449,7 @@ class Spare_parts extends CI_Controller {
             $select = 'id, invoice_id,micro_invoice_id, courier_id';
             $flag = true;
             $eway_data = array();
-            
+
             $upload_eway_file_name = str_replace(' ', '_', trim($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['name']));
             $eway_file_name = 'defective_spare_ewaybill_by_wh_' . rand(10, 100) . '_' . $upload_eway_file_name;
             //Upload files to AWS
@@ -3474,64 +3474,73 @@ class Spare_parts extends CI_Controller {
                 }
             }
 
-            if (!empty($this->input->post("eway_bill_by_wh"))) {
-                $this->inventory_model->insert_ewaybill_details_in_bulk($eway_data);
-            }
-            
-            if ($flag) {
+            /* get courier_company_invoice_datails if it's exist in our system */
+            $courier_company_invoice_datails = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id, courier_company_invoice_details.awb_number', array("courier_company_invoice_details.awb_number" => trim($data['awb_number'])), array());
 
-                if ($total_invoice_id > 1) {
-                    $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
-                } else {
-                    $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
-                }
+            if (empty($courier_company_invoice_datails)) {
+                
+                if ($flag) {
 
-                if (!empty($exist_courier_image)) {
-                    $courier_file['message'] = $exist_courier_image;
-                } else {
-                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
-                }
+                    if (!empty($this->input->post("eway_bill_by_wh"))) {
+                        $this->inventory_model->insert_ewaybill_details_in_bulk($eway_data);
+                    }
 
-                $courier_detail['courier_file'] = $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
-              
-                $sucess_flag = false;
-                foreach ($courier_id_arr as $val) {
-                    
-                    $courier_company_invoice = $this->inventory_model->get_courier_company_invoice_details("courier_company_invoice_details.id, courier_company_invoice_details.awb_number", array('courier_company_invoice_details.id' => $val['courier_id']), '');
-                    
-                    if (!empty($courier_company_invoice)) {
-                        /* get courier lists that send by AWB_no */
-                        $courier_list = $this->inventory_model->get_generic_table_details('courier_details', 'courier_details.id, courier_details.AWB_no', array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), array());
-                        if (count($courier_list) > 1) {
-                            $courier_detail['courier_charge'] = round($courier_detail['courier_charge'] / count($courier_list), 2);
-                        }
+                    if ($total_invoice_id > 1) {
+                        $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = ($bulk_courier_price / $total_invoice_id);
+                    } else {
+                        $courier_detail['courier_charge'] = $spare_data['courier_price_by_wh'] = $data['courier_charge'] = $bulk_courier_price;
+                    }
 
-                        $affected_id = $this->inventory_model->update_courier_detail(array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), $courier_detail);
-                        if ($affected_id) {
-                            $sucess_flag = true;
-                        }
+                    if (!empty($exist_courier_image)) {
+                        $courier_file['message'] = $exist_courier_image;
+                    } else {
+                        $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
+                    }
 
-                        $affected = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
-                        if($affected){
-                            $sucess_flag = true;
-                        }
-                        
-                        /* get spare part lists that send by awb_by_wh */
-                        $spare_part_list = $this->inventory_model->get_generic_table_details('spare_parts_details', 'spare_parts_details.id,spare_parts_details.awb_by_wh', array("spare_parts_details.awb_by_wh" => $courier_company_invoice[0]['awb_number']), array());
-                        if (count($spare_part_list) > 1) {
-                            $spare_data['courier_price_by_wh'] = round($spare_data['courier_price_by_wh'] / count($spare_part_list), 2);
-                        }
+                    $courier_detail['courier_file'] = $spare_data['defective_parts_shippped_courier_pic_by_wh'] = $data['courier_invoice_file'] = $courier_file['message'];
 
-                        $s_affected_id = $this->service_centers_model->update_spare_parts(array('spare_parts_details.awb_by_wh' => $courier_company_invoice[0]['awb_number']), $spare_data);
-                        
-                        if ($s_affected_id) {
-                            $sucess_flag = true;
+                    $sucess_flag = false;
+                    foreach ($courier_id_arr as $val) {
+
+                        $courier_company_invoice = $this->inventory_model->get_courier_company_invoice_details("courier_company_invoice_details.id, courier_company_invoice_details.awb_number", array('courier_company_invoice_details.id' => $val['courier_id']), '');
+
+                        if (!empty($courier_company_invoice)) {
+                            /* get courier lists that send by AWB_no */
+                            $courier_list = $this->inventory_model->get_generic_table_details('courier_details', 'courier_details.id, courier_details.AWB_no', array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), array());
+                            if (count($courier_list) > 1) {
+                                $courier_detail['courier_charge'] = round($courier_detail['courier_charge'] / count($courier_list), 2);
+                            }
+
+                            $affected_id = $this->inventory_model->update_courier_detail(array("courier_details.AWB_no" => $courier_company_invoice[0]['awb_number']), $courier_detail);
+                            if ($affected_id) {
+                                $sucess_flag = true;
+                            }
+
+                            $affected = $this->inventory_model->update_courier_company_invoice_details(array('courier_company_invoice_details.id' => $val['courier_id']), $data);
+                            if ($affected) {
+                                $sucess_flag = true;
+                            }
+
+                            /* get spare part lists that send by awb_by_wh */
+                            $spare_part_list = $this->inventory_model->get_generic_table_details('spare_parts_details', 'spare_parts_details.id,spare_parts_details.awb_by_wh', array("spare_parts_details.awb_by_wh" => $courier_company_invoice[0]['awb_number']), array());
+                            if (count($spare_part_list) > 1) {
+                                $spare_data['courier_price_by_wh'] = round($spare_data['courier_price_by_wh'] / count($spare_part_list), 2);
+                            }
+
+                            $s_affected_id = $this->service_centers_model->update_spare_parts(array('spare_parts_details.awb_by_wh' => $courier_company_invoice[0]['awb_number']), $spare_data);
+
+                            if ($s_affected_id) {
+                                $sucess_flag = true;
+                            }
                         }
                     }
+                } else {
+                    $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                    redirect(base_url() . "employee/spare_parts/tag_courier_details_by_invoice_ids");
                 }
                 
             } else {
-                $this->session->set_userdata(array('error' => 'Please Enter Valid Invoice ids.'));
+                $this->session->set_userdata(array('error' => 'This AWB Number Already Exists Our System.'));
                 redirect(base_url() . "employee/spare_parts/tag_courier_details_by_invoice_ids");
             }
 
