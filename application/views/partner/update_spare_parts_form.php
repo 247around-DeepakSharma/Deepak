@@ -1034,28 +1034,28 @@
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2 || weight_kg < 0 ) {
+            if (weight_kg.length > 3 || weight_kg < 0 ) {
                 $(this).val('');
                 return false;
             }

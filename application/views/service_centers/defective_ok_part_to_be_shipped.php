@@ -369,11 +369,7 @@ if ($this->uri->segment(3)) {
         "click": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
 
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
                 $(this).val('');
                 return false;
             }
@@ -393,10 +389,6 @@ if ($this->uri->segment(3)) {
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
                 $(this).val('');
                 return false;
             }
