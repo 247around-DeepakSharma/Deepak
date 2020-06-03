@@ -203,24 +203,22 @@
                                 <?php
                                 if(!empty($arr_validation_checks)) { ?>
                                     <center><h3 class='text-danger'><?php echo reset($arr_validation_checks);?></h3></center>
-                                <?php } else {?>
-                                <?php
-                                if($this->session->userdata('user_group') == _247AROUND_RM){ ?>
-                                <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
-                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+                                    
+                                <?php } else if(empty($spare)){ ?>
+                                    
+                                    <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+                                    
+                               <?php } else if($this->session->userdata('user_group') == _247AROUND_RM || ($this->session->userdata('user_group') == _247AROUND_ASM)){ ?>
+                                    <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
 
-                                <?php } 
-                                elseif($this->session->userdata('user_group') == _247AROUND_ASM)
-                                { ?>
-                                <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
-                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
-
-                                <?php }else{ ?>
-                                 <center><h3 class='text-danger'>Only RM/ASM are allowed to perform this action</h3></center>
+                                <?php } else{ ?>
+                                 <center><h3 class='text-danger'>Spare involved in this booking. Only RM/ASM are allowed to perform this action</h3></center>
                                 <?php }
                                 ?>                                  
                                 
-                                <?php } ?>
+                                <?php //} ?>
                             </div>
                         </center>
                     </form> <?php } ?>
