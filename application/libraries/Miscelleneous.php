@@ -553,14 +553,17 @@ class Miscelleneous {
 
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, $cancelled_by) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
-        $data['internal_status'] = $cancellation_text;
-        $data['cancellation_reason'] = $cancellation_reason;
         // Get cancellation reason Text from Id
         $cancellation_reason_text = "";
         if(!empty($cancellation_reason)){
             $arr_cancellation_reason =  $this->My_CI->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
             $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+            $data['internal_status'] = $cancellation_reason_text;
         }
+   
+       
+        $data['cancellation_reason'] = $cancellation_reason;
+        
         $historyRemarks = $cancellation_reason_text."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
@@ -569,14 +572,16 @@ class Miscelleneous {
             $data['closing_remarks'] = $cancellation_text;
         }
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        $actor = $next_action = 'not_define';
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-            $actor = $data['actor'] = $partner_status[2];
-            $next_action = $data['next_action'] = $partner_status[3];
+        
+        if(!empty($data['internal_status'])) {
+            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
+            if (!empty($partner_status)) {
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
+            }
         }
 
 

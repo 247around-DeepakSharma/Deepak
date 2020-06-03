@@ -942,7 +942,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
      * 
      */
     function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = DEVELOPER_EMAIL;
+        $to = DB_ERROR_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
