@@ -1844,14 +1844,15 @@
      */
      $("#download_spare_oot").click(function (){
         $('#download_spare_oot').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        
         $.ajax({
                 type: 'POST',
 				dataType: 'json',
                 url: '<?php echo base_url(); ?>employee/spare_parts/download_spare_oot_data',
                 data: { download_flag :true},
                 success: function (data) {
-                    $('#download_spare_oot').html("Download").attr('disabled',false);
-                    var obj = JSON.parse(data); 
+                     $('#download_spare_oot').html("Download").attr('disabled',false);
+                    var obj = JSON.parse(JSON.stringify(data));
                     if(obj['status']){
                         window.location.href = obj['msg'];
                     }else{
