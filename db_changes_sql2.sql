@@ -2738,3 +2738,14 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
+
+-- Raman 73
+-- 30 May
+
+UPDATE partner_summary_report_mapping SET sub_query = '(CASE WHEN booking_details.service_center_closed_date IS NOT NULL THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) END) ELSE "" END) as TAT' WHEREpartner_summary_report_mapping.id = 25;
+
+-- Raman 73
+-- 3 June
+
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;

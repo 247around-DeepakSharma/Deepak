@@ -1455,10 +1455,15 @@ class vendor extends CI_Controller {
 
                         }else{
 
+                        if(!empty($spare['parts_shipped'])){
                         $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                         $sp['status'] = OK_PART_TO_BE_SHIPPED;
                         $sp['consumed_part_status_id'] = 5;
                         $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
+                        }else{
+                        $sp['status'] = _247AROUND_CANCELLED;
+                        }
+
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
 
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);

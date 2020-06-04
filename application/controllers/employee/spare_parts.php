@@ -4669,7 +4669,7 @@ class Spare_parts extends CI_Controller {
 
      function download_spare_oot_data() {
         log_message('info', __METHOD__ . ' Processing...');
-        ini_set('memory_limit', '256M');
+        ini_set('memory_limit', -1);
         $download_flag = $this->input->post('download_flag');
 
 
