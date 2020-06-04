@@ -4687,7 +4687,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
         
         //$post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
-        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "'.OK_PARTS_REJECTED_BY_WAREHOUSE.'")'] = NULL;
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
@@ -4790,9 +4790,18 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['where']['defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
-        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "'.OK_PARTS_REJECTED_BY_WAREHOUSE.'")'] = NULL;
         $post['group_by'] = "spare_parts_details.id";
 
+        
+        if(in_array($this->session->userdata('user_group'), [_247AROUND_RM, _247AROUND_ASM])) {
+            $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
+            if (!empty($sf)) {
+                $vendor_id = explode(",", $sf[0]["service_centres_id"]);
+                $post['where_in'] = array('service_center_id' => $vendor_id);
+            }
+        }
+        
         if (!empty($download_flag)) {
             $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
 
