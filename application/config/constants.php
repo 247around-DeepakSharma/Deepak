@@ -251,17 +251,6 @@ define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
 //Define error code for booking id not found for partner_sd_sb.php file
 define('ERR_BOOKING_ID_NOT_FOUND_MSG', 'Booking ID Does Not Exist');
 define('ERR_ORDER_ID_BOOKING_ID_INCORRECT_COMBINATION_MSG', 'Incorrect combination of order id & booking id.');
-//Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER','01143092150');
-//Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER_2','01143092150');
-//Define snapdeal new missed call number
-define('SNAPDEAL_MISSED_CALLED_NUMBER','01143078384');
-//Define Android App new missed call number
-define('ANDROID_APP_MISSED_CALLED_NUMBER','01139585684');
-
-//Define new missed call number for AC installation
-define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');
 
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
 define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
@@ -373,8 +362,6 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 
 //miss call rating sms
 define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
-define('GOOD_MISSED_CALL_RATING_NUMBER','01140849145');
-define('POOR_MISSED_CALL_RATING_NUMBER','01140849146');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
 
