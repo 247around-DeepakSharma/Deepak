@@ -1,7 +1,12 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 // Cancellation reason Ids
+// Customer Not reachable
+define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
 define('CUSTOMER_NOT_REACHABLE_CANCELLATION_ID', 7);
+define('CUSTOMER_NOT_REACHABLE_CANCELLATION_TEXT', 'Customer not reachable / Phone not picking / Wrong Number');
+define('CUSTOMER_NOT_REACHABLE_VENDOR_CANCELLATION_ID', 16);
+
 define('INSTALLATION_NOT_REQUIRED_CANCELLATION_ID', 34);
 // Need to be changed after row insertion
 define('UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID', 1030);

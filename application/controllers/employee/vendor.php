@@ -46,6 +46,7 @@ class vendor extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('invoice_lib');
+        $this->load->library('SFauthorization_certificate');
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
         $this->load->model('push_notification_model');
@@ -114,7 +115,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
-                $vendor_data['active'] = 0;
+                $vendor_data['active'] = 1;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -5731,12 +5732,16 @@ class vendor extends CI_Controller {
                 $vendor_data['appliances'] = implode(",",$this->input->post('appliances'));
             }
             $vendor_data['agent_id'] = $agentID;
+            $vendor_data['has_authorization_certificate'] = 0;
+            $vendor_data['auth_certificate_file_name'] = null;
+            $vendor_data['auth_certificate_validate_year'] = null;
             $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
             $this->vendor_model->map_vendor_brands($this->input->post('id'), $this->input->post('brands'));
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_userdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
 			$this->session->set_userdata('current_tab', 3);
+            $this->sfauthorization_certificate->create_new_certificate($this->input->post('id'));
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
     }

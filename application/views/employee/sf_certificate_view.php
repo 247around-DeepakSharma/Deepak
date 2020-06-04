@@ -29,12 +29,12 @@
     
     <tr style="vertical-align: top;">
         <td style="text-align:right">
-                <img style="margin-right: -257px;" src="<?php echo $sign; ?>" />
-                <img src="<?php echo $stamp; ?>" />
+                <img  src="<?php echo $sign; ?>" />
+
         </td>
     </tr>
     <tr style="vertical-align: top;">
-        <td style="text-align:right;padding-right: 30px;">Anuj Agrawal</td>
+        <td style="text-align:right;padding-right: 60px;">Anuj Agrawal</td>
     </tr>
 </tbody>
 </table>
