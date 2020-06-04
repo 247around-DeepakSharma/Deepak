@@ -173,7 +173,7 @@
 
                                 <td>
                                     <select class="form-control" id="reason" name="reason" required="">
-                                        <option selected disabled>Select Reason</option>
+                                        <option value="" disabled selected  >Select Reason</option>
                                             <?php foreach ($reassign_reasons as $key => $values) { ?>
                                             <option  value="<?php echo $values['id']; ?>">
                                                 <?php
