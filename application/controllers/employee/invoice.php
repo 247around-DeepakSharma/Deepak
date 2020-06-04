@@ -868,6 +868,7 @@ class Invoice extends CI_Controller {
                         'entity_id' => $partner_id,
                         'invoice_id' => $meta['invoice_id'],
                         'box_count' => $msl_courier_details['msl_box'],
+                        'box_type' => $msl_courier_details['box_type'],
                         'booking_id' => $msl_courier_details['booking_id'],
                         'rate' => $msl_courier_details['msl_box_price']
                     );
