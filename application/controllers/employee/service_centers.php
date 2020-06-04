@@ -3808,11 +3808,16 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__ . json_encode($_POST, true));
 
         $challan_booking_id = $this->input->post('download_challan');
-
+        $current_warehouseID = '';
+        if(!empty($this->session->userdata('service_center_id'))){
+            $current_warehouseID = $this->session->userdata('service_center_id');
+        }else if(!empty($this->session->userdata('warehouse_id'))){
+            $current_warehouseID = $this->session->userdata('warehouse_id');
+        }
         $delivery_challan_file_name_array = array();
         foreach ($challan_booking_id as $partner_id => $spare_and_service) {
             $sp_id = implode(',', $spare_and_service);
-            $data['wh_challan_file'] = $this->invoice_lib->generate_challan_file_to_partner($sp_id, $this->session->userdata('service_center_id'));
+            $data['wh_challan_file'] = $this->invoice_lib->generate_challan_file_to_partner($sp_id, $current_warehouseID);
             array_push($delivery_challan_file_name_array, $data['wh_challan_file']);
         }
         ////  ZIP The Challan files ///
