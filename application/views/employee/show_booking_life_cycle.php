@@ -64,21 +64,23 @@
 <td><?php
                 $oldPriceTagArray = json_decode($requestTypeData['old_price_tag'],true);
                 $old_price_tag_string = "";
+                if($oldPriceTagArray){
                 foreach($oldPriceTagArray as $unitt => $priceTagOld) { 
                     $old_price_tag_string = $old_price_tag_string.$unitt.": <br>";
                     $old_price_tag_string = $old_price_tag_string.$priceTagOld.": <br>";
                 }
                 echo $old_price_tag_string;
-                ?></td>
+                }?></td>
             <td><?php
                 $newPriceTagArray = json_decode($requestTypeData['new_price_tag'],true);
+                if($newPriceTagArray){
                 $new_price_tag_string = "";
                 foreach($newPriceTagArray as $unit => $priceTag) { 
                     $new_price_tag_string = $new_price_tag_string.$unit.": <br>";
                     $new_price_tag_string = $new_price_tag_string.$priceTag."<br>";
                 }
                 echo $new_price_tag_string;
-                ?></td>
+                }?></td>
             <td><?php echo $requestTypeData['entity_type']; ?></td>
             <td><?php echo $requestTypeData['entity_name']; ?></td>
             <td><?php echo $requestTypeData['agent_name']; ?></td>
