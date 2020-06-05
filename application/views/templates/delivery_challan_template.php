@@ -65,8 +65,18 @@
             <td colspan="1" style="text-align: center;"><b>Part Name</b></td>
             <td colspan="1" style="text-align: center"><b>Part Number</b></td>
             <td colspan="1" style="text-align: center; width: 50px;"><b>Qty</b></td>
+            <?php
+            if(!empty($excel_data['show_consumption_reason'])){
+            ?>
             <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
+            <?php
+            }else{
+            ?>
+            <td colspan="2" style="text-align: center;"><b>Booking ID</b></td>
+            <?php
+            }
+            ?>
             <td colspan="7" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
@@ -74,6 +84,7 @@
         $total_qty = 0;
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
+            if(!empty($excel_data['show_consumption_reason'])){
             echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
                                                         <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
@@ -82,6 +93,15 @@
                                                         <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
 							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
+            }else{
+            echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
+							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
+                                                        <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
+							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
+							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
+							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
+					</tr>";
+            }
             $total_qty +=$info['qty'];
             $total_value +=$info['value'];
         }
