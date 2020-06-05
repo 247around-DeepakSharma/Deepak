@@ -9938,12 +9938,18 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'spare_id' => $spare_id, 
             'action' => $spare_status, 
             'remarks' => $spare_status, 
-            'agent_id' => $this->session->userdata('service_center_agent_id'), 
-            'entity_id' => $this->session->userdata('service_center_id'), 
-            'entity_type' => _247AROUND_SF_STRING
         );
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $tracking_details['agent_id'] = $this->session->userdata('id');
+            $tracking_details['entity_id'] = _247AROUND;
+            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        } else { 
+            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+        }
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        
+
         /**
          * Log this change in booking state change & update booking internal status.
          */
@@ -9978,7 +9984,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $this->booking_model->update_booking($booking_id, $booking);
         }
 
-        $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
+        } else {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        }
         
         return true;
     }
