@@ -1673,7 +1673,7 @@ class Inventory_model extends CI_Model {
      * @return: Json
      */
    
-    function get_spare_consolidated_data($select, $where, $group_by = '') {
+    function get_spare_consolidated_data($select, $where, $group_by = '', $where_in = '') {
         $this->db->select($select, false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
@@ -1697,6 +1697,12 @@ class Inventory_model extends CI_Model {
             $this->db->where($where, false);
         }
 
+        if(!empty($where_in)){
+            foreach ($where_in as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
         if (!empty($group_by)) {
             $this->db->group_by($group_by, false);
         }
@@ -3591,7 +3597,7 @@ class Inventory_model extends CI_Model {
      */
    
     function download_oot_pending_defective_part($post) {
-        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by'], $post['where_in']);
         return $query;
     }
     

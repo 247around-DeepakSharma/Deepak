@@ -1401,6 +1401,7 @@
                         </div>
                     </div>
                     <div class="col-md-1">
+<!--                        onclick="agent_action_status()"-->
                         <span class="collape_icon" href="#chart_containeragentdiv" data-toggle="collapse" onclick="agent_action_status()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     </div>
                 </div>
@@ -1843,18 +1844,19 @@
        
     $(function () {
         function cb(start, end) {
-            $('#action_agent_date span').html('<?php echo date('F d Y');?>');
+            $('#action_agent_date span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
-        $('#action_agent_date span').daterangepicker({
-                autoUpdateInput: false,
-                singleDatePicker: true,
-                showDropdowns: true,
-                minDate:"01-01-1998",
-                locale:{
-                    format: 'MMMM D, YYYY'
-                }
-            });
+//        $('#action_agent_date span').daterangepicker({
+//                autoUpdateInput: false,
+//                singleDatePicker: true,
+//                showDropdowns: true,
+//                minDate:"01-01-1998",
+//                locale:{
+//                    format: 'MMMM D, YYYY'
+//                }
+//            });
+         $('#action_agent_date').daterangepicker(options, cb);
 
         cb(start, end);
     });
@@ -1869,19 +1871,29 @@
         cb(start, end);
     });
             
-    $('#action_agent_date span').on('apply.daterangepicker', function(ev, picker) {
+//    $('#action_agent_date span').on('apply.daterangepicker', function(ev, picker) {
+//        
+//        $('#action_agent_date span').html(picker.startDate.format('MMMM D, YYYY') + ' - ' + picker.endDate.format('MMMM D, YYYY'));
+//        alert(picker.endDate.format('MMMM D, YYYY'));
+//        agent_click_count(picker.startDate.format('MMMM D, YYYY'), picker.endDate.format('MMMM D, YYYY'));
+//    });
+    
+    $('#action_agent_date').on('apply.daterangepicker', function (ev, picker) {
+      //  $('#loader_gifagentperformance').show();
+       // $('#chart_agentdiv').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        agent_click_count(startDate, endDate);
         
-        $('#action_agent_date span').html(picker.startDate.format('MMMM D, YYYY'));
-        agent_click_count(picker.startDate.format('MMMM D, YYYY'));
     });
     
     function agent_action_status(){
         agent_click_count();
     }
     
-    $('#action_agent_date').on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
+//    $('#action_agent_date').on('cancel.daterangepicker', function(ev, picker) {
+//        $(this).val('');
+//    });
     
     $(function () {
         function cb(start_week, end_week) {
@@ -3335,14 +3347,19 @@ function initiate_escalation_data(){
         }
     }
     
-    function agent_click_count(date = ""){
-        if(date === ""){
-            date = $('#action_agent_date span').text();
-            //console.log(date);
+    function agent_click_count(startDate ="", endDate = ""){
+        if(startDate === ""){
+            var d = $('#action_agent_date span').text();
+            var d1 = d.split("-");
+            console.log(d1[0]);
+            startDate = d1[0].trim();
+            endDate =d1[1].trim();
+            //"June 1, 2020 - June 30, 2020"
         }
+        
         $('#loader_gifagent').fadeIn();
         $('#chart_agentdiv').hide();
-        var data = {date: date};
+        var data = {startDate: startDate, endDate: endDate};
         url =  '<?php echo base_url(); ?>employee/dashboard/get_agent_action_log_per_hour';
         
         sendAjaxRequest(data,url,post_request).done(function(response){

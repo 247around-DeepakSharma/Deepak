@@ -4704,7 +4704,7 @@ class Spare_parts extends CI_Controller {
         $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "'.OK_PARTS_REJECTED_BY_WAREHOUSE.'")'] = NULL;
         $post['group_by'] = "spare_parts_details.id";
 
-        
+        $post['where_in'] = [];
         if(in_array($this->session->userdata('user_group'), [_247AROUND_RM, _247AROUND_ASM])) {
             $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
             if (!empty($sf)) {
