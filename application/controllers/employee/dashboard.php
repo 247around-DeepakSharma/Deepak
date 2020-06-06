@@ -1804,13 +1804,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if(!empty($response)){    
         $districtZoneType = $response['zone'];
         if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = ' <br/><span class="label-success">COVID</span>';
+        $districtZoneType = ' <br><label>COVID-19 RED ZONE</label>';
         }
         if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<br/> <span class="label-warning">COVID</span>';
+        $districtZoneType = '<br><label>COVID-19 ORANGE ZONE</label>';
         }
         if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<br/> <span class="label-success">COVID</span>';
+        $districtZoneType = '<br><label>COVID-19 GREEN ZONE</label>';
         }
 
         }else{
