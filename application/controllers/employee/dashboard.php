@@ -3484,18 +3484,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * Count Vs time for Agent
      */
     function get_agent_action_log_per_hour() {
-        $date = date('Y-m-d', strtotime($this->input->post('date')));
+        $date = date('Y-m-d', strtotime($this->input->post('startDate')));
+        $endDate = date('Y-m-d', strtotime($this->input->post('endDate')));
         //fetching click count of account manager from agent_action_table
-        $data = $this->dashboard_model->get_agent_action_per_hour_count($date);
+        $data = $this->dashboard_model->get_agent_action_per_hour_count($date, $endDate);
+        $y = date('Y');
+        
         if (!empty($data)) {
             $graph = array();
-            $h_x = array_column($data, 'theHour');
+            $h_x = array_column($data, 'combination');
             $hour_x = array_unique($h_x);
             sort($hour_x, SORT_FLAG_CASE);
             
             //create array  by indexing hour basis
             foreach ($data as $value) {
-                $graph[$value['theHour']][$value['agent_id']][] = $value;
+                $graph[$value['combination']][$value['agent_id']][] = $value;
             }
 
             $employee_id = $this->employee_model->get_employee_by_group(array('active' => 1, 'groups' => 'accountmanager'));
@@ -3504,17 +3507,18 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $hour_xt = array();
             foreach ($employee_id as $emp) {
                 foreach ($hour_x as $value) {
-                    if ($value >= 12) {
-                        array_push($hour_xt, $value . "PM");
+                    $ar = explode("-", $value);
+                    if ($ar[2] >= 12) {
+                        array_push($hour_xt, $ar[1]."-". date('M', strtotime($y."-".$ar[0]."-".$ar[1])) . " - ". $ar[2].  " PM");
                     } else {
-                        array_push($hour_xt, $value . "AM");
+                       array_push($hour_xt, $ar[1]."-". date('M', strtotime($y."-".$ar[0]."-".$ar[1])) . " - ". $ar[2].  " AM");
                     }
 
                     if (isset($graph[$value])) {
                         if (!array_key_exists($emp['id'], $graph[$value])) {
                             $agent_click[$value][$emp['id']] = array('name' => $emp['full_name'],
                                 'agent_id' => $emp['id'],
-                                'theHour' => $value,
+                                'combination' => $value,
                                 'data' => 0);
                         } else {
                             $agent_click[$value][$emp['id']] = $graph[$value][$emp['id']][0];
@@ -3522,7 +3526,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     } else {
                         $agent_click[$value][$emp['id']] = array('name' => $emp['full_name'],
                             'agent_id' => $emp['id'],
-                            'theHour' => $value,
+                            'combination' => $value,
                             'data' => 0);
                     }
                 }

@@ -2387,7 +2387,7 @@ class Service_centers extends CI_Controller {
                 if (!empty($this->session->userdata('service_center_id')) 
                     && !empty($spare_part_detail['defective_part_required']) && $spare_part_detail['defective_part_required'] == 1 
                     && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
-                    $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));
+                    $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'),'',true);
                 }
             }
             // send mail in case of courier lost.
@@ -3809,11 +3809,16 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__ . json_encode($_POST, true));
 
         $challan_booking_id = $this->input->post('download_challan');
-
+        $current_warehouseID = '';
+        if(!empty($this->session->userdata('service_center_id'))){
+            $current_warehouseID = $this->session->userdata('service_center_id');
+        }else if(!empty($this->session->userdata('warehouse_id'))){
+            $current_warehouseID = $this->session->userdata('warehouse_id');
+        }
         $delivery_challan_file_name_array = array();
         foreach ($challan_booking_id as $partner_id => $spare_and_service) {
             $sp_id = implode(',', $spare_and_service);
-            $data['wh_challan_file'] = $this->invoice_lib->generate_challan_file_to_partner($sp_id, $this->session->userdata('service_center_id'));
+            $data['wh_challan_file'] = $this->invoice_lib->generate_challan_file_to_partner($sp_id, $current_warehouseID);
             array_push($delivery_challan_file_name_array, $data['wh_challan_file']);
         }
         ////  ZIP The Challan files ///
@@ -4219,8 +4224,13 @@ class Service_centers extends CI_Controller {
 
                     if ($part_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
 
-                        if ($this->session->userdata("userType") == "service_center") {
-                            $login_sc_id = $this->session->userdata("service_center_id");
+                        if ($this->session->userdata("userType") == "service_center" || !empty($this->session->userdata('warehouse_id'))) {
+                            if (!empty($this->session->userdata('warehouse_id'))) {
+                                $login_sc_id = $this->session->userdata("warehouse_id");
+                            } else {
+                                $login_sc_id = $this->session->userdata("service_center_id");
+                            }
+
                             $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $login_sc_id));
                         } else {
 
