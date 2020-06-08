@@ -113,6 +113,7 @@
                  }]
             });
             $("div#toolbar").html('<center><b>TR Detail History</b></center>');
+
         });
     function editNRNRecord(nrn_id) {
         if (nrn_id !== '' || nrn_id !== undefined) {
@@ -146,4 +147,5 @@
     width: 10%;
     padding-bottom: 5px;
 }
+
 </style>
