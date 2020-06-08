@@ -3445,8 +3445,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_agent_action_log_per_hour() {
         $date = date('Y-m-d', strtotime($this->input->post('startDate')));
         $endDate = date('Y-m-d', strtotime($this->input->post('endDate')));
+        if(!empty($this->input->post('group'))){
+        $group = $this->input->post('group');
+        }else{
+         $group = '';
+        }
         //fetching click count of account manager from agent_action_table
-        $data = $this->dashboard_model->get_agent_action_per_hour_count($date, $endDate);
+        $data = $this->dashboard_model->get_agent_action_per_hour_count($date, $endDate,$group);
         $y = date('Y');
         
         if (!empty($data)) {
@@ -3459,8 +3464,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             foreach ($data as $value) {
                 $graph[$value['combination']][$value['agent_id']][] = $value;
             }
-
+            if(empty($group)){
             $employee_id = $this->employee_model->get_employee_by_group(array('active' => 1, 'groups' => 'accountmanager'));
+            }else{
+            $employee_id = $this->employee_model->get_employee_by_group(array('active' => 1, 'groups' => $group));
+            }
+
             $agent_click = array();
             $series = array();
             $hour_xt = array();
