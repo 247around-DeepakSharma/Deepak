@@ -14,7 +14,9 @@ else
 // get selected price tags
 $selected_price_tags = !empty($unit_details[0]['quantity']) ? array_column($unit_details[0]['quantity'], 'price_tags') : [];
 $selected_price_tags = implode(",", $selected_price_tags);
-
+// Get saved Partner and 247 discounts against Booking
+$arr_247around_discount = array();
+$arr_partner_discount = array();
 ?>
 <div id="page-wrapper" >
     <div class="container" >
@@ -226,6 +228,7 @@ $selected_price_tags = implode(",", $selected_price_tags);
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $partner_net_payable = $tags['partner_net_payable'];
+                                                                              $arr_partner_discount[$price['service_category']] = $partner_net_payable;
                                                                            }
                                                                         }
                                                                     }
@@ -258,6 +261,7 @@ $selected_price_tags = implode(",", $selected_price_tags);
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $around_net_payable = $tags['around_net_payable'];
+                                                                              $arr_247around_discount[$price['service_category']] = $around_net_payable;                                                                                    
                                                                            }
                                                                         }
                                                                     }
@@ -319,6 +323,8 @@ $selected_price_tags = implode(",", $selected_price_tags);
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
                                                     </tbody>
                                                 </table>
+                                                <input type="hidden" name="arr_partner_discount" id="arr_partner_discount" value='<?php if(isset($arr_partner_discount)) { echo json_encode($arr_partner_discount); } ?>'>
+                                                <input type="hidden" name="arr_247around_discount" id="arr_247around_discount" value='<?php if(isset($arr_247around_discount)) { echo json_encode($arr_247around_discount); } ?>'>
                                             </div>
                                         </div>
                                     </div>
@@ -687,10 +693,10 @@ $selected_price_tags = implode(",", $selected_price_tags);
         if($('.select-model').css("display") == "none") {
             $('.select-model').next(".select2-container").hide();
         }
-//        else
-//        {
-//            $('.select-model').trigger("change");
-//        }
+        else
+        {
+            $('.select-model').trigger("change");
+        }
       final_price();
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();
