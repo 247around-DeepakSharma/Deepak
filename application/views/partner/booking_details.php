@@ -66,9 +66,10 @@
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
+                                        if(!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00'){
                                         $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('d-M-Y',$time);
-                                        echo $booking_date ?></td>
+                                        $booking_date = date('d-M-Y',$time);                                        
+                                        echo $booking_date; } ?></td>
                                         
                                     </tr>
                                     <tr>
