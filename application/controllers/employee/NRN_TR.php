@@ -225,14 +225,14 @@ class NRN_TR extends CI_Controller {
             $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
-            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id";
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,booking_unit_details.*";
             if (!empty($booking_id)) {
                 $post['search_value'] = $booking_id;
                 $post['column_search'] = array('booking_details.booking_id');
                 $post['order'] = array(array('column' => 0, 'dir' => 'asc'));
                 $post['order_performed_on_count'] = TRUE;
                 $post['column_order'] = array('booking_details.booking_id');
-                $post['unit_not_required'] = true;
+                //$post['unit_not_required'] = '';
             }
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
@@ -303,7 +303,7 @@ class NRN_TR extends CI_Controller {
             }
             $result = $this->booking_model->getCapacityForCategory($service_id, $category, $isWbrand, $partner_id);
         }
-
+        
         foreach ($result as $capacity) {
             $selected = '';
             if ($selected_capacity == $capacity['capacity']) {

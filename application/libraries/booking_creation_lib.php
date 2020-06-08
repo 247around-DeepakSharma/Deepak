@@ -95,7 +95,7 @@ class booking_creation_lib {
                        "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
                        "appliance_model_details.service_id" => $booking_history[0]['service_id'],
                        "appliance_model_details.active" => 1,
-                       "partner_appliance_details.brand" => $value['brand']
+//                       "partner_appliance_details.brand" => $value['brand']
                     );
                     $model = $this->My_CI->partner_model->get_model_number('appliance_model_details.model_number as model', $model_where);
                 } else {
