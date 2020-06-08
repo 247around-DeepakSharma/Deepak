@@ -99,10 +99,18 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('#datatable1').DataTable({
-            "dom": 'l<"#toolbar">frtip',
+            "dom": 'Bl<"#toolbar">frtip',
             "paging": true,
             "ordering": false,
             "info": true,
+            buttons: [{
+                 extend: 'excelHtml5',
+                 text: 'Export',
+                 title: 'TR History records',
+                 exportOptions: {
+                    columns: [ 1,2,3,4,5,6,7,8 ]
+                 }
+             }]
         });
         $("div#toolbar").html('<center><b>TR Detail History</b></center>');
     });
@@ -128,9 +136,14 @@
         font-size: 18px;
     }
     #datatable1_length{
-        width: 35% !important;
+        width: 25% !important;
     }
     #datatable1_filter{
-        width: 35% !important;
+        width: 30% !important;
+    }
+    .dt-buttons{
+        float: left;
+        width: 10%;
+        padding-bottom: 5px;
     }
 </style>
