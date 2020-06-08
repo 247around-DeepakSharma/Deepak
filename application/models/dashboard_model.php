@@ -1033,15 +1033,19 @@ class dashboard_model extends CI_Model {
      * @param Date $date
      * @return Array
      */
-    function get_agent_action_per_hour_count($statDate, $endDate){
+    function get_agent_action_per_hour_count($statDate, $endDate, $group =''){
         $sql = "SELECT full_name as name, agent_id, concat(extract( MONTH FROM agent_action_log.create_date ), '-', extract( DAY FROM agent_action_log.create_date ), '-', extract( HOUR FROM agent_action_log.create_date )) as combination,"
                 . "extract( HOUR FROM agent_action_log.create_date ) AS theHour, "
                 . " extract( Day FROM agent_action_log.create_date ) AS theDays, extract( MONTH FROM agent_action_log.create_date ) AS theMonth, "
                 . " count( * ) AS data FROM agent_action_log, employee "
                 . "WHERE agent_action_log.create_date >= '".$statDate."' AND agent_action_log.create_date < '".date('Y-m-d', strtotime($endDate. '+1 days'))."' "
-                . "AND agent_id != 1 "
-                . " AND employee.id = agent_id  AND employee.groups = 'accountmanager' "
-                . " GROUP BY agent_id, extract( MONTH FROM agent_action_log.create_date ) , "
+                . "AND agent_id != 1 ";
+        if (empty($group)) {
+            $sql .= " AND employee.id = agent_id  AND employee.groups = 'accountmanager' ";
+        } else {
+            $sql .= " AND employee.id = agent_id  AND employee.groups = '" . $group . "' ";
+        }
+        $sql  .= " GROUP BY agent_id, extract( MONTH FROM agent_action_log.create_date ) , "
                 . " extract( Day FROM agent_action_log.create_date ), "
                 . " extract( HOUR FROM agent_action_log.create_date ),  "
                 . "agent_id order by agent_id, extract( MONTH FROM agent_action_log.create_date ),"
