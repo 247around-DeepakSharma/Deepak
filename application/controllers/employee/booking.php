@@ -1509,6 +1509,18 @@ class Booking extends CI_Controller {
             $selected_price_tags = $this->input->post('selected_price_tags');
             $arr_selected_price_tags = explode(",", $selected_price_tags);
         }
+        // Get saved Partner Discounts against Booking
+        $arr_partner_discount = "";
+        if(!empty($this->input->post('arr_partner_discount'))){
+            $arr_partner_discount = $this->input->post('arr_partner_discount');
+            $arr_partner_discount = json_decode($arr_partner_discount, true);
+        }
+        // Get saved 247around Discounts against Booking
+        $arr_247around_discount = "";
+        if(!empty($this->input->post('arr_247around_discount'))){
+            $arr_247around_discount = $this->input->post('arr_247around_discount');
+            $arr_247around_discount = json_decode($arr_247around_discount, true);
+        }
         if($this->input->post('add_booking')){
             $add_booking = $this->input->post('add_booking');
         }
@@ -1570,8 +1582,24 @@ class Booking extends CI_Controller {
                 }
                 else
                 {
+                    // Subtract Partner Discount and 247around discount from customer net Payable for selected service categories
+                    $partner_discount = $prices['partner_net_payable'];
+                    $around_discount = $prices['around_net_payable'];
+                    if(in_array($prices['service_category'], $arr_selected_price_tags)) {                        
+                        if(!empty($arr_partner_discount[$prices['service_category']])){
+                            $partner_discount = $arr_partner_discount[$prices['service_category']];
+                        }                        
+                        if(!empty($arr_247around_discount[$prices['service_category']])){
+                            $around_discount = $arr_247around_discount[$prices['service_category']];
+                        }
+                        $prices['customer_net_payable'] = $prices['customer_net_payable'] - (+$partner_discount) - (+$around_discount);
+                        // If For some reason prices changed, and customer net payable becomes < 0, make it 0
+                        if($prices['customer_net_payable'] < 0){
+                            $prices['customer_net_payable'] = 0;
+                        }
+                    }
                     $html .= "<td style='display:none;'>" . $prices['customer_total'] . "</td>";
-                    $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
+                    $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $partner_discount . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $around_discount."' placeholder='Enter discount' readonly></td>";
                 }
                 
                 if(!$is_sf_panel)
