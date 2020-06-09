@@ -3637,7 +3637,8 @@ class Booking extends CI_Controller {
      */
     function get_booking_filter_view($status){
         log_message('info', __METHOD__);
-        $partnerWhere['partners.is_active'] = 1;
+        $partnerWhere = [];
+//        $partnerWhere['partners.is_active'] = 1;
         $vendorJoin = NULL;
         $vendorWhere['service_centres.active'] = 1;
         $is_am=0;

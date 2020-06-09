@@ -21,6 +21,7 @@
                   success: function (data) {
                       //console.log(data);
                       $("#name").select2().html(data).change();
+                      $('#name').val(vendor_partner_id).trigger('change.select2');
                       $('#loader_gif').attr('src',  "");
                       $('#loader_gif').css("display", "none");
     
