@@ -1079,7 +1079,10 @@ class vendor extends CI_Controller {
             $vendor['agent_id'] = $this->session->userdata("id");
             $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
-            
+            //Generate auth certificate for those SF's who was diactive and now going to activate
+            if($is_active == 1){
+                $this->sfauthorization_certificate->create_new_certificate($id);
+            }
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details

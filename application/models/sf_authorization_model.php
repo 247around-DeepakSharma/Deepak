@@ -55,9 +55,12 @@ class SF_authorization_model extends CI_Model {
      * Get all active SF deatils for listinf SF
      */
 
-    function get_all_active_sf_details() {
+    function get_all_active_sf_details($fillter = '') {
         $select = 'id,name,company_name,auth_certificate_validate_year,auth_certificate_file_name,has_authorization_certificate';
         $where = 'active = 1 AND is_sf = 1 AND is_wh = 0';
+        if($fillter != ''){
+            $where .= ' AND ' . $fillter;
+        }
         $query = $this->reusable_model->get_search_query('service_centres', $select, $where, NULL, NULL, NULL, NULL, NULL);
         return $query->result_array();
     }
