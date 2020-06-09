@@ -13,19 +13,20 @@
 
         <div class="x_content">
             <div class="table-responsive">
-                <?php if (!empty($service_centers)) { ?>
 
-                    <table id="auth_cert" class="table table-bordered table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Vendor name</th>
-                                <th>Validation</th>
-                                <th>Document</th>
-                                <th>Action</th>
 
-                            </tr>
-                        </thead>
-                        <tbody>
+                <table id="auth_cert" class="table table-bordered table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Vendor name</th>
+                            <th>Validation</th>
+                            <th>Document</th>
+                            <th>Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($service_centers)) { ?>
                             <?php foreach ($service_centers as $service_center) { ?>
 
                                 <tr>
@@ -54,9 +55,12 @@
 
                                 </tr>
                             <?php } ?>
-                        </tbody>
-                    </table>
-                <?php } ?>
+                        <?php } else { ?>
+                            <tr><td colspan="4">No Data found</td></tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+
             </div>
         </div>
     </div>
