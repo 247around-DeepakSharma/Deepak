@@ -7479,7 +7479,7 @@ class Inventory extends CI_Controller {
                 . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
                 . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
-                . "DATE_FORMAT(spare_parts_details.acknowledge_date,'%d-%b-%Y') as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "spare_parts_details.acknowledge_date as 'Defective Received Date By Warehouse',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
@@ -9818,12 +9818,18 @@ class Inventory extends CI_Controller {
             'spare_id' => $spare_id, 
             'action' => $spare_status, 
             'remarks' => $spare_status, 
-            'agent_id' => $this->session->userdata('service_center_agent_id'), 
-            'entity_id' => $this->session->userdata('service_center_id'), 
-            'entity_type' => _247AROUND_SF_STRING
         );
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $tracking_details['agent_id'] = $this->session->userdata('id');
+            $tracking_details['entity_id'] = _247AROUND;
+            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        } else { 
+            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+        }
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        
+
         /**
          * Log this change in booking state change & update booking internal status.
          */
@@ -9858,7 +9864,11 @@ class Inventory extends CI_Controller {
             $this->booking_model->update_booking($booking_id, $booking);
         }
 
-        $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
+        } else {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        }
         
         return true;
     }

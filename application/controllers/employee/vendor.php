@@ -1297,7 +1297,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1462,9 +1462,9 @@ class vendor extends CI_Controller {
                         $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
                         }else{
                         $sp['status'] = _247AROUND_CANCELLED;
+                        $sp['consumed_part_status_id'] = NULL;
+                        $sp['consumption_remarks'] = NULL;
                         }
-
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
 
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
                                 $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - ".OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);

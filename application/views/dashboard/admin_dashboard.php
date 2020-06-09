@@ -1451,6 +1451,39 @@
     <!-- Agent Graph -->
     
     <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="dashboard_graph">
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Audit Team Performance Score &nbsp;&nbsp;&nbsp;
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-5">
+                        <div id="action_agent_date_audit" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                           
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+<!--                        onclick="agent_action_status()"-->
+                        <span class="collape_icon" href="#chart_containeragentdiv_audit" data-toggle="collapse" onclick="agent_action_status_audit()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="x_content collapse" id="chart_containeragentdiv_audit">
+                    <div class="col-md-12">
+                        <center><img id="loader_gifagentaudit" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+                    <div id="chart_agentdiv_audit" class="chart_agentdiv" style="width:100%; height:400px;"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
         <form action="<?php echo base_url(); ?>employee/invoice/download_dashboard_invoice_data" method="post">  
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="dashboard_graph">
@@ -1860,6 +1893,24 @@
 
         cb(start, end);
     });
+    $(function () {
+        function cb(start, end) {
+            $('#action_agent_date_audit span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+//        $('#action_agent_date span').daterangepicker({
+//                autoUpdateInput: false,
+//                singleDatePicker: true,
+//                showDropdowns: true,
+//                minDate:"01-01-1998",
+//                locale:{
+//                    format: 'MMMM D, YYYY'
+//                }
+//            });
+         $('#action_agent_date_audit').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
     
     $(function () {
         function cb(start, end) {
@@ -1886,9 +1937,20 @@
         agent_click_count(startDate, endDate);
         
     });
+    $('#action_agent_date_audit').on('apply.daterangepicker', function (ev, picker) {
+      //  $('#loader_gifagentperformance').show();
+       // $('#chart_agentdiv').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        agent_click_count_audit(startDate, endDate);
+        
+    });
     
     function agent_action_status(){
         agent_click_count();
+    }
+    function agent_action_status_audit(){
+        agent_click_count_audit();
     }
     
 //    $('#action_agent_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -3423,6 +3485,86 @@ function initiate_escalation_data(){
             else{
                 alert("Graph Data Not Found");
                 $('#loader_gifagent').hide();
+            }
+        });
+    }
+    
+    function agent_click_count_audit(startDate ="", endDate = ""){
+        if(startDate === ""){
+            var d = $('#action_agent_date_audit span').text();
+            var d1 = d.split("-");
+            console.log(d1[0]);
+            startDate = d1[0].trim();
+            endDate =d1[1].trim();
+            //"June 1, 2020 - June 30, 2020"
+        }
+        
+        $('#loader_gifagentaudit').fadeIn();
+        $('#chart_agentdiv_audit').hide();
+        var data = {startDate: startDate, endDate: endDate, group : 'closure'};
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_agent_action_log_per_hour';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            
+            if(response){
+               // console.log(response);
+                var data = JSON.parse(response);
+                var theHour = data.xaxis.split(',');
+                //console.log(theHour);
+                var series = data.series;
+                
+                 for (i = 0; i < series.length; i++) {
+                    series[i].data = JSON.parse("[" + series[i].count + "]");
+                }
+                $('#chart_agentdiv_audit').fadeIn();
+                chart1 = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chart_agentdiv_audit',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        }
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: theHour
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        column: {
+                            dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: series
+                });
+                $('#loader_gifagentaudit').hide();
+            }
+            
+            else{
+                alert("Graph Data Not Found");
+                $('#loader_gifagentaudit').hide();
             }
         });
     }
