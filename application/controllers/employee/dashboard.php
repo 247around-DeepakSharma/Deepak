@@ -59,13 +59,14 @@ class Dashboard extends CI_Controller {
 //            if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
 //                redirect(base_url().'employee/invoice/invoice_partner_view');
 //            }else{
+                $partnerWhere = array();
                 $is_am = 0;
                 if($this->session->userdata('user_group') == _247AROUND_AM){
 //                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
                     $is_am = 1;
                     $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
                 }
-                $partnerWhere['partners.is_active'] = 1;
+//                $partnerWhere['partners.is_active'] = 1;
 //                $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $data['partners'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
                 $serviceWhere['isBookingActive'] =1;
