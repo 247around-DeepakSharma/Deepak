@@ -4259,11 +4259,16 @@ class Service_centers extends CI_Controller {
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
                             foreach ($spare_details as $val) {
-                                if ($this->session->userdata("userType") == "service_center") {
+                                if ($this->session->userdata("userType") == "service_center" || !empty($this->session->userdata('warehouse_id'))) {
+                                    if (!empty($this->session->userdata('warehouse_id'))) {
+                                        $login_sc_entity_id = $this->session->userdata("warehouse_id");
+                                    } else {
+                                        $login_sc_entity_id = $this->session->userdata("service_center_id");
+                                    }
                                     $data['spare_parts_details.entity_type'] = _247AROUND_SF_STRING;
-                                    $data['spare_parts_details.partner_id'] = $this->session->userdata("service_center_id");
+                                    $data['spare_parts_details.partner_id'] = $login_sc_entity_id;
                                     $data['spare_parts_details.defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                                    $data['spare_parts_details.defective_return_to_entity_id'] = $this->session->userdata("service_center_id");
+                                    $data['spare_parts_details.defective_return_to_entity_id'] = $login_sc_entity_id;
                                 }
                                 $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
                             }
