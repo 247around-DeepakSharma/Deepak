@@ -53,10 +53,21 @@
             <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
         </tr>
         <tr>
-            <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td style="border-right: hidden;<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td colspan="7"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+        </tr>
+        <?php
+        if(!empty($excel_data['courier_servicable_area'])){
+        ?>
+        <tr>
+            <td  colspan="5" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
             <td style="border-right: hidden;"></td>
             <td colspan="7"></td>
         </tr>
+        <?php
+        }
+        ?>
         <tr class="blank_row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
             <td></td><td></td><td></td><td></td><td style="border-right: solid 1px;"></td>
         </tr>
@@ -85,6 +96,9 @@
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
             if(!empty($excel_data['show_consumption_reason'])){
+                if ($info['consumption'] == 'Part consumed') {
+                    $info['consumption'] = 'Defective Part';
+                }
             echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
                                                         <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
