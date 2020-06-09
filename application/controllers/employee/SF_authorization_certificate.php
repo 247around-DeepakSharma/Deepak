@@ -20,7 +20,15 @@ class SF_authorization_certificate extends CI_Controller {
      * List all active SF with thier authorization certificate and status
      */
     public function index() {
-        $data['service_centers'] = $this->sf_authorization_model->get_all_active_sf_details();
+        $user_profile = $this->session->userdata;
+        $fillter = '';
+        if(strtolower(trim($user_profile['user_group'])) === _247AROUND_RM){
+            $fillter = 'rm_id =' . $user_profile['id'];
+        }else if(strtolower(trim($user_profile['user_group'])) === _247AROUND_ASM){
+            $fillter = 'asm_id =' . $user_profile['id'];
+        }
+         
+        $data['service_centers'] = $this->sf_authorization_model->get_all_active_sf_details($fillter);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sf_authorization_certificates', $data);
     }
