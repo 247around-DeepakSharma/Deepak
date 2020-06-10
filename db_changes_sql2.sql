@@ -2378,7 +2378,6 @@ insert into query_report(main_description, query1_description, query2_descriptio
 values('payment_through_paytm_today', 'No of payments', 'Total Amount',"SELECT count(id) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE()  and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", "SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` WHERE invoice_date >= CURDATE() and sub_category = 'Pre-paid(PG)' and amount_collected_paid > 0;", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
-<<<<<<< HEAD
 values('Total_GST_Credit_Hold_Amount_This_Month', 'Total Amount', '',"SELECT IFNULL(sum(total_amount_collected - cgst_tax_amount - sgst_tax_amount - igst_tax_amount), 0) as count FROM `vendor_partner_invoices` where sub_category = 'GST Credit Note' and invoice_date >= DATE_FORMAT(CURRENT_TIMESTAMP ,'%Y-%m-01');", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 insert into query_report(main_description, query1_description, query2_description, query1, query2, role, priority, type, active, create_date)
@@ -2749,3 +2748,5 @@ UPDATE partner_summary_report_mapping SET sub_query = '(CASE WHEN booking_detail
 
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
+--Gorakh 10-06-2020
+ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
