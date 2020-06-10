@@ -2662,3 +2662,5 @@ values('agreement_email_template','',
 ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   
 ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
+--Gorakh 10-06-2020
+ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
