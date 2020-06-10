@@ -59,13 +59,14 @@ class Dashboard extends CI_Controller {
 //            if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
 //                redirect(base_url().'employee/invoice/invoice_partner_view');
 //            }else{
+                $partnerWhere = array();
                 $is_am = 0;
                 if($this->session->userdata('user_group') == _247AROUND_AM){
 //                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
                     $is_am = 1;
                     $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
                 }
-                $partnerWhere['partners.is_active'] = 1;
+//                $partnerWhere['partners.is_active'] = 1;
 //                $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
                 $data['partners'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
                 $serviceWhere['isBookingActive'] =1;
@@ -1793,40 +1794,75 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $outputArray[] = $totalTempArray;
         return $outputArray;
     }
-    function get_tat_data_in_structured_format_pending($data){
+
+
+
+    function getCovidZoneName($city){
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result;
+        }
+        if(!empty($response)){    
+        $districtZoneType = $response['zone'];
+        if (strpos($districtZoneType, 'Red') !== false) {
+        $districtZoneType = ' <br><label class="label label-danger">COVID ZONE</label>';
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
+        $districtZoneType = '<br><label class="label label-warning">COVID ZONE</label>';
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
+        $districtZoneType = '<br><label class="label label-success">COVID ZONE</label>';
+        }
+
+        }else{
+        $districtZoneType = '';   
+        }
+        return $districtZoneType;
+
+    }
+
+
+   function get_tat_data_in_structured_format_pending($data){
         $finalArray = array();
         foreach($data as $tatData){
             // Check if TAT is of RM Independent Bookings,
             // ASM Independent Bookings
             // RM and its corresponding ASM bookings
+            $tatData['sfcity'] = !empty($tatData['city']) ? $tatData['city'] : "";
+            $covid_zone ="";
+            if(isset($tatData['sfcity']) && !empty($tatData['sfcity'])){
+                $covid_zone = $this->getCovidZoneName($tatData['sfcity']);
+            }
+
             $tatData['entity_type'] = !empty($tatData['entity_type']) ? $tatData['entity_type'] : "";
             if($tatData['TAT']<0){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '. $covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>=0 && $tatData['TAT']<5){
                 $finalArray[$tatData['entity']]['TAT_'.$tatData['TAT']][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '. $covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>4 && $tatData['TAT']<8){
                 $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '. $covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>7 && $tatData['TAT']<16){
                 $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '. $covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else{
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '. $covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
@@ -1837,33 +1873,38 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     function get_tat_data_in_structured_format_completed($data,$key){
        $finalArray = array();
         foreach($data as $tatData){
+            $tatData['sfcity'] = !empty($tatData['city']) ? $tatData['city'] : "";
+            $covid_zone ="";
+            if(isset($tatData['sfcity']) && !empty($tatData['sfcity'])){
+                $covid_zone = $this->getCovidZoneName($tatData['sfcity']);
+            }
             if($tatData[$key]<0){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '.$covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>=0 && $tatData[$key]<5){
                 $finalArray[$tatData['entity']]['TAT_'.$tatData[$key]][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '.$covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>4 && $tatData[$key]<8){
                 $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '.$covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>7 && $tatData[$key]<16){
                 $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '.$covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else{
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].' '.$covid_zone;
                 $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
                 $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }

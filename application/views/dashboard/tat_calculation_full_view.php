@@ -413,9 +413,9 @@
             ?>
         <tr>
             <td><?php echo $index;   ;?></td>
-            <td>
+            <td style=" white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
                 <?php
-                    echo wordwrap($values['entity'], 30, "<br />\n");
+                    echo  $values['entity'];
                 ?>                 
             </td>
             <td><?php 
