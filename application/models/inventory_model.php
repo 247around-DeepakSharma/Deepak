@@ -3398,7 +3398,7 @@ class Inventory_model extends CI_Model {
      */
     function update_courier_services($data,$where){
         $this->db->where($where);
-	$this->db->update('courier_services', $data);
+        $this->db->update('courier_services', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -3506,24 +3506,29 @@ class Inventory_model extends CI_Model {
     function _get_out_of_tat_pending_defective_part($post) {
 
         $this->db->select($post['select'], false);
-        $this->db->from('spare_parts_details');
-        $this->db->join('booking_details', 'spare_parts_details.booking_id = booking_details.booking_id', "left");
-        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
-        $this->db->join('partners', 'partners.id = booking_details.partner_id', "left");
-        $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id', "left");
-        $this->db->join('users', 'users.user_id = booking_details.user_id', "left");
-
-        if (isset($post['is_inventory'])) {
-            $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
-            $this->db->join('inventory_master_list as i', 'i.inventory_id = spare_parts_details.shipped_inventory_id', "left");
-        }
-
-        $this->db->join('services', 'booking_details.service_id = services.id', 'left');
+        $this->db->from('booking_details');
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
+        $this->db->join('employee', "employee.id = agent_filters.agent_id", "left"); // new query for AM
+        //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('inventory_master_list as iml', " iml.inventory_id = spare_parts_details.shipped_inventory_id", "left");
+        $this->db->join('service_centres sc', 'spare_parts_details.partner_id = sc.id', 'left');
+        $this->db->join('service_centres as wh', 'spare_parts_details.defective_return_to_entity_id = wh.id', 'left');
+        $this->db->join('services', 'services.id = booking_details.service_id', 'left');
+        $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
+        $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
+        $this->db->join('employee as emply', 'service_centres.rm_id = emply.id', 'left');
+        $this->db->join('employee as empl', 'service_centres.asm_id = empl.id', 'left');
 
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
         
+        /*
         if(isset($post['where_in'])){
             foreach ($post['where_in'] as $index => $value) {
 
@@ -3531,10 +3536,11 @@ class Inventory_model extends CI_Model {
             }
         }
         
-//        if(empty($post['search']['value'])){
-//           $where = 'spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))';
-//           $this->db->where($where);  
-//        }
+        if(empty($post['search']['value'])){
+           $where = 'spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))';
+           $this->db->where($where);  
+        }
+         */
 
         if (!empty($post['search']['value'])) {
             $like = "";
@@ -3597,7 +3603,7 @@ class Inventory_model extends CI_Model {
      */
    
     function download_oot_pending_defective_part($post) {
-        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by'], $post['where_in']);
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
         return $query;
     }
     
