@@ -2609,7 +2609,7 @@ class Booking extends CI_Controller {
 
         // check spares are pending or shipped for current booking.
         // @modifiedBy Ankit Rajvanshi
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('*',['booking_id' => $booking_id, 'parts_shipped is not null' => null, 'status != "'._247AROUND_CANCELLED.'"' => NULL], false, FALSE, false, array(), false, false, false, false, false, false);
         if(!empty($spare_parts_details)) {
             $booking['internal_status'] = $spare_parts_details[0]['status'];
             
@@ -2666,7 +2666,7 @@ class Booking extends CI_Controller {
                 if(!$sp['spare_lost']) {
                     $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
                 }
-            } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
+            } else if(in_array($sp['status'], [SPARE_PARTS_REQUESTED, SPARE_PART_ON_APPROVAL]) && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
         //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
@@ -3846,11 +3846,11 @@ class Booking extends CI_Controller {
                 if(($this->session->userdata('is_am') == '1') || ($this->session->userdata('user_group') == _247AROUND_RM) || ($this->session->userdata('user_group') == _247AROUND_ASM)){
                     $post['where']  = array("(booking_details.current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
-                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_PARTS_SHIPPED_BY_WAREHOUSE,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
+                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_OOW_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 else{
                     $post['where']  = array("booking_details.current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
-                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_PARTS_SHIPPED_BY_WAREHOUSE,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
+                    $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SPARE_OOW_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 $post['order_performed_on_count'] = TRUE;
             }
