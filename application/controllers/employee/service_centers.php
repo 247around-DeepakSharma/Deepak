@@ -2620,6 +2620,7 @@ class Service_centers extends CI_Controller {
 
                     if ($this->input->post("call_from_api")) {
                         $data['part_requested_by_engineer'] = 1;
+
                     }
 
                     if (empty($access)) {
@@ -2632,7 +2633,13 @@ class Service_centers extends CI_Controller {
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     /* Insert Spare Tracking Details */
                     if (!empty($spare_id)) {
-                        $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+
+                        if ($this->input->post("call_from_api")) {
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' =>$this->input->post("sc_agent_id");, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                        }else{
+                          $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);  
+                        }
+
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
