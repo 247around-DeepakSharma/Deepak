@@ -9234,7 +9234,7 @@ class Partner extends CI_Controller {
         }
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
             
@@ -9246,7 +9246,10 @@ class Partner extends CI_Controller {
             foreach ($spare_inventory_update as  $update_pending) {
 
 
-                if (!empty($update_pending['shipped_date'])) {
+                if (!empty($update_pending['defective_part_shipped_date'])) {
+                    // Do nothing if defective or ok part already shipped;
+                }
+                else if (!empty($update_pending['shipped_date'])) {
                    
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
