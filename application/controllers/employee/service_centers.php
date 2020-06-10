@@ -2635,7 +2635,7 @@ class Service_centers extends CI_Controller {
                     if (!empty($spare_id)) {
 
                         if ($this->input->post("call_from_api")) {
-                        $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' =>$this->input->post("sc_agent_id");, 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' =>$this->input->post("sc_agent_id"), 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
                         }else{
                           $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);  
                         }
