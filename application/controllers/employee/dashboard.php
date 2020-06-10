@@ -2055,7 +2055,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($startDate && $endDate){
                 $conditionArray['where']["((STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) >= '".$startDate."' AND (STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) <= '".$endDate."') "] = NULL;
             }
-            $conditionArray['where']['!(internal_status = "InProcess_Cancelled" OR internal_status ="InProcess_completed" OR internal_status ="Spare Parts Shipped by Partner" OR internal_status ="Out Of Warranty Part Shipped By Partner")'] = NULL; 
+            $conditionArray['where']['!(internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" OR internal_status ="'.SF_BOOKING_COMPLETE_STATUS.'" OR internal_status ="'.SPARE_PARTS_SHIPPED.'" OR internal_status ="'.SPARE_OOW_SHIPPED.'")'] = NULL; 
             $conditionArray['where_in']['booking_details.current_status'] = array(_247AROUND_PENDING,_247AROUND_RESCHEDULED); 
             //Filter on status
             if($status !="not_set"){
