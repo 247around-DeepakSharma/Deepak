@@ -1539,9 +1539,7 @@ class Miscelleneous {
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             //Get Partner invoice amout
-            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
-                'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
-                    . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id), ' COALESCE(SUM(`amount_collected_paid` ),0)  AS amount');
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Invoice Amount " . print_r($invoice_amount, true));
             $where = array(
                 'partner_id' => $partner_id,
@@ -1550,6 +1548,7 @@ class Miscelleneous {
                 'partner_net_payable > 0 '=> NULL,
                 'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
             );
+           
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
@@ -1569,8 +1568,10 @@ class Miscelleneous {
                 $msic_charge = $misc[0]['misc_charge'];
             }
             
+            $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Bank Transaction Array " . print_r($bank_transactions, true));
             // calculate final amount of partner
-            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
+            $final_amount = -($invoice_amount[0]['amount'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);
