@@ -9236,7 +9236,7 @@ class Partner extends CI_Controller {
             foreach ($spare_inventory_update as  $update_pending) {
 
 
-                if (strtoupper($update_pending['status']) == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date']) || !empty($update_pending['consumed_part_status_id'])) {
+                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date']) || !empty($update_pending['consumed_part_status_id'])) {
                     //Not need to perform any action if spare already cancelled or defective returned shipped or consumtion updated
                     continue;
                 }
