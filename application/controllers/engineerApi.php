@@ -1385,6 +1385,12 @@ class engineerApi extends CI_Controller {
             $partner_data = $this->partner_model->getpartner($bookinghistory[0]['partner_id']);
             /*   Whatsapp sms sending  Abhishek */
             $customer_phone = $bookinghistory[0]['phone_number'];
+            if(!isset($data['amount_paid']) || empty($data['amount_paid'])){
+            	$data['amount_paid'] = 0;
+            }
+            if(!isset($partner_data[0]['public_name']) || empty($partner_data[0]['public_name'])){
+            	$partner_data[0]['public_name'] = "Partner";
+            }
             $whatsapp_array = array(
                 'booking_id' => $booking_id,
                 'name' => $bookinghistory[0]['name'],
