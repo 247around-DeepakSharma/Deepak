@@ -1463,10 +1463,9 @@ class vendor extends CI_Controller {
                         $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
                         }else{
                         $sp['status'] = _247AROUND_CANCELLED;
+                        $sp['consumed_part_status_id'] = NULL;
+                        $sp['consumption_remarks'] = NULL;
                         }
-
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
                                 $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - ".OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
