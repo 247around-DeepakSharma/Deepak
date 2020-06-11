@@ -494,7 +494,7 @@ class Miscelleneous {
 
                         log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
 //                        $to = ANUJ_EMAIL_ID;
 //                        $cc = $partner_am_email;
