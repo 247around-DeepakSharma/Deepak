@@ -2678,7 +2678,7 @@ class Booking extends CI_Controller {
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
 
-        $this->check_and_update_partner_extra_spare($booking_id);
+       // $this->check_and_update_partner_extra_spare($booking_id);
 
 
         
