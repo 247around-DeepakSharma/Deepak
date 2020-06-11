@@ -333,7 +333,7 @@ class Courier_tracking extends CI_Controller {
             if (isset($value['origin_info']['trackinfo']) && !empty($value['origin_info']['trackinfo'])) {
                 foreach ($value['origin_info']['trackinfo'] as $val) {
                     $status_tmp_array = array();
-                    $status_tmp_array['checkpoint_status'] = $val['checkpoint_status'];
+                    $status_tmp_array['checkpoint_status'] = isset($val['checkpoint_status']) ? $val['checkpoint_status'] : NULL;
                     $status_tmp_array['checkpoint_status_details'] = $val['Details'];
                     $status_tmp_array['checkpoint_status_description'] = $val['StatusDescription'];
                     $status_tmp_array['checkpoint_status_date'] = $val['Date'];
