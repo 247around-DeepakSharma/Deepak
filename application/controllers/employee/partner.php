@@ -9234,10 +9234,9 @@ class Partner extends CI_Controller {
         }
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.consumed_part_status_id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.consumed_part_status_id,spare_consumption_status.tag,spare_consumption_status.is_consumed,spare_parts_details.defective_part_required,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
-            
             $review_counter=0;
             $sc_action=array();
             
@@ -9245,23 +9244,39 @@ class Partner extends CI_Controller {
             //fetch spare consumption reason for part shipped but not used
             foreach ($spare_inventory_update as  $update_pending) {
 
-
-                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date']) || !empty($update_pending['consumed_part_status_id'])) {
+                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date'])) {
                     //Not need to perform any action if spare already cancelled or defective returned shipped or consumtion updated
                     continue;
                 }
                 if (!empty($update_pending['shipped_date'])) {
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'nrn_approv_by_partner'=>1,
-                    'status' => OK_PART_TO_BE_SHIPPED,
-                    'consumed_part_status_id' => $spare_consumption_status_tag['id']
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                
+                    $where = array('id' => trim($update_pending['id']));
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    if (!empty($update_pending['tag'])) {
+
+                        if (empty($update_pending['defective_part_required'])) {
+                            $status = _247AROUND_COMPLETED;
+                        } else if ($update_pending['is_consumed'] == 1) {
+                            $status = DEFECTIVE_PARTS_PENDING;
+                        }
+                        $data = array(
+                            'nrn_approv_by_partner' => 1,
+                            'status' => $status
+                        );
+                    } else {
+
+                        $data = array(
+                            'nrn_approv_by_partner' => 1,
+                            'status' => $status,
+                            'consumed_part_status_id' => $spare_consumption_status_tag['id']
+                        );
+                    }
+
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
-                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => $status, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
