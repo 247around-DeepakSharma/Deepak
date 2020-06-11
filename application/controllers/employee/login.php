@@ -516,7 +516,7 @@ class Login extends CI_Controller {
                     echo "service_center/dashboard";
                     return;
                 }
-                $userSession = array('error' => 'Authorization certificate has been expired or not yet issued!');
+                $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                 $this->session->set_userdata($userSession);
                 echo "service_center/login";
             } else if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1') {
@@ -621,7 +621,7 @@ class Login extends CI_Controller {
                         ));
                         redirect(base_url() . "service_center/dashboard");
                     }
-                    $userSession = array('error' => 'Authorization certificate has been expired!');
+                    $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/login");
                 }else if($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1'){
