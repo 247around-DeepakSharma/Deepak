@@ -97,15 +97,23 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('#datatable1').DataTable({
-            "dom": 'l<"#toolbar">frtip',
-            "paging": true,
-            "ordering": false,
-            "info": true,
+        $(document).ready(function () {
+            $('#datatable1').DataTable({
+                "dom": 'Bl<"#toolbar">frtip',
+                "paging": true,
+                "ordering": false,
+                "info": true,
+                buttons: [{
+                     extend: 'excelHtml5',
+                     text: 'Export',
+                     title: 'TR History records',
+                     exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8 ]
+                     }
+                 }]
+            });
+            $("div#toolbar").html('<center><b>TR Detail History</b></center>');
         });
-        $("div#toolbar").html('<center><b>TR Detail History</b></center>');
-    });
     function editNRNRecord(nrn_id) {
         if (nrn_id !== '' || nrn_id !== undefined) {
             window.location.href = '<?php echo base_url('partner/edit_nrn_details/edit'); ?>/' + nrn_id;
@@ -113,24 +121,29 @@
     }
 </script>
 <style>
-    #datatable1 td{
-        text-align: center !important;
-    }
-    #datatable1 td:nth-child(2){
-        color: blue !important;
-    }
-    #datatable1 td:nth-child(8){
-        padding-left: 82px !important;
-    }
-    #toolbar{
-        width:30%;
-        float: left;
-        font-size: 18px;
-    }
-    #datatable1_length{
-        width: 35% !important;
-    }
-    #datatable1_filter{
-        width: 35% !important;
-    }
+#datatable1 td{
+    text-align: center !important;
+}
+#datatable1 td:nth-child(2){
+    color: blue !important;
+}
+#datatable1 td:nth-child(8){
+    padding-left: 82px !important;
+}
+#toolbar{
+    width:30%;
+    float: left;
+    font-size: 18px;
+}
+#datatable1_length{
+    width: 25% !important;
+}
+#datatable1_filter{
+    width: 30% !important;
+}
+.dt-buttons{
+    float: left;
+    width: 10%;
+    padding-bottom: 5px;
+}
 </style>
