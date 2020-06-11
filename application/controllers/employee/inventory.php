@@ -1157,7 +1157,7 @@ class Inventory extends CI_Controller {
                     $sc_data['admin_remarks'] = $remarks;
                     
                     if ($line_items < 2) {
-                       // $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
                     /*@des: spare cancelled on spare chnage actor and action  */
                     if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
