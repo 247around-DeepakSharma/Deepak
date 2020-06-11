@@ -4652,7 +4652,35 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->miscelleneous->downloadCSV($data, $headings, "alternate_spare_parts");
     }
     
+    /* 
+     * @desc : This function is used get the common where cluase for view list and download excel reports.
+     * @param : void
+     * @return : Array 
+     */
     
+    function check_query_condition() {
+        $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
+        $post['where']['spare_parts_details.defective_part_required'] = 1;
+        $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
+        $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
+        if ($this->session->userdata("user_group") == _247AROUND_RM) {
+            $post['where']['service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '"'] = NULL;
+            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND ( service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '" )))'] = NULL;
+        }
+
+        if ($this->session->userdata("user_group") == _247AROUND_ASM) {
+            $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
+            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND (service_centres.asm_id = "' . $this->session->userdata("id") . '" ) ))'] = NULL;
+        }
+
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
+            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
+        }
+        
+        return $post;
+    }
+
     
     
      /*
@@ -4675,29 +4703,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
 
         unset($post['where']['status']);
-        
-        $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
-        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
-        $post['where']['spare_parts_details.defective_part_required'] = 1;
-        $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
-        
-        
-        if ($this->session->userdata("user_group") == _247AROUND_RM) {
-            $post['where']['service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '"'] = NULL;
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND ( service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '" )))'] = NULL;
-        }
-
-
-        if ($this->session->userdata("user_group") == _247AROUND_ASM) {
-            $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND (service_centres.asm_id = "'. $this->session->userdata("id") . '" ) ))'] = NULL;
-        }
-
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
-        }
-        
-        //$post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "'.OK_PARTS_REJECTED_BY_WAREHOUSE.'")'] = NULL;
+        $where_clause = $this->check_query_condition();
+        $post['where'] = $where_clause['where'];
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
@@ -4771,7 +4778,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         ini_set('memory_limit', -1);
         $download_flag = $this->input->post('download_flag');
 
-      
+
         $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
                 . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
@@ -4793,43 +4800,15 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
                 . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
-      
-        $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
-        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
-        $post['where']['spare_parts_details.defective_part_required'] = 1;
-        $post['where']['spare_parts_details.consumed_part_status_id !='] = 2;
 
-        $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
-                
-        if ($this->session->userdata("user_group") == _247AROUND_RM ) {
-            $post['where']['service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '"'] = NULL;
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND ( service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '" )))'] = NULL;
-        }
-
-
-        if ($this->session->userdata("user_group") == _247AROUND_ASM) {
-            $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND (service_centres.asm_id = "'. $this->session->userdata("id") . '" ) ))'] = NULL;
-        }
-        
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
-            $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '")))'] = NULL;
-        }
+        $where_clause = $this->check_query_condition();
+        $post['where'] = $where_clause['where'];
         $post['group_by'] = "spare_parts_details.id";
-
-//        $post['where_in'] = [];
-//        if(in_array($this->session->userdata('user_group'), [_247AROUND_RM, _247AROUND_ASM])) {
-//            $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id"));
-//            if (!empty($sf)) {
-//                $vendor_id = explode(",", $sf[0]["service_centres_id"]);
-//                $post['where_in'] = array('service_center_id' => $vendor_id);
-//            }
-//        }
         
         if (!empty($download_flag)) {
             $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
-            
-            
+
+
             if ($spare_details) {
 
                 $this->load->dbutil();
@@ -4852,11 +4831,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $res['status'] = FALSE;
                     $res['msg'] = 'error in generating file';
                 }
-                
+
+                echo json_encode($res);
             }
         }
-        $headings = array("Main Part Code", "Alternate Part Code","Model Number");
-        $this->miscelleneous->downloadCSV($data, $headings, "alternate_spare_parts");
     }
     
     /*
