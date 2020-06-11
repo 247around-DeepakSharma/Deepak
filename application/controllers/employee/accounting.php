@@ -323,6 +323,7 @@ class Accounting extends CI_Controller {
      * @return : view
      */
     function show_accounting_report() {
+        //log_message('info', __METHOD__. " ". print_r(json_encode($_POST, true), true));
         $payment_type = $this->input->post('type');
         $from_date = $this->input->post('from_date');
         $to_date = $this->input->post('to_date');
@@ -332,23 +333,107 @@ class Accounting extends CI_Controller {
         $is_challan_data = $this->input->post('is_challan_data');
         $invoice_data_by = $this->input->post('invoice_by');
 
-
         $data['invoice_data'] = $this->accounting_model->get_account_report_data($payment_type, $from_date, $new_to_date, $partner_vendor, $is_challan_data, $invoice_data_by, $report_type);
-
         if (!empty($data['invoice_data'])) {
             $data['partner_vendor'] = $partner_vendor;
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
-            foreach($data['invoice_data'] as $key => $value) {
+            if($payment_type == 'A' || $payment_type == 'B'){
+                $this->_get_sales_purchase_report($data);
+            } else {
+                foreach($data['invoice_data'] as $key => $value) {
                 $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, description, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount , from_gst_number, to_gst_number", array("invoice_id" => $value['invoice_id']));
                 
                 $data['invoice_data'][$key]['to_gst_number'] = (!empty($data['invoice_details_data'][$key][0]['to_gst_number']) ? $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $data['invoice_details_data'][$key][0]['to_gst_number']))[0]['gst_number'] : '');
                 $data['invoice_data'][$key]['from_gst_number'] = (!empty($data['invoice_details_data'][$key][0]['from_gst_number']) ? $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $data['invoice_details_data'][$key][0]['from_gst_number']))[0]['gst_number'] : '');
             }
             echo $this->load->view('employee/paymnet_history_table_view', $data);
+            }
         } else {
             echo "error";
         }
+    }
+    /**
+     * @desc In this function, we are generating sales & purchase report for the view. 
+     * We dynamically generated header because our product/ service are variable in the invoice details table.
+     * Also creating array for the excel sheet. Means we have to show all invoice charges type horizontally
+     * @param Array $data
+     */
+    function _get_sales_purchase_report($data) {
+        $array = array();
+        $header['invoice_id'] = 'Invoice ID';
+        $header['vendor_partner'] = "Vendor/ Partner";
+        $header['company_name'] = "Company Name";
+        $header['address'] = "Address";
+        $header['state'] = "State";
+        $header['from_gst_number'] = "From GST Number";
+        $header['to_gst_number'] = "To GST Number";
+        $header['gst_reg_type'] = "GstReg Type";
+        $header['invoice_date'] = "Invoice Date";
+        $header['from_date'] = "Invoice From Date";
+        $header['to_date'] = "Invoice To Date";
+        $header['reference_invoice_id'] = "Refrence Invoice ID";
+        $header['amount_collected_paid'] = "Amount Collected Paid";
+        $header['tds_amount'] = "TDS Aamount";
+        $header['tds_rate'] = "TDS Rate";
+        $header['type_code'] = "Type Code";
+        $header['vertical'] = "Vertical";
+        $header['category'] = "Category";
+        $header['sub_category'] = "Sub Category";
+        $header['gst_amount'] = "Total Gst Amount";
+        $header['parts_count'] = "Parts Qty (Pcs)";
+        $header['num_bookings'] = "Booking Qty (Pcs)";
+
+        foreach ($data['invoice_data'] as $key => $value) {
+            if (!array_key_exists($value['invoice_id'], $array)) {
+                $array[$value['invoice_id']]['invoice_id'] = $value['invoice_id'];
+                $array[$value['invoice_id']]['vendor_partner'] = $value['vendor_partner'];
+                $array[$value['invoice_id']]['from_gst_number'] = $value['from_gst_number'];
+                $array[$value['invoice_id']]['to_gst_number'] = $value['to_gst_number'];
+                $array[$value['invoice_id']]['company_name'] = $value['company_name'];
+                $array[$value['invoice_id']]['address'] = $value['address'];
+                $array[$value['invoice_id']]['state'] = $value['state'];
+                $array[$value['invoice_id']]['gst_reg_type'] = $value['gst_reg_type'];
+                $array[$value['invoice_id']]['invoice_date'] = $value['invoice_date'];
+                $array[$value['invoice_id']]['from_date'] = $value['from_date'];
+                $array[$value['invoice_id']]['to_date'] = $value['to_date'];
+                $array[$value['invoice_id']]['reference_invoice_id'] = $value['reference_invoice_id'];
+                $array[$value['invoice_id']]['amount_collected_paid'] = $value['amount_collected_paid'];
+                $array[$value['invoice_id']]['tds_amount'] = $value['tds_amount'];
+                $array[$value['invoice_id']]['tds_rate'] = $value['tds_rate'];
+                $array[$value['invoice_id']]['type_code'] = $value['type_code'];
+                $array[$value['invoice_id']]['vertical'] = $value['vertical'];
+                $array[$value['invoice_id']]['category'] = $value['category'];
+                $array[$value['invoice_id']]['sub_category'] = $value['sub_category'];
+                $array[$value['invoice_id']]['parts_count'] = $value['parts_count'];
+                $array[$value['invoice_id']]['num_bookings'] = $value['num_bookings'];
+                $array[$value['invoice_id']]['gst_amount'] = $value['cgst_tax_amount'] + $value['igst_tax_amount'] + $value['sgst_tax_amount'];
+
+                $array[$value['invoice_id']][$value['product_or_services']] = $value['taxable_value'];
+                if (!array_key_exists($value['product_or_services'], $header)) {
+                    $header[$value['product_or_services']] = $value['product_or_services'] . " ( Without GST)";
+                }
+            } else {
+                $array[$value['invoice_id']][$value['product_or_services']] = $value['taxable_value'];
+                if (!array_key_exists($value['product_or_services'], $header)) {
+                    $header[$value['product_or_services']] = $value['product_or_services'] . " ( Without GST)";
+                }
+                $array[$value['invoice_id']]['gst_amount'] = $array[$value['invoice_id']]['gst_amount'] + $value['cgst_tax_amount'] + $value['igst_tax_amount'] + $value['sgst_tax_amount'];
+            }
+        }
+
+        unset($data['invoice_data']);
+        foreach ($header as $key => $value) {
+            foreach ($array as $key1 => $value1) {
+                if (!array_key_exists($key, $value1)) {
+                    $array[$key1][$key] = 0;
+                }
+            }
+        }
+
+        $data['invoice_data'] = $array;
+        $data['header'] = $header;
+        echo $this->load->view('employee/paymnet_history_table_view', $data);
     }
 
     /**
