@@ -549,7 +549,7 @@ class Spare_parts extends CI_Controller {
         if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
             $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL, NULL, NULL, NULL);
         } else {
-            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
         }
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
             'parts_requested', 'booking_details.request_type', 'spare_parts_details.shipped_date');
@@ -4593,14 +4593,11 @@ class Spare_parts extends CI_Controller {
         
         $post['where'] = array("DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) >= 45" => NULL);
         $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
-        $post['where']['spare_parts_details.defective_part_shipped_date IS NULL'] = NULL;
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
         
        
-        //print_r($this->session->userdata);  
-        
         if ($this->session->userdata("user_group") == _247AROUND_RM) {
             $post['where']['service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '"'] = NULL;
             $post['where']['spare_parts_details.defective_part_shipped_date IS NULL OR ((spare_parts_details.defective_part_shipped_date IS NOT NULL) AND (spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '") AND ( service_centres.rm_id = "' . $this->session->userdata("id") . '" OR service_centres.asm_id = "' . $this->session->userdata("id") . '" )))'] = NULL;
