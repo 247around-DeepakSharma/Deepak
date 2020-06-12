@@ -66,10 +66,7 @@
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
-                                        $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('d-M-Y',$time);
-                                        echo $booking_date ?></td>
-                                        
+                                        if(!empty($booking_history[0]['booking_date']) &&  $booking_history[0]['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($booking_history[0]['booking_date'])); } ?></td>
                                     </tr>
                                     <tr>
                                         <th>City: </th>
@@ -94,7 +91,12 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); ?></td>
+                                        <td><?php 
+                                        if(!empty($booking_history[0]['service_center_closed_date']) &&  $booking_history[0]['service_center_closed_date'] != '0000-00-00 00:00:00')
+                                         {
+                                             echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); 
+                                         }
+                                         ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
