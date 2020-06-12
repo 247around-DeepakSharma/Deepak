@@ -40,14 +40,14 @@ class User extends CI_Controller {
             } else {
                 redirect(base_url() . "employee/login");
             }
-         }else{
-            if ((($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee'))) {
+        }else{
+            if ($this->session->userdata('loggedIn') == TRUE) {
                 return TRUE;
             } 
             else {
                 log_message('info', __FUNCTION__. " Session Expire for Partner");
                 $this->session->sess_destroy();
-                redirect(base_url() . "partner/login");
+                redirect(base_url() . "employee/login");
             }
         }
     }
