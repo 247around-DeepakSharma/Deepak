@@ -27,10 +27,28 @@ class User extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('booking_utilities');
         $this->load->library('warranty_utilities');
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
-            return TRUE;
-        } else {
-            redirect(base_url() . "employee/login");
+        // Mention those functions whom you want to skip from employee specific validations
+        $arr_functions_skip_from_validation = ['finduser'];
+        $arr_url_segments = $this->uri->segments; 
+        $allowedForPartner = 0;
+        if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
+            $allowedForPartner = 1;
+        }
+        if(!$allowedForPartner){
+            if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
+                return TRUE;
+            } else {
+                redirect(base_url() . "employee/login");
+            }
+         }else{
+            if ((($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee'))) {
+                return TRUE;
+            } 
+            else {
+                log_message('info', __FUNCTION__. " Session Expire for Partner");
+                $this->session->sess_destroy();
+                redirect(base_url() . "partner/login");
+            }
         }
     }
 
@@ -60,6 +78,7 @@ class User extends CI_Controller {
         $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
         //$userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
         $tempuserName = ltrim($this->input->get('userName'));
+        $akai_tr_form = trim($this->input->get('akai_tr_form')) ? trim($this->input->get('akai_tr_form')) : 0 ;
         $userName = rtrim($tempuserName);
         $partner_id = $this->input->get('partner');
         $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('search_value')));
@@ -73,10 +92,17 @@ class User extends CI_Controller {
                 $booking_id = $search;
             }
         }
+        if($akai_tr_form == 0){
         $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
             users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id";
+        }else{
+        $select = "services.services, service_centres.name as service_centre_name,
+            service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
+            users.phone_number, users.name as customername,booking_details.type,
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,booking_unit_details.*";
+        }
         if(!empty($booking_id)){
             
             $post['search_value'] = $booking_id;
@@ -84,7 +110,9 @@ class User extends CI_Controller {
             $post['order'] = array(array('column' => 0,'dir' => 'asc'));
             $post['order_performed_on_count'] = TRUE;
             $post['column_order'] = array('booking_details.booking_id');
-            $post['unit_not_required'] = true;
+            if($akai_tr_form == 0){
+                $post['unit_not_required'] = true;
+            }
             
             
             $view = "employee/search_result";
@@ -140,6 +168,10 @@ class User extends CI_Controller {
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
             $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
         } 
+        if ($akai_tr_form == 1) {
+            echo json_encode($data, true);
+            exit();
+        }
         
         if(!empty($phone_number) && empty($data['Bookings'])){
           //  $output['phone_number'] = $phone_number;
