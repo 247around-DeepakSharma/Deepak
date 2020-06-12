@@ -151,7 +151,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <th class="jumbotron no-sort" >Admin Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Cancellation Reason</th>
-                              <th class="jumbotron no-sort" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>"/></th>
+                              <th class="jumbotron no-sort" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>" onchange="selectall_checkboxes(this)"/></th>
                               <th class="jumbotron no-sort" >Action</th>
                            </tr>
                         </thead>
@@ -445,22 +445,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                 }]
             });
        <?php } ?>
-           
-        $(".selecctall").change(function(){
-            var dataId = $(this).attr('data-id');
-            var isChecked = $("."+dataId).prop("checked");
-            
-            $("."+dataId).prop('checked', $(this).prop("checked"));
-            if(isChecked){
-                var outputArray = []; 
-                $('.'+dataId).each(function() {
-                      outputArray.push(is_sn_correct_validation($(this).val(),'Yes'));
-                 })
-                  if(outputArray.includes('no')){
-                        alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
-                  }
-                  }
-         });
         
         // this ajax fetches the warranty status of showed bookings
         var bookings_data = $('#arr_bookings').val();
@@ -685,8 +669,22 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         }  
 
 
+    function selectall_checkboxes(obj) {
+        var dataId = $(obj).attr('data-id');
+        var isChecked = $("."+dataId).prop("checked");
 
-
+        $("."+dataId).prop('checked', $(obj).prop("checked"));
+        if(isChecked){
+            var outputArray = []; 
+            $('.'+dataId).each(function() {
+                outputArray.push(is_sn_correct_validation($(obj).val(),'Yes'));
+            })
+            if(outputArray.includes('no')){
+                alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
+            }
+        }
+     }       
+        
 
 
    </script> 
