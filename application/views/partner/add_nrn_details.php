@@ -790,10 +790,10 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '<?php echo base_url() . 'employee/NRN_TR/finduser?search_value=+'; ?>' + _booking_id,
+                    url: '<?php echo base_url() . 'employee/user/finduser?search_value=+'; ?>' + _booking_id + '&akai_tr_form=1',
                     dataType: 'json',
                     success: function (responce) {
-                        if (responce) {
+                        if (responce.Bookings.length > 0) {
                             $('#customer_name').val(responce.Bookings[0].customername);
                             $('#customer_location').val(responce.Bookings[0].booking_address);
                             $('#state').val(responce.Bookings[0].state);
