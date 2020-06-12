@@ -260,7 +260,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                 
                               ?>
                               
-                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php if(!empty($value['booking'][0]['initial_booking_date']) && $value['booking'][0]['initial_booking_date'] != '0000-00-00'){ echo $booking_age; }?></strong></td>
                               <?php
                                 if($review_status == "Completed" || $review_status == "Cancelled"){
                                     $booking_review_age = '--'; 
