@@ -247,37 +247,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               </td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php if(isset($value['booking'][0]['amount_due'])){ echo $value['booking'][0]['amount_due']; } ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
-                              <?php
-                                $now = time();
-                                if(isset($value['booking'][0]['initial_booking_date'])){
-                                    $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
-                                    $datediff = $now - $initial_booking_date;
-                                    $booking_age = 0;
-                                    if($datediff >= 0){
-                                        $booking_age =  ceil($datediff / (60 * 60 * 24));
-                                    }
-                                }
-                                
-                              ?>
-                              
-                              <td style="text-align: center;white-space: inherit;"><strong><?php if(!empty($value['booking'][0]['initial_booking_date']) && $value['booking'][0]['initial_booking_date'] != '0000-00-00'){ echo $booking_age; }?></strong></td>
-                              <?php
-                                if($review_status == "Completed" || $review_status == "Cancelled"){
-                                    $booking_review_age = '--'; 
-                                    if(isset($value['booking'][0]['service_center_closed_date'])){
-                                        $sf_booking_closed_date = strtotime($value['booking'][0]['service_center_closed_date']); 
-
-
-                                        $booking_closed_datediff = time() - $sf_booking_closed_date;
-                                        if($booking_closed_datediff >= 0){
-                                            $booking_review_age =  ceil($booking_closed_datediff / (60 * 60 * 24));
-                                        }
-                                    }
-                              ?>
-                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_review_age ?></strong></td>
-                              <?php
-                                }
-                              ?>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['age'];?></strong></td>
+                              <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['review_age'] ?></strong></td>
+                              <?php } ?>
                               <?php if($review_status == "Completed"){ ?>                              
                               <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
