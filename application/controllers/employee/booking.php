@@ -2657,7 +2657,7 @@ class Booking extends CI_Controller {
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->miscelleneous->process_booking_tat_on_completion($booking_id);
-        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
             //Update Spare parts details table
             
@@ -2670,6 +2670,18 @@ class Booking extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
         //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+            } else if(!empty($sp['parts_shipped']) && empty($sp['defective_part_shipped'])) {
+                $status = OK_PART_TO_BE_SHIPPED;
+                if(empty($sp['defective_part_required'])) {
+                    $status = _247AROUND_COMPLETED;
+                } else if (!empty($sp['consumed_part_status_id'])) {
+                    $is_part_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', 'is_consumed', ['id' => $sp['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    if(!empty($is_part_consumed)) {
+                        $status = DEFECTIVE_PARTS_PENDING;
+                    } 
+                }
+                
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'], 'status' => $status));
             }
         }
         
@@ -5945,7 +5957,7 @@ class Booking extends CI_Controller {
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($post_data['cancellation_reason_id'])){
-                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['id'];
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
             }
             else {

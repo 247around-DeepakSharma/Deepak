@@ -170,7 +170,7 @@
 	  ?>
     
          <div id="myModal2" class="modal fade" role="dialog">
-             <div class="modal-dialog modal-lg" style="width: 62%;">
+             <div class="modal-dialog modal-lg" style="width: 95%;">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
@@ -180,6 +180,8 @@
             <div class="modal-body">
                 <form class="form-horizontal" id ="cn_dn_form" action="#"  method="POST" >
                     <div class="col-md-12" >
+                      <br>
+                      <br>
                         <div class="col-md-4 " style="width:25%;">
                             <div class="form-group col-md-12  ">
                                 <label for="gst_number">247around GST Number *</label>
