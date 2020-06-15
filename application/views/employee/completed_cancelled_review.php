@@ -259,20 +259,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               </td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php if(isset($value['booking'][0]['amount_due'])){ echo $value['booking'][0]['amount_due']; } ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
-                              <?php
-                                $now = time();
-                                if(isset($value['booking'][0]['initial_booking_date'])){
-                                    $initial_booking_date = strtotime($value['booking'][0]['initial_booking_date']);
-                                    $datediff = $now - $initial_booking_date;
-                                    $booking_age = 0;
-                                    if($datediff >= 0){
-                                        $booking_age =  ceil($datediff / (60 * 60 * 24));
-                                    }
-                                }
-                                
-                              ?>
-                              
-                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['age'];?></strong></td>
                               <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['review_age'] ?></strong></td>
                               <?php } ?>
