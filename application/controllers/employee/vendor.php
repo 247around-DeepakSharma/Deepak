@@ -5613,7 +5613,7 @@ class vendor extends CI_Controller {
                     //Upload files to AWS
                      $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
                     
                     $attachment_contract_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
