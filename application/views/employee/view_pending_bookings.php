@@ -543,6 +543,7 @@ datatable1.ajax.reload();
             for(var i=0;i<result.length;i++) {j=i+1;
                 data =data +  "<tr><td>"+j+") </td><td>247around Account Manager <br>("+result[i].am_state+")</td><td>"+result[i].am+"</td><td>"+result[i].am_caontact+"</td></tr>";
             }
+            data =data +  "<tr><td>"+(++j)+") </td><td>247around Area Sales Manager</td><td>"+result[0].asm+"</td><td>"+result[0].asm_contact+"</td></tr>";
             data =data +  "<tr><td>"+(++j)+") </td><td>247around Regional Manager</td><td>"+result[0].rm+"</td><td>"+result[0].rm_contact+"</td></tr>";
             data =data +  "<tr><td>"+(++j)+") </td><td>Brand POC</td><td>"+result[0].partner_poc+"</td><td>"+result[0].poc_contact+"</td></tr>";
             var tb="<table class='table  table-bordered table-condensed ' >";
