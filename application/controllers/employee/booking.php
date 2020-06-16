@@ -2643,17 +2643,17 @@ class Booking extends CI_Controller {
             } else if(!$sp['spare_lost']) {
         //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             } else if(!empty($sp['parts_shipped']) && empty($sp['defective_part_shipped'])) {
-                $status = OK_PART_TO_BE_SHIPPED;
+                $status_to_be_updated = OK_PART_TO_BE_SHIPPED;
                 if(empty($sp['defective_part_required'])) {
-                    $status = _247AROUND_COMPLETED;
+                    $status_to_be_updated = _247AROUND_COMPLETED;
                 } else if (!empty($sp['consumed_part_status_id'])) {
                     $is_part_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', 'is_consumed', ['id' => $sp['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
                     if(!empty($is_part_consumed)) {
-                        $status = DEFECTIVE_PARTS_PENDING;
+                        $status_to_be_updated = DEFECTIVE_PARTS_PENDING;
                     } 
                 }
                 
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'], 'status' => $status));
+                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'], 'status' => $status_to_be_updated));
             }
         }
         
@@ -2671,10 +2671,10 @@ class Booking extends CI_Controller {
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, _247AROUND_COMPLETED, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-            if($booking['internal_status'] != _247AROUND_COMPLETED) {
-                $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-            }
+//            if($booking['internal_status'] != _247AROUND_COMPLETED) {
+//                $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
+//                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+//            }
             if($booking['internal_status'] == _247AROUND_COMPLETED){
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $send['booking_id'] = $booking_id;
