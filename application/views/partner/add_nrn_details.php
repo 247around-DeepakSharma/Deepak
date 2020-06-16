@@ -805,21 +805,43 @@
                                     $(this).attr('selected');
                                 }
                             });
-                            var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
-                            var newMonth = dateAr[0] + '/' + dateAr[1];
-                            var purchase_date = responce.Bookings[0].purchase_date.split('-');
-                            var new_purchase_date = purchase_date[2] + '/' + purchase_date[1] + '/' + purchase_date[0];
-                            $('#booking_date').data('daterangepicker').setStartDate(newDate);
-                            $('#booking_date').val(newDate);
-                            $('#nrn_month').val(newMonth);
-                            $('#purchase_date').data('daterangepicker').setStartDate(new_purchase_date);
-                            $('#purchase_date').val(new_purchase_date);
-                            $('#booking_date, #purchase_date, #nrn_month').css('pointer-events','none');
+                            if(responce.Bookings[0].booking_date !== null){
+                                var dateAr = responce.Bookings[0].booking_date.split('-');
+                                var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
+                                var newMonth = dateAr[0] + '/' + dateAr[1];
+                                $('#booking_date').data('daterangepicker').setStartDate(newDate);
+                                $('#booking_date').val(newDate);
+                                $('#nrn_month').val(newMonth);
+                                $('#booking_date, #nrn_month').css('pointer-events','none');
+                            }else{
+                                $('#booking_date').data('daterangepicker').setStartDate('<?php echo date('d/m/Y'); ?>');
+                                $('#booking_date').val('');
+                            }
+                           
+                            var purchase_date = '';
+                            if(responce.Bookings[0].sf_purchase_date !== null){
+                                purchase_date = responce.Bookings[0].sf_purchase_date.split('-');
+                            }else{
+                                purchase_date = responce.Bookings[0].purchase_date.split('-');
+                            }
+                            if(purchase_date !== ''){
+                                var new_purchase_date = purchase_date[2] + '/' + purchase_date[1] + '/' + purchase_date[0];
+                                $('#purchase_date').data('daterangepicker').setStartDate(new_purchase_date);
+                                $('#purchase_date').val(new_purchase_date);
+                                $('#purchase_date').css('pointer-events','none');
+                            }else{
+                                $('#purchase_date').data('daterangepicker').setStartDate('<?php echo date('d/m/Y'); ?>');
+                                 $('#purchase_date').val('');
+                            }
+                            
                             $('#hd_service_id').val(responce.Bookings[0].service_id);
                             $('#hd_product_id').val(responce.Bookings[0].appliance_category);
                             $('#hd_product_capacity').val(responce.Bookings[0].appliance_capacity);
-                            $('#hd_product_model_no').val(responce.Bookings[0].model_number);
+                            if(responce.Bookings[0].sf_model_number !== null){
+                                $('#hd_product_model_no').val(responce.Bookings[0].sf_model_number);
+                            }else{
+                                $('#hd_product_model_no').val(responce.Bookings[0].model_number);
+                            }
                             $('#product_serial_no').val(responce.Bookings[0].serial_number);
                             var partner_type = $('#partner_type').val();
                             var partner_id = $('#partner_id').val();
