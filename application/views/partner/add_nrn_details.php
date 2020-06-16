@@ -77,6 +77,7 @@
                                                     //$extra = 'class="form-control" id="product_id" required=""';
                                                     //echo form_dropdown('product_id', $products, $selected, $extra);
                                                     ?>
+                                                    <input type="hidden" id="hd_service_id" value=""/>
                                                     <select class="form-control" id="service_id" name="service_id" required="">
                                                         <option disabled="" selected="">Select Appliance</option>
 
@@ -92,6 +93,7 @@
                                                     //$extra = 'class="form-control" id="product_id" required=""';
                                                     //echo form_dropdown('product_id', $products, $selected, $extra);
                                                     ?>
+                                                    <input type="hidden" id="hd_product_id" value=""/>
                                                     <select class="form-control" id="product_id" name="product_id" required="">
                                                         <option disabled="" selected="">Select Product</option>
 
@@ -102,6 +104,7 @@
                                             <div class="form-group">
                                                 <label for="product_capacity" class="col-md-4">Product capacity *</label>
                                                 <div class="col-md-6">
+                                                    <input type="hidden" id="hd_product_capacity" value=""/>
                                                     <select class="form-control" name="product_capacity" id="product_capacity" required="">
                                                         <option disabled="" selected="">Select Product capacity</option>
                                                     </select>
@@ -110,6 +113,7 @@
                                             <div class="form-group">
                                                 <label for="product_model_no" class="col-md-4">Product Model No *</label>
                                                 <div class="col-md-6">
+                                                    <input type="hidden" id="hd_product_model_no" value=""/>
                                                     <select class="form-control" name="product_model_no" id="product_model_no" required="">
                                                         <option disabled="" selected="">Select Product Model no</option>
                                                     </select>
@@ -785,10 +789,10 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '<?php echo base_url() . 'employee/NRN_TR/finduser?search_value=+'; ?>' + _booking_id,
+                    url: '<?php echo base_url() . 'employee/user/finduser?search_value=+'; ?>' + _booking_id + '&akai_tr_form=1',
                     dataType: 'json',
                     success: function (responce) {
-                        if (responce) {
+                        if (responce.Bookings.length > 0) {
                             $('#customer_name').val(responce.Bookings[0].customername);
                             $('#customer_location').val(responce.Bookings[0].booking_address);
                             $('#state').val(responce.Bookings[0].state);
@@ -803,9 +807,38 @@
                             var dateAr = responce.Bookings[0].booking_date.split('-');
                             var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
                             var newMonth = dateAr[0] + '/' + dateAr[1];
+                            var purchase_date = responce.Bookings[0].purchase_date.split('-');
+                            var new_purchase_date = purchase_date[2] + '/' + purchase_date[1] + '/' + purchase_date[0];
                             $('#booking_date').data('daterangepicker').setStartDate(newDate);
                             $('#booking_date').val(newDate);
                             $('#nrn_month').val(newMonth);
+                            $('#purchase_date').data('daterangepicker').setStartDate(new_purchase_date);
+                            $('#purchase_date').val(new_purchase_date);
+                            $('#booking_date, #purchase_date, #nrn_month').css('pointer-events','none');
+                            $('#hd_service_id').val(responce.Bookings[0].service_id);
+                            $('#hd_product_id').val(responce.Bookings[0].appliance_category);
+                            $('#hd_product_capacity').val(responce.Bookings[0].appliance_capacity);
+                            $('#hd_product_model_no').val(responce.Bookings[0].model_number);
+                            $('#product_serial_no').val(responce.Bookings[0].serial_number);
+                            var partner_type = $('#partner_type').val();
+                            var partner_id = $('#partner_id').val();
+                            var service_id = $('#hd_service_id').val() !== '' ? $('#hd_service_id').val() : '';
+                            $.ajax({
+                                type: 'POST',
+                                url: '<?php echo base_url('partner/get_appliances'); ?>',
+                                //dataType:'text/html',
+                                data: {partner_type: partner_type, partner_id: partner_id,service_id: service_id},
+                                success: function (responce) {
+                                    $('#service_id').html(responce);
+                                    if(service_id !== ''){
+                                        var _service_id = $('#service_id option:selected').val();
+                                        if (_service_id !== '') {
+                                            $('#service_id').change();
+
+                                        }
+                                    }
+                                }
+                            });
                         }
                     }
                 });
@@ -815,13 +848,22 @@
         $(document).ready(function () {
             var partner_type = $('#partner_type').val();
             var partner_id = $('#partner_id').val();
+            var service_id = $('#hd_service_id').val() !== '' ? $('#hd_service_id').val() : '';
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url('partner/get_appliances'); ?>',
                 //dataType:'text/html',
-                data: {partner_type: partner_type, partner_id: partner_id},
+                data: {partner_type: partner_type, partner_id: partner_id,service_id: service_id},
                 success: function (responce) {
                     $('#service_id').html(responce);
+                    if(service_id !== ''){
+                        var _service_id = $('#service_id option:selected').val();
+
+                        if (_service_id !== '') {
+                            $('#service_id').change();
+
+                        }
+                    }
                 }
             });
             $('#service_id').on('change', function () {
@@ -829,14 +871,22 @@
                 var partner_id = $('#partner_id').val();
                 var brand = $('#brand').val();
                 var service_id = $('#service_id').val();
-
+                var category = $('#hd_product_id').val() !== '' ? $('#hd_product_id').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getCategoryForService'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id,category: category},
                     success: function (responce) {
                         $('#product_id').html(responce);
+                        if(category !== ''){
+                            var _product_id = $('#product_id option:selected').val();
+
+                            if (_product_id != '') {
+                                $('#product_id').change();
+
+                            }
+                        }
                     }
                 });
             });
@@ -847,13 +897,22 @@
                 var brand = $('#brand').val();
                 var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
+                var capacity = $('#hd_product_capacity').val() !=='' ? $('#hd_product_capacity').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getCapacityForCategory'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category,capacity:capacity},
                     success: function (responce) {
                         $('#product_capacity').html(responce);
+                        if(capacity !== ''){
+                            var _product_capacity = $('#product_capacity option:selected').val();
+
+                            $('#product_capacity').change();
+
+                        }else{
+                             $('#product_capacity').trigger('change');
+                        }
                     }
                 });
             });
@@ -865,11 +924,12 @@
                 var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
                 var capacity = $('#product_capacity').val();
+                var product_model_no = $('#hd_product_model_no').val() != '' ? $('#hd_product_model_no').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getModelForService'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category, capacity: capacity},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category, capacity: capacity,product_model_no:product_model_no},
                     success: function (responce) {
                         var data = JSON.parse(responce);
                         $('#product_model_no').html(data.msg);

@@ -35,7 +35,8 @@
                   <td><?= $row['booking_id']; ?></td>
                   <td><?= $row['name']; ?></td>
                   <td><?= $row['services']; ?></td>
-                  <td><?= date("d-M-Y", strtotime($row['booking_date']))." / ". $row['booking_timeslot']; ?></td>
+                  <td><?php if(!empty($row['booking_date']) && $row['booking_date'] != '0000-00-00') {echo date("d-M-Y", strtotime($row['booking_date']))." / ". $row['booking_timeslot']; }
+                  else{ echo " / ". $row['booking_timeslot']; }?></td>
                   <td><?php echo $row['internal_status']; ?></td>
                   <td>
                     <a href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id'])) ?>"
