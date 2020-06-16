@@ -4629,6 +4629,7 @@ class Spare_parts extends CI_Controller {
         unset($post['where']['status']);
         $where_clause = $this->check_query_condition();
         $post['where'] = $where_clause['where'];
+        $post['group_by'] = "spare_parts_details.id";
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
