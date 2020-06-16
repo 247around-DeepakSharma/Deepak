@@ -3455,11 +3455,12 @@ function generate_image($base64, $image_name,$directory){
 
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, emp.official_email as asm_email,emp.full_name as asm, emp.phone as asm_contact, group_concat(distinct agent_filters.state) as am_state";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
         $join['employee e'] = "e.id = agent_filters.agent_id";
+        $join['employee emp'] = "emp.id = service_centres.asm_id";
         $join['employee'] = "employee.id = service_centres.rm_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
