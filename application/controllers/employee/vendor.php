@@ -6548,8 +6548,14 @@ class vendor extends CI_Controller {
             echo json_encode(array('result' => 0));
             return;
         }
-        $id = $this->session->userdata('id');
-        $data['records'] = $this->vendor_model->get_unapproved_sf_list($id);
+        
+        if(!in_array($this->session->userdata('user_group'),array(_247AROUND_ADMIN,_247AROUND_RM))){
+            redirect('employee/vendor/viewvendor');
+        }
+        $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : NULL;
+        $post['where'] = "rm_id = $id";
+        $post['length'] = -1;
+        $data['records'] = $this->vendor_model->viewallvendor($post,'service_centres.*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
     }
