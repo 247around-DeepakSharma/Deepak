@@ -3691,7 +3691,8 @@ class Inventory_model extends CI_Model {
                 'agent_type' => _247AROUND_EMPLOYEE_STRING,
                 'booking_id' => $spare_part_detail['booking_id'],
                 'remarks' => $post_data['remarks'],
-                'is_wh_micro' => 1
+                'is_wh_micro' => 1,
+                'spare_id' => $spare_id
             );
 
             $this->insert_inventory_ledger($ledger_data);

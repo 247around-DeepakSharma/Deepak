@@ -1439,6 +1439,7 @@ class vendor extends CI_Controller {
                          $in['agent_type'] = _247AROUND_EMPLOYEE_STRING;
                          $in['is_wh'] = TRUE;
                          $in['inventory_id'] = $spare['shipped_inventory_id'];
+                         $in['spare_id'] = $spare['id'];
                          $this->miscelleneous->process_inventory_stocks($in);
                         $sp['status'] = SPARE_PARTS_CANCELLED;
                         $sp['consumed_part_status_id'] = NULL;

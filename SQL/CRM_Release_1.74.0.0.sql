@@ -43,6 +43,5 @@ UPDATE`custom_report_queries` SET `active` = 1;
 
 INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `active`, `create_date`) VALUES (NULL, 'covid_zone_details_sf_wise', '', 'SELECT service_centres.id, service_centres.name, service_centres.company_name,service_centres.state,service_centres.district, india_district_coordinates.zone_color FROM service_centres JOIN india_district_coordinates ON service_centres.district = india_district_coordinates.district WHERE service_centres.active = 1', '1', CURRENT_TIMESTAMP);
 
-
-
-
+-- Ankit
+ALTER TABLE `inventory_ledger` ADD `spare_id` int(11) NULL DEFAULT NULL;

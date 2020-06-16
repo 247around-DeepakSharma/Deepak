@@ -2430,6 +2430,10 @@ class Miscelleneous {
                         $insert_ledger_data['invoice_id'] = $data['invoice_id'];
                     }
 
+                    if (!empty($data['spare_id'])) {
+                        $insert_ledger_data['spare_id'] = $data['spare_id'];
+                    }
+                    
                     $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
                     if (!empty($insert_id)) {
                         log_message("info", __FUNCTION__ . " Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
@@ -5221,7 +5225,8 @@ function generate_image($base64, $image_name,$directory){
             "agent_id" => $this->My_CI->session->userdata("service_center_agent_id"),
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
-            "is_cancel_part" => TRUE
+            "is_cancel_part" => TRUE,
+            "spare_id" => $spare_id            
         );
         
         $this->process_inventory_stocks($data);
