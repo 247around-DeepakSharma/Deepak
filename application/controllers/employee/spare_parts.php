@@ -2602,6 +2602,7 @@ class Spare_parts extends CI_Controller {
         if ($this->input->post("page")) {
             $where_internal_status['page'] = $this->input->post("page");
         }
+        $where = array();
         $internal_status = $this->booking_model->get_internal_status($where_internal_status);
         $appliance_wise_hsn_code = array(_247AROUND_TV_SERVICE_ID => _247AROUND_TV_HSN_CODE, _247AROUND_WASHING_MACHINE_SERVICE_ID => _247AROUND_WASHING_MACHINE_HSN_CODE, _247AROUND_MICROWAVE_SERVICE_ID => _247AROUND_MICROWAVE_HSN_CODE,
             _247AROUND_WATER_PURIFIER_SERVICE_ID => _247AROUND_WATER_PURIFIER_HSN_CODE, _247AROUND_AC_SERVICE_ID => _247AROUND_AC_HSN_CODE, _247AROUND_REFRIGERATOR_SERVICE_ID => _247AROUND_REFRIGERATOR_HSN_CODE, _247AROUND_GEYSER_SERVICE_ID => _247AROUND_GEYSER_HSN_CODE,
@@ -2614,7 +2615,15 @@ class Spare_parts extends CI_Controller {
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
         $part_warranty_status = $this->input->post('part_warranty_status');
-        $where = array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != 'Cancelled'" => NULL, "sell_invoice_id IS NULL" => NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL" => NULL, "part_warranty_status" => $part_warranty_status, 'defective_part_shipped IS NULL' => NULL);
+        
+         $where["spare_parts_details.booking_id"] = $booking_id;
+         $where["status IN  ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')"] = NULL;
+         $where["spare_parts_details.sell_invoice_id IS NULL"] = NULL;
+         $where["spare_parts_details.is_micro_wh != 1"] = NULL;
+         $where["spare_parts_details.parts_shipped IS NOT NULL"] = NULL;
+         $where["spare_parts_details.part_warranty_status"] = $part_warranty_status;
+         //$where["spare_parts_details.defective_part_shipped IS NULL"] = NULL;
+        
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
         if (count($data['data']) > 0) {
@@ -4620,6 +4629,7 @@ class Spare_parts extends CI_Controller {
         unset($post['where']['status']);
         $where_clause = $this->check_query_condition();
         $post['where'] = $where_clause['where'];
+        $post['group_by'] = "spare_parts_details.id";
         $post['is_inventory'] = TRUE;
 
         $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
