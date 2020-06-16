@@ -6364,6 +6364,7 @@ class vendor extends CI_Controller {
         $post_data = $this->input->post();
         $data['appliances'] = $post_data['appliance'];
         $service_center_id = $post_data['service_center_id'];
+        $is_sf = isset($post_data['is_sf']) ? $post_data['is_sf'] : 0;
         if(!empty($service_center_id)) {
             $assigned_brands = $this->reusable_model->get_search_result_data('service_center_brand_mapping', '*', ['service_center_id' => $service_center_id], NULL, NULL, NULL, NULL, NULL);
             $sf_brands = [];
@@ -6372,6 +6373,7 @@ class vendor extends CI_Controller {
             }
         }
         $data['sf_brands'] = $sf_brands;
+        $data['is_sf'] = $is_sf;
         
         $brand_view =  $this->load->view('employee/appliance_brand', $data, true);
         echo $brand_view;exit;
