@@ -704,7 +704,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         if(isChecked){
             var outputArray = []; 
             $('.'+dataId).each(function() {
-                outputArray.push(is_sn_correct_validation($(obj).val(),'Yes'));
+                outputArray.push(is_sn_correct_validation($(this).val(),'Yes'));
             })
             if(outputArray.includes('no')){
                 alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
