@@ -118,27 +118,15 @@
                                         <label for="category" class="error"></label>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <?php
-                                        $src = "";
-                                        $required = true;
-                                        if (isset($invoice_details[0]['invoice_file_excel']) && !empty($invoice_details[0]['invoice_file_excel'])) {
-                                            //Path to be changed
-                                            $src = S3_WEBSITE_URL."invoices-excel/" . $invoice_details[0]['invoice_file_excel'];
-                                            $required = false;
-                                        }
-                                    ?>
-                                    <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel *</label>
+                                <div class="form-group" >
+                                    <label for="sub_category" class="col-md-4">Sub Category *</label>
                                     <div class="col-md-6">
-                                        <input type="file" class="form-control"  name="invoice_file_excel" id="invoice_file_excel" <?php if($required) { echo "required";}?> >
-                                        <label for="invoice_file_excel" class="error"></label>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <?php if ($src != "") { ?>
-                                            <a href="<?php echo $src ?>" target="_blank">click Here</a>
-                                        <?php } ?>
+                                        <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);" required>
+                                        </select>
+                                        <label for="sub_category" class="error"></label>
                                     </div>
                                 </div>
+                                
                                 <div class="form-group" >
                                     <label for="accounting" class="col-md-4">Accounting *</label>
                                     <div class="col-md-6">
@@ -226,12 +214,25 @@
                                     </div>
                                     <?php echo form_error('type'); ?>
                                 </div>
-                                <div class="form-group" >
-                                    <label for="sub_category" class="col-md-4">Sub Category *</label>
+                                <div class="form-group">
+                                    <?php
+                                        $src = "";
+                                        $required = true;
+                                        if (isset($invoice_details[0]['invoice_file_excel']) && !empty($invoice_details[0]['invoice_file_excel'])) {
+                                            //Path to be changed
+                                            $src = S3_WEBSITE_URL."invoices-excel/" . $invoice_details[0]['invoice_file_excel'];
+                                            $required = false;
+                                        }
+                                    ?>
+                                    <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel *</label>
                                     <div class="col-md-6">
-                                        <select class="form-control" name="sub_category" id="sub_category" onchange="get_accounting(this);" required>
-                                        </select>
-                                        <label for="sub_category" class="error"></label>
+                                        <input type="file" class="form-control"  name="invoice_file_excel" id="invoice_file_excel" <?php if($required) { echo "required";}?> >
+                                        <label for="invoice_file_excel" class="error"></label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <?php if ($src != "") { ?>
+                                            <a href="<?php echo $src ?>" target="_blank">click Here</a>
+                                        <?php } ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
