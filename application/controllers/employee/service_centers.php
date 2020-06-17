@@ -3697,7 +3697,8 @@ class Service_centers extends CI_Controller {
                             "agent_type" => _247AROUND_SF_STRING,
                             "booking_id" => $this->input->post("booking_id"),
                             "active" => 1,
-                            "is_defective" => 1
+                            "is_defective" => 1,
+                            "spare_id" => $sp_id
                         );
 
                         $this->inventory_model->insert_inventory_ledger($ledger_data);
@@ -6937,6 +6938,22 @@ class Service_centers extends CI_Controller {
 
                     $this->inventory_model->insert_inventory_stock($insert_data);
                 }
+                
+                /* 
+                 * Update receiver entity id in inventory ledger.
+                 */
+                $ledger_data = [
+                    'receiver_entity_id' => $sf_id,
+                    'receiver_entity_type' => _247AROUND_SF_STRING,
+                    'is_wh_ack' => 1,
+                    'wh_ack_date' => date('Y-m-d H:i:s')
+                ];
+                
+                $ledger_where = [
+                    'spare_id' => $spare_id,
+                ];
+                
+                $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);                
             }
             
             $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
@@ -6948,6 +6965,7 @@ class Service_centers extends CI_Controller {
         }
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => $spare_status,
+            'defective_return_to_entity_id' => $sf_id, 'defective_return_to_entity_type' => _247AROUND_SF_STRING,
             'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => $spare_status,
             'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 

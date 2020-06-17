@@ -12,7 +12,7 @@
                     <input type="text" class="form-control" name="appliance[]" readonly value="<?php echo $appliance; ?>">
                 </td>
                 <td width="60%">
-                    <select name="brands[<?php echo $appliance_id; ?>][]" class="brand" id="brand_<?php echo $key; ?>" multiple>
+                    <select name="brands[<?php echo $appliance_id; ?>][]" class="brand" id="brand_<?php echo $key; ?>" multiple <?php if($is_sf == 1) echo 'disabled'; ?> >
                         <option value=""></option>
                         <?php if(!empty($appliance_brands)) { 
                             foreach ($appliance_brands as $brand) { ?>
