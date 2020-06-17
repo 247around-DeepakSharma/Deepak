@@ -3,11 +3,6 @@
     .btn-group-sm>.btn, .btn-sm {padding:1px 5px !important}
 </style>
 <div id="page-wrapper">
-    <input style="width:200px;" type="hidden" class="form-control" id="vendor_id"  name="id" value = "<?php
-                                    if (isset($query[0]['id'])) {
-                                        echo $query[0]['id'];
-                                    }
-                                      ?>">
     <div class="row">
         <div class="panel-body">
             <div style="background: #EEEEEE; border-radius: 10px;width: 500px;padding-left:20px;font-size: 110%;margin-bottom: 10px;"><b>NOTE:</b> <i>Please contact us in case you want to change any data.</i></div>
@@ -485,15 +480,15 @@
                             </div>
                         </div>
 
-                        <!--<div class="col-md-12">
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label  for="cst_no" class="col-md-4">CST No.</label>
                                     <div class="col-md-7">
                                         <input type="text" class="form-control"  name="cst_no" id="cst_no" value = "<?php
-//                                        if (isset($query[0]['cst_no'])) {
-//                                            echo $query[0]['cst_no'];
-//                                        }
+                                        if (isset($query[0]['cst_no'])) {
+                                            echo $query[0]['cst_no'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                 </div>
@@ -503,24 +498,24 @@
                                     <label  for="cst_file" class="col-md-4">CST File</label>
                                     <div class="col-md-7">
                                         <input type="file" class="form-control"  name="cst_file" value = "<?php
-//                                        if (isset($query[0]['cst_file'])) {
-//                                            echo $query[0]['cst_file'];
-//                                        }
+                                        if (isset($query[0]['cst_file'])) {
+                                            echo $query[0]['cst_file'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                     <div class="col-md-1">
                                         <?php
-//                                        if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
-//                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
+                                        if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
+                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
                                             ?>
-                                            <a href="<?php //echo $src ?>" target="_blank"><img src="<?php //echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
 
                                             <?php
-//                                        } else {
-//                                            $src = base_url() . 'images/no_image.png';
+                                        } else {
+                                            $src = base_url() . 'images/no_image.png';
                                             ?>
-                                            <img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
-                                        <?php //}
+                                            <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
+                                        <?php }
                                         ?>
                                     </div>
                                 </div>
@@ -531,11 +526,11 @@
                                         <b style="font-size: 18px;">Not Available</b> 
                                     </label>
                                     <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php
-//                                    if (isset($query[0]['is_cst_doc'])) {
-//                                        if ($query[0]['is_cst_doc'] == 0) {
-//                                            echo "checked";
-//                                        }
-//                                    }
+                                    if (isset($query[0]['is_cst_doc'])) {
+                                        if ($query[0]['is_cst_doc'] == 0) {
+                                            echo "checked";
+                                        }
+                                    }
                                     ?> style="margin-top:5px; margin-left:24px;" disabled=""> 
                                 </div>
                             </div>
@@ -548,9 +543,9 @@
                                     <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
                                     <div class="col-md-7">
                                         <input type="text" class="form-control"  id="tin_no" name="tin_no" value = "<?php
-//                                        if (isset($query[0]['tin_no'])) {
-//                                            echo $query[0]['tin_no'];
-//                                        }
+                                        if (isset($query[0]['tin_no'])) {
+                                            echo $query[0]['tin_no'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                 </div>
@@ -560,23 +555,23 @@
                                     <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
                                     <div class="col-md-7">
                                         <input type="file" class="form-control"  name="tin_file" value = "<?php
-//                                        if (isset($query[0]['tin_file'])) {
-//                                            echo $query[0]['tin_file'];
-//                                        }
+                                        if (isset($query[0]['tin_file'])) {
+                                            echo $query[0]['tin_file'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                     <div class="col-md-1">
                                         <?php
-//                                        if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
-//                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
+                                        if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
+                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
                                             ?>
-                                            <a href="<?php //echo $src ?>" target="_blank"><img src="<?php //echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
                                             <?php
-//                                        } else {
-//                                            $src = base_url() . 'images/no_image.png';
+                                        } else {
+                                            $src = base_url() . 'images/no_image.png';
                                             ?>
-                                            <img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
-                                        <?php //}
+                                            <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
+                                        <?php }
                                         ?>
                                     </div>
                                 </div>
@@ -587,11 +582,11 @@
                                         <b style="font-size: 18px;">Not Available</b>  
                                     </label>
                                     <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php
-//                                    if (isset($query[0]['is_tin_doc'])) {
-//                                        if ($query[0]['is_tin_doc'] == 0) {
-//                                            echo "checked";
-//                                        }
-//                                    }
+                                    if (isset($query[0]['is_tin_doc'])) {
+                                        if ($query[0]['is_tin_doc'] == 0) {
+                                            echo "checked";
+                                        }
+                                    }
                                     ?> style="margin-top:5px; margin-left:24px;" disabled=""> 
                                 </div>
                             </div>
@@ -602,9 +597,9 @@
                                     <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
                                     <div class="col-md-7">
                                         <input type="text" class="form-control"  id ="service_tax_no" name="service_tax_no" value = "<?php
-//                                        if (isset($query[0]['service_tax_no'])) {
-//                                            echo $query[0]['service_tax_no'];
-//                                        }
+                                        if (isset($query[0]['service_tax_no'])) {
+                                            echo $query[0]['service_tax_no'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                 </div>
@@ -614,24 +609,24 @@
                                     <label for="service_tax_no" class="col-md-4">Tax File</label>
                                     <div class="col-md-7">
                                         <input type="file" class="form-control"  name="service_tax_file" value = "<?php
-//                                        if (isset($query[0]['service_tax_file'])) {
-//                                            echo $query[0]['service_tax_file'];
-//                                        }
+                                        if (isset($query[0]['service_tax_file'])) {
+                                            echo $query[0]['service_tax_file'];
+                                        }
                                         ?>" disabled="">
                                     </div>
                                     <div class="col-md-1">
                                         <?php
-//                                        if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
-//                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
+                                        if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
+                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
                                             ?>
-                                            <a href="<?php //echo $src ?>" target="_blank"><img src="<?php //echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
 
                                             <?php
-//                                        } else {
-//                                            $src = base_url() . 'images/no_image.png';
+                                        } else {
+                                            $src = base_url() . 'images/no_image.png';
                                             ?>
-                                            <img src="<?php //echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
-                                        <?php //}
+                                            <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" />
+                                        <?php }
                                         ?>
                                     </div>
                                 </div>
@@ -642,15 +637,15 @@
                                         <b style="font-size: 18px;">Not Available</b>   
                                     </label>
                                     <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php
-//                                    if (isset($query[0]['is_st_doc'])) {
-//                                        if ($query[0]['is_st_doc'] == 0) {
-//                                            echo "checked";
-//                                        }
-//                                    }
+                                    if (isset($query[0]['is_st_doc'])) {
+                                        if ($query[0]['is_st_doc'] == 0) {
+                                            echo "checked";
+                                        }
+                                    }
                                     ?> style="    margin-left: 24px;margin-top: 5px;" disabled="">
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
                         
                         <div class="col-md-12">
                             <div class="col-md-4">
@@ -812,7 +807,7 @@
                             <div  class="form-group">
                                 <?php foreach ($results['services'] as $key => $appliance) { ?>
                                     <label for="Appliance" >
-                                        <input type="checkbox" class="appliance" name="appliances[]" onchange="get_brands()" value ="<?php echo $appliance->services; ?>"
+                                        <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services; ?>"
                                         <?php
                                         if (isset($selected_appliance_list)) {
                                             if (in_array($appliance->services, $selected_appliance_list))
@@ -828,22 +823,21 @@
                 </div>
                 <div  class = "panel panel-info">
                     <div class="panel-heading"><b>Brands</b></div>
-                    <div class="panel-body form-horizontal brands">
+                    <div class="panel-body form-horizontal">
                         <div class="col-md-12">
-                            <?php //foreach ($results['brands'] as $key => $brands) {
+                            <?php foreach ($results['brands'] as $key => $brands) {
                                 ?>
-                                <!--<label for="Brand" >-->
-                                    <!--<input type="checkbox" name="brands[]" value ="<?php //echo $brands->brand_name; ?>"-->
+                                <label for="Brand" >
+                                    <input type="checkbox" name="brands[]" value ="<?php echo $brands->brand_name; ?>"
                                     <?php
-                                    //if (isset($selected_brands_list)) {
-                                      //  if (in_array($brands->brand_name, $selected_brands_list))
-                                        //    echo "checked";
-                                    //}
-                                    ?> 
-                                <!--disabled="">-->
-                                    <?php //echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
-                                <!--</label>-->
-                            <?php //} ?>
+                                    if (isset($selected_brands_list)) {
+                                        if (in_array($brands->brand_name, $selected_brands_list))
+                                            echo "checked";
+                                    }
+                                    ?> disabled="">
+                                    <?php echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
+                                </label>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
@@ -875,30 +869,3 @@
         </div>
     </div>
 
-    <script>
-    $(document).ready(function(){
-        get_brands();
-    });
-    
-    function get_brands() {
-        var appliance = [];
-        var service_center_id = $('#vendor_id').val();
-        
-        $. each($(".appliance:checked"), function(){
-            appliance.push($(this).val());
-        });
- 
-        if(appliance.length > 0) {
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/get_brands',
-                data: {appliance: appliance, service_center_id: service_center_id,is_sf:1},
-                success: function (data) {
-                    $('.brands').html(data);
-                }
-            });
-        } else {
-            $('.brands').html('Please select appliance.');
-        }
-    }
-    </script>
