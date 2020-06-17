@@ -41,7 +41,7 @@ class Courier_tracking extends CI_Controller {
      * @return void
      */
     function  send_api_failed_email($email_body_data,$error_type){
-        log_message('info', __METHOD__. " email_body". print_r($email_body_data, TRUE). " error type ".$error_type);
+        //log_message('info', __METHOD__. " email_body". print_r($email_body_data, TRUE). " error type ".$error_type);
         $template = $this->booking_model->get_booking_email_template("courier_api_failed_mail");
         if (!empty($template)) {
             $subject = $template[4];
@@ -69,7 +69,7 @@ class Courier_tracking extends CI_Controller {
      *  @return: view
      */
     function auto_acknowledge_spare_shipped_by_partner(){
-        log_message('info',__METHOD__.' Entering...');
+        //log_message('info',__METHOD__.' Entering...');
         //update trackingmore data by creating new awb number from spare part details
         $select = "spare_parts_details.id as 'spare_id',"
                 . "spare_parts_details.awb_by_partner as 'awb',spare_parts_details.courier_name_by_partner as 'courier_name',"
@@ -109,9 +109,9 @@ class Courier_tracking extends CI_Controller {
                             echo "DELETE AWB BY API";
                             //print_r($delete_status);
                             if($delete_status['status']){
-                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                             }else{
-                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
                             }
 
                             $awb_number_to_be_deleted_from_api = array();
@@ -121,9 +121,9 @@ class Courier_tracking extends CI_Controller {
                 
                 
             }
-            log_message('info',__METHOD__.' Exit...');
+            //log_message('info',__METHOD__.' Exit...');
         }else{
-            log_message('info','api did not return success response '. print_r($awb_number_list,true));
+            //log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
             $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
@@ -279,7 +279,7 @@ class Courier_tracking extends CI_Controller {
             $deleteData = array_slice($data,$x,50);
             if(!empty($deleteData)){
                 $api_response = $this->trackingmore_api->deleteMultipleTracking($deleteData);
-                log_message('info',__METHOD__.' delete api response '. print_r($api_response,true));
+                //log_message('info',__METHOD__.' delete api response '. print_r($api_response,true));
                 if($api_response['meta']['code'] === 200){
                     $response['status'] = TRUE;
                     $response['msg'] = $api_response['meta']['message'];
@@ -293,7 +293,7 @@ class Courier_tracking extends CI_Controller {
                 $response['status'] = FALSE;
                 $response['msg'] = 'Empty Data Found';
             }
-            log_message('info',__METHOD__.' Return Response '. print_r($response));
+            //log_message('info',__METHOD__.' Return Response '. print_r($response));
             $x = $x+50;
         }
         return $response;
@@ -333,7 +333,8 @@ class Courier_tracking extends CI_Controller {
             if (isset($value['origin_info']['trackinfo']) && !empty($value['origin_info']['trackinfo'])) {
                 foreach ($value['origin_info']['trackinfo'] as $val) {
                     $status_tmp_array = array();
-                    $status_tmp_array['checkpoint_status'] = isset($val['checkpoint_status']) ? $val['checkpoint_status'] : NULL;
+                    //$status_tmp_array['checkpoint_status'] = isset($val['checkpoint_status']) ? $val['checkpoint_status'] : NULL;
+                    $status_tmp_array['checkpoint_status'] = NULL;
                     $status_tmp_array['checkpoint_status_details'] = $val['Details'];
                     $status_tmp_array['checkpoint_status_description'] = $val['StatusDescription'];
                     $status_tmp_array['checkpoint_status_date'] = $val['Date'];
@@ -349,12 +350,12 @@ class Courier_tracking extends CI_Controller {
             $insert_data = $this->inventory_model->insert_courier_api_data($data_to_insert);
             
             if ($insert_data) {
-                log_message('info', __METHOD__ . ' api data inserted successfully');
+                //log_message('info', __METHOD__ . ' api data inserted successfully');
             } else {
-                log_message('info', __METHOD__ . ' error in inserting api data : ' . print_r($data_to_insert, true));
+                //log_message('info', __METHOD__ . ' error in inserting api data : ' . print_r($data_to_insert, true));
             }
         }else{
-            log_message('info', __METHOD__ . ' No new data found to insert...');
+           //log_message('info', __METHOD__ . ' No new data found to insert...');
         }
     }
     
@@ -365,7 +366,7 @@ class Courier_tracking extends CI_Controller {
      * @return array 
      */
     function get_awb_details($carrier_code,$awb_number){
-        log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
+        //log_message('info', __METHOD__. " Courier Code ". $carrier_code. " AWB NO ". $awb_number);
         $return_data = array();
         
         if(!empty($carrier_code) && !empty($awb_number)){
@@ -412,7 +413,7 @@ class Courier_tracking extends CI_Controller {
      * @return: boolean
      */
     function process_partner_shipped_auto_acknowledge_data($data) {
-        log_message('info', __METHOD__. " ". print_r($data->order_id, TRUE));
+        //log_message('info', __METHOD__. " ". print_r($data->order_id, TRUE));
         $res = FALSE;
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
@@ -491,7 +492,7 @@ class Courier_tracking extends CI_Controller {
      * This function is used to update data for recieved defactive part by partner
      */
     function update_defactive_part_status($data){
-        log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
+        //log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
         $res = FALSE;
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
@@ -507,12 +508,12 @@ class Courier_tracking extends CI_Controller {
                     $res = TRUE;
                 }
                 else{
-                    log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
+                    //log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
                 }
             }
         }
         else{
-           log_message('info', __FUNCTION__ ."order_id is empty"); 
+           //log_message('info', __FUNCTION__ ."order_id is empty"); 
         }
         return $res;
     }
@@ -559,9 +560,9 @@ class Courier_tracking extends CI_Controller {
                             echo "DELETE AWB BY API";
                             //print_r($delete_status);
                             if($delete_status['status']){
-                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                             }else{
-                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
                             }
 
                             $awb_number_to_be_deleted_from_api = array();
@@ -569,9 +570,9 @@ class Courier_tracking extends CI_Controller {
                     }
                 }
             }
-            log_message('info',__METHOD__.' Exit...');
+            //log_message('info',__METHOD__.' Exit...');
         }else{
-            log_message('info','api did not return success response '. print_r($awb_number_list,true));
+            //log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
             $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
@@ -632,9 +633,9 @@ class Courier_tracking extends CI_Controller {
                             $delete_status = $this->delete_awb_data_from_api($awb_number_to_be_deleted_from_api);
                             echo "DELETE AWB BY API";
                             if ($delete_status['status']) {
-                                log_message('info', 'Courier details updated and awb deleted from tracking more api Delete API Response: ' . print_r($delete_status, true));
+                                //log_message('info', 'Courier details updated and awb deleted from tracking more api Delete API Response: ' . print_r($delete_status, true));
                             } else {
-                                log_message('info', 'Courier details updated but awb not deleted from tracking more Delete API Response: ' . print_r($delete_status, true));
+                                //log_message('info', 'Courier details updated but awb not deleted from tracking more Delete API Response: ' . print_r($delete_status, true));
                             }
 
                             $awb_number_to_be_deleted_from_api = array();
@@ -642,9 +643,9 @@ class Courier_tracking extends CI_Controller {
                     }
                 }
             }
-            log_message('info', __METHOD__ . ' Exit...');
+            //log_message('info', __METHOD__ . ' Exit...');
         } else {
-            log_message('info', 'api did not return success response ' . print_r($awb_number_list, true));
+            //log_message('info', 'api did not return success response ' . print_r($awb_number_list, true));
             //send mail to developer
             $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
@@ -710,9 +711,9 @@ class Courier_tracking extends CI_Controller {
                             echo "DELETE AWB BY API";
                             //print_r($delete_status);
                             if($delete_status['status']){
-                                log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated and awb deleted from tracking more api Delete API Response: '. print_r($delete_status,true));
                             }else{
-                                log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
+                                //log_message('info','Spare details updated but awb not deleted from tracking more Delete API Response: '. print_r($delete_status,true));
                             }
 
                             $awb_number_to_be_deleted_from_api = array();
@@ -720,9 +721,9 @@ class Courier_tracking extends CI_Controller {
                     }
                 }
             }
-            log_message('info',__METHOD__.' Exit...');
+            //log_message('info',__METHOD__.' Exit...');
         }else{
-            log_message('info','api did not return success response '. print_r($awb_number_list,true));
+            //log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
             $this->send_api_failed_email(json_encode($awb_number_list), array("Method" => __METHOD__));
         }
@@ -736,7 +737,7 @@ class Courier_tracking extends CI_Controller {
      */
     
     function update_defactive_return_to_partner_from_wh_status($data){
-        log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
+        //log_message('info', __FUNCTION__ ."start with data".print_r($data->order_id,FALSE));
         $res = FALSE;
         $parts_details = explode('/', $data->order_id);
         if (!empty($parts_details)) {
@@ -752,12 +753,12 @@ class Courier_tracking extends CI_Controller {
                     $res = TRUE;
                 }
                 else{
-                    log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
+                    //log_message('info', __FUNCTION__ ."Combination of booking_id and awb_by_sf was not available".$booking_id."_".$awb_number);
                 }
             }
         }
         else{
-           log_message('info', __FUNCTION__ ."order_id is empty"); 
+           //log_message('info', __FUNCTION__ ."order_id is empty"); 
         }
         return $res;
     }
