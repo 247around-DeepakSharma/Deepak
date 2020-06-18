@@ -52,7 +52,7 @@ class Telephony extends CI_Controller {
         log_message('info', __METHOD__);
         $jsonDecodeArray = $this->input->get();
         $activity = array('activity' => 'process knowlarity request', 'data' => json_encode($jsonDecodeArray), 'time' => $this->telephony_lib->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
          log_message('info', __METHOD__.print_r($jsonDecodeArray,TRUE));
         if($jsonDecodeArray){
             $data = $this->get_pass_through_parameter_array($jsonDecodeArray);

@@ -14,7 +14,7 @@ class Apis extends CI_Model {
     }
 
     function saveRequestData($headerData) {
-        $this->db->insert("all_requests", $headerData);
+        //$this->db->insert("all_requests", $headerData);
     }
 
     function saveDeviceinfo($deviceInfo, $email, $device_id) {
@@ -401,7 +401,7 @@ class Apis extends CI_Model {
     }
 
     function logTable($activity) {
-        $this->db->insert("log_table", $activity);
+       // $this->db->insert("log_table", $activity);
     }
 
     function getIp2Location($ipno) {

@@ -103,10 +103,10 @@ class Api extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -152,10 +152,10 @@ class Api extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+           // $this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+           // $this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -182,7 +182,7 @@ class Api extends CI_Controller {
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -202,7 +202,7 @@ class Api extends CI_Controller {
      */
     function checkSignature() {
         $activity = array('activity' => 'checking signarure', 'data' => json_encode($this->tokenArray), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         if (count($this->tokenArray) == 3) {
             $header = $this->tokenArray[0];
             $claims = $this->tokenArray[1];
@@ -543,7 +543,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $activity = array('activity' => 'Send sms when user calls a handyman',
             'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         //Get parameters from user request
         //Old App doesn't use Vendor Number masking feature so it passes vendor mobile number in
@@ -629,7 +629,7 @@ class Api extends CI_Controller {
         $activity = array('activity' => 'process save call quality feedback',
             'data' => json_encode($requestData),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $handyman_id = $requestData["handyman_id"];
         $user_id = $requestData["user_id"];
@@ -654,7 +654,7 @@ class Api extends CI_Controller {
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $activity = array('activity' => 'Share address with handyman', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $user_id = $requestData["user_id"];
         $address = $requestData["address"];
@@ -707,7 +707,7 @@ class Api extends CI_Controller {
 
         //print_r($requestData);
         $activity = array('activity' => 'get 4 digit random number', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $phone_number = $requestData["phone_number"];
         $name = $requestData["name"];
@@ -803,14 +803,14 @@ class Api extends CI_Controller {
 
         $activity = array('activity' => 'verify 4 digit random number', 'data' => json_encode($requestData),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $phone_number = $requestData["phone_number"];
 
         $checkExotelRequest = $this->apis->checkPassThruLog($phone_number);
 
         $activity = array('activity' => 'check exotel log', 'data' => json_encode($checkExotelRequest), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $status = "True";
 
@@ -824,7 +824,7 @@ class Api extends CI_Controller {
 
                 $activity = array('activity' => 'check exotel log', 'data' => json_encode($checkExotelRequest),
                     'time' => $this->microtime_float());
-                $this->apis->logTable($activity);
+                //$this->apis->logTable($activity);
 
                 if (!empty($checkExotelRequest)) {
                     //if there is an entry, check if the entry is verified or not
@@ -928,7 +928,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
 
         $activity = array('activity' => 'process save handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $handyman_id = $requestData["handyman_id"];
         $result = $this->apis->getreviewhandyman($handyman_id);
         $this->jsonResponseString['response'] = $result;
@@ -941,7 +941,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process save handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $saved_type = $requestData["saved_type"];
         $handyman_id = $requestData["handyman_id_array"];
         $handyman_id_array = json_decode($handyman_id, true);
@@ -964,7 +964,7 @@ class Api extends CI_Controller {
         //print_r($requestData);
         $activity = array('activity' => 'process save handyman request',
             'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $saved_type = $requestData["saved_type"];
         $handyman_id = $requestData["handyman_id"];
@@ -1016,7 +1016,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process save handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $saved_type = $requestData["saved_type"];
         $user_id = $requestData["user_id"];
         $area = "Current Location";
@@ -1104,7 +1104,7 @@ class Api extends CI_Controller {
         $activity = array('activity' => 'process save handyman request',
             'data' => json_encode($requestData),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $phone_number = $requestData["phone_number"];
         log_message('info', "Phone num: " . $phone_number);
@@ -1121,7 +1121,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process save handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $username = $requestData["username"];
         $updatekey = $requestData["updatekey"];
@@ -1162,7 +1162,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process save handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $username = $requestData["username"];
         $image = $requestData["image"];
@@ -1243,7 +1243,7 @@ class Api extends CI_Controller {
             'activity' => 'processNotFoundMessage request',
             'data' => json_encode($requestData),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         //echo $this->deviceId;
         $username = $requestData['username'];
@@ -1302,7 +1302,7 @@ class Api extends CI_Controller {
         }
         else{
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -1526,7 +1526,7 @@ class Api extends CI_Controller {
         }
         else{
             $activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -1639,7 +1639,7 @@ class Api extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $activity = array('activity' => 'process vendor extn request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
         $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -1696,7 +1696,7 @@ class Api extends CI_Controller {
 
         $activity = array('activity' => 'get vendor number from extn request', 'data' => json_encode($_GET),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $callSid = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
 
@@ -1740,7 +1740,7 @@ class Api extends CI_Controller {
 
         $activity = array('activity' => 'send email', 'data' => "Subject: $subject, Message: $message",
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $this->email->from('feedback@247around.com', '247around Team');
 
@@ -1813,7 +1813,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'home page request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $this->jsonResponseString['response'] = $this->apis->GetAllServices();
         $this->jsonResponseString['popular_search'] = $this->apis->getPopularKeywords();
@@ -1831,7 +1831,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'review handyman request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $handyman_id = $requestData['handyman_id'];
 
         $user_id = $requestData['username'];
@@ -1856,7 +1856,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'start handyman_id request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $handyman_id = $requestData['handyman_id'];
         $user_id = $requestData['username'];
 
@@ -1918,7 +1918,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get brands pricing', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $searched_service = $requestData['searched_service'];
         //$user_id = $requestData['username'];
@@ -1947,7 +1947,7 @@ class Api extends CI_Controller {
 
         $activity = array('activity' => 'process save booking',
             'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $searched_service = $requestData["searched_service"];
         $searched_service_id = $this->apis->getservice_id($searched_service);
             $vendors = $this->vendor_model->check_vendor_availability($requestData["booking_pincode"], $searched_service_id);
@@ -2211,7 +2211,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get booking by user', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $user_id = $requestData['username'];
         log_message('info', "User ID: " . $user_id);
@@ -2242,7 +2242,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get booking by id', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $booking_id = $requestData['booking_id'];
         //log_message('info', "Booking ID: " . $booking_id);
@@ -2269,7 +2269,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get about us', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $tag = $requestData['tag'];
         log_message('info', "Tag: " . $tag);
@@ -2294,7 +2294,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get cancellation reasons', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $reasons = $this->apis->getCancellationReasons();
         log_message('info', print_r($reasons, TRUE));
@@ -3358,7 +3358,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
 
         $activity = array('activity' => 'start search request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $user_id = $requestData['username'];
         $area = $requestData['area'];
@@ -3871,7 +3871,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'start search request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
         $email = $requestData['username'];
         $password = $requestData['usertoken'];
 
@@ -3884,7 +3884,7 @@ class Api extends CI_Controller {
     function processResetPassRequest() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $activity = array('activity' => 'reset password request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $email = $requestData['username'];
         $password = $requestData['password'];
@@ -3917,7 +3917,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'forgot password request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $email = $requestData['username'];
         $loginStatus = $this->apis->isAlreadyRegistered($email);
@@ -3971,7 +3971,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
 
         $activity = array('activity' => 'login request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $email = $requestData['username'];
         $password = $requestData['password'];
@@ -4022,7 +4022,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
 
         $activity = array('activity' => 'signup request', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $email = $requestData['username'];
         $password = $requestData['password'];
@@ -4169,7 +4169,7 @@ class Api extends CI_Controller {
         if ($this->debug == "true") {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -4420,7 +4420,7 @@ class Api extends CI_Controller {
         }
         else{
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -4468,7 +4468,7 @@ class Api extends CI_Controller {
         }
         else{
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -4603,7 +4603,7 @@ class Api extends CI_Controller {
         else{
             $responseData = $this->input->get();
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
         }
         //$responseData = json_decode('{"CallSid":"de642f94743e8bf2a65e280c848f25d0","CallFrom":"9058523795","CallTo":"01139595200","Direction":"incoming","Created":"Wed, 03 Jan 2018 11:31:33","DialCallDuration":"242","RecordingUrl":"https:\/\/s3-ap-southeast-1.amazonaws.com\/exotelrecordings\/aroundhomz\/de642f94743e8bf2a65e280c848f25d0.mp3","StartTime":"2018-01-03 11:31:33","EndTime":"1970-01-01 05:30:00","DialCallStatus":"completed","CallType":"completed","DialWhomNumber":"08010155247","flow_id":"45714","tenant_id":"20524","From":"9058523795","To":"01139595200","RecordingAvailableBy":"Wed, 03 Jan 2018 11:40:52","CurrentTime":"2018-01-03 11:35:52","Legs":[{"Number":"08010155247","Type":"single","OnCallDuration":"229","CauseCode":"NORMAL_CLEARING","Cause":"16"}]}',TRUE);
         //Define Blank DataArray
