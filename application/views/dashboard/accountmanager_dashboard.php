@@ -1150,7 +1150,7 @@ function initialise_AM_TAT_reporting(){
         var dvSecond = document.getElementById('admin_dashboard_app_rm');
          angular.element(document).ready(function() {
          angular.bootstrap(dvSecond, ['admin_dashboard']);
-            $('input[name="daterange_completed_bookings"]').daterangepicker({
+            $('input[id="completed_daterange_id"]').daterangepicker({
               timePicker: true,
              timePickerIncrement: 30,
              locale: {
