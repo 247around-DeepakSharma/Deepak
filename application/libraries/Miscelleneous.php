@@ -4500,11 +4500,11 @@ function generate_image($base64, $image_name,$directory){
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_partner_id = _247AROUND;
         } else if ($this->My_CI->session->userdata('userType') == 'service_center') {
-            $agentid = $this->My_CI->session->userdata('service_center_agent_id');
+            $agent_id = $this->My_CI->session->userdata('service_center_agent_id');
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = $this->My_CI->session->userdata('id');
+            $agent_id = $this->My_CI->session->userdata('id');
             $track_partner_id = _247AROUND;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
