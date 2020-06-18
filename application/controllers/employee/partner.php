@@ -9252,25 +9252,12 @@ class Partner extends CI_Controller {
                 
                     $where = array('id' => trim($update_pending['id']));
                     $status = OK_PART_TO_BE_SHIPPED;
-                    if (!empty($update_pending['tag'])) {
-
-                        if (empty($update_pending['defective_part_required'])) {
-                            $status = _247AROUND_COMPLETED;
-                        } else if ($update_pending['is_consumed'] == 1) {
-                            $status = DEFECTIVE_PARTS_PENDING;
-                        }
-                        $data = array(
-                            'nrn_approv_by_partner' => 1,
-                            'status' => $status
-                        );
-                    } else {
 
                         $data = array(
                             'nrn_approv_by_partner' => 1,
                             'status' => $status,
                             'consumed_part_status_id' => $spare_consumption_status_tag['id']
                         );
-                    }
 
                     $response = $this->service_centers_model->update_spare_parts($where, $data);
 
