@@ -121,10 +121,10 @@ class engineerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -177,10 +177,10 @@ class engineerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -207,7 +207,7 @@ class engineerApi extends CI_Controller {
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -227,7 +227,7 @@ class engineerApi extends CI_Controller {
      */
     function checkSignature() {
         $activity = array('activity' => 'checking signarure', 'data' => json_encode($this->tokenArray), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
         if (count($this->tokenArray) == 3) {
             $header = $this->tokenArray[0];
             $claims = $this->tokenArray[1];
@@ -578,7 +578,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+           // $this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -797,7 +797,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -907,7 +907,7 @@ class engineerApi extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $activity = array('activity' => 'process vendor extn request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
         $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -964,7 +964,7 @@ class engineerApi extends CI_Controller {
 
         $activity = array('activity' => 'get vendor number from extn request', 'data' => json_encode($_GET),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $callSid = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
 
@@ -1008,7 +1008,7 @@ class engineerApi extends CI_Controller {
 
         $activity = array('activity' => 'send email', 'data' => "Subject: $subject, Message: $message",
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $this->email->from('feedback@247around.com', '247around Team');
 
@@ -1132,7 +1132,7 @@ class engineerApi extends CI_Controller {
       $requestData = json_decode($this->jsonRequestData['qsh'], true);
       //print_r($requestData);
       $activity = array('activity' => 'process get cancellation reasons', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-      $this->apis->logTable($activity);
+      //$this->apis->logTable($activity);
 
       $reasons = $this->apis->getCancellationReasons();
       log_message('info', print_r($reasons, TRUE));
@@ -1154,7 +1154,7 @@ class engineerApi extends CI_Controller {
       $requestData = json_decode($this->jsonRequestData['qsh'], true);
       //print_r($requestData);
       $activity = array('activity' => 'process reschedule booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-      $this->apis->logTable($activity);
+      //$this->apis->logTable($activity);
 
       $booking_id = $requestData['booking_id'];
       $booking_date = $requestData['booking_date'];
@@ -1713,7 +1713,7 @@ class engineerApi extends CI_Controller {
         if ($this->debug == "true") {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -1918,7 +1918,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
