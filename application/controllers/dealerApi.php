@@ -117,10 +117,10 @@ class dealerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -173,10 +173,10 @@ class dealerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -203,7 +203,7 @@ class dealerApi extends CI_Controller {
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -223,7 +223,7 @@ class dealerApi extends CI_Controller {
      */
     function checkSignature() {
         $activity = array('activity' => 'checking signarure', 'data' => json_encode($this->tokenArray), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
         if (count($this->tokenArray) == 3) {
             $header = $this->tokenArray[0];
             $claims = $this->tokenArray[1];
@@ -251,7 +251,7 @@ class dealerApi extends CI_Controller {
         if ($this->debug == "true") {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
