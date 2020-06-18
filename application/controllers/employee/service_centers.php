@@ -2825,7 +2825,7 @@ class Service_centers extends CI_Controller {
             $data['shipped_parts_type'] = $value['parts_requested_type'];
             $data['shipped_date'] = $value['date_of_request'];
             // $data['shipped_date'] = $value['date_of_request'];
-            $data['status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
 
             $where = array('id' => $value['spare_id']);
