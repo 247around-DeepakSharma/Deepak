@@ -3507,10 +3507,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
@@ -3563,10 +3564,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
@@ -9242,25 +9244,12 @@ class Partner extends CI_Controller {
                 
                     $where = array('id' => trim($update_pending['id']));
                     $status = OK_PART_TO_BE_SHIPPED;
-                    if (!empty($update_pending['tag'])) {
-
-                        if (empty($update_pending['defective_part_required'])) {
-                            $status = _247AROUND_COMPLETED;
-                        } else if ($update_pending['is_consumed'] == 1) {
-                            $status = DEFECTIVE_PARTS_PENDING;
-                        }
-                        $data = array(
-                            'nrn_approv_by_partner' => 1,
-                            'status' => $status
-                        );
-                    } else {
 
                         $data = array(
                             'nrn_approv_by_partner' => 1,
                             'status' => $status,
                             'consumed_part_status_id' => $spare_consumption_status_tag['id']
                         );
-                    }
 
                     $response = $this->service_centers_model->update_spare_parts($where, $data);
 

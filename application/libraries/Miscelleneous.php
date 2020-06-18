@@ -3416,10 +3416,11 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
                     $bcc = $login_template[5];
-                    if(!empty($accountManagerData)){
+                    // Comment due to CRM-6410
+                    /*if(!empty($accountManagerData)){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
-                    }
+                    }*/
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
                    // $login_email['password'] = "***********";
@@ -4528,11 +4529,11 @@ function generate_image($base64, $image_name,$directory){
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_partner_id = _247AROUND;
         } else if ($this->My_CI->session->userdata('userType') == 'service_center') {
-            $agentid = $this->My_CI->session->userdata('service_center_agent_id');
+            $agent_id = $this->My_CI->session->userdata('service_center_agent_id');
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = $this->My_CI->session->userdata('id');
+            $agent_id = $this->My_CI->session->userdata('id');
             $track_partner_id = _247AROUND;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
