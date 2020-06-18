@@ -856,8 +856,10 @@
                 $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
-                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
-                
+                var str="<option value='' disabled=''>Please Select Solution</option>";
+                if(solution_id === null || solution_id == ''){
+                    var str="<option value='' selected disabled=''>Please Select Solution</option>";
+                }
                 var selected;
                 if(response.length>0)
                 {

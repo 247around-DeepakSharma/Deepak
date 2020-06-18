@@ -28,6 +28,9 @@
      */
     function get_category(serviceUrl){ 
         var vertical = $('#vertical').val();
+        if(vertical === null){
+            vertical = $('#vertical_input').val();
+        }
         var category_input = $("#category_input").val();
         $.ajax({
             method: "POST",
@@ -54,6 +57,13 @@
         var vertical = $('#vertical').val();
         var category = $("#category").val();
         var sub_category_input = $("#sub_category_input").val();
+        if(vertical === null){
+            vertical = $('#vertical_input').val();
+        }
+
+        if(category === null){
+            category = $('#category_input').val();
+        }
         $.ajax({
             method: "POST",
             url: serviceUrl+"employee/invoice/get_invoice_sub_category",

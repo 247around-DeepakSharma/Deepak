@@ -1265,6 +1265,11 @@ class User_invoice extends CI_Controller {
                                 $ledger_data['courier_id'] = $courier_id;
                                 $ledger_data['is_wh_micro'] = $wh_type;
                                 $ledger_data['is_wh_ack'] = '0';
+                                
+                                if(!empty($value['spare_id'])) {
+                                    $ledger_data['spare_id'] = $value['spare_id'];
+                                }
+                                
                                 $this->inventory_model->insert_inventory_ledger($ledger_data);
                                 $stock = "stock - '" . $value['qty'] . "'";
                                 $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);

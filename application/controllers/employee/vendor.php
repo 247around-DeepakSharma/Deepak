@@ -1438,6 +1438,7 @@ class vendor extends CI_Controller {
                          $in['agent_type'] = _247AROUND_EMPLOYEE_STRING;
                          $in['is_wh'] = TRUE;
                          $in['inventory_id'] = $spare['shipped_inventory_id'];
+                         $in['spare_id'] = $spare['id'];
                          $this->miscelleneous->process_inventory_stocks($in);
                         $sp['status'] = SPARE_PARTS_CANCELLED;
                         $sp['consumed_part_status_id'] = NULL;
@@ -5635,7 +5636,7 @@ class vendor extends CI_Controller {
                     //Upload files to AWS
                      $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $contract_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
                     
                     $attachment_contract_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
@@ -6363,6 +6364,7 @@ class vendor extends CI_Controller {
         $post_data = $this->input->post();
         $data['appliances'] = $post_data['appliance'];
         $service_center_id = $post_data['service_center_id'];
+        $is_sf = isset($post_data['is_sf']) ? $post_data['is_sf'] : 0;
         if(!empty($service_center_id)) {
             $assigned_brands = $this->reusable_model->get_search_result_data('service_center_brand_mapping', '*', ['service_center_id' => $service_center_id], NULL, NULL, NULL, NULL, NULL);
             $sf_brands = [];
@@ -6371,6 +6373,7 @@ class vendor extends CI_Controller {
             }
         }
         $data['sf_brands'] = $sf_brands;
+        $data['is_sf'] = $is_sf;
         
         $brand_view =  $this->load->view('employee/appliance_brand', $data, true);
         echo $brand_view;exit;
@@ -6546,8 +6549,14 @@ class vendor extends CI_Controller {
             echo json_encode(array('result' => 0));
             return;
         }
-        $id = $this->session->userdata('id');
-        $data['records'] = $this->vendor_model->get_unapproved_sf_list($id);
+        
+        if(!in_array($this->session->userdata('user_group'),array(_247AROUND_ADMIN,_247AROUND_RM))){
+            redirect('employee/vendor/viewvendor');
+        }
+        $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : NULL;
+        $post['where'] = "rm_id = $id";
+        $post['length'] = -1;
+        $data['records'] = $this->vendor_model->viewallvendor($post,'service_centres.*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
     }

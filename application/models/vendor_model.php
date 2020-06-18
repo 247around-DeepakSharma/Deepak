@@ -2570,25 +2570,5 @@ class vendor_model extends CI_Model {
 
     }
     
-    
-    /**
-     *  @desc : This function returns all unapproved SF list by RM/ASM
-     *  @param : $id
-     *  @return: Array()
-     */
-    function get_unapproved_sf_list($id){
-
-       $sql = "SELECT
-                    service_centres.*
-                FROM
-                    employee 
-                    JOIN agent_state_mapping ON (agent_state_mapping.agent_id = employee.id)
-                    JOIN state_code ON (state_code.state_code = agent_state_mapping.state_code)
-                    JOIN service_centres ON (state_code.state = service_centres.state and service_centres.is_approved = 0)
-                WHERE 
-                    employee.id =" . $id;
-       return $this->db->query($sql)->result_array();
-    }
-        
 }
 

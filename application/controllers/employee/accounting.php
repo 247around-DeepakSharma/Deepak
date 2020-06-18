@@ -1099,6 +1099,11 @@ class Accounting extends CI_Controller {
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
         }
+        // Added code to filter Sales /Purchase invoice. we are passing type code A & B. 
+        // A for the Sales & B for the Purchase
+        if(!empty($this->input->post("type_code"))){
+            $post['where']['vendor_partner_invoices.type_code'] = $this->input->post("type_code");
+        }
         
         if($this->input->post("is_msl") != NULL) {
             if($this->input->post("is_msl")) {
