@@ -5486,6 +5486,7 @@ class Inventory extends CI_Controller {
                     $in['agent_type'] = _247AROUND_SF_STRING;
                     $in['is_wh'] = TRUE;
                     $in['inventory_id'] = $data->inventory_id;
+                    $in['spare_id'] = $spare_booking_value['id'];
                     $this->miscelleneous->process_inventory_stocks($in);
                     $pcb = array();
                     $cb_url = base_url() . "employee/service_centers/acknowledge_delivered_spare_parts/" . $data->booking_id . "/" . $receiver_entity_id . "/" . $spare_booking_value['id'] . "/" . $sender_entity_id . "/1/0";
@@ -5550,6 +5551,7 @@ class Inventory extends CI_Controller {
                             $in['agent_type'] = _247AROUND_SF_STRING;
                             $in['is_wh'] = TRUE;
                             $in['inventory_id'] = $data->inventory_id;
+                            $in['spare_id'] = $value['id'];
                             $this->miscelleneous->process_inventory_stocks($in);
                             $pcb = array();
                             $cb_url = base_url() . "employee/service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $value['id'] . "/" . $sender_entity_id . "/1/0";
@@ -5619,6 +5621,7 @@ class Inventory extends CI_Controller {
                                 $in['agent_type'] = _247AROUND_SF_STRING;
                                 $in['is_wh'] = TRUE;
                                 $in['inventory_id'] = $data->inventory_id;
+                                $in['spare_id'] = $value['id'];
                                 $this->miscelleneous->process_inventory_stocks($in);
 
                                 $pcb = array();
@@ -9138,7 +9141,8 @@ class Inventory extends CI_Controller {
             "agent_id" => $this->session->userdata("service_center_agent_id"),
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
-            "is_cancel_part" => TRUE
+            "is_cancel_part" => TRUE,
+            "spare_id" => $spare_parts_id
         );
         $this->miscelleneous->process_inventory_stocks($data);
         echo $spare_action;
@@ -10142,7 +10146,7 @@ class Inventory extends CI_Controller {
                 $partnerWhere['partners.id'] = $partner_id;
                 $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
                 $publicName = $partner_details[0]['public_name'];
-                $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount";
+                $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount,invoice_details.taxable_value";
                 $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
                 $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
                 $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
@@ -10150,8 +10154,9 @@ class Inventory extends CI_Controller {
                 $purchasecount = 0;
                 $salecount = 0;
                 foreach ($list as $key => $value) {
+                   
                     $invoice_type = $value->invoice_type;
-                    $total_amount = $value->total_amount;
+                    $total_amount = $value->taxable_value;
                     if ($invoice_type == 'purchase_invoice') {
                         $total_Inward = $total_Inward + $total_amount;
                         $purchasecount = $purchasecount + 1;
@@ -10226,7 +10231,8 @@ class Inventory extends CI_Controller {
                 $total_part_amount = 0;
 
                 $select = 'SUM(spare_parts_details.sell_price)  as total_sell_price';
-                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_purchase_invoice_id is  null'=>NULL,'spare_parts_details.part_warranty_status'=>2),true);
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_sale_invoice_id is  null'=>NULL),true);
+                
                 if(!empty($spare_parts_details)){
                     $saleout_warranty = $spare_parts_details[0]['total_sell_price'];
                 }
@@ -10235,7 +10241,7 @@ class Inventory extends CI_Controller {
 
                 $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
 
-                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_REJECTED), strtoupper(OK_PARTS_REJECTED));
+                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(SPARE_OOW_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED_BY_WAREHOUSE));
 
                 $completed_cancelled_array = array(_247AROUND_CANCELLED, 'Booking Completed - Defective Part Shipped By SF', 'Booking Completed - Defective Part To Be Shipped By SF', SPARE_PARTS_CANCELLED, 'Part Lost', 'Booking Completed - Ok Part To Be Shipped By SF', 'Booking Completed - Defective Part Rejected By Partner', 'Booking Completed By Service Centre', _247AROUND_COMPLETED, 'Cancelled - Customer not reachable / Customer not picked phone', NRN_APPROVED_BY_PARTNER, BOOKING_COMPLETED_BY_ENGINEER_STATUS, 'Cancelled - Refused By Customer', 'Cancelled - Customer out of station', 'Booking Completed - Defective Part Received By Partner', 'Booking Completed - Defective Part Rejected By Warehouse', 'Booking Completed - Defective Part Received By Warehouse', BOOKING_CANCELLED_BY_ENGINEER_STATUS, 'Booking Cancelled By Service Centre', 'Cancelled (Customer Refused Service)', 'Booking In Progress - Spare Parts Cancelled');
                 $completed_cancelled_array = array_map('strtoupper', $completed_cancelled_array);

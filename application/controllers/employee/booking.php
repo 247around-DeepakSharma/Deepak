@@ -5965,7 +5965,7 @@ class Booking extends CI_Controller {
             }
         } 
         
-        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where);
+        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,$join);
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
