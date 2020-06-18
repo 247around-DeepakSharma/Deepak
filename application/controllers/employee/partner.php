@@ -3525,10 +3525,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
@@ -3581,10 +3582,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
