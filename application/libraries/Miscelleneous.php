@@ -494,7 +494,7 @@ class Miscelleneous {
 
                         log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
 //                        $to = ANUJ_EMAIL_ID;
 //                        $cc = $partner_am_email;
@@ -2446,6 +2446,10 @@ class Miscelleneous {
                         $insert_ledger_data['invoice_id'] = $data['invoice_id'];
                     }
 
+                    if (!empty($data['spare_id'])) {
+                        $insert_ledger_data['spare_id'] = $data['spare_id'];
+                    }
+                    
                     $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
                     if (!empty($insert_id)) {
                         log_message("info", __FUNCTION__ . " Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
@@ -3412,10 +3416,11 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
                     $bcc = $login_template[5];
-                    if(!empty($accountManagerData)){
+                    // Comment due to CRM-6410
+                    /*if(!empty($accountManagerData)){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
-                    }
+                    }*/
                     $login_subject = $login_template[4];
                     $login_emailBody = vsprintf($login_template[0], $login_email);
                    // $login_email['password'] = "***********";
@@ -3496,11 +3501,12 @@ function generate_image($base64, $image_name,$directory){
 
         $select = "e.phone as am_caontact,e.official_email as am_email, e.full_name as am,partners.primary_contact_name as partner_poc,"
                 . "partners.primary_contact_phone_1 as poc_contact,service_centres.primary_contact_email as service_center_email,partners.public_name as partner,"
-                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, group_concat(distinct agent_filters.state) as am_state";
+                . "booking_details.assigned_vendor_id,employee.official_email as rm_email,employee.full_name as rm ,employee.phone as rm_contact, emp.official_email as asm_email,emp.full_name as asm, emp.phone as asm_contact, group_concat(distinct agent_filters.state) as am_state";
         $join['partners'] = "partners.id = booking_details.partner_id";
         $join['agent_filters'] = "partners.id = agent_filters.entity_id";
         $join['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
         $join['employee e'] = "e.id = agent_filters.agent_id";
+        $join['employee emp'] = "emp.id = service_centres.asm_id";
         $join['employee'] = "employee.id = service_centres.rm_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
@@ -4689,7 +4695,7 @@ function generate_image($base64, $image_name,$directory){
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->process_inventory_stocks($in); 
  
             // $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
@@ -5235,7 +5241,8 @@ function generate_image($base64, $image_name,$directory){
             "agent_id" => $this->My_CI->session->userdata("service_center_agent_id"),
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
-            "is_cancel_part" => TRUE
+            "is_cancel_part" => TRUE,
+            "spare_id" => $spare_id
         );
         
         $this->process_inventory_stocks($data);

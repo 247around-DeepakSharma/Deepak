@@ -3507,10 +3507,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
@@ -3563,10 +3564,11 @@ class Partner extends CI_Controller {
                                     $login_email['username'] = $data['user_id'];
                                     $login_email['password'] = $data['clear_password'];
                                     $cc = $login_template[3];
-                                    if($accountManagerData){
+                                    // Comment due to CRM-6410
+                                    /*if($accountManagerData){
                                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                                         $cc = $login_template[3].",".$accountManagerEmail;
-                                    }
+                                    }*/
 
                                     $login_subject = $login_template[4];
                                     $login_emailBody = vsprintf($login_template[0], $login_email);
@@ -4027,7 +4029,7 @@ class Partner extends CI_Controller {
                 $type = "Panel";
             }
             
-            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
+            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
 
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
@@ -4093,7 +4095,7 @@ class Partner extends CI_Controller {
                     $next_action = $partner_status[3];
                 }
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "partner_current_status" => $partner_current_status,
+                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, 'partner_current_status' => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
                 
                 $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));
@@ -9224,10 +9226,9 @@ class Partner extends CI_Controller {
         }
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.consumed_part_status_id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.consumed_part_status_id,spare_consumption_status.tag,spare_consumption_status.is_consumed,spare_parts_details.defective_part_required,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
-            
             $review_counter=0;
             $sc_action=array();
             
@@ -9235,23 +9236,26 @@ class Partner extends CI_Controller {
             //fetch spare consumption reason for part shipped but not used
             foreach ($spare_inventory_update as  $update_pending) {
 
-
-                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date']) || !empty($update_pending['consumed_part_status_id'])) {
+                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date'])) {
                     //Not need to perform any action if spare already cancelled or defective returned shipped or consumtion updated
                     continue;
                 }
                 if (!empty($update_pending['shipped_date'])) {
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'nrn_approv_by_partner'=>1,
-                    'status' => OK_PART_TO_BE_SHIPPED,
-                    'consumed_part_status_id' => $spare_consumption_status_tag['id']
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                
+                    $where = array('id' => trim($update_pending['id']));
+                    $status = OK_PART_TO_BE_SHIPPED;
+
+                        $data = array(
+                            'nrn_approv_by_partner' => 1,
+                            'status' => $status,
+                            'consumed_part_status_id' => $spare_consumption_status_tag['id']
+                        );
+
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
-                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => $status, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 

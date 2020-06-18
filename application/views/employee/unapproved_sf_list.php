@@ -10,6 +10,9 @@
         background-color: #2a3f54;
         border-color: #2a3f54;
     }
+    #datatable1_filter{
+        float: right;
+    }
 </style>
 
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
@@ -83,8 +86,13 @@
                                         <?php
                                         $i++;
                                     }
-                                }
+                                }else{
                                 ?>
+                                        <tr>
+                                            <td colspan="7">No Data Found.</td>
+                                        </tr>
+                                          
+                                <?php } ?>  
                             </tbody>
                         </table>
                     </div>
@@ -98,7 +106,11 @@
         $('#datatable1').DataTable({
             "paging": true,
             "ordering": true,
-            "info": true
+            "info": true,
+            'columnDefs': [{
+                    'targets': [2,6], // column index (start from 0)
+                    'orderable': false, // set orderable false for selected columns
+                }]
         });
     });
     function approve_sf(sf_id) {

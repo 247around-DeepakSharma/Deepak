@@ -261,6 +261,7 @@
                                     <label for="booking_date" class="col-md-4">Booking Date</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php
+
                                             if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {
                                             echo $booking_history[0]['booking_date'];
                                             }
@@ -855,8 +856,10 @@
                 $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
-                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
-                
+                var str="<option value='' disabled=''>Please Select Solution</option>";
+                if(solution_id === null || solution_id == ''){
+                    var str="<option value='' selected disabled=''>Please Select Solution</option>";
+                }
                 var selected;
                 if(response.length>0)
                 {

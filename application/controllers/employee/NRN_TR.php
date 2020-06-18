@@ -65,7 +65,7 @@ class NRN_TR extends CI_Controller {
         if ($this->input->server('REQUEST_METHOD') == 'POST') {
             $this->form_validation->set_rules('nrn_details', 'nrn_details', 'callback_insert_nrn_details[]');
             if ($this->form_validation->run() !== FALSE) {
-                $this->session->set_flashdata('success', 'NRN details added succesfully.');
+                $this->session->set_flashdata('success', 'TR details added succesfully.');
                 redirect('partner/list_nrn_records');
             }
         }
@@ -139,7 +139,7 @@ class NRN_TR extends CI_Controller {
         if ($this->input->server('REQUEST_METHOD') == 'POST') {
             $this->form_validation->set_rules('update_nrn_details', 'update_nrn_details', 'callback_update_nrn_details[nrn_id]');
             if ($this->form_validation->run() !== FALSE) {
-                $this->session->set_flashdata('success', 'NRN details updated succesfully.');
+                $this->session->set_flashdata('success', 'TR details updated succesfully.');
                 redirect('partner/list_nrn_records');
             }
         }
