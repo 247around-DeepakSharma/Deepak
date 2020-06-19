@@ -1691,10 +1691,15 @@ class Miscelleneous {
                         // Update ASM,State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
                         // If ASM not found ,get RM details
-                        if(empty($resultTemp)){
+                        if(empty($resultTemp[0]['asm_id'])){
                             $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
+                            if(!empty($resultTemp[0]['rm_id'])){
+                                $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                            }
                         }
-                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        else{
+                            $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        }                        
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
