@@ -2825,7 +2825,7 @@ class Service_centers extends CI_Controller {
             $data['shipped_parts_type'] = $value['parts_requested_type'];
             $data['shipped_date'] = $value['date_of_request'];
             // $data['shipped_date'] = $value['date_of_request'];
-            $data['status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
 
             $where = array('id' => $value['spare_id']);
@@ -5946,7 +5946,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     /* Insert Spare Tracking Details */
-                    if (!empty($value->id)) {
+                    if (!empty($value->id) && !empty($status)) {
                         $tracking_details = array('spare_id' => $value->id, 'action' => $status, 'remarks' => ESTIMATE_APPROVED_BY_CUSTOMER, 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
@@ -5957,9 +5957,10 @@ class Service_centers extends CI_Controller {
                     }
                 }
 
-                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
-                $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
-
+                if ($flag == TRUE) {
+                    $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
+                    $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
+                }
                 $userSession = array('success' => 'Booking Updated');
             } else {
                 log_message("info", __METHOD__ . "Spare Not not found " . $booking_id);
@@ -6217,7 +6218,7 @@ class Service_centers extends CI_Controller {
         }
 
 
-        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, "
+        $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status";
         $group_by = "spare_parts_details.id";
@@ -6289,7 +6290,7 @@ class Service_centers extends CI_Controller {
         }
 
 
-        $row[] = $spare_list['consumed_status'];
+        $row[] = $spare_list['reason_text'];
 
 
         if (!empty($spare_list['defective_part_shipped'])) {
