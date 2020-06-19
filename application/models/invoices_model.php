@@ -153,6 +153,11 @@ class invoices_model extends CI_Model {
     function update_bank_transactions($where, $data) {
         $this->db->where($where);
         $this->db->update('bank_transactions', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /*

@@ -7407,5 +7407,23 @@ exit();
        $array = $this->get_dashboard_invoice_data(1);
        $this->miscelleneous->downloadCSV($array, NULL, $fileName);
     }
-    
+        
+    /**
+     * @desc This function is used to update bank transaction date 
+     */
+    function update_bank_transaction_date(){
+        $trans = date('Y-m-d', strtotime($this->input->post("transDate")));
+        $id = $this->input->post("id");
+        if(!empty($trans) && !empty($id)){
+            $data = array("transaction_date" => $trans);
+            $where = array("id" => $id );
+            $s = $this->invoices_model->update_bank_transactions($where, $data);
+            if($s){
+               echo date("d-M-Y", strtotime($trans));
+            } else {
+                echo false;
+            }
+        }
+    }
+
 }
