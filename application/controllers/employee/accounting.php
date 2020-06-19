@@ -1274,7 +1274,8 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
+        $data = "'".date("Y-m-d", strtotime($transaction_list->transaction_date))."', '".date("Y-m-01", strtotime($transaction_list->transaction_date))."', '". date("Y-m-d", strtotime("+1 day".$transaction_list->transaction_date)) ."' ";
+        $row[] = '<span class="text">'.date("d-M-Y", strtotime($transaction_list->transaction_date)).'</span><span class="edit" onclick="transd_update(this,'.$transaction_list->id.','.$data.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
         $row[] = sprintf("%.2f",$transaction_list->debit_amount); 

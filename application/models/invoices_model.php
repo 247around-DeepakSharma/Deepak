@@ -153,6 +153,11 @@ class invoices_model extends CI_Model {
     function update_bank_transactions($where, $data) {
         $this->db->where($where);
         $this->db->update('bank_transactions', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /*
@@ -295,7 +300,7 @@ class invoices_model extends CI_Model {
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
-                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
+                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
                 $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
@@ -1172,7 +1177,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-4 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
@@ -2331,7 +2336,7 @@ class invoices_model extends CI_Model {
                 THEN (round(bb_unit_details.cp_claimed_price,2)) 
                 ELSE (round(bb_unit_details.cp_basic_charge + cp_tax_charge,2)) END AS cp_charge,partner_tracking_id, city,order_key,
                 CASE WHEN(acknowledge_date IS NOT NULL) 
-                THEN (DATE_FORMAT( acknowledge_date,  '%d-%b-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%b-%Y' )) END AS delivery_date, order_date,
+                THEN (DATE_FORMAT( acknowledge_date,  '%d-%m-%Y' ) ) ELSE (DATE_FORMAT(delivery_date,  '%d-%m-%Y' )) END AS delivery_date, order_date,
                 order_date, services, bb_order_details.partner_order_id";
             $group_by = "";
             
