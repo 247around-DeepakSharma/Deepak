@@ -2480,7 +2480,7 @@ class Service_centers extends CI_Controller {
                 if (!$this->input->post("call_from_api")) {
                     $reason = $this->input->post('reason');
                 }else{
-                    $reason = $this->input->post('reason_text');
+                    $reason = SPARE_PARTS_REQUIRED; //Reason should be SPARE_PARTS_REQUIRED similar to CRM reason
                 }
                 //$price_tags = $this->input->post('price_tags');
 
@@ -2673,7 +2673,7 @@ class Service_centers extends CI_Controller {
                         if ($this->input->post("sc_agent_id")) {
                             $agent_id = $this->input->post("sc_agent_id");
                         }
-                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUIRED, "", $reason, $agent_id, "", "not_define", "not_define", NULL, $service_center_id, $spare_id);
+                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUIRED, "", $data['remarks_by_sc'], $agent_id, "", "not_define", "not_define", NULL, $service_center_id, $spare_id);
                     } else {
                         $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
                     }
