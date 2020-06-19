@@ -417,21 +417,21 @@
         });
     }
 
-  function delete_banktransaction(transactional_id){
+//   function delete_banktransaction(transactional_id){
 
-    $.ajax({
-          type: 'POST',
-          url: '<?php echo base_url(); ?>employee/invoice/delete_banktransaction/'+ transactional_id,
+//     $.ajax({
+//           type: 'POST',
+//           url: '<?php// echo base_url(); ?>employee/invoice/delete_banktransaction/'+ transactional_id,
 
-          success: function (data) {
-            if(data ==="success"){
-               getInvoicingData("vendor");
-            }
+//           success: function (data) {
+//             if(data ==="success"){
+//                getInvoicingData("vendor");
+//             }
 
-         }
-       });
+//          }
+//        });
 
-   }
+//    }
    
    function open_create_cd_invoice_form(){
         $('#myModal2').modal('toggle'); 
