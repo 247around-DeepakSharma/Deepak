@@ -5944,7 +5944,7 @@ class Service_centers extends CI_Controller {
                     }
 
                     /* Insert Spare Tracking Details */
-                    if (!empty($value->id)) {
+                    if (!empty($value->id) && !empty($status)) {
                         $tracking_details = array('spare_id' => $value->id, 'action' => $status, 'remarks' => ESTIMATE_APPROVED_BY_CUSTOMER, 'agent_id' => $agent_id, 'entity_id' => $track_entity_id, 'entity_type' => $track_entity_type);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
@@ -5955,9 +5955,10 @@ class Service_centers extends CI_Controller {
                     }
                 }
 
-                $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
-                $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
-
+                if ($flag == TRUE) {
+                    $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
+                    $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
+                }
                 $userSession = array('success' => 'Booking Updated');
             } else {
                 log_message("info", __METHOD__ . "Spare Not not found " . $booking_id);
