@@ -347,7 +347,7 @@ class NRN_TR extends CI_Controller {
 
         if (!empty($result)) {
             $flag = false;
-            $option = "<option selected disabled>Select Model Number</option>";
+            $option = "<option disabled>Select Model Number</option>";
             foreach ($result as $value) {
                 $selected = '';
                 if (!empty(trim($value['model']))) {
