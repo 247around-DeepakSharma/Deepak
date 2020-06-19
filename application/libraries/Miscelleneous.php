@@ -1711,10 +1711,15 @@ class Miscelleneous {
                         // Update ASM,State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
                         // If ASM not found ,get RM details
-                        if(empty($resultTemp)){
+                        if(empty($resultTemp[0]['asm_id'])){
                             $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
+                            if(!empty($resultTemp[0]['rm_id'])){
+                                $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                            }
                         }
-                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        else{
+                            $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        }                        
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
@@ -4529,11 +4534,11 @@ function generate_image($base64, $image_name,$directory){
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_partner_id = _247AROUND;
         } else if ($this->My_CI->session->userdata('userType') == 'service_center') {
-            $agentid = $this->My_CI->session->userdata('service_center_agent_id');
+            $agent_id = $this->My_CI->session->userdata('service_center_agent_id');
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = $this->My_CI->session->userdata('id');
+            $agent_id = $this->My_CI->session->userdata('id');
             $track_partner_id = _247AROUND;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }
