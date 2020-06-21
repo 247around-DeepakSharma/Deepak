@@ -362,7 +362,14 @@
                                 </li>
                             </ul>
                         </li>
+                        <?php if($this->session->userdata('covid_popup')){ ?>
                         <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal" id="myBtncovid">COVID-19</a></li>
+                        <?php  }else{ ?>
+
+                             <li><a style="color:#00ff7e;font-size:20px;font-weight:900;" data-toggle="modal" data-target="#myModal7" >COVID-19</a></li>
+
+                        <?php  } ?>
+
                         <?php if(!empty($this->session->userdata('has_authorization_certificate')) && $this->session->userdata('has_authorization_certificate') == 1 && ($this->session->userdata('auth_certificate_file_name') != '' && $this->session->userdata('auth_certificate_file_name') != NULL)){ ?>
                             <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
                         <?php } ?>
@@ -476,6 +483,69 @@
         </div>
     </div>
 </div>
+
+
+<div id="myModalCovid" class="modal">
+
+  <!-- Modal content -->
+ 
+  <div class="modal-content">
+      <div class="modal-header">
+        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
+        <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
+      </div>
+
+      <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
+<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
+<p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
+<p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
+<p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
+<p style="margin: 0 0 17px !imporatnt;">5. Wash hands before work start, Wash hands after work finishes.</p>
+<p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
+<p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
+<p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
+<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
+
+      </div>
+
+ 
+    
+  </div>
+
+</div>
+
+
+<div id="myModal7" class="modal">
+
+  <!-- Modal content -->
+ 
+  <div class="modal-content">
+      <div class="modal-header">
+        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
+        <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
+      </div>
+
+      <div class="modal-body" style="font-weight:500;font-size:18px !important; ">
+<p style="margin: 0 0 17px !imporatnt;">1. Technician Temperature to be checked before issuing calls.</p>
+<p style="margin: 0 0 17px !imporatnt;">2. Face mask, Hand Gloves, Hand sanitizer are mandatory.</p>
+<p style="margin: 0 0 17px !imporatnt;">3. No Sign to be taken on any document.</p>
+<p style="margin: 0 0 17px !imporatnt;">4. Call Customer on phone from door. Do not use Door bell.</p>
+<p style="margin: 0 0 17px !imporatnt;">5. Wash hands before work start, Wash hands after work finishes.</p>
+<p style="margin: 0 0 17px !imporatnt;">6. If customer looks unwell (Cough, fever) no work to be done just apologise and leave.</p>
+<p style="margin: 0 0 17px !imporatnt;">7. Customer to stand at a safe distance 3 feet from technician and helper.</p>
+<p style="margin: 0 0 17px !imporatnt;">8. Leave all your belongings like helmet etc outside the customer house.</p>
+<p style="margin: 0 0 17px !imporatnt;">9. Helper to follow same guidelines and technician to make sure all the above for helper.</p>
+
+      </div>
+
+ 
+    
+  </div>
+
+</div>
+
+
+
 <?php
 // Unset SF authorization certificate session CRM-6107
 if ($this->session->userdata('has_authorization_certificate')) {
