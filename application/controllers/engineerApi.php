@@ -4114,7 +4114,7 @@ class engineerApi extends CI_Controller {
      * @Author - Abhishek Awasthi
      */
 
-    function checkRescheduleAllowed(){
+    function checkRescheduleAllowed($booking_id){
 
         $allow = TRUE;
         /*  Check for booking cancel complete by Engineer in Engg Action Table */
