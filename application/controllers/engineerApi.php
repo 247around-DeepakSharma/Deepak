@@ -4059,6 +4059,21 @@ class engineerApi extends CI_Controller {
             $allow = FALSE;
             return $allow;
         }
+
+
+        /*  Check for booking cancel complete by Engineer in Engg Action Table */
+        $enggbooking_select = "booking_id,internal_status";
+        $enggbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+        );
+        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
+        if (!empty($enggbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+
         /*  Check for booking cancel complete by engg */
         $booking_select = "booking_id,partner_internal_status";
         $booking_where = array(
@@ -4083,18 +4098,6 @@ class engineerApi extends CI_Controller {
             return $allow;
         }
 
-
-        /*  Check for booking cancel complete by Engineer in Engg Action Table */
-        $enggbooking_select = "booking_id,internal_status";
-        $enggbooking_where = array(
-            "booking_id" => $booking_id,
-            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
-        );
-        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);  // Vaiable mismatch passing where and select of sf status
-        if (!empty($enggbooking_details)) {
-            $allow = FALSE;
-            return $allow;
-        }
 
 
     }
