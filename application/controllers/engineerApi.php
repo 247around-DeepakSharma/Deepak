@@ -3912,6 +3912,10 @@ class engineerApi extends CI_Controller {
                         /*  Completion Allow Flag */
                         $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
                         $data['Bookings'][$key]['complete_allow'] = $complete_flag;
+
+                        /*  Reschedule Allow Flag */
+                        $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                        $data['Bookings'][$key]['reschedule_allow'] = $reschedule_flag;
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] = $cancel_flag;
@@ -4099,6 +4103,56 @@ class engineerApi extends CI_Controller {
         }
 
 
+
+    }
+
+
+    /*
+     * @Desc - This function used to check the reschedule is allowed for a booking or not    
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
+
+    function checkRescheduleAllowed(){
+
+        $allow = TRUE;
+        /*  Check for booking cancel complete by Engineer in Engg Action Table */
+        $enggbooking_select = "booking_id,internal_status";
+        $enggbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+        );
+        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
+        if (!empty($enggbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+
+        /*  Check for booking cancel complete by engg */
+        $booking_select = "booking_id,partner_internal_status";
+        $booking_where = array(
+            "booking_id" => $booking_id,
+            "partner_internal_status IN( '" . BOOKING_COMPLETED_BY_ENGINEER_STATUS . "','" . BOOKING_CANCELLED_BY_ENGINEER_STATUS . "')" => NULL
+        );
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+        /*  Check for booking cancel complete by SF */
+        $sfbooking_select = "booking_id,internal_status";
+        $sfbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . SF_BOOKING_COMPLETE_STATUS . "','" . SF_BOOKING_CANCELLED_STATUS . "')" => NULL
+        );
+        $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select, $sfbooking_where);  // Vaiable mismatch passing where and select of sf status
+        if (!empty($sfbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
 
     }
 
