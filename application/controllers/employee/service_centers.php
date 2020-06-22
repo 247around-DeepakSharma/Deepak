@@ -533,13 +533,9 @@ class Service_centers extends CI_Controller {
             $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
             $booking_state_change = $this->booking_model->get_booking_state_change($booking_id);
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
-            // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.   
             $curr_status = $booking_details['current_status'];
-            if ($curr_status == _247AROUND_COMPLETED || $curr_status == _247AROUND_CANCELLED) {
-                $this->session->set_userdata('error', "Booking is already $curr_status. You cannot complete the booking.");
-                redirect(base_url() . "service_center/pending_booking");
-            }
-            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
+            // if current status of the booking is Completed or Cancelled then the booking cannot be completed again.               
+            if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED, _247AROUND_CANCELLED))) {
 
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
@@ -715,7 +711,7 @@ class Service_centers extends CI_Controller {
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
-                $this->session->set_userdata('error', "You already marked this booking : $booking_id as completed");
+                $this->session->set_userdata('error', "You already marked this booking : $booking_id as ".$old_state);
                 redirect(base_url() . "service_center/pending_booking");
             }
         }
@@ -956,6 +952,17 @@ class Service_centers extends CI_Controller {
                         $price_tag = $price_tags_array[$unit_id];
 
                         switch ($value) {
+                            case '0':
+                                // upload serial number image in case of POD = 0
+                                if (isset($upload_serial_number_pic['name'][$unit_id])) {
+                                    $s = $this->upload_insert_upload_serial_no($upload_serial_number_pic, $unit_id, $partner_id, $trimSno);
+                                    if (empty($s)) {
+                                        $this->form_validation->set_message('validate_serial_no', 'Serial Number, File size or file type is not supported. Allowed extentions are png, jpg, jpeg and pdf. '
+                                                . 'Maximum file size is 5 MB.');
+                                        $return_status = false;
+                                    }
+                                }
+                                break;
                             case '1':
                                 if ($partner_id == AKAI_ID) {
                                     log_message('info', " Akai partner");
