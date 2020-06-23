@@ -5807,10 +5807,10 @@ class Service_centers extends CI_Controller {
 
 
             if (!empty($sp_data)) {
-                $flag = TRUE;
+                
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
-
+                    $flag = TRUE;
                     $spare_data = array();
                     $delivered_sp = array();
                     $service_center_id = $value->service_center_id;
@@ -5963,10 +5963,13 @@ class Service_centers extends CI_Controller {
                         $this->notify->insert_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, $agent_id, $agent_name, $actor, $next_action, $l_partner, $service_center_id, $value->id);
                     }
                 }
-
+                
                 if ($flag == TRUE) {
+                    if(empty($status)) {
+                        $status = ESTIMATE_APPROVED_BY_CUSTOMER;
+                    }
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
-                    $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
+                    $this->update_booking_internal_status($booking_id, $status, $partner_id);
                 }
                 $userSession = array('success' => 'Booking Updated');
             } else {
