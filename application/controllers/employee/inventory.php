@@ -9570,32 +9570,54 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
+        $date_range = $this->input->post('date_range');
+        if(!empty($date_range)){
+           $date_array = explode('-', $date_range); 
+        }
+        
+        if(isset($date_array[0])){
+          $from_date = date("Y-m-d H:i:s", strtotime($date_array[0]));  
+        }
+        
+        if(isset($date_array[1])){
+          $to_date = date("Y-m-d H:i:s", strtotime($date_array[1]));  
+        }
 
         if (!empty($partner_id)) {
-            $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', "
-                    . "partners.public_name as 'Partner Name',billed_docket.invoice_id as 'Invoice No.', courier_company_invoice_details.sender_city as 'Sender City', courier_company_invoice_details.receiver_city as 'Receiver City',"
-                    . "courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', billed_docket.basic_charge as 'Billed To Partner Courier Charges', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
-            $where = array("billed_docket.entity_id" => $partner_id);
-            $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where);
-            $this->load->dbutil();
-            $this->load->helper('file');
+            if (!empty($from_date) && !empty($to_date)) {
+                $where = array();
+                $select = "courier_company_invoice_details.awb_number as 'Docket Number', courier_company_invoice_details.company_name as 'Docket Company Name', "
+                        . "partners.public_name as 'Partner Name',billed_docket.invoice_id as 'Invoice No.', courier_company_invoice_details.sender_city as 'Sender City', courier_company_invoice_details.receiver_city as 'Receiver City',"
+                        . "courier_company_invoice_details.box_count as 'No. Of Boxes', courier_company_invoice_details.billable_weight as 'Weight', courier_company_invoice_details.courier_charge as 'Courier Charge', billed_docket.basic_charge as 'Billed To Partner Courier Charges', courier_company_invoice_details.courier_invoice_file as 'Courier Receipt Link'";
+                if ($partner_id != 'all') {
+                    $where['billed_docket.entity_id'] = $partner_id;
+                }
+                
+                $where['billed_docket.create_date >= "' . $from_date . '" AND billed_docket.create_date <= "' . $to_date . '"'] = NULL;
+                
+                $courier_invoice_details = $this->inventory_model->get_courier_invoice_data($select, $where);
+                $this->load->dbutil();
+                $this->load->helper('file');
 
-            $file_name = 'courier_invoice_data_' . date('j-M-Y-H-i-s') . ".csv";
-            $delimiter = ",";
-            $newline = "\r\n";
-            $new_report = $this->dbutil->csv_from_result($courier_invoice_details, $delimiter, $newline);
-            write_file(TMP_FOLDER . $file_name, $new_report);
+                $file_name = 'courier_invoice_data_' . date('j-M-Y-H-i-s') . ".csv";
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($courier_invoice_details, $delimiter, $newline);
+                write_file(TMP_FOLDER . $file_name, $new_report);
 
-            if (file_exists(TMP_FOLDER . $file_name)) {
-                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
-                $res1 = 0;
-                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
-                $res['status'] = true;
-                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                if (file_exists(TMP_FOLDER . $file_name)) {
+                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                    $res['status'] = true;
+                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                } else {
+                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                    $res['status'] = FALSE;
+                    $res['msg'] = 'error in generating file';
+                }
             } else {
-                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
-                $res['status'] = FALSE;
-                $res['msg'] = 'error in generating file';
+                $res['msg'] = 'Please Select Date Range';
             }
         } else {
             $res['msg'] = 'Please Select Partner';
