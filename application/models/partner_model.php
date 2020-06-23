@@ -3196,11 +3196,7 @@ function get_data_for_partner_callback($booking_id) {
                     ) AS Ageing,
                     IFNULL(booking_details.rating_stars, ' ') AS 'Rating',
                     IFNULL(booking_details.rating_comments, ' ') AS 'Rating Comments',
-                    IF(
-                      spare_parts_details.parts_requested IS NOT NULL,
-                      'Yes',
-                      'No'
-                    ) AS 'Is Part Involve',
+                    (CASE WHEN spare_parts_details.status != 'Cancelled' AND spare_parts_details.parts_requested IS NOT NULL THEN 1 ELSE 0 END) AS 'Is Part Involve',
                     IFNULL(spare_consumption_status.consumed_status, ' ') as 'Consumption Reason',
                     (CASE WHEN spare_lost = 1 THEN 'Yes' ELSE 'No' END) as 'Is Part Lost',
                     requested_part_detail.part_number AS 'Requested Part Code',
