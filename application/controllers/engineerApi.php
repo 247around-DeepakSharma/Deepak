@@ -3110,6 +3110,7 @@ class engineerApi extends CI_Controller {
                         "partner_id" => $requestData['partner_id'],
                         "service_center_id" => $requestData['service_center_id'],
                         "call_from_api" => true,
+                        "sc_agent_id" => $requestData['sc_agent_id']
                     );
                     //Call curl for updating booking by engineer
                     $url = base_url() . "employee/service_centers/process_update_booking";
