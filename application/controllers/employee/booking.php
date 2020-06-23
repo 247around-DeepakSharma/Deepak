@@ -6725,5 +6725,12 @@ class Booking extends CI_Controller {
         echo $options;
     }
 
+    /**
+     * @desc This is used to get Repair- OOW Booking
+     */
+    function get_oow_booking_test(){
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/get_oow_booking_test');
+    }
 
 }
