@@ -452,6 +452,7 @@
                                 <th>Paid Additional Charges</th>
                                 <th>Paid Parts Cost</th>
                                 <th>Paid Upcountry Charges</th>
+                                <th>Partner Spare Extra Charges</th>
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
                                 <th>Booking Status</th>
@@ -526,6 +527,7 @@
                                     <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                     <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                     <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} else { echo $booking_history[0]['customer_paid_upcountry_charges'];} ?></td>
+                                     <td><?php print_r($unit_detail['partner_spare_extra_charge']);  ?></td>
                                     <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ 
                                         print_r($unit_detail['customer_paid_basic_charges'] 
                                                + $unit_detail['customer_paid_extra_charges'] 
