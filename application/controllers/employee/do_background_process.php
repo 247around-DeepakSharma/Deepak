@@ -328,10 +328,10 @@ class Do_background_process extends CI_Controller {
                     //Log this state change as well for this booking
                     $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, $agent_name, $actor,$next_action,$approved_by);
                     //Log this state entry for spares
-                    if($booking['internal_status'] != _247AROUND_COMPLETED) {
-                        $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, 
-                            $agent_name, $actor,$next_action,$approved_by);
-                    }
+//                    if($booking['internal_status'] != _247AROUND_COMPLETED) {
+//                        $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, 
+//                            $agent_name, $actor,$next_action,$approved_by);
+//                    }
 
                     $this->notify->send_sms_email_for_booking($booking_id, $current_status);
 
