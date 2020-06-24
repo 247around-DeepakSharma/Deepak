@@ -549,7 +549,7 @@ $(document).ready(function(){
                         while(j < nb_cols){
                             var pageTotal = api.column( j, { page: 'current'} ).data().reduce( function (a, b, c) {
                                 //console.log(c);
-                                console.log(api.column( 0, { page: 'current'} ).data()[c].toString());
+                               // console.log(api.column( 0, { page: 'current'} ).data()[c].toString());
                                 var str = api.column( 0, { page: 'current'} ).data()[c].toString();
                                 if(str.includes("Advance")){
                                     return "";
@@ -608,6 +608,49 @@ function bd_update(btn, id){
         $(btn).siblings(".text").hide();
     }
 }
+/**
+ * @desc This function is used to update bank transaction date
+ */
+function transd_update(btn, id, value,min_value, max_value){
+    if ($(btn).siblings(".text").is(":hidden")) {
+        
+         var prethis = $(btn);
+         var transDate = $(btn).siblings("input").val();
+         //console.log(transDate);
+         
+
+         $.ajax({
+            url: "<?php echo base_url() ?>employee/invoice/update_bank_transaction_date",
+            type: "POST",
+            beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: { transDate: transDate, id: id},
+            success: function (res) {
+                var data = res.trim();
+               // console.log(data);
+                if(data){
+                  // alert(data);
+                    $(btn).siblings(".text").text(data);
+                    prethis.siblings("input").remove();
+                    prethis.siblings(".text").show();
+                    prethis.html('<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>');
+                } else {
+                    alert("There is a problem in the update. Please fresh page and try again");
+                    //alert(data);
+                }
+                
+            }
+        });
+    } else {
+        var text = $(btn).siblings(".text").text();
+        
+        $(btn).before("<input type=\"date\" class=\"form-control\" min=\"" + min_value + "\" max=\"" + max_value + "\"  value=\"" + value + "\">");
+        $(btn).html('<i class="fa fa-check fa-lg" aria-hidden="true"></i>');
+        $(btn).siblings(".text").hide();
+    }
+} 
 </script>
 
 <?php if(isset($invoice_array) && count($invoice_array) > 0) { ?>

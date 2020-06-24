@@ -1215,8 +1215,11 @@ class vendor_model extends CI_Model {
      * @desc: Insert Engineer details
      */
     function insert_engineer($data){
-        $this->db->insert('engineer_details', $data);
-        return $this->db->insert_id();
+        /* Making Procedure */
+        $insert_user_stored_proc = "CALL insertNewEngineer(?, ?, ?, ?, ? ,?,@last_id)";
+         $this->db->query($insert_user_stored_proc,$data);
+        return $this->db->query('SELECT @last_id  as newID')->result()[0]->newID;
+
     }
     /**
      * @desc: This is used to return Engineers details for custom vendor

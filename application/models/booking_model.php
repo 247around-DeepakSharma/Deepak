@@ -146,6 +146,61 @@ class Booking_model extends CI_Model {
         return $appliance;
     }
 
+
+
+
+    /**
+     * @desc: get booking unit details(Prices) from booking id or appliance id. it gets all prices in the array of key value quantity.
+     * @param: booking id, appliance id
+     * @return:  Array
+     */
+    function getunit_details_with_id($booking_id="", $appliance_id="",$spare_extra=FALSE){
+        $where = "";
+
+        if($booking_id !=""){
+           $where = " `booking_unit_details`.booking_id = '$booking_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
+//            @Note : Do not change anything in select Statement, It may have Impact on Multiple Pages           
+           if($spare_extra){
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id,booking_unit_details.id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`,booking_unit_details.price_tags as uprice_tag,booking_unit_details.partner_net_payable as partner_net_pay
+            from booking_unit_details Where $where  ";
+           }else{
+           $sql = "SELECT distinct(appliance_id), appliance_brand as brand,booking_unit_details.partner_id,booking_unit_details.id, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_date`,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+            from booking_unit_details Where $where  ";   
+           }
+
+        } else if ($appliance_id != "") {
+
+        $where = " `booking_unit_details`.appliance_id = '$appliance_id' AND booking_status <> '"._247AROUND_CANCELLED."'";
+
+            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, booking_unit_details.partner_id, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_date`, `appliance_details`.serial_number,`booking_unit_details`.sub_order_id, `booking_unit_details`.`sf_purchase_date`, `booking_unit_details`.`sf_model_number`
+            from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
+
+        }
+
+        $query = $this->db->query($sql);
+        $appliance =  $query->result_array();
+
+        foreach ($appliance as $key => $value) {
+            // get data from booking unit details table on the basis of appliance id
+            $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, ROUND(customer_net_payable, 0) as customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges, partner_invoice_id', FALSE);
+            $this->db->where('appliance_id', $value['appliance_id']);
+            $this->db->where('booking_id', $value['booking_id']);
+            // Added condition to not select Cancelled line Items 
+            $this->db->where('booking_status <> "'._247AROUND_CANCELLED.'"', NULL);
+            $this->db->order_by("price_tags","asc");
+            $query2 = $this->db->get('booking_unit_details');
+
+            $result = $query2->result_array();
+            $appliance[$key]['quantity'] = $result; // add booking unit details array into quantity key of previous array
+        }
+
+        return $appliance;
+    }
+
+
+
+
+
     /**
      * @desc: update price in booking unit details
      */
@@ -1556,7 +1611,7 @@ class Booking_model extends CI_Model {
             $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
-            $this->db->like('booking_id', $trimed_booking_id);
+            $this->db->like('booking_id', $trimed_booking_idda);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
             $result = array_merge($data[0], $services_details);
@@ -1907,10 +1962,14 @@ class Booking_model extends CI_Model {
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
         }
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
                 . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
-        $this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
+
+        $this->db->where('MATCH (booking_state_change.booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
+
+        //$this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
         $this->db->order_by('booking_state_change.id');
@@ -1968,7 +2027,8 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change($booking_id,$where=''){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->like('booking_id',$trimed_booking_id);
+        //$this->db->like('booking_id',$trimed_booking_id);
+        $this->db->where('MATCH (booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
         if(!empty($where)){
             $this->db->where($where);
         }
