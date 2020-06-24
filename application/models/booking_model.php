@@ -1616,7 +1616,7 @@ class Booking_model extends CI_Model {
             $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
-            $this->db->like('booking_id', $trimed_booking_id);
+            $this->db->like('booking_id', $trimed_booking_idda);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
             $result = array_merge($data[0], $services_details);
@@ -1967,10 +1967,14 @@ class Booking_model extends CI_Model {
         if (strpos($booking_id, 'Q-') === false) {
             $bookingIDArray[] = "Q-".$booking_id;
         }
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
                 . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
-        $this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
+
+        $this->db->where('MATCH (booking_state_change.booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
+
+        //$this->db->where_in('booking_state_change.booking_id', $bookingIDArray);
         $this->db->from('booking_state_change');
        
         $this->db->order_by('booking_state_change.id');
@@ -2028,7 +2032,8 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change($booking_id,$where=''){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->like('booking_id',$trimed_booking_id);
+        //$this->db->like('booking_id',$trimed_booking_id);
+        $this->db->where('MATCH (booking_id) AGAINST ("'.$trimed_booking_id.'")', NULL, FALSE);
         if(!empty($where)){
             $this->db->where($where);
         }
