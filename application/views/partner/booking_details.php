@@ -210,6 +210,7 @@
                                                 <?php } ?>
                                                     <th>Total Amount Paid</th>
                                                 <?php } ?>
+                                            <th>Partner Spare Extra Charges</th>
                                             <th>Booking Status</th>
                                                 <?php if ($booking_history[0]['current_status'] === 'Completed') { ?>
                                                 <th>Invoice ID</th>
@@ -253,8 +254,11 @@
                                                         ?></td>
                                                         <?php } else { ?>
                                                         <td><?php print_r($unit_detail['price_tags']); ?></td>
+
                                                         <td><?php print_r($unit_detail['customer_paid_basic_charges']); ?></td>
+
                                                         <td><?php print_r($unit_detail['customer_paid_extra_charges']); ?></td>
+
                                                         <td><?php print_r($unit_detail['customer_paid_parts']); ?></td>
                                                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
                                                             <td><?php echo $booking_history[0]['customer_paid_upcountry_charges']; ?></td>
@@ -272,6 +276,7 @@
                                                         ?>
                                                         </td>
                                                     <?php } ?>
+                                                    <td><?php print_r($unit_detail['partner_spare_extra_charge']); ?></td>
                                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                                     <?php if ($booking_history[0]['current_status'] === 'Completed') { ?>
                                                         <td><?php print_r($unit_detail['partner_invoice_id']); ?></td>
