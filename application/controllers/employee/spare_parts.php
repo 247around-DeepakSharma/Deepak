@@ -2630,12 +2630,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $part_warranty_status = $this->input->post('part_warranty_status');
         
          $where["spare_parts_details.booking_id"] = $booking_id;
-         $where["status IN  ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')"] = NULL;
+         $where["spare_parts_details.status IN  ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')"] = NULL;
          $where["spare_parts_details.sell_invoice_id IS NULL"] = NULL;
          $where["spare_parts_details.is_micro_wh != 1"] = NULL;
          $where["spare_parts_details.parts_shipped IS NOT NULL"] = NULL;
          $where["spare_parts_details.part_warranty_status"] = $part_warranty_status;
-         //$where["spare_parts_details.defective_part_shipped IS NULL"] = NULL;
+         $where["DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.closed_date, '%Y-%m-%d')) > 7"] = NULL;
         
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
