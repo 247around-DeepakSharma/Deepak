@@ -1932,6 +1932,7 @@ class Spare_parts extends CI_Controller {
         /*  Flag for getting symptom */
         $post['symptom'] = 1;
 
+
         if ($this->input->post("status") == SPARE_PARTS_REQUESTED) {
             $post['where_in']['status'] = array(SPARE_PARTS_REQUESTED);
             $post['request_type'] = SPARE_PARTS_REQUESTED;
