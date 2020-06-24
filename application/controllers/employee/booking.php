@@ -2668,7 +2668,7 @@ class Booking extends CI_Controller {
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
 
-       // $this->check_and_update_partner_extra_spare($booking_id);
+       $this->check_and_update_partner_extra_spare($booking_id);
 
 
         
@@ -2735,7 +2735,7 @@ class Booking extends CI_Controller {
 
     function check_and_update_partner_extra_spare($booking_id){
 
-        $booking_unit_details = $this->booking_model->getunit_details($booking_id,"",TRUE);
+        $booking_unit_details = $this->booking_model->getunit_details_with_id($booking_id,"",TRUE);
         foreach($booking_unit_details as $unit){
             if($unit['partner_net_pay']>0){
                 
