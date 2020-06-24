@@ -1218,7 +1218,7 @@ class vendor_model extends CI_Model {
         /* Making Procedure */
         $insert_user_stored_proc = "CALL insertNewEngineer(?, ?, ?, ?, ? ,?,@last_id)";
          $this->db->query($insert_user_stored_proc,$data);
-        return $this->db->query('SELECT @last_id  as newID')->result()[0]->newID);
+        return $this->db->query('SELECT @last_id  as newID')->result()[0]->newID;
 
     }
     /**
