@@ -1215,7 +1215,9 @@ class vendor_model extends CI_Model {
      * @desc: Insert Engineer details
      */
     function insert_engineer($data){
-        $this->db->insert('engineer_details', $data);
+        /* Making Procedure */
+        $insert_user_stored_proc = "CALL insertNewEngineer(?, ?, ?, ?, ? ,?)";
+        $this->db->query($insert_user_stored_proc,$data);
         return $this->db->insert_id();
     }
     /**
