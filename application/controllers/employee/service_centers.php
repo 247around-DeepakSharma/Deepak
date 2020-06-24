@@ -1485,6 +1485,7 @@ class Service_centers extends CI_Controller {
         } else {
             $check_validation = TRUE;
             $service_center_id = $this->input->post('service_center_id');
+            $sc_agent_id = $this->input->post('sc_agent_id');  /// SC Agent ID 
         }
 
 
@@ -1515,7 +1516,7 @@ class Service_centers extends CI_Controller {
             if (!$this->input->post("call_from_api")) {
                 $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
             } else {
-                $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $service_center_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
+                $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
@@ -2304,7 +2305,7 @@ class Service_centers extends CI_Controller {
         if ($state_change) {
             // Insert data into state change
             if ($this->input->post("call_from_api")) {
-                $this->notify->insert_state_change($booking_id, $sc_data['internal_status'], "", $sc_data['service_center_remarks'], $this->input->post('service_center_id'), "Engineer", "not_define", "not_define", NULL, $this->input->post('service_center_id'));
+                $this->notify->insert_state_change($booking_id, $sc_data['internal_status'], "", $sc_data['service_center_remarks'], $this->input->post('sc_agent_id'), "Engineer", "not_define", "not_define", NULL, $this->input->post('service_center_id'));
             } else {
                 $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], $sc_data['service_center_remarks'], "not_define", "not_define");
             }
@@ -5805,10 +5806,10 @@ class Service_centers extends CI_Controller {
 
 
             if (!empty($sp_data)) {
-                $flag = TRUE;
+                
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
-
+                    $flag = TRUE;
                     $spare_data = array();
                     $delivered_sp = array();
                     $service_center_id = $value->service_center_id;
@@ -5961,10 +5962,13 @@ class Service_centers extends CI_Controller {
                         $this->notify->insert_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, $agent_id, $agent_name, $actor, $next_action, $l_partner, $service_center_id, $value->id);
                     }
                 }
-
+                
                 if ($flag == TRUE) {
+                    if(empty($status)) {
+                        $status = ESTIMATE_APPROVED_BY_CUSTOMER;
+                    }
                     $this->service_centers_model->update_service_centers_action_table($booking_id, $sc);
-                    $this->update_booking_internal_status($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, $partner_id);
+                    $this->update_booking_internal_status($booking_id, $status, $partner_id);
                 }
                 $userSession = array('success' => 'Booking Updated');
             } else {
