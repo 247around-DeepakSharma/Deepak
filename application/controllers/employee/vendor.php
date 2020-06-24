@@ -2239,7 +2239,6 @@ class vendor extends CI_Controller {
                     if($this->input->post('around_exp')){
                         $data['around_exp'] = $this->input->post('around_exp');
                     }
-
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
