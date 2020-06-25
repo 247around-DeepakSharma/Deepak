@@ -2625,7 +2625,7 @@ class Spare_parts extends CI_Controller {
          $where["spare_parts_details.is_micro_wh != 1"] = NULL;
          $where["spare_parts_details.parts_shipped IS NOT NULL"] = NULL;
          $where["spare_parts_details.part_warranty_status"] = $part_warranty_status;
-         $where["DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.closed_date, '%Y-%m-%d')) > 7"] = NULL;
+         $where["DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) > 7"] = NULL;
         
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
