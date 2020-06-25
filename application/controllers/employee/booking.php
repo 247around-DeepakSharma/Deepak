@@ -1849,7 +1849,7 @@ class Booking extends CI_Controller {
             $data['engineer_action_not_exit'] = $engineer_action_not_exit;
 
             $data['unit_details'] = $booking_unit_details;
-            $data['booking_history'][0]["covid_zone"] = $this->booking_utilities->getBookingCovidZoneAndContZone($data['booking_history'][0]['district']);
+            $data['booking_history'][0]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($data['booking_history'][0]['district']);
 
             $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
 
