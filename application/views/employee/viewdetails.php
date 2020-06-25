@@ -163,14 +163,14 @@
                             <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?>
                                     
                             <?php 
-                              if(isset($booking_history[0]['covid_zone']) && !empty($booking_history[0]['covid_zone'])){
-                              if (strpos($booking_history[0]['covid_zone'], 'Red') !== false) {
+                              if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
+                              if (strpos($booking_history[0]['zone'], 'Red') !== false) {
                                $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
                               }
-                              if (strpos($booking_history[0]['covid_zone'], 'Orange') !== false) {
+                              if (strpos($booking_history[0]['zone'], 'Orange') !== false) {
                               $districtZoneType = '<span class="label label-warning">COVID ZONE</span>';
                               }
-                              if (strpos($booking_history[0]['covid_zone'], 'Green') !== false) {
+                              if (strpos($booking_history[0]['zone'], 'Green') !== false) {
                               $districtZoneType = '<span class="label label-success">COVID ZONE</span>';
                               }
                               }else{
