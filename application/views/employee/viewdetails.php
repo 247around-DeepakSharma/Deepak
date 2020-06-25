@@ -454,6 +454,7 @@
                                 <th>Paid Upcountry Charges</th>
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
+                                <th>Partner Spare Extra Charges</th>
                                 <th>Booking Status</th>
                                 <th>Vendor Cash Invoice ID</th>
                                 <th>Vendor Foc Invoice ID</th>
@@ -552,6 +553,7 @@
                                             }
                                         }
                                         }?>
+                                    <td><?php print_r($unit_detail['partner_spare_extra_charge']);  ?></td>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                     
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
