@@ -415,7 +415,8 @@
             <td><?php echo $index;   ;?></td>
             <td style=" white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
                 <?php
-                    echo  $values['entity'];
+                    echo  $values['entity'].'<br/>';
+                    echo  $values['covid_zone'].'<br/>';
                 ?>                 
             </td>
             <td><?php 
