@@ -3656,8 +3656,7 @@ class Partner extends CI_Controller {
         //$this->load->view('partner/header');
         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
             $this->load->view('partner/partner_default_page_cc', $data);
-        }
-        else{
+        }else{
             $this->load->view('partner/partner_default_page',$data);
         }
         $this->load->view('partner/partner_footer');
