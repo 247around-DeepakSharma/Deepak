@@ -1850,7 +1850,7 @@ class Booking extends CI_Controller {
 
             $data['unit_details'] = $booking_unit_details;
             $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($data['booking_history'][0]['district']);
-            
+
             if(isset($response_db[0]['zone']) && !empty($response_db[0]['zone'])){
             $response = json_decode($response_db[0]['zone'],true);
             if(!empty($response)){    
@@ -1861,6 +1861,7 @@ class Booking extends CI_Controller {
             $data['booking_history'][0]['zone'] = $districtZoneType;  
             }
             }
+
             $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
 
             if (!empty($isPaytmTxn)) {
