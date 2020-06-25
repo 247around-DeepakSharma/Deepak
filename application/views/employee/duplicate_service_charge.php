@@ -20,6 +20,7 @@
             <th>Flat Partner Offer Upcountry</th>
             <th>Flat Vendor Upcountry Payout</th>
             <th>Flat Customer Upcountry Charges</th>
+            <th>Partner Spare Extra Charges</th>
             <th>Select All <input type="checkbox" id="select_all" /></th>
             <?php } ?>
             
@@ -45,6 +46,7 @@
             <td><?php echo $value['upcountry_partner_price']; ?></td>
             <td><?php echo $value['upcountry_vendor_price']; ?></td>
             <td><?php echo $value['upcountry_customer_price']; ?></td>
+            <td><?php echo $value['partner_spare_extra_charge']; ?></td>
             <td><input type="checkbox" name="delete_charge[]" class="service_charge_id" value="<?php echo $value['id']; ?>" /></td>
             <?php } ?>
             
@@ -79,7 +81,7 @@ $('#price_list').dataTable({
                     text: 'Export',
                     title: 'Charges-list',
                     exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,16]
                 }
                 }
                 ]
