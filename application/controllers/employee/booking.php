@@ -494,8 +494,15 @@ class Booking extends CI_Controller {
                 $booking_symptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
 
                 $is_send_sms = 1;
+                if ($booking['type'] == "Booking") {
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
+                 }
+                 else
+                {
+                $booking_id_with_flag['new_state'] = _247AROUND_FOLLOWUP;
+                $booking_id_with_flag['old_state'] = _247AROUND_NEW_QUERY;
+                }
                 $booking['service_center_closed_date'] = NULL;
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
