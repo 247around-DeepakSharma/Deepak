@@ -328,7 +328,7 @@ class Service_centers_model extends CI_Model {
     }
 
     function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(), $orderBY = NULL) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, [],$having_arr);        
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, [],$having_arr);
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'

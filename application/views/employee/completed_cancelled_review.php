@@ -133,6 +133,22 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                 <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:50px;" value="<?php echo $max_review_age_selected?>">                                
                 <button class="btn btn-sm btn-success" style="width:30px;padding:2px;margin-left:5px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>')">OK</button>
             </div>
+            <!--Sorting Drop Down-->
+            <div class="col-md-2 pull-left" style="padding:10px;width:12%">
+                <?php
+                $age_order_selected = (!empty($sort_on_selected) && $sort_on_selected == 'initial_booking_date') ? 'selected' : "";
+                $review_age_order_selected = (!empty($sort_on_selected) && $sort_on_selected == 'service_center_closed_date') ? 'selected' : "";
+                $sort_order_asc = (!empty($sort_order_selected) && $sort_order_selected == 'desc') ? 'checked' : "";
+                $sort_order_desc = (!empty($sort_order_selected) && $sort_order_selected == 'asc') ? 'checked' : "";
+                ?>
+                <input type="radio" name="sort_order" value="desc" style="margin-left:10px;margin-right:2px;" <?php echo $sort_order_asc; ?>> Asc
+                <input type="radio" name="sort_order" value="asc" style="margin-left:20px;margin-right:2px;" <?php echo $sort_order_desc; ?>> Desc <br/>
+                <select type="text" class="form-control"  id="sort_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="sort_on" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>',this.value)">
+                    <option value="">Select Sort Option</option>
+                    <option value="initial_booking_date"  <?php echo $age_order_selected; ?>>Age</option>
+                    <option value="service_center_closed_date"  <?php echo $review_age_order_selected; ?>>Review Age</option>
+                </select>
+            </div>
             <?php } ?>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
                   <div class="col-md-12" style="font-size:82%;margin-top:10px;">
