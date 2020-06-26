@@ -316,14 +316,14 @@ class Service_centers_model extends CI_Model {
                 . $where_sc . $where_in
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
-                . " $groupBy  $orderBY $having $limit";
+                . " $groupBy  $having $orderBY $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array()) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, NULL, Null, 0, [],$having_arr);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(), $orderBY = NULL) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, [],$having_arr);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id

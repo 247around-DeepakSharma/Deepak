@@ -5815,7 +5815,7 @@ class Booking extends CI_Controller {
      }
     }
     
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0, $sort_on = '', $sort_order = ''){
         $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
@@ -5879,19 +5879,29 @@ class Booking extends CI_Controller {
         if(!empty($min_review_age) || !empty($max_review_age)) {
            $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$min_review_age.'" AND "'.$max_review_age.'") '] = NULL;
         }
+        
+        // put all selected values in array to show these filter values above filtered data
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
         $data['partner_selected'] = $partner_id;
         $data['request_type_selected'] = $request_type;
         $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : "";
         $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : "";
-           
+        $data['sort_on_selected'] = $sort_on;
+        $data['sort_order_selected'] = $sort_order;
+        
+        // Add sorting
+        $orderBY = NULL;
+        if(!empty($sort_on)){
+            $orderBY = " order by ".$sort_on." ".$sort_order;
+        }
+        
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         
         if(!empty($total_rows)){
             $data['per_page'] = 50;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where, $orderBY);
             $data['status'] = $status;
             $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
