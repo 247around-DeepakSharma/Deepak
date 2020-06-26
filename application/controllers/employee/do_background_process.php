@@ -180,7 +180,11 @@ class Do_background_process extends CI_Controller {
         $agent_name = $this->input->post('agent_name');
         $partner_id_array = $this->input->post('partner_id');
         $approved_by = $this->input->post('approved_by');
-        
+        $is_sms = TRUE;
+
+        if(isset($_POST['is_sms'])){
+            $is_sms = $this->input->post('is_sms');
+        }        
         foreach ($approvalBooking_id as $booking_id) {
             
             $partner_id = $partner_id_array[$booking_id];
@@ -331,9 +335,10 @@ class Do_background_process extends CI_Controller {
 //                        $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, 
 //                            $agent_name, $actor,$next_action,$approved_by);
 //                    }
-
-                    $this->notify->send_sms_email_for_booking($booking_id, $current_status);
-
+                    if($is_sms){
+                        $this->notify->send_sms_email_for_booking($booking_id, $current_status);
+                    }
+                    
                     $this->partner_cb->partner_callback($booking_id);
                     //Generate Customer payment Invoice
                     if ($data[0]['amount_paid'] > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $current_status == _247AROUND_COMPLETED) {

@@ -494,8 +494,15 @@ class Booking extends CI_Controller {
                 $booking_symptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
 
                 $is_send_sms = 1;
+                if ($booking['type'] == "Booking") {
                 $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
                 $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
+                 }
+                 else
+                {
+                $booking_id_with_flag['new_state'] = _247AROUND_FOLLOWUP;
+                $booking_id_with_flag['old_state'] = _247AROUND_NEW_QUERY;
+                }
                 $booking['service_center_closed_date'] = NULL;
                 if ($booking['type'] == "Booking") {
                     $booking['initial_booking_date'] = $booking['booking_date'];
@@ -1106,7 +1113,7 @@ class Booking extends CI_Controller {
         } else {
             $consumption_where = '(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')';
         }
-        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL, $consumption_where => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL, $consumption_where => NULL, 'defective_part_shipped is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1, "tag <> '".PART_NOT_RECEIVED_TAG."'" => NULL], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
         // Get review questionnaire for Admin Panel, Complete Form, Booking Service Id, Booking Request Type
@@ -4639,7 +4646,8 @@ class Booking extends CI_Controller {
         $row[] = $order_list->appliance_brand;
         $row[] = $order_list->booking_date." / ".$order_list->booking_timeslot;
         $row[] = $ageString;
-        $row[] = $escalation." ".$order_list->partner_internal_status." <br> Latest Ack Date : ".$last_spare;
+        // show internal_status instead of partner_internal_status because we are using internal_status in queries
+        $row[] = $escalation." ".$order_list->internal_status." <br> Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
         $row[] = $order_list->rm_name;
         $row[] = $state;

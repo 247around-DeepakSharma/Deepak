@@ -1907,12 +1907,48 @@ class Around_scheduler extends CI_Controller {
            log_message('info', __FUNCTION__ . ' Function End With No Booking Found');
         }
     }
+    /**
+     * @desc This function is used to approve cancellation, which was cancelled by the vendor
+     * @param int $days - default value is 10. We will approve below age of cancellation
+     * @param boolean $is_sms - If we have to send sms while cancelling booking then pass TRUE otherwise FALSE
+     * @param int $partner_id - If we have to approve any specific partner then pass Partner_id 
+     */
+    function auto_approve_cancelled_review_booking($days = 10, $is_sms = false, $partner_id = false){
+        log_message('info', __METHOD__. "Start Days ". $days. " SMS ". $is_sms );
+        $where = array("sc.current_status"=> SF_BOOKING_INPROCESS_STATUS,
+        "sc.internal_status IN ('"._247AROUND_COMPLETED."', '"._247AROUND_CANCELLED."') "=> NULL,
+        "sc.closed_date <= '".date('Y-m-d', strtotime("-".$days." days"))."'" => NULL);
+
+        if(!empty($partner_id)){
+            $where['b.partner_id'] = $partner_id;
+        }
+
+
+        $cancelled_booking = $this->reusable_model->get_search_result_data("service_center_booking_action as sc"," Distinct sc.booking_id, b.partner_id",
+        $where
+        ,array('booking_details as b' => 'b.booking_id = sc.booking_id'),NULL, NULL,NULL, array(),
+        "sc.booking_id having GROUP_CONCAT(DISTINCT sc.internal_status) = '"._247AROUND_CANCELLED."'");
+
+        $data = array();
+        if(!empty($cancelled_booking)){
+            foreach($cancelled_booking as $val){
+                    $data['partner_id'][$val['booking_id']] = $val['partner_id'];
+                     $data['approved_booking'][] = $val['booking_id'];
+            }
+            $data['approved_by'] = _247AROUND;
+            //Call function to review the bookings
+            $this->checked_complete_review_booking($data, $is_sms);
+            log_message('info', __FUNCTION__ . ' End');
+        }
+        
+    }
     /*
      * This Function is used to complete review bookings
      * Input  - $bookingData this array will contain 3 keys
      */
-    function checked_complete_review_booking($bookingData) {
-        log_message('info', __FUNCTION__ . ' Function Start '.print_r($bookingData,TRUE));
+    function checked_complete_review_booking($bookingData, $is_sms = true) {
+        log_message('info', __FUNCTION__ . ' Function Start ');
+        print_r($bookingData);  
         $requested_bookings = $bookingData['approved_booking'];
         if($requested_bookings){
         $where['is_in_process'] = 0;
@@ -1930,6 +1966,7 @@ class Around_scheduler extends CI_Controller {
             $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
             $data['partner_id'] = $bookingData['partner_id'];
             $data['approved_by'] = $bookingData['approved_by']; 
+            $data['is_sms'] = $is_sms; 
             $this->asynchronous_lib->do_background_process($url, $data);
         } else {
             //Logging
