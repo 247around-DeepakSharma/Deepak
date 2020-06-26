@@ -4812,8 +4812,8 @@ class Inventory extends CI_Controller {
             $post['where'] = array('inventory_master_list.inventory_id' => $value['inventory_id']);
             $post['length'] = -1;
 
-            $list = $this->inventory_model->get_inventory_stock_list($post, $select);
-            
+            $list = $this->inventory_model->get_inventory_master_list($post, $select);
+
             $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
             if (!empty($list)) {
                 if ($list[0]->oow_around_margin > 0) {
