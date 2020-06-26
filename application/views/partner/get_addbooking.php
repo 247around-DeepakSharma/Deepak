@@ -1779,7 +1779,7 @@
             $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
             $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
             $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
-            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true).css('pointer-events', 'none');
+            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
             $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
             $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
             $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
