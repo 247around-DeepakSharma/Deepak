@@ -22,6 +22,8 @@
             <th>Flat Customer Upcountry Charges</th>
             <th>Partner Spare Extra Charges</th>
             <th>Select All <input type="checkbox" id="select_all" /></th>
+            <?php }else{ ?>
+            <th>Partner Spare Extra Charges</th>  
             <?php } ?>
             
         </tr>
@@ -48,6 +50,8 @@
             <td><?php echo $value['upcountry_customer_price']; ?></td>
             <td><?php echo $value['partner_spare_extra_charge']; ?></td>
             <td><input type="checkbox" name="delete_charge[]" class="service_charge_id" value="<?php echo $value['id']; ?>" /></td>
+            <?php }else{ ?>
+                <td><?php echo $value['partner_spare_extra_charge']; ?></td>
             <?php } ?>
             
         </tr>
