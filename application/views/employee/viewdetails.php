@@ -160,7 +160,26 @@
                             <th>Booking Address </th>
                             <td style="max-width:200px;"><span class="text"><?php echo $booking_history[0]['booking_address'];?></span> <span class="edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                             <th>Booking City/District: </th>
-                            <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?></td>
+                            <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?>
+                                    
+                            <?php 
+                              if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
+                              if (strpos($booking_history[0]['zone'], 'Red') !== false) {
+                               $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Orange') !== false) {
+                              $districtZoneType = '<span class="label label-warning">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Green') !== false) {
+                              $districtZoneType = '<span class="label label-success">COVID ZONE</span>';
+                              }
+                              }else{
+                               $districtZoneType = '';
+                              }
+                             ?>  
+                             <?php  echo $districtZoneType; ?>      
+
+                            </td>
                         </tr>
                         <tr>
                             <th>Booking State </th>

@@ -26,11 +26,8 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Pending Spares On Approval</h2>
-   
                     <div class="clearfix"></div>
-                    
                 </div>
-                 
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                         <table class="table table-bordered table-hover table-striped" id="spare_approval_table" style=" z-index: -1;position: static;">
@@ -49,20 +46,15 @@
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Cancel</th>
-                                    
-                                   
                                     <th data-sortable="false" class="text-center">Approve</th>
                                 </tr>
                             </thead>
                         </table>
-                        
                     </form>
                 </div>
             </div>
         </div>
- 
     </div>
-    
     <div id="myModal2707" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -73,40 +65,38 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-md-12">
-                                 <div class="form-group ">
-                                    
-                                    <label for="" class="col-md-4">Spare Cancel Reason *</label>
-                                    <div class="col-md-6">
-                                        <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason"></select>
-                                    </div>
-                                </div>
-                            <br>
+                        <div class="form-group ">
+
+                            <label for="" class="col-md-4">Spare Cancel Reason *</label>
+                            <div class="col-md-6">
+                                <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason"></select>
+                            </div>
+                        </div>
+                        <br>
                     </div>
                     <br><br><br>
                     <div class="col-md-12">
-                                 <div class="form-group ">
-                                    
-                                    <label for="" class="col-md-4">Enter Remarks *</label>
-                                    <div class="col-md-6">
-                                        <textarea rows="1" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
-                                    </div>
-                                </div>
-                            <br>
+                        <div class="form-group ">
+
+                            <label for="" class="col-md-4">Enter Remarks *</label>
+                            <div class="col-md-6">
+                                <textarea rows="1" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                            </div>
+                        </div>
+                        <br>
                     </div>
                     <br>
-
                 </div>
                 <input type="hidden" id="url">
 
                 <input type="hidden" name="" value="<?php echo $this->session->userdata('partner_id'); ?>" id="modal_partner_id">
-                
+
                 <div class="modal-footer">
                     <center>
-                    <button type="button" class="btn btn-danger" onclick="reject_parts()">Cancel</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                        <button type="button" class="btn btn-danger" onclick="reject_parts()">Cancel</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
                     </center>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -115,56 +105,51 @@
 <div class="clearfix"></div>
 
 <div id="myModal777" class="modal fade" role="dialog">
-  <div class="modal-dialog" style="width: 55%;">
-    <!-- Modal content-->
-    <div class="modal-content" >
-         
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="appmodal-title">Approve Spare Part</h4>
-            </div>
-            <br>
-                <div class="row">
-                            <div class="col-md-6">
-                                 <div class="form-group "id="email_ids">
-                                    
-                                    <label for="" class="col-md-4">Spare Status By SF</label>
-                                    <div class="col-md-6" id="part_warranty_option">
-                                        <select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">
-                                            <option selected="" disabled="">Select warranty status</option>
-                                            <option value="1" selected="selected"> In-Warranty </option>
-                                            <option value="2"> Out Of Warranty </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            <br>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group ">
-                                    
-                                    <label for="remarks_defective_part" class="col-md-4">Remarks *</label>
-                                    <div class="col-md-6">
-                                        <textarea type="text" class="form-control" id="apptextarea" name="remarks" placeholder="Please Enter Remarks" required=""></textarea>
-                                    </div>
-                                   </div>
-                            </div>
-                            <input type="hidden" id="appurl" value="">
-                        </div>
-                
-                 <div class="modal-footer">
-                <center>
-                <button type="submit" id="uploadButton" onclick="approve_parts();" class="btn btn-success">Approve</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
-                </center>
+    <div class="modal-dialog" style="width: 55%;">
+        <!-- Modal content-->
+        <div class="modal-content" >
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="appmodal-title">Approve Spare Part</h4>
                 </div>
-            
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group "id="email_ids">
+
+                            <label for="" class="col-md-4">Spare Status By SF</label>
+                            <div class="col-md-6" id="part_warranty_option">
+                                <select class="form-control" id="part_warranty_status" name="part_warranty_status" value="">
+                                    <option selected="" disabled="">Select warranty status</option>
+                                    <option value="1" selected="selected"> In-Warranty </option>
+                                    <option value="2"> Out Of Warranty </option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group ">
+
+                            <label for="remarks_defective_part" class="col-md-4">Remarks *</label>
+                            <div class="col-md-6">
+                                <textarea type="text" class="form-control" id="apptextarea" name="remarks" placeholder="Please Enter Remarks" required=""></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="appurl" value="">
+                </div>
+                <div class="modal-footer">
+                    <center>
+                        <button type="submit" id="uploadButton" onclick="approve_parts();" class="btn btn-success">Approve</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                    </center>
+                </div>
+            </div>
         </div>
-        
-
     </div>
-
-  </div>
 </div>
 <div class="loader hide"></div>
  <style>
@@ -178,8 +163,6 @@
     background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
   }
 </style>
-
-
 <script>
     $(document).ready(function () {
         $('#state_search').select2();
@@ -207,7 +190,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [0,1,2,3,4,5,6,7,8,9,11]
+                        columns: [0,1,2,3,4,5,6,7,8,9,10,11]
                     },
                     title: 'Spare_Part_On_Approval'
                 }
