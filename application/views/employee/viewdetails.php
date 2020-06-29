@@ -163,6 +163,7 @@
                             <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?>
                                     
                             <?php 
+                              $districtZoneType = "";
                               if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
                               if (strpos($booking_history[0]['zone'], 'Red') !== false) {
                                $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
