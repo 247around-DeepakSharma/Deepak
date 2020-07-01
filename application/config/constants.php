@@ -760,5 +760,6 @@ define('GEOIQ_API_KEY', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYWlsSWRlbnRpdH
 define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
 
 define('BOOKING_RESCHEDULE_ERROR_MSG', 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.');
+define('EMP_DEACTIVATION_ERROR', 'Employee can not be deactivated, There are some Vendors associated with this employee. Kindly unmap this Employee from all associated Areas/Vendors, and then de-activate the employee.');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
