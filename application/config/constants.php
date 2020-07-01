@@ -747,6 +747,8 @@ define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
 
 // Leg_1 & leg_2 Default Count
 define('LEG_DEFAULT_COUNT', 16);
+
+define('BOOKING_RESCHEDULE_ERROR_MSG', 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
