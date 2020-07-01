@@ -1326,7 +1326,7 @@ class Booking extends CI_Controller {
                 }
             }
         } else {
-            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            $this->session->set_userdata(['error' => BOOKING_RESCHEDULE_ERROR_MSG]);
             $this->get_reschedule_booking_form($booking_id);
         }
     }
