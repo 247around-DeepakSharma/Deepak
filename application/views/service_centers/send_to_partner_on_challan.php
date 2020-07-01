@@ -631,11 +631,6 @@
         let total = parseInt(killo)+parseInt(gram);
         if(total =='' || isNaN(total)){
         swal("Error !", "Weight in KG and GM must be greater than 0");
-        let kg = parseInt($("#shipped_spare_parts_weight_in_kg").val());
-        let gm = parseInt($("#shipped_spare_parts_weight_in_gram").val());
-        let total = parseInt(kg)+parseInt(gm);
-        if(kg <= 0 && gm <= 0){
-        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
         return false;
         }
 		}
