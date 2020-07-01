@@ -261,7 +261,7 @@ class Upload_buyback_process extends CI_Controller {
         $rowData['subcat'] = $data[1];
         $rowData['city'] = $data[3];
         if(!empty($data[4])) {
-            $order_date = date('d-M-Y', strtotime($data[4]));
+            $order_date = date('d-M-Y', strtotime(trim($data[4])));
         }
         $rowData['order_date'] = date("Y-m-d", strtotime($order_date));
         $rowData['partner_order_id'] = $data[5];
