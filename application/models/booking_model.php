@@ -1616,7 +1616,7 @@ class Booking_model extends CI_Model {
             $this->db->select('id, customer_total, price_tags, vendor_basic_percentage, booking_status');
             $this->db->where('appliance_id', $services_details['appliance_id']);
             $this->db->where('price_tags', $data[0]['price_tags']);
-            $this->db->like('booking_id', $trimed_booking_idda);
+            $this->db->like('booking_id', $trimed_booking_id);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
             $result = array_merge($data[0], $services_details);
