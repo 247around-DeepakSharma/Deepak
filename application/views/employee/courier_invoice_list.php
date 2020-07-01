@@ -107,7 +107,7 @@
              return false;
          }
          
-         if((days >='31')){
+         if((days >='31') || (date_range_arr == '')){
              alert("You can download the details of maximum one month, Please select the date range.");
              flag = false;
              return false;
