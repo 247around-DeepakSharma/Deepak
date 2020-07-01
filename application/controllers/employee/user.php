@@ -985,7 +985,7 @@ class User extends CI_Controller {
         $arr_vendors = $this->vendor_model->get_sf_associated_with_rm($id);
         if(!empty($arr_vendors[0]['individual_service_centres_id']))
         {
-            $this->session->set_userdata('error','Employee can not be deactivated, There are some Vendors associated with this employee');
+            $this->session->set_userdata('error',EMP_DEACTIVATION_ERROR);
             redirect(base_url() . "employee/user/show_employee_list");
         }
         $data = array("active"=>0);
