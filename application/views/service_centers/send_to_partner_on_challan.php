@@ -281,7 +281,7 @@
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
                                     <div class="col-md-8">
                                         <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram" name="spare_parts_shipped_gram" value="" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
                                     </div>
                                 </div>
                             </div>
@@ -387,11 +387,19 @@
 </script>
 <script>
     
+    /* 
+     * @desc: Allow only numeric value in text
+     */
+    $('#courier_price_id').bind('keyup paste', function(){
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
     $('#partner_id').select2({
         placeholder:'Select Partner',
         allowClear:true
     });
     $('#courier_name_by_wh_id').select2({
+        tags: true,
         placeholder:'Select Courier Name',
         allowClear:true
     });
@@ -520,10 +528,22 @@
 
 
         let kg = $("#shipped_spare_parts_weight_in_kg").val();
+        if(kg == ''){
+            killo = 0; 
+        }else{
+           killo = kg;
+        }
+        
         let gm = $("#shipped_spare_parts_weight_in_gram").val();
-        let total = parseInt(kg)+parseInt(gm);
-        if(!total){
-        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+         if(gm == ''){
+            gram = 0; 
+        }else{
+            gram = gm; 
+        }
+        
+        let total = parseInt(killo)+parseInt(gram);
+        if(total =='' || isNaN(total)){
+        swal("Error !", "Weight in KG and GM must be greater than 0");
         return false;
         }
 
@@ -551,20 +571,22 @@
           return false;
         }
         
-        /*if(!postData['shipped_spare_parts_boxes_count']){
+        /*
+        if(!postData['shipped_spare_parts_boxes_count']){
           alert('Boxes Count Should Not Be Blank.'); 
           return false;
-        }*/
+        }
         
         if(!postData['shipped_spare_parts_weight_in_kg']){
           alert('Weight In KG Should Not Be Blank.'); 
           return false;
         }
-        
+       
         if(!postData['shipped_spare_parts_weight_in_gram']){
           alert('Weight In Gram Should Not Be Blank.'); 
           return false;
-        }
+        }        
+        */
         
         if(!is_exist_file){
           alert('Please Choose Courier File.'); 
@@ -891,7 +913,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
@@ -906,7 +928,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 3 ) {
                 $(this).val('');
                 return false;
             }
@@ -921,7 +943,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || weight_kg < 0 ) {
+            if (weight_kg.length > 3 ) {
                 $(this).val('');
                 return false;
             }
