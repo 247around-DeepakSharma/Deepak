@@ -429,6 +429,7 @@ function get_data_for_partner_callback($booking_id) {
         $sql .= " JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
+            LEFT JOIN india_district_coordinates ON (LOWER(TRIM(booking_details.district)) = LOWER(TRIM(india_district_coordinates.district)))
             LEFT JOIN booking_comments on booking_comments.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id

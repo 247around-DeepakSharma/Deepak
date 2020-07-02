@@ -944,7 +944,7 @@
                                     ?>"/>
                                             <?php echo form_error('contract_file'); ?>
                                         </div>
-                                        <div class="col-md-1">
+                                        <div class="col-md-2">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
@@ -2140,17 +2140,19 @@ function manageAccountNameField(value){
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel').css('display', 'inline');
         $('#container-1').css('pointer-events', 'auto');
-        
+        <?php if($this->session->userdata['user_group'] != _247AROUND_ACCOUNTANT){ ?>
         if($('#'+container+' #company_name').val() != ''){
             $('#'+container+' #company_name').css('pointer-events', 'none');
             $('#'+container+' #company_name').attr('readonly');
             $('#'+container+' #company_name').css('background-color','');
         }
+        
         if($('#'+container+' #name').val() != ''){
             $('#'+container+' #name').css('pointer-events', 'none');
             $('#'+container+' #name').attr('readonly');
             $('#'+container+' #name').css('background-color','');
         }
+        
         if($('#'+container+' #name_on_pan').val() != ''){
             $('#'+container+' #name_on_pan').css('pointer-events', 'none');
             $('#'+container+' #name_on_pan').attr('readonly');
@@ -2210,6 +2212,9 @@ function manageAccountNameField(value){
             $('#'+container+' #contract_file').attr('readonly');
             $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
+        <?php }else{ ?>
+            $('#'+container+' a[title="Remove Image"]').css('display','inline');
+        <?php } ?>
     }
     
     function check_documents() {
