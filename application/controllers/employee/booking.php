@@ -6493,7 +6493,54 @@ class Booking extends CI_Controller {
             echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
         }
     }
-    
+
+    /**
+     * This function is used to return the query for the chosen tag and to view the custom report viewpage.
+     * @param-flag
+     * @return - when flag is 0 it will display custom report view page when flag is 1 it will return the query
+     */
+     function custom_reports($flag = 0) {
+        $data = $this->booking_model->get_custom_query_data();
+        $name = "";
+        foreach ($data as $key => $value) {
+            if($value['tag'] == "insert_partner_contact_list"){
+                $subject= sprintf($value['subject'], $name);
+                $sql = $value['query'];
+            }
+        }
+        $query = $this->db->query($sql); 
+        if($flag){
+            return $query;
+        }
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/custom_report');
+        
+    }
+    /** Desc- This function is used to download Custom Report
+    */
+    function download_custom_report(){
+        $custom_report= "Custom Report " . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $custom_report;
+        $report = $this->custom_reports(1);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        if(!empty($csv)){
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        }
+        log_message('info', __FUNCTION__ . ' Function End');
+        //unlink($csv);
+    }
     /**
      * Method shows the view of combined booking & spare report.
      * @author Ankit Rajvanshi

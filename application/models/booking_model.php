@@ -146,7 +146,15 @@ class Booking_model extends CI_Model {
         return $appliance;
     }
 
-
+    /**
+    * @desc: get custom query data from custom report queries 
+    * @return : Array
+    */
+    function get_custom_query_data(){
+        $sql = "SELECT * FROM custom_report_queries";
+        $query = $this->db->query($sql);
+        return $query->result_array();  
+    }
 
 
     /**
