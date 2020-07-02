@@ -737,11 +737,6 @@
                             }
                             ?>
                             <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                            <?php if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) { ?>
-                                <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['signature_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                            <?php } ?>
-
-                            
                         </div>  
                             </div>  
                             
