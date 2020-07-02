@@ -195,7 +195,7 @@ input[type=file][readonly]
                                         } ?>">
                                         <label  for="company_name" class="col-md-4">Company Name *</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" <?php if (isset($query[0]['company_name'])) { echo 'readonly="true"'; } ?> id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
+                                            <input  type="text" class="form-control blockspacialchar" <?php if (isset($query[0]['company_name']) && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'readonly="true"'; } ?> id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])) {
                                                 echo $query[0]['company_name'];
                                                 } ?>" >
                                             <?php echo form_error('company_name'); ?>
@@ -211,7 +211,7 @@ input[type=file][readonly]
                                                 } ?>" >
                                             <input  type="text" class="form-control blockspacialchar" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])) {
                                                 echo $query[0]['public_name'];
-                                                } ?>" <?php if (isset($query[0]['public_name'])) { echo 'readonly="true"'; } ?> >
+                                                } ?>" <?php if (isset($query[0]['public_name'])  && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'readonly="true"'; } ?> >
                                             <?php echo form_error('public_name'); ?>
                                         </div>
                                     </div>
@@ -986,12 +986,12 @@ input[type=file][readonly]
                                         } ?>">
                                         <label for="pan" class="col-md-3">PAN No.</label>
                                         <div class="col-md-4" style="width:25%">
-                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
+                                            <input type="text" class="form-control blockspacialchar"  name="pan" id="pan_no" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'readonly tabindex="-1"'; } ?> value = "<?php if (isset($query[0]['pan'])) {
                                                 echo $query[0]['pan'];
                                                 } ?>" placeholder="PAN Number">
                                         </div>
                                         <div class="col-md-4">  
-                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '') { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control"  name="pan_file" <?php if (isset($query[0]['pan']) && $query[0]['pan'] != '' && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1003,7 +1003,7 @@ input[type=file][readonly]
                                                 }
                                                 ?>
                                             <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                            <?php if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) { ?>
+                                            <?php if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file']) && $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT) { ?>
                                             <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>, '<?php echo $query[0]['pan_file'] ?>', 'pan_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php } ?>
                                         </div>
@@ -1134,7 +1134,7 @@ input[type=file][readonly]
                                             <input type="text" style="text-transform:uppercase" class="form-control blockspacialchar"  name="gst_number" id="gst_number" value = "<?php if (isset($query[0]['gst_number'])) {
                                                 echo $query[0]['gst_number'];
                                                 } ?>" placeholder="GST Number" oninput="validateGSTNo()" 
-                                                <?php if (isset($query[0]['gst_number'])) { echo 'readonly tabindex="-1"'; } ?>>
+                                                <?php if (isset($query[0]['gst_number'])  && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'readonly tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-2">
                                             <input type="text" class="form-control" name="gst_type" id="gst_type" placeholder="Enter GST Number Type" value = "<?php if (isset($query[0]['gst_type'])) {
@@ -1147,7 +1147,7 @@ input[type=file][readonly]
                                                 } ?>" readonly="readonly">
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])) { echo 'disabled tabindex="-1"'; } ?>>
+                                            <input type="file" class="form-control"  name="gst_number_file" <?php if (isset($query[0]['gst_number'])  && $this->session->userdata('user_group') != _247AROUND_ACCOUNTANT) { echo 'disabled tabindex="-1"'; } ?>>
                                         </div>
                                         <div class="col-md-1">
                                             <?php
@@ -1159,7 +1159,7 @@ input[type=file][readonly]
                                                 }
                                                 ?>
                                             <a href="<?php echo $src ?>" target="_blank"> <img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                            <?php if (isset($query[0]['gst_number_file']) && !empty($query[0]['gst_number_file'])) { ?>
+                                            <?php if (isset($query[0]['gst_number_file']) && !empty($query[0]['gst_number_file'])  && $this->session->userdata('user_group') == _247AROUND_ACCOUNTANT) { ?>
                                             <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>, '<?php echo $query[0]['gst_number_file'] ?>', 'gst_number_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php } ?>
                                         </div>

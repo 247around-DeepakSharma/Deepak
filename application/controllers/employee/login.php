@@ -488,42 +488,26 @@ class Login extends CI_Controller {
     function allow_log_in_to_vendor($vendor_id) {
         //Getting vendor details
         $this->session->sess_create();
-        $this->session->set_userdata(array("login_by"=>_247AROUND_EMPLOYEE_STRING));
+        $this->session->set_userdata(array("login_by" => _247AROUND_EMPLOYEE_STRING));
         $agent = $this->service_centers_model->get_sc_login_details_by_id($vendor_id);
         if (!empty($agent)) {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($vendor_id);
-            if(is_null($sc_details[0]['is_gst_doc'])){
-               $is_gst_exist = FALSE;
-            }else{
-               $is_gst_exist = TRUE;
+            if (is_null($sc_details[0]['is_gst_doc'])) {
+                $is_gst_exist = FALSE;
+            } else {
+                $is_gst_exist = TRUE;
             }
-            $wh_name =  _247AROUND_EMPLOYEE_STRING." ".$sc_details[0]['district'] ." (". $sc_details[0]['state']. ")";
+            $wh_name = _247AROUND_EMPLOYEE_STRING . " " . $sc_details[0]['district'] . " (" . $sc_details[0]['state'] . ")";
             //Setting logging vendor session details
-          
-            $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
-                    $agent[0]['id'], $sc_details[0]['is_update'], 
-                    $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
-                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent[0]['full_name']);
-           
-            if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0') {
-                //CRM-6107 validate SF has authorization certificate 
-                if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
-                    $this->session->set_userdata(array(
-                        'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
-                        'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
-                    ));
-                    echo "service_center/dashboard";
-                    return;
-                }
-                $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
-                $this->session->set_userdata($userSession);
-                echo "service_center/login";
-            } else if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1') {
+
+            $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], $agent[0]['id'], $sc_details[0]['is_update'], $sc_details[0]['is_upcountry'], $sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'], $wh_name, $is_gst_exist, $sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'], $sc_details[0]['is_micro_wh'], TRUE, $sc_details[0]['primary_contact_email'], $agent[0]['full_name']);
+
+            if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/dashboard";
             } else if ($this->session->userdata('is_cp') === '1') {
                 echo "service_center/buyback/bb_order_details";
-            }else if($this->session->userdata('is_wh') === '1'){
+            } else if ($this->session->userdata('is_wh') === '1') {
                 echo "service_center/inventory";
             }
         }
