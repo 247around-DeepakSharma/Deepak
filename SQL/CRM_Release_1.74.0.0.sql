@@ -4,7 +4,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 
 -- Ankit 02-07-2020
-INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Covid Zone', 'india_district_coordinates.zone_color AS \'Covid Zone\'', '1', '', '1', '2');-- Raman
+INSERT INTO `partner_summary_report_mapping` (`id`, `Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES (NULL, 'Covid Zone', 'india_district_coordinates.zone_color AS \'Covid Zone\'', '1', '', '1', '2');
+-- Raman
 -- 30-06-2020
 
 	CREATE TABLE custom_report_queries (
