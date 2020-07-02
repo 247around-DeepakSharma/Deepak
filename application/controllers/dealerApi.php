@@ -911,6 +911,7 @@ function submitEscalation(){
 
 // Shipped details//
                 if ($parts_shipped) {
+                    $spare_shipped[$key]['id'] = $spare['id'];
                     $spare_shipped[$key]['entity_type'] = $spare['entity_type'];
                     $spare_shipped[$key]['parts_shipped'] = $spare['parts_shipped'];
                     $spare_shipped[$key]['shipped_part_number'] = $spare['shipped_part_number'];
@@ -948,6 +949,7 @@ function submitEscalation(){
                 }
 /// DEFECTIVE DETAILS//  
                 if ($defective_parts_shipped) {
+                    $spare_defective[$key]['id'] = $spare['id'];
                     if (!empty($sp['send_defective_to'])) {
                      $spare_defective[$key]['send_defective_to'] = $spare['send_defective_to'];
                     } else {
@@ -983,7 +985,7 @@ function submitEscalation(){
                     $spare_defective[$key]['sf_challan_number'] = $spare['sf_challan_number'];
                 }
 /// INVOICE DETAILS //
-
+                $spare_invoice[$key]['id'] = $spare['id'];
                 $spare_invoice[$key]['model_number_shipped'] = $spare['model_number_shipped'];
                 $spare_invoice[$key]['parts_shipped'] = $spare['parts_shipped'];
                 $spare_invoice[$key]['shipped_part_number'] = $spare['shipped_part_number'];
@@ -1000,6 +1002,7 @@ function submitEscalation(){
 
 /// OOW  DETAILS //
                 if ($estimate_given) {
+                    $spare_oow[$key]['id'] = $spare['id'];
                     if ($spare['entity_type'] == _247AROUND_PARTNER_STRING) {
                         $spare_oow[$key]['entity_type'] = 'Partner';
                     } else {
