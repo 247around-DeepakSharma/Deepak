@@ -9839,5 +9839,42 @@ class Partner extends CI_Controller {
         }
     }
 
+    /* We will revert below code after automation script tested. this is for testing purpose only.*/
+    /**
+     * @desc: For testing purpose only (database error).
+     */
+    function pending_booking_database($booking_id = "") {
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+           $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array()); 
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+    }
+
+    /**
+     * @desc: For testing purpose only (php error).
+     */
+    function pending_booking_php($booking_id = "") {
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata() == 1){
+           $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array()); 
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+    }
+
+    /**
+     @desc: For testing purpose only (parse error).
+     */
+    function pending_booking_test_parse($booking_id = "") {
+        $this->load->view('partner/pending_booking_test');
+    }
 
 }
