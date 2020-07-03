@@ -67,6 +67,11 @@ class Upload_buyback_process extends CI_Controller {
     }
     
     function buyback_file_processing(){
+        
+        if(empty($_FILES["file"])) {
+            return true;
+        }
+        
         $pathinfo = pathinfo($_FILES["file"]["name"]);
         if(!empty($this->input->post('email_send_to'))){
             $this->email_send_to = $this->input->post('email_send_to');
