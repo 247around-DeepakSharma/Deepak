@@ -197,6 +197,7 @@
                                                     <span id="error_nrn_month" class="error" style="color: red;"></span>  
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
                                                 <label for="tr_reporting_date" class="col-md-4">TR Reporting Date *</label>
                                                 <div class="col-md-6">
@@ -959,4 +960,4 @@
                 });
             });
         });
-    </script>   
+    </script>

@@ -945,7 +945,6 @@ class Invoice_lib {
             if (empty($sf_challan_number)) {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
-
             
             $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,$show_consumption_reason);
 

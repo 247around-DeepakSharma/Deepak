@@ -40,7 +40,6 @@ class User extends CI_Controller {
             } else {
                 redirect(base_url() . "employee/login");
             }
-
         }else{
             if ($this->session->userdata('loggedIn') == TRUE) {
                 return TRUE;
@@ -48,7 +47,6 @@ class User extends CI_Controller {
             else {
                 log_message('info', __FUNCTION__. " Session Expire for Partner");
                 $this->session->sess_destroy();
-
                 redirect(base_url() . "employee/login");
             }
         }

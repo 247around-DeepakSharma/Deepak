@@ -108,6 +108,16 @@
                 </select>
             </div>
          </div>
+         <div class="form-group col-md-4" style="">
+            <label for="type_code" class="col-sm-4">247around Sales / Purchase</label>
+            <div class="col-md-8">
+                <select class="form-control" id="type_code" onchange="getInvoicingData('<?php echo $vendor_partner; ?>')">
+                   <option disabled selected>None Of these</option>
+                   <option value='A'>Sales</option>
+                   <option value='B'>Purchase</option>
+                </select>
+            </div>
+         </div>
          <div class="form-group col-md-3">
             <label for="settle_invoice_checkbox" class="col-sm-8">Invoice Un-Settled</label>
             <div class="col-md-4">
@@ -374,11 +384,16 @@
     var vertical = $("#vertical").val();
     var category = $("#category").val();
     var sub_category = $("#sub_category").val();
+    var type_code = $("#type_code").val();
     $('#overall_summary').css('display', 'none');
     $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
-          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,invoice_period:invoice_period, settle_invoice: c, vertical:vertical, category:category, sub_category:sub_category, msl_invoice : msl},
+          data: {vendor_partner_id: vendor_partner_id, source: source, invoice_type:invoice_type ,
+          invoice_period:invoice_period, settle_invoice: c, vertical:vertical, category:category, 
+          sub_category:sub_category, 
+          msl_invoice : msl,
+          type_code:type_code},
           success: function (data) {
             $('#loader_gif').attr('src', '');
             $("#invoicing_table").html(data);

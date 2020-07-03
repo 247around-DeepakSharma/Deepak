@@ -67,6 +67,14 @@
                             </select>
                         </div>
                         <div class="form-group col-md-3" style="margin-top: 15px;">
+                            <label>Select 247around Sales / Purchase</label>
+                            <select name="type_code" class="form-control col-md-12" id="type_code" style="width:100%;"> 
+                             <option value='' selected disabled>None Of the Below</option>
+                             <option value='A'>Sales</option>
+                             <option value='B'>Purchase</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3" style="margin-top: 15px;">
                              <label>Invoice Remark</label>
                              <input type="text" class="form-control" id="invoice_remarks" name="invoice_remarks" placeholder="Invoice Remarks" style="width:100%;">
                         </div>
@@ -208,6 +216,7 @@
                        d.vertical = $("#vertical").val();
                        d.category = $("#category").val();
                        d.sub_category = $("#sub_category").val();
+                       d.type_code = $("#type_code").val();
                  }
 
             },

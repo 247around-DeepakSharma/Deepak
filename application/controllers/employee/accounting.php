@@ -1115,6 +1115,11 @@ class Accounting extends CI_Controller {
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
         }
+        // Added code to filter Sales /Purchase invoice. we are passing type code A & B. 
+        // A for the Sales & B for the Purchase
+        if(!empty($this->input->post("type_code"))){
+            $post['where']['vendor_partner_invoices.type_code'] = $this->input->post("type_code");
+        }
         
         if($this->input->post("is_msl") != NULL) {
             if($this->input->post("is_msl")) {
@@ -1285,7 +1290,6 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-
         $data = "'".date("Y-m-d", strtotime($transaction_list->transaction_date))."', '".date("Y-m-01", strtotime($transaction_list->transaction_date))."', '". date("Y-m-d", strtotime("+1 day".$transaction_list->transaction_date)) ."' ";
         $row[] = '<span class="text">'.date("d-M-Y", strtotime($transaction_list->transaction_date)).'</span><span class="edit" onclick="transd_update(this,'.$transaction_list->id.','.$data.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
