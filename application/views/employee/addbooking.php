@@ -635,14 +635,7 @@ function check_booking_request()
             },
             success:function(response){
                 var returnData = JSON.parse(response);
-                if ($('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').is(':disabled') == false) 
-                {
-                $('.errorMsg').html(returnData['message']);    
-                }
-                else
-                {
-                $('.errorMsg').html("");
-                }
+                $('.errorMsg').html(returnData['message']);
                 if(returnData['status'] == 1)
                 {
                     $("#submitform").attr("disabled", true);                        
