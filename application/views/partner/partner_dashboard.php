@@ -106,11 +106,14 @@
                     <button class="btn btn-primary" ng-click="ShowRMCompletedBookingBYDateRange()" ng-model="partner_dashboard_filter" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
                 <br>
                 <div class="clear"></div>
+                <p ng-if='completedBookingByRM.leg_1 !== undefined'>
+                    <?php echo LEG_DESCRIPTION ; ?>
+                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>Zone</th>
                             <th>Day0</th>
                             <th>Day1</th>
                             <th>Day2</th>
@@ -118,7 +121,7 @@
                             <th>Day4</th>
                             <th>Day5 - Day7</th>
                             <th>Day8 - Day15</th>
-                            <th> Day15 (Total)</th>
+                            <th> >Day15 (Total)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -271,7 +274,7 @@
                     <thead>
                         <tr>
                             <th>S.no</th>
-                            <th>RM</th>
+                            <th>Zone</th>
                             <th>Day0</th>
                             <th>Day1</th>
                             <th>Day2</th>
@@ -279,7 +282,7 @@
                             <th>Day4</th>
                             <th>Day5 - Day7</th>
                             <th>Day8 - Day15</th>
-                            <th>Day15</th>
+                            <th>>Day15</th>
                             <th>Total</th>
                         </tr>
                     </thead>

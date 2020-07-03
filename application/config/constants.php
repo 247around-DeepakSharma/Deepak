@@ -64,7 +64,6 @@ define('FOPEN_READ_WRITE_CREATE','a+b');
 define('FOPEN_WRITE_CREATE_STRICT','xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT','x+b');
 
-define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer not reachable / Customer not picked phone');
 define('DEFAULT_SEARCH_PAGE', 'employee/user');
 
 //Agent ID used when Partner inserts a Booking by calling our API
@@ -179,8 +178,6 @@ define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 
-define('CUSTOMER_NOT_REACHABLE','Customer not reachable / Customer not picked phone');
-
 define('CALLBACK_SCHEDULED', 'Callback Scheduled');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
@@ -254,17 +251,6 @@ define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
 //Define error code for booking id not found for partner_sd_sb.php file
 define('ERR_BOOKING_ID_NOT_FOUND_MSG', 'Booking ID Does Not Exist');
 define('ERR_ORDER_ID_BOOKING_ID_INCORRECT_COMBINATION_MSG', 'Incorrect combination of order id & booking id.');
-//Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER','01143092150');
-//Define snapdeal new missed call number
-define('PARTNERS_MISSED_CALLED_NUMBER_2','01143092150');
-//Define snapdeal new missed call number
-define('SNAPDEAL_MISSED_CALLED_NUMBER','01143078384');
-//Define Android App new missed call number
-define('ANDROID_APP_MISSED_CALLED_NUMBER','01139585684');
-
-//Define new missed call number for AC installation
-define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');
 
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
 define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
@@ -376,8 +362,6 @@ define('BOOKING_NOT_EXIST_PROMOTINAL_SMS_2','booking_not_exist_promotional_sms_2
 
 //miss call rating sms
 define('MISSED_CALL_RATING_SMS','missed_call_rating_sms');
-define('GOOD_MISSED_CALL_RATING_NUMBER','01140849145');
-define('POOR_MISSED_CALL_RATING_NUMBER','01140849146');
 define('MISSED_CALL_DEFAULT_RATING', '5');
 
 
@@ -734,7 +718,7 @@ define("ADMIN_REMARKS_MIN_LENGTH" , 40);
 define('BOOKING_SOURCE_API', 22);
 define('BOOKING_SOURCE_CRM', 23);
 define('BOOKING_SOURCE_Excel_File', 24);
-define('BOOKING_SOURCE_Website', 25);
+define('BOOKING_SOURCE_Website', 18);
 // Agents for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
@@ -745,7 +729,7 @@ define("_247AROUND_DEALER_STRING" , "dealer");
 
 define("RTO_CASE_CANCELLATION_REASON_ID" , "1028");
 
-define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking</span>");
+define("LEG_DESCRIPTION", "<span style='color:red;'>*Leg_1 denotes the number of days between booking creation date and spare request date.<br/>*Leg_2 denotes the number of days between spare acknowledge/cancellation date and the date at which service center closes the booking<br/>*Total  denotes the number of days between between booking creation date and the date at which service center closes the booking</span>");
 define("PART_NOT_CONSUMED_CANCELLATION_REASON_ID" , "1029");
 
 define("UPDATE_INVENTORY_MASTER_LIST_MSG", "Mapping of this appliance with part type can only update from Part Master. Please update data from part master.");
@@ -761,5 +745,7 @@ define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
 
 define('BOOKING_RESCHEDULE_ERROR_MSG', 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.');
 define('EMP_DEACTIVATION_ERROR', 'Employee can not be deactivated, There are some Vendors associated with this employee. Kindly unmap this Employee from all associated Areas/Vendors, and then de-activate the employee.');
+// Leg_1 & leg_2 Default Count
+define('LEG_DEFAULT_COUNT', 16);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

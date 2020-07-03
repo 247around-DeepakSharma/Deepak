@@ -66,7 +66,12 @@
 <div id="page-wrapper">
     <div class="row">
 	<?php
-	$current_tab=$this->session->flashdata('current_tab');
+        if($this->session->userdata('current_tab')){
+            $current_tab=$this->session->userdata('current_tab');
+        }else{
+            $current_tab='';
+        }
+	
 	if($current_tab=='')
 	{
 		$current_tab=1;
@@ -157,8 +162,8 @@
             </div>
         </div>
         <?php
-        if($this->session->flashdata('vendor_added')){
-            echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->flashdata('vendor_added')."</p>";
+        if($this->session->userdata('vendor_added')){
+            echo "<p style ='text-align: center;line-height: 22px;background: #70e2b3;'>".$this->session->userdata('vendor_added')."</p>";
         }
         ?>
         <div id="container-1" class="panel-body form_container" style="<?php if($current_tab!=1){ ?>display:none;<?php } ?>padding-top: 0px;">
@@ -456,31 +461,31 @@
                             <div class="row">
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
                                 </label>
                                     </div>
                                                 <?php if(!$saas_module){ ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
                                 </label>
                                 </div>
                                                 <?php }?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
                                 </div>
                                   <?php if(!$saas_module){ ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
                                 </label>
                                 </div>
                                   <?php } ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
+                                    <input class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
                                 </label>
                                 </div>
                             </div>
@@ -499,7 +504,7 @@
                                                 echo "checked";
                                             }
                                         }
-                                        ?> >
+                                        ?> class='checkbox_input'>
                                 <?php echo $day; ?> &nbsp;&nbsp;&nbsp;
                                 </label>
                                 <?php } ?>
@@ -621,6 +626,12 @@
                                                 echo $query[0]['pan_file'];
                                             }
                                             ?>">
+
+                                            <input type="hidden" id="pan_file_hd" name="pan_file_hd" value = "<?php
+                                                if (isset($query[0]['pan_file'])) {
+                                                    echo $query[0]['pan_file'];
+                                                }
+                                                ?>"/>
                                         <?php echo form_error('pan_file'); ?>
                                     </div>
                                 </div>
@@ -708,6 +719,12 @@
                                                     echo $query[0]['gst_file'];
                                                 }
                                                 ?>">
+
+                                                <input type="hidden" id="gst_file_hd" name="gst_file_hd" value = "<?php
+                                                if (isset($query[0]['gst_file'])) {
+                                                    echo $query[0]['gst_file'];
+                                                }
+                                                ?>"/>
                                             <?php echo form_error('gst_file'); ?>
                                         </div>
                                         <div class="col-md-2">
@@ -2121,7 +2138,7 @@ function manageAccountNameField(value){
     // CRM-5620 disbled company name and document details on edit SF deatils
     function edit_form() {
         var container = $('#edit_service_center').attr('container');
-        $('#'+container).find('.form-control, .select2, #submit_btn').css('pointer-events', 'auto');
+        $('#'+container).find('.form-control, .select2, .checkbox_input, #submit_btn').css('pointer-events', 'auto');
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel').css('display', 'inline');
         $('#container-1').css('pointer-events', 'auto');
@@ -2146,10 +2163,13 @@ function manageAccountNameField(value){
             $('#'+container+' #pan_no').attr('readonly');
             $('#'+container+' #pan_no').css('background-color','');
         }
-        $('#'+container+' #pan_file').css('pointer-events', 'none');
-        $('#'+container+' #pan_file').attr('readonly');
-        $('#'+container+' #pan_file').css('background-color','');
-        
+
+        if($('#'+container+' #pan_file_hd').val() != ''){
+            $('#'+container+' #pan_file').css('pointer-events', 'none');
+            $('#'+container+' #pan_file').attr('readonly');
+            $('#'+container+' #pan_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }       
         
         if($('#'+container+' #gst_no').val() != ''){
             $('#'+container+' #gst_no').css('pointer-events', 'none');
@@ -2166,28 +2186,32 @@ function manageAccountNameField(value){
             $('#'+container+' #gst_status').attr('readonly');
             $('#'+container+' #gst_status').css('background-color','');
         }
-        $('#'+container+' #gst_file').css('pointer-events', 'none');
-        $('#'+container+' #gst_file').attr('readonly');
-        $('#'+container+' #gst_file').css('background-color','');
-       
+
+        if($('#'+container+' #gst_file_hd').val() != ''){
+            $('#'+container+' #gst_file').css('pointer-events', 'none');
+            $('#'+container+' #gst_file').attr('readonly');
+            $('#'+container+' #gst_file').css('background-color','');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
+        }
+              
         if($('#'+container+' #signature_file_hd').val() != ''){
             $('#'+container+' #signature_file').css('pointer-events', 'none');
             $('#'+container+' #signature_file').css('background-color', '');
             $('#'+container+' #signature_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
             
         }
         if($('#'+container+' #address_proof_file_hd').val() !== ''){
             $('#'+container+' #address_proof_file').css('pointer-events', 'none');
             $('#'+container+' #address_proof_file').css('background-color', '');
             $('#'+container+' #address_proof_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
         if($('#'+container+' #contract_file_hd').val() !== ''){
             $('#'+container+' #contract_file').css('pointer-events', 'none');
             $('#'+container+' #contract_file').css('background-color', '');
             $('#'+container+' #contract_file').attr('readonly');
-            $('#'+container+' a[title="Remove Image"]').css('dispaly','none');
+            $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
     }
     
@@ -2236,3 +2260,5 @@ function manageAccountNameField(value){
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
 <?php if($this->session->userdata('vendor_added')){$this->session->unset_userdata('vendor_added');}?>
+<?php if($this->session->userdata('current_tab')){$this->session->unset_userdata('current_tab');}?>
+

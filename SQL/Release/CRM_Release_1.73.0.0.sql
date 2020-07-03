@@ -3,6 +3,7 @@ ALTER TABLE `customer_invoice` ADD `from_date` DATE NULL DEFAULT NULL AFTER `inv
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'paytm_payment_voucher', 'Invoice for Booking - %s', 'Please find attached invoice from 247around for your completed booking with us.', 'billing@247around.com', '', '', 'abhaya@247around.com', '1', '2016-06-17 00:00:00');
 
 
+
 --
 -- Table structure for table `invoice_details`
 --
@@ -97,3 +98,15 @@ ALTER TABLE `invoice`
 --
 ALTER TABLE `invoice`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+
+---Abhay
+INSERT INTO `vendor_partner_variable_charges` (`id`, `entity_type`, `entity_id`, `charges_type`, `fixed_charges`, `percentage_charge`, `validity_in_month`, `status`, `create_date`, `update_date`, `active`) VALUES
+(NULL, 'partner', '247130', 63, '45', '0.00', 0, 1, '2020-05-20 16:23:59', '2020-05-20 10:53:59', 1),
+(NULL, 'partner', '247130', 62, '45', '0.00', 0, 1, '2020-05-20 16:23:37', '2020-05-20 10:53:37', 1);
+
+INSERT INTO `variable_charges_type` (`id`, `name`, `type`, `description`, `hsn_code`, `gst_rate`, `is_fixed`, `updated_date`, `created_date`) VALUES
+(NULL, 'Defective Return Packaging Charges( Large Box)', 'defective-packaging-variable-large-box', 'Defective Return Packaging( Large Box)', 998715, 18, 0, '2020-04-30 00:00:00', '2020-04-30 00:00:00'),
+(NULL, 'Defective Return Packaging Charges( Small Box)', 'defective-packaging-variable-small-box', 'Defective Return Packaging( Small Box)', 998715, 18, 0, '2020-04-30 00:00:00', '2020-04-30 00:00:00');
+ALTER TABLE `billed_msl_package` ADD `booking_id` TEXT NULL DEFAULT NULL AFTER `box_count`;

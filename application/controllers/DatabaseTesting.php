@@ -30,6 +30,7 @@ class DatabaseTesting extends CI_Controller {
 	$this->load->model('database_testing_model');
 	$this->load->model('reporting_utils');
         $this->load->model('partner_model');
+        $this->load->model('indiapincode_model');
 
 	$this->load->library('notify');
 	$this->load->library('email');
@@ -749,6 +750,26 @@ function pending_count2(){
       echo "updated id--" .$value->id;
 
    }
+}
+
+function updateZonesDb(){
+$districts = file_get_contents('https://api.covid19india.org/zones.json');
+
+$districts = json_decode($districts,true);
+
+foreach($districts['zones'] as $district){
+
+        $data =array(
+          'zone' => json_encode($district),
+          'district'=>$district['district'],
+          'zone_color'=>$district['zone'],
+          'update_date'=>date('Y-d-m')
+        );
+        $this->indiapincode_model->insertZone($data);
+
+}
+
+
 
 }
 

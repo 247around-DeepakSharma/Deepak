@@ -1298,7 +1298,14 @@
                     success: function (response) {
                         response = JSON.parse(response);
                         if(response.status){
-                            $("#"+id).html(response.html);
+                            if(response.already_engg){
+                            var html = response.html;
+                             $("#"+id).html(html);
+                            }else{
+                                var html2 = "<option disabled selected >Select Engineer</option>"+response.html;
+                             $("#"+id).html(html2);   
+                            }
+                            
                             $("#"+id).css("display", "inline");
                             $("#"+id).parent().find("a").css("display", "none");
                             $("#"+id).select2();

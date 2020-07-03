@@ -494,7 +494,7 @@ class Miscelleneous {
 
                         log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, " Upcountry  Distance " . $data['upcountry_distance'], $agent_id, $agent_name, $query1[0]['partner_id'], _247AROUND);
 
 //                        $to = ANUJ_EMAIL_ID;
 //                        $cc = $partner_am_email;
@@ -553,9 +553,18 @@ class Miscelleneous {
 
     function process_cancel_form($booking_id, $status, $cancellation_reason, $cancellation_text, $agent_id, $agent_name, $partner_id, $cancelled_by) {
         log_message('info', __METHOD__ . " => Entering " . $booking_id, ' status: ' . $status . ' cancellation_reason: ' . $cancellation_reason . ' agent_id: ' . $agent_id . ' agent_name: ' . $agent_name . ' partner_id: ' . $partner_id);
-        $data['internal_status'] = $cancellation_text;
+        // Get cancellation reason Text from Id
+        $cancellation_reason_text = "";
+        if(!empty($cancellation_reason)){
+            $arr_cancellation_reason =  $this->My_CI->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason), NULL, NULL, NULL, NULL, NULL, array());
+            $cancellation_reason_text = !empty($arr_cancellation_reason[0]['reason']) ? $arr_cancellation_reason[0]['reason'] : ""; 
+            $data['internal_status'] = $cancellation_reason_text;
+        }
+   
+       
         $data['cancellation_reason'] = $cancellation_reason;
-        $historyRemarks = $cancellation_reason."<br> ".$cancellation_text;
+        
+        $historyRemarks = $cancellation_reason_text."<br> ".$cancellation_text;
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
         $data['current_status'] = _247AROUND_CANCELLED;
@@ -563,14 +572,16 @@ class Miscelleneous {
             $data['closing_remarks'] = $cancellation_text;
         }
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-
-        $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-        $actor = $next_action = 'not_define';
-        if (!empty($partner_status)) {
-            $data['partner_current_status'] = $partner_status[0];
-            $data['partner_internal_status'] = $partner_status[1];
-            $actor = $data['actor'] = $partner_status[2];
-            $next_action = $data['next_action'] = $partner_status[3];
+        
+        if(!empty($data['internal_status'])) {
+            $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            $actor = $next_action = 'not_define';
+            if (!empty($partner_status)) {
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+                $actor = $data['actor'] = $partner_status[2];
+                $next_action = $data['next_action'] = $partner_status[3];
+            }
         }
 
 
@@ -1508,9 +1519,7 @@ class Miscelleneous {
         if(!empty($partner_details) && ($partner_details[0]['is_prepaid'] == 1 || !empty($getAll))){
             log_message("info",__METHOD__."  Prepaid Partner Found id ". $partner_id);
             //Get Partner invoice amout
-            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id,
-                'settle_amount' => 0), 'SUM(CASE WHEN (type_code = "B") THEN ( amount_collected_paid + `amount_paid`) WHEN (type_code = "A" ) '
-                    . 'THEN ( amount_collected_paid -`amount_paid`) END)  AS amount');
+            $invoice_amount = $this->My_CI->invoices_model->get_invoices_details(array('vendor_partner' => 'partner', 'vendor_partner_id' => $partner_id), ' COALESCE(SUM(`amount_collected_paid` ),0)  AS amount');
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Invoice Amount " . print_r($invoice_amount, true));
             $where = array(
                 'partner_id' => $partner_id,
@@ -1519,6 +1528,7 @@ class Miscelleneous {
                 'partner_net_payable > 0 '=> NULL,
                 'booking_status IN ("' . _247AROUND_PENDING . '", "'  . _247AROUND_COMPLETED . '")' => NULL
             );
+           
             // sum of partner payable amount whose booking is in followup, pending and completed(Invoice not generated) state.
             $service_amount = $this->My_CI->booking_model->get_unit_details($where, false, 'SUM(partner_net_payable) as amount');
             log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Service Amount " . print_r($service_amount, true));
@@ -1538,8 +1548,10 @@ class Miscelleneous {
                 $msic_charge = $misc[0]['misc_charge'];
             }
             
+            $bank_transactions = $this->My_CI->invoices_model->getbank_transaction_summary("partner", $partner_id);
+            log_message("info",__METHOD__."  Prepaid Partner id ".$partner_id." Bank Transaction Array " . print_r($bank_transactions, true));
             // calculate final amount of partner
-            $final_amount = -($invoice_amount[0]['amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
+            $final_amount = -($invoice_amount[0]['amount'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'] + ($service_amount[0]['amount'] * (1 + SERVICE_TAX_RATE)) + ($upcountry_basic * (1 + SERVICE_TAX_RATE)) + $msic_charge * (1 + SERVICE_TAX_RATE));
 
             log_message("info", __METHOD__ . " Partner Id " . $partner_id . " Prepaid account" . $final_amount);
             $d['prepaid_amount'] = round($final_amount,0);
@@ -1679,10 +1691,15 @@ class Miscelleneous {
                         // Update ASM,State and City in sf_not_exist_booking_details
                         $resultTemp = $this->My_CI->reusable_model->get_asm_for_pincode($pincode);
                         // If ASM not found ,get RM details
-                        if(empty($resultTemp)){
-                            $resultTemp = $this->reusable_model->get_rm_for_pincode($pincode);
+                        if(empty($resultTemp[0]['asm_id'])){
+                            $resultTemp = $this->My_CI->reusable_model->get_rm_for_pincode($pincode);
+                            if(!empty($resultTemp[0]['rm_id'])){
+                                $notFoundSfArray['rm_id'] = $resultTemp[0]['rm_id'];
+                            }
                         }
-                        $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        else{
+                            $notFoundSfArray['asm_id'] = $resultTemp[0]['asm_id'];
+                        }                        
                         $notFoundSfArray['state'] = $resultTemp[0]['state_id'];
                         $notFoundSfArray['city'] = $city;
                         $notFoundSfArray['is_pincode_valid'] = 1;
@@ -2969,11 +2986,15 @@ function generate_image($base64, $image_name,$directory){
 //        }
     }
     
-   function convert_html_to_pdf($html, $booking_id, $filename, $s3_folder) {
+    function convert_html_to_pdf($html, $booking_id, $filename, $s3_folder,$backgournd_url='') {
 
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         require_once __DIR__ . '/pdf/vendor/autoload.php';
         $mpdf = new \Mpdf\Mpdf();
+        if($backgournd_url != ''){
+            $mpdf->SetDefaultBodyCSS('background', $backgournd_url);
+            $mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+        }
         $t = $mpdf->WriteHTML($html);
         $tempfilePath = TMP_FOLDER . $filename;
         $mpdf->Output($tempfilePath, 'F');
@@ -3193,11 +3214,17 @@ function generate_image($base64, $image_name,$directory){
             $select[] = "vendor_pincode_mapping.City";
             $groupBY[] = 'vendor_pincode_mapping.City';
         }
+
         //add 2 columns upcountry and Municipal Limit in the Partner Serviceability Report
         $select[] = "CASE when service_centres.is_upcountry = '1' then 'Upcountry' Else 'Local' End as Flag";
         $select[] = "service_centres.min_upcountry_distance as municipal_limit";
+        $select[] ="india_district_coordinates.zone_color as covid_zone";
         $join['service_centres'] =  'service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.on_off = 1 AND service_centres.active = 1';
-        $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        $join['india_district_coordinates'] =  'vendor_pincode_mapping.City = india_district_coordinates.district';
+        $JoinTypeTableArray['india_district_coordinates'] = 'left';
+        $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,$JoinTypeTableArray,$groupBY);
+
+        
         foreach($data as $dataValues){
             $headings = array_keys($dataValues);
             $CSVData[] = array_values($dataValues);
@@ -4971,8 +4998,8 @@ function generate_image($base64, $image_name,$directory){
                     continue;
                 }                
                 
-                // if part is out of warranty and consumption no then set spare status ok part to be shipped
-                if($spare_part_detail['part_warranty_status'] == 2 && !in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
+                // if part is out-warranty or in-warranty and consumption no then set spare status ok part to be shipped
+                if(!in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
                     $up['defective_part_required'] = 1;
                 }
@@ -5008,10 +5035,10 @@ function generate_image($base64, $image_name,$directory){
                             }
                         }
                         if(!empty($this->My_CI->session->userdata('service_center_id'))) {
-                            $this->My_CI->invoice_lib->generate_challan_file($spare_id, $this->My_CI->session->userdata('service_center_id'));
+                            $this->My_CI->invoice_lib->generate_challan_file($spare_id, $this->My_CI->session->userdata('service_center_id'),'',true);
                         } else {
                             if(empty($spare_part_detail['sf_challan_file']) && !empty($service_center_details)){
-                                $this->My_CI->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                                $this->My_CI->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id'],'',true);
                             }
                         }
                     }

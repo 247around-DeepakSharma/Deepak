@@ -343,8 +343,7 @@ class dashboard_model extends CI_Model {
         $this->db->group_by('bsc.booking_id');
         
         // return query object
-        $query = $this->db->get();
-        echo '<pre>';print_r($this->db->last_query());exit;        
+        $query = $this->db->get();        
         return $query;
     }
         
@@ -1034,15 +1033,19 @@ class dashboard_model extends CI_Model {
      * @param Date $date
      * @return Array
      */
-    function get_agent_action_per_hour_count($statDate, $endDate){
+    function get_agent_action_per_hour_count($statDate, $endDate, $group =''){
         $sql = "SELECT full_name as name, agent_id, concat(extract( MONTH FROM agent_action_log.create_date ), '-', extract( DAY FROM agent_action_log.create_date ), '-', extract( HOUR FROM agent_action_log.create_date )) as combination,"
                 . "extract( HOUR FROM agent_action_log.create_date ) AS theHour, "
                 . " extract( Day FROM agent_action_log.create_date ) AS theDays, extract( MONTH FROM agent_action_log.create_date ) AS theMonth, "
                 . " count( * ) AS data FROM agent_action_log, employee "
                 . "WHERE agent_action_log.create_date >= '".$statDate."' AND agent_action_log.create_date < '".date('Y-m-d', strtotime($endDate. '+1 days'))."' "
-                . "AND agent_id != 1 "
-                . " AND employee.id = agent_id  AND employee.groups = 'accountmanager' "
-                . " GROUP BY agent_id, extract( MONTH FROM agent_action_log.create_date ) , "
+                . "AND agent_id != 1 ";
+        if (empty($group)) {
+            $sql .= " AND employee.id = agent_id  AND employee.groups = 'accountmanager' ";
+        } else {
+            $sql .= " AND employee.id = agent_id  AND employee.groups = '" . $group . "' ";
+        }
+        $sql  .= " GROUP BY agent_id, extract( MONTH FROM agent_action_log.create_date ) , "
                 . " extract( Day FROM agent_action_log.create_date ), "
                 . " extract( HOUR FROM agent_action_log.create_date ),  "
                 . "agent_id order by agent_id, extract( MONTH FROM agent_action_log.create_date ),"
@@ -1074,17 +1077,17 @@ class dashboard_model extends CI_Model {
      * @Desc this function is used to return total cancelled booking by cancellation reason wise
      * @return Array
      */
-    function get_booking_cancellation_reasons($startDate,$endDate){
-        $this->db->select('booking_cancellation_reasons.reason as cancellation_reason,count(*) as count');
+    function get_booking_cancellation_reasons($startDate, $endDate) {
+        $this->db->_protect_identifiers = FALSE; 
+        $this->db->select('IFNULL(booking_cancellation_reasons.reason,"Others") as cancellation_reason,count(*) as count');
         $this->db->where("(current_status = 'Cancelled' OR internal_status = 'InProcess_Cancelled') && service_center_closed_date >= '$startDate' && service_center_closed_date <= '$endDate'");
-        $this->db->where('cancellation_reason IS NOT NULL');
         $this->db->from('booking_details');
-        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id');
+        $this->db->join('booking_cancellation_reasons', 'booking_details.cancellation_reason = booking_cancellation_reasons.id',' LEFT');
         $this->db->group_by('cancellation_reason');
         $query = $this->db->get();
-        return $query->result_array();        
+        return $query->result_array();
     }
-    
+
     /**
      * @desc : Method is used to insert data in booking_unit_detail_invoice_process
      * @author : Ankit Rajvanshi

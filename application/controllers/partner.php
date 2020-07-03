@@ -1566,8 +1566,8 @@ class Partner extends CI_Controller {
                     //$booking['potential_value'] = '';
                     $appliance_details['last_service_date'] = date('d-m-Y');
 
-                    $booking['booking_date'] = $requestData['booking_date'];
-                    $booking['initial_booking_date'] = $requestData['booking_date'];
+                    $booking['booking_date'] = date("Y-m-d", strtotime($requestData['booking_date']));
+                    $booking['initial_booking_date'] = date("Y-m-d", strtotime($requestData['booking_date']));
                     $booking['booking_timeslot'] = '';
                     $booking['booking_address'] = $user['home_address'];
 
@@ -2465,6 +2465,7 @@ class Partner extends CI_Controller {
        }
     }
     function download_price_sheet(){
+        ini_set('memory_limit','2048M');
         $partnerID = $this->session->userdata('partner_id');
         $where['partner_id'] = $partnerID;
         $priceArray = $this->service_centre_charges_model->get_partner_price_data($where);

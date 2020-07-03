@@ -154,6 +154,7 @@
             <th>Customer Net Payable <span style="color: red;">*</span> Including GST</th>
             <th>Vendor Total <span style="color: red;">*</span> Including GST</th>
             <th>Vendor Basic Percentage</th>
+            <th>Partner Spare Extra Charges</th>
             <th>POD</th>
             <th>Upcountry</th>
             </thead>
@@ -171,6 +172,7 @@
                         <td><?php echo $value['customer_net_payable'] ?></td>
                         <td><?php echo $value['vendor_total'] ?></td>
                         <td><?php echo $value['vendor_basic_percentage'] ?></td>
+                        <td><?php echo $value['partner_spare_extra_charge'] ?></td>
                         <td><?php echo $value['pod'] ?></td>
                         <td><?php echo $value['is_upcountry'] ?></td>
                     </tr>

@@ -553,7 +553,7 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required>
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -665,7 +665,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         maxDate: false,
-        minDate:new Date(),
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
+        maxDate: false,
+        setDate: new Date(),
         locale:{
             format: 'YYYY-MM-DD'
         }
@@ -761,7 +768,14 @@
  
             }else{
 
-                form.submit(); 
+                let kg = $("#defective_parts_shipped_weight_in_kg").val();
+                let gm = $("#defective_parts_shipped_weight_in_gram").val();
+                let total = parseInt(kg)+parseInt(gm);
+                if(!total){
+                swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                }else{
+                form.submit();   
+                }
             }    
 
                 }

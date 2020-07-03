@@ -143,7 +143,7 @@ class vendor_model extends CI_Model {
         }
         $this->db->distinct();
         $this->db->select($select, FALSE);
-        $this->db->join('account_holders_bank_details', 'account_holders_bank_details.entity_id=service_centres.id', 'left');
+        $this->db->join('account_holders_bank_details', 'service_centres.id = account_holders_bank_details.entity_id  AND `account_holders_bank_details`.`entity_type` = "SF" AND `account_holders_bank_details`.`is_active` = 1', 'left');
         $this->db->from('service_centres');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
@@ -1215,8 +1215,11 @@ class vendor_model extends CI_Model {
      * @desc: Insert Engineer details
      */
     function insert_engineer($data){
-        $this->db->insert('engineer_details', $data);
-        return $this->db->insert_id();
+        /* Making Procedure */
+        $insert_user_stored_proc = "CALL insertNewEngineer(?, ?, ?, ?, ? ,?,@last_id)";
+         $this->db->query($insert_user_stored_proc,$data);
+        return $this->db->query('SELECT @last_id  as newID')->result()[0]->newID;
+
     }
     /**
      * @desc: This is used to return Engineers details for custom vendor

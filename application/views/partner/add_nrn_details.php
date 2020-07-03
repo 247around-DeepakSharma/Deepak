@@ -38,12 +38,12 @@
             }
             ?>
             <div class="panel panel-info" style="margin-top:20px;">
-                <div class="panel-heading">Add New NRN Detail</div>
+                <div class="panel-heading">Add New TR Detail</div>
                 <div class="panel-body">
                     <form name="myForm" class="form-horizontal" id ="nrn_details_form" action="<?php echo base_url() ?>partner/add_nrn_details"  method="POST" enctype="multipart/form-data">
                         <legend>
                             <div class="row">
-                                <fieldset>247 CRM Based Initial Data
+                                <fieldset><center><b>247 CRM Based Initial Data</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -77,6 +77,7 @@
                                                     //$extra = 'class="form-control" id="product_id" required=""';
                                                     //echo form_dropdown('product_id', $products, $selected, $extra);
                                                     ?>
+                                                    <input type="hidden" id="hd_service_id" value=""/>
                                                     <select class="form-control" id="service_id" name="service_id" required="">
                                                         <option disabled="" selected="">Select Appliance</option>
 
@@ -92,6 +93,7 @@
                                                     //$extra = 'class="form-control" id="product_id" required=""';
                                                     //echo form_dropdown('product_id', $products, $selected, $extra);
                                                     ?>
+                                                    <input type="hidden" id="hd_product_id" value=""/>
                                                     <select class="form-control" id="product_id" name="product_id" required="">
                                                         <option disabled="" selected="">Select Product</option>
 
@@ -102,6 +104,7 @@
                                             <div class="form-group">
                                                 <label for="product_capacity" class="col-md-4">Product capacity *</label>
                                                 <div class="col-md-6">
+                                                    <input type="hidden" id="hd_product_capacity" value=""/>
                                                     <select class="form-control" name="product_capacity" id="product_capacity" required="">
                                                         <option disabled="" selected="">Select Product capacity</option>
                                                     </select>
@@ -110,6 +113,7 @@
                                             <div class="form-group">
                                                 <label for="product_model_no" class="col-md-4">Product Model No *</label>
                                                 <div class="col-md-6">
+                                                    <input type="hidden" id="hd_product_model_no" value=""/>
                                                     <select class="form-control" name="product_model_no" id="product_model_no" required="">
                                                         <option disabled="" selected="">Select Product Model no</option>
                                                     </select>
@@ -193,6 +197,7 @@
                                                     <span id="error_nrn_month" class="error" style="color: red;"></span>  
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
                                                 <label for="tr_reporting_date" class="col-md-4">TR Reporting Date *</label>
                                                 <div class="col-md-6">
@@ -256,15 +261,16 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>As per Approval Mail (To be updated by Trivender)
+                                <fieldset><center><b>As per Approval Mail (To be updated by Trivender)</b></center>
                                     <div class="col-md-12">
+                                        <br/>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="col-md-4">Approval Status * </label>
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('approval_status') != '' ) ? set_value('approval_status') : '';
-                                                    $extra = 'class="form-control" id="approval_status" required=""';
+                                                    $extra = 'class="form-control" id="approval_status"';
                                                     echo form_dropdown('approval_status', $approval_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_make" class="error" style="color: red;"></span>
@@ -273,7 +279,7 @@
                                             <div class="form-group">
                                                 <label for="approval_rejection_date" class="col-md-4">Approval/Rejection Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Approval/Rejection date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="approval_rejection_date" id="approval_rejection_date" required="" autocomplete="off"  value="<?php echo (set_value('approval_rejection_date') != '' ) ? set_value('approval_rejection_date') : ''; ?>"/>
+                                                    <input placeholder="Select Approval/Rejection date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="approval_rejection_date" id="approval_rejection_date"  autocomplete="off"  value="<?php echo (set_value('approval_rejection_date') != '' ) ? set_value('approval_rejection_date') : ''; ?>"/>
                                                     <span id="error_approval_rejection_date" class="error" style="color: red;"></span> 
 
                                                 </div>
@@ -281,7 +287,7 @@
                                             <div class="form-group">
                                                 <label for="repair_cost" class="col-md-4">Repair Cost *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Repair Cost" type="text" class="form-control" name="repair_cost" id="repair_cost" required=""  value="<?php echo (set_value('repair_cost') != '' ) ? set_value('repair_cost') : ''; ?>"/>
+                                                    <input placeholder="Enter Repair Cost" type="text" class="form-control" name="repair_cost" id="repair_cost"   value="<?php echo (set_value('repair_cost') != '' ) ? set_value('repair_cost') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -289,7 +295,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('warranty_status') != '' ) ? set_value('warranty_status') : '';
-                                                    $extra = 'class="form-control" id="warranty_status" required=""';
+                                                    $extra = 'class="form-control" id="warranty_status" ';
                                                     echo form_dropdown('warranty_status', $warranty_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_make" class="error" style="color: red;"></span>
@@ -300,7 +306,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('service_partner') != '' ) ? set_value('service_partner') : '';
-                                                    $extra = 'class="form-control" id="service_partner" required=""';
+                                                    $extra = 'class="form-control" id="service_partner" ';
                                                     echo form_dropdown('service_partner', $service_partner, $selected, $extra);
                                                     ?>
                                                     <span id="error_service_partner" class="error" style="color: red;"></span>
@@ -309,19 +315,19 @@
                                             <div class="form-group">
                                                 <label for="asf_distributor_name" class="col-md-4">ASF/Distributor Name *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter ASF/Distributor Name" type="text" class="form-control" name="asf_distributor_name" id="asf_distributor_name" required=""  value="<?php echo (set_value('asf_distributor_name') != '' ) ? set_value('asf_distributor_name') : ''; ?>"/>
+                                                    <input placeholder="Enter ASF/Distributor Name" type="text" class="form-control" name="asf_distributor_name" id="asf_distributor_name"   value="<?php echo (set_value('asf_distributor_name') != '' ) ? set_value('asf_distributor_name') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="asf_distributor_contact_no" class="col-md-4">Contact No. *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter ASF/Distributor Contact No." type="text" class="form-control" name="asf_distributor_contact_no" id="asf_distributor_contact_no" required=""  value="<?php echo (set_value('asf_distributor_contact_no') != '' ) ? set_value('asf_distributor_contact_no') : ''; ?>"/>
+                                                    <input placeholder="Enter ASF/Distributor Contact No." type="text" class="form-control" name="asf_distributor_contact_no" id="asf_distributor_contact_no"   value="<?php echo (set_value('asf_distributor_contact_no') != '' ) ? set_value('asf_distributor_contact_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="asf_distributor_pickup_address" class="col-md-4">Pickup Address *</label>
                                                 <div class="col-md-6">
-                                                    <textarea placeholder="Enter ASF/Distributor Pickup Address" type="text" class="form-control" name="asf_distributor_pickup_address" id="asf_distributor_pickup_address" required=""><?php echo (set_value('asf_distributor_pickup_address') != '' ) ? set_value('asf_distributor_pickup_address') : ''; ?></textarea>
+                                                    <textarea placeholder="Enter ASF/Distributor Pickup Address" type="text" class="form-control" name="asf_distributor_pickup_address" id="asf_distributor_pickup_address" ><?php echo (set_value('asf_distributor_pickup_address') != '' ) ? set_value('asf_distributor_pickup_address') : ''; ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -329,19 +335,19 @@
                                             <div class="form-group">
                                                 <label for="hdpl_invoice_no" class="col-md-4">HDPL Direct Billing Point Invoice No. *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter HDPL Direct Billing Point Invoice No." type="text" class="form-control" name="hdpl_invoice_no" id="hdpl_invoice_no" required=""  value="<?php echo (set_value('hdpl_invoice_no') != '' ) ? set_value('hdpl_invoice_no') : ''; ?>"/>
+                                                    <input placeholder="Enter HDPL Direct Billing Point Invoice No." type="text" class="form-control" name="hdpl_invoice_no" id="hdpl_invoice_no"   value="<?php echo (set_value('hdpl_invoice_no') != '' ) ? set_value('hdpl_invoice_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="hdpl_point" class="col-md-4">HDPL Direct Billing Point *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter HDPL Direct Billing Point" type="text" class="form-control" name="hdpl_point" id="hdpl_point" required=""  value="<?php echo (set_value('hdpl_point') != '' ) ? set_value('hdpl_point') : ''; ?>"/>
+                                                    <input placeholder="Enter HDPL Direct Billing Point" type="text" class="form-control" name="hdpl_point" id="hdpl_point"   value="<?php echo (set_value('hdpl_point') != '' ) ? set_value('hdpl_point') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="vendor_warranty_expire_month" class="col-md-4">Vendor Warranty Exipre Month *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Vendor Warranty Exipre Month" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="vendor_warranty_expire_month" id="vendor_warranty_expire_month" required="" autocomplete="off"  value="<?php echo (set_value('vendor_warranty_expire_month') != '' ) ? set_value('vendor_warranty_expire_month') : ''; ?>"/>
+                                                    <input placeholder="Select Vendor Warranty Exipre Month" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="vendor_warranty_expire_month" id="vendor_warranty_expire_month"  autocomplete="off"  value="<?php echo (set_value('vendor_warranty_expire_month') != '' ) ? set_value('vendor_warranty_expire_month') : ''; ?>"/>
                                                     <span id="error_vendor_warranty_expire_month" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -350,7 +356,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('action_plan') != '' ) ? set_value('action_plan') : '';
-                                                    $extra = 'class="form-control" id="physical_status" required=""';
+                                                    $extra = 'class="form-control" id="physical_status" ';
                                                     echo form_dropdown('action_plan', $action_plan, $selected, $extra);
                                                     ?>
                                                     <span id="error_action_plan" class="error" style="color: red;"></span>
@@ -359,13 +365,13 @@
                                             <div class="form-group">
                                                 <label for="asf_distributor_pincode" class="col-md-4">Pin code *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter ASF/Distributor Pin code" type="text" class="form-control" name="asf_distributor_pincode" id="asf_distributor_pincode" required=""  value="<?php echo (set_value('asf_distributor_pincode') != '' ) ? set_value('asf_distributor_pincode') : ''; ?>"/>
+                                                    <input placeholder="Enter ASF/Distributor Pin code" type="text" class="form-control" name="asf_distributor_pincode" id="asf_distributor_pincode"   value="<?php echo (set_value('asf_distributor_pincode') != '' ) ? set_value('asf_distributor_pincode') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="control_no" class="col-md-4">Control No. *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Control No." type="text" class="form-control" name="control_no" id="control_no" required=""  value="<?php echo (set_value('control_no') != '' ) ? set_value('control_no') : ''; ?>"/>
+                                                    <input placeholder="Enter Control No." type="text" class="form-control" name="control_no" id="control_no"   value="<?php echo (set_value('control_no') != '' ) ? set_value('control_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -375,7 +381,7 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>To be updated by Jatin <br/>
+                                <fieldset><center><b>To be updated by Jatin </b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -384,7 +390,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('replacement_status') != '' ) ? set_value('replacement_status') : '';
-                                                    $extra = 'class="form-control" id="replacement_status" required=""';
+                                                    $extra = 'class="form-control" id="replacement_status" ';
                                                     echo form_dropdown('replacement_status', $replacement_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_replacement_status" class="error" style="color: red;"></span>
@@ -395,7 +401,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('replacement_with_accessory') != '' ) ? set_value('replacement_with_accessory') : '';
-                                                    $extra = 'class="form-control" id="replacement_with_accessory" required=""';
+                                                    $extra = 'class="form-control" id="replacement_with_accessory" ';
                                                     echo form_dropdown('replacement_with_accessory', $replacement_with_accessory, $selected, $extra);
                                                     ?>
                                                     <span id="error_replacement_with_accessory" class="error" style="color: red;"></span>
@@ -404,13 +410,13 @@
                                             <div class="form-group">
                                                 <label for="replacement_model" class="col-md-4">Replacement Model *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Replacement Model" type="text" class="form-control" name="replacement_model" id="replacement_model" required=""  value="<?php echo (set_value('replacement_model') != '' ) ? set_value('replacement_model') : ''; ?>"/>
+                                                    <input placeholder="Enter Replacement Model" type="text" class="form-control" name="replacement_model" id="replacement_model"   value="<?php echo (set_value('replacement_model') != '' ) ? set_value('replacement_model') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="replacement_serial_no" class="col-md-4">Replacement Serial No. *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Replacement Serial No." type="text" class="form-control" name="replacement_serial_no" id="replacement_serial_no" required=""  value="<?php echo (set_value('replacement_serial_no') != '' ) ? set_value('replacement_serial_no') : ''; ?>"/>
+                                                    <input placeholder="Enter Replacement Serial No." type="text" class="form-control" name="replacement_serial_no" id="replacement_serial_no"   value="<?php echo (set_value('replacement_serial_no') != '' ) ? set_value('replacement_serial_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -418,7 +424,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('defective_pickup_status') != '' ) ? set_value('defective_pickup_status') : '';
-                                                    $extra = 'class="form-control" id="defective_pickup_status" required=""';
+                                                    $extra = 'class="form-control" id="defective_pickup_status" ';
                                                     echo form_dropdown('defective_pickup_status', $defective_pickup_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_defective_pickup_status" class="error" style="color: red;"></span>
@@ -427,13 +433,13 @@
                                             <div class="form-group">
                                                 <label for="defective_received_wh_location" class="col-md-4">Defective Received WH Location *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Defective Received WH Location" type="text" class="form-control" name="defective_received_wh_location" id="defective_received_wh_location" required="" value="<?php echo (set_value('defective_received_wh_location') != '' ) ? set_value('defective_received_wh_location') : ''; ?>"/>
+                                                    <input placeholder="Enter Defective Received WH Location" type="text" class="form-control" name="defective_received_wh_location" id="defective_received_wh_location"  value="<?php echo (set_value('defective_received_wh_location') != '' ) ? set_value('defective_received_wh_location') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="defective_receiving_date" class="col-md-4">Defective Receiving Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Defective Receiving Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="defective_receiving_date" id="defective_receiving_date" required="" autocomplete="off" value="<?php echo (set_value('defective_receiving_date') != '' ) ? set_value('defective_receiving_date') : ''; ?>"/>
+                                                    <input placeholder="Select Defective Receiving Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="defective_receiving_date" id="defective_receiving_date"  autocomplete="off" value="<?php echo (set_value('defective_receiving_date') != '' ) ? set_value('defective_receiving_date') : ''; ?>"/>
                                                     <span id="error_defective_receiving_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -442,7 +448,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('tr_status') != '' ) ? set_value('tr_status') : '';
-                                                    $extra = 'class="form-control" id="tr_status" required=""';
+                                                    $extra = 'class="form-control" id="tr_status" ';
                                                     echo form_dropdown('tr_status', $tr_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_tr_status" class="error" style="color: red;"></span>
@@ -453,26 +459,26 @@
                                             <div class="form-group">
                                                 <label for="replacement_awb_no" class="col-md-4">Replacement AWB No. *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Replacement AWB No." type="text" class="form-control" name="replacement_awb_no" id="replacement_awb_no" required="" value="<?php echo (set_value('replacement_awb_no') != '' ) ? set_value('replacement_awb_no') : ''; ?>"/>
+                                                    <input placeholder="Enter Replacement AWB No." type="text" class="form-control" name="replacement_awb_no" id="replacement_awb_no"  value="<?php echo (set_value('replacement_awb_no') != '' ) ? set_value('replacement_awb_no') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="replacement_courier_name" class="col-md-4">Courier Name *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Courier Name" type="text" class="form-control" name="replacement_courier_name" id="replacement_courier_name" required="" value="<?php echo (set_value('replacement_courier_name') != '' ) ? set_value('replacement_courier_name') : ''; ?>"/>
+                                                    <input placeholder="Enter Courier Name" type="text" class="form-control" name="replacement_courier_name" id="replacement_courier_name"  value="<?php echo (set_value('replacement_courier_name') != '' ) ? set_value('replacement_courier_name') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="replacement_dispatch_date" class="col-md-4">Replacement Dispatch Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Replacement Dispatch Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="replacement_dispatch_date" id="replacement_dispatch_date" required="" autocomplete="off"  value="<?php echo (set_value('replacement_dispatch_date') != '' ) ? set_value('replacement_dispatch_date') : ''; ?>"/>
+                                                    <input placeholder="Select Replacement Dispatch Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="replacement_dispatch_date" id="replacement_dispatch_date"  autocomplete="off"  value="<?php echo (set_value('replacement_dispatch_date') != '' ) ? set_value('replacement_dispatch_date') : ''; ?>"/>
                                                     <span id="error_replacement_dispatch_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="replacement_delivery_date" class="col-md-4">Replacement Delivery date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Replacement Delivery Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="replacement_delivery_date" id="replacement_delivery_date" required="" autocomplete="off"  value="<?php echo (set_value('replacement_delivery_date') != '' ) ? set_value('replacement_delivery_date') : ''; ?>"/>
+                                                    <input placeholder="Select Replacement Delivery Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="replacement_delivery_date" id="replacement_delivery_date"  autocomplete="off"  value="<?php echo (set_value('replacement_delivery_date') != '' ) ? set_value('replacement_delivery_date') : ''; ?>"/>
                                                     <span id="error_replacement_delivery_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -481,7 +487,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('replacement_action_plan') != '' ) ? set_value('replacement_action_plan') : '';
-                                                    $extra = 'class="form-control" id="replacement_action_plan" required=""';
+                                                    $extra = 'class="form-control" id="replacement_action_plan" ';
                                                     echo form_dropdown('replacement_action_plan', $replacement_action_plan, $selected, $extra);
                                                     ?>
                                                     <span id="error_replacement_action_plan" class="error" style="color: red;"></span>
@@ -506,7 +512,7 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>To be updated by alligned AKAI ASM
+                                <fieldset><center><b>To be updated by alligned AKAI ASM</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
@@ -515,7 +521,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('tr_physical_receiving_status') != '' ) ? set_value('tr_physical_receiving_status') : '';
-                                                    $extra = 'class="form-control" id="tr_physical_receiving_status" required=""';
+                                                    $extra = 'class="form-control" id="tr_physical_receiving_status" ';
                                                     echo form_dropdown('tr_physical_receiving_status', $tr_physical_receiving_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_tr_physical_receiving_status" class="error" style="color: red;"></span>
@@ -526,7 +532,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('gap_received') != '' ) ? set_value('gap_received') : '';
-                                                    $extra = 'class="form-control" id="gap_received" required=""';
+                                                    $extra = 'class="form-control" id="gap_received" ';
                                                     echo form_dropdown('gap_received', $gap_received, $selected, $extra);
                                                     ?>
                                                     <span id="error_gap_received" class="error" style="color: red;"></span>
@@ -535,7 +541,7 @@
                                             <div class="form-group">
                                                 <label for="category_done_by_asm" class="col-md-4">Category done by (Alligned ASM Name) *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter ASM Name" type="text" class="form-control" name="category_done_by_asm" id="category_done_by_asm" required="" value="<?php echo (set_value('category_done_by_asm') != '' ) ? set_value('category_done_by_asm') : ''; ?>"/>
+                                                    <input placeholder="Enter ASM Name" type="text" class="form-control" name="category_done_by_asm" id="category_done_by_asm"  value="<?php echo (set_value('category_done_by_asm') != '' ) ? set_value('category_done_by_asm') : ''; ?>"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -545,7 +551,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('fca_category_pdi1') != '' ) ? set_value('fca_category_pdi1') : '';
-                                                    $extra = 'class="form-control" id="fca_category_pdi1" required=""';
+                                                    $extra = 'class="form-control" id="fca_category_pdi1" ';
                                                     echo form_dropdown('fca_category_pdi1', $fca_category_pdi1, $selected, $extra);
                                                     ?>
                                                     <span id="error_fca_category_pdi1" class="error" style="color: red;"></span>
@@ -555,7 +561,7 @@
                                             <div class="form-group">
                                                 <label for="category_after_inspection_date" class="col-md-4">Category after inspection Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Category after inspection Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="category_after_inspection_date" id="category_after_inspection_date" required="" autocomplete="off"  value="<?php echo (set_value('category_after_inspection_date') != '' ) ? set_value('category_after_inspection_date') : ''; ?>"/>
+                                                    <input placeholder="Select Category after inspection Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="category_after_inspection_date" id="category_after_inspection_date"  autocomplete="off"  value="<?php echo (set_value('category_after_inspection_date') != '' ) ? set_value('category_after_inspection_date') : ''; ?>"/>
                                                     <span id="error_category_after_inspection_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -573,14 +579,14 @@
                         </legend>
                         <legend>
                             <div class="row">
-                                <fieldset>Final PDI Status
+                                <fieldset><center><b>Final PDI Status</b></center>
                                     <div class="col-md-12">
                                         <br/>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="pdi2_done_by_asm" class="col-md-4">PDI-2 done by (Alligned ASM Name) *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter ASM Name" type="text" class="form-control" name="pdi2_done_by_asm" id="pdi2_done_by_asm" required=""  value="<?php echo (set_value('pdi2_done_by_asm') != '' ) ? set_value('pdi2_done_by_asm') : ''; ?>"/>
+                                                    <input placeholder="Enter ASM Name" type="text" class="form-control" name="pdi2_done_by_asm" id="pdi2_done_by_asm"   value="<?php echo (set_value('pdi2_done_by_asm') != '' ) ? set_value('pdi2_done_by_asm') : ''; ?>"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -588,7 +594,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('fca_category_pdi2') != '' ) ? set_value('fca_category_pdi2') : '';
-                                                    $extra = 'class="form-control" id="fca_category_pdi2" required=""';
+                                                    $extra = 'class="form-control" id="fca_category_pdi2" ';
                                                     echo form_dropdown('fca_category_pdi2', $fca_category_pdi2, $selected, $extra);
                                                     ?>
                                                     <span id="error_fca_category_pdi2" class="error" style="color: red;"></span>
@@ -601,7 +607,7 @@
                                             <div class="form-group">
                                                 <label for="final_pdi_category_after_inspection_date" class="col-md-4">Category after inspection Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Category after inspection Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="final_pdi_category_after_inspection_date" id="final_pdi_category_after_inspection_date" required="" autocomplete="off"  value="<?php echo (set_value('final_pdi_category_after_inspection_date') != '' ) ? set_value('final_pdi_category_after_inspection_date') : ''; ?>"/>
+                                                    <input placeholder="Select Category after inspection Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="final_pdi_category_after_inspection_date" id="final_pdi_category_after_inspection_date"  autocomplete="off"  value="<?php echo (set_value('final_pdi_category_after_inspection_date') != '' ) ? set_value('final_pdi_category_after_inspection_date') : ''; ?>"/>
                                                     <span id="error_final_pdi_category_after_inspection_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -628,7 +634,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('final_defective_status') != '' ) ? set_value('final_defective_status') : '';
-                                                    $extra = 'class="form-control" id="final_defective_status" required=""';
+                                                    $extra = 'class="form-control" id="final_defective_status" ';
                                                     echo form_dropdown('final_defective_status', $final_defective_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_final_defective_status" class="error" style="color: red;"></span>
@@ -637,7 +643,7 @@
                                             <div class="form-group">
                                                 <label for="final_defective_status_date" class="col-md-4">Date of Defective Status *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="final_defective_status_date" id="final_defective_status_date" required="" autocomplete="off" value="<?php echo (set_value('final_defective_status_date') != '' ) ? set_value('final_defective_status_date') : ''; ?>"/>
+                                                    <input placeholder="Select Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="final_defective_status_date" id="final_defective_status_date"  autocomplete="off" value="<?php echo (set_value('final_defective_status_date') != '' ) ? set_value('final_defective_status_date') : ''; ?>"/>
                                                     <span id="error_final_defective_status_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -646,7 +652,7 @@
                                             <div class="form-group">
                                                 <label for="vendor_name" class="col-md-4">Vendor PDI status (Assigned Person Name) *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Enter Name" type="text" class="form-control" name="vendor_name" id="vendor_name" required="" value="<?php echo (set_value('vendor_name') != '' ) ? set_value('vendor_name') : ''; ?>"/>
+                                                    <input placeholder="Enter Name" type="text" class="form-control" name="vendor_name" id="vendor_name"  value="<?php echo (set_value('vendor_name') != '' ) ? set_value('vendor_name') : ''; ?>"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -665,7 +671,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('vendor_reversal_status') != '' ) ? set_value('vendor_reversal_status') : '';
-                                                    $extra = 'class="form-control" id="vendor_reversal_status" required=""';
+                                                    $extra = 'class="form-control" id="vendor_reversal_status"';
                                                     echo form_dropdown('vendor_reversal_status', $vendor_reversal_status, $selected, $extra);
                                                     ?>
                                                     <span id="error_vendor_reversal_status" class="error" style="color: red;"></span>
@@ -674,7 +680,7 @@
                                             <div class="form-group">
                                                 <label for="vendor_reversal_date" class="col-md-4">Vendor Reversal Date *</label>
                                                 <div class="col-md-6">
-                                                    <input placeholder="Select Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="vendor_reversal_date" id="vendor_reversal_date" required="" autocomplete="off"  value="<?php echo (set_value('vendor_reversal_date') != '' ) ? set_value('vendor_reversal_date') : ''; ?>"/>
+                                                    <input placeholder="Select Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="vendor_reversal_date" id="vendor_reversal_date"  autocomplete="off"  value="<?php echo (set_value('vendor_reversal_date') != '' ) ? set_value('vendor_reversal_date') : ''; ?>"/>
                                                     <span id="error_vendor_reversal_date" class="error" style="color: red;"></span> 
                                                 </div>
                                             </div>
@@ -691,7 +697,7 @@
                                                 <div class="col-md-6">
                                                     <?php
                                                     $selected = (set_value('vendor_reversal_category') != '' ) ? set_value('vendor_reversal_category') : '';
-                                                    $extra = 'class="form-control" id="vendor_reversal_category" required=""';
+                                                    $extra = 'class="form-control" id="vendor_reversal_category" ';
                                                     echo form_dropdown('vendor_reversal_category', $vendor_reversal_category, $selected, $extra);
                                                     ?>
                                                     <span id="error_vendor_reversal_category" class="error" style="color: red;"></span>
@@ -784,10 +790,10 @@
 
                 $.ajax({
                     type: 'GET',
-                    url: '<?php echo base_url() . 'employee/NRN_TR/finduser?search_value=+'; ?>' + _booking_id,
+                    url: '<?php echo base_url() . 'employee/user/finduser?search_value=+'; ?>' + _booking_id + '&akai_tr_form=1',
                     dataType: 'json',
                     success: function (responce) {
-                        if (responce) {
+                        if (responce.Bookings.length > 0) {
                             $('#customer_name').val(responce.Bookings[0].customername);
                             $('#customer_location').val(responce.Bookings[0].booking_address);
                             $('#state').val(responce.Bookings[0].state);
@@ -799,12 +805,63 @@
                                     $(this).attr('selected');
                                 }
                             });
-                            var dateAr = responce.Bookings[0].booking_date.split('-');
-                            var newDate = dateAr[0] + '/' + dateAr[1] + '/' + dateAr[2];
-                            var newMonth = dateAr[1] + '/' + dateAr[2];
-                            $('#booking_date').data('daterangepicker').setStartDate(newDate);
-                            $('#booking_date').val(newDate);
-                            $('#nrn_month').val(newMonth);
+                            if(responce.Bookings[0].booking_date !== null){
+                                var dateAr = responce.Bookings[0].booking_date.split('-');
+                                var newDate = dateAr[2] + '/' + dateAr[1] + '/' + dateAr[0];
+                                var newMonth = dateAr[0] + '/' + dateAr[1];
+                                $('#booking_date').data('daterangepicker').setStartDate(newDate);
+                                $('#booking_date').val(newDate);
+                                $('#nrn_month').val(newMonth);
+                                $('#booking_date, #nrn_month').css('pointer-events','none');
+                            }else{
+                                $('#booking_date').data('daterangepicker').setStartDate('<?php echo date('d/m/Y'); ?>');
+                                $('#booking_date').val('');
+                            }
+                           
+                            var purchase_date = '';
+                            if(responce.Bookings[0].sf_purchase_date !== null){
+                                purchase_date = responce.Bookings[0].sf_purchase_date.split('-');
+                            }else{
+                                purchase_date = responce.Bookings[0].purchase_date.split('-');
+                            }
+                            if(purchase_date !== ''){
+                                var new_purchase_date = purchase_date[2] + '/' + purchase_date[1] + '/' + purchase_date[0];
+                                $('#purchase_date').data('daterangepicker').setStartDate(new_purchase_date);
+                                $('#purchase_date').val(new_purchase_date);
+                                $('#purchase_date').css('pointer-events','none');
+                            }else{
+                                $('#purchase_date').data('daterangepicker').setStartDate('<?php echo date('d/m/Y'); ?>');
+                                 $('#purchase_date').val('');
+                            }
+                            
+                            $('#hd_service_id').val(responce.Bookings[0].service_id);
+                            $('#hd_product_id').val(responce.Bookings[0].appliance_category);
+                            $('#hd_product_capacity').val(responce.Bookings[0].appliance_capacity);
+                            if(responce.Bookings[0].sf_model_number !== null){
+                                $('#hd_product_model_no').val(responce.Bookings[0].sf_model_number);
+                            }else{
+                                $('#hd_product_model_no').val(responce.Bookings[0].model_number);
+                            }
+                            $('#product_serial_no').val(responce.Bookings[0].serial_number);
+                            var partner_type = $('#partner_type').val();
+                            var partner_id = $('#partner_id').val();
+                            var service_id = $('#hd_service_id').val() !== '' ? $('#hd_service_id').val() : '';
+                            $.ajax({
+                                type: 'POST',
+                                url: '<?php echo base_url('partner/get_appliances'); ?>',
+                                //dataType:'text/html',
+                                data: {partner_type: partner_type, partner_id: partner_id,service_id: service_id},
+                                success: function (responce) {
+                                    $('#service_id').html(responce);
+                                    if(service_id !== ''){
+                                        var _service_id = $('#service_id option:selected').val();
+                                        if (_service_id !== '') {
+                                            $('#service_id').change();
+
+                                        }
+                                    }
+                                }
+                            });
                         }
                     }
                 });
@@ -814,13 +871,22 @@
         $(document).ready(function () {
             var partner_type = $('#partner_type').val();
             var partner_id = $('#partner_id').val();
+            var service_id = $('#hd_service_id').val() !== '' ? $('#hd_service_id').val() : '';
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url('partner/get_appliances'); ?>',
                 //dataType:'text/html',
-                data: {partner_type: partner_type, partner_id: partner_id},
+                data: {partner_type: partner_type, partner_id: partner_id,service_id: service_id},
                 success: function (responce) {
                     $('#service_id').html(responce);
+                    if(service_id !== ''){
+                        var _service_id = $('#service_id option:selected').val();
+
+                        if (_service_id !== '') {
+                            $('#service_id').change();
+
+                        }
+                    }
                 }
             });
             $('#service_id').on('change', function () {
@@ -828,14 +894,22 @@
                 var partner_id = $('#partner_id').val();
                 var brand = $('#brand').val();
                 var service_id = $('#service_id').val();
-
+                var category = $('#hd_product_id').val() !== '' ? $('#hd_product_id').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getCategoryForService'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id,category: category},
                     success: function (responce) {
                         $('#product_id').html(responce);
+                        if(category !== ''){
+                            var _product_id = $('#product_id option:selected').val();
+
+                            if (_product_id != '') {
+                                $('#product_id').change();
+
+                            }
+                        }
                     }
                 });
             });
@@ -846,13 +920,22 @@
                 var brand = $('#brand').val();
                 var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
+                var capacity = $('#hd_product_capacity').val() !=='' ? $('#hd_product_capacity').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getCapacityForCategory'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category,capacity:capacity},
                     success: function (responce) {
                         $('#product_capacity').html(responce);
+                        if(capacity !== ''){
+                            var _product_capacity = $('#product_capacity option:selected').val();
+
+                            $('#product_capacity').change();
+
+                        }else{
+                             $('#product_capacity').trigger('change');
+                        }
                     }
                 });
             });
@@ -864,15 +947,17 @@
                 var service_id = $('#service_id').val();
                 var category = $('#product_id').val();
                 var capacity = $('#product_capacity').val();
+                var product_model_no = $('#hd_product_model_no').val() != '' ? $('#hd_product_model_no').val() : '';
                 $.ajax({
                     type: 'POST',
                     url: '<?php echo base_url('partner/getModelForService'); ?>',
                     //dataType:'text/html',
-                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category, capacity: capacity},
+                    data: {service_id: service_id, brand: brand, partner_type: partner_type, partner_id: partner_id, category: category, capacity: capacity,product_model_no:product_model_no},
                     success: function (responce) {
-                        $('#product_model_no').html(responce);
+                        var data = JSON.parse(responce);
+                        $('#product_model_no').html(data.msg);
                     }
                 });
             });
         });
-    </script>   
+    </script>

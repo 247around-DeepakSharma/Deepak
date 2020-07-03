@@ -151,7 +151,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -163,7 +163,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="small_box_count" id="small_box_count" onchange="$('#box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -401,7 +401,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="box_count" id="on_box_count"  onchange="$('#on_small_box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -413,7 +413,7 @@
                                             <div class="col-xs-4">
                                                 <select class="form-control" name="small_box_count" id="on_small_box_count"  onchange="$('#on_box_count').css('border','')">
                                                     <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -720,15 +720,21 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(), //date_before_15_days,
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+             }(), //date_before_15_days,
             maxDate: false,//'today',
+            setDate: new Date(),
             locale:{
-                format: 'DD/MM/YYYY'
+                format: 'YYYY-MM-DD'
             }
         });
     
         $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+            $(this).val(picker.startDate.format('YYYY-MM-DD'));
         });
     
         $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -739,15 +745,21 @@ $("#on_invoice_file").change(function(){
             autoUpdateInput: false,
             singleDatePicker: true,
             showDropdowns: true,
-            minDate: new Date(),//date_before_15_days,
+            minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 3);
+            return yesterday;
+            }(),//date_before_15_days,
             maxDate: false,//'today',
+            setDate: new Date(),
             locale:{
-                format: 'DD/MM/YYYY'
+                format: 'YYYY-MM-DD'
             }
         });
     
         $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('DD/MM/YYYY'));
+            $(this).val(picker.startDate.format('YYYY-MM-DD'));
         });
     
         $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {

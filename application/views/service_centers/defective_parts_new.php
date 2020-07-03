@@ -147,17 +147,9 @@
                                     <div class="col-md-6">
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
-                                                                                        <option value="1">1</option>
-                                                                                        <option value="2">2</option>
-                                                                                        <option value="3">3</option>
-                                                                                        <option value="4">4</option>
-                                                                                        <option value="5">5</option>
-                                                                                        <option value="6">6</option>
-                                                                                        <option value="7">7</option>
-                                                                                        <option value="8">8</option>
-                                                                                        <option value="9">9</option>
-                                                                                        <option value="10">10</option>
-                                                                                    </select>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
+                                                <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
                                     </div>
                                                                     </div>
                                 <div class="form-group       " id="exist_courier_image_row">
@@ -196,8 +188,8 @@
                                 <div class="form-group ">
                                     <label for="courier" class="col-md-4">Weight *</label>
                                     <div class="col-md-6">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" value="" name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram" value="" name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                     </div>
                                                                     </div>
                                 <div class="form-group ">
@@ -236,6 +228,13 @@
 
 <script>
     function submitForm(){
+      let kg = $("#defective_parts_shipped_weight_in_kg").val();
+      let gm = $("#defective_parts_shipped_weight_in_gram").val();
+      let total = parseInt(kg)+parseInt(gm);
+      if(!total){
+      swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+      }else{
+
        event.preventDefault();
        $(".loader").removeClass('hide');
        var form_data = new FormData(document.getElementById("idForm"));
@@ -267,7 +266,7 @@
                    );
                         
                });
- 
+ }
     }
 
 
@@ -275,7 +274,8 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
+        maxDate: "0",
+        minDate: -3
         locale: {
             format: 'YYYY-MM-DD'
         }

@@ -261,7 +261,7 @@
                                     <label for="booking_date" class="col-md-4">Booking Date</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php
-                                            if( !empty($booking_history[0]['booking_date']) &&  $booking_history[0]['booking_date'] != '0000-00-00'){
+                                            if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {
                                             echo $booking_history[0]['booking_date'];
                                             }
                                             else
@@ -666,7 +666,7 @@
                             <div class="form-group col-md-6">
                                 <label for="remark" class="col-md-4" style="padding:0;">Solution *</label>
                                 <div class="col-md-8" >
-                                    <select class="form-control" name="technical_solution" id = "technical_solution" disabled required >
+                                    <select class="form-control" name="technical_solution" id="technical_solution" disabled required >
                                         <option value="" selected="" disabled="">Please Select Solution</option>
                                         <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
                                         <option value="0" selected>Default</option>
@@ -787,11 +787,12 @@
     });
     
     solution_id = "<?php echo ((!empty($booking_symptom) && ($technical_problem[count($technical_problem)-1]['id'] != 0))?$booking_symptom[0]['solution_id']:"");?>";
-    if((solution_id !== "") && (solution_id != 0)) {
+    technical_defect = $('#technical_defect').val();
+    if(((solution_id !== "") && (solution_id != 0) && (solution_id != null)) || (technical_defect != "")) {
         update_solution();
     }
     
-    if($('#technical_solution').val() == 0) {
+    if(($('#technical_solution').val() == 0) || ($('#technical_solution').val() == '') || ($('#technical_solution').val() == null)) {
         $('#technical_solution').removeAttr('disabled');
     }
     
@@ -859,8 +860,10 @@
                 $('#select2-technical_solution-container').empty();
                 $('#technical_solution').empty();
                 response=JSON.parse(response);
-                var str="<option value='' selected='' disabled=''>Please Select Solution</option>";
-                
+                var str="<option value='' disabled=''>Please Select Solution</option>";
+                if(solution_id == null || solution_id == '' || solution_id == 0){
+                    str="<option value='' selected='' disabled=''>Please Select Solution</option>";
+                }
                 var selected;
                 if(response.length>0)
                 {

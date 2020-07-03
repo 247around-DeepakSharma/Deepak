@@ -46,7 +46,8 @@ class vendor extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('user_agent');
         $this->load->library('invoice_lib');
-       $this->load->helper(array('form', 'url', 'file', 'array'));
+        $this->load->library('SFauthorization_certificate');
+        $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
         $this->load->model('push_notification_model');
         $this->load->model('indiapincode_model');
@@ -114,7 +115,7 @@ class vendor extends CI_Controller {
                 $vendor_data['create_date'] = date('Y-m-d H:i:s');
                 $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 $vendor_data['agent_id'] = $agentID;
-                $vendor_data['active'] = 0;
+                $vendor_data['active'] = 1;
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -177,7 +178,7 @@ class vendor extends CI_Controller {
                    //Send SF Update email
                    $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
-                   $this->session->set_flashdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
+                   $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
             }
         } else {
@@ -833,15 +834,8 @@ class vendor extends CI_Controller {
      */
     function get_vendor_list_ajax() {
         $post = $this->get_post_data();
-        // echo "<pre>";
-        // print_r($_POST);
-        $post[''] = array();
         $post['column_order'] = array();
         $post['column_search'] = array('service_centres.name', 'service_centres.company_name', 'state', 'district');
-
-
-        $post['where']['account_holders_bank_details.entity_type'] = 'SF';
-        $post['where']['account_holders_bank_details.is_active'] = 1;
         if ($_POST['active'] == 1) {
             $post['where']['service_centres.active'] = 1;
         }
@@ -918,8 +912,31 @@ class vendor extends CI_Controller {
             $where['asm_id'] = $this->session->userdata('id');
         }
         $c2c = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($vendor_list['district']);
+        if(!empty($response_db)){
+        $result = json_decode($response_db[0]['zone'],true);
+        $response = $result;
+
+        }
+        
+        if(!empty($response)){
+        $districtZoneType = $response['zone'];
+
+        if (strpos($districtZoneType, 'Red') !== false) {
+        $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Orange') !== false) {
+        $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+        }
+        if (strpos($districtZoneType, 'Green') !== false) {
+        $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+        }   
+        }else{
+        $districtZoneType = '<span></span>';   
+        }        
+        
         $row = array();
-        $row[] = $no;
+        $row[] = $no. $districtZoneType;
         $row[] = '<a href="' . base_url() . 'employee/vendor/editvendor/' . $vendor_list['id'] . '"  >' . $vendor_list['name'] . '( ' . $vendor_list['id'] . ' )</a>';
 
         if ($vendor_list['is_wh'] != 1) {
@@ -1062,7 +1079,10 @@ class vendor extends CI_Controller {
             $vendor['agent_id'] = $this->session->userdata("id");
             $agent_name = $this->session->userdata('emp_name');
             $this->vendor_model->edit_vendor($vendor, $id);
-            
+            //Generate auth certificate for those SF's who was diactive and now going to activate
+            if($is_active == 1){
+                $this->sfauthorization_certificate->create_new_certificate($id);
+            }
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
             //Getting Vendor Details
@@ -1281,7 +1301,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1439,12 +1459,16 @@ class vendor extends CI_Controller {
 
                         }else{
 
+                        if(!empty($spare['parts_shipped'])){
                         $sp['service_center_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                         $sp['status'] = OK_PART_TO_BE_SHIPPED;
                         $sp['consumed_part_status_id'] = 5;
                         $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
-                        $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
-
+                        }else{
+                        $sp['status'] = _247AROUND_CANCELLED;
+                        $sp['consumed_part_status_id'] = NULL;
+                        $sp['consumption_remarks'] = NULL;
+                        }
                         $this->service_centers_model->update_spare_parts(array('id' => $spare['id']), $sp);
                                 $tracking_details = array('spare_id' => $spare['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => "Booking Reassign - ".OK_PART_TO_BE_SHIPPED, 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
@@ -2214,7 +2238,6 @@ class vendor extends CI_Controller {
                     if($this->input->post('around_exp')){
                         $data['around_exp'] = $this->input->post('around_exp');
                     }
-
                     $engineer_id = $this->vendor_model->insert_engineer($data);
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
@@ -5699,7 +5722,7 @@ class vendor extends CI_Controller {
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
                 $this->session->set_userdata('vendor_added', 'Vendor Documents Has been updated Successfully , Please Fill other details');
-                $this->session->set_flashdata('current_tab', 2);
+                $this->session->set_userdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
     }
@@ -5713,12 +5736,16 @@ class vendor extends CI_Controller {
                 $vendor_data['appliances'] = implode(",",$this->input->post('appliances'));
             }
             $vendor_data['agent_id'] = $agentID;
+            $vendor_data['has_authorization_certificate'] = 0;
+            $vendor_data['auth_certificate_file_name'] = null;
+            $vendor_data['auth_certificate_validate_year'] = null;
             $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
             $this->vendor_model->map_vendor_brands($this->input->post('id'), $this->input->post('brands'));
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-            $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
-			$this->session->set_flashdata('current_tab', 3);
+            $this->session->set_userdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
+			$this->session->set_userdata('current_tab', 3);
+            $this->sfauthorization_certificate->create_new_certificate($this->input->post('id'));
             redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
         }
     }
@@ -5797,9 +5824,9 @@ class vendor extends CI_Controller {
             $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
         }
         $this->notify->insert_state_change('', NEW_SF_CONTACTS, NEW_SF_CONTACTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-        $this->session->set_flashdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
+        $this->session->set_userdata('vendor_added', "Vendor Contacts Has been updated Successfully , Please Fill other details");
         $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
-		$this->session->set_flashdata('current_tab', 4);
+		$this->session->set_userdata('current_tab', 4);
         redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
     }
     function save_vendor_bank_details(){
@@ -5843,9 +5870,9 @@ class vendor extends CI_Controller {
                 $bank_data['is_rejected']= '0';
                 $this->notify->insert_state_change('', NEW_SF_BANK_DETAILS, NEW_SF_BANK_DETAILS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
-                $this->session->set_flashdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
+                $this->session->set_userdata('vendor_added', "Vendor Bank Details Has been updated Successfully");
                 $this->miscelleneous->update_insert_bank_account_details($bank_data,'update');
-				$this->session->set_flashdata('current_tab', 5);
+				$this->session->set_userdata('current_tab', 5);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$this->input->post('id'));
     }
     function create_vendor_login($new_vendor_mail,$rm_email){

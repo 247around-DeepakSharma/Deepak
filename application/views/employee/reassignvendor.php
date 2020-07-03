@@ -173,7 +173,7 @@
 
                                 <td>
                                     <select class="form-control" id="reason" name="reason" required="">
-                                        <option selected disabled>Select Reason</option>
+                                        <option value="" disabled selected  >Select Reason</option>
                                             <?php foreach ($reassign_reasons as $key => $values) { ?>
                                             <option  value="<?php echo $values['id']; ?>">
                                                 <?php
@@ -181,14 +181,13 @@
                                             }
                                             ?>
                                         </option>
-                                    <?php echo form_error('service_center'); ?>
                                     </select>
                                 </td>
 
                                  <td>
 
                                  <?php if(!empty($spare)){ ?>
-                                   <input type="checkbox" name="rm_responsible" value="1"   /> RM/AM Will take care of spare
+                                   <input type="checkbox" name="rm_responsible" value="1"   /> RM/ASM Will take care of spare
                                  <?php }  ?>
                                     
                                 </td>
@@ -204,10 +203,22 @@
                                 <?php
                                 if(!empty($arr_validation_checks)) { ?>
                                     <center><h3 class='text-danger'><?php echo reset($arr_validation_checks);?></h3></center>
-                                <?php } else {?>
+                                    
+                                <?php } else if(empty($spare)){ ?>
+                                    
                                     <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
                                     <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
-                                <?php } ?>
+                                    
+                               <?php } else if($this->session->userdata('user_group') == _247AROUND_RM || ($this->session->userdata('user_group') == _247AROUND_ASM)){ ?>
+                                    <input type="Submit" value="Save" class="btn btn-primary btn-lg">  
+                                    <input type="Reset" value="Cancel" class="btn btn-danger btn-lg btn-reset">
+
+                                <?php } else{ ?>
+                                 <center><h3 class='text-danger'>Spare involved in this booking. Only RM/ASM are allowed to perform this action</h3></center>
+                                <?php }
+                                ?>                                  
+                                
+                                <?php //} ?>
                             </div>
                         </center>
                     </form> <?php } ?>

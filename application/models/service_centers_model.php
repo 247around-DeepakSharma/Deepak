@@ -100,6 +100,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.is_penalty, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
+                . " bd.district, "
                 . " bd.create_date, "
                 . " bd.order_id, "
                 . " sc.current_status as service_center_current_status, "      
@@ -463,13 +464,25 @@ class Service_centers_model extends CI_Model {
         $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request,IF( entity_type = 'vendor','Warehouse','Partner' ) as  entity_type , bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
-                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' OR sp.status = '".SPARE_OOW_EST_GIVEN."' OR sp.status = '".SPARE_OOW_EST_REQUESTED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
-                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' OR sc.internal_status = '".SPARE_OOW_EST_GIVEN."' OR sc.internal_status = '".SPARE_OOW_EST_REQUESTED."' ) "
+                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' OR sp.status = '".SPARE_OOW_EST_GIVEN."' OR sp.status = '".SPARE_OOW_EST_REQUESTED."' OR sp.status = '".SPARE_PARTS_SHIPPED_BY_WAREHOUSE."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
+                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' OR sc.internal_status = '".SPARE_OOW_EST_GIVEN."' OR sc.internal_status = '".SPARE_OOW_EST_REQUESTED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED_BY_WAREHOUSE."' ) "
 
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
          //log_message('info', __FUNCTION__  .$this->db->last_query());
-         //echo $this->db->last_query();
+        return $query->result_array();
+    }
+    /**
+     * @desc:This method uised to get spare pending for acknowlwdge of particular booking
+     * @param String $booking_id, $id
+     * @return type Array
+     */
+    function get_spare_part_pending_for_acknowledge($booking_id, $id){
+       $sql = "SELECT spare_parts_details.id FROM (`spare_parts_details`)  WHERE "
+                    . "`spare_parts_details`.`booking_id` = '$booking_id' AND `spare_parts_details`.`status` in ('".SPARE_PARTS_SHIPPED_BY_WAREHOUSE."','".SPARE_PARTS_REQUESTED."') "
+                    . "AND `spare_parts_details`.`id` != '".$id."'";
+        $query = $this->db->query($sql);
+         //log_message('info', __FUNCTION__  .$this->db->last_query());
         return $query->result_array();
     }
 

@@ -68,15 +68,17 @@
                                             if (isset($val['ItemNode'])) {
                                                 echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/delivery-truck.svg'>";
                                             } else {
-                                                switch ($val['checkpoint_status']) {
-                                                    case 'delivered':
-                                                        echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/checked_img.svg'>";
-                                                        break;
-                                                    case 'pickup':
-                                                        echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/flag.svg'>";
-                                                        break;
-                                                    default:
-                                                        echo '<b></b>';
+                                                if(empty($checkpoint_status)){
+                                                    switch ($val['checkpoint_status']) {
+                                                        case 'delivered':
+                                                            echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/checked_img.svg'>";
+                                                            break;
+                                                        case 'pickup':
+                                                            echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/flag.svg'>";
+                                                            break;
+                                                        default:
+                                                            echo '<b></b>';
+                                                    }
                                                 }
                                             }
                                             ?>
@@ -105,15 +107,17 @@
                                                 if (!empty($val['checkpoint_item_node'])) {
                                                     echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/delivery-truck.svg'>";
                                                 } else {
-                                                    switch ($val['checkpoint_status']) {
-                                                        case 'delivered':
-                                                            echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/checked_img.svg'>";
-                                                            break;
-                                                        case 'pickup':
-                                                            echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/flag.svg'>";
-                                                            break;
-                                                        default:
-                                                            echo '<b></b>';
+                                                    if (isset($val['checkpoint_status'])) {
+                                                        switch ($val['checkpoint_status']) {
+                                                            case 'delivered':
+                                                                echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/checked_img.svg'>";
+                                                                break;
+                                                            case 'pickup':
+                                                                echo "<img style='width: 20px;float: left;margin: 0px 0px 12px -16px;display: inline-block;' src='/images/flag.svg'>";
+                                                                break;
+                                                            default:
+                                                                echo '<b></b>';
+                                                        }
                                                     }
                                                 }
                                                 ?>
