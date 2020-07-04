@@ -619,7 +619,7 @@ function getStatesCities(){
      * @param - $search_value
      * @response - json
      */
-
+          
     function getSearchData() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -654,8 +654,6 @@ function getStatesCities(){
                 $post['where']['booking_details.partner_id'] = $requestData['entity_id']; // IF partner then search for partner ID
                 }
                 
-                
-
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
                 // Search   booking  on phone number
@@ -675,7 +673,9 @@ function getStatesCities(){
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
-
+                        /** Cancel and Reschedule Reason **/
+                        $data['Bookings'][$key]['scheduled_reason'] = $value['reschedule_reason'];
+                        $data['Bookings'][$key]['cancelled_reason'] = $this->booking_model->cancelreason(array('id'=>$value['cancellation_reason']))[0]->reason;
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_total,appliance_description");
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
