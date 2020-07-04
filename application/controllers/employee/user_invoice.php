@@ -1260,7 +1260,7 @@ class User_invoice extends CI_Controller {
                                 $ledger_data['agent_id'] = $return_data['agent_id'];
                                 $ledger_data['agent_type'] = $return_data['agent_type'];
                                 $ledger_data['booking_id'] = '';
-                                $ledger_data['invoice_id'] = $response['meta']['invoice_id'];
+                                $ledger_data['invoice_id'] = isset($value['invoice_id'])? $value['invoice_id'] : $response['meta']['invoice_id'];
                                 $ledger_data['is_partner_ack'] = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? 3 : NULL);
                                 $ledger_data['courier_id'] = $courier_id;
                                 $ledger_data['is_wh_micro'] = $wh_type;
