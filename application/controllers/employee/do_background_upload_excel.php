@@ -1007,7 +1007,7 @@ class Do_background_upload_excel extends CI_Controller {
                     log_message('info', __FUNCTION__ . "=> Dsecription not found");
                     $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$saas_flag) {
-                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")  || stristr($prod, "Washer")) {
                             $data['valid_data'][$key]['appliance'] = 'Washing Machine';
                         }
                         if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
@@ -1022,6 +1022,9 @@ class Do_background_upload_excel extends CI_Controller {
                         }
                         if (stristr($prod, "Microwave")) {
                             $data['valid_data'][$key]['appliance'] = 'Microwave';
+                        }
+                        if (stristr($prod, "Audio system ( walk in)")) {
+                            $data['valid_data'][$key]['appliance'] = 'Audio System (Walk-In)';
                         }
                         if (stristr($prod, "Purifier")) {
                             $data['valid_data'][$key]['appliance'] = 'Water Purifier';
