@@ -241,6 +241,10 @@ class Service_centers_model extends CI_Model {
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
             $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
+        }        
+        // for Wrong Area Bookings Tab , show all Bookings that are pending on partner review or on admin review 
+        if(!empty($whereIN['sc.cancellation_reason']) && is_array($whereIN['sc.cancellation_reason']) && in_array(CANCELLATION_REASON_WRONG_AREA_ID, $whereIN['sc.cancellation_reason'])){
+            $where_sc = "";
         }
         if($status == "Cancelled"){
             $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
@@ -318,7 +322,7 @@ class Service_centers_model extends CI_Model {
                 . " AND booking_details.is_in_process = 0"
                 . " $groupBy  $having $orderBY $limit";
         $query = $this->db->query($sql);
-        $booking = $query->result_array();
+        $booking = $query->result_array();        
          return $booking;
     }
 
