@@ -455,6 +455,16 @@ function get_data_for_partner_callback($booking_id) {
         return $query = $this->db->query($sql);
     } 
     
+ /* Reatime summary report by view : Abhishek Awasthi */                  
+    function get_partner_leads_csv_for_summary_email_from_view($partner_id,$percentageLogic){
+         if(!empty($partner_id)) {
+            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+         }
+         $sql = "SELECT Brand Reference ID,247around Booking ID,Service Center,Create Date,Brand,Date of Purchase,Model,Product Serial Number,Product,Category,Capacity,Description,Customer Name,Pincode,City,State,Phone,Email,Service Type,Customer Remarks,Reschedule Remarks,Closing Remarks,Cancellation Remarks,Current Booking Date,First Booking Date,Timeslot,Final Status Level 2,	Final Status Level 1,Is Upcountry,Is Part Involve,Dependency On,Completion Date,TAT,Ageing,Rating,Rating Comments,Requested Part Code,Requested Part,Part Requested Date,Shipped Part Code,Shipped Part,Part Shipped Date,SF Acknowledged Date,Shipped Defective Part Code,Shipped Defective Part,Defective Part Shipped Date,engineer_name,Booking Symptom,Completion Symptom,Defect,Solution";
+         $sql .= " WHERE product_or_services != 'Product' AND $where booking_id";
+         return $query = $this->db->query($sql);
+    }
+    
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
