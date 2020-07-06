@@ -295,10 +295,16 @@ function get_data_for_partner_callback($booking_id) {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL) {
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="", $not_like = TRUE,$add_booking = NULL,$partner_spare_extra=FALSE) {
         $this->db->distinct();
+        if($partner_spare_extra){
+        $this->db->select('id,partner_spare_extra_charge,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }else{
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry, vendor_basic_percentage,product_or_services, '
-                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');
+                . 'upcountry_customer_price, upcountry_vendor_price, upcountry_partner_price, flat_upcountry');    
+        }
+
         $this->db->where('service_id', $service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -455,6 +461,16 @@ function get_data_for_partner_callback($booking_id) {
         
         return $query = $this->db->query($sql);
     } 
+    
+ /* Reatime summary report by view : Abhishek Awasthi */                  
+    function get_partner_leads_csv_for_summary_email_from_view($partner_id,$percentageLogic){
+         if(!empty($partner_id)) {
+            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+         }
+         $sql = "SELECT Brand Reference ID,247around Booking ID,Service Center,Create Date,Brand,Date of Purchase,Model,Product Serial Number,Product,Category,Capacity,Description,Customer Name,Pincode,City,State,Phone,Email,Service Type,Customer Remarks,Reschedule Remarks,Closing Remarks,Cancellation Remarks,Current Booking Date,First Booking Date,Timeslot,Final Status Level 2,	Final Status Level 1,Is Upcountry,Is Part Involve,Dependency On,Completion Date,TAT,Ageing,Rating,Rating Comments,Requested Part Code,Requested Part,Part Requested Date,Shipped Part Code,Shipped Part,Part Shipped Date,SF Acknowledged Date,Shipped Defective Part Code,Shipped Defective Part,Defective Part Shipped Date,engineer_name,Booking Symptom,Completion Symptom,Defect,Solution";
+         $sql .= " WHERE product_or_services != 'Product' AND $where booking_id";
+         return $query = $this->db->query($sql);
+    }
     
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
@@ -2487,6 +2503,7 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function getpartner_data($select, $where = "", $is_reporting_mail="",$is_am_details = null,$is_booking_source = 0,$is_am = 0, $group_by = "", $where_in = "") {
+        $this->db->distinct();
         $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);

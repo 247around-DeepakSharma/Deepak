@@ -23,7 +23,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <?php 
-                                                        $rows = ['Download Partner Contact List' => 'employee/booking/download_custom_report'];
+                                                        $rows = ['Download Partner Contact List' => 'employee/reports/download_custom_report'];
                                                      $sno = 1;
                                                         foreach($rows as $description => $link) {?>
                                                     <tr>
@@ -40,4 +40,3 @@
                                </div>
                             </div>
                         </div>
-

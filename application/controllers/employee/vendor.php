@@ -1333,16 +1333,6 @@ class vendor extends CI_Controller {
                     'internal_status' => _247AROUND_PENDING);
                 
                 $actor = $next_action = 'not_define';
-                if(empty($spare_data)){
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
-
-                    if (!empty($partner_status)) {
-                        $assigned_data['partner_current_status'] = $partner_status[0];
-                        $assigned_data['partner_internal_status'] = $partner_status[1];
-                        $actor = $assigned_data['actor'] = $partner_status[2];
-                        $next_action = $assigned_data['next_action'] = $partner_status[3];
-                    }
-                }
                 
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
@@ -1519,6 +1509,18 @@ class vendor extends CI_Controller {
                     $sf_phone = $query[0]['phone_1'] . ", " . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
                     $sf_address = $query[0]['address'].", ".$query[0]['sf_district'];
                     $this->miscelleneous->sms_sf_address_to_customer($services, $sf_phone, $sf_address, $query[0]['booking_id'], $query[0]['user_id'],  $query[0]['booking_primary_contact_no']);
+                }
+                
+                /*  Update Booking Status */
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
                 //End
 
@@ -5138,7 +5140,7 @@ class vendor extends CI_Controller {
                 $sf_details = $this->vendor_model->getVendorDetails('primary_contact_email,owner_email,name',array('id'=>$id));
                 $rm_email = $this->vendor_model->get_rm_sf_relation_by_sf_id($id)[0]['official_email'];
                 $login_details['username'] = $agent[0]['user_name'];
-                $login_details['password'] = $agent[0]['user_name'];
+                $login_details['password'] = $agent[0]['clear_text'];
                 $subject = vsprintf($template[4], $sf_details[0]['name']);
                 $emailBody = vsprintf($template[0], $login_details);
                 $to = $this->session->userdata('official_email').",".$sf_details[0]['primary_contact_email'].",".$sf_details[0]['owner_email'];

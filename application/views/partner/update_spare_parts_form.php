@@ -197,7 +197,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Invoice Id *</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "invoice_id_".$key; ?>" name="part[<?php echo $key; ?>][invoice_id]" value="" placeholder="Please Enter Invoice Id" required/>
+                                            <input class="form-control invoice_id_class" id="<?php echo "invoice_id_".$key; ?>" name="part[<?php echo $key; ?>][invoice_id]" value="" placeholder="Please Enter Invoice Id" required/>
                                         </div>
                                     </div>
                                     <?php } ?>
@@ -213,7 +213,7 @@
                                     <div class="form-group">
                                         <label for="hsn_code" class="col-md-4">HSN Code *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "hsn_code_" . $key; ?>" name="part[<?php echo $key; ?>][hsn_code]" value = "" placeholder="Please Enter HSN Code"  required>
+                                            <input type="text" class="form-control validate_hsn_code" id="<?php echo "hsn_code_" . $key; ?>" name="part[<?php echo $key; ?>][hsn_code]" value = "" placeholder="Please Enter HSN Code"  required>
                                         </div>
                                     </div> 
                                     <?php } } ?>
@@ -256,7 +256,7 @@
                                      </div>
                                     <div style="margin-bottom: 40px;">
                                     <div class="form-group">
-                                        <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
+                                        <label for="lable_shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
                                             <select required="" class="form-control parts_type_check shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
@@ -303,7 +303,7 @@
                                     <div class="form-group">
                                         <label for="gst_number" class="col-md-4">GST Rate *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "gst_rate_". $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" value = "" placeholder="Please Enter GST Rate  "  required>
+                                            <input type="text" class="form-control validate_gst_rate" id="<?php echo "gst_rate_". $key; ?>" name="part[<?php echo $key; ?>][gst_rate]" value = "" placeholder="Please Enter GST Rate  "  required>
                                             
                                         </div>
                                     </div>
@@ -314,7 +314,7 @@
                                         if (form_error('incoming_invoice')) { echo 'has-error';} ?>">
                                         <label for="incoming_invoice" class="col-md-4">Spare Invoice (PDF)*</label>
                                         <div class="col-md-7">
-                                            <input type="file" name="incominginvoice[<?php echo $key; ?>]" id="<?php echo "incominginvoice_".$key; ?>" class="form-control" required />
+                                            <input type="file" name="incominginvoice[<?php echo $key; ?>]" id="<?php echo "incominginvoice_".$key; ?>" class="form-control incominginvoice_class" required />
                                             <input type="hidden"  name="part[<?php echo $key;?>][purchase_price]" value="<?php echo $value->purchase_price; ?>" id="<?php echo "purchase_price".$key; ?>" class="form-control purchase_price"  />
                                             <?php echo form_error('incoming_invoice'); ?>
                                         </div>
@@ -366,7 +366,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
-                                            <select class="form-control spare_parts shipped-part-name" id="shippedpartsname" >
+                                            <select class="form-control spare_parts shipped_parts_name shipped-part-name" id="shippedpartsname" >
                                             </select>
                                             <span id="spinner" style="display:none"></span>
                                         </div>
@@ -390,7 +390,7 @@
                                      <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Invoice Id *</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="invoice_id"  value="" placeholder="Please Enter Invoice Id" required/>
+                                            <input class="form-control invoice_id_class" id="invoice_id"  value="" placeholder="Please Enter Invoice Id" required/>
                                         </div>
                                     </div>  
                                     <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
@@ -406,7 +406,7 @@
                                       <div class="form-group">
                                         <label for="hsn_code" class="col-md-4">HSN Code *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="hsn_code" value = "" placeholder="Please Enter HSN Code"  required>
+                                            <input type="text" class="form-control validate_hsn_code" id="hsn_code" value = "" placeholder="Please Enter HSN Code"  required>
                                         </div>
                                     </div>
                                     <?php } ?>                                      
@@ -478,13 +478,13 @@
                                     <div class="form-group">
                                         <label for="gst_number" class="col-md-4">GST Rate *</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="gst_rate" value = "" placeholder="Please Enter GST Rate"  required>
+                                            <input type="text" class="form-control validate_gst_rate" id="gst_rate" value = "" placeholder="Please Enter GST Rate"  required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="incoming_invoice" class="col-md-4">Spare Invoice (PDF)*</label>
                                         <div class="col-md-7">
-                                            <input type="file" id="incominginvoice" class="form-control" required />
+                                            <input type="file" id="incominginvoice" class="form-control incominginvoice_class" required />
                                             <input type="hidden"  value="" id="purchase_price" class="form-control purchase_price"  />
                                         </div>
                                     </div>
@@ -652,6 +652,8 @@
     var hsn_code = $(this).find('option:selected').attr("data-gst");
         if(hsn_code!='' && hsn_code != 'undefined'){
             $("#gst_rate_"+array[2]).val(hsn_code);
+            $('label[for="gst_rate_'+array[2]+'"]').css('display', 'none');
+            $("#gst_rate_"+array[2]).attr("readonly", true);
         }
     });
     
@@ -986,6 +988,7 @@
                   var obj = JSON.parse(data);
                   if(obj){
                       $('#approx_value_'+id_index).val(obj.spare_part_price);
+                      $('label[for="approx_value_'+id_index+'"]').css('display', 'none');
                   }
               }
          });
@@ -1245,6 +1248,39 @@
         $("#courier_name").on('change',function(){
             $('label[for="courier_name"]').css('display', 'none');
         });
+                
+        $(".spare_parts_type").on('change',function(){
+            var id_text = $(this).attr('id');
+            id_array = id_text.split('_');
+            $('label[for="shippedpart_type_'+id_array[2]+'"]').css('display', 'none');
+        });
+        
+        $(".invoice_id_class").on('change',function(){
+            var id_text = $(this).attr('id');
+            id_array = id_text.split('_');
+            $('label[for="invoice_id_'+id_array[2]+'"]').css('display', 'none');
+        });
+        
+        $(".incominginvoice_class").on('change',function(){
+            var id_text = $(this).attr('id');
+            id_array = id_text.split('_');
+            $('label[for="incominginvoice_'+id_array[1]+'"]').css('display', 'none');
+        });
+        
+        $(".shipped_parts_name").on('change',function(){
+            var id_text = $(this).attr('id');
+            id_array = id_text.split('_');
+            $('label[for="shippedpartsname_'+id_array[1]+'"]').css('display', 'none');
+        });
+        
+        
+        $(".hsn_code").on('change',function(){
+            var id_text = $(this).attr('id');
+            id_array = id_text.split('_');
+            $('label[for="hsn_code_'+id_array[2]+'"]').css('display', 'none');
+        });
+        
+        
         $("#defective_parts_shipped_boxes_count").on('change',function(){
             $('label[for="defective_parts_shipped_boxes_count"]').css('display', 'none');
         });
@@ -1328,36 +1364,64 @@
              <?php  } ?>
      <?php }else{ ?>         
 <script type="text/javascript">
-    $(document).ready(function(){       
-    var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 
-    get_inventory_pary_type(service_id,'shippedparttype_0');
-    $(".addButton").on('click',function(){  
-        var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>";    
-        var numItems = $('.spare_clone').length;
-        spare_part_type_id = "shippedparttype_"+numItems;
-        get_inventory_pary_type(service_id,spare_part_type_id);
-
+        
+    $(".validate_hsn_code").bind("keyup paste", function(e) {
+        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
     });
+    
+    $('.validate_gst_rate').bind('keyup paste mouseover', function(){
+        this.value = this.value.replace(/[^0-9/./]/g, '');
+        var gst_rate = $(this).val();
+          if(gst_rate.length > 1){
+              if(!existsArray(gst_rate)){
+                  $(this).val('');
+              }
+          }
+    });
+    
 
-    function get_inventory_pary_type(service_id,spare_part_type_id){
-       $.ajax({
-       method:'POST',
-       url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
-       data: { service_id:service_id},
-       success:function(data){                       
-           $('#'+spare_part_type_id).html(data);  
-           var section_length = $(".div_class").length
-            for(i=0; i < section_length; i++){
-                $("#shippedpart_type_"+i).html(data);
+    function existsArray(gst_rate){
+        var myArray = ['1.5','2', '5', '12', '18', '28'];
+        var inArray = false;
+        myArray.map(function(key){
+            if (key === gst_rate){
+                inArray=true;
             }
-           $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested_type) ? $spare_parts[0]->parts_requested_type : '') ?>"]').attr('selected','selected');   
-           $('#shippedpart_type_0').select2({
-             placeholder:'Select Part Type',
-             allowClear:true
-           });
-       }
-    });
-    } 
+        });
+        return inArray;
+    };
+    
+    
+    $(document).ready(function(){
+        var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>"; 
+        get_inventory_pary_type(service_id,'shippedparttype_0');
+        $(".addButton").on('click',function(){  
+            var service_id = "<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>";    
+            var numItems = $('.spare_clone').length;
+            spare_part_type_id = "shippedparttype_"+numItems;
+            get_inventory_pary_type(service_id,spare_part_type_id);
+
+        });
+
+        function get_inventory_pary_type(service_id,spare_part_type_id){
+           $.ajax({
+           method:'POST',
+           url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
+           data: { service_id:service_id},
+           success:function(data){                       
+               $('#'+spare_part_type_id).html(data);  
+               var section_length = $(".div_class").length
+                for(i=0; i < section_length; i++){
+                    $("#shippedpart_type_"+i).html(data);
+                }
+               $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested_type) ? $spare_parts[0]->parts_requested_type : '') ?>"]').attr('selected','selected');   
+               $('#shippedpart_type_0').select2({
+                 placeholder:'Select Part Type',
+                 allowClear:true
+               });
+           }
+        });
+        } 
     });
 </script>
         
