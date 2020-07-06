@@ -1845,4 +1845,14 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
     
     
 
+    /**
+    * @desc: get custom query data from custom report queries 
+    * @return : Array
+    */
+    function get_custom_query_data(){
+        $sql = "SELECT * FROM custom_report_queries";
+        $query = $this->db->query($sql);
+        return $query->result_array();  
+    }
+
 }
