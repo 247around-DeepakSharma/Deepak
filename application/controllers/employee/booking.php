@@ -2790,7 +2790,6 @@ class Booking extends CI_Controller {
             $capacity = $unit['capacity'];
             $partner_id = $unit['partner_id'];
             $price_tag = $unit['uprice_tag'];
-            $service_id = $unit['service_id'];
             $where = array(
                 'brand'=>$brand,
                 'category'=>$category,
@@ -2798,17 +2797,9 @@ class Booking extends CI_Controller {
                 'partner_id'=>$partner_id,
                 'service_category'=>$price_tag
             );
-            
-            $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $partner_id));
-            if (!empty($source[0]['partner_type']) && $source[0]['partner_type'] == OEM) { 
-            $prices = $this->partner_model->getPrices($service_id,$category, $capacity,$partner_id, $price_tag, $brand, false,NULL,TRUE);    
-            }else{
-            $prices = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_id, $price_tag, "", false,NULL,TRUE);   
-            }
-              
-//            $select = "service_centre_charges.partner_spare_extra_charge";
-//            $charges =  $this->service_centre_charges_model->get_service_caharges_data($select,$where);
-            $partner_spare_extra_charge = $prices[0]['partner_spare_extra_charge'];
+            $select = "service_centre_charges.partner_spare_extra_charge";
+            $charges =  $this->service_centre_charges_model->get_service_caharges_data($select,$where);
+            $partner_spare_extra_charge = $charges[0]['partner_spare_extra_charge'];
 
             $data_unit = array(
                 'partner_spare_extra_charge'=>$partner_spare_extra_charge
@@ -5980,7 +5971,7 @@ class Booking extends CI_Controller {
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+                $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
             }
         } 
         
