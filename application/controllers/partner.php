@@ -170,7 +170,7 @@ class Partner extends CI_Controller {
                                 $lead_details['service_appliance_data'] = $service_appliance_data[0];
                                 $lead_details['Product'] = $service_appliance_data[0]['services'];
                             } else {
-                                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer") || stristr($prod, "Washer")) {
                                     $lead_details['Product'] = 'Washing Machine';
                                 }
                                 if (stristr($prod, "Television") || stristr($prod, "Monitor") || stristr($prod, "Televisions")) {
@@ -179,13 +179,22 @@ class Partner extends CI_Controller {
                                 if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
                                     $lead_details['Product'] = 'Air Conditioner';
                                 }
-                                if (stristr($prod, "Refrigerator")) {
+                                if($prod == "AC"){
+                                    $lead_details['Product'] = 'Air Conditioner';
+                                }
+                                if (stristr($prod, "Refrigerator") || stristr($prod, "GNF")) {
                                     $lead_details['Product'] = 'Refrigerator';
                                 }
-                                if (stristr($prod, "Microwave")) {
+                                if($prod == "DC"){
+                                    $lead_details['Product'] = 'Air Conditioner';
+                                }
+                                if (stristr($prod, "Microwave") || stristr($prod, "MWO")) {
                                     $lead_details['Product'] = 'Microwave';
                                 }
                                 if (stristr($prod, "Purifier")) {
+                                    $lead_details['Product'] = 'Water Purifier';
+                                }
+                                if($prod == "RO"){
                                     $lead_details['Product'] = 'Water Purifier';
                                 }
                                 if (stristr($prod, "Chimney")) {
