@@ -1017,16 +1017,25 @@ class Do_background_upload_excel extends CI_Controller {
                         if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
                             $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
                         }
-                        if (stristr($prod, "Refrigerator")) {
+                        if($prod == "AC"){
+                            $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+                        }
+                        if (stristr($prod, "Refrigerator") || stristr($prod, "GNF")) {
                             $data['valid_data'][$key]['appliance'] = 'Refrigerator';
                         }
-                        if (stristr($prod, "Microwave")) {
+                        if($prod == "DC"){
+                            $data['valid_data'][$key]['appliance'] = 'Refrigerator';
+                        }
+                        if (stristr($prod, "Microwave") || stristr($prod, "MWO")) {
                             $data['valid_data'][$key]['appliance'] = 'Microwave';
                         }
                         if (stristr($prod, "Audio system ( walk in)")) {
                             $data['valid_data'][$key]['appliance'] = 'Audio System (Walk-In)';
                         }
                         if (stristr($prod, "Purifier")) {
+                            $data['valid_data'][$key]['appliance'] = 'Water Purifier';
+                        }
+                        if($prod == "RO"){
                             $data['valid_data'][$key]['appliance'] = 'Water Purifier';
                         }
                         if (stristr($prod, "Chimney")) {
@@ -1775,7 +1784,21 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         if (isset($data[$header_data['request_type']]) && !empty($data[$header_data['request_type']])) {
-            $tmpArr['request_type'] = $data[$header_data['request_type']];
+            if($data[$header_data['request_type']] == "INS/DEMO"){
+                
+                $tmpArr['request_type'] = "Installation & Demo";
+                
+            } else if($data[$header_data['request_type']] == "Warranty"){
+                
+                $tmpArr['request_type'] = "Repair - In Warranty (Home Visit)";
+                
+            } else if($data[$header_data['request_type']] == "Contract"){
+                
+                $tmpArr['request_type'] = "AMC (Annual Maintenance Contract)";
+            } else {
+                $tmpArr['request_type'] = $data[$header_data['request_type']];
+            }
+            
         } else {
             $tmpArr['request_type'] = "Installation & Demo";
         }
