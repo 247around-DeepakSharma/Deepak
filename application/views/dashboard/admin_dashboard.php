@@ -633,6 +633,7 @@
                         <tr>
                             <th>S.no</th>
                             <th>AM</th>
+                            <th ng-if='completedBookingByAM.leg_1 !== undefined'></th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -644,12 +645,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
+                        <tr class="am-tat-report" data-am-row-id="{{completedBookingByAM.TAT[$index].id}}" ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
                             <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByAM.TAT[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
-                                   {{completedBookingByAM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
-                                   
+                                   {{completedBookingByAM.leg_1[$index].entity}} </button>
+                                <span ng-if="completedBookingByAM.TAT[$index].id != '00'">
+                                    <span class="am-tat-report collape_icon toggle-brand-details" data-am-id="{{completedBookingByAM.TAT[$index].id}}" onclick="get_brand_details_for_am($(this).data('am-id'))" style="margin-top: 10px;">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </td>
+                            <td><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>                                   
                            <td style="padding: 4px 12px;">{{completedBookingByAM.leg_1[$index].TAT_0}} ({{completedBookingByAM.leg_1[$index].TAT_0_per}}%)<br>
                                {{completedBookingByAM.leg_2[$index].TAT_0}} ({{completedBookingByAM.leg_2[$index].TAT_0_per}}%)<br>
                                {{completedBookingByAM.TAT[$index].TAT_0}} ({{completedBookingByAM.TAT[$index].TAT_0_per}}%) </td>
@@ -682,10 +689,17 @@
                                {{completedBookingByAM.leg_2[$index].TAT_16}} ({{completedBookingByAM.leg_2[$index].TAT_16_per}}%)<br>
                                {{completedBookingByAM.TAT[$index].TAT_16}} ({{completedBookingByAM.TAT[$index].TAT_16_per}}%) </td>
                         </tr>
-                        <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 == undefined'>
+                        <tr class="am-tat-report" data-am-row-id="{{x.id}}" ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button>
+                                <span ng-if="x.id == '00'"></span>
+                                <span ng-if="x.id != '00'">
+                                    <span class="am-tat-report collape_icon toggle-brand-details" data-am-id="{{x.id}}" onclick="get_brand_details_for_am($(this).data('am-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                           </td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
@@ -815,14 +829,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in pendingBookingByAM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
+                        <tr class="open-call-report-am" data-am-row-id="{{x.id}}" ng-repeat="x in pendingBookingByAM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','pending','am_pending_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','pending','am_pending_booking_form')">{{x.entity}}</button>
+				<span ng-if="x.id == '00'"></span>
+				<span ng-if="x.id != '00'">
+                                    <span class="open-call-report-am collape_icon toggle-brand-details" data-am-id="{{x.id}}" onclick="get_brand_open_call_details_for_am($(this).data('am-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+			   </td>
                                        <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
                                             <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
-                                             </form></td>
+                                             </form>
+					</td>
                                               <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_1_bookings}}">
                                             <input type="submit" value="{{x.TAT_1}} ({{x.TAT_1_per}}%)" class="btn btn-success">
@@ -2728,84 +2750,7 @@
                                                 }
                                             }
                                         }]
-                                });
-    //                var partners = [];
-    //                var bookings = [];
-    //                var partnerid = [];
-    //                var chart_ajax_data = [];
-    //                $.each(JSON.parse(response), function (key, value) {
-    //                    partners.push(value.public_name);
-    //                    bookings.push(parseInt(value.count));
-    //                    partnerid[value.public_name] = parseInt(value.partner_id);
-    //                    var arr = {
-    //                        name: value.public_name,
-    //                        y: parseInt(value.count)
-    //                    };
-    //                    chart_ajax_data.push(arr);
-    //
-    //                });
-    //                $('#loader_gif1').attr('src', "");
-    //                $('#loader_gif1').css('display', 'none');
-    //                $('#chart_container').show();
-    //                partner_booking_chart = new Highcharts.Chart({
-    //                    chart: {
-    //                        renderTo: 'chart_container',
-    //                        type: 'column'
-    //                    },
-    //                    title: {
-    //                        text: '',
-    //                        x: -20 //center
-    //                    },
-    //                    xAxis: {
-    //                        categories: partners
-    //                    },
-    //                    yAxis: {
-    //                        title: {
-    //                            text: 'Count'
-    //                        },
-    //                        plotLines: [{
-    //                                value: 0, width: 1,
-    //                                color: '#808080'
-    //                            }]
-    //                    },
-    //                    plotOptions: {
-    //                        column: {
-    //                            dataLabels: {
-    //                                enabled: true,
-    //                                crop: false,
-    //                                overflow: 'none'
-    //                            }
-    //                        },
-    //                        pie: {
-    //                            plotBorderWidth: 0,
-    //                            allowPointSelect: true,
-    //                            cursor: 'pointer',
-    //                            size: '100%',
-    //                            dataLabels: {
-    //                                enabled: true,
-    //                                format: '{point.name}: <b>{point.y}</b>'
-    //                            },
-    //                            showInLegend: true
-    //                        }
-    //                    },
-    //                    series: [
-    //                        {
-    //                            name: booking_status,
-    //                            data: chart_ajax_data,
-    //                            cursor: 'pointer',
-    //                            point: {
-    //                                events: {
-    //                                    click: function (event) {
-    //                                        var get_date = $('#reportrange span').text().split('-');
-    //                                        var startdate = Date.parse(get_date[0]).toString('dd-MMM-yyyy');
-    //                                        var enddate = Date.parse(get_date[1]).toString('dd-MMM-yyyy');
-    //                                        var booking_status = $('#booking_status').val();
-    //                                        window.open(baseUrl + '/employee/dashboard/partner_reports/' + this.name + '/' + partnerid[this.name] + '/' + booking_status + '/' + encodeURI(startdate) + '/' + encodeURI(enddate), '_blank');
-    //                                    }
-    //                                }
-    //                            }
-    //                        }]
-    //                });
+                                });    
         }
     
     function get_mothly_booking_status(response,chart_render_to){
@@ -3159,10 +3104,10 @@ function initiate_escalation_data(){
        startDate: "<?php echo date("Y-m-d", strtotime("first day of previous month")); ?>"
     });
 }
-    function open_full_view(id,url,is_am,is_pending,form_id,entity_type=""){
-      // Add entity_type(ASM/RM) 
+    function open_full_view(id,url,is_am,is_pending,form_id,entity_type="",sub_id=""){
+      // Add entity_type(ASM/RM/Brand) 
       entity_id = id.split("_")[1];
-      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type;
+      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type+'/'+sub_id;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
     }
@@ -3773,6 +3718,316 @@ function initiate_escalation_data(){
     series: series
 });
 }
+    // Functions to get Brand Wise AM completed/cancelled calls Data
+    function get_brand_details_for_am(am_id)
+    {
+        if($("tr.am-tat-report[data-am-row-id='"+ am_id+ "']").data("has_data")){
+            if($("#brand_table_"+ am_id).length>0){
+                if($("#brand_table_"+ am_id).is(":hidden")){
+                    $("span.am-tat-report[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.am-tat-report[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#brand_table_"+ am_id).slideToggle();
+                return false;
+            }
+        }else{
+            if($("#brand_table_"+ am_id).length>0){
+                if(!$("#brand_table_"+ am_id).is(":hidden")){
+                    $("span.am-tat-report[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#brand_table_"+ am_id).remove();
+                    return false;
+                }
+            }
+        }
+        $("span.am-tat-report[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='brand_table_"+ am_id +"' class='brand-tat-table'><td class='text-center' colspan=10><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr.am-tat-report[data-am-row-id='"+ am_id+ "']").after(html);
+        partner_id = $("#partner_id_am").val();
+        service_id = $("#service_id_am").val();
+        request_type = getMultipleSelectedValues("request_type_am");
+        free_paid = $("#free_paid_am").val();
+        upcountry = $("#upcountry_am").val();
+        dateRange = $("#completed_daterange_id_am").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        status = $("#completed_status_am").val();
+
+        if(!partner_id){
+            partner_id = "not_set";
+        }   
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+        if(!upcountry){
+            upcountry = "not_set";
+        }         
+        if(!status){
+            status = "not_set";
+        }
+
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/Brand/0/"+partner_id;
+        var data = {am:am_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_brand_tat_report_table(am_id, JSON.parse(response));
+        });
+    }
+
+    function create_brand_tat_report_table(tableRow,data){
+        html_leg_tbl = "";
+        if(!!data.leg_1 && data.leg_1.length>0){
+            html_leg_tbl = "<th></th>";
+        }
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>Brand</th>'
+                +html_leg_tbl
+                +'<th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+        if(!!data.TAT && data.TAT.length>0){
+            html += "<tbody>";
+            for(var i in data.TAT){
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                if(data.TAT[i].id === "00"){
+                    html += "<td>"+ data.TAT[i].entity+ "</td>";
+                }
+                else {
+                    html += "<td><button type='button' id='brand_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form','Brand','"+data.TAT[i].sub_id+"')\">"+ data.TAT[i].entity+ "</button></td>";
+                }
+                // Show leg wise Brand Report
+                if(!!data.leg_1 && data.leg_1.length>0){
+                    html += "<td>leg_1<br/>leg_2<br/>Total</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_0+ "("+ data.leg_1[i].TAT_0_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_0+ "("+ data.leg_2[i].TAT_0_per+ "%)<br/>"
+                            + data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_1+ "("+ data.leg_1[i].TAT_1_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_1+ "("+ data.leg_2[i].TAT_1_per+ "%)<br/>"
+                            + data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_2+ "("+ data.leg_1[i].TAT_2_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_2+ "("+ data.leg_2[i].TAT_2_per+ "%)<br/>"
+                            + data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_3+ "("+ data.leg_1[i].TAT_3_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_3+ "("+ data.leg_2[i].TAT_3_per+ "%)<br/>"
+                            + data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_4+ "("+ data.leg_1[i].TAT_4_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_4+ "("+ data.leg_2[i].TAT_4_per+ "%)<br/>"
+                            + data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_5+ "("+ data.leg_1[i].TAT_5_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_5+ "("+ data.leg_2[i].TAT_5_per+ "%)<br/>"
+                            + data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_8+ "("+ data.leg_1[i].TAT_8_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_8+ "("+ data.leg_2[i].TAT_8_per+ "%)<br/>"
+                            + data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_16+ "("+ data.leg_1[i].TAT_16_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_16+ "("+ data.leg_2[i].TAT_16_per+ "%)<br/>"
+                            + data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)"
+                            + "</td>";
+                    html += '</tr>';
+                }
+                else
+                {
+                    html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
+                    html += '</tr>';
+                }                
+            }
+
+            html += "</tbody></table>";            
+            if(!!data.leg_1 && data.leg_1.length>0){
+                html = "<td colspan=11>"+ html+ "</td>"
+            }
+            else
+            {
+                html = "<td colspan=10>"+ html+ "</td>"
+            }
+            $("#brand_table_"+ tableRow).empty().html(html);
+            $("tr.am-tat-report[data-am-row-id='"+ tableRow+ "']").data("has_data", true);
+        }else{
+            html += "<tbody><tr><td colspan=10 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=10>"+ html+ "</td>"
+            $("#brand_table_"+ tableRow).empty().html(html);
+            $("tr.am-tat-report[data-am-row-id='"+ tableRow+ "']").data("has_data", false);
+        }
+    }
+    
+    // Functions to get Brand Wise AM open calls Data
+    function get_brand_open_call_details_for_am(am_id){
+        if($("tr.open-call-report-am[data-am-row-id='"+ am_id+ "']").data("has_data")){
+            if($("#brand_open_call_table_"+ am_id).length>0){
+                if($("#brand_open_call_table_"+ am_id).is(":hidden")){
+                    $("span.open-call-report-am[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.open-call-report-am[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#brand_open_call_table_"+ am_id).slideToggle();
+                return false;
+            }
+        }else{
+            if($("#brand_open_call_table_"+ am_id).length>0){
+                if(!$("#brand_open_call_table_"+ am_id).is(":hidden")){
+                    $("span.open-call-report-am[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#brand_open_call_table_"+ am_id).remove();
+                    return false;
+                }
+            }
+        }
+        $("span.open-call-report-am[data-am-id='"+ am_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='brand_open_call_table_"+ am_id +"' class='brand-open-call-table'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr.open-call-report-am[data-am-row-id='"+ am_id+ "']").after(html);
+        dateRange = $("#pending_daterange_id_am").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        service_id = $("#service_id_am_pending").val();
+        partner_id = $("#partner_id_am_pending").val();
+        request_type = getMultipleSelectedValues("request_type_am_pending");
+        free_paid = $("#free_paid_am_pending").val();
+        upcountry = getMultipleSelectedValues("upcountry_am_pending");
+        status = getMultipleSelectedValues("pending_dependency_am");
+        if(!status){
+            status = "not_set";
+        }
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+         if(!upcountry){
+            upcountry = "not_set";
+        }
+        if(!partner_id){
+            partner_id = "not_set";
+        }
+
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/Brand/Pending/"+partner_id;
+        var data = {am:am_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_brand_open_call_tat_report_table(am_id, JSON.parse(response));
+        });
+    }
+    
+    // HTML for Brand wise Open Call Table
+    function create_brand_open_call_tat_report_table(tableRow,data){
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>Brand</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+        if(!!data && data.length>0){
+            html += "<tbody>";
+            for(var i in data){
+                var total = 0;
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                if(data[i].id === "00"){
+                    html += "<td>"+ data[i].entity+ "</td>";
+                    html += '<td>'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)</td>';
+                    total += data[i].TAT_0;
+                    html += '<td>'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)</td>'; 
+                    total += data[i].TAT_1;
+                    html += '<td>'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)</td>';
+                    total += data[i].TAT_2;
+                    html += '<td>'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)</td>';
+                    total += data[i].TAT_3;
+                    html += '<td>'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)</td>';
+                    total += data[i].TAT_4;
+                    html += '<td>'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)</td>';
+                    total += data[i].TAT_5;
+                    html += '<td>'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)</td>';
+                    total += data[i].TAT_8;
+                    html += '<td>'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)</td>';
+                    total += data[i].TAT_16;
+                    html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";                
+                }else{
+                    var entity_type = "Brand";
+                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','Pending','am_pending_booking_form','"+entity_type+"','"+data[i].sub_id+"')\">"+ data[i].entity+ "</button></td>";
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
+                             +'</form></td>';
+                    total += data[i].TAT_0;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
+                                 +'</form></td>';
+                    total += data[i].TAT_1;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_2;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_3;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_4;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_5;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_8;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_16;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_Total_bookings + '">'
+                                +'<input type="submit" value="'+ data[i].Total_Pending + ' ('+ data[i].TAT_total_per + '%)"  class="btn btn-'+ ((data[i].Total_Pending<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                }
+                html += '</tr>';
+            }
+            html += "</tbody></table>";
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#brand_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report-am[data-am-row-id='"+ tableRow+ "']").data("has_data", true);
+        }else{
+            html += "<tbody><tr><td colspan=11 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#brand_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report-am[data-am-row-id='"+ tableRow+ "']").data("has_data", false);
+        }
+    }
+    
 </script>
 <style>
 .text_warning{

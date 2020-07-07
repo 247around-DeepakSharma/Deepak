@@ -1634,6 +1634,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $totalTempArray["entity"] =  $values['entity_name'];
             $totalTempArray['id'] =  $values['entity_id'];
+            $totalTempArray['sub_id'] =  !empty($values['sub_id']) ? $values['sub_id'] : "";
             $totalArray[] = $totalTempArray;
         }
         $totalTempArray['TAT_0'] = $tat_0_total;
@@ -1659,6 +1660,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         $totalTempArray['entity'] =  "Total";
         $totalTempArray['id'] =  "00";
+        $totalTempArray['sub_id'] =  "";
         $totalArray[] = $totalTempArray;
         return $totalArray;
     }
@@ -1699,6 +1701,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tTempArray['TAT_Total_bookings'] = implode(",",array_merge($values['TAT_0'], $values['TAT_1'], $values['TAT_2'], $values['TAT_3'], $values['TAT_4'], $values['TAT_5'], $values['TAT_8'], $values['TAT_16']));
             $tTempArray["entity"] =  $values['entity_name'];
             $tTempArray['id'] =  $values['entity_id'];
+            $tTempArray['sub_id'] =  $values['sub_id'];
             $tTempArray["entity_type"] =  $values['entity_type'];
             $totalArray[] = $tTempArray;
         }
@@ -1708,6 +1711,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tArray['TAT_0'] = $tArray['TAT_1'] = $tArray['TAT_2'] = $tArray['TAT_3'] = $tArray['TAT_4'] = $tArray['TAT_5'] =$tArray['TAT_8'] = $tArray['TAT_16'] = $tArray['TAT_GREATER_THAN_3'] = 0;
             $tArray['entity'] = $pendingDetails['entity'];
             $tArray['id'] = $pendingDetails['id'];
+            $tArray['sub_id'] = $pendingDetails['sub_id'];
             // Add entity_type to show whether bookings are of RM, ASM or of Both
             $tArray['entity_type'] = $pendingDetails['entity_type'];
             if(strlen($pendingDetails['TAT_0_bookings']) != 0){
@@ -1772,6 +1776,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         
         $totalTempArray['entity'] = "Total";
         $totalTempArray['id'] = "00";
+        $totalTempArray['sub_id'] = "";
         $totalTempArray['TAT_GREATER_THAN_3'] = $total_greater_than_3;
         $totalTempArray['TAT_0'] = $total_0;
         $totalTempArray['TAT_1'] = $total_1;
@@ -1831,85 +1836,68 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             // ASM Independent Bookings
             // RM and its corresponding ASM bookings
             $tatData['sfcity'] = !empty($tatData['city']) ? $tatData['city'] : "";
+            $tatData['entity_type'] = !empty($tatData['entity_type']) ? $tatData['entity_type'] : "";
+            $tatData['sub_id'] = !empty($tatData['sub_id']) ? $tatData['sub_id'] : "";
             $covid_zone ="";
             if(isset($tatData['sfcity']) && !empty($tatData['sfcity'])){
                 $covid_zone = $this->getCovidZoneName($tatData['sfcity']);
             }
-
-            $tatData['entity_type'] = !empty($tatData['entity_type']) ? $tatData['entity_type'] : "";
+            
             if($tatData['TAT']<0){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>=0 && $tatData['TAT']<5){
                 $finalArray[$tatData['entity']]['TAT_'.$tatData['TAT']][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>4 && $tatData['TAT']<8){
                 $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else if($tatData['TAT']>7 && $tatData['TAT']<16){
                 $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             }
             else{
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
-            }
+            }            
+            $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+            $finalArray[$tatData['entity']]['covid_zone'] = $covid_zone;
+            $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
+            $finalArray[$tatData['entity']]['sub_id'] = $tatData['sub_id'];
         }
          $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray));
          return $structuredArray;   
     }
     function get_tat_data_in_structured_format_completed($data,$key){
-       $finalArray = array();
+        $finalArray = array();
         foreach($data as $tatData){
             $tatData['sfcity'] = !empty($tatData['city']) ? $tatData['city'] : "";
+            $tatData['sub_id'] = !empty($tatData['sub_id']) ? $tatData['sub_id'] : "";
             $covid_zone ="";
             if(isset($tatData['sfcity']) && !empty($tatData['sfcity'])){
                 $covid_zone = $this->getCovidZoneName($tatData['sfcity']);
             }
             if($tatData[$key]<0){
                 $finalArray[$tatData['entity']]['TAT_0'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>=0 && $tatData[$key]<5){
                 $finalArray[$tatData['entity']]['TAT_'.$tatData[$key]][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>4 && $tatData[$key]<8){
                 $finalArray[$tatData['entity']]['TAT_5'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else if($tatData[$key]>7 && $tatData[$key]<16){
                 $finalArray[$tatData['entity']]['TAT_8'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             }
             else{
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
-                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
-                $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
-                $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
-            }
-        }        
+            }            
+            $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+            $finalArray[$tatData['entity']]['covid_zone'] = $covid_zone;
+            $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
+            $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
+            $finalArray[$tatData['entity']]['sub_id'] = $tatData['sub_id'];
+        }    
+        
         $structuredArray = $this->get_TAT_days_total_completed_bookings(array_values($finalArray));
         return $structuredArray;
     }
@@ -2072,17 +2060,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
             if($is_pending){
-                    $select = "employee.full_name as entity,agent_filters.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
+                    $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.partner_id as sub_id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
                             . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
                     if($request_type == 'Repair_with_part'){
-                     $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
+                     $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.partner_id as sub_id,booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";       
                     }
                     else
                     {
-                     $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.booking_id,"
+                     $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_details.partner_id as sub_id,booking_details.booking_id,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
                 }
@@ -2179,6 +2167,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $service_centres_field = 'individual_service_centres_id';
             $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,_247AROUND_ASM);
         }
+        else if($for == "Brand"){
+            $am_id = $this->input->post("am");
+            $conditionsArray['where']['agent_filters.agent_id'] = $am_id;
+            $data = $this->get_booking_tat_report_by_Brand($is_pending,$startDateField,$conditionsArray,$request_type);
+        }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
         }
@@ -2206,7 +2199,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $this->reusable_model->get_search_result_data("employee e1", "distinct(e1.id) as 'id'", $where, $join, NULL, NULL, NULL, $joinType, NULL);
     }
 
-   function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = ""){
+   function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = "",$agent_id=""){
         if($is_pending){
             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as booking_count"
                     . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT,service_centres.district as city";
@@ -2245,9 +2238,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionsArray['join']['employee'] = "service_centres.rm_id = employee.id";
             } 
         }
-        else{
+        else{            
             if($rmID != "00"){
-             $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                // for Brand wise Data
+                if($agent_type == 'Brand' && !empty($agent_id)){
+                    $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                    $conditionsArray['where']["booking_details.partner_id"] = $agent_id;
+                }
+                // for AM wise Data
+                else {
+                    $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                }
             }
             $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
@@ -2295,7 +2296,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         return $sfData;
     }
-    function get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = ""){
+    function get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = "",$agent_id=""){
         if($is_pending){
             $stateSelect = "LOWER(booking_details.State) as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE LOWER(booking_details.State) END ) as entity,"
                 . "GROUP_CONCAT( DISTINCT booking_details.booking_id) as booking_id , COUNT(DISTINCT booking_details.booking_id) as booking_count,"
@@ -2333,8 +2334,16 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }            
         }
         else{
-            if($rmID != "00"){
-                 $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+            if($rmID != "00"){                
+                // for Brand wise Data
+                if($agent_type == 'Brand' && !empty($agent_id)){
+                    $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                    $conditionsArray['where']["booking_details.partner_id"] = $agent_id;
+                }
+                // for AM wise Data
+                else {
+                    $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
+                }                                
             }
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
@@ -2376,7 +2385,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }       
         return $stateData;
     }
-    function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE,$agent_type = ""){
+    function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE,$agent_type = "",$agent_id=""){
         $endDate = date("Y-m-d");
         $startDate =  date('Y-m-d', strtotime('-30 days'));
         $partner_id = $status = $service_id  = $free_paid = $request_type = $upcountry = "not_set";
@@ -2426,10 +2435,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         //Get Data Group BY State
        if(!$is_ajax){
-            $stateData = $this->get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type);            
+            $stateData = $this->get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);            
         }
         //Get Data Group BY SF
-        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type);        
+        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);        
         if($is_am){
             if($rmID != "00"){
                 $partnerWhere["agent_filters.agent_id"] = $rmID;
@@ -4100,5 +4109,30 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
        echo json_encode($arr,true);die;
     }
 
-}
-
+    /**
+     * @desc :  Get Brand Wise TAT Report
+     * @author : Prity Sharma
+     * @date : 01-07-2020
+    */
+    function get_booking_tat_report_by_Brand($is_pending,$startDateField,$conditionsArray,$request_type){
+            if($is_pending){
+                    $select = "partners.public_name as entity,agent_filters.agent_id as id,partners.id as sub_id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT( DISTINCT booking_details.booking_id) as count,"
+                            . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                }
+                else{
+                    if($request_type == 'Repair_with_part'){
+                     $select = "partners.public_name as entity,agent_filters.agent_id as id,partners.id as sub_id,booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";       
+                    }
+                    else
+                    {
+                     $select = "partners.public_name as entity,agent_filters.agent_id as id,partners.id as sub_id,booking_details.booking_id,"
+                                . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                    }
+                }
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
+            $conditionsArray['join']['partners'] = "booking_details.partner_id = partners.id";
+            return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
+        }
+        
+    }
