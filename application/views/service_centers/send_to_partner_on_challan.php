@@ -519,10 +519,10 @@
         }
 
 
-        let kg = $("#shipped_spare_parts_weight_in_kg").val();
-        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+        let kg = parseInt($("#shipped_spare_parts_weight_in_kg").val());
+        let gm = parseInt($("#shipped_spare_parts_weight_in_gram").val());
         let total = parseInt(kg)+parseInt(gm);
-        if(!total){
+        if(kg <= 0 && gm <= 0){
         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
         return false;
         }
