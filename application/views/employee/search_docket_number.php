@@ -36,7 +36,7 @@
             <hr>
             <section id="search_docket_number_details_div">
                 <div class="docket_number_details" style="display: none;">
-                    <table  class="table table-response table-bordered" style="padding-top: 20px;" id="docket_number_table">
+                    <table  class="table table-response table-bordered" style="padding-top: 20px;" width="100%" id="docket_number_table">
                         <thead id="other_header">
                             <th>Sr No</th>
                             <th>Booking Id</th>
@@ -51,6 +51,8 @@
                             <th>Part Name</th>
                             <th>Part Code</th>
                             <th>Part Type</th>
+                            <th class="consumption" style="display: none;">Consumption</th>
+                            <th class="consumption-reason" style="display: none;">Consumption Reason</th>
                             <th>Price</th>
                             <th>GST</th>
                         </thead>
@@ -150,7 +152,7 @@
                                 if(search_by == 'wh'){
                                     create_table_search_msl(obj.msg);
                                 }else{
-                                    create_table(obj.msg);
+                                    create_table(obj.msg, search_by);
                                 }
                             }else{
                                 $('#loader').hide();
@@ -171,8 +173,21 @@
         });
     });
     
-    function create_table(table_data){
+    function create_table(table_data, searchBy){
         $("#docket_number_table").dataTable().fnDestroy();
+
+        $("#docket_number_table").dataTable({
+            dom: 'Bfrtip',
+            pageLength: 50,
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    title: 'docket_number' + time
+                }
+            ]
+        });    
+
         var table_body = "";
         $.each(table_data, function (index,val) {
             table_body += "<tr>";
@@ -267,7 +282,31 @@
             }else{
                 table_body += '<td>' + val['shipped_parts_type'] +'</td>';
             }
-
+            
+            /**
+             * @modifiedBY Ankit Rajvanshi
+             */
+            if(searchBy == 'awb_by_sf') {
+                $('.consumption').show();
+                $('.consumption-reason').show();
+                // consumption column
+                if(val['is_consumed'] === null){
+                    table_body += '<td></td>';
+                } else if(val['is_consumed'] == 1){
+                    table_body += '<td>Yes</td>';
+                } else {
+                    table_body += '<td>No</td>';
+                }
+                // consumption reason column
+                if(val['consumed_status'] === null){
+                    table_body += '<td></td>';
+                }else{
+                    table_body += '<td>' + val['consumed_status'] +'</td>';
+                }
+            } else {
+                $('.consumption').hide();
+                $('.consumption-reason').hide();
+            }
 
             if(val['price'] === null){
                 table_body += '<td></td>';
@@ -289,6 +328,12 @@
         $("#other_header").show();
         $('#docket_number_details_body').html(table_body);
         $('.docket_number__not_found_div').hide();
+        
+    }
+    
+    function create_table_search_msl(table_data){
+        $("#docket_number_table").dataTable().fnDestroy();
+        
         $("#docket_number_table").dataTable({
             dom: 'Bfrtip',
             pageLength: 50,
@@ -300,10 +345,7 @@
                 }
             ]
         });
-    }
-    
-    function create_table_search_msl(table_data){
-        $("#docket_number_table").dataTable().fnDestroy();
+        
         var table_body = "";
         $.each(table_data, function (index,val) {
             table_body += "<tr>";
@@ -355,17 +397,6 @@
         $("#other_header").hide();
         $('#docket_number_details_body').html(table_body);
         $('.docket_number__not_found_div').hide();
-        $("#docket_number_table").dataTable({
-            dom: 'Bfrtip',
-            pageLength: 50,
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    text: 'Export',
-                    title: 'docket_number' + time
-                }
-            ]
-        });
     }
     
     $('#docket_number').bind('keydown', function (event) {
@@ -391,3 +422,9 @@
     
     
 </script>
+
+<style>
+    #docket_number_table_filter {
+        display:none;
+    }
+</style>
