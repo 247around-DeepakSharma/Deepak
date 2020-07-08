@@ -131,7 +131,9 @@ class File_upload extends CI_Controller {
                             redirect(base_url() . $redirect_to);
                         } else {
                             $this->session->set_flashdata('details', $response['message']);
+                            if(!empty($redirect_to)){
                             redirect(base_url() . $redirect_to);
+                            }
                         }
                     }
                 } else {
@@ -899,6 +901,24 @@ class File_upload extends CI_Controller {
                                 $error_array[] = $error_type;
                                 $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
                             }
+                            if (!empty($part_details) && $this->input->post("transfered_by") == MSL_TRANSFERED_BY_WAREHOUSE && !empty($rowData['quantity'])) {
+                                $this->input->post("sender_entity_type");
+                                $this->input->post("sender_entity_id");
+                                $quantitytobeship = $rowData['quantity'];
+                                $stockavialable = $this->inventory_model->get_inventory_stock_count_details('*', array('inventory_stocks.entity_id' => $this->input->post("sender_entity_id"), 'inventory_id' => $part_details[0]['inventory_id']));
+                                if (!empty($stockavialable)) {
+                                    $stock_quantity = $stockavialable[0]['stock'];
+                                    if ($rowData['quantity'] > $stock_quantity) {
+                                        $error_type = "Ship quantity is more than available quantity.";
+                                        $error_array[] = $error_type;
+                                        $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                                    }
+                                } else {
+                                    $error_type = "Stock not available.";
+                                    $error_array[] = $error_type;
+                                    $this->table->add_row($rowData['appliance'], $rowData['part_code'], $rowData['hsn_code'], $error_type);
+                                }
+                            }
 
                             if (!empty($part_details)) {
                                 if (isset($post_data[$rowData['appliance']])) {
@@ -1237,6 +1257,10 @@ class File_upload extends CI_Controller {
                         if (strpos($rowData['model'], "'")) {
                             $validate_model_number = false;
                         } else if (strpos($rowData['model'], '"')) {
+                            $validate_model_number = false;
+                        }else if (strpos($rowData['model'], '”')) {
+                            $validate_model_number = false;
+                        }else if (strpos($rowData['model'], "’")) {
                             $validate_model_number = false;
                         }
                         if ($validate_model_number) {

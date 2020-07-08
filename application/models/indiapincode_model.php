@@ -136,15 +136,35 @@ class Indiapincode_model extends CI_Model {
      *  @return : array of coordinates
      *  @author : Abhishek Awasthi
      */
-    function getPinCoordinates($pincode){
+    function getPinCoordinates($city){
         $this->db->distinct();
-        $this->db->select('latitude,longitude');
-        $this->db->where('latitude IS NOT NULL',NULL);
-        $this->db->where('pincode',$pincode);
-        $query = $this->db->get('india_pincode');
+        $this->db->select('*');
+        $this->db->where('district',$city);
+        $query = $this->db->get('india_district_coordinates');
         return $query->result_array();
     }
     
+    /*
+     *  @param : void 
+     *  @return : array of districts
+     *  @author : Abhishek Awasthi
+     */
+    function getAllDistrict(){
+        $this->db->distinct();
+        $this->db->select('*');
+        $query = $this->db->get('india_district_coordinates');
+        return $query->result_array();   
+    }
+
+    /*
+     *  @param : $data,$id
+     *  @return : 
+     *  @author : Abhishek Awasthi
+     */
+    function insertZone($data){
+        $this->db->insert('india_district_coordinates',$data);
+
+    }
     
 
 }

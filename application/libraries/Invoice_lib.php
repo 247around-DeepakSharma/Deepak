@@ -687,11 +687,12 @@ class Invoice_lib {
      * @param Array $partner_challan_number
      * @return String $output_pdf_file_name
      */
-    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "",$show_consumption_reason=false,$show_courier_servicable_area=false) {
         $excel_data = array();
         $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
+        $excel_data['excel_data']['show_consumption_reason'] = $show_consumption_reason;
         if(!empty($sf_details)){
             $excel_data['excel_data']['sf_name'] = $sf_details[0]['company_name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
@@ -700,7 +701,20 @@ class Invoice_lib {
             $excel_data['excel_data']['sf_contact_number'] = isset($sf_details[0]['contact_number']) ? $sf_details[0]['contact_number'] : '-';
             $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
-                            
+        if ($show_courier_servicable_area) {
+            if (!empty($spare_details[0][0]['courier_name'])) {
+                $excel_data['excel_data']['courier_servicable_area'] = $spare_details[0][0]['courier_name'];
+            } else if (!empty($sf_details[0]['pincode'])) {
+                $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $sf_details[0]['pincode']), array());
+                if (!empty($serviceable_area)) {
+                    $couriers_name = implode(', ', array_map(function ($entry) {
+                                return $entry['courier_company_name'];
+                            }, $serviceable_area));
+                    $excel_data['excel_data']['courier_servicable_area'] = $couriers_name;
+                }
+            }
+        }
+
         if(!empty($partner_details)){
                         
             $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
@@ -754,7 +768,12 @@ class Invoice_lib {
                 }else{
                     $tmp_arr['consumption'] = 'NA';
                 }
-                $tmp_arr['courier_name'] = $value2[0]['courier_name'];
+                
+                if (isset($value2[0]['courier_name']) && !empty($value2[0]['courier_name'])) {
+                    $tmp_arr['courier_name'] = $value2[0]['courier_name'];
+                } else {
+                    $tmp_arr['courier_name'] = 'NA';
+                }
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -789,7 +808,6 @@ class Invoice_lib {
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
             $pdf_response = json_decode($json_result, TRUE);
-
             if ($pdf_response['response'] === 'Success') {
                 log_message('info', ' Mpdf ' . $pdf_response['response_msg']);
                 $output_pdf_file_name = $pdf_response['output_pdf_file'];
@@ -836,7 +854,7 @@ class Invoice_lib {
      * @param type $booking_id
      * @return boolean
      */
-    function generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "") {
+    function generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "",$show_consumption_reason=false) {
            
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
@@ -927,8 +945,9 @@ class Invoice_lib {
             if (empty($sf_challan_number)) {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
+            
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,$show_consumption_reason);
 
-            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
 
@@ -1023,7 +1042,7 @@ class Invoice_lib {
 
             $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
             $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id'],"warehouse_details.warehouse_city"=>$wh_city), true, true);
-            
+
             if (!empty($partner_details)) {
                 $warehouse_gst_details = $this->ci->inventory_model->get_entity_gst_data(" entity_gst_details.city, entity_gst_details.gst_number ", array("entity_gst_details.entity_type" => _247AROUND_PARTNER_STRING, "entity_gst_details.entity_id" => $spare_parts_details[0][0]['booking_partner_id'], "entity_gst_details.city IN('" . $partner_details[0]['warehouse_city'] . "')" => null));
                 if (!empty($warehouse_gst_details)) {
@@ -1040,7 +1059,7 @@ class Invoice_lib {
             }
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
             $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true);
 
             $data['wh_challan_number'] = $wh_challan_number;
             $data['wh_challan_file'] = $wh_challan_file;

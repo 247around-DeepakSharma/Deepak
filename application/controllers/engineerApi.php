@@ -121,10 +121,10 @@ class engineerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -177,10 +177,10 @@ class engineerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -207,7 +207,7 @@ class engineerApi extends CI_Controller {
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -227,7 +227,7 @@ class engineerApi extends CI_Controller {
      */
     function checkSignature() {
         $activity = array('activity' => 'checking signarure', 'data' => json_encode($this->tokenArray), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
         if (count($this->tokenArray) == 3) {
             $header = $this->tokenArray[0];
             $claims = $this->tokenArray[1];
@@ -578,7 +578,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+           // $this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -797,7 +797,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -907,7 +907,7 @@ class engineerApi extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $activity = array('activity' => 'process vendor extn request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
         $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -964,7 +964,7 @@ class engineerApi extends CI_Controller {
 
         $activity = array('activity' => 'get vendor number from extn request', 'data' => json_encode($_GET),
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $callSid = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
 
@@ -1008,7 +1008,7 @@ class engineerApi extends CI_Controller {
 
         $activity = array('activity' => 'send email', 'data' => "Subject: $subject, Message: $message",
             'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $this->email->from('feedback@247around.com', '247around Team');
 
@@ -1132,7 +1132,7 @@ class engineerApi extends CI_Controller {
       $requestData = json_decode($this->jsonRequestData['qsh'], true);
       //print_r($requestData);
       $activity = array('activity' => 'process get cancellation reasons', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-      $this->apis->logTable($activity);
+      //$this->apis->logTable($activity);
 
       $reasons = $this->apis->getCancellationReasons();
       log_message('info', print_r($reasons, TRUE));
@@ -1154,7 +1154,7 @@ class engineerApi extends CI_Controller {
       $requestData = json_decode($this->jsonRequestData['qsh'], true);
       //print_r($requestData);
       $activity = array('activity' => 'process reschedule booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-      $this->apis->logTable($activity);
+      //$this->apis->logTable($activity);
 
       $booking_id = $requestData['booking_id'];
       $booking_date = $requestData['booking_date'];
@@ -1382,6 +1382,12 @@ class engineerApi extends CI_Controller {
             $partner_data = $this->partner_model->getpartner($bookinghistory[0]['partner_id']);
             /*   Whatsapp sms sending  Abhishek */
             $customer_phone = $bookinghistory[0]['phone_number'];
+            if(!isset($data['amount_paid']) || empty($data['amount_paid'])){
+            	$data['amount_paid'] = 0;
+            }
+            if(!isset($partner_data[0]['public_name']) || empty($partner_data[0]['public_name'])){
+            	$partner_data[0]['public_name'] = "Partner";
+            }
             $whatsapp_array = array(
               'booking_id'=>$booking_id,
               'name'=>$bookinghistory[0]['name'],
@@ -1577,10 +1583,22 @@ class engineerApi extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
 
+                $where_cancel = array(
+                    'id'=>$requestData["cancellationReason"]
+                ); 
+                $reason = $this->booking_model->cancelreason($where_cancel);
+
+                if(!empty($reason) && !empty($reason[0]->reason)){
+                  $cancel_reason = $reason[0]->reason;  
+                }else{
+                  $cancel_reason = $requestData["cancellationReason"];
+                }
+                   
+
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
 //  Appending Status of Engg //
-                $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING,
-                        BOOKING_CANCELLED_BY_ENGINEER_STATUS." - Booking Cancelled By Engineer From App",
+                $this->notify->insert_state_change($requestData["bookingID"],$cancel_reason, _247AROUND_PENDING,
+                        BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App",
                         $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
                 $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
@@ -1701,7 +1719,7 @@ class engineerApi extends CI_Controller {
         if ($this->debug == "true") {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -1906,7 +1924,7 @@ class engineerApi extends CI_Controller {
             $callDetails = $this->input->post();
         } else {
             $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
             $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
@@ -2001,10 +2019,10 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_engineer($engg_where, $engg_data);
             ///  Abhishek ... Insread of count passing the entire response  and add alternate number////
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,booking_details.district,"
                     . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id,booking_details.district, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
             $incentive_select = "sum(partner_incentive) as total_earning";
             $incentive_where = array(
@@ -2134,8 +2152,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $bookings[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
         }
@@ -2148,7 +2166,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
-                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2172,8 +2190,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $missed_bookings[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $missed_bookings[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $missed_bookings[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2191,7 +2209,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name,users.alternate_phone_number, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
-                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
+                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status,booking_details.district";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if ($requestData['engineer_pincode']) {
@@ -2215,8 +2233,8 @@ class engineerApi extends CI_Controller {
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $tomorrowBooking[$key]['spares'] = $spares_details;
-                    $state = $value['state'];
-                    $tomorrowBooking[$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                    $city = $value['district'];
+                    $tomorrowBooking[$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
                 }
             }
           //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
@@ -2425,8 +2443,8 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['getPartOnModel'] = false;
             }
             /* getting booking and unit details and finding price tags for getting symptoom */
-            $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
+            $data['booking_history'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
             $price_tags_symptom = array();
             foreach ($unit_details as $value) {
                 $price_tags1 = str_replace('(Free)', '', $value['price_tags']);
@@ -2552,7 +2570,7 @@ class engineerApi extends CI_Controller {
                     }
 
                     //upload defect pic
-                    if ($value["defect_pic"]) {
+                    if (isset($value["defect_pic"]) && !empty($value["defect_pic"])) {
                         $defect_pic = "Defect_pic_" . date("YmdHis") . ".png";
                         $this->miscelleneous->generate_image($value["defect_pic"], $defect_pic, "misc-images");
                         $requestData['part'][$key]['defect_pic'] = $defect_pic;
@@ -2624,7 +2642,7 @@ class engineerApi extends CI_Controller {
                  */ 
 		}else{
 		log_message("info", __METHOD__ . "Duplicate Part Request");
-                $this->sendJsonResponse(array('0077',$duplicate_part['parts_requested_type']));			
+                $this->sendJsonResponse(array('0077','Not Available'));			
 		}					
 				 		 
             } else {
@@ -2645,19 +2663,20 @@ class engineerApi extends CI_Controller {
      * @return Array
      * @Author : Abhishek Awasthi
      */
-    function is_part_already_requested($parts_requestedm,$booking_id) {
+    function is_part_already_requested($parts_requested,$booking_id) {
         $array = array();
-        foreach ($parts_requested as $value) {
-            if (isset($value['parts_type'])) {
-                $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
-                    "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
-                    "parts_requested_type" => $value['parts_type']));
-                if (!empty($data)) {
-                    $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
-                    break;
-                }
-            }
-        }
+        // foreach ($parts_requested as $value) {
+        //     if (isset($value['parts_type'])) {
+        //         $data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.parts_requested_type", array("booking_id" => $booking_id,
+        //             "status IN ('" . SPARE_PART_ON_APPROVAL . "','" . SPARE_PARTS_REQUESTED . "', '" . SPARE_OOW_EST_REQUESTED . "', '" . SPARE_OOW_EST_GIVEN . "') " => NULL,
+        //             "parts_requested_type" => $value['parts_type']));
+        //         if (!empty($data)) {
+        //             $array = array("status" => false, "parts_requested_type" => $value['parts_type']);
+        //             break;
+        //         }
+        //     }
+        // }
+        $array = array("status" => true);
         return $array;
     }
 
@@ -3098,6 +3117,7 @@ class engineerApi extends CI_Controller {
                         "partner_id" => $requestData['partner_id'],
                         "service_center_id" => $requestData['service_center_id'],
                         "call_from_api" => true,
+                        "sc_agent_id" => $requestData['sc_agent_id']
                     );
                     //Call curl for updating booking by engineer
                     $url = base_url() . "employee/service_centers/process_update_booking";
@@ -3241,7 +3261,7 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type) {
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type,$service_id=NULL) {
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -3249,7 +3269,8 @@ class engineerApi extends CI_Controller {
             "partner_id" => $partner_id,
             "booking_create_date" => $booking_create_date,
             "purchase_date" => $purchase_date,
-            "model_number" => $model_number
+            "model_number" => $model_number,
+            "service_id"=>$service_id
         );
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
         $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
@@ -3261,7 +3282,6 @@ class engineerApi extends CI_Controller {
             unset($arrBookings[$key]);
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
-
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
@@ -3313,8 +3333,9 @@ class engineerApi extends CI_Controller {
             }
         }
         if ($check) {
-
-            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"]);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'], NULL, NULL);
+            $service_id = $booking_details["booking_history"][0]['service_id'];
+            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"],$service_id);
 
             log_message("info", "Warrenty plan found");
             $this->jsonResponseString['response'] = $response;
@@ -3355,6 +3376,18 @@ class engineerApi extends CI_Controller {
                         $check_spare_flag = true;
                     }
                 }
+
+                /*  Check for booking cancel complete by Engineer in Engg Action Table */
+                 $enggbooking_select = "booking_id,internal_status";
+                 $enggbooking_where = array(
+                 "booking_id" => $booking_id,
+                 "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+                 );
+                 $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);  // Vaiable mismatch passing where and select of sf status
+                 if (!empty($enggbooking_details)) {
+                 $check_spare_flag = 0;
+                 }
+
                 if ($check_spare_flag) {
                     $response["spare_flag"] = 1;
                     $response["message"] = "Success";
@@ -3551,10 +3584,10 @@ class engineerApi extends CI_Controller {
                     "model_number" => $requestData["model_number"],
                     "service_id" => $booking_details["booking_history"][0]['service_id'],
                 );
-
+                $service_id = $booking_details["booking_history"][0]['service_id'];
                 foreach ($request_types as $request_typess) {
                     $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
-                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                    $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type,$service_id);
                     if ($response['warranty_flag'] == 1) {
                         $warranty_status = false;
                         $warranty_status_holder = $response;
@@ -3887,7 +3920,11 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                         /*  Completion Allow Flag */
                         $complete_flag = $this->checkCompletionAllowed($value['booking_id']);
-                        $data['Bookings'][$key]['complete_allow'] =  $complete_flag;
+                        $data['Bookings'][$key]['complete_allow'] = $complete_flag;
+
+                        /*  Reschedule Allow Flag */
+                        $reschedule_flag = $this->checkRescheduleAllowed($value['booking_id']);
+                        $data['Bookings'][$key]['reschedule_allow'] = $reschedule_flag;
                         /*  Cancel Allow Flag */
                         $cancel_flag = $this->checkCancellationAllowed($value['booking_id']);
                         $data['Bookings'][$key]['cancel_allow'] =  $cancel_flag;
@@ -3904,8 +3941,8 @@ class engineerApi extends CI_Controller {
                         $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                         $data['Bookings'][$key]['spares'] =  $spares_details;
 
-                        $state = $value['state'];
-                        $data['Bookings'][$key]['covid_corrdinates'] = $this->getCoronaCoordinates($state);
+                        $city = $value['district'];
+                        $data['Bookings'][$key]['covid_zone'] = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
@@ -3997,7 +4034,19 @@ class engineerApi extends CI_Controller {
                 return $allow;  
         }
 
-/*  Check for booking cancel complete by Engg */
+        /*  Check for booking cancel complete by Engineer in Engg Action Table */
+        $enggbooking_select = "booking_id,internal_status";
+        $enggbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+        );
+        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);  // Vaiable mismatch passing where and select of sf status
+        if (!empty($enggbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+        /*  Check for booking cancel complete by Engg */
         // $sfbooking_select = "booking_id,internal_status";
         // $sfbooking_where = array(
         //     "booking_id"=>$booking_id,
@@ -4021,48 +4070,112 @@ class engineerApi extends CI_Controller {
      * @Author - Abhishek Awasthi
      */
 
-    function checkCompletionAllowed($booking_id){
+    function checkCompletionAllowed($booking_id) {
 
         $allow = TRUE;
         $select = "*";
         $where = array(
-            'booking_id'=>$booking_id,
-            'shipped_date IS  NULL'=> NULL,
-            'status !=' =>_247AROUND_CANCELLED
+            'booking_id' => $booking_id,
+            'shipped_date IS  NULL' => NULL,
+            'status !=' => _247AROUND_CANCELLED
         );
-        $spares = $this->engineer_model->get_spare_details($select,$where);
-    
-            if(!empty($spares)){
-                $allow = FALSE;
-                return $allow; 
-            }
-/*  Check for booking cancel complete by engg */
-        $booking_select = "booking_id,partner_internal_status";
-        $booking_where = array(
-            "booking_id"=>$booking_id,
-            "partner_internal_status IN( '".BOOKING_COMPLETED_BY_ENGINEER_STATUS."','".BOOKING_CANCELLED_BY_ENGINEER_STATUS."')" => NULL
-        );
-        $booking_details = $this->engineer_model->get_booking_details($booking_select,$booking_where);
-        if(!empty($booking_details)){
-                $allow = FALSE;
-                return $allow;  
+        $spares = $this->engineer_model->get_spare_details($select, $where);
+
+        if (!empty($spares)) {
+            $allow = FALSE;
+            return $allow;
         }
 
-/*  Check for booking cancel complete by SF */
+
+        /*  Check for booking cancel complete by Engineer in Engg Action Table */
+        $enggbooking_select = "booking_id,internal_status";
+        $enggbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+        );
+        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
+        if (!empty($enggbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+
+        /*  Check for booking cancel complete by engg */
+        $booking_select = "booking_id,partner_internal_status";
+        $booking_where = array(
+            "booking_id" => $booking_id,
+            "partner_internal_status IN( '" . BOOKING_COMPLETED_BY_ENGINEER_STATUS . "','" . BOOKING_CANCELLED_BY_ENGINEER_STATUS . "')" => NULL
+        );
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+        /*  Check for booking cancel complete by SF */
         $sfbooking_select = "booking_id,internal_status";
         $sfbooking_where = array(
-            "booking_id"=>$booking_id,
-            "internal_status IN( '".SF_BOOKING_COMPLETE_STATUS."','".SF_BOOKING_CANCELLED_STATUS."')" => NULL
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . SF_BOOKING_COMPLETE_STATUS . "','" . SF_BOOKING_CANCELLED_STATUS . "')" => NULL
         );
-        $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select,$sfbooking_where);  // Vaiable mismatch passing where and select of sf status
-        if(!empty($sfbooking_details)){
-                $allow = FALSE;
-                return $allow;  
+        $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select, $sfbooking_where);  // Vaiable mismatch passing where and select of sf status
+        if (!empty($sfbooking_details)) {
+            $allow = FALSE;
+            return $allow;
         }
+
+
 
     }
 
+    /*
+     * @Desc - This function used to check the reschedule is allowed for a booking or not    
+     * @param - $booking_id
+     * @response - boolean
+     * @Author - Abhishek Awasthi
+     */
 
+    function checkRescheduleAllowed($booking_id){
+
+        $allow = TRUE;
+        /*  Check for booking cancel complete by Engineer in Engg Action Table */
+        $enggbooking_select = "booking_id,internal_status";
+        $enggbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . _247AROUND_CANCELLED . "','" . _247AROUND_COMPLETED . "')" => NULL
+        );
+        $enggbooking_details = $this->engineer_model->getengineer_action_data($enggbooking_select, $enggbooking_where);//Checking Data exist for engineer action table //
+        if (!empty($enggbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+
+        /*  Check for booking cancel complete by engg */
+        $booking_select = "booking_id,partner_internal_status";
+        $booking_where = array(
+            "booking_id" => $booking_id,
+            "partner_internal_status IN( '" . BOOKING_COMPLETED_BY_ENGINEER_STATUS . "','" . BOOKING_CANCELLED_BY_ENGINEER_STATUS . "')" => NULL
+        );
+        $booking_details = $this->engineer_model->get_booking_details($booking_select, $booking_where);
+        if (!empty($booking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+        /*  Check for booking cancel complete by SF */
+        $sfbooking_select = "booking_id,internal_status";
+        $sfbooking_where = array(
+            "booking_id" => $booking_id,
+            "internal_status IN( '" . SF_BOOKING_COMPLETE_STATUS . "','" . SF_BOOKING_CANCELLED_STATUS . "')" => NULL
+        );
+        $sfbooking_details = $this->engineer_model->get_booking_details($sfbooking_select, $sfbooking_where);  // Vaiable mismatch passing where and select of sf status
+        if (!empty($sfbooking_details)) {
+            $allow = FALSE;
+            return $allow;
+        }
+
+    }
 
     /*
      * @Desc - This function is used to get bookings on which engineer earns incentive    
@@ -4572,38 +4685,6 @@ function submitPreviousPartsConsumptionData(){
             $this->sendJsonResponse(array("0099", 'No parents  Found'));
         }
     }
-
-
- 
-   /**
-     * @Desc: This function is to used to show accessories list
-     * @params: void
-     * @return: JSON
-     * @author Abhishek Awasthi
-     * @date : 14-04-2020
-     */
-    function  getCoronaCoordinates($state){
-
- 
-        // if (!empty($state)) {    
-        // $state_name = str_replace(' ', '', $state);
-        // $state_name = strtoupper($state_name);
-        // $states_json =   file_get_contents(TMP_FOLDER.'states.json');
-        // $states_array = json_decode($states_json,true);
-        // $state_coordinates = $states_array[$state_name][0];
-        // $latlong =array();
-        $supcordinate = array();
-        // foreach($state_coordinates as $key => $coordinate){
-        //     $latlong['long'] = $coordinate[0];
-        //     $latlong['lat'] = $coordinate[1];
-        //    // $supcordinate[] = $latlong;
-        // }
-
-        return $supcordinate; // All Data in response//
-       // } 
-
-    }
-
 
     /**
      * @Desc: This function is to used to show accessories list

@@ -103,7 +103,7 @@
                                     <div class="col-md-6">
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -129,9 +129,6 @@
                                     </div>
                                     <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
-                                <?php
-                                    // print_r($value);
-                                    ?>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group <?php if (form_error('courier_name_by_sf')) {
@@ -212,13 +209,12 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: new Date() /*function(){
-            var today = new Date();
-            var yesterday = new Date();
-            yesterday.setDate(today.getDate() - 2);
-            return yesterday;
-        }()*/,
-        maxDate: false,//new Date(),
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
         setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
@@ -250,10 +246,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -261,10 +254,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -272,10 +262,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -294,10 +281,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+ 
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -305,10 +289,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-               $(this).val('');
-               return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -316,10 +297,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
@@ -392,7 +370,20 @@
                                 {
                                     $("#courier_charges_by_sf").val( $("#courier_charges_by_sf_hidden").val())
                                 }
-                                form.submit();
+
+                                let kg = $("#defective_parts_shipped_weight_in_kg").val();
+                                let gm = $("#defective_parts_shipped_weight_in_gram").val();
+                                let total = parseInt(kg)+parseInt(gm);
+                                if(!total){
+                                swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                }else{
+
+                                  form.submit();  
+                                }                               
+
+
+
+                                
                             }
                         });
                     }

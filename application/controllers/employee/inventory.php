@@ -1157,7 +1157,7 @@ class Inventory extends CI_Controller {
                     $sc_data['admin_remarks'] = $remarks;
                     
                     if ($line_items < 2) {
-                       // $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
                     /*@des: spare cancelled on spare chnage actor and action  */
                     if ($requestType == 'CANCEL_PARTS' || $requestType == 'QUOTE_REQUEST_REJECTED') {
@@ -1243,9 +1243,8 @@ class Inventory extends CI_Controller {
                      * If defective part not required after booking completion then change spare status accordingly.
                      * @modifiedBy Ankit Rajvanshi
                      */
-                    if(!empty($booking_details['service_center_closed_date'])) {
-                        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                    $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
+                    if(!empty($spare_part_detail['consumed_part_status_id'])) {
                         $data['status'] = _247AROUND_COMPLETED;
                         if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
@@ -1285,19 +1284,21 @@ class Inventory extends CI_Controller {
                      * If defective part required after booking completion then change spare status accordingly.
                      * @modifiedBy Ankit Rajvanshi
                      */
-                    if(!empty($booking_details['service_center_closed_date'])) {
+//                    if(!empty($booking_details['service_center_closed_date'])) {
                         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', $where, NULL, NULL, NULL, NULL, NULL)[0];                    
-                        $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
-                        if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
-                            $data['status'] = DEFECTIVE_PARTS_PENDING;
-                        } else {
-                            $data['status'] = OK_PART_TO_BE_SHIPPED;
-                        }                 
-
+                        if(!empty($spare_part_detail['consumed_part_status_id'])) {
+                            $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
+                            if(!empty($is_spare_consumed) && $is_spare_consumed == 1) {
+                                $data['status'] = DEFECTIVE_PARTS_PENDING;
+                            } else {
+                                $data['status'] = OK_PART_TO_BE_SHIPPED;
+                            }                 
+                        }
+                        
                         if($booking_details['current_status'] == _247AROUND_COMPLETED && $line_items < 2) {
                             $b['internal_status'] = $data['status'];
                         }
-                    }
+//                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
@@ -4340,7 +4341,6 @@ class Inventory extends CI_Controller {
                                     'courier_invoice_file' => $courier_file['message'],
                                     'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
                                     'created_by' => 1,
-                                    'shippment_date' => $courier_data['shipment_date'],
                                     'is_exist' => 1,
                                     'sender_city' => $from_city,
                                     'receiver_city' => $to_city,
@@ -4564,7 +4564,7 @@ class Inventory extends CI_Controller {
             $s_partner_id = $this->session->userdata("partner_id");
 
             $track_entity_type = _247AROUND_PARTNER_STRING;
-        } if ($this->session->userdata("service_center_id")) {
+        } else if ($this->session->userdata("service_center_id")) {
             $s_partner_id = $this->session->userdata("service_center_id");
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
@@ -4812,8 +4812,8 @@ class Inventory extends CI_Controller {
             $post['where'] = array('inventory_master_list.inventory_id' => $value['inventory_id']);
             $post['length'] = -1;
 
-            $list = $this->inventory_model->get_inventory_stock_list($post, $select);
-            
+            $list = $this->inventory_model->get_inventory_master_list($post, $select);
+
             $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
             if (!empty($list)) {
                 if ($list[0]->oow_around_margin > 0) {
@@ -7592,7 +7592,14 @@ function get_bom_list_by_inventory_id($inventory_id) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
 
-            $sc_close_date = $this->reusable_model->get_search_query('booking_details','service_center_closed_date',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','booking_details.service_center_closed_date, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+            $data['add_more'] = false;
+            if (isset($sc_close_date[0]['request_type']) && $sc_close_date[0]['request_type'] == REPAIR_OOW_TAG) {
+                $s_change = $this->booking_model->getbooking_state_change_by_any(array('booking_id' => $booking_id, "new_state" => SPARE_OOW_EST_GIVEN));
+                if (!empty($s_change)) {
+                    $data['add_more'] = true;
+                }
+            }
 
             
             if (!empty($sc_close_date[0]['service_center_closed_date'])) {
@@ -8080,7 +8087,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         /* Check if any record exists in inventory_master_list table if exists then return message.*/
         if(!empty($this->input->post('check_non_inventory'))) {
-            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('service_id' => $this->input->post('service_id')));
+            $inventory_master_list = $this->inventory_model->get_inventory_master_list_data('inventory_id', array('entity_id' => $this->input->post('partner_id'),'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $this->input->post('service_id')));
             if(!empty($inventory_master_list)) {
                 $option = UPDATE_INVENTORY_MASTER_LIST_MSG;
             }
@@ -9953,12 +9960,18 @@ function get_bom_list_by_inventory_id($inventory_id) {
             'spare_id' => $spare_id, 
             'action' => $spare_status, 
             'remarks' => $spare_status, 
-            'agent_id' => $this->session->userdata('service_center_agent_id'), 
-            'entity_id' => $this->session->userdata('service_center_id'), 
-            'entity_type' => _247AROUND_SF_STRING
         );
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $tracking_details['agent_id'] = $this->session->userdata('id');
+            $tracking_details['entity_id'] = _247AROUND;
+            $tracking_details['entity_type'] = _247AROUND_EMPLOYEE_STRING;
+        } else { 
+            $tracking_details['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $tracking_details['entity_id'] = $this->session->userdata('service_center_id');
+            $tracking_details['entity_type'] = _247AROUND_SF_STRING;
+        }
         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        
+
         /**
          * Log this change in booking state change & update booking internal status.
          */
@@ -9993,7 +10006,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $this->booking_model->update_booking($booking_id, $booking);
         }
 
-        $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor, $next_action, _247AROUND, NULL, $spare_id);
+        } else {
+            $this->notify->insert_state_change($booking_id, $spare_status, $spare_part_detail['status'], $spare_status, $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
+        }
         
         return true;
     }
@@ -10218,12 +10235,14 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $grand_intransit_part_count = 0;
             $grand_intransit_part_amount = 0;
             $row_count = 0;
+
             foreach ($partner_id_array as $key => $partner_id) {
                 $post['length'] = -1;
                 $array_partner_detail = array();
                 $total_Inward = 0;
                 $total_Outward = 0;
                 $difference = 0;
+                $saleout_warranty = 0;
                 /*
                  * Get total Inward (Purchased) and Outward(Sold) Iventory Stock List
                  */
@@ -10313,6 +10332,12 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 $total_part_count = 0;
                 $total_part_amount = 0;
 
+                $select = 'SUM(spare_parts_details.sell_price)  as total_sell_price';
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_purchase_invoice_id is  null'=>NULL,'spare_parts_details.part_warranty_status'=>2),true);
+                if(!empty($spare_parts_details)){
+                    $saleout_warranty = $spare_parts_details[0]['total_sell_price'];
+                }
+
                 $array_defective_item_at_warehouse = array(strtoupper(DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE), strtoupper(Ok_PARTS_RECEIVED_BY_WAREHOUSE));
 
                 $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
@@ -10372,7 +10397,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
 
 
-                $difference = $total_Inward - $total_Outward - $defective_amount_at_wharehouse - $in_transit_part_amount - $total_part_amount;
+                $difference = $total_Inward-$total_Outward-$defective_amount_at_wharehouse-$in_transit_part_amount-$total_part_amount-$whfreshStock_amount-$whfreshStock_amount_micro-$saleout_warranty;
 
                 /*
                  * Change All Amount values to 2 decimal places
@@ -10414,11 +10439,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 } else {
                     $percentage = '';
                 }
-                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
+                $array['data'][] = array(++$row_count, $publicName, $percentage, $total_Inward, $total_Outward, $whfreshStock_amount, $whfreshStock_amount_micro,$saleout_warranty, $defective_amount_at_wharehouse, $out_tat_part_completed_cancelled_count, $out_tat_part_completed_cancelled_amount, $out_tat_part_pending_rescheduled_count, $out_tat_part_pending_rescheduled_amount, $in_transit_part_count, $in_transit_part_amount, $in_tat_part_completed_cancelled_count, $in_tat_part_completed_cancelled_amount, $in_tat_part_pending_rescheduled_count, $in_tat_part_pending_rescheduled_amount, $total_part_count, $total_part_amount, $difference);
             }
-            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
+            $array['data'][] = array('', 'Grand Total', '', '', '', '', '', '','', $grandtotal_out_tat_c_n_c_count, $grandtotal_out_tat_c_n_c_amount, $grandtotal_out_tat_p_n_r_count, $grandtotal_out_tat_p_n_r_amount, $grand_intransit_part_count, $grand_intransit_part_amount, $grandtotal_in_tat_c_n_c_count, $grandtotal_in_tat_c_n_c_amount, $grandtotal_in_tat_p_n_r_count, $grandtotal_in_tat_p_n_r_amount, $grand_total_part_count, $grand_total_part_amount, '');
         } else {
-            $array['data'][] = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+            $array['data'][] = array('', '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', '', '', '', '', '');
         }
 
         $array['draw'] = $_POST['draw'];

@@ -133,7 +133,7 @@
                                         <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php //echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php //echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php //echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php //echo $row['entity_type']; ?>" data-service_center_id ="<?php //echo $row['service_center_id']; ?>" data-part_name ="<?php //echo $row['defective_part_shipped']; ?>" data-model="<?php //echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php //echo $row['shipped_inventory_id']?>" data-booking_id ="<?php //echo $row['booking_id']?>" data-partner_id = "<?php //echo $row['partner_id']?>" data-spare_id = "<?php //echo $row['id']?>" data-booking_partner_id = "<?php //echo $row['booking_partner_id']?>">
                                     </td> -->
                                     <td>
-                                        <a href="javascript:void(0);" class="btn btn-primary resend" data-spare_id="<?php echo $row['id']; ?>">Resend</a>
+                                        <a href="javascript:void(0);" class="btn btn-primary resend" data-spare_id="<?php echo $row['id']; ?>">Justify</a>
                                     </td>
                             </tr>
                             
@@ -164,7 +164,7 @@
 <script>
     
     $('.resend').on('click', function(){
-        if(confirm('Are you sure you want to resend this part?')) {
+        if(confirm('Are you sure you want to proceed?')) {
             
             var spare_id = $(this).attr('data-spare_id');
             $.ajax({
@@ -174,7 +174,7 @@
             }).fail(function(data){
                 alert(data);
             }).success(function(data){
-               alert('Part has been resend successfully.'); 
+               alert('Part has been updated successfully.'); 
                $('#spare_'+spare_id).hide();
             });
         } 
@@ -284,7 +284,7 @@
                 if(response === 'Error'){
                     
                 } else {
-                    $('#partner_id2').html(response);
+                    $('#partner_id3').html(response);
                     var option_length = $('#partner_id3').children('option').length;
                     if(option_length == 2){
                         $("#partner_id3").change();   

@@ -241,7 +241,7 @@
                         <td><?php echo $data['email_id']; ?></td>
                         <td><?php echo $data['customer_address']; ?></td>
                         <td><?php echo $data['pincode']; ?></td>
-                        <td><?php echo $data['call_type_installation_table_top_installationDemo_service']; ?></td>
+                        <td><?php if(isset($data['call_type_installation_table_top_installationDemo_service'])){echo $data['call_type_installation_table_top_installationDemo_service'];} ?></td>
                         <td><?php if(isset($data['crm_remarks_sr_no'])){echo $data['crm_remarks_sr_no'];} ?></td>
                         <td><?php if(isset($data['status_by_around_247'])){echo $data['status_by_around_247'];} ?></td>
                         <td><?php if(isset($data['scheduled_appointment_datemmddyyyy'])){ echo $data['scheduled_appointment_datemmddyyyy']; } ?></td>

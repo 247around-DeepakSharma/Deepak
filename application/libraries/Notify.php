@@ -898,9 +898,10 @@ class Notify {
          $return = curl_exec($ch);
          curl_close($ch);
          $data_r = json_decode($return);
-         $content  = $data_r->objects[0]->content->text;
-         $status = $data_r->objects[0]->status;
-         $error = $data_r->objects[0]->error;
+         
+         $content  = isset($data_r->objects[0]->content->text) ? $data_r->objects[0]->content->text : "";
+         $status = isset($data_r->objects[0]->status) ? $data_r->objects[0]->status : "";
+         $error = isset($data_r->objects[0]->error) ? $data_r->objects[0]->error : "";
 
          $data['content'] =  $content;
          $data['status'] =  $status;
@@ -1294,20 +1295,57 @@ class Notify {
      $return = curl_exec($ch);
      curl_close($ch);
      $data = json_decode($return);
-     $total_cost = $data->meta->credits_charged;
-     $channel = $data->objects[0]->channel;
-     $source = $data->objects[0]->source;
-     $destination = $data->objects[0]->destination;
-     $direction = $data->objects[0]->direction;
-     $content = $data->objects[0]->content->text;
-     $content_type  = $data->objects[0]->content_type;
-     $whatsapp_profile  = '247Around';
-     $status = $data->objects[0]->status;
-     $type = 'message';
-     $message_type = $data->objects[0]->channel_details->whatsapp->type;
-     $response = $return;
-    // echo $channel;
 
+     if(isset($data->objects[0]->channel) && isset($data->objects[0]->source)){
+
+     if(isset($data->meta->credits_charged) && !empty($data->meta->credits_charged)){
+     $total_cost = $data->meta->credits_charged;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->channel) && !empty($data->objects[0]->channel)){
+     $channel = $data->objects[0]->channel;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->source) && !empty($data->objects[0]->source)){
+     $source = $data->objects[0]->source;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->destination) && !empty($data->objects[0]->destination)){
+     $destination = $data->objects[0]->destination;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->direction) && !empty($data->objects[0]->direction)){
+     $direction = $data->objects[0]->direction;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->content->text) && !empty($data->objects[0]->content->text)){
+     $content = $data->objects[0]->content->text;
+     }else{
+        return FALSE;
+     }
+     if(isset($data->objects[0]->content_type) && !empty($data->objects[0]->content_type)){
+     $content_type  = $data->objects[0]->content_type;
+     }else{
+        return FALSE;
+     }
+     $whatsapp_profile  = '247Around';
+     if(isset($data->objects[0]->status) && !empty($data->objects[0]->status)){
+     $status = $data->objects[0]->status;
+     }else{
+        return FALSE;
+     }
+     $type = 'message';
+     if(isset($data->objects[0]->channel_details->whatsapp->type) && !empty($data->objects[0]->channel_details->whatsapp->type)){
+     $message_type = $data->objects[0]->channel_details->whatsapp->type;
+     }else{
+        return FALSE;
+     }
+     $response = $return;
             $whatsapp = array(
             'source' => $source,
             'destination' => $destination,
@@ -1323,6 +1361,9 @@ class Notify {
             'json_response' => $response
         );
        $insert_id =  $this->My_CI->apis->logWhatsapp($whatsapp);
+       }else{
+        return FALSE;
+       }
         try {
             if($insert_id){
 

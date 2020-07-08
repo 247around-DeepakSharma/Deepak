@@ -178,9 +178,10 @@
                     method: 'POST',
                     url: '<?php echo base_url(); ?>employee/accounting/show_accounting_report',
                     data: {type: type, from_date: from_date, to_date: to_date, partner_vendor: partner_vendor,report_type:report_type,is_challan_data:radio_box_val,'invoice_by':invoice_by},
-                    success: function (response) {
-                        //console.log(response);
-                        if (response === "error") {
+                    success: function (res) {
+                        var response = res.trim();
+                        console.log(response);
+                        if (response.trim() === "error") {
                             $('#loader').hide();
                             $('.permission-error').hide();
                             $('.payment_preview').hide();
@@ -194,11 +195,14 @@
                             $('.payment_preview').html(response);
                             $('#btn_download').show();
                             //table_pagination();
-                            $('#payment_history_table').DataTable({
-                                dom: 'Bfrtip',
-                                pageLength: 50,
-                                "lengthMenu": [[10, 25, 50,100, 500, -1], [10, 25, 50, 100, 500, "All"]],
-                            });
+                             $('#payment_history_table').DataTable({
+                                 pageLength: 50
+                             });
+//                            $('#payment_history_table').DataTable({
+//                                dom: 'Bfrtip',
+//                                pageLength: 50
+//                                
+//                            });
                             
                         }
 

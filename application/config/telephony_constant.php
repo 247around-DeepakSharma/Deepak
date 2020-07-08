@@ -24,4 +24,17 @@ define('KNOWLARITY_PASSPHRASE',"AROUND18");
 define('KNOWLARITY_SENDER_ID',"AROUND");
 define('OUTGOING_NUMBER', '07948058160');
 
+define('GOOD_MISSED_CALL_RATING_NUMBER','01140849145');
+define('POOR_MISSED_CALL_RATING_NUMBER','01140849146');
 
+//Define snapdeal new missed call number
+define('PARTNERS_MISSED_CALLED_NUMBER','01143092150');
+//Define snapdeal new missed call number
+define('PARTNERS_MISSED_CALLED_NUMBER_2','01143092150');
+//Define snapdeal new missed call number
+define('SNAPDEAL_MISSED_CALLED_NUMBER','01143078384');
+//Define Android App new missed call number
+define('ANDROID_APP_MISSED_CALLED_NUMBER','01139585684');
+
+//Define new missed call number for AC installation
+define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');

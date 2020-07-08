@@ -3037,13 +3037,13 @@ class Partner extends CI_Controller {
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+                $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {
-                $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+                $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
             }                       
             
-            $userSession = array('success' => 'Defective/Ok Parts Rejected To SF');
+            $userSession = array('success' => 'Defective/Ok Parts has been Rejected.');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else {
@@ -3108,12 +3108,13 @@ class Partner extends CI_Controller {
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
             
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $spare_status,$actor,$next_action, "", $spare_id);
+            $this->insert_details_in_state_change($booking_id, $spare_status, $rejection_reason, $actor,$next_action, "", $spare_id);
             if($booking_details['current_status'] == _247AROUND_COMPLETED) {
                 $this->booking_model->update_booking($booking_id, $booking);
             }
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF');
+            $userSession = array('success' => 'Defective Parts has been Rejected.');
+
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -4043,7 +4044,7 @@ class Partner extends CI_Controller {
                 $type = "Panel";
             }
             
-            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
+            $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "Upcountry Charges Rejected By Partner From " . $type, $agent_id, $agent_name, $data[0]['partner_id'], $partner_id);
 
             if ($status == 0) {
                 echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
@@ -4109,7 +4110,7 @@ class Partner extends CI_Controller {
                     $next_action = $partner_status[3];
                 }
                 $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
-                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, "partner_current_status" => $partner_current_status,
+                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED_CANCELLATION_ID, 'partner_current_status' => $partner_current_status,
                     'partner_internal_status' => $partner_internal_status,'actor'=>$actor,'next_action'=>$next_action));
                 
                 $this->service_centers_model->update_spare_parts(array('booking_id' => $value['booking_id']), array('status' => _247AROUND_CANCELLED));
@@ -6957,11 +6958,32 @@ class Partner extends CI_Controller {
              $tempString = "'".$row->booking_id."'";
              $tempString2 = "'".$row->amount_due."'";
              $tempString3 = "'".$row->flat_upcountry."'";
+             /*  COVID */
+             $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row->district);
+             if(!empty($response_db)){
+             $result = json_decode($response_db[0]['zone'],true);
+             $response = $result;
+             }
+             if(!empty($response)){
+             $districtZoneType = $response['zone'];
+             if (strpos($districtZoneType, 'Red') !== false) {
+             $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Orange') !== false) {
+             $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+             }
+             if (strpos($districtZoneType, 'Green') !== false) {
+             $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+             }    
+             }else{
+             $districtZoneType = '<span></span>';   
+             }
+
               if ($row->is_upcountry == 1 && $row->upcountry_paid_by_customer == 0) {
                  $upcountryString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$tempString.','.$tempString2.','.$tempString3.')"
                     class="fa fa-road" aria-hidden="true"></i>';
                } 
-             $tempArray[] = $sn_no . $upcountryString;
+             $tempArray[] = $sn_no . $upcountryString. $districtZoneType;
             if($row->booking_files_purchase_inv){
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }
@@ -6986,7 +7008,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->booking_primary_contact_no;
             $tempArray[] = $row->city;
             $tempArray[] = $row->state;
-            $tempArray[] = date("d-M-Y", strtotime($row->booking_date));
+            $tempArray[] = (!empty($row->booking_date) && $row->booking_date != '0000-00-00') ? date("d-M-Y", strtotime($row->booking_date)) : "";
             $tempArray[] = $row->aging;
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
@@ -7209,7 +7231,7 @@ class Partner extends CI_Controller {
         $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
-                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name,booking_details.district, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
@@ -7228,7 +7250,29 @@ class Partner extends CI_Controller {
                     if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
                        $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
                     }
-                    $tempArray[] =  $sn. $tempString;
+ 
+                  /*  COVID */
+                  $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($row['district']);
+                  if(!empty($response_db)){
+                  $result = json_decode($response_db[0]['zone'],true);
+                  $response = $result;
+                  }
+                  if(!empty($response)){
+                  $districtZoneType = $response['zone'];
+                  if (strpos($districtZoneType, 'Red') !== false) {
+                  $districtZoneType = '<br><span class="label label-danger">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Orange') !== false) {
+                  $districtZoneType = '<br><span class="label label-warning">COVID ZONE</span>';
+                  }
+                  if (strpos($districtZoneType, 'Green') !== false) {
+                  $districtZoneType = '<br><span class="label label-success">COVID ZONE</span>';
+                  }    
+                  }else{
+                  $districtZoneType = '<span></span>';   
+                  }
+
+                    $tempArray[] =  $sn. $tempString. $districtZoneType;
                     $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] =  $row['services'];
                     $tempArray[] =  $row['name'];
@@ -7545,7 +7589,7 @@ class Partner extends CI_Controller {
                  $tempString5  = "'".$row['booking_id']."'";
                  $tempArray[] = '<input type="hidden" class="form-control" id="partner_id" name="partner_id['.$row['booking_id'].']" value = '.$row['partner_id'].'>
                                       <input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="'.$row['booking_id'] .'">
-                                      <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'>';
+                                      <input id="approved_by" type="hidden"   name="approved_by" value="'.$row['partner_id'].'">';
                  $tempArray[] = '<button style="min-width: 59px;" id="button_reject_'.$row['booking_id'].'" type="button" class="btn btn-primary btn-sm open-adminremarks" 
                                                                                data-toggle="modal" data-target="#myModal2" onclick="create_reject_form('.$tempString5.')">Reject</button>';
                 $finalArray[] = $tempArray;
@@ -9189,10 +9233,9 @@ class Partner extends CI_Controller {
         }
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.defective_part_shipped_date,spare_parts_details.consumed_part_status_id,spare_consumption_status.tag,spare_consumption_status.is_consumed,spare_parts_details.defective_part_required,spare_parts_details.booking_unit_details_id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic, spare_parts_details.service_center_id";
             $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
-            
             $review_counter=0;
             $sc_action=array();
             
@@ -9200,20 +9243,26 @@ class Partner extends CI_Controller {
             //fetch spare consumption reason for part shipped but not used
             foreach ($spare_inventory_update as  $update_pending) {
 
-
+                if ($update_pending['status'] == _247AROUND_CANCELLED || !empty($update_pending['defective_part_shipped_date'])) {
+                    //Not need to perform any action if spare already cancelled or defective returned shipped or consumtion updated
+                    continue;
+                }
                 if (!empty($update_pending['shipped_date'])) {
-                   
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'nrn_approv_by_partner'=>1,
-                    'status' => OK_PART_TO_BE_SHIPPED,
-                    'consumed_part_status_id' => $spare_consumption_status_tag['id']
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
+                
+                    $where = array('id' => trim($update_pending['id']));
+                    $status = OK_PART_TO_BE_SHIPPED;
+
+                        $data = array(
+                            'nrn_approv_by_partner' => 1,
+                            'status' => $status,
+                            'consumed_part_status_id' => $spare_consumption_status_tag['id']
+                        );
+
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
-                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => OK_PART_TO_BE_SHIPPED, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
+                    $tracking_details = array('spare_id' => $update_pending['id'], 'action' => $status, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata("agent_id"), 'entity_id' => $this->session->userdata('partner_id'), 'entity_type' => _247AROUND_PARTNER_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
 
@@ -9237,9 +9286,6 @@ class Partner extends CI_Controller {
                 $review_counter++;
 
                 }
-                else if (strtoupper($update_pending['status']) == _247AROUND_CANCELLED) {
-                    // Do nothing do not update nrn_approved_by_partner = 1;
-                } 
                 else{
 
                 $where = array('id' => trim($update_pending['id']));
@@ -9591,8 +9637,8 @@ class Partner extends CI_Controller {
             $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
             $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";      
             $tempArray[] = $row['quantity'];
-            if (!is_null($row['received_defective_part_date'])) {
-                 $tempString2 =   date("d-M-Y", strtotime($row['received_defective_part_date']));
+            if (!is_null($row['defective_part_received_date_by_wh'])) {
+                 $tempString2 =   date("d-M-Y", strtotime($row['defective_part_received_date_by_wh']));
             }
             $tempArray[] = $tempString2;
             $tempArray[] = $row['awb_by_partner'];
@@ -9792,5 +9838,42 @@ class Partner extends CI_Controller {
         }
     }
 
+    /* We will revert below code after automation script tested. this is for testing purpose only.*/
+    /**
+     * @desc: For testing purpose only (database error).
+     */
+    function pending_booking_database($booking_id = "") {
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+           $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array()); 
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+    }
+
+    /**
+     * @desc: For testing purpose only (php error).
+     */
+    function pending_booking_php($booking_id = "") {
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity' => 'partner', 'active' => '1'));
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata() == 1){
+           $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array()); 
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+    }
+
+    /**
+     @desc: For testing purpose only (parse error).
+     */
+    function pending_booking_test_parse($booking_id = "") {
+        $this->load->view('partner/pending_booking_test');
+    }
 
 }

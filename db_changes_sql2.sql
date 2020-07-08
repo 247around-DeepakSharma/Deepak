@@ -2284,13 +2284,13 @@ UPDATE `header_navigation` SET `title` = 'Shipped Spare By Warehouse' WHERE `hea
 
 -- Prity Sharma 08-04-2020
 -- 73 Branch
-ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 UPDATE `rm_region_mapping` set region = 1 WHERE rm_id = '36';
 UPDATE `rm_region_mapping` set region = 2 WHERE rm_id = '10146';
 UPDATE `rm_region_mapping` set region = 3 WHERE rm_id = '38';
 UPDATE `rm_region_mapping` set region = 4 WHERE rm_id = '24';
-ALTER TABLE `rm_region_mapping` ADD CONSTRAINT `FK_region_zone` FOREIGN KEY (`region`) REFERENCES `zones` (`id`);
+ALTER TABLE  rm_region_mapping change column region zone_id int NOT NULL ;
 RENAME TABLE rm_region_mapping TO rm_zone_mapping;
+ALTER TABLE `rm_zone_mapping` ADD CONSTRAINT `FK_rm_zone_mapping_zone` FOREIGN KEY (`zone_id`) REFERENCES `zones` (`id`);
 
 --Ankit Bhatt 2020-04-08
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
@@ -2414,6 +2414,8 @@ ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT NULL;
 ---Gorakh 20-04-02020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('Partner', 'Search Docket Number', NULL, 'partner/search_docket_number', 2, '148', 'primary Contact,Area Sales Manager,Warehouse Incharge,Booking Manager,Owner', 'main_nav', 1, '2018-06-21 06:58:29');
+
+ALTER TABLE employee ADD COLUMN warehouse_id int(11) NULL DEFAULT 15;
 
 -- Prity 17-04-2020 (73 Branch)
 CREATE TABLE review_questionare (
@@ -2662,6 +2664,127 @@ values('agreement_email_template','',
 ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   
 ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
+<<<<<<< HEAD
+=======
+
+-- Prity 15-05-2020
+-- 73Branch
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN (booking_details.current_status = \'Cancelled\') THEN b_cr.reason ELSE GROUP_CONCAT(ssba_cr.reason) END) AS \'Cancellation Remarks\'' WHERE (`id` = '37');
+
+-- Sarvendra CRM-5967
+--73 Branch
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `service_id` INT(11) NOT NULL AFTER `vendor_reversal_category`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `brand` VARCHAR(255) NOT NULL AFTER `service_id`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `partner_type` VARCHAR(255) NOT NULL AFTER `brand`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+ADD COLUMN `partner_id` VARCHAR(255) NOT NULL AFTER `partner_type`;
+
+ALTER TABLE `boloaaka`.`247around_nrn_details` 
+CHANGE COLUMN `booking_date` `booking_date` DATE NULL DEFAULT NULL COMMENT '	' ,
+CHANGE COLUMN `tr_reporting_date` `tr_reporting_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `purchase_date` `purchase_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `make` `make` TEXT NULL DEFAULT NULL ,
+CHANGE COLUMN `customer_name` `customer_name` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `state` `state` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `branch` `branch` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `approval_rejection_date` `approval_rejection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `hdpl_invoice_no` `hdpl_invoice_no` VARCHAR(45) NULL DEFAULT NULL ,
+CHANGE COLUMN `hdpl_point` `hdpl_point` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `vendor_warranty_expire_month` `vendor_warranty_expire_month` VARCHAR(10) NULL DEFAULT NULL ,
+CHANGE COLUMN `action_plan` `action_plan` ENUM('Customer + Sub-dealer', 'Distributor') NULL DEFAULT NULL ,
+CHANGE COLUMN `asf_distributor_pincode` `asf_distributor_pincode` VARCHAR(6) NULL DEFAULT NULL ,
+CHANGE COLUMN `control_no` `control_no` VARCHAR(45) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_status` `replacement_status` ENUM('Dispatched', 'Pending', 'NA') NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_with_accessory` `replacement_with_accessory` ENUM('Yes', 'No', 'NA') NULL DEFAULT NULL ,
+CHANGE COLUMN `defective_receiving_date` `defective_receiving_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `tr_status` `tr_status` ENUM('Open', 'Close') NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_awb_no` `replacement_awb_no` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_courier_name` `replacement_courier_name` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_dispatch_date` `replacement_dispatch_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `replacement_delivery_date` `replacement_delivery_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `category_after_inspection_date` `category_after_inspection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `final_pdi_category_after_inspection_date` `final_pdi_category_after_inspection_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
+
+-- Sarvendra CRM-3450
+insert into boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
+values('sf_permanent_on_off_is_micro_wh','',
+'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
+'','booking@247around.com','','accounts@247around.com','',1);
+
+-- Prity
+-- 73 Release
+ALTER TABLE booking_details CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE booking_details ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE booking_details ADD CONSTRAINT `fk_bd_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE booking_details JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason_old = booking_cancellation_reasons.reason) set booking_details.cancellation_reason = booking_cancellation_reasons.id;  
+ALTER TABLE service_center_booking_action CHANGE COLUMN cancellation_reason cancellation_reason_old varchar(100) DEFAULT NULL;
+ALTER TABLE service_center_booking_action ADD COLUMN `cancellation_reason` int(11) DEFAULT NULL AFTER cancellation_reason_old;
+ALTER TABLE service_center_booking_action ADD CONSTRAINT `fk_scba_bcr` FOREIGN KEY (`cancellation_reason`) REFERENCES `booking_cancellation_reasons` (`id`);
+UPDATE service_center_booking_action JOIN booking_cancellation_reasons ON (service_center_booking_action.cancellation_reason_old = booking_cancellation_reasons.reason) set service_center_booking_action.cancellation_reason = booking_cancellation_reasons.id;  
+
+-- Sarvendra CRM-6281
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
+VALUES ('247Around', 'SF Authorization Certificate', NULL, 'employee/SF_authorization_certificate', '1', '', 'accountant,accountmanager,admin,callcenter,closure,developer,inventory_manager,regionalmanager,areasalesmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+    --Sarvendra CRM-6107
+    CREATE TABLE `boloaaka`.`sf_auth_certificate_setting` (
+      `id` INT NOT NULL AUTO_INCREMENT,
+      `letter_pad_img_name` TEXT NULL,
+      `stamp_img_name` TEXT NULL,
+      `sign_img_name` VARCHAR(45) NULL,
+      `s3_directory_name` TEXT NULL,
+      `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      `modified_at` TIMESTAMP NULL,
+      PRIMARY KEY (`id`));
+
+    INSERT INTO `boloaaka`.`sf_auth_certificate_setting` (`letter_pad_img_name`, `stamp_img_name`, `sign_img_name`, `s3_directory_name`) VALUES ('247_letter_head_sample.jpg', 'stamp_sample.png', 'anujsign_sample.jpg', 'authorization_certificate');
+
+
+-- Raman
+-- 22-May-2020 CRM-6286
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\") As \"First Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 20;
+
+-- Ankit Rajvanshi 73 branch
+INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES
+('Symptom', 'creation_symptom.symptom as \'Booking Symptom\'', 1, '', 1, 51),
+('SF Symptom', 'completion_symptom.symptom as \'Completion Symptom\'', 1, '', 1, 52),
+('Defect', 'defect.defect AS \'Defect\'', 1, '', 1, 53),
+('Solution', 'symptom_completion_solution.technical_solution AS \'Solution\'', 1, '', 1, 54);
+
+ALTER TABLE collateral ADD COLUMN youtube_link text NULL DEFAULT NULL;
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Received Spare By Warehouse ', NULL, 'partner/received_parts_by_wh', 2, '132', 'Primary Contact,Area Sales Manager,Booking Manager,Owner, Warehouse Incharge', 'main_nav', 1, '2018-06-11 03:19:29');
+
+CREATE TABLE booking_unit_details_invoice_process (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    booking_unit_details_id int(11) NOT NULL,
+    dashboard_section_id varchar(50) NOT NULL,
+    is_processed tinyint(1) NOT NULL DEFAULT 0,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
+
+ALTER TABLE booking_details change column booking_date booking_date date NULL DEFAULT NULL;
+UPDATE booking_details set booking_date = NULL where booking_date = '0000-00-00';
+
+-- Raman 73 
+ -- 28 May
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status = \"Completed\" THEN (CASE WHEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) < 0 THEN 0 ELSE DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) END) ELSE \"\" END) as TAT' WHERE `partner_summary_report_mapping`.`id` = 25;
+
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
+
+>>>>>>> CRM_Release_1.73.0.1
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
@@ -2671,4 +2794,3 @@ ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_st
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
-

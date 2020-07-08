@@ -1070,17 +1070,23 @@ class service_centre_charges extends CI_Controller {
         $data['service_category'] = $service_category;
         $existing_key[] = 'service_category';
         
+        if(isset($form_data['product_or_services']) && !empty($form_data['product_or_services'])){
         $data['product_or_services'] = array($form_data['product_or_services']);
-        $existing_key[] = 'product_or_services';
-       
+        $existing_key[] = 'product_or_services';  
+        }
+
+        if(isset($form_data['partner_id']) && !empty($form_data['partner_id'])){
         $data['partner_id'] = array($form_data['partner_id']);
         $existing_key[] = 'partner_id';
+        }
         
         $data['agent_id'] = array($this->session->userdata("id"));
         $existing_key[] = 'agent_id';
         
+        if(isset($form_data['service_id']) && !empty($form_data['service_id'])){
         $data['service_id'] = array($form_data['service_id']);
         $existing_key[] = 'service_id';
+        }
         
         $data['create_date'] = array(date("Y-m-d H:i:s"));
         $existing_key[] = 'create_date';
@@ -1191,6 +1197,7 @@ class service_centre_charges extends CI_Controller {
         $data['upcountry_partner_price'] = 0;
         $data['customer_total'] = 0;
         $data['customer_net_payable'] = 0;
+        $data['partner_spare_extra_charge'] = 0;
         $data['partner_net_payable'] = 0;
         $data['vendor_total'] = 0;
         $data['vendor_tax_basic_charges'] = 0;
@@ -1210,6 +1217,7 @@ class service_centre_charges extends CI_Controller {
         $data['is_upcountry'] = $form_data['paid_upcountry'];
         $data['customer_total'] = $form_data['paid_customer_total'];
         $data['customer_net_payable'] = $form_data['paid_customer_total'];
+        $data['partner_spare_extra_charge'] = 0;       
         $data['partner_net_payable'] = 0;
         $data['vendor_total'] = $form_data['paid_vendor_total'];
         $data['vendor_tax_basic_charges'] = $this->booking_model->get_calculated_tax_charge($form_data['paid_vendor_total'], DEFAULT_TAX_RATE);

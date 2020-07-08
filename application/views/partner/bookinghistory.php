@@ -35,7 +35,7 @@
                                     <td><?= $row['booking_id']; ?></td>
                                     <td><?= $row['customername']; ?></td>
                                     <td><?= $row['services']; ?></td>
-                                    <td><?php if(!empty($row['booking_date']) &&  $row['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($row['booking_date'])); }?></td>
+                                    <td><?php if(!empty($row['booking_date']) && $row['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($row['booking_date']));} ?></td>
                                     <td><?php echo $row['partner_internal_status']; ?></td>
                                     <td>
                                         <?php

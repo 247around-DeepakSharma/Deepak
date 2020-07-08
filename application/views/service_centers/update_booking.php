@@ -693,10 +693,10 @@ $arr_partner_discount = array();
         if($('.select-model').css("display") == "none") {
             $('.select-model').next(".select2-container").hide();
         }
-        else
-        {
-            $('.select-model').trigger("change");
-        }
+//        else
+//        {
+//            $('.select-model').trigger("change");
+//        }
       final_price();
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();

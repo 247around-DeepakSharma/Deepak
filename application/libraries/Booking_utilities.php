@@ -32,6 +32,7 @@ class Booking_utilities {
 	$this->My_CI->load->model('reporting_utils');
         $this->My_CI->load->model('booking_request_model');
         $this->My_CI->load->model('warranty_model');
+        $this->My_CI->load->model('indiapincode_model');
         $this->My_CI->load->library('paytm_payment_lib');
     }
     
@@ -941,7 +942,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
      * 
      */
     function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = DEVELOPER_EMAIL;
+        $to = DB_ERROR_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
@@ -1055,6 +1056,22 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
             }
         }
         return false;
+    }
+
+
+            /**
+     * @desc this function is used get zone and contaminant center of booking pincode
+     * @param  $pincode
+     * @return Array
+     */
+    function getBookingCovidZoneAndContZone($city){
+        $return_data = $this->My_CI->indiapincode_model->getPinCoordinates($city);
+        if(!empty($return_data)){
+        return $return_data;
+        }else{
+        return $return_data;
+        }
+
     }
 
 }

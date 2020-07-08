@@ -149,7 +149,7 @@
     <!-- courier Information when warehouse Shipped defective parts to partner -->
     <div class="courier_model">
         <div id="courier_model" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg" style="width:100% !important;">
 
               <!-- Modal content-->
               <div class="modal-content">
@@ -210,7 +210,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                             <option selected="" value="">Select Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                                 <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -223,7 +223,7 @@
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
                                             <option selected="" value="">Select Small Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
                                         </select>
@@ -236,8 +236,8 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
                                     <div class="col-md-8">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
                                     </div>
                                 </div>
                             </div>
@@ -423,7 +423,14 @@
     });
     
     var postData = {};
-    $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
+    $("#defective_parts_shippped_date_by_wh").datepicker({
+        dateFormat: 'dd/mm/yy',
+         changeMonth: true,
+         changeYear: true,
+         maxDate: "0",
+         minDate: -3
+
+     });
 //    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
@@ -530,6 +537,16 @@
             alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
             return false;
         }
+
+
+        let kg = $("#shipped_spare_parts_weight_in_kg").val();
+        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+        let total = parseInt(kg)+parseInt(gm);
+        if(!total){
+        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+        return false;
+        }
+
         var courier_price= parseFloat(postData['courier_price_by_wh']);
         if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
             $('#submit_courier_form').html("Submit").attr('disabled',false);
@@ -667,21 +684,21 @@
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
@@ -734,3 +751,9 @@
     });
 </script>
 
+<style>
+.modal-dialog {
+    width: 100% !important;
+    margin: 30px auto;
+}
+</style>

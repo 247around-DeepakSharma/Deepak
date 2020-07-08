@@ -506,7 +506,20 @@ class Login extends CI_Controller {
                     $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
                     $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent[0]['full_name']);
            
-            if ($this->session->userdata('is_sf') === '1') {
+            if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0') {
+                //CRM-6107 validate SF has authorization certificate 
+                if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
+                    $this->session->set_userdata(array(
+                        'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                        'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                    ));
+                    echo "service_center/dashboard";
+                    return;
+                }
+                $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
+                $this->session->set_userdata($userSession);
+                echo "service_center/login";
+            } else if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1') {
                 echo "service_center/dashboard";
             } else if ($this->session->userdata('is_cp') === '1') {
                 echo "service_center/buyback/bb_order_details";
@@ -544,7 +557,8 @@ class Login extends CI_Controller {
             'is_gst_exist' => $is_gst_doc,
             'is_micro_wh'=>$is_micro_wh,
             'poc_email'=>$poc_email,
-            'agent_name'=>$agent_name
+            'agent_name'=>$agent_name,
+            'covid_popup'=>TRUE 
 	);
 
         $this->session->set_userdata($userSession);
@@ -599,7 +613,19 @@ class Login extends CI_Controller {
                         $wh_name,
                         $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0,$sc_details[0]['primary_contact_email'],$agent['full_name']);
                 
-                if($this->session->userdata('is_sf') === '1'){
+                if($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0'){
+                    //CRM-6107 validate SF has authorization certificate 
+                    if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
+                        $this->session->set_userdata(array(
+                            'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
+                            'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
+                        ));
+                        redirect(base_url() . "service_center/dashboard");
+                    }
+                    $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "service_center/login");
+                }else if($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '1'){
                     redirect(base_url() . "service_center/dashboard");
                 }else if($this->session->userdata('is_cp') === '1'){
                     redirect(base_url() . "service_center/buyback/bb_order_details");
@@ -891,7 +917,7 @@ function user_role_management(){
                 if($login[0]['groups'] == 'accountmanager'){
                     $is_am = 1;
                 }
-                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am);
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'],$login[0]['official_email'],$login[0]['full_name'],$is_am, $login[0]['warehouse_id']);
                
                 $this->miscelleneous->set_header_navigation_in_cache("247Around");
                 $this->push_notification_lib->get_unsubscribers_by_cookies();

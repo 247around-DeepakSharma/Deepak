@@ -458,7 +458,7 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
                                         <option selected="" disabled="" value="">Select Boxes</option>
-                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                             <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                         <?php } ?>
                                     </select>
@@ -579,7 +579,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
+        minDate: function(){
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 3);
+        return yesterday;
+        }(),
+        maxDate: false,
+        setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
         }
@@ -656,7 +663,18 @@
 
                                 } else {
 
-                                    form.submit();
+
+                                    let kg = $("#shipped_spare_parts_weight_in_kg").val();
+                                    let gm = $("#shipped_spare_parts_weight_in_gram").val();
+                                    let total = parseInt(kg)+parseInt(gm);
+                                    if(!total){
+                                        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                    }else{
+                                     form.submit();   
+                                    }
+
+
+                                    
                                 }
 
                             }
@@ -962,6 +980,9 @@
                         $('body').loadingModal('destroy');
                         $("#courier_image").css("display", "block");
                         $("#courier_price_by_partner").css("display", "block");
+                        if($("#courier_price_by_partner").val()!=''){
+                            $("#courier_price_by_partner").val(parseInt($("#courier_price_by_partner").val()));
+                        }
                         $("#same_awb").css("display", "none");
                         $("#exist_courier_image").val("");
                         $("#shipped_spare_parts_weight_in_kg").val('').removeAttr("readonly");
@@ -983,40 +1004,32 @@
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
+
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
-                $(this).val('');
-                return false;
-            }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
-        },
-        "mouseleave": function () {
-            var weight_kg = $(this).val();
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
                 $(this).val('');
                 return false;
             }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2 || weight_kg < 0) {
+            if (weight_kg.length > 3 || weight_kg < 0) {
                 $(this).val('');
                 return false;
             }
@@ -1031,10 +1044,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -1042,10 +1052,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
@@ -1053,10 +1060,7 @@
                 $(this).val('');
                 return false;
             }
-            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
-                $(this).val('');
-                return false;
-            }
+
         },
         "mouseout": function () {
             var weight_kg = $(this).val();

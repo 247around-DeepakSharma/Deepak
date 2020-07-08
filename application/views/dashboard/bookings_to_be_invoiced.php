@@ -3,10 +3,10 @@
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
                 <h2>Customer Paid Charges</h2>
-                <span class="collape_icon" href="#section_1" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                <span class="collape_icon" href="#section_1" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
-            <div id="section_1">
+            <div id="section_1" class="collapse in">
                 <div class="col-md-4">
                     <label class="control-label" for="daterange">Date</label><br>
                     <?php
@@ -52,7 +52,7 @@
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
                 <h2>Check Serial Number/Image</h2>
-                <span class="collape_icon" href="#section_2" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                <span class="collape_icon" href="#section_2" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
             <div id="section_2" class="collapse">
@@ -102,7 +102,7 @@
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
                 <h2>Partner Invoice</h2>
-                <span class="collape_icon" href="#section_3" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                <span class="collape_icon" href="#section_3" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
             <div id="section_3" class="collapse">
@@ -151,7 +151,7 @@
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
                 <h2>Completed Unit Details Of Pending Bookings</h2>
-                <span class="collape_icon" href="#section_4" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                <span class="collape_icon" href="#section_4" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
             <div id="section_4" class="collapse">
@@ -200,7 +200,7 @@
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
                 <h2>Pending Unit Details Of Completed Bookings</h2>
-                <span class="collape_icon" href="#section_5" data-toggle="collapse"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                <span class="collape_icon" href="#section_5" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
             <div id="section_5" class="collapse">
@@ -368,8 +368,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -403,8 +403,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -439,8 +439,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -475,8 +475,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -511,8 +511,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month.");
+        if(diffDays>31){
+            alert("Maximum range allowed is 31 days.");
             return false;
         }  
         
@@ -533,7 +533,6 @@
 
     $('.export').on('click', function(data) {
         var tableId = $(this).data('id');
-        alert(tableId);
         var date = $('#data_range_'+tableId).val();
         if(date == '' || date == null) {
             alert('Please select date.');
@@ -553,10 +552,16 @@
     }
     
     $('.process').on('click', function(){
+        
         var btn_id = $(this).attr('id');
         var id = $(this).attr('id').split('_')[1];
         var form_id = '';
-
+        
+        if($('.check_'+id).filter(':checked').length == 0) {
+            alert("Please select at least one checkbox to proceed.");
+            return false;
+        }
+        
         $('#'+btn_id).val('Please wait...');
         switch (id) {
             case '1':
@@ -601,5 +606,16 @@
                 break;
             }
         });
+    });
+    
+    $(".collape_icon").click(function(){
+     if($(this).find("i").hasClass("fa fa-plus-square")){ 
+            $(this).find("i").removeClass("fa fa-plus-square"); 
+            $(this).find("i").addClass("fa fa-minus-square");
+        }
+        else{ 
+            $(this).find("i").removeClass("fa fa-minus-square"); 
+            $(this).find("i").addClass("fa fa-plus-square");
+        }
     });
 </script>

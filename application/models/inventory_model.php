@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
         $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
-        $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
+        $this->db->join('service_centres','service_centres.id = spare_parts_details.service_center_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
 /*  get Agent id for approval spare  check for isset*/
         if(isset($post['approval_date_and_id'])){
@@ -437,6 +437,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('partners','partners.id = booking_details.partner_id','left');
+        $this->db->join('service_centres','service_centres.id = spare_parts_details.service_center_id','left');
         if(isset($post['where'])){
              $this->db->where($post['where']);
         }
@@ -1670,7 +1671,7 @@ class Inventory_model extends CI_Model {
      * @return: Json
      */
    
-    function get_spare_consolidated_data($select, $where, $group_by = '') {
+    function get_spare_consolidated_data($select, $where, $group_by = '', $where_in = '') {
         $this->db->select($select, false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
@@ -1694,6 +1695,12 @@ class Inventory_model extends CI_Model {
             $this->db->where($where, false);
         }
 
+        if(!empty($where_in)){
+            foreach ($where_in as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        
         if (!empty($group_by)) {
             $this->db->group_by($group_by, false);
         }
@@ -3518,7 +3525,6 @@ class Inventory_model extends CI_Model {
             $this->db->where($post['where']);
         }
         
-
         /*
         if(isset($post['where_in'])){
             foreach ($post['where_in'] as $index => $value) {

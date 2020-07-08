@@ -346,7 +346,7 @@ function reject_courier_invoice(){
                             pageSize: 'LEGAL',
                             title: 'bank_transactions',
                             exportOptions: {
-                               columns: [1,2,3,4,5,6,7,8],
+                               columns: [1,2,3,4,5,6,7,8,9],
                                 modifier : {
                                      // DataTables core
                                      order : 'index',  // 'current', 'applied', 'index',  'original'

@@ -31,7 +31,7 @@ class Warranty extends CI_Controller {
      *  @return : print warranty on warranty Page
      */
     public function index($partner_id = null, $service_id = null, $brand = null) {
-        $partners = $this->partner_model->getpartner();
+        $partners = $this->partner_model->getpartner(null, false);
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }

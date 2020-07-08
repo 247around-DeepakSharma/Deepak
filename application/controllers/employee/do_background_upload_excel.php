@@ -1009,7 +1009,7 @@ class Do_background_upload_excel extends CI_Controller {
                     log_message('info', __FUNCTION__ . "=> Dsecription not found");
                     $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$saas_flag) {
-                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")  || stristr($prod, "Washer")) {
                             $data['valid_data'][$key]['appliance'] = 'Washing Machine';
                         }
                         if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Tv") || stristr($prod, "LED")) {
@@ -1546,7 +1546,7 @@ class Do_background_upload_excel extends CI_Controller {
                 }
 
                 //if file uploaded successfully then log else send email 
-                if ($response['status']) {
+                if (isset($response['status']) && $response['status']) {
                     log_message("info", "File Uploaded successfully");
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER . $header_data['file_name'], $upload_file_type, FILE_UPLOAD_SUCCESS_STATUS, $this->email_message_id, "partner", $partner_id);
                     //now send back file with updated booking id to partner
@@ -1591,7 +1591,8 @@ class Do_background_upload_excel extends CI_Controller {
                     $cc = NITS_ANUJ_EMAIL_ID;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;
-                    $body = $response['msg'];
+                    $response_msg = !empty($response['msg']) ? $response['msg'] : "";
+                    $body = $response_msg;
                     $body .= "<br> <b>File Name</b> " . $header_data['file_name'];
                     $attachment = TMP_FOLDER . $header_data['file_name'];
                     $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment, FILE_UPLOAD_FAILED_STATUS);
@@ -1872,7 +1873,7 @@ class Do_background_upload_excel extends CI_Controller {
         $select = '*';
         $data['actual_header_data'] = $this->reusable_model->get_search_query('partner_file_upload_header_mapping', $select, array('partner_id' => $this->input->post('partner_id')), NULL, NULL, NULL, NULL, NULL)->result_array();
         $response = $this->check_column_exist($data);
-        if ($response['status']) {
+        if (isset($response['status']) && $response['status']) {
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $rowData = array_combine($data['header_data'], $rowData_array[0]);

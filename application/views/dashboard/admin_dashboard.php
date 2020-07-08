@@ -129,11 +129,15 @@
                    </div>
                     <br>
                 <div class="clear"></div>
+                <p ng-if='completedBookingByRM.leg_1 !== undefined'>
+                    <?php echo LEG_DESCRIPTION ; ?>
+                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
                             <th>S.no</th>
                             <th>RM</th>
+                            <th ng-if='completedBookingByRM.leg_1 !== undefined'></th>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -145,13 +149,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
+                        <tr class="tat-report" data-rm-row-id="{{completedBookingByRM.TAT[$index].id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href  onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.leg_1[$index].id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.TAT[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
-                                   {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
-                                   
+                                   {{completedBookingByRM.TAT[$index].entity}} </button>
+                                <span ng-if="completedBookingByRM.TAT[$index].id == '00'"></span>
+                                <span ng-if="completedBookingByRM.TAT[$index].id != '00'">
+                                    <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{completedBookingByRM.TAT[$index].id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))" style="margin-top: 10px;">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </td>
+                            <td>
+                                <p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p>
+                            </td>                                   
                            <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_0}} ({{completedBookingByRM.leg_1[$index].TAT_0_per}}%)<br>
                                {{completedBookingByRM.leg_2[$index].TAT_0}} ({{completedBookingByRM.leg_2[$index].TAT_0_per}}%)<br>
                                {{completedBookingByRM.TAT[$index].TAT_0}} ({{completedBookingByRM.TAT[$index].TAT_0_per}}%) </td>
@@ -213,94 +225,6 @@
             </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
-            <div class="x_panel">
-                <div class="x_title" style="padding-left: 0px;">
-                    <h2>Brand Sales Report</h2>
-                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                    <div class="clearfix"></div>
-                </div>
-                <div id="brand_sales_reporting" class="collapse in">
-                <div class="table-responsive" id="escalation_data">
-                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
-                    <div class="col-md-3">
-                        <div class="item form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
-                                <label for="">Year</label>
-                                <select class="form-control filter_table" id="sales_year" name="sales_year">
-                                    <option value="">Select Year</option>
-                                    <?php $from_year = 2015;
-                                            $to_year = date('Y');
-                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
-                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                        <div class="col-md-6" id="sales_partner_div">
-                    <div class="item form-group">
-                        <div class="col-md-12 col-sm-12 col-xs-12">
-                            <label for="">Partner</label>
-                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
-                                <?php foreach($partners as $val){ ?>
-                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
-                               
-                                <?php } ?>
-                            </select>
-                        </div>
-                </div>
-                    </div>
-                    
-                  
-               
-                       
-                   <div class="col-md-3">
-                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
-                   </div>
-                         </form>
-                    <br>
-                <div class="clear"></div>
-               
-                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
-                    <thead>
-                        <tr>
-                            <th>Brand</th>
-                            <th>January</th>
-                            <th>February</th>
-                            <th>March</th>
-                            <th>April</th>
-                            <th>May</th>
-                            <th>June</th>
-                            <th>July</th>
-                            <th>August</th>
-                            <th>September</th>
-                            <th>October</th>
-                            <th>November</th>
-                            <th>December</th>
-                            <th>Total</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
-                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
-            </div>
-                    
-                    <div id="brand_sales_chart">
-                        
-                    </div>
-                    
-            </div> 
-            </div>
-        </div>
-    </div>
-    
     
         <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -490,6 +414,94 @@
         </div>
     </div>
     
+        <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Brand Sales Report</h2>
+                    <span class="collape_icon" href="#brand_sales_reporting" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="brand_sales_reporting" class="collapse in">
+                <div class="table-responsive" id="escalation_data">
+                    <form action="" method="post" id="brand_sales_form" style="float: left;width: 1110px;">
+                    <div class="col-md-3">
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <label for="">Year</label>
+                                <select class="form-control filter_table" id="sales_year" name="sales_year">
+                                    <option value="">Select Year</option>
+                                    <?php $from_year = 2015;
+                                            $to_year = date('Y');
+                                    for($i=$from_year; $i<=$to_year;$i++){ ?>
+                                    <option value="<?php echo $i?>"><?php echo $i; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                        <div class="col-md-6" id="sales_partner_div">
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <label for="">Partner</label>
+                            <select class="form-control filter_table" id="sales_partner" name="sales_partner[]" multiple="">
+                                <?php foreach($partners as $val){ ?>
+                                 <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                               
+                                <?php } ?>
+                            </select>
+                        </div>
+                </div>
+                    </div>
+                    
+                  
+               
+                       
+                   <div class="col-md-3">
+                       <button type="button" id="btn_brand_sales" class="btn btn-primary" style="margin-top: 23px;background: #405467;border-color: #405467;">Apply Filters</button>
+                   </div>
+                         </form>
+                    <br>
+                <div class="clear"></div>
+               
+                <table id="brand_sales" class="table table-striped table-bordered jambo_table bulk_action" style="margin-top:30px;">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>January</th>
+                            <th>February</th>
+                            <th>March</th>
+                            <th>April</th>
+                            <th>May</th>
+                            <th>June</th>
+                            <th>July</th>
+                            <th>August</th>
+                            <th>September</th>
+                            <th>October</th>
+                            <th>November</th>
+                            <th>December</th>
+                            <th>Total</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+                <center><img id="loader_gif_brand_sales" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+            </div>
+                    
+                    <div id="brand_sales_chart">
+                        
+                    </div>
+                    
+            </div> 
+            </div>
+        </div>
+    </div>
+ 
+    
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Partner Booking Status -->
        <div class="row" style="margin-bottom: 10px;">
@@ -613,6 +625,9 @@
                 </div>
                     <br>
                 <div class="clear"></div>
+                <p ng-if='completedBookingByAM.leg_1 !== undefined'>
+                    <?php echo LEG_DESCRIPTION ; ?>
+                </p>
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
@@ -631,8 +646,7 @@
                     <tbody>
                         <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
-                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
+                            <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByAM.TAT[$index].id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">
                                    {{completedBookingByAM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
@@ -670,7 +684,6 @@
                         </tr>
                         <tr ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','am_completed_booking_form')">{{x.entity}}</button></td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
@@ -1199,6 +1212,7 @@
             </div>
         </div>
         <!-- RM wise booking status -->
+        
         <!-- Booking cancellation -->
         <div class="row" style="margin-top:10px;">
         <div class="col-md-12 col-sm-12 col-xs-12" id="based_on_booking_cancellation_reason" style="padding-right:0px !important">
@@ -1207,19 +1221,19 @@
                     <div class="col-md-5"><h2>Booking cancellation reason wise <small></small></h2></div>
                     <div class="col-md-6">
                         <small>
-                        <div class="nav navbar-right panel_toolbox">
-                            <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
-                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                                <span></span> <b class="caret"></b>
+                            <div class="nav navbar-right panel_toolbox">
+                                <div id="reportrange_booking_cancellation" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -10%;">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                    <span></span> <b class="caret"></b>
+                                </div>
                             </div>
-                        </div>
                         </small>
                     </div>
                     <div class="col-md-1" style="padding-right: 0px;"><span class="collape_icon" href="#booking_cancellation_chart_div" data-toggle="collapse" onclick="get_bookings_cancellation_reason()"><i class="fa fa-plus-square" aria-hidden="true"></i></span></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="col-md-12">
-                    <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        <center><img id="loader_gif_booking_cancellation" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
                 </div>
                 <div class="x_content collapse" id="booking_cancellation_chart_div">
                     <div id="booking_cancellation_chart"></div>
@@ -1437,6 +1451,39 @@
     <!-- Agent Graph -->
     
     <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+            <div class="dashboard_graph">
+                <div class="row x_title">
+                    <div class="col-md-6">
+                        <h3>Audit Team Performance Score &nbsp;&nbsp;&nbsp;
+                            <small>
+                            </small>
+                        </h3>
+                    </div>
+                    <div class="col-md-5">
+                        <div id="action_agent_date_audit" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; margin-right: -12%;">
+                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                           
+                            <span></span> <b class="caret"></b>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+<!--                        onclick="agent_action_status()"-->
+                        <span class="collape_icon" href="#chart_containeragentdiv_audit" data-toggle="collapse" onclick="agent_action_status_audit()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="x_content collapse" id="chart_containeragentdiv_audit">
+                    <div class="col-md-12">
+                        <center><img id="loader_gifagentaudit" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                    </div>
+                    <div id="chart_agentdiv_audit" class="chart_agentdiv" style="width:100%; height:400px;"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
         <form action="<?php echo base_url(); ?>employee/invoice/download_dashboard_invoice_data" method="post">  
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="dashboard_graph">
@@ -1552,7 +1599,15 @@
 <!-- Chart Script -->
 <script>
     $('#request_type').select2();
-    $('#sales_partner').select2({ maximumSelectionLength: 5 });
+    $('#sales_partner').select2({ multiple: true,maximumSelectionLength: 5 });
+    $("#sales_partner").on("select2:select", function(e) {
+       if (
+         $(this).select2("data").length >=
+         $(this).data("select2").results.data.maximumSelectionLength
+       ) {
+         $(this).select2("close");
+       }
+     });
     $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
@@ -1838,6 +1893,24 @@
 
         cb(start, end);
     });
+    $(function () {
+        function cb(start, end) {
+            $('#action_agent_date_audit span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+//        $('#action_agent_date span').daterangepicker({
+//                autoUpdateInput: false,
+//                singleDatePicker: true,
+//                showDropdowns: true,
+//                minDate:"01-01-1998",
+//                locale:{
+//                    format: 'MMMM D, YYYY'
+//                }
+//            });
+         $('#action_agent_date_audit').daterangepicker(options, cb);
+
+        cb(start, end);
+    });
     
     $(function () {
         function cb(start, end) {
@@ -1864,9 +1937,20 @@
         agent_click_count(startDate, endDate);
         
     });
+    $('#action_agent_date_audit').on('apply.daterangepicker', function (ev, picker) {
+      //  $('#loader_gifagentperformance').show();
+       // $('#chart_agentdiv').hide();
+        var startDate = picker.startDate.format('YYYY-MM-DD');
+        var endDate = picker.endDate.format('YYYY-MM-DD');
+        agent_click_count_audit(startDate, endDate);
+        
+    });
     
     function agent_action_status(){
         agent_click_count();
+    }
+    function agent_action_status_audit(){
+        agent_click_count_audit();
     }
     
 //    $('#action_agent_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -1961,7 +2045,8 @@
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_completed_booking(response);
             }
             else{
@@ -1982,7 +2067,8 @@
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_cancelled_booking(response);
             }
             else{
@@ -2248,30 +2334,91 @@
         });
     }
     function create_arm_tat_report_table(tableRow,data){
+        html_leg_tbl = "";
+        if(!!data.leg_1 && data.leg_1.length>0){
+            html_leg_tbl = "<th></th>";
+        }
         html='<table class="table table-striped table-bordered sub-table">'
-                +'<thead><tr><th>S.no</th><th>ASM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+                +'<thead><tr><th>S.no</th><th>ASM</th>'
+                +html_leg_tbl
+                +'<th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
         if(!!data.TAT && data.TAT.length>0){
             html += "<tbody>";
             for(var i in data.TAT){
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
                 if(data.TAT[i].id === "00"){
-                    html += "<td><button class='btn btn-info'>"+ data.TAT[i].entity+ "</button></td>";
+                    html += "<td>"+ data.TAT[i].entity+ "</td>";
                 }else{
                     html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
                 }
-                html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
-                html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
-                html += '</tr>';
+                // Show leg wise ASM Report
+                if(!!data.leg_1 && data.leg_1.length>0){
+                    html += "<td>leg_1<br/>leg_2<br/>Total</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_0+ "("+ data.leg_1[i].TAT_0_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_0+ "("+ data.leg_2[i].TAT_0_per+ "%)<br/>"
+                            + data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_1+ "("+ data.leg_1[i].TAT_1_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_1+ "("+ data.leg_2[i].TAT_1_per+ "%)<br/>"
+                            + data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_2+ "("+ data.leg_1[i].TAT_2_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_2+ "("+ data.leg_2[i].TAT_2_per+ "%)<br/>"
+                            + data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_3+ "("+ data.leg_1[i].TAT_3_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_3+ "("+ data.leg_2[i].TAT_3_per+ "%)<br/>"
+                            + data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_4+ "("+ data.leg_1[i].TAT_4_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_4+ "("+ data.leg_2[i].TAT_4_per+ "%)<br/>"
+                            + data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_5+ "("+ data.leg_1[i].TAT_5_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_5+ "("+ data.leg_2[i].TAT_5_per+ "%)<br/>"
+                            + data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_8+ "("+ data.leg_1[i].TAT_8_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_8+ "("+ data.leg_2[i].TAT_8_per+ "%)<br/>"
+                            + data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)"
+                            + "</td>";
+                    html += "<td>"
+                            + data.leg_1[i].TAT_16+ "("+ data.leg_1[i].TAT_16_per+ "%)<br/>"
+                            + data.leg_2[i].TAT_16+ "("+ data.leg_2[i].TAT_16_per+ "%)<br/>"
+                            + data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)"
+                            + "</td>";
+                    html += '</tr>';
+                }
+                else
+                {
+                    html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
+                    html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
+                    html += '</tr>';
+                }                
             }
-            html += "</tbody></table>";
-            html = "<td colspan=10>"+ html+ "</td>"
+            
+            html += "</tbody></table>";            
+            if(!!data.leg_1 && data.leg_1.length>0){
+                html = "<td colspan=11>"+ html+ "</td>"
+            }
+            else
+            {
+                html = "<td colspan=10>"+ html+ "</td>"
+            }
             $("#arm_table_"+ tableRow).empty().html(html);
             $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
         }else{
@@ -2380,42 +2527,42 @@
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
                              +'</form></td>';
-                total += data[i].TAT_0;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
-                             +'</form></td>';
-                total += data[i].TAT_1;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_2;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_3;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_4;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_5;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_8;
-                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
-                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
-                            +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
-                             +'</form></td>';
-                total += data[i].TAT_16;
+                    total += data[i].TAT_0;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
+                                 +'</form></td>';
+                    total += data[i].TAT_1;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_2;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_3;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_4;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_5;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_8;
+                    html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                                +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
+                                +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
+                                 +'</form></td>';
+                    total += data[i].TAT_16;
                     html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                                 +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_Total_bookings + '">'
                                 +'<input type="submit" value="'+ data[i].Total_Pending + ' ('+ data[i].TAT_total_per + '%)"  class="btn btn-'+ ((data[i].Total_Pending<1)?'success':'danger')+ '">'
@@ -2683,7 +2830,7 @@
         chart = new Highcharts.Chart({
             chart: {
                 renderTo: render_div,
-                type: 'scatter'
+                type: 'column'
             },
             title: {
                 text: '',
@@ -3033,7 +3180,8 @@ function initiate_escalation_data(){
         url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Completed';
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_completed_booking(response);   
             }
             else{
@@ -3112,8 +3260,8 @@ function initiate_escalation_data(){
         url =  '<?php echo base_url(); ?>employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
         
         sendAjaxRequest(data,url,post_request).done(function(response){
-            //console.log(response);
-            if(response){
+            console.log(response);
+            if($.trim(response)){
                 create_chart_closure_cancelled_booking(response);
             }
             else{
@@ -3340,6 +3488,86 @@ function initiate_escalation_data(){
             }
         });
     }
+    
+    function agent_click_count_audit(startDate ="", endDate = ""){
+        if(startDate === ""){
+            var d = $('#action_agent_date_audit span').text();
+            var d1 = d.split("-");
+            console.log(d1[0]);
+            startDate = d1[0].trim();
+            endDate =d1[1].trim();
+            //"June 1, 2020 - June 30, 2020"
+        }
+        
+        $('#loader_gifagentaudit').fadeIn();
+        $('#chart_agentdiv_audit').hide();
+        var data = {startDate: startDate, endDate: endDate, group : 'closure'};
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_agent_action_log_per_hour';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            
+            if(response){
+               // console.log(response);
+                var data = JSON.parse(response);
+                var theHour = data.xaxis.split(',');
+                //console.log(theHour);
+                var series = data.series;
+                
+                 for (i = 0; i < series.length; i++) {
+                    series[i].data = JSON.parse("[" + series[i].count + "]");
+                }
+                $('#chart_agentdiv_audit').fadeIn();
+                chart1 = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chart_agentdiv_audit',
+                        type: 'column',
+                        events: {
+                            load: Highcharts.drawTable
+                        }
+                    },
+                    title: {
+                        text: '',
+                        x: -20 //center
+                    },
+                    xAxis: {
+                        categories: theHour
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Count'
+                        },
+                        plotLines: [{
+                                value: 0,
+                                width: 1,
+                                color: '#808080'
+                            }]
+                    },
+                    plotOptions: {
+                        column: {
+                            dataLabels: {
+                                enabled: true,
+                                crop: false,
+                                overflow: 'none'
+                            }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: series
+                });
+                $('#loader_gifagentaudit').hide();
+            }
+            
+            else{
+                alert("Graph Data Not Found");
+                $('#loader_gifagentaudit').hide();
+            }
+        });
+    }
     /*
      * By choosing dates from datapicker and expand chart div and send AJAX request to get cancelled booking data
      * by sending start and end dates of selected option (last wwek/last month/ custom dates)  
@@ -3351,7 +3579,7 @@ function initiate_escalation_data(){
         $('#state_type_booking_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
-        url = baseUrl + '/dashboard/get_booking_cancellation_reasons';
+        url = baseUrl + '/employee/dashboard/get_booking_cancellation_reasons';
         var data = {sDate: startDate, eDate: endDate};
         
         sendAjaxRequest(data,url,post_request).done(function(response){
@@ -3444,6 +3672,10 @@ function initiate_escalation_data(){
        var _sales_year = $('#sales_year').val(); 
        var _sales_partners = $('#sales_partner').val();
        if(_sales_year !== '' && (_sales_partners.length > 0 && _sales_partners.length < 6)){
+           var sales_partner_text = [];
+           $('#sales_partner option:selected').each(function(){
+               sales_partner_text.push($(this).text().split(' ').join(''));
+           });
            $.ajax({
                type:'POST',
                url:'<?php echo base_url('employee/dashboard/brand_sales_analytics') ?>',
@@ -3453,6 +3685,7 @@ function initiate_escalation_data(){
                    $('#loader_gif_brand_sales').css('display','none');
                    $('#brand_sales tbody').html(data.table_data);
                    console.log(data.series);
+                   brand_sales_analysis_table(sales_partner_text);
                    brand_sales_bar_chart(data.series);
                },beforeSend: function(){
                     $('#brand_sales tbody').html('');
@@ -3461,20 +3694,40 @@ function initiate_escalation_data(){
            });        
         }
     });
-   $(document).ready(function(){
-        $('#brand_sales').DataTable({
-            dom: 'Bfrtip',
-            searching: false,
-            paging: false,
-            buttons: [{
-                extend: 'excel',
-                text: 'Export',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12]
-                }
-            }]
-        });
-    });
+    function brand_sales_analysis_table(sales_partner_text){
+        if ( $.fn.dataTable.isDataTable( '#brand_sales' ) ) {
+            table = $('#brand_sales').DataTable();
+        }
+        else {
+                    
+           table = $('#brand_sales').DataTable({
+             dom: 'Bfrtip',
+             searching: false,
+             paging: false,
+             buttons: [{
+                 extend: 'excelHtml5',
+                 text: 'Export',
+                 title: sales_partner_text.join('_')+'_'+$('#sales_year').val()+'_sales_report',
+                 exportOptions: {
+                     format: {
+                         header: function ( data, columnIdx ) {
+                                return data;
+                            },
+                         body: function ( data, column, row ) {
+                            //if it is html, return the text of the html instead of html
+                             if (/<\/?[^>]*>/.test(data)) {                                    
+                                 return $(data).text();
+                             } else {
+                                 return data;
+                             }                                                                
+                         }
+                     }
+                 }
+             }]
+         });
+        }
+     }
+  
    function brand_sales_bar_chart(series){ 
     Highcharts.chart('brand_sales_chart', {
     chart: {

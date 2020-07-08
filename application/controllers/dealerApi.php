@@ -117,10 +117,10 @@ class dealerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -173,10 +173,10 @@ class dealerApi extends CI_Controller {
                 'browser_information' => $_SERVER['HTTP_USER_AGENT'],
                 'ip_address' => $_SERVER["REMOTE_ADDR"],
                 'type' => $type);
-            $this->apis->saveRequestData($details);
+            //$this->apis->saveRequestData($details);
 
             $activity = array('activity' => 'data input', 'data' => json_encode($details), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
 
             $this->validateRequest();
         } else {
@@ -203,7 +203,7 @@ class dealerApi extends CI_Controller {
      */
     function checkAppKeyAndTimeout() {
         $activity = array('activity' => 'checking appkey and timeout', 'data' => json_encode($this->jsonRequestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $appKey = $this->jsonRequestData['iss'];
         $expTime = $this->jsonRequestData['exp'];
@@ -223,7 +223,7 @@ class dealerApi extends CI_Controller {
      */
     function checkSignature() {
         $activity = array('activity' => 'checking signarure', 'data' => json_encode($this->tokenArray), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
         if (count($this->tokenArray) == 3) {
             $header = $this->tokenArray[0];
             $claims = $this->tokenArray[1];
@@ -251,7 +251,7 @@ class dealerApi extends CI_Controller {
         if ($this->debug == "true") {
             $responseData = array("data" => $this->jsonResponseString);
             $activity = array('activity' => 'sending response', 'data' => json_encode($responseData), 'time' => $this->microtime_float());
-            $this->apis->logTable($activity);
+            //$this->apis->logTable($activity);
             $response = json_encode($responseData, JSON_UNESCAPED_SLASHES);
 
             echo $response;
@@ -404,6 +404,14 @@ class dealerApi extends CI_Controller {
 
             case 'getSpareTabData':
                 $this->getSpareTabDataForBooking(); /* get Spare Details API */
+                break;
+
+            case 'getEscalationReason':
+                $this->getEscalationReason(); /* get Spare Details API */
+                break;
+
+            case 'submitEscalation':
+                $this->submitEscalation(); /* get Spare Details API */
                 break;
 
             default:
@@ -911,6 +919,7 @@ function submitEscalation(){
 
 // Shipped details//
                 if ($parts_shipped) {
+                    $spare_shipped[$key]['id'] = $spare['id'];
                     $spare_shipped[$key]['entity_type'] = $spare['entity_type'];
                     $spare_shipped[$key]['parts_shipped'] = $spare['parts_shipped'];
                     $spare_shipped[$key]['shipped_part_number'] = $spare['shipped_part_number'];
@@ -948,6 +957,7 @@ function submitEscalation(){
                 }
 /// DEFECTIVE DETAILS//  
                 if ($defective_parts_shipped) {
+                    $spare_defective[$key]['id'] = $spare['id'];
                     if (!empty($sp['send_defective_to'])) {
                      $spare_defective[$key]['send_defective_to'] = $spare['send_defective_to'];
                     } else {
@@ -983,7 +993,7 @@ function submitEscalation(){
                     $spare_defective[$key]['sf_challan_number'] = $spare['sf_challan_number'];
                 }
 /// INVOICE DETAILS //
-
+                $spare_invoice[$key]['id'] = $spare['id'];
                 $spare_invoice[$key]['model_number_shipped'] = $spare['model_number_shipped'];
                 $spare_invoice[$key]['parts_shipped'] = $spare['parts_shipped'];
                 $spare_invoice[$key]['shipped_part_number'] = $spare['shipped_part_number'];
@@ -1000,6 +1010,7 @@ function submitEscalation(){
 
 /// OOW  DETAILS //
                 if ($estimate_given) {
+                    $spare_oow[$key]['id'] = $spare['id'];
                     if ($spare['entity_type'] == _247AROUND_PARTNER_STRING) {
                         $spare_oow[$key]['entity_type'] = 'Partner';
                     } else {

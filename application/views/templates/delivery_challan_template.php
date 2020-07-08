@@ -53,10 +53,21 @@
             <td colspan="7" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
         </tr>
         <tr>
-            <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td  colspan="5" align="left"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
+            <td style="border-right: hidden;<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+            <td colspan="7"  style="<?php if(!empty($excel_data['courier_servicable_area'])){ ?>border-bottom: hidden;<?php } ?>"></td>
+        </tr>
+        <?php
+        if(!empty($excel_data['courier_servicable_area'])){
+        ?>
+        <tr>
+            <td  colspan="5" align="left"><b>Courier Servicable Area: </b><?php echo $excel_data['courier_servicable_area']; ?></td>
             <td style="border-right: hidden;"></td>
             <td colspan="7"></td>
         </tr>
+        <?php
+        }
+        ?>
         <tr class="blank_row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
             <td></td><td></td><td></td><td></td><td style="border-right: solid 1px;"></td>
         </tr>
@@ -65,25 +76,46 @@
             <td colspan="1" style="text-align: center;"><b>Part Name</b></td>
             <td colspan="1" style="text-align: center"><b>Part Number</b></td>
             <td colspan="1" style="text-align: center; width: 50px;"><b>Qty</b></td>
+            <?php
+            if(!empty($excel_data['show_consumption_reason'])){
+            ?>
             <td colspan="1" style="text-align: center;"><b>Booking ID</b></td>
             <td colspan="1" style="text-align: center;"><b>Consumption</b></td>
-            <td colspan="1" style="text-align: center;"><b>Courier Name</b></td>
-            <td colspan="6" style="text-align: center"><b>Value (Rs.)</b></td>
+            <?php
+            }else{
+            ?>
+            <td colspan="2" style="text-align: center;"><b>Booking ID</b></td>
+            <?php
+            }
+            ?>
+            <td colspan="7" style="text-align: center"><b>Value (Rs.)</b></td>
         </tr>
         <?php
         $i = 1;
         $total_qty = 0;
         $total_value = 0;
         foreach ($excel_data_line_item as $info) {
+            if(!empty($excel_data['show_consumption_reason'])){
+                if ($info['consumption'] == 'Part consumed') {
+                    $info['consumption'] = 'Defective Part';
+                }
             echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
 							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
                                                         <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
 							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
 							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
                                                         <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['consumption'] . "
-                                                        <td style='width:0px;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['courier_name'] . "
-							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "6" . " align=" . "\"center\"" . ">" . $info['value'] . "
+							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
 					</tr>";
+            }else{
+            echo "<tr style='width:100%;text-align:center;'>	<td style='width:4.67%;' align=" . "\"center\"" . ">" . $i++ . "
+							<td style='word-break: break-all;' colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['spare_desc'] . "
+                                                        <td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['part_number'] . "
+							<td colspan=" . "1" . " align=" . "\"center\"" . ">" . $info['qty'] . "
+							<td style='font-size:13px;padding-right: -1px !important;padding:0px;width:10%;' colspan=" . "2" . " align=" . "\"center\"" . ">" . $info['booking_id'] . "
+							<td style='font-size:13px;width:6%;padding:0px;' colspan=" . "7" . " align=" . "\"center\"" . ">" . $info['value'] . "
+					</tr>";
+            }
             $total_qty +=$info['qty'];
             $total_value +=$info['value'];
         }
@@ -92,7 +124,7 @@
             <td ></td>
             <td colspan="2" style="border-left: hidden; text-align: center"><b>Total Qty</b></td>
             <td colspan="1" style="text-align: center;width: 50px;"><b><?php echo $total_qty; ?></b></td>
-            <td colspan="3" style="text-align: center"><b>Total Amount </b></td>
+            <td colspan="2" style="text-align: center"><b>Total Amount </b></td>
             <td colspan="7" style="text-align: center"><b><?php echo $total_value; ?></b></td>
         </tr>
         <tr>

@@ -444,8 +444,8 @@ class Employee_model extends CI_Model{
     */
     function map_region_to_rm($region, $rm_id){
         $this->db->set("rm_id",$rm_id);
-        $this->db->where('region', $region);
-        $this->db->update("rm_zone_mapping");
+        $this->db->where('zone', $region);
+        $this->db->update('rm_zone_mapping JOIN zones ON rm_zone_mapping.zone_id = zones.id');
     }
     
     function insertData_agent_state_mapping($insert)
