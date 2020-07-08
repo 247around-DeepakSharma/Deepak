@@ -7422,7 +7422,7 @@ class Inventory extends CI_Controller {
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
                 } else {
-                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name";
+                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {

@@ -597,7 +597,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N', 'O'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1143,7 +1143,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N') : array('Z'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N', 'O') : array('Z'));
         $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
@@ -6807,6 +6807,36 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
+        $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $csv = TMP_FOLDER . $newCSVFileName;
+        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        if(file_exists($csv))
+        {
+            unlink($csv);
+        }
+    }
+    
+    /**
+     *  @desc : This function is used download real time summary report of partner from view
+     *  @param : partner_id
+     *  @return : CSV
+     */
+    function download_real_time_summary_report_from_view($partnerID){
         ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
