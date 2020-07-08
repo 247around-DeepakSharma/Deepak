@@ -750,6 +750,9 @@ define('LEG_DEFAULT_COUNT', 16);
 
 define('BOOKING_RESCHEDULE_ERROR_MSG', 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.');
 define('EMP_DEACTIVATION_ERROR', 'Employee can not be deactivated, There are some Vendors associated with this employee. Kindly unmap this Employee from all associated Areas/Vendors, and then de-activate the employee.');
+
+// CRM-6513 warranty chcker at product level constant for plan_depends_on column
+define('PLAN_DEPENDS_ON', 2);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
