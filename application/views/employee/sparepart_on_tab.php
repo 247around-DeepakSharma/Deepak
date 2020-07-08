@@ -1284,13 +1284,13 @@
             "order": [], 
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,13,14,15 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,13,14,15, 16 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'

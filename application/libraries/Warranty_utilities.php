@@ -52,6 +52,7 @@ class Warranty_utilities {
                 {
                     $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
                 }                
+                $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."' AND (plan_depends_on = ". PLAN_DEPENDS_ON ."))"] = null; 
             }
             else
             {
