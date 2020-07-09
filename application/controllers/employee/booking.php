@@ -2678,11 +2678,8 @@ class Booking extends CI_Controller {
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
-
        $this->check_and_update_partner_extra_spare($booking_id);
 
-
-        
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
@@ -5792,7 +5789,6 @@ class Booking extends CI_Controller {
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
             if(!empty($cancellation_reason_id)){
-                // $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason_id];
             }
             else {
@@ -5880,7 +5876,7 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $whereIN = $having = $where = [];
-
+        $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];

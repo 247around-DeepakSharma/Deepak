@@ -180,6 +180,13 @@ class Invoice extends CI_Controller {
         if(!empty($this->input->post('sub_category'))){
             $where['sub_category'] = $this->input->post('sub_category');
         }
+        // Added code to filter Sales /Purchase invoice. we are passing type code A & B
+        // A for the Sales & B for the Purchase
+        if(!empty($this->input->post('type_code'))){
+            $where['type_code'] = $this->input->post('type_code');
+        }
+
+
         $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($where, false);
         $invoice['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice($data['vendor_partner'],array('id' => $data['vendor_partner_id']))[0];
             
@@ -7407,7 +7414,6 @@ exit();
        $array = $this->get_dashboard_invoice_data(1);
        $this->miscelleneous->downloadCSV($array, NULL, $fileName);
     }
-        
     /**
      * @desc This function is used to update bank transaction date 
      */
@@ -7425,5 +7431,4 @@ exit();
             }
         }
     }
-
 }

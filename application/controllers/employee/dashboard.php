@@ -1795,8 +1795,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $outputArray;
     }
 
-
-
     function getCovidZoneName($city){
         $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($city);
         if(!empty($response_db)){
@@ -1811,7 +1809,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return $districtZoneType;
 
     }
-
 
     function get_tat_data_in_structured_format_pending($data){
         $finalArray = array();
@@ -2208,15 +2205,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
    function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type = ""){
         if($is_pending){
             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as booking_count"
-                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT";
+                    . ",DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) AS TAT,service_centres.district as city";
         }
         else{
             if($request_type == 'Repair_with_part'){
                 $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,"
-                        . "ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+                        . "ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT,service_centres.district as city";
             }
             else{
-             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
+             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT,service_centres.district as city";
                }
         }
         $sfData = array();
