@@ -63,6 +63,14 @@
         padding-top: 1%;
     }
 </style>
+<?php
+if($this->session->userdata('user_group') != '' && $this->session->userdata('user_group') != NULL){
+    $session_user_group = $this->session->userdata('user_group');
+}else{
+    redirect(base_url('employee/login'));
+}
+
+?>
 <div id="page-wrapper">
     <div class="row">
 	<?php
@@ -1422,7 +1430,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (!in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (!in_array($session_user_group, [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1483,7 +1491,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                        <?php if($this->session->userdata('user_group')=== 'admin'){ ?>
+                                        <?php if($session_user_group === 'admin'){ ?>
                                     <label for="is_bank_details_verified" class="col-md-3" style="padding-left:2.5%">Verified/Not Verified </label>
                                         <div class="col-md-3">
                                         <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> style="zoom:1.5;">
@@ -1871,7 +1879,7 @@ function manageAccountNameField(value){
     }
 </script>
 <script type="text/javascript">
-    <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && (!in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))){?>
+    <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && (!in_array($session_user_group, [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))){?>
         $('#bank_details').find('input').attr('readonly', true);
     <?php } ?>
     $(".allowNumericWithDecimal").keydown(function (e) {
@@ -2140,7 +2148,7 @@ function manageAccountNameField(value){
         $('#'+container).find('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
         $('#submit_btn, .cancel').css('display', 'inline');
         $('#container-1').css('pointer-events', 'auto');
-        <?php if($this->session->userdata['user_group'] != _247AROUND_ACCOUNTANT){ ?>
+        <?php if($session_user_group != _247AROUND_ACCOUNTANT){ ?>
         if($('#'+container+' #company_name').val() != ''){
             $('#'+container+' #company_name').css('pointer-events', 'none');
             $('#'+container+' #company_name').attr('readonly');
