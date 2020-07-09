@@ -37,8 +37,7 @@
                       <label for="name" class="col-md-4">Current Booking Date</label>
                       <div class="col-md-6">
                         <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (!empty($data[0]['booking_date']) && $data[0]['booking_date'] != '0000-00-00') {echo $data[0]['booking_date']; }?>"  disabled>
-                        
-                      </div>
+                       </div>
                     </div>
 
                     <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">

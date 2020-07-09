@@ -100,7 +100,8 @@
                                     <?php echo $row['state']; ?>
                                     </td>
                                     <td>
-                                        <?php if(!empty($row['booking_date'])){ echo date('d-m-y', strtotime($row['booking_date'])); } ?> 
+
+                                        <?php if(!empty($row['booking_date']) && $row['booking_date']!= '0000-00-00'){ echo date('d-M-Y', strtotime($row['booking_date'])); } ?> 
                                     </td>
                                     <td>
                                         <?php if(!empty($row['service_center_closed_date'])){ echo date('d-m-y', strtotime($row['service_center_closed_date'])); } ?> 
