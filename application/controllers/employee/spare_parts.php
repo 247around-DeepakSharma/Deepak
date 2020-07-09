@@ -4685,7 +4685,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL,);
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
-            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
+            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh', 'service_centres.name');
 
         unset($post['where']['status']);
 
