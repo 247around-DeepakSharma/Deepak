@@ -80,7 +80,8 @@
                             <tr>
                                  <th>Booking date/Timeslot </th>
                                 <td><?php if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') { echo date("d-M-Y", strtotime($booking_history[0]['booking_date']))."/".$booking_history[0]['booking_timeslot'];}
-                                else{echo "/".$booking_history[0]['booking_timeslot'];} ?></td>
+                                else{
+                                    echo "/".$booking_history[0]['booking_timeslot'];} ?></td>
                                 <th> Closed Date </th>
                                 <td><?php 
                                 if (!empty($booking_history[0]['service_center_closed_date']) && $booking_history[0]['service_center_closed_date'] != '0000-00-00')

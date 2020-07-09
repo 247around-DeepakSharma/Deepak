@@ -261,9 +261,7 @@
                                     <label for="booking_date" class="col-md-4">Booking Date</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php
-
-                                            if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {
-                                            echo $booking_history[0]['booking_date'];
+                                            if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {echo $booking_history[0]['booking_date'];
                                             }
                                             ?>" readonly="readonly">
                                     </div>
@@ -1438,7 +1436,7 @@
 </script>
 <style>
     <?php if(!empty($str_disabled)) { ?> 
-        .dop , .add-on, .model_number{
+        .dop , .model_number{
             pointer-events : none !important;
             background : #eee !important;
         }    

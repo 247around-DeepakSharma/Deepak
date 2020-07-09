@@ -62,7 +62,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="submit" name="show" value="Show" class="btn btn-primary">
+                                        <button name="show" value="Show" class="btn btn-primary" onclick='return showplanlist()'>Show</button>
                                     </div>
                                 </div>
                             </form>
@@ -75,71 +75,92 @@
                 </div>                        
             </div>
         </div>
-        <div class="x_panel" style="height: auto;">
-            <table id="datatablemappingview" class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Plan Name</th>
-                        <th>Plan Description</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Warranty type</th>
-                        <th>Period</th>
-                        <th>Partner</th>
-                        <th>Product</th>
-                        <th>Model</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    foreach ($plan_data as $key => $row) {
-                        ?>
-                        <tr>
-                            <td>
-                                <?php if(!empty($row->is_active_plan)) { ?>
-                                    <button id='<?php echo "deactivate_model_btn" . $key; ?>' class="btn btn-sucess deactivate" 
-                                        value="<?php echo $row->plan_name?>" data-id="<?php echo $row->plan_id; ?>" onclick="deactivate_plan(<?php echo $key; ?>)" title="Deactivate Plan">               
-                                        <?php echo $row->plan_name?>
-                                    </button>
-                                <?php } else { ?>
-                                    <button id='<?php echo "activate_model_btn" . $key; ?>' class="btn btn-warning activate" 
-                                        value="<?php echo $row->plan_name?>" data-id="<?php echo $row->plan_id; ?>" onclick="activate_plan(<?php echo $key; ?>)" title="Activate Plan">               
-                                        <?php echo $row->plan_name?>
-                                    </button>
-                                <?php } ?>
-                            </td>
-                            <td><?php echo $row->plan_description; ?></td>
-                            <td><?php echo date('jS M, Y', strtotime($row->period_start)); ?></td>                            
-                            <td><?php echo date('jS M, Y', strtotime($row->period_end)); ?></td>   
-                            <td><?php echo ($row->warranty_type == 1 ? "IW" : "EW"); ?></td>
-                            <td><?php echo $row->warranty_period." Months"; ?></td>
-                            <td><?php echo $row->public_name; ?></td>
-                            <td><?php echo $row->services; ?></td>
-                            <td><?php echo $row->model_number; ?></td>
-                            <td><?php echo ($row->is_active == 1 ? "Active" : "Not Active"); ?></td>
-                            <td id='<?php echo "column" . $key; ?>'>
-                                <?php if(!empty($row->is_active)){?>
-                                <button id='<?php echo "removebtn" . $key; ?>' class="btn btn-primary remove" 
-                                        value="remove" data-id="<?php echo $row->mapping_id; ?>" onclick="delete_mapping(<?php echo $key; ?>)" title="Remove Model">               
-                                        <i class="fa fa-trash"></i>
-                                </button>
-                                <?php } else { ?>
-                                    <button id='<?php echo "addbtn" . $key; ?>' class="btn btn-primary add" 
-                                        value="add" data-id="<?php echo $row->mapping_id; ?>" onclick="add_mapping(<?php echo $key; ?>)" title="Add Model">               
-                                        <i class="fa fa-link"></i>
-                                    </button>
-                                <?php } ?>                                
-                            </td>
-                        </tr>
-                    <?php }
-                    ?>  
-                </tbody>
-            </table>
+        
+            <div class="table-responsive">
+                <div class="x_panel" style="height: auto;">
+                    <table class="table table-bordered table-condensed" id="vendor_details">
+                        <thead>
+                            <tr>
+                                <th>Plan Name</th>
+                                <th>Plan Description</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Warranty type</th>
+                                <th>Period</th>
+                                <th>Partner</th>
+                                <th>Product</th>
+                                <th>Model</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>    
 </div>
+
+
+
+
+<script>
+    function showplanlist(){
+         vendor_details.ajax.reload(null, false);
+        return false;
+    }
+    vendor_details = $('#vendor_details').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "dom": 'lBfrtip',
+        "buttons": [
+            {
+                extend: 'excel',
+                text: 'Export',
+                 exportOptions: {
+                    columns: [0, 1,2, 3, 4, 5, 6, 7,8,9]
+                },
+                title: 'plan_model_mapping'
+            },
+        ],
+        "language": {
+            "processing": "<div class='spinner'>\n\
+                                       <div class='rect1' style='background-color:#db3236'></div>\n\
+                                       <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                       <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                       <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                   </div>",
+            "emptyTable": "No Data Found"
+        },
+
+        "order": [],
+        "pageLength": 25,
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        "ordering": false,
+        "ajax": {
+            url: "<?php echo base_url(); ?>employee/warranty/plan_model_mapping_ajax",
+            type: "POST",
+            data: function (d) {
+                var entity_details = get_entity_details();
+                d.partner_id = entity_details.partner_id,
+                        d.service_id = entity_details.service_id
+            }
+        }
+    });
+
+
+
+    function get_entity_details() {
+        var data = {
+            'partner_id': $('#partner_id').val(),
+            'service_id': $('#service_id').val(),
+            'city': '',
+            'sf_cp': 1
+        };
+
+        return data;
+    }
+</script>
 <script>
     $("#partner_id").select2();
     $("#service_id").select2();
@@ -199,6 +220,7 @@
                 {
                     alert("Model Removed Successfully");
                     $("#column" + key).html("");
+                    vendor_details.ajax.reload(null, false);
                 }
             }
         });
@@ -216,6 +238,7 @@
                 {
                     alert("Model Added Successfully");
                     $("#column" + key).html("");
+                    vendor_details.ajax.reload(null, false);
                 }
             }
         });
@@ -232,6 +255,7 @@
                 if($.trim(data) == "success")
                 {
                     alert("Plan Deactivated Successfully");
+                    vendor_details.ajax.reload(null, false);
                 }
             }
         });
@@ -248,6 +272,7 @@
                 if($.trim(data) == "success")
                 {
                     alert("Plan Activated Successfully");
+                    vendor_details.ajax.reload(null, false);
                 }
             }
         });

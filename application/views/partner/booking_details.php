@@ -66,7 +66,7 @@
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
-                                        if(!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00'){
+                                       if(!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00'){
                                         $time = strtotime($booking_history[0]['booking_date']);
                                         $booking_date = date('d-M-Y',$time);                                        
                                         echo $booking_date; } ?></td>
@@ -95,13 +95,10 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                        <td><?php 
+                                          <td><?php 
                                         if($booking_history[0]['service_center_closed_date'] > 0)
                                             {
                                                 echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); 
-                                            }
-                                        else{
-                                                echo "";
                                             }
                                         ?></td>
                                         <th>Rating Star </th>

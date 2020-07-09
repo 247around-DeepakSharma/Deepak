@@ -100,10 +100,10 @@
                                             <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <?php if(!empty($row->booking_date) &&  $row->booking_date != '0000-00-00'){echo  date('d-M-Y', strtotime($row->booking_date))."<br/>"; }?> 
+                                             <?php if(!empty($row->booking_date) &&  $row->booking_date != '0000-00-00'){echo  date('d-M-Y', strtotime($row->booking_date))."<br/>"; }?> 
                                             <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                         </td>
-                                        <td style="vertical-align: middle;"> <?php if(!empty($row->age_of_booking)){ echo $row->age_of_booking." day";} ?></td>
+                                        <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                         <td data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                             <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                         </td>
