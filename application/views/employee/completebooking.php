@@ -1436,7 +1436,7 @@
 </script>
 <style>
     <?php if(!empty($str_disabled)) { ?> 
-        .dop , .add-on, .model_number{
+        .dop , .model_number{
             pointer-events : none !important;
             background : #eee !important;
         }    
