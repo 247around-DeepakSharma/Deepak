@@ -66,7 +66,7 @@
                         <div class="form-group-cancel">
                            <label for="booking_date" class="col-md-4">Booking Date</label>
                            <div class="col-md-6">
-                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if(!empty($data[0]['booking_date']) &&  $data[0]['booking_date'] != '0000-00-00') {echo $data[0]['booking_date']; } ?>" readonly="readonly">
+                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (isset($data[0]['booking_date'])) {echo $data[0]['booking_date']; } ?>" readonly="readonly">
                            </div>
                         </div>
                   </div>
