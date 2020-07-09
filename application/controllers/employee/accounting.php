@@ -381,6 +381,9 @@ class Accounting extends CI_Controller {
         $header['vertical'] = "Vertical";
         $header['category'] = "Category";
         $header['sub_category'] = "Sub Category";
+        $header['c_gst_amount'] = "Total CGst Amount";
+        $header['s_gst_amount'] = "Total SGst Amount";
+        $header['i_gst_amount'] = "Total IGst Amount";
         $header['gst_amount'] = "Total Gst Amount";
         $header['parts_count'] = "Parts Qty (Pcs)";
         $header['num_bookings'] = "Booking Qty (Pcs)";
@@ -408,6 +411,10 @@ class Accounting extends CI_Controller {
                 $array[$value['invoice_id']]['sub_category'] = $value['sub_category'];
                 $array[$value['invoice_id']]['parts_count'] = $value['parts_count'];
                 $array[$value['invoice_id']]['num_bookings'] = $value['num_bookings'];
+                
+                $array[$value['invoice_id']]['c_gst_amount'] = $value['cgst_tax_amount'];
+                $array[$value['invoice_id']]['s_gst_amount'] = $value['sgst_tax_amount'];
+                $array[$value['invoice_id']]['i_gst_amount'] = $value['igst_tax_amount'];
                 $array[$value['invoice_id']]['gst_amount'] = $value['cgst_tax_amount'] + $value['igst_tax_amount'] + $value['sgst_tax_amount'];
 
                 $array[$value['invoice_id']][$value['product_or_services']] = $value['taxable_value'];
@@ -419,6 +426,9 @@ class Accounting extends CI_Controller {
                 if (!array_key_exists($value['product_or_services'], $header)) {
                     $header[$value['product_or_services']] = $value['product_or_services'] . " ( Without GST)";
                 }
+                $array[$value['invoice_id']]['c_gst_amount'] += $value['cgst_tax_amount'];
+                $array[$value['invoice_id']]['s_gst_amount'] += $value['sgst_tax_amount'];
+                $array[$value['invoice_id']]['i_gst_amount'] += $value['igst_tax_amount'];
                 $array[$value['invoice_id']]['gst_amount'] = $array[$value['invoice_id']]['gst_amount'] + $value['cgst_tax_amount'] + $value['igst_tax_amount'] + $value['sgst_tax_amount'];
             }
         }
