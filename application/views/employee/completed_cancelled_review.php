@@ -549,7 +549,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         // fill cancellation reason in cancellation remark popup dropdown
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url(); ?>/employee/booking/get_cancellation_reasons',
+            url:'<?php echo base_url(); ?>employee/booking/get_cancellation_reasons',
             data:{reason_of:'247around'},
             success:function(data){
                 if(data){
