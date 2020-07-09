@@ -2123,15 +2123,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
             $conditionsArray['join']['rm_zone_mapping'] = "service_centres.rm_id = rm_zone_mapping.rm_id";
             $conditionsArray['join']['zones'] = "rm_zone_mapping.zone_id = zones.id";
-            // Bookings handled by RM individually, not having any ASM
-            if($agent_type == _247AROUND_RM)
+            
+            // bookings of ASM & Bookings handled by RM individually, not having any ASM
+            if($agent_type == _247AROUND_ASM)
             {
                 $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                
-            }
-            // bookings of ASM
-            elseif($agent_type == _247AROUND_ASM)
-            {
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
             } 
             // bookings of RM and its ASMs
             else
@@ -2177,7 +2173,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['where_in']['employee.id'] = $wherein;
             $service_centres_field = 'individual_service_centres_id';
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,_247AROUND_RM);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,_247AROUND_ASM);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
@@ -2226,23 +2222,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionsArray['where']['assigned_vendor_id'] = $this->input->post('vendor_id');
             }
             // check if Bookings are of RM or ASM and show them individually
-            // for RM specific Bookings and bookings not having any ASM
-            if($agent_type == _247AROUND_RM)
+            // for ASM specific Bookings & for RM specific Bookings that are not having any ASM
+            if($agent_type == _247AROUND_ASM)
             {
                 if($rmID != "00"){
                     $conditionsArray['where']["employee.id"] = $rmID;  
                 }
                 $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
                 $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
-            }
-            // for ASM specific Bookings
-            elseif($agent_type == _247AROUND_ASM)
-            {
-                if($rmID != "00"){
-                    $conditionsArray['where']["employee.id"] = $rmID;  
-                }   
-                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
             }
             // for Both RM and its ASMs Bookings
             else
@@ -2322,23 +2309,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $stateData = array();
         if($is_am == 0){
             // check if Bookings are of RM or ASM and show them individually
-            // for RM specific Bookings, Bookings that are not handled by any ASM
-            if($agent_type == _247AROUND_RM)
-            {
-                if($rmID != "00"){
-                    $conditionsArray['where']["employee.id"] = $rmID;    
-                } 
-                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
-            }
-            // for ASM specific Bookings
-            elseif($agent_type == _247AROUND_ASM)
+            // for ASM specific Bookings & for RM specific Bookings, Bookings that are not handled by any ASM            
+            if($agent_type == _247AROUND_ASM)
             {
                 if($rmID != "00"){
                     $conditionsArray['where']["employee.id"] = $rmID;      
                 }   
                 $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
             }
             // for Both RM and its ASMs Bookings
             else
