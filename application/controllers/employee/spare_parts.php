@@ -2258,7 +2258,7 @@ class Spare_parts extends CI_Controller {
                     }
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_list[0]['parts_requested'], $this->input->post('new_booking_id'), SPARE_REQUESTED_CUSTOMER_SMS_TAG);
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND_DEFAULT_AGENT, NULL);
+                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND, NULL);
 
 
 
@@ -4631,7 +4631,7 @@ class Spare_parts extends CI_Controller {
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
 
         $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
-            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
+            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh', 'service_centres.name');
 
         unset($post['where']['status']);
         $where_clause = $this->check_query_condition($post);
