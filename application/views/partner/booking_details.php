@@ -66,9 +66,10 @@
                                         echo $reg_date; ?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
-                                       $time = strtotime($booking_history[0]['booking_date']);
-                                        $booking_date = date('d-M-Y',$time);
-                                        echo $booking_date ?></td>
+                                        if(!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00'){
+                                        $time = strtotime($booking_history[0]['booking_date']);
+                                        $booking_date = date('d-M-Y',$time);                                        
+                                        echo $booking_date; } ?></td>
                                         
                                     </tr>
                                     <tr>
@@ -94,7 +95,15 @@
 
                                     <tr>
                                         <th>Booking closed date: </th>
-                                         <td><?php echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); ?></td>
+                                        <td><?php 
+                                        if($booking_history[0]['service_center_closed_date'] > 0)
+                                            {
+                                                echo date("d-M-Y", strtotime($booking_history[0]['service_center_closed_date'])); 
+                                            }
+                                        else{
+                                                echo "";
+                                            }
+                                        ?></td>
                                         <th>Rating Star </th>
                                         <td><?php if (!empty($booking_history[0]['rating_stars'])) {
                                                 echo $booking_history[0]['rating_stars'] . '/5';
