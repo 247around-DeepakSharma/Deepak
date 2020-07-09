@@ -5307,10 +5307,10 @@ class Partner extends CI_Controller {
              return false;
         }
         else if (strpos($type, 'video') !== false) {
-//            if (strpos($type, 'mp4') === false) {
-//                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
-//                return false;
-//            }
+            if (strpos($type, 'mp4') === false && strpos($type, 'webm') === false) {
+                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
+                return false;
+           }
             if($file['size']>"104857600" ){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
