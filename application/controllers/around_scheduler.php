@@ -2904,4 +2904,34 @@ class Around_scheduler extends CI_Controller {
         $reminder_date = date('Y-m-d');
         $this->sfagreement->send_reminder($reminder_date);
     }
+
+    /**
+     * read data from json file and process vendor re assignment.
+     */
+    function bulk_vendor_reassignment() {
+        
+        $json_data = file_get_contents(base_url().'bulk_service_center_reaassignment.json'); 
+        
+        $array_data = json_decode($json_data, true);
+        
+        if(!empty($array_data)) {
+            foreach ($array_data as $data) {
+                
+                $booking_id = $data['Booking ID'];
+                $new_sf_id = $data['New SF ID'];
+                
+                if(!empty($booking_id) && !empty($new_sf_id)) {
+                    log_message('info', __FUNCTION__ . " reassignment data:  " . print_r($data, true));
+                    $this->around_scheduler_model->vendor_reassignment_process($booking_id, $new_sf_id, 1034, 1, 'As Per Arun Kaushik Mail Dated 08-07-2020');
+                } else {
+                    log_message('info', __FUNCTION__ . " data:  " . print_r($data, true));
+                }
+            }
+            
+        }
+        
+        echo 'Data has been update successfully.';
+        
+    }
+
 }
