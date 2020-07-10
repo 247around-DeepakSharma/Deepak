@@ -2974,16 +2974,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             function get_servicability_missing_data_district($entity,$rmID = NULL,$appliance_id =NULL){
                 $select = "district,india_pincode.state,state_code.id as state_id,COUNT(DISTINCT india_pincode.pincode) as total_pincode"; 
                 $join['state_code'] = 'india_pincode.state=state_code.state';
-                if($entity=='state_id'){
-                $groupBY = array('state');
-                }else{
                 $groupBY = array('district');
-                }
                 $indiaPincodeArray = $this->reusable_model->get_search_result_data("india_pincode",$select,NULL,$join,NULL,NULL,NULL,NULL,$groupBY);
                 $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,service_centres.rm_id as agent_id,employee.full_name,COUNT(DISTINCT vendor_pincode_mapping.pincode) as total_pincode"; 
                 $vendorJoin['state_code'] = 'vendor_pincode_mapping.State=state_code.state';
                 $vendorJoin['service_centres'] = 'vendor_pincode_mapping.Vendor_ID = service_centres.id ';
-                $vendorJoin['employee'] = 'employee.id=service_centres.rm_id  and vendor_pincode_mapping.state = service_centres.state';
+                $vendorJoin['employee'] = 'employee.id=service_centres.rm_id';
                 $vendorGroupBY = array('City','vendor_pincode_mapping.Appliance_ID');
                 $where = NULL;
                 if($rmID){
@@ -3002,7 +2998,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 $data['district_data'] = $this->get_servicability_missing_data_district('district',$this->input->post('rm_id'),NULL);
                 $data['services'] = $this->vendor_model->get_active_services();
-                $data['no_ajax_refresh'] = 1; // Prevent Page load Recursively
                 $this->load->view('employee/missing_servicablity_report',$data);
             }
             function pincode_rm_wise($rm_id = NULL){ 
@@ -3263,12 +3258,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         $totalPincode = array_sum(array_values($india_pincode));
-        $where['employee.groups IN ("'._247AROUND_RM.'")'] = NULL;
+        $where['employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'] = NULL;
         if($rmID){
             $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $groupBY = 'agent_state_mapping.agent_id';
-        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,$groupBY);
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
