@@ -6694,18 +6694,19 @@ class Booking extends CI_Controller {
      * Get cancellation reasons of 247around
      * return HTML
      */
-    function get_cancellation_reasons(){
-        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') :'247around';
-        $where = array('reason_of' => $reason_of);
-        $cancellation_reasons = $this->booking_model->cancelreason($where);
-        $options = '<option selected disabled>Select reason</option>';
-        if(!empty($cancellation_reasons)){
-            foreach($cancellation_reasons as $reason){
-                $options .= '<option>'. $reason->reason .'</option>';
+
+        function get_cancellation_reasons() {
+            $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
+            $where = array('reason_of' => $reason_of);
+            $cancellation_reasons = $this->booking_model->cancelreason($where);
+            $options = '<option selected disabled>Select reason</option>';
+            if (!empty($cancellation_reasons)) {
+                foreach ($cancellation_reasons as $reason) {
+                    $options .= '<option>' . $reason->reason . '</option>';
+                }
             }
+            echo $options;
         }
-        echo $options;
-    }
 
 
 }

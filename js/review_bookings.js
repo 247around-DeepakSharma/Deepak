@@ -1,4 +1,3 @@
-
 var review_completeUrl = baseUrl + '/employee/booking/complete_review_booking/';
 var admin_remarksUrl = baseUrl + '/employee/booking/reject_booking_from_review/';
 var partner_remarksUrl = baseUrl + '/employee/partner/reject_booking_from_review/';
@@ -121,39 +120,48 @@ function send_remarks() {
 
 }
 
-function send_remarks_multitab(review_status, is_partner) {
-    var sub_id = "";
-    if($('#sub_id').length && $('#sub_id').val() != ''){
-        sub_id = $('#sub_id').val();
-    }
-    var str = review_status+"_"+is_partner+sub_id;
-    var bookingID = $('#modal_booking_id_'+str).val();
-    var postData = {};
-    
+
+    function send_remarks_multitab(review_status, is_partner) {
+        var sub_id = "";
+        if ($('#sub_id').length && $('#sub_id').val() != '') {
+            sub_id = $('#sub_id').val();
+        }
+        var str = review_status + "_" + is_partner + sub_id;
+        var bookingID = $('#modal_booking_id_' + str).val();
+        var postData = {};
+
     // Check whether remarks are filled or not
     // If not, no dont allow to continue
-    if($.trim($('#textarea_'+str).val()) == "")
-    {
-        $("#remarks_msg_"+str).html("*Enter Remarks");
-        return false;
-    }
-    
-    postData['booking_id'] = bookingID;
-    postData['admin_remarks'] = $('#textarea_'+str).val();
-    postData['rejected_by'] = $('#admin_id_'+str).val();
-    postData['internal_booking_status'] = $("#internal_boking_status_"+str).val();
-    console.log(postData);
-    $('#loader_gif_'+str).show();
-    $('#btn_send_remarks_'+str).prop("disabled", true);    
-    sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
-        alert(data);
-        $('#loader_gif_'+str).hide();
-        $('#btn_send_remarks_'+str).prop("disabled", false);
-        document.getElementById("row_"+bookingID).style.background = "#89d4a7";
-        $('.modal').modal('hide');
-    });
+        /*if($.trim($('#textarea_'+str).val()) == "")
+         {
+         $("#remarks_msg_"+str).html("*Enter Remarks");
+         return false;
+         }*/
+    // CRM-6300 Check whether reason are choosed or not
+        if ($('#select_' + str).val() == null)
+        {
+            $("#remarks_msg_" + str).html("*choose atleast one reason");
+            return false;
+        }else{
+            $("#remarks_msg_" + str).html('');
+        }
+        postData['booking_id'] = bookingID;
+    //postData['admin_remarks'] = $('#textarea_'+str).val();
+        postData['admin_remarks'] = $('#select_' + str).val(); // selcted drop down value
+        postData['rejected_by'] = $('#admin_id_' + str).val();
+        postData['internal_booking_status'] = $("#internal_boking_status_" + str).val();
+        console.log(postData);
+        $('#loader_gif_' + str).show();
+        $('#btn_send_remarks_' + str).prop("disabled", true);
+        sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
+            alert(data);
+            $('#loader_gif_' + str).hide();
+            $('#btn_send_remarks_' + str).prop("disabled", false);
+            document.getElementById("row_" + bookingID).style.background = "#89d4a7";
+            $('.modal').modal('hide');
+        });
 
-}
+    }
 
 function review_search(status,is_partner){
     var sub_id = "";
