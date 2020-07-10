@@ -309,7 +309,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
+                        <center><input type="submit" value="Approve Bookings" id="btn-approve-booking" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
                      <?php } ?>
@@ -500,8 +500,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         }
    }
    function checkValidationForBlank_review(){
+       
     var is_checked = $('.checkbox1:checkbox:checked');
     if(is_checked.length != 0){
+        $("#btn-approve-booking").css("pointer-events", "none");
+        $("#btn-approve-booking").css("opacity", "0.5");
         return true;
     }
     else{
