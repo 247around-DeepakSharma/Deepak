@@ -2998,7 +2998,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 $data['district_data'] = $this->get_servicability_missing_data_district('district',$this->input->post('rm_id'),NULL);
                 $data['services'] = $this->vendor_model->get_active_services();
-                $data['no_ajax_refresh'] = 1; // Prevent Page load Recursively
                 $this->load->view('employee/missing_servicablity_report',$data);
             }
             function pincode_rm_wise($rm_id = NULL){ 
@@ -3259,12 +3258,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         $totalPincode = array_sum(array_values($india_pincode));
-        $where['employee.groups IN ("'._247AROUND_RM.'")'] = NULL;
+        $where['employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'] = NULL;
         if($rmID){
             $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $groupBY = 'agent_state_mapping.agent_id';
-        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,$groupBY);
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
