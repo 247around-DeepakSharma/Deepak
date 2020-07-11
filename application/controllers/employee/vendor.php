@@ -1465,8 +1465,8 @@ class vendor extends CI_Controller {
                         $sp['consumed_part_status_id'] = 5;
                         $sp['consumption_remarks'] = OK_PART_TO_BE_SHIPPED;
                         }else{
-                       // $sp['status'] = _247AROUND_CANCELLED;
-					    $sp['service_center_id'] = $service_center_id;
+                        $sp['status'] = _247AROUND_CANCELLED;
+					    // $sp['service_center_id'] = $service_center_id;
                         $sp['consumed_part_status_id'] = NULL;
                         $sp['consumption_remarks'] = NULL;
                         }
