@@ -3879,5 +3879,15 @@ class Inventory_model extends CI_Model {
             return false;
         }
         
-    }    
+    } 
+    
+     /**
+     * @desc This is used to insert details into Courier Serviceable area table
+     * @param Array $data
+     * @return string
+     */
+    function insert_courier_serviceable_area_details_batch($data){
+        $this->db->insert_ignore_duplicate_batch('courier_serviceable_area', $data);
+        return $this->db->insert_id();
+    }
 }
