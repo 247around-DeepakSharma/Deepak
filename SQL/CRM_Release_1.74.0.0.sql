@@ -29,3 +29,10 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.bo
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
 
 
+--- Raman 74
+--- 9 July
+-
+-UPDATE `email_template` SET `from` = 'ar@247around.com' WHERE `email_template`.`id` = 44;
+-
+ 
+
