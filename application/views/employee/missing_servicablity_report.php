@@ -46,7 +46,7 @@
    var no_ajax_refresh ="<?php if(empty($no_ajax_refresh)){echo 1;}else{echo 0;} ?>";
    //Added above line to stop recursively call below function as same page load during ajax call and initiate another request
    if(no_ajax_refresh==1){
-    get_district_missing_servicablity_data();
+       get_district_missing_servicablity_data();
    }
     $('#district_table').DataTable( {
         dom: 'Blfrtip',

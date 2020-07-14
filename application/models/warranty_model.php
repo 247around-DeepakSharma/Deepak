@@ -178,7 +178,7 @@ class Warranty_model extends CI_Model {
      * @date 31-10-2019
      * @return array 
      */
-    function getPlanWiseModels($where, $select, $order_by, $where_in = array(), $join_array = array(), $join_type_array = array(), $result_array = true, $group_by = ""){        
+    function getPlanWiseModels($where, $select, $order_by, $where_in = array(), $join_array = array(), $join_type_array = array(), $result_array = true, $group_by = "",$like="",$start='',$length=-1){
         $this->db->distinct();
         $this->db->select($select);        
         if(!empty($join_array)){
@@ -191,6 +191,12 @@ class Warranty_model extends CI_Model {
                 }
             }
         }
+       if($length!=-1){
+            $this->db->limit($length, $start);
+       }
+       if(!empty($like)){
+            $this->db->where($like, null, false);
+       }
         
         if(!empty($where))
         {

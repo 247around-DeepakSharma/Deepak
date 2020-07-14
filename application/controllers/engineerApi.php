@@ -1592,9 +1592,7 @@ class engineerApi extends CI_Controller {
                     
                 $this->booking_model->update_booking($requestData["bookingID"], $booking);
 //  Appending Status of Engg //
-                $this->notify->insert_state_change($requestData["bookingID"],$cancel_reason, _247AROUND_PENDING,
-                        BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App",
-                        $requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
+                $this->notify->insert_state_change($requestData["bookingID"],BOOKING_CANCELLED_BY_ENGINEER_STATUS . " - Booking Cancelled By Engineer From App", _247AROUND_PENDING,$cancel_reason ,$requestData['sc_agent_id'], "", ACTOR_BOOKING_CANCELLED, NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
                 $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
             } else {
@@ -2445,22 +2443,22 @@ class engineerApi extends CI_Controller {
                 array_push($price_tags_symptom, $price_tags2);
             }
 
+            if (isset($requestData["booking_id"])) {    
             if (!empty($price_tags_symptom)) {
                 $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['booking_history'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['booking_history'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
             }
-
+            /* Send as sysmptom key in response */   
             if (!empty($data['technical_problem'])) {
                 $response['sparePartsOrder']['symptoms'] = $data['technical_problem'];
             } else {
                 $response['sparePartsOrder']['symptoms'] = array();
             }
-
-            if (isset($requestData["booking_id"])) {
-                $spare_select = 'spare_parts_details.serial_number, '
+                
+            $spare_select = 'spare_parts_details.serial_number, '
                         . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
                         . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
                 $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
-                if (!empty($spare_details)) {
+            if (!empty($spare_details)) {
                     $response['sparePartsOrder']['spare_parts'] = $spare_details[0];
                 }
             }

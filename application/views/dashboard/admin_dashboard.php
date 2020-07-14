@@ -2372,7 +2372,7 @@
                 if(data.TAT[i].id === "00"){
                     html += "<td>"+ data.TAT[i].entity+ "</td>";
                 }else{
-                    html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
+                    html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form','<?php echo _247AROUND_ASM ?>')\">"+ data.TAT[i].entity+ "</button></td>";
                 }
                 // Show leg wise ASM Report
                 if(!!data.leg_1 && data.leg_1.length>0){
@@ -2538,13 +2538,7 @@
                     total += data[i].TAT_16;
                     html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";                
                 }else{
-                    // Added entity_type (RM/ASM) to fetch their specific Bookings
-                    var entity_type = "";
-                    if (typeof(data[i].entity_type) != "undefined")
-                    {
-                       entity_type = data[i].entity_type;
-                    }
-                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form','"+entity_type+"')\">"+ data[i].entity+ "</button></td>";
+                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form','<?php echo _247AROUND_ASM ?>')\">"+ data[i].entity+ "</button></td>";
                     html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
