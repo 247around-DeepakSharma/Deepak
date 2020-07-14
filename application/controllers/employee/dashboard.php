@@ -1952,107 +1952,90 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $where = $joinType  = $join = $requestTypeArray = $where_in = array();
         //Filter on service ID
         if($service_id !="not_set"){
-                 $where['booking_details.service_id'] = $service_id;
+            $where['booking_details.service_id'] = $service_id;
+        }
+        
+        //Filter on request Type
+        $requestTypeArray = explode(':',$request_type);
+        // Add these conditions only If All Option is not Selected
+        if(!in_array(FILTER_NOT_DEFINE, $requestTypeArray) && (count($requestTypeArray) < 3)){            
+            $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."' ";
+            $joinType['spare_parts_details']  = "left";
+            // For Filter Value Repair with Spare
+            if(in_array(FILTER_REPAIR_WITH_PART, $requestTypeArray) && (count($requestTypeArray) == 1)){
+                $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
+                $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
             }
-            //Filter on request Type
-            if($request_type !="not_set"){
-                $requestTypeArray = explode(':',$request_type);
-                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."' ";
-                $joinType['spare_parts_details']  = "left";
-                foreach($requestTypeArray as $request_type){
-                    if($request_type == 'Repair_with_part'){
-                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
-                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
-                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;              
-                        $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
-                        $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
-                    }
-                    else if($request_type == 'Repair_without_part'){
-                        $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
-                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
-                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;
-                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
-                    }
-                    else if($request_type == 'Installation'){
-                        $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
-                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND ' 
-                            . 'booking_details.request_type NOT LIKE "%AMC%")'] = NULL;
-                        $where['spare_parts_details.booking_id IS NULL'] = NULL;
-                    }
-                }
-                $count = count($requestTypeArray);
-                if(array_key_exists('(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
-                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND booking_details.request_type NOT LIKE "%AMC%")', $where) 
-                        && array_key_exists('(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
-                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR booking_details.request_type LIKE "%AMC%")', $where)){
-                    unset($where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
-                            . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR booking_details.request_type LIKE "%AMC%")']);
-                    unset( $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
-                            . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND booking_details.request_type NOT LIKE "%AMC%")']);
-                }
-                if(array_key_exists('spare_parts_details.booking_id IS NULL', $where) && array_key_exists('spare_parts_details.booking_id IS NOT NULL', $where)){
-                    unset($where['spare_parts_details.booking_id IS NULL']);
-                    unset($where['spare_parts_details.booking_id IS NOT NULL']);
-                }
-                if($count == 2 && in_array("Installation",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    $where['((spare_parts_details.booking_id IS NOT NULL AND (booking_details.request_type LIKE "%Repair%" OR booking_details.request_type LIKE "%Repeat%")) '
-                        . 'OR (spare_parts_details.booking_id IS NULL AND (booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%")))']= NULL;
-                }
-                if($count > 1 && in_array("Repair_without_part",$requestTypeArray) &&  in_array("Repair_with_part",$requestTypeArray)){
-                    unset($where['spare_parts_details.booking_id IS NOT NULL']);
-                    unset($where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"']);
-                    unset($where['spare_parts_details.booking_id IS NULL']);
-                }
+            // For Filter Value Repair without Spare
+            elseif(in_array(FILTER_REPAIR_WITHOUT_PART, $requestTypeArray) && (count($requestTypeArray) == 1)){
+                $where['booking_details.request_type NOT LIKE "%'.FILTER_INSTALLATION.'%"'] = NULL;
+                $where['spare_parts_details.booking_id IS NULL'] = NULL;
+            }            
+            // For Filter Value Installation
+            elseif(in_array(FILTER_INSTALLATION, $requestTypeArray) && (count($requestTypeArray) == 1)){
+                $where['booking_details.request_type LIKE "%'.FILTER_INSTALLATION.'%"'] = NULL;
             }
-            //Filter on free or paid
-            if($free_paid !="not_set"){ 
-                if($free_paid == "Yes"){
-                   $where['amount_due'] = '0';
-                }
-                else{
-                   $where['amount_due != 0'] = NULL;
-                }
+            // For Filter Value Repair with Spare & Repair without Spare
+            elseif(in_array(FILTER_REPAIR_WITH_PART, $requestTypeArray) && in_array(FILTER_REPAIR_WITHOUT_PART, $requestTypeArray)){
+                $where['booking_details.request_type NOT LIKE "%'.FILTER_INSTALLATION.'%"'] = NULL;
             }
-            //Filter on upcountry
-            if($upcountry !="not_set"){
-                if(is_array($upcountry)){
-                    $upcountryArray = $upcountry;
+            
+            // For Filter Value Repair with Spare & Installation
+            elseif(in_array(FILTER_REPAIR_WITH_PART, $requestTypeArray) && in_array(FILTER_INSTALLATION, $requestTypeArray)){
+                $where['((booking_details.request_type LIKE "%'.FILTER_INSTALLATION.'%") OR ((spare_parts_details.booking_id IS NOT NULL) AND (spare_parts_details.status != "Cancelled")))'] = NULL;
+            }
+            // For Filter Value Repair without Spare & Installation            
+            elseif(in_array(FILTER_INSTALLATION, $requestTypeArray) && in_array(FILTER_REPAIR_WITHOUT_PART, $requestTypeArray)){
+                $where['spare_parts_details.booking_id IS NULL'] = NULL;
+            }
+        }
+        
+        //Filter on free or paid
+        if($free_paid !="not_set"){ 
+            if($free_paid == "Yes"){
+               $where['amount_due'] = '0';
+            }
+            else{
+               $where['amount_due != 0'] = NULL;
+            }
+        }
+        
+        // Filter on upcountry
+        if($upcountry !="not_set"){
+            if(is_array($upcountry)){
+                $upcountryArray = $upcountry;
+            }
+            else
+            {
+                $upcountryArray = explode(":",$upcountry);
+            }            
+            $ucount = count($upcountryArray);
+            if($ucount < 2){
+                $upcountryValue = 0;
+                if($upcountryArray[0] == 'Yes'){
+                    $upcountryValue = 1;
                 }
-                else
-                {
-                    $upcountryArray = explode(":",$upcountry);
-                }            
-                $ucount = count($upcountryArray);
-                if($ucount < 2){
-                    $upcountryValue = 0;
-                    if($upcountryArray[0] == 'Yes'){
-                        $upcountryValue = 1;
-                    }
-                    $where['booking_details.is_upcountry'] = $upcountryValue;
-                }
+                $where['booking_details.is_upcountry'] = $upcountryValue;
             }
-            //Filter on partner ID
-            if($this->input->post('partner_id') ){
-                if($this->input->post('partner_id') != "not_set"){
-                    $where['booking_details.partner_id'] = $this->input->post('partner_id');
-                }
-            }
-            if($partner_id != "not_set"){
-                $where['booking_details.partner_id'] = $partner_id;
-            }
-            if($this->session->userdata('partner_id')){
-               $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
-            }
-            $conditionsArray['where']['partners.is_active'] = 1;
-            return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
+        }
+        
+        //Filter on partner ID
+        if(($this->input->post('partner_id') && $this->input->post('partner_id') != "not_set")){
+            $where['booking_details.partner_id'] = $this->input->post('partner_id');
+        }
+        if($partner_id != "not_set"){
+            $where['booking_details.partner_id'] = $partner_id;
+        }
+        
+        // For Partner Panel
+        if($this->session->userdata('partner_id')){
+           $where['booking_details.partner_id'] = $this->session->userdata('partner_id');
+        }
+        
+        $conditionsArray['where']['partners.is_active'] = 1;
+        return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
+    
     function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
