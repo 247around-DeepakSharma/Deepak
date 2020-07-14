@@ -23,7 +23,8 @@
                                                 </thead>
                                                 <tbody>
                                                     <?php 
-                                                        $rows = ['Download Partner Contact List' => 'employee/reports/download_custom_report'];
+                                                        $rows = ['Download Partner Contact List' => 'employee/reports/download_custom_report/partner_contacts_list',
+                                                            'Download Covid Status Report' => 'employee/reports/download_custom_report/covid_zone_details_sf_wise'];
                                                      $sno = 1;
                                                         foreach($rows as $description => $link) {?>
                                                     <tr>
