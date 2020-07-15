@@ -3822,11 +3822,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-        
+        $where = array(); 
         if($icwh == 1){
             $tmp_subject =  "CWH ";
             $temp_function = 'get_msl_data';
-             $template = "msl_data.xlsx";
+            $template = "msl_data.xlsx";
         } else {
             $tmp_subject =  "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
