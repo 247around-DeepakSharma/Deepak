@@ -2407,18 +2407,28 @@ class Partner extends CI_Controller {
 
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                $booking['internal_status'] = $internal_status;
+                /***
+                 * Check spare part pending in request.
+                 * If not then update booking internal status and dependency.
+                 */
+                $check_pending_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id, 'status IN ("'. SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL), TRUE, false, false);
                 $actor = $next_action = 'not_define';
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
+                if(empty($check_pending_spare)) {
+                    $booking['internal_status'] = $internal_status;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    
+                    $this->booking_model->update_booking($booking_id, $booking);
                 }
+                
                 $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action, "", $spare_id);
 
-                $this->booking_model->update_booking($booking_id, $booking);
+                
 //                        if (!empty($incoming_invoice_pdf) && !empty($spare_id_array)) {
 //                            foreach($spare_id_array as $s_value){
 //                                // Send OOW invoice to Inventory Manager
