@@ -5909,7 +5909,7 @@ class Booking extends CI_Controller {
                 $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
             }
             else {
-                $where['sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA.'"'] = NULL;
+                $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
             }
         } 
         
@@ -6690,23 +6690,23 @@ class Booking extends CI_Controller {
     }
 
     /*
-     * CRM-6300
+     * ST-224
      * Get cancellation reasons of 247around
      * return HTML
      */
 
-    function get_cancellation_reasons() {
-        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-        $where = array('reason_of' => $reason_of);
-        $cancellation_reasons = $this->booking_model->cancelreason($where);
-        $options = '<option selected disabled>Select reason</option>';
-        if (!empty($cancellation_reasons)) {
-            foreach ($cancellation_reasons as $reason) {
-                $options .= '<option>' . $reason->reason . '</option>';
+        function get_cancellation_reasons() {
+            $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
+            $where = array('reason_of' => $reason_of);
+            $cancellation_reasons = $this->booking_model->cancelreason($where);
+            $options = '<option selected disabled>Select reason</option>';
+            if (!empty($cancellation_reasons)) {
+                foreach ($cancellation_reasons as $reason) {
+                    $options .= '<option>' . $reason->reason . '</option>';
+                }
             }
+            echo $options;
         }
-        echo $options;
-    }
 
 
 }

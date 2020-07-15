@@ -10501,5 +10501,15 @@ function get_bom_list_by_inventory_id($inventory_id) {
         echo json_encode($return_array);
     }
 
+    /**
+     * @desc This function is used to create the view page to upload courier serviceable area file.
+     * @param: null
+     */
+    function upload_courier_serviceable_area_file() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_courier_serviceable_area',$data);
+    }
+
 }
 

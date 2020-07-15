@@ -2127,15 +2127,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
             $conditionsArray['join']['rm_zone_mapping'] = "service_centres.rm_id = rm_zone_mapping.rm_id";
             $conditionsArray['join']['zones'] = "rm_zone_mapping.zone_id = zones.id";
-            // Bookings handled by RM individually, not having any ASM
-            if($agent_type == _247AROUND_RM)
+            
+            // bookings of ASM & Bookings handled by RM individually, not having any ASM
+            if($agent_type == _247AROUND_ASM)
             {
                 $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                
-            }
-            // bookings of ASM
-            elseif($agent_type == _247AROUND_ASM)
-            {
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
             } 
             // bookings of RM and its ASMs
             else
@@ -2181,7 +2177,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['where_in']['employee.id'] = $wherein;
             $service_centres_field = 'individual_service_centres_id';
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,_247AROUND_RM);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,_247AROUND_ASM);
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
@@ -2230,23 +2226,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionsArray['where']['assigned_vendor_id'] = $this->input->post('vendor_id');
             }
             // check if Bookings are of RM or ASM and show them individually
-            // for RM specific Bookings and bookings not having any ASM
-            if($agent_type == _247AROUND_RM)
+            // for ASM specific Bookings & for RM specific Bookings that are not having any ASM
+            if($agent_type == _247AROUND_ASM)
             {
                 if($rmID != "00"){
                     $conditionsArray['where']["employee.id"] = $rmID;  
                 }
                 $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
                 $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
-            }
-            // for ASM specific Bookings
-            elseif($agent_type == _247AROUND_ASM)
-            {
-                if($rmID != "00"){
-                    $conditionsArray['where']["employee.id"] = $rmID;  
-                }   
-                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
             }
             // for Both RM and its ASMs Bookings
             else
@@ -2326,23 +2313,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $stateData = array();
         if($is_am == 0){
             // check if Bookings are of RM or ASM and show them individually
-            // for RM specific Bookings, Bookings that are not handled by any ASM
-            if($agent_type == _247AROUND_RM)
-            {
-                if($rmID != "00"){
-                    $conditionsArray['where']["employee.id"] = $rmID;    
-                } 
-                $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
-            }
-            // for ASM specific Bookings
-            elseif($agent_type == _247AROUND_ASM)
+            // for ASM specific Bookings & for RM specific Bookings, Bookings that are not handled by any ASM            
+            if($agent_type == _247AROUND_ASM)
             {
                 if($rmID != "00"){
                     $conditionsArray['where']["employee.id"] = $rmID;      
                 }   
                 $conditionsArray['join']['service_centres'] = "booking_details.assigned_vendor_id = service_centres.id";
-                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id";
+                $conditionsArray['join']['employee'] = "service_centres.asm_id = employee.id OR (service_centres.rm_id = employee.id AND (service_centres.asm_id IS NULL OR service_centres.asm_id = 0))";                                
             }
             // for Both RM and its ASMs Bookings
             else
@@ -2950,13 +2928,25 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             function get_servicability_missing_data_district($entity,$rmID = NULL,$appliance_id =NULL){
                 $select = "district,india_pincode.state,state_code.id as state_id,COUNT(DISTINCT india_pincode.pincode) as total_pincode"; 
                 $join['state_code'] = 'india_pincode.state=state_code.state';
+                if($entity=='state_id'){
+                $groupBY = array('state');
+                }else{
                 $groupBY = array('district');
+                }
                 $indiaPincodeArray = $this->reusable_model->get_search_result_data("india_pincode",$select,NULL,$join,NULL,NULL,NULL,NULL,$groupBY);
                 $vendorSelect = "City,vendor_pincode_mapping.state,state_code.id as state_id,vendor_pincode_mapping.Appliance_ID,service_centres.rm_id as agent_id,employee.full_name,COUNT(DISTINCT vendor_pincode_mapping.pincode) as total_pincode"; 
                 $vendorJoin['state_code'] = 'vendor_pincode_mapping.State=state_code.state';
                 $vendorJoin['service_centres'] = 'vendor_pincode_mapping.Vendor_ID = service_centres.id ';
-                $vendorJoin['employee'] = 'employee.id=service_centres.rm_id';
+                if($entity=='state_id'){
+                    $vendorJoin['employee'] = 'employee.id=service_centres.rm_id  and vendor_pincode_mapping.state = service_centres.state';
+                }else{
+                    $vendorJoin['employee'] = 'employee.id=service_centres.rm_id  and vendor_pincode_mapping.City = service_centres.district';   
+                }
+                if($entity=='state_id'){
+                $vendorGroupBY = array('state','vendor_pincode_mapping.Appliance_ID');
+                }else{
                 $vendorGroupBY = array('City','vendor_pincode_mapping.Appliance_ID');
+                }
                 $where = NULL;
                 if($rmID){
                     $where['service_centres.rm_id'] = $rmID;
@@ -2974,6 +2964,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 $data['district_data'] = $this->get_servicability_missing_data_district('district',$this->input->post('rm_id'),NULL);
                 $data['services'] = $this->vendor_model->get_active_services();
+                $data['no_ajax_refresh'] = 1; // Prevent Page load Recursively
                 $this->load->view('employee/missing_servicablity_report',$data);
             }
             function pincode_rm_wise($rm_id = NULL){ 
@@ -3234,11 +3225,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
         }
         $totalPincode = array_sum(array_values($india_pincode));
-        $where['employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'] = NULL;
+        $where['employee.groups IN ("'._247AROUND_RM.'")'] = NULL;
         if($rmID){
             $where['agent_state_mapping.agent_id'] = $rmID;
         }
-        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,array());
+        $groupBY = 'agent_state_mapping.agent_id';
+        $rmData = $this->reusable_model->get_search_result_data("employee","employee.id as agent_id,employee.full_name,group_concat(DISTINCT agent_state_mapping.state_code) as state_code",$where,array("agent_state_mapping"=>"agent_state_mapping.agent_id = employee.id"),NULL,NULL,NULL,NULL,$groupBY);
         $active_services=$this->vendor_model->get_active_services();
         $state_arr=$this->vendor_model->get_active_state();
          if(!empty($rmData)){
@@ -4109,5 +4101,4 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     }
 
 }
-
 

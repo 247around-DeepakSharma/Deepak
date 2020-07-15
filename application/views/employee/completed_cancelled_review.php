@@ -335,34 +335,35 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
              ?>
                  </div>
 
-<div id="model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Modal Header</h4>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <center><img id="loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
-                    <center><p id="remarks_msg_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" style="color : red;"></p></center>
+
+    <div id="model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Modal Header</h4>
                 </div>
-                <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" value="">
-                <select  class="form-control"  id="select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
-                    <option disabled="" selected=""></option>
-                </select>
-            </div>
-            <input type="hidden" id="id_no">
-            <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
-            <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="send_remarks_multitab('<?= $review_status ?>','<?= $is_partner ?>')" id="btn_send_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Send</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <center><img id="loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                        <center><p id="remarks_msg_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" style="color : red;"></p></center>
+                    </div>
+                    <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" value="">
+                    <select  class="form-control"  id="select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                        <option disabled="" selected=""></option>
+                    </select>
+                </div>
+                <input type="hidden" id="id_no">
+                <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>" class="internal_boking_status_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="send_remarks_multitab('<?= $review_status ?>','<?= $is_partner ?>')" id="btn_send_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 <div id="commentModal_<?=$review_status?>_<?=$is_partner?>" class="modal fade" role="dialog">
       <div class="modal-dialog" style=" height: 90% !important;">
          <!-- Modal content-->
@@ -505,25 +506,26 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#commentModal_<?=$review_status?>_<?=$is_partner?>').modal(); 
            
     }
-    // CRM-6300 Cancellation reason dropdwon
-    function open_admin_remarks_modal(booking_id) {
-        $('.modal-title').text("");
-        $('.textarea').text("");
-        $('#model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').modal();     
-        $('#modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').val(booking_id);
-        $('#modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').html(booking_id);
-        // fill cancellation reason in cancellation remark popup dropdown
-        $.ajax({
-            type:'POST',
-            url:'<?php echo base_url(); ?>/employee/booking/get_cancellation_reasons',
-            data:{reason_of:'247around'},
-            success:function(data){
-                if(data){
-                    $("#select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>").html(data);
+
+        // CRM-6300 Cancellation reason dropdwon
+        function open_admin_remarks_modal(booking_id) {
+            $('.modal-title').text("");
+            $('.textarea').text("");
+            $('#model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').modal();     
+            $('#modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').val(booking_id);
+            $('#modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').html(booking_id);
+            // fill cancellation reason in cancellation remark popup dropdown
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>employee/booking/get_cancellation_reasons',
+                data:{reason_of:'247around'},
+                success:function(data){
+                    if(data){
+                        $("#select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>").html(data);
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
 
     function open_admin_remarks_modal_assign(booking_id) {
