@@ -312,7 +312,7 @@
                                          <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
                                                 <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php echo $selected_dop ?>">
-                                                        <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                        <span class="input-group-addon add-on date-picker" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
                                 </div>
@@ -1441,7 +1441,7 @@
 </script>
 <style>
     <?php if(!empty($str_disabled)) { ?> 
-        .dop , .model_number{
+        .dop , .date-picker, .model_number{
             pointer-events : none !important;
             background : #eee !important;
         }    
