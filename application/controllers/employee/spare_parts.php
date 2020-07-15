@@ -813,6 +813,13 @@ class Spare_parts extends CI_Controller {
         $post['column_order'] = array(NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_shipped_date', NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type', 'spare_parts_details.awb_by_partner');
+        
+        
+        if(!empty($post['where']['status'])) {
+            unset($post['where']['status']);
+            $post['where']['status in ("'.SPARE_SHIPPED_BY_PARTNER.'", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
+        }
+        
         $list = $this->inventory_model->get_spare_parts_query($post);
 
         $no = $post['start'];
