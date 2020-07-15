@@ -4907,7 +4907,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
              * Set is_rto is equals to 1 for awb_number in courier_company_invoice_details table.
              */
             $this->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner']], ['is_rto' => 1, 'rto_file' => $post_data['rto_file']]);
+            
+            return $spare_part_detail['awb_by_partner'];
         }
+        
+        $this->load->view('employee/rto_spare_part', $data);
     }
    
     /*
