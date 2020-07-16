@@ -133,7 +133,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="am-tat-report" data-am-row-id="{{x.id}}" ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
+                        <tr class="am-tat-report" data-am-row-id="{{completedBookingByAM.TAT[$index].id}}" ng-repeat="x in completedBookingByAM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByAM.leg_1 !== undefined'>
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                             <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
