@@ -879,7 +879,8 @@
     }
     
     function onsubmit_form(upcountry_flag, number_of_div) { 
-    
+    $('#submitform').css("pointer-events", "none");
+    $('#submitform').css("opacity", "0.5");
     var flag = 0;
     var div_count = 0;
     var is_completed_checkbox = [];
@@ -906,6 +907,8 @@
                         if(sf_purchase_invoice == '') {
                             alert("Please upload sf purchase invoice document.");
                             flag = 1;
+                            $('#submitform').css("pointer-events", "auto");
+                            $('#submitform').css("opacity", "1");
                             return false;
                         }
                     }
@@ -941,6 +944,8 @@
                 if($('#sno_required'+ div_no[2]).val() === '1' && !$('#sn_remarks').val()){
                      alert('Please Correct Serial Number or Entered Remarks, Why We Should go With Wrong Serial Number');
                      flag = 1;
+                     $('#submitform').css("pointer-events", "auto");
+                     $('#submitform').css("opacity", "1");
                      return false;
                 }
     
@@ -953,6 +958,8 @@
                                 alert('Please Attach Serial Number image');
                                 document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                                 flag = 1;
+                                $('#submitform').css("pointer-events", "auto");
+                                $('#submitform').css("opacity", "1");
                                 return false;
                             }
                          }
@@ -976,6 +983,8 @@
                             alert("Please Select Model number");
                             document.getElementById('model_number_' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            $('#submitform').css("pointer-events", "auto");
+                            $('#submitform').css("opacity", "1");
                             return false;
                         }
                     }
@@ -985,6 +994,8 @@
                             alert("Model Number is blank");
                             document.getElementById('model_number_text_' + div_no[2]).style.borderColor = "red";
                             flag = 1;
+                            $('#submitform').css("pointer-events", "auto");
+                            $('#submitform').css("opacity", "1");
                             return false;
                         }
                     }
@@ -1056,6 +1067,8 @@
         
         alert('Please Select All Services Delivered Or Not Delivered.');
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     if ($.inArray('completed', is_completed_checkbox) !== -1) {
@@ -1063,6 +1076,8 @@
     } else {
         alert('Please Select atleast one Completed or Delivered checkbox.');
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     
     }
@@ -1073,6 +1088,8 @@
         } else {
             alert(value + " is a Duplicate Serial Number");
             flag = 1;
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;
         }
     });
@@ -1089,6 +1106,8 @@
             flag = 1;
             document.getElementById('upcountry_charges').style.borderColor = "red";
             alert("Please Enter Upcountry Charges which Paid by Customer");
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;
         } else if (Number(upcountry_charges) > 0) {
 //            flag = 0;
@@ -1102,6 +1121,8 @@
             alert('Please Select Symptom');
             document.getElementById('technical_problem').style.borderColor = "red";
             flag = 1;
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;
         }
     <?php } ?>
@@ -1113,6 +1134,8 @@
             alert('Please Select Defect');
             document.getElementById('technical_defect').style.borderColor = "red";
             flag = 1;
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;
         }
     <?php } ?>
@@ -1123,6 +1146,8 @@
             alert('Please Select Solution');
             document.getElementById('technical_solution').style.borderColor = "red";
             flag = 1;
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;
         }
     }
@@ -1131,6 +1156,8 @@
         alert("Please Enter Remarks");
         document.getElementById('closing_remarks').style.borderColor = "red";
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
 //    var customer_paid_through_paytm = Number($("#customer_paid_through_paytm").val());
@@ -1148,6 +1175,8 @@
         if($(this).val() == '' || $(this).val() == null) {
             alert('Please select spare consumption status for all parts.');
             flag = 1;
+            $('#submitform').css("pointer-events", "auto");
+            $('#submitform').css("opacity", "1");
             return false;                
         }
     });
@@ -1158,6 +1187,8 @@
     if(admin_remarks.val().length < minlength) {
         alert('You need to enter at least '+minlength+' characters, for Admin Remarks');
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     
@@ -1165,7 +1196,8 @@
         return true;
     
     } else if (flag === 1) {
-    
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     }
