@@ -1877,7 +1877,18 @@ class Booking extends CI_Controller {
             $data['engineer_action_not_exit'] = $engineer_action_not_exit;
 
             $data['unit_details'] = $booking_unit_details;
-
+            $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($data['booking_history'][0]['district']);
+            
+            if(isset($response_db[0]['zone']) && !empty($response_db[0]['zone'])){
+            $response = json_decode($response_db[0]['zone'],true);
+            if(!empty($response)){    
+            $districtZoneType = $response['zone'];
+            $data['booking_history'][0]['zone'] = $districtZoneType;
+            }else{
+            $districtZoneType = '-'; 
+            $data['booking_history'][0]['zone'] = $districtZoneType;  
+            }
+            }
             $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
 
             if (!empty($isPaytmTxn)) {
@@ -2695,11 +2706,8 @@ class Booking extends CI_Controller {
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
+       $this->check_and_update_partner_extra_spare($booking_id);
 
-       // $this->check_and_update_partner_extra_spare($booking_id);
-
-
-        
         if ($status == 0) {
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
@@ -2763,7 +2771,7 @@ class Booking extends CI_Controller {
 
     function check_and_update_partner_extra_spare($booking_id){
 
-        $booking_unit_details = $this->booking_model->getunit_details($booking_id,"",TRUE);
+        $booking_unit_details = $this->booking_model->getunit_details_with_id($booking_id,"",TRUE);
         foreach($booking_unit_details as $unit){
             if($unit['partner_net_pay']>0){
                 
@@ -5901,7 +5909,7 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $whereIN = $having = $where = [];
-
+        $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -5945,7 +5953,7 @@ class Booking extends CI_Controller {
             }
         } 
         
-        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where);
+        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,$join);
         
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
@@ -6739,6 +6747,5 @@ class Booking extends CI_Controller {
             }
             echo $options;
         }
-
 
 }

@@ -950,8 +950,8 @@ class Dashboard extends CI_Controller {
     function download_missing_sf_pincode_excel($rmID = NULL){
         ob_start();
         $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
-        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
-        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+        $heading = ['Pincode', 'City', 'State', 'Services', 'RM'];
+        $this->miscelleneous->downloadCSV($pincodeArray, $heading, "missing_sf_pincode.csv");
     }
     
     /**
@@ -1053,7 +1053,7 @@ function get_escalation_data($sfID,$startDate=NULL,$endDate=NULL){
        }
        //get vendor total escalation total booking group by serviceID,Upcountry and requestType
     $data = $this->reusable_model->get_search_result_data('vendor_escalation_log',"count(DISTINCT booking_details.booking_id) AS total_booking,count(vendor_escalation_log.booking_id) "
-            . "AS total_escalation,booking_details.assigned_vendor_id,	services.services,service_centres.name,booking_details.is_upcountry,booking_details.request_type",$escalation_where,
+            . "AS total_escalation,booking_details.assigned_vendor_id,  services.services,service_centres.name,booking_details.is_upcountry,booking_details.request_type",$escalation_where,
                     array("booking_details"=>"vendor_escalation_log.booking_id=booking_details.booking_id","services"=>"services.id=booking_details.service_id"
                         ,"service_centres"=>"service_centres.id=booking_details.assigned_vendor_id"),
                     NULL,array("total_escalation"=>"DESC"),NULL,
@@ -1817,23 +1817,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         if(!empty($response)){    
         $districtZoneType = $response['zone'];
-        if (strpos($districtZoneType, 'Red') !== false) {
-        $districtZoneType = ' <br><label class="label label-danger">COVID ZONE</label>';
-        }
-        if (strpos($districtZoneType, 'Orange') !== false) {
-        $districtZoneType = '<br><label class="label label-warning">COVID ZONE</label>';
-        }
-        if (strpos($districtZoneType, 'Green') !== false) {
-        $districtZoneType = '<br><label class="label label-success">COVID ZONE</label>';
-        }
-
         }else{
         $districtZoneType = '';   
         }
         return $districtZoneType;
 
     }
-
 
 
     function get_tat_data_in_structured_format_pending($data, $showCovidStatus = false){
@@ -2132,11 +2121,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . "DATEDIFF(".$startDateField." , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
-			if($request_type == 'Repair_with_part'){
+            if($request_type == 'Repair_with_part'){
                             $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
                             . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
-		    	}
-		   	else {
+                }
+            else {
                     $select = "zones.zone as entity,service_centres.rm_id as id,'"._247AROUND_RM."' as entity_type,booking_details.booking_id,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
@@ -2148,11 +2137,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . "DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                 }
                 else{
-			if($request_type == 'Repair_with_part'){
+            if($request_type == 'Repair_with_part'){
                             $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,ifnull(MIN(leg_1), ".LEG_DEFAULT_COUNT.") as leg_1,ifnull(MIN(leg_2), ".LEG_DEFAULT_COUNT.") as leg_2,"
                          . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
-                    	}
-                    	else{
+                        }
+                        else{
                      $select = "employee.full_name as entity,employee.id as id,employee.groups as entity_type,booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as TAT";
                     }
@@ -2174,7 +2163,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['joinType']['rm_zone_mapping'] = 'left';
             $conditionsArray['joinType']['zones'] = 'left';
-	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
+        $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
             $conditionsArray['orderBy']['entity'] = 'asc';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
@@ -2299,9 +2288,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
-        }
-        if($this->session->userdata('userType') == 'service_center'){
-            $conditionsArray['where']["service_centres.id"] = $this->session->userdata('service_center_id');
         }
         if($this->session->userdata('userType') == 'service_center'){
             $conditionsArray['where']["service_centres.id"] = $this->session->userdata('service_center_id');
@@ -2431,8 +2417,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }       
         return $stateData;
     }
-    
-    // Sample Url : tat_calculation_full_view/42/0/1/0/Brand/247073    
     function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE,$agent_type = "",$agent_id=""){
         $endDate = date("Y-m-d");
         $startDate =  date('Y-m-d', strtotime('-30 days'));
@@ -2524,7 +2508,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  $_POST['request_type'][] = $request_type;
             }
             $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services,
-                "is_am"=>$is_am,'sf_state'=>$sfStateArray,"is_pending" => $is_pending, "agent_type" => $agent_type, "agent_id" => $agent_id));
+                "is_am"=>$is_am,'sf_state'=>$sfStateArray,"is_pending" => $is_pending));
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
@@ -3679,8 +3663,54 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             echo false;
         }
     }
-
     
+    /**
+     * @This function is used to fetch and return - total cancelled booking by reasons 
+     *  We are showing cancelled booking by cancellation reason in pie chart on Dashboard
+     * 
+     */
+    function get_booking_cancellation_reasons() {
+        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))) : date('Y-m-01');
+        $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
+        log_message('info', __METHOD__ . $sdate . "  .... " . $edate);
+
+        //fetching booking cancellation between the start and end date from booking_details
+        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate, $edate);
+        if (!empty($data)) {
+            $graph = array();
+            $data_report = array();
+            //create array  by cancellation reasons basis
+            foreach ($data as $value) {
+                $graph[$value['cancellation_reason']] = $value['count'];
+            }
+            //Creating series for the Graph
+            $data_report['series']['name'] = 'reason';
+            $data_report['series']['colorByPoint'] = true;
+            $flag = true;
+            foreach ($graph as $key => $value) {
+                if ($flag) {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                        'sliced' => true,
+                        'selected' => true
+                    );
+                    $flag = false;
+                } else {
+                    $data_report['series']['data'][] = array(
+                        'name' => $key,
+                        'y' => (float) ($value / 100),
+                    );
+                }
+            }
+            trim(ob_get_clean());
+            echo json_encode($data_report, TRUE);
+        } else {
+            trim(ob_get_clean());
+            echo false;
+        }
+    }
+
     /**
      * @desc : Method is used to redirect to verify bookings to be invoiced page.
      * @author : Ankit Rajvanshi
@@ -4024,54 +4054,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             return false;
         }
     }
-
-    /**
-     * @This function is used to fetch and return - total cancelled booking by reasons 
-     *  We are showing cancelled booking by cancellation reason in pie chart on Dashboard
-     * 
-     */
-    function get_booking_cancellation_reasons() {
-        $sdate = $this->input->post('sDate') != '' ? date('Y-m-d', strtotime($this->input->post('sDate'))) : date('Y-m-01');
-        $edate = $this->input->post('eDate') != '' ? date('Y-m-d', strtotime($this->input->post('eDate'))) : date('Y-m-t');
-        log_message('info', __METHOD__ . $sdate . "  .... " . $edate);
-
-        //fetching booking cancellation between the start and end date from booking_details
-        $data = $this->dashboard_model->get_booking_cancellation_reasons($sdate, $edate);
-        if (!empty($data)) {
-            $graph = array();
-            $data_report = array();
-            //create array  by cancellation reasons basis
-            foreach ($data as $value) {
-                $graph[$value['cancellation_reason']] = $value['count'];
-            }
-            //Creating series for the Graph
-            $data_report['series']['name'] = 'reason';
-            $data_report['series']['colorByPoint'] = true;
-            $flag = true;
-            foreach ($graph as $key => $value) {
-                if ($flag) {
-                    $data_report['series']['data'][] = array(
-                        'name' => $key,
-                        'y' => (float) ($value / 100),
-                        'sliced' => true,
-                        'selected' => true
-                    );
-                    $flag = false;
-                } else {
-                    $data_report['series']['data'][] = array(
-                        'name' => $key,
-                        'y' => (float) ($value / 100),
-                    );
-                }
-            }
-            trim(ob_get_clean());
-            echo json_encode($data_report, TRUE);
-        } else {
-            trim(ob_get_clean());
-            echo false;
-        }
-    }
-
+    
     /*
      * Brandwise sales analytics to get total registered call count month wise for selected year's 
      * 1-January to 31-December 
@@ -4188,4 +4171,4 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         
-    }
+}

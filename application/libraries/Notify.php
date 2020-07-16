@@ -898,9 +898,10 @@ class Notify {
          $return = curl_exec($ch);
          curl_close($ch);
          $data_r = json_decode($return);
-         $content  = !empty($data_r->objects[0]->content->text) ? $data_r->objects[0]->content->text : "";
-         $status = !empty($data_r->objects[0]->status) ? $data_r->objects[0]->status : "";
-         $error = !empty($data_r->objects[0]->error) ? $data_r->objects[0]->error : "";
+         
+         $content  = isset($data_r->objects[0]->content->text) ? $data_r->objects[0]->content->text : "";
+         $status = isset($data_r->objects[0]->status) ? $data_r->objects[0]->status : "";
+         $error = isset($data_r->objects[0]->error) ? $data_r->objects[0]->error : "";
 
          $data['content'] =  $content;
          $data['status'] =  $status;

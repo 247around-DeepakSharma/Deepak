@@ -1458,10 +1458,10 @@ if($this->session->userdata("wrong_pincode_msg")){
         });
        });
     }
-    function open_full_view(id,url,is_am,is_pending,form_id,entity_type="",sub_id=""){
-      // Add entity_type(ASM/RM/Brand) 
+    function open_full_view(id,url,is_am,is_pending,form_id,entity_type=""){
+      // Add entity_type(ASM/RM) 
       entity_id = id.split("_")[1];
-      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type+'/'+sub_id;
+      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
     }

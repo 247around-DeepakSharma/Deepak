@@ -2784,6 +2784,15 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
 ----Gorakh 07-07-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Upload Courier Serviceable Area File', NULL, 'employee/inventory/upload_courier_serviceable_area_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 02:24:48');
+
+
+-- Raman 74
+-- 12-06-2020
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
+
+UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;

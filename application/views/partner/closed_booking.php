@@ -100,11 +100,10 @@
                                     <?php echo $row['state']; ?>
                                     </td>
                                     <td>
-
                                         <?php if(!empty($row['booking_date']) && $row['booking_date']!= '0000-00-00'){ echo date('d-M-Y', strtotime($row['booking_date'])); } ?> 
                                     </td>
                                     <td>
-                                        <?php if(!empty($row['service_center_closed_date'])){ echo date('d-m-y', strtotime($row['service_center_closed_date'])); } ?> 
+                                        <?php if(!empty($row['service_center_closed_date'])&& $row['service_center_closed_date']!= '0000-00-00'){ echo date('d-M-Y', strtotime($row['service_center_closed_date'])); } ?> 
                                     </td>
                                     <?php if ($status != "Cancelled") { ?>
                                 <td><?php echo $row['tat']; ?></td>

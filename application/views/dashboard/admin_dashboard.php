@@ -2769,7 +2769,7 @@
         chart = new Highcharts.Chart({
             chart: {
                 renderTo: render_div,
-                type: 'scatter'
+                type: 'column'
             },
             title: {
                 text: '',

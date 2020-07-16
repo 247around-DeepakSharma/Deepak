@@ -1485,6 +1485,7 @@ class Service_centers extends CI_Controller {
         } else {
             $check_validation = TRUE;
             $service_center_id = $this->input->post('service_center_id');
+            $sc_agent_id = $this->input->post('sc_agent_id');  /// SC Agent ID 
         }
 
 
@@ -1515,7 +1516,7 @@ class Service_centers extends CI_Controller {
             if (!$this->input->post("call_from_api")) {
                 $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
             } else {
-                $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $service_center_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
+                $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
@@ -2304,7 +2305,7 @@ class Service_centers extends CI_Controller {
         if ($state_change) {
             // Insert data into state change
             if ($this->input->post("call_from_api")) {
-                $this->notify->insert_state_change($booking_id, $sc_data['internal_status'], "", $sc_data['service_center_remarks'], $this->input->post('service_center_id'), "Engineer", "not_define", "not_define", NULL, $this->input->post('service_center_id'));
+                $this->notify->insert_state_change($booking_id, $sc_data['internal_status'], "", $sc_data['service_center_remarks'], $this->input->post('sc_agent_id'), "Engineer", "not_define", "not_define", NULL, $this->input->post('service_center_id'));
             } else {
                 $this->insert_details_in_state_change($booking_id, $sc_data['internal_status'], $sc_data['service_center_remarks'], "not_define", "not_define");
             }
@@ -2640,9 +2641,10 @@ class Service_centers extends CI_Controller {
                     if (!empty($spare_id)) {
 
                         if ($this->input->post("call_from_api")) {
-                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->input->post("sc_agent_id"), 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
-                        } else {
-                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                            
+                        $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' =>$this->input->post("sc_agent_id"), 'entity_id' => $service_center_id, 'entity_type' => _247AROUND_SF_STRING);
+                        }else{
+                          $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);  
                         }
 
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);

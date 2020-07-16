@@ -3221,8 +3221,14 @@ function generate_image($base64, $image_name,$directory){
         //add 2 columns upcountry and Municipal Limit in the Partner Serviceability Report
         $select[] = "CASE when service_centres.is_upcountry = '1' then 'Upcountry' Else 'Local' End as Flag";
         $select[] = "service_centres.min_upcountry_distance as 'Municipal Limit'";
+        $select[] ="india_district_coordinates.zone_color as covid_zone";
         $join['service_centres'] =  'service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.on_off = 1 AND service_centres.active = 1';
-        $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,NULL,$groupBY);
+        $join['india_district_coordinates'] =  'vendor_pincode_mapping.City = india_district_coordinates.district';
+        $JoinTypeTableArray['india_district_coordinates'] = 'left';
+        
+        $data = $this->My_CI->reusable_model->get_search_result_data('vendor_pincode_mapping',implode(',',$select),NULL,$join,NULL,$orderBY,$whereIN,$JoinTypeTableArray,$groupBY);
+
+        
         foreach($data as $dataValues){
             $headings = array_keys($dataValues);
             $CSVData[] = array_values($dataValues);
@@ -4514,11 +4520,11 @@ function generate_image($base64, $image_name,$directory){
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
             $track_partner_id = _247AROUND;
         } else if ($this->My_CI->session->userdata('userType') == 'service_center') {
-            $agentid = $this->My_CI->session->userdata('service_center_agent_id');
+            $agent_id = $this->My_CI->session->userdata('service_center_agent_id');
             $track_partner_id = $this->My_CI->session->userdata('service_center_id');
             $track_entity_type = _247AROUND_SF_STRING;
         } else {
-            $agentid = $this->My_CI->session->userdata('id');
+            $agent_id = $this->My_CI->session->userdata('id');
             $track_partner_id = _247AROUND;
             $track_entity_type = _247AROUND_EMPLOYEE_STRING;
         }

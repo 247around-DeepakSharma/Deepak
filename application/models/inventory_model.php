@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id', "left");
         $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', "left");
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
-        $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
+        $this->db->join('service_centres','service_centres.id = spare_parts_details.service_center_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
 /*  get Agent id for approval spare  check for isset*/
         if(isset($post['approval_date_and_id'])){
@@ -437,6 +437,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('partners','partners.id = booking_details.partner_id','left');
+        $this->db->join('service_centres','service_centres.id = spare_parts_details.service_center_id','left');
         if(isset($post['where'])){
              $this->db->where($post['where']);
         }
@@ -3395,7 +3396,7 @@ class Inventory_model extends CI_Model {
      */
     function update_courier_services($data,$where){
         $this->db->where($where);
-    $this->db->update('courier_services', $data);
+        $this->db->update('courier_services', $data);
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -3599,7 +3600,7 @@ class Inventory_model extends CI_Model {
      */
    
     function download_oot_pending_defective_part($post) {
-        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by'], $post['where_in']);
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
         return $query;
     }
 

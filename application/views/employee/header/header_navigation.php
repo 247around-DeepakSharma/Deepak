@@ -264,7 +264,7 @@
                                 <div class="checkbox"><label><input type="checkbox" name="pincode_opt" id="pincode_opt" value="">Pincode</label></div>
                                 <div class="checkbox"><label><input type="checkbox" name="city_opt" id="city_opt" value="">City</label></div>
                                 <div class="checkbox"><label><input type="checkbox" name="state_opt" id="state_opt" value="">State</label></div>
-                                <div class="modal-footer">
+                                <div class="modal-footer"style="position: absolute !important;" >
                                     <div class="text-right">
                                         <div class="btn btn-default" data-dismiss="modal">Cancel</div>
                                         <button type="button" class="btn btn-success" onclick="generate_csv_and_send_email()">Export</button>

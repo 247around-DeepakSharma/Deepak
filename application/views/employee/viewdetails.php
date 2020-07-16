@@ -160,7 +160,27 @@
                             <th>Booking Address </th>
                             <td style="max-width:200px;"><span class="text"><?php echo $booking_history[0]['booking_address'];?></span> <span class="edit"><i class="fa fa-pencil fa-lg"></i></span></td>
                             <th>Booking City/District: </th>
-                            <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?></td>
+                            <td><?php echo ($booking_history[0]['city']."/".$booking_history[0]['district']); ?>
+                                    
+                            <?php 
+                              $districtZoneType = "";
+                              if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
+                              if (strpos($booking_history[0]['zone'], 'Red') !== false) {
+                               $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Orange') !== false) {
+                              $districtZoneType = '<span class="label label-warning">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Green') !== false) {
+                              $districtZoneType = '<span class="label label-success">COVID ZONE</span>';
+                              }
+                              }else{
+                               $districtZoneType = '';
+                              }
+                             ?>  
+                             <?php  echo $districtZoneType; ?>      
+
+                            </td>
                         </tr>
                         <tr>
                             <th>Booking State </th>
@@ -454,6 +474,7 @@
                                 <th>Paid Upcountry Charges</th>
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
+                                <th>Partner Spare Extra Charges</th>
                                 <th>Booking Status</th>
                                 <th>Vendor Cash Invoice ID</th>
                                 <th>Vendor Foc Invoice ID</th>
@@ -552,6 +573,7 @@
                                             }
                                         }
                                         }?>
+                                    <td><?php print_r($unit_detail['partner_spare_extra_charge']);  ?></td>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
                                     
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
