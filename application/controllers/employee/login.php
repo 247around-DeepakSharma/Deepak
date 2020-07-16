@@ -557,7 +557,8 @@ class Login extends CI_Controller {
             'is_gst_exist' => $is_gst_doc,
             'is_micro_wh'=>$is_micro_wh,
             'poc_email'=>$poc_email,
-            'agent_name'=>$agent_name
+            'agent_name'=>$agent_name,
+            'covid_popup'=>TRUE 
 	);
 
         $this->session->set_userdata($userSession);

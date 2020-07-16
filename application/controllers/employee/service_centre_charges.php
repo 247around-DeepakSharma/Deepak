@@ -1070,17 +1070,23 @@ class service_centre_charges extends CI_Controller {
         $data['service_category'] = $service_category;
         $existing_key[] = 'service_category';
         
+        if(isset($form_data['product_or_services']) && !empty($form_data['product_or_services'])){
         $data['product_or_services'] = array($form_data['product_or_services']);
-        $existing_key[] = 'product_or_services';
-       
+        $existing_key[] = 'product_or_services';  
+        }
+
+        if(isset($form_data['partner_id']) && !empty($form_data['partner_id'])){
         $data['partner_id'] = array($form_data['partner_id']);
         $existing_key[] = 'partner_id';
+        }
         
         $data['agent_id'] = array($this->session->userdata("id"));
         $existing_key[] = 'agent_id';
         
+        if(isset($form_data['service_id']) && !empty($form_data['service_id'])){
         $data['service_id'] = array($form_data['service_id']);
         $existing_key[] = 'service_id';
+        }
         
         $data['create_date'] = array(date("Y-m-d H:i:s"));
         $existing_key[] = 'create_date';
