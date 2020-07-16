@@ -18,18 +18,18 @@
                 <?php
                 if($is_am == 1){
                     if($is_pending){
-                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1/pending"; 
+                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1/pending/".$agent_type."/".$agent_id;
                     }
                     else{
-                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1"; 
+                        $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/1/0/".$agent_type."/".$agent_id; 
                     }
                 }
                 else{
                      if($is_pending){
-                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/0/pending"; 
+                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/0/pending/".$agent_type."/".$agent_id; 
                      }
                      else{
-                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID; 
+                         $url =  base_url()."employee/dashboard/tat_calculation_full_view/".$rmID."/0/0/0/".$agent_type."/".$agent_id; 
                      }
                 }
                 ?>
