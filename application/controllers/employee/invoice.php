@@ -7414,7 +7414,6 @@ exit();
        $array = $this->get_dashboard_invoice_data(1);
        $this->miscelleneous->downloadCSV($array, NULL, $fileName);
     }
-    
     /**
      * @desc This function is used to update bank transaction date 
      */

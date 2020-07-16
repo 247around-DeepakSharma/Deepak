@@ -1190,9 +1190,10 @@ function initialise_AM_TAT_reporting(){
         });
        });
     }
-    function open_full_view(id,url,is_am,is_pending,form_id){
+    function open_full_view(id,url,is_am,is_pending,form_id,entity_type=""){
+      // Add entity_type(ASM/RM) 
       entity_id = id.split("_")[1];
-      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending;
+      final_url = url+entity_id+'/0/'+is_am+'/'+is_pending+'/'+entity_type;
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
     }

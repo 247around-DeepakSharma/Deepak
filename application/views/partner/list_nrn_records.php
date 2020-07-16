@@ -97,7 +97,6 @@
     </div>
 </div>
 <script type="text/javascript">
-
         $(document).ready(function () {
             $('#datatable1').DataTable({
                 "dom": 'Bl<"#toolbar">frtip',
@@ -123,7 +122,6 @@
     }
 </script>
 <style>
-
 #datatable1 td{
     text-align: center !important;
 }
