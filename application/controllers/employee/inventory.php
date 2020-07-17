@@ -9514,11 +9514,18 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $entity_id = trim($this->input->post('entity_id'));
         $service_centers_id = trim($this->input->post('service_centers_id'));
         $data = array();
-        if (!empty($service_centers_id)) {
+        $where = '';
+        if (!empty($entity_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') AND v.vendor_partner_id = " . $service_centers_id;
-            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type,i.from_gst_number, i.to_gst_number,v.vendor_partner_id, v.sub_category";
+            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') ";
+            if (!empty($service_centers_id)) {
+                $where .= " AND v.vendor_partner_id = " . $service_centers_id;
+            }
+
+            $post['where'] = $where;
+
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, sc.name as sf_name, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type,i.from_gst_number, i.to_gst_number,v.vendor_partner_id, v.sub_category";
             $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -9548,6 +9555,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->sf_name . "</span>";
         $row[] = $consumption_list->hsn_code;
         $row[] = $consumption_list->qty;
         $row[] = $consumption_list->settle_qty;
@@ -9573,41 +9581,45 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         $entity_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
-     
-      if(!empty($entity_id) && !empty($service_center_id)){
-          
-        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
-        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,   "v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')" => null, "v.vendor_partner_id"=> $service_center_id);
-        $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
-       
-        $this->load->dbutil();
-        $this->load->helper('file');
 
-        $file_name = 'mwh_msl_details_data_' . date('j-M-Y-H-i-s') . ".csv";
-        $delimiter = ",";
-        $newline = "\r\n";
-        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
-        write_file(TMP_FOLDER . $file_name, $new_report);
+        if (!empty($entity_id)) {
+            $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description',sc.name as 'Service Center Name', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+            $where["im.entity_id"] = $entity_id;
+            $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
+            $where["v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')"] = null;
+            if (!empty($service_center_id)) {
+                $where["v.vendor_partner_id"] = $service_center_id;
+            }
 
-        if (file_exists(TMP_FOLDER . $file_name)) {
-            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
-            $res1 = 0;
-            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
-            $res['status'] = true;
-            $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
+
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'mwh_msl_details_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
         } else {
-            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
-            $res['status'] = FALSE;
-            $res['msg'] = 'error in generating file';
+            $res['msg'] = 'Please select partner and SF';
         }
-      }else{
-       $res['msg'] = 'Please select partner and SF';   
-      }
 
         echo json_encode($res);
     }
-    
-    
+
     /**
      * @Desc: This function is used to show data from the inventory ledger table
      * @params: $page string
