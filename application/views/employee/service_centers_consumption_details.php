@@ -100,7 +100,6 @@
                         <th>Invoice Type</th>
                         <th>Part Number</th>
                         <th>Description</th>
-                        <th> Service Center Name </th>
                         <th>HSN Code</th>
                         <th>Quantity</th>
                         <th>Settled Quantity</th>
@@ -138,8 +137,11 @@
       $('#download_sf_consumption_list').click(function(){
         var partner_id = $("#partner_id").val();
         var service_center_id = $("#service_centers_id").val();
-        if(partner_id!=null && partner_id!=''){
+        if(partner_id!=null && partner_id!='' || service_center_id !=null && service_center_id !=''){
+            
             $("#partner_err").html('');
+            $("#service_centers_id_err").html('');
+            
             $('#download_sf_consumption_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 type: 'POST',
@@ -156,6 +158,7 @@
                 }
             });
         }else{
+        $("#service_centers_id_err").html("Please select Service Center.").css('color','red');
         $("#partner_err").html("Please select partner.").css('color','red');
         }
     });
@@ -170,12 +173,12 @@
             $("#partner_err").html('');   
         }
         
-//        if(service_centers_id == '' || service_centers_id == null){
-//            $("#service_centers_id_err").html("Please select Service Center.").css('color','red');
-//            return false;
-//        }else{
-//            $("#service_centers_id_err").html('');
-//        }
+        if(service_centers_id == '' || service_centers_id == null){
+            $("#service_centers_id_err").html("Please select Service Center.").css('color','red');
+            return false;
+        }else{
+            $("#service_centers_id_err").html('');
+        }
         
         service_centers_consumption_table.ajax.reload();
     });
