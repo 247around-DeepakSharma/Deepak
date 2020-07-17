@@ -3711,8 +3711,8 @@ class Partner extends CI_Controller {
             $this->load->view('partner/partner_footer');
         } else {
             //if user not found set error session data
-            $output = "Booking Not Found";
-            $userSession = array('error' => $output);
+            $output = "Please Enter Customer Details";
+            $userSession = array('success' => $output);
             $this->session->set_userdata($userSession);
             if (preg_match("/^[6-9]{1}[0-9]{9}$/", $searched_text)) {
                 redirect(base_url() . 'partner/booking_form/' . $searched_text);
