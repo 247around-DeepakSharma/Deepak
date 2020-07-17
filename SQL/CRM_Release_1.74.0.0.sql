@@ -22,7 +22,7 @@ INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `create_da
 
 
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('247Around', 'Custom Reports', NULL, 'employee/reports/custom_reports', 2, '80', 'admin,developer,regionalmanager', 'main_nav', 1, '2020-07-01 03:20:02');
+('247Around', 'Custom Reports', NULL, 'employee/reports/custom_reports', 2, '80', 'admin,developer,regionalmanager,areasalesmanager, 'main_nav', 1, '2020-07-01 03:20:02');
   
 
 --- Raman 74
