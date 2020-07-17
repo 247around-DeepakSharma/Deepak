@@ -373,7 +373,7 @@
             <div  class = "panel panel-info">
                 <div class="panel-heading"><b>Registration Details</b></div>
                 <div class="panel-body form-horizontal">
-                    <div class="row">
+                 <div class="row">
                     <div class="col-md-12">
                         <div class="col-md-4" style="margin-right:21px;">
                             <div class="form-group">
@@ -440,7 +440,7 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
                         <!--<div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -608,8 +608,8 @@
                             </div>
                         </div>-->
                         
-                                    <div class="row">
-                                        <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label  for="service_tax_no" class="col-md-4">GST No.</label>
@@ -662,87 +662,87 @@
                                     }
                                     ?> style="    margin-left: 24px;margin-top: 5px;" disabled="">
                                 </div>
-                            </div>
-                                        </div>
-                                        </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label  for="contract_file" class="col-md-4">Contract File</label>
-                                <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="contract_file" value = "<?php
-                                    if (isset($query[0]['contract_file'])) {
-                                        echo $query[0]['contract_file'];
-                                    }
-                                    ?>" disabled="">
-                                </div>
-                                <div class="col-md-1">
-                                    <?php
-                                    if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
-                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
-                                        ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
-                                        <?php
-                                    } else {
-                                        $src = base_url() . 'images/no_image.png';
-                                        ?>
-                                        <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
-                                    <?php } ?>
-                                </div>
-                            </div>
                         </div>
-                                    <div class="col-md-8">
-                            <div class="form-group">
-                                <label for="address_proof_file" class="col-md-3">Address Proof File</label>
-                                <div class="col-md-5">
-                                    <input type="file" class="form-control"  name="address_proof_file" disabled="">
-                                </div>
-                                <div class="col-md-2">
-                                    <?php
-                                    if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
-                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
-                                        ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
-                                        <?php
-                                    } else {
-                                        $src = base_url() . 'images/no_image.png';
-                                        ?>
-                                        <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </div>
-                                        </div>
+                    </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label  for="contract_file" class="col-md-4">Contract File</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control"  name="contract_file" value = "<?php
+                                if (isset($query[0]['contract_file'])) {
+                                    echo $query[0]['contract_file'];
+                                }
+                                ?>" disabled="">
+                            </div>
+                            <div class="col-md-1">
+                                <?php
+                                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
+                                    ?>
+                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
+                                    <?php
+                                } else {
+                                    $src = base_url() . 'images/no_image.png';
+                                    ?>
+                                    <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                                <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="address_proof_file" class="col-md-3">Address Proof File</label>
+                            <div class="col-md-5">
+                                <input type="file" class="form-control"  name="address_proof_file" disabled="">
+                            </div>
+                            <div class="col-md-2">
+                                <?php
+                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
+                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                    ?>
+                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
+                                    <?php
+                                } else {
+                                    $src = base_url() . 'images/no_image.png';
+                                    ?>
+                                    <img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" />
+                                <?php } ?>
+                            </div>
+                            </div>
+                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
                                         <div class="col-md-6">
-                         <div class="form-group">
-                                       <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
-                                <div class="col-md-7">
-                                    <input type="file" class="form-control" disabled=""/>
-                                    
-                                 </div> 
+                                            <div class="form-group">
+                                                <label for="signature_file" class="col-md-4 vertical-align" style="width: 22%;">Signature File</label>
+                                                <div class="col-md-7">
+                                                    <input type="file" class="form-control" disabled=""/>
+
+                                                </div> 
 
 
-                                  <div class="col-md-2">
-                            <?php
-                            $src = base_url() . 'images/no_image.png';
-                            $image_src = $src;
-                            if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
-                                //Path to be changed
-                                $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['signature_file'];
-                                $image_src = base_url() . 'images/view_image.png';
-                            }
-                            ?>
-                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
-                        </div>  
-                            </div>  
-                            
-                    </div>
-                                        </div>         
-                    </div>
+                                                <div class="col-md-2">
+                                                    <?php
+                                                    $src = base_url() . 'images/no_image.png';
+                                                    $image_src = $src;
+                                                    if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
+                                                        //Path to be changed
+                                                        $src = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $query[0]['signature_file'];
+                                                        $image_src = base_url() . 'images/view_image.png';
+                                                    }
+                                                    ?>
+                                                    <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                                </div>  
+                                            </div>  
+
+                                        </div>
+                                    </div>         
+                                </div>
                 </div>
                 <div  class = "panel panel-info">
                     <div class="panel-heading"><b>Bank Details</b></div>
