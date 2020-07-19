@@ -23,7 +23,7 @@
 <div class="right_col" role="main">
 <?php
     if ($this->session->userdata('success')) {
-        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
+        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top: 55px;">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
