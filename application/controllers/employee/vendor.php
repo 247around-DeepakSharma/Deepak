@@ -6419,21 +6419,40 @@ class vendor extends CI_Controller {
             $arr_validation_checks[] = 'Part already shipped, Booking can not be re-assigned.';
             return $arr_validation_checks;
         }
-        // check if booking already completed by SF
-        $booking_completed_by_sf = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status = "'.SF_BOOKING_COMPLETE_STATUS.'"' => NULL));            
-        $spare_involved_in_booking = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL));
-        if(!empty($booking_completed_by_sf) && !empty($spare_involved_in_booking)){
-            $arr_validation_checks[] = 'Booking already completed by SF, hence can not be re-assigned.';
-            return $arr_validation_checks;
-        }
-        // check if booking cancelled by Admin
-        $booking_cancelled_by_admin = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'current_status = "'._247AROUND_CANCELLED.'"' => NULL));            
-        if(!empty($booking_cancelled_by_admin)){
-            $arr_validation_checks[] = 'Booking already cancelled, hence can not be re-assigned.';
-            return $arr_validation_checks;
+
+        $where = array('id'=>$id);
+        $result =  $this->vendor_model->update_vendor_pincode_mapping($data,$where);
+        echo  $result;
+
+    }
+    /*
+         * Display list of unapproved SF
+         * Unaaproved SF can only approve their RM/ASM 
+         */
+
+    function unapprovered_service_centers() {
+        if ($this->input->post('sf_id')) {
+            $where = 'id = ' . $this->input->post('sf_id');
+            $affected_rows = $this->reusable_model->update_table('service_centres', array('is_approved' => 1), $where);
+            if ($affected_rows) {
+                echo json_encode(array('result' => 1));
+                return;
+            }
+            echo json_encode(array('result' => 0));
+            return;
         }
 
-        return $arr_validation_checks;
+        if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
+            redirect('employee/vendor/viewvendor');
+        }
+        $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : NULL;
+        if ($id !== NULL) {
+            $post['where'] = "rm_id = $id";
+        }
+        $post['length'] = -1;
+        $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/unapproved_sf_list', $data);
     }
 
     function signature_file(){
