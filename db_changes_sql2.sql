@@ -2590,6 +2590,7 @@ CREATE TABLE `booking_amount_differences` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 
+
 --Sarvendra 04-05-2020 - CRM-6175
 --74
 ALTER TABLE `boloaaka`.`service_centres` 
@@ -2597,9 +2598,8 @@ ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_
 
 Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
 values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
-2,36,'admin,developer,regionalmanager',
+2,36,'admin,developer,regionalmanager,areasalesmanager',
 'main_nav',1);
-
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 
