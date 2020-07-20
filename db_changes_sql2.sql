@@ -2753,3 +2753,16 @@ ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_st
 ----Gorakh 07-07-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Upload Courier Serviceable Area File', NULL, 'employee/inventory/upload_courier_serviceable_area_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 02:24:48');
+
+--Gorakh Nath 06-05-2020
+CREATE TABLE `personal_used_spare_parts` (
+  `id` int(11) NOT NULL,
+ `warehouse_id` int(11) NOT NULL,
+ `quantity` int(11) DEFAULT NULL,
+ `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+ ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
+ALTER TABLE `personal_used_spare_parts`
+ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
