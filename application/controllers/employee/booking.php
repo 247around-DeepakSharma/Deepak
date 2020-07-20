@@ -5873,7 +5873,7 @@ class Booking extends CI_Controller {
         
         // Add sorting
         $orderBY = NULL;
-        if(!empty($sort_on)){
+        if(!empty($sort_on) && !empty($sort_order)){
             $orderBY = " order by ".$sort_on." ".$sort_order;
         }
         
