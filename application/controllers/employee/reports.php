@@ -36,39 +36,33 @@ class reports extends CI_Controller {
     }
 
 /**
-     * This function is used to view the custom report viewpage.
+     * This function is used to return the query for the chosen tag and to view the custom report viewpage.
+     * @param-flag
+     * @return - when flag is 0 it will display custom report view page when flag is 1 it will return the query
      */
-    function custom_reports(){
-       $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/custom_report'); 
-    }
-
-/**
-     * This function is used to return the query for the chosen tag.
-     * @param-$tag
-     * @return - $query 
-     */
-     function custom_reporting($tag="") {
+     function custom_reports($flag = 0) {
         $data = $this->reporting_utils->get_custom_query_data();
         $name = "";
         foreach ($data as $key => $value) {
-            if($value['tag'] == $tag){
+            if($value['tag'] == "insert_partner_contacts_list"){
                 $subject= sprintf($value['subject'], $name);
                 $sql = $value['query'];
             }
         }
         $query = $this->db->query($sql); 
-        return $query;
-    }
+        if($flag){
+            return $query;
+        }
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/custom_report');
 
-    /** Desc- This function is used to download Custom Report dynamically.
+    }
+    /** Desc- This function is used to download Custom Report
     */
     function download_custom_report(){
-        
-        $custom_report= "Custom Report" . time() . ".csv";
+        $custom_report= "Custom Report " . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $custom_report;
-        $tag = $this->uri->segment(4);
-        $report = $this->custom_reporting($tag);
+        $report = $this->custom_reports(1);
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);

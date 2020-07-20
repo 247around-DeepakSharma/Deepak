@@ -20,19 +20,7 @@ CREATE TABLE custom_report_queries (
 INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `create_date`) VALUES (NULL, 'insert_partner_contacts_list', '', 'SELECT partners.company_name,partners.public_name,partners.primary_contact_email,partners.owner_email,partners.owner_alternate_email,entity_login_table.email FROM partners JOIN\r\nentity_login_table ON entity_login_table.entity_id = partners.id;', '2020-07-01 00:15:42');
 
 
-
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Custom Reports', NULL, 'employee/reports/custom_reports', 2, '80', 'admin,developer,regionalmanager,areasalesmanager, 'main_nav', 1, '2020-07-01 03:20:02');
   
-
---- Raman 74
---- 14 July 
-ALTER TABLE `custom_report_queries` ADD `active` TINYINT(1) NOT NULL DEFAULT '0' AFTER `query`;
-UPDATE`custom_report_queries` SET `active` = 1;
-
-
-INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `active`, `create_date`) VALUES (NULL, 'covid_zone_details_sf_wise', '', 'SELECT service_centres.id, service_centres.name, service_centres.company_name,service_centres.state,service_centres.district, india_district_coordinates.zone_color FROM service_centres JOIN india_district_coordinates ON service_centres.district = india_district_coordinates.district WHERE service_centres.active = 1', '1', CURRENT_TIMESTAMP);
-
-
-
 
