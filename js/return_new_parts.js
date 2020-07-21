@@ -4,7 +4,7 @@ var returnItemArray = [];
 function addnewpart(inventory_id, prestock){
     
     if(Number(prestock) > 0){
-       
+       $("#sellItem").removeClass("action-ban");
         if(returnItemArray.length > 0){
                 var found = false;
                 var foundIndex = 0;
@@ -83,7 +83,7 @@ function addInArray(inventory_id, qty, index){
             'shipping_quantity':qty,
         };
         
-    $("#sellItem").val("Return new Parts ("+ getSellItemQty() +")");
+    $("#sellItem").html("Return new Parts ("+ getSellItemQty() +")");
     $("#qty_" +inventory_id).val(qty);
 }
 
@@ -137,113 +137,14 @@ function crate_table(){
          tr1 += '<td></td>';
          tr1 += '</tr>';
         $("#return_new_parts_data").find('tbody').append(tr1);
-    } else
-    {
+    } else {
         $("#return_new_parts_data").remove();
-        $("#sellItem").val("Return new Parts (0)");
+        $("#sellItem").html("Return new Parts (0)");
         alert("Please add new parts to return");
         
     }
     
 }
-
-function get_partner_gst_number(){
-    $.ajax({
-        type: 'POST',
-        url: baseUrl + '/employee/inventory/get_partner_gst_number',
-        data:{partner_id:$('#partner_id').val()},
-        success: function (response) {
-            $("#to_gst_number").html(response);
-        }
-    });
-}
-
-function open_selected_parts_to_return(){
-    $('#sellItem').attr('disabled',true);
-    $('#radio_partner').prop('checked',true).change();
-    get_partner_gst_number();
-    if(returnItemArray.length > 0){
-        $("#return_new_parts_data").show();
-        crate_table();
-        $('#myModal').modal('toggle');
-    } else
-    {
-        $('#sellItem').attr('disabled',false);
-        $("#return_new_parts_data").remove();
-        $("#sellItem").val("Return new Parts (0)");
-        alert("Please add new parts to return");
-        
-    }
-}
-
-function check_awb_exist(){
-    var awb = $("#awb").val();
-    if(awb){
-            $.ajax({
-            type: 'POST',
-            beforeSend: function(){
-
-                $('body').loadingModal({
-                position: 'auto',
-                text: 'Loading Please Wait...',
-                color: '#fff',
-                opacity: '0.7',
-                backgroundColor: 'rgb(0,0,0)',
-                animation: 'wave'
-            });
-
-                },
-            url: baseUrl + '/employee/service_centers/check_wh_shipped_defective_awb_exist',
-            data:{awb:awb},
-            success: function (response) {
-                console.log(response);
-                var data = jQuery.parseJSON(response);
-                if(data.code === 247){
-                    alert("This AWB already used same price will be added");
-                    $("#same_awb").css("display","block");
-                    $('body').loadingModal('destroy');
-
-                    $("#shippped_date").val(data.message[0].shipment_date);
-                    $("#courier_name").val(data.message[0].courier_name);
-                    $("#courier_price").val("0");
-                    $("#courier_price").css("display","none");
-                    if(data.message[0].courier_file){
-
-                        $("#exist_courier_image").val(data.message[0].courier_file);
-                        $("#shippped_courier").css("display","none");
-                    }
-                    $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
-                    if (data.message[0]['box_count'] === 0) {
-                        $('#shipped_spare_parts_boxes_count').val("");
-
-                    } else {
-                        $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
-
-                    }                            
-                    var wt = Number(data.message[0]['billable_weight']);
-                    if(wt > 0){
-                    var wieght = data.message[0]['billable_weight'].split(".");
-                        $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
-                        $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
-                    }
-
-                } else {
-
-                    $('body').loadingModal('destroy');
-                    $("#shippped_courier_pic").css("display","block");
-                    $("#courier_price").css("display","block");
-                    $("#same_awb").css("display","none");
-                    $("#exist_courier_image").val("");
-                    $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
-                    $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
-                }
-
-            }
-        });
-    }
-
-}
-
 function return_new_parts(){
     var formData = new FormData(document.getElementById("courier_model_form"));
     
@@ -292,6 +193,343 @@ function return_new_parts(){
         }
     });
     
+}
+
+
+
+/* 
+ * Sell spare parts by micro warehouse
+ */
+
+var sellToMWHItemArray = [];
+
+function addnewpartformwh(inventory_id, prestock){
+    
+    if(Number(prestock) > 0){
+       $("#settle_item").removeClass("action-ban");
+        if(sellToMWHItemArray.length > 0){
+                var found = false;
+                var foundIndex = 0;
+                for(i =0; i< sellToMWHItemArray.length; i++){
+                    if(sellToMWHItemArray[i]['inventory_id'] === inventory_id){
+
+                        foundIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if(found === true){
+                    var addQty = 1;//$("#qty_" +inventory_id).val();
+                    var qty = Number(sellToMWHItemArray[foundIndex]['quantity']) + Number(addQty);
+                    if(Number(prestock) >=  qty){
+                        addInArrayForMWH(inventory_id, qty, foundIndex);
+                    } else {
+                        alert("You can not return inventory qty more than stock");
+                    }
+                    
+                } else {
+                    addInArrayForMWH(inventory_id, 1, sellToMWHItemArray.length);
+                    
+                }
+                
+        } else {
+
+            addInArrayForMWH(inventory_id, 1, 0);
+        }
+        
+    } 
+}
+
+function remove_inventory_mwh(inventory_id, index){
+   
+
+    var qty = Number(sellToMWHItemArray[index]['quantity']);
+    var addqty = qty -1;
+    if(addqty > 0){
+        addInArrayForMWH(inventory_id, addqty, index);
+    } else {
+        
+        sellToMWHItemArray.splice(index, 1);
+        $("#sell_mwh_parts_data").find('tbody').append("");
+        $("#qty_" +inventory_id).val(0);
+    }
+    crate_table_for_mwh();
+    if(sellToMWHItemArray.length < 1){
+        sellToMWHItemArray = [];
+    }
+}
+
+function addInArrayForMWH(inventory_id, qty, index){
+    var is_micro = Number($("#wh_id").find(':selected').attr('data-warehose'));
+    var is_micro_wh = 2;
+    if(is_micro === 2){
+        is_micro_wh = 1;
+    }
+    sellToMWHItemArray[index] = [];
+        sellToMWHItemArray[index] = {
+            'inventory_id': inventory_id,
+            'quantity':qty,
+            'booking_partner_id':$('#partner_id').val(), //((is_micro === 2) ? $("#wh_id").val() : $('#partner_id').val()),
+            'services':$("#services_"+inventory_id).text(),
+            'service_id':$("#serviceid_"+inventory_id).text(),
+            'type':$("#type_"+inventory_id).text(),
+            'part_name':$("#part_name_"+inventory_id).text(),
+            'part_number':$("#part_number_"+inventory_id).text(),
+            'basic_price':$("#basic_"+inventory_id).text(),
+            'gst_rate':$("#gst_rate_"+inventory_id).text(),
+            'total_amount':$("#total_amount_"+inventory_id).text(),
+            'sub_total_amount': Number(qty) * Number($("#total_amount_"+inventory_id).text()),
+            'warehouse_id': $("#wh_id").val(),
+            'is_micro_wh': is_micro_wh,
+            'shipping_quantity':qty,
+        };
+        
+    $("#sell_by_mwh_qty_" +inventory_id).val(qty);
+}
+
+function getSellItemQtyForMWH(){
+    var item =0;
+    for(i =0; i< sellToMWHItemArray.length; i++){
+        item = item + sellToMWHItemArray[i]['quantity'];
+    }
+    return item;
+}
+
+function crate_table_for_mwh(){
+    if(sellToMWHItemArray.length > 0){
+        var tr = "";
+        var tr1 = "";
+        subtotal =0;
+        totalQty = 0;
+        $("#sell_mwh_parts_data").find('tbody').html('');
+        for(i =0; i< sellToMWHItemArray.length; i++){
+            tr += '<tr>';
+            tr += '<td>'+(i+1)+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['services']+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['type']+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['part_name']+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['part_number']+'</td>';
+            tr += '<td> <i class="fa fa-rupee" ></i> '+sellToMWHItemArray[i]['basic_price']+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['gst_rate']+'</td>';
+            tr += '<td>'+sellToMWHItemArray[i]['quantity']+'</td>';
+            var stotal = Number(sellToMWHItemArray[i]['quantity'] * sellToMWHItemArray[i]['total_amount']);
+            tr += '<td> <i class="fa fa-rupee" ></i> '+stotal+'</td>';
+            
+            tr += '<td><i class="fa fa-close" onclick="remove_inventory_mwh('+sellToMWHItemArray[i]['inventory_id']+', '+i+')" style="font-size:48px;color:red; cursor:pointer"></i></td>';
+            tr += '</tr>';
+
+            totalQty += Number(sellToMWHItemArray[i]['quantity']);
+
+            subtotal = subtotal + Number(stotal);
+
+        }
+        $("#sell_mwh_parts_data").find('tbody').append(tr);
+         tr1 = '<tr>';
+         tr1 += '<td></td>';
+         tr1 += '<td></td>';
+         tr1 += '<td></td>';
+         tr1 += '<td></td>';
+         tr1 += '<td></td>';
+         tr1 += '<td></td>';
+         tr1 += '<td><b>Total</b></td>';
+         tr1 += '<td><b>'+totalQty+'</b></td>';
+         tr1 += '<td><b><i class="fa fa-rupee" ></i> '+subtotal.toFixed(2)+'</b></td>';
+         tr1 += '<td></td>';
+         tr1 += '</tr>';
+        $("#sell_mwh_parts_data").find('tbody').append(tr1);
+    } else {
+        $("#sell_mwh_parts_data").remove();
+        alert("Please add new parts to return");
+        
+    }
+    
+}
+
+function get_partner_gst_number(){
+    $.ajax({
+        type: 'POST',
+        url: baseUrl + '/employee/inventory/get_partner_gst_number',
+        data:{partner_id:$('#partner_id').val()},
+        success: function (response) {
+            $("#to_gst_number,#mwh_to_gst_number").html(response);
+        }
+    });
+}
+
+function open_selected_parts_to_return(){
+    $('#sellItem').attr('disabled',true);
+    $('#radio_partner').prop('checked',true).change();
+    get_partner_gst_number();
+        if(returnItemArray.length > 0){
+            $("#return_new_parts_data").show();
+            crate_table();
+            $('#myModal').modal('toggle');
+        } else {
+            $("#return_new_parts_data").remove();
+            $("#sellItem").html("Return new Parts (0)");
+            alert("Please add new parts to return");
+
+        }
+    
+}
+
+    function open_selected_parts_to_settle(){
+        $('#sellItem').attr('disabled',true);
+        $('#radio_partner').prop('checked',true).change();
+        get_partner_gst_number();
+         if (sellToMWHItemArray.length > 0) {
+            $("#sell_mwh_parts_data").show();
+            crate_table_for_mwh();
+            $('#mwh_used_spare_modal').modal('toggle');
+        } else {
+            $("#sell_mwh_parts_data").remove();
+            alert("Please add settle parts by warehouse");
+
+        }
+    }
+
+
+
+function settle_sell_parts(){
+    var formData = new FormData(document.getElementById("courier_model_form_data"));
+    
+    formData.append('inventory_data',JSON.stringify(sellToMWHItemArray));  
+    formData.append("label", "WEBUPLOAD");
+    formData.append("partner_id", $('#partner_id').val());
+    formData.append("wh_type", $("#wh_id").find(':selected').attr('data-warehose'));
+    formData.append("warehouse_id", $("#wh_id").val());
+    formData.append("warehouse_name", $("#wh_id").find(':selected').text().split("-")[0]);
+    formData.append("from_gst_number", $("#from_gst_number").val());
+    formData.append("to_gst_number", $("#mwh_to_gst_number").val());
+    formData.append("receiver_id", $("#to_wh_id").val());
+   // console.log(JSON.stringify(returnItemArray));
+    $.ajax({
+        method:'POST',
+        url: baseUrl + '/employee/user_invoice/process_to_sell_parts_by_warehouses',
+        data:formData,
+        contentType: false,
+        processData: false,
+        beforeSend: function(){
+            $('#courier_model_form_data').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $("#courier_model_form")[0].reset();
+            $('body').loadingModal({
+                position: 'auto',
+                text: 'Loading Please Wait...',
+                color: '#fff',
+                opacity: '0.7',
+                backgroundColor: 'rgb(0,0,0)',
+                animation: 'wave'
+            });
+
+        },
+        success:function(response){
+            console.log(response);
+            var data = jQuery.parseJSON(response);
+            if(data.status){
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+            $('body').loadingModal('destroy');
+        },
+        complete: function() {
+            $('#submit_mwh_courier_form').html("Submit").attr('disabled',false);
+        }
+    });
+    
+}
+
+function check_awb_exist(){
+    var awb = $("#awb").val();
+    var mwh_awb = $("#mwh_awb").val();
+    if(mwh_awb != ''){
+      awb = mwh_awb;
+    }
+    
+    if(awb){
+            $.ajax({
+            type: 'POST',
+            beforeSend: function(){
+
+                $('body').loadingModal({
+                position: 'auto',
+                text: 'Loading Please Wait...',
+                color: '#fff',
+                opacity: '0.7',
+                backgroundColor: 'rgb(0,0,0)',
+                animation: 'wave'
+            });
+
+                },
+            url: baseUrl + '/employee/service_centers/check_wh_shipped_defective_awb_exist',
+            data:{awb:awb},
+            success: function (response) {
+                console.log(response);
+                var data = jQuery.parseJSON(response);
+                if(data.code === 247){
+                    alert("This AWB already used same price will be added");
+                    $("#same_awb").css("display","block");
+                    $('body').loadingModal('destroy');
+                    if(mwh_awb != ''){
+                        $("#mwh_shipped_date").val(data.message[0].shipment_date);
+                        $('#mwh_courier_name option[value="' + data.message[0].courier_name + '"]').attr("selected", "selected");
+                        if(data.message[0].courier_file){
+                            $("#mwh_exist_courier_image").val(data.message[0].courier_file);
+                        }
+                        $('#mwh_shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                        if (data.message[0]['box_count'] === 0) {
+                            $('#mwh_shipped_spare_parts_small_boxes_count').val("");
+                        } else {
+                            $('#mwh_shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
+                        }                            
+                        var wt = Number(data.message[0]['billable_weight']);
+                        if(wt > 0){
+                        var wieght = data.message[0]['billable_weight'].split(".");
+                            $("#mwh_shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
+                            $("#mwh_shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                        }
+                    }else{
+                        $("#shippped_date").val(data.message[0].shipment_date); 
+                        $("#courier_name").val(data.message[0].courier_name);
+                        $("#courier_price").val("0");
+                        $("#courier_price").css("display","none");
+                        if(data.message[0].courier_file){
+                            $("#exist_courier_image").val(data.message[0].courier_file);
+                            $("#shippped_courier").css("display","none");
+                        }
+                        $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                        if (data.message[0]['box_count'] === 0) {
+                            $('#shipped_spare_parts_boxes_count').val("");
+                        } else {
+                            $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
+                        }                            
+                        var wt = Number(data.message[0]['billable_weight']);
+                        if(wt > 0){
+                        var wieght = data.message[0]['billable_weight'].split(".");
+                            $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
+                            $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                        }
+
+                    }                   
+                } else {
+
+                    $('body').loadingModal('destroy');
+                    $("#shippped_courier_pic").css("display","block");
+                    $("#courier_price").css("display","block");
+                    $("#same_awb").css("display","none");
+                    $("#exist_courier_image").val("");
+                    $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                    $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
+                    $("#mwh_shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                    $("#mwh_shipped_spare_parts_weight_in_gram").removeAttr("readonly");
+                }
+
+            }
+        });
+    }
+
 }
 
 //function print_courier_address(){

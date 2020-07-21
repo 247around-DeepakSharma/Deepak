@@ -3511,7 +3511,7 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
         $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
-        $row[] = $inventory_list->description;
+        $row[] = '<span style="word-break: break-all;">' . $inventory_list->description . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
         $row[] = $inventory_list->pending_request_count;
 
@@ -3572,6 +3572,11 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
+        }
+        
+        if ($this->session->userdata('userType') == "employee") {
+            $row[] = '<input style="max-width: 87px;" readonly type="number" name="mwh_sell_quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="sell_by_mwh_qty_' . $inventory_list->inventory_id . '" />';
+            $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md" onclick="addnewpartformwh(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">Used</a>';
         }
 
         if ($this->session->userdata('userType') == 'service_center') {
@@ -9354,11 +9359,18 @@ class Inventory extends CI_Controller {
         $entity_id = trim($this->input->post('entity_id'));
         $service_centers_id = trim($this->input->post('service_centers_id'));
         $data = array();
-        if (!empty($service_centers_id)) {
+        $where = '';
+        if (!empty($entity_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') AND v.vendor_partner_id = " . $service_centers_id;
-            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type,i.from_gst_number, i.to_gst_number,v.vendor_partner_id, v.sub_category";
+            $where = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') ";
+            if (!empty($service_centers_id)) {
+                $where .= " AND v.vendor_partner_id = " . $service_centers_id;
+            }
+
+            $post['where'] = $where;
+
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, sc.name as sf_name, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type,i.from_gst_number, i.to_gst_number,v.vendor_partner_id, v.sub_category";
             $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -9385,6 +9397,7 @@ class Inventory extends CI_Controller {
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->sf_name . "</span>";
         $row[] = $consumption_list->hsn_code;
         $row[] = $consumption_list->qty;
         $row[] = $consumption_list->settle_qty;
@@ -9408,10 +9421,15 @@ class Inventory extends CI_Controller {
         $entity_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
 
-        if (!empty($entity_id) && !empty($service_center_id)) {
+        if (!empty($entity_id)) {
+            $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description',sc.name as 'Service Center Name', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+            $where["im.entity_id"] = $entity_id;
+            $where["im.entity_type"] = _247AROUND_PARTNER_STRING;
+            $where["v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')"] = null;
+            if (!empty($service_center_id)) {
+                $where["v.vendor_partner_id"] = $service_center_id;
+            }
 
-            $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
-            $where = array("im.entity_id" => $entity_id, "im.entity_type" => _247AROUND_PARTNER_STRING, "v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')" => null, "v.vendor_partner_id" => $service_center_id);
             $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
 
             $this->load->dbutil();
@@ -9915,7 +9933,8 @@ class Inventory extends CI_Controller {
 
         $this->miscelleneous->load_nav_header();
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $this->load->view("employee/show_non_return_part_sf");
+        $data['partners'] = $this->partner_model->getpartner();
+        $this->load->view("employee/show_non_return_part_sf",$data);
 
     }
  
@@ -9929,15 +9948,20 @@ class Inventory extends CI_Controller {
     function get_no_return_parts_by_sf_list() {
         $post = $this->get_post_data();
         $search = $this->input->post('search');
+        
+        if(isset($_POST['partner_id']) && !empty($_POST['partner_id'])){
+            $partner_id = $this->input->post('partner_id') ;
+            $post['where']['booking_details.partner_id'] = $partner_id;
+        }
+       
         $post['search'] = $search;
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity as shipping_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "spare_parts_details.booking_id,defective_return_to_entity_id,spare_parts_details.shipped_inventory_id,spare_parts_details.id as sid,spare_parts_details.partner_id,spare_parts_details.shipped_quantity as shipping_quantity,spare_parts_details.parts_shipped,spare_parts_details.model_number_shipped, users.name, booking_primary_contact_no,service_centres.sc_code, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.part_warranty_status,"
-                . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number ";
+                . "spare_parts_details.defective_part_required, spare_parts_details.shipped_parts_type,spare_parts_details.is_micro_wh,status, inventory_master_list.part_number,inventory_master_list.part_name ";
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name','parts_requested');
         $post['search']['value'] = $post['search_value'];
         $post['is_inventory'] = TRUE;
         $post['where']['booking_details.current_status'] = _247AROUND_COMPLETED;
-
         $post['where']['spare_parts_details.defective_part_required'] = 0;
         $post['where']['spare_parts_details.part_warranty_status'] = 1;
         $post['where']['spare_parts_details.status !="' . _247AROUND_CANCELLED . '"'] = NULL;

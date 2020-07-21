@@ -753,6 +753,12 @@ define('EMP_DEACTIVATION_ERROR', 'Employee can not be deactivated, There are som
 
 // CRM-6513 warranty chcker at product level constant for plan_depends_on column
 define('WARRANTY_PLAN_ON_PRODUCT', 2);
+
+// dashboard Filter Values
+define('FILTER_NOT_DEFINE', "not_set");
+define('FILTER_INSTALLATION', "Installation");
+define('FILTER_REPAIR_WITH_PART', "Repair_with_part");
+define('FILTER_REPAIR_WITHOUT_PART', "Repair_without_part");
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 

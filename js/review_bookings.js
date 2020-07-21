@@ -164,10 +164,10 @@ function send_remarks() {
 
 function review_search(status,is_partner,sub_id,sort_on){
     sub_id = sub_id || '';
-    sort_on = sort_on || '';
-    // Add sort option value 
+    sort_on = sort_on || '';        
+    // Add sort order value 
     var sort_order = '';
-    if($("input[name='sort_order']").length){
+    if($("input[name='sort_order']").length && $("input[name='sort_order']:checked"). val() !== undefined){
         sort_order = $("input[name='sort_order']:checked"). val();
     } 
     
