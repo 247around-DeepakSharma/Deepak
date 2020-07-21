@@ -5934,6 +5934,9 @@ class Booking extends CI_Controller {
         $post_data = $this->input->get();
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
+        $request_type = $post_data['request_type'];
+        $review_age_min = $post_data['review_age_min'];
+        $review_age_max = $post_data['review_age_max'];
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
@@ -5967,6 +5970,21 @@ class Booking extends CI_Controller {
            $whereIN['booking_details.state'] = [$state];
         }
 
+        if(!empty($post_data['request_type'])) {
+        $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
+        foreach ($arr_request_types as $key => $value) {
+            if($key == $request_type){
+                $where["booking_details.request_type = '" .$value."'"] = NULL ; 
+                }
+            }
+        }
+        if(!empty($post_data['review_age_min']) && !empty($post_data['review_age_min']) ){
+            $where["DATEDIFF(
+            CURDATE(), STR_TO_DATE(
+                booking_details.service_center_closed_date,
+                '%Y-%m-%d'
+            )) BETWEEN '".$review_age_min."' AND '".$review_age_max."'"] = NULL;
+        }
         // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
         //Wrong area bookings will be shown in seperate TAB
         if($review_status == _247AROUND_CANCELLED) {
