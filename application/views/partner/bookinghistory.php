@@ -105,6 +105,7 @@
                                // $disabled = "disabled";
                            // }?>
                             <input type="submit" value="New Booking" <?php echo $disabled; ?>  class=" btn btn-md btn-primary col-md-offset-4">
+                            <a class=" btn btn-md btn-primary col-md-offset-1" href="<?php echo base_url().'employee/warranty/index/'.$this->session->userdata('partner_id'); ?>">Warranty Checker</a>
                             <p class="col-md-offset-4" style="color:red;"><?php if(empty($this->session->userdata('status'))){echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; }?></p>
                         </form>
                         <?php }?>

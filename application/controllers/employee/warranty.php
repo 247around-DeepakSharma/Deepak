@@ -35,9 +35,15 @@ class Warranty extends CI_Controller {
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
-
-        $this->miscelleneous->load_nav_header();
+        if($partner_id != null){
+            $this->miscelleneous->load_partner_nav_header();
+        }else{
+            $this->miscelleneous->load_nav_header();
+        }
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
+        if($partner_id != null){
+            $this->load->view('partner/partner_footer');
+        }
     }
 
     /**
@@ -219,13 +225,17 @@ class Warranty extends CI_Controller {
     public function get_warranty_specific_data_from_booking_id()
     {
         $booking_id = $this->input->post('booking_id');
+        $partner_id = $this->input->post('partner_id') != '' ? $this->input->post('partner_id') : NULL;
         $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings([$booking_id]);
         if(!empty($arrBookings[0]['model_number'])){
             $arr_model = $this->reusable_model->get_search_result_data("appliance_model_details","id",array("model_number"=>  stripslashes($arrBookings[0]['model_number']), "active" => 1),NULL,NULL,NULL,NULL,NULL,array());        
             $model_id = !empty($arr_model[0]['id']) ? $arr_model[0]['id'] : "";
             $arrBookings[0]['model_id'] = $model_id;
         }
-        echo json_encode($arrBookings);
+        if($partner_id !== NULL && !empty($arrBookings) && $arrBookings[0]['partner_id'] != $partner_id){
+           $arrBookings = array('error'=>1,'err_msg'=>'Invalid Booking Id!');
+        }
+       echo json_encode($arrBookings);
     }
 
     /**

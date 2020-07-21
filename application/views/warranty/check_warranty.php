@@ -1,3 +1,9 @@
+<?php 
+$is_partner = FALSE;
+if(($this->session->userdata('userType') == 'partner' && !empty($this->session->userdata('partner_id')) && $this->session->userdata('loggedIn') == TRUE)){
+    $is_partner = TRUE;
+}
+?>
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
@@ -16,7 +22,7 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <label for="partner">Partner</label>
-                                    <select class="form-control" name="partner" id="partner" required onchange='get_appliance()'>
+                                    <select class="form-control" name="partner" id="partner" required onchange='get_appliance()' <?php if($is_partner){ echo 'disabled';}?>>
                                         <option selected disabled value="">Select Partner</option>
                                         <?php
                                         foreach ($partnerArray as $partnerID => $partnerName) {
@@ -271,8 +277,10 @@
                 }
         }
     });
-
-    $("#partner,#service_id,#brand,#model").select2();
+     <?php if(!$is_partner){ ?> 
+        $("#partner").select2();
+     <?php  }?>
+    $("#service_id,#brand,#model").select2();
     $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date(), changeMonth: true, changeYear: true});
     $("#create_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date(), changeMonth: true, changeYear: true});
 
@@ -293,10 +301,15 @@
             method:'POST',
             url:"<?php echo base_url(); ?>employee/warranty/get_warranty_specific_data_from_booking_id",
             data:{
-                booking_id : $("#booking_id").val()
+                booking_id : $("#booking_id").val(),
+                partner_id : $("#partner").val()
             },
             success:function(response){
                 var warrantyData = JSON.parse(response);
+                if(warrantyData['error'] == 1){
+                    alert(warrantyData['err_msg']);
+                    return false;
+                }
                 $("#partner").val(warrantyData[0]['partner_id']);
                 $('#partner').select2().trigger('change');
                 setTimeout(function(){ 
@@ -337,4 +350,16 @@
     {
         padding-bottom : 20px !important;
     }
+
 </style>
+    <?php if($is_partner){ ?>
+<style>
+    #page-wrapper{
+        background: rgb(248, 248, 248);
+        width: 98%;
+        margin-top: 40px;
+        margin-left: 40px;
+        margin-bottom: 9px;
+    }
+</style>
+    <?php } ?>

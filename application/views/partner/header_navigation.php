@@ -32,8 +32,13 @@
         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <!-- DataTable CSS -->
         <link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>assest/DataTables/datatables.min.css"/>
+        <script src="<?php echo base_url()?>js/jquery.js"></script>
+        <!-- Load jQuery UI Main CSS-->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
         <!-- jQuery -->
         <script src="<?php echo base_url() ?>js/jquery.min.js"></script>
+        <!-- Load jQuery UI Main JS  -->
+        <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
         <!-- moment.js -->
         <script src="<?php echo base_url() ?>js/moment.min.js"></script>
         <!-- bootstrap-daterangepicker -->
