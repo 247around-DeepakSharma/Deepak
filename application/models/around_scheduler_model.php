@@ -64,12 +64,12 @@ class Around_scheduler_model extends CI_Model {
         //Filter using booking_date instead of EDD
         $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
               WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
-	      AND booking_date IN (
+        AND booking_date IN (
               DATE_FORMAT( CURDATE() + INTERVAL 1 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() + INTERVAL 2 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() + INTERVAL 3 DAY ,  '%d-%m-%Y' )
               )
-	      AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+        AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
               AND `booking_details`.service_id = `services`.id;";
 
         $query = $this->db->query($sql);
@@ -91,7 +91,7 @@ class Around_scheduler_model extends CI_Model {
         //Filter using booking_date instead of EDD
         $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
               WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
-	      AND booking_date IN (
+        AND booking_date IN (
               DATE_FORMAT( CURDATE() - INTERVAL 1 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() - INTERVAL 2 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() - INTERVAL 3 DAY ,  '%d-%m-%Y' ),
@@ -103,7 +103,7 @@ class Around_scheduler_model extends CI_Model {
               DATE_FORMAT( CURDATE() - INTERVAL 9 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() - INTERVAL 10 DAY ,  '%d-%m-%Y' )
               )
-	      AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+        AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
               AND `booking_details`.service_id = `services`.id;";
 
         $query = $this->db->query($sql);
@@ -359,10 +359,10 @@ class Around_scheduler_model extends CI_Model {
 
         return $return_arr;
     }
-    
-    function get_status_changes_booking_with_in_hour($hour){
-       
-        $sql  = "SELECT DISTINCT bd.order_id, bd.partner_current_status, bd.booking_date, booking_cancellation_reasons.reason as cancellation_reason, amount_paid"
+
+    function get_status_changes_booking_with_in_hour($hour) {
+
+        $sql = "SELECT DISTINCT bd.order_id, bd.partner_current_status, bd.booking_date, booking_cancellation_reasons.reason as cancellation_reason, amount_paid"
                 . " FROM booking_details as bd, "
                 . " booking_state_change as bs "
                 . " LEFT JOIN booking_cancellation_reasons ON (bd.cancellation_reason = booking_cancellation_reasons.id) WHERE "
@@ -514,7 +514,7 @@ class Around_scheduler_model extends CI_Model {
                     spare_parts_details
                     JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
                 WHERE
-                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= ".SPARE_PARTS_OOT_DAYS." 
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= " . SPARE_PARTS_OOT_DAYS . " 
                     and spare_parts_details.shipped_date is not null
                     and booking_details.service_center_closed_date is null 
                     and spare_parts_details.defective_part_shipped_date is null
@@ -551,7 +551,7 @@ class Around_scheduler_model extends CI_Model {
                     and sf_challan_file IS NULL";
         return $this->db->query($sql)->result_array();
     }
-    
+
     /**
      * @desc : Get all spares which are pending now for greater than 15 days after booking completion.
      * @author : Ankit Rajvanshi
@@ -569,13 +569,13 @@ class Around_scheduler_model extends CI_Model {
                     JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
                     JOIN inventory_master_list ON(spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id)
                 WHERE
-                    DATEDIFF(CURDATE(), booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS." 
+                    DATEDIFF(CURDATE(), booking_details.service_center_closed_date) > " . SF_SPARE_OOT_DAYS . " 
                     AND spare_parts_details.defective_part_required = 1
                     AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . OK_PARTS_REJECTED_BY_WAREHOUSE . "')
                     AND spare_parts_details.consumed_part_status_id is not null ";
-        
+
         $sql .= " UNION ";
-        
+
         $sql .= "SELECT
                     booking_details.booking_id,
                     spare_parts_details.id,
@@ -587,19 +587,19 @@ class Around_scheduler_model extends CI_Model {
                     JOIN booking_details ON (spare_parts_details.booking_id = booking_details.booking_id)
                     JOIN inventory_master_list ON(spare_parts_details.shipped_inventory_id = inventory_master_list.inventory_id)
                 WHERE
-                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= ".SPARE_PARTS_OOT_DAYS." 
+                    DATEDIFF(CURDATE(), spare_parts_details.shipped_date) >= " . SPARE_PARTS_OOT_DAYS . " 
                     and spare_parts_details.shipped_date is not null
                     and booking_details.service_center_closed_date is null 
                     and spare_parts_details.defective_part_shipped_date is null
                     and spare_parts_details.is_micro_wh != 1
                     and spare_parts_details.defective_part_required = 1
-                    and spare_parts_details.part_warranty_status = ".SPARE_PART_IN_WARRANTY_STATUS." 
-                    and spare_parts_details.status NOT IN ('"._247AROUND_CANCELLED."', '".OK_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."')
+                    and spare_parts_details.part_warranty_status = " . SPARE_PART_IN_WARRANTY_STATUS . " 
+                    and spare_parts_details.status NOT IN ('" . _247AROUND_CANCELLED . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DEFECTIVE_PARTS_PENDING . "')
                     and (spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id != 2);";
-        
-        $data = $this->db->query($sql)->result_array();        
-        
-        if(!empty($data)) {
+
+        $data = $this->db->query($sql)->result_array();
+
+        if (!empty($data)) {
             $table = "<table border='1' style='border-collapse:collapse'>";
             $table .= "<thead><tr>";
             $table .= "<th>S. No.</th>";
@@ -609,22 +609,22 @@ class Around_scheduler_model extends CI_Model {
             $table .= "<th>Part Number</th>";
             $table .= "<th>Amount</th>";
             $table .= "</tr></thead>";
-            
+
             $table .= "<tbody>";
-            foreach($data as $key => $spare_data) {
+            foreach ($data as $key => $spare_data) {
                 $table .= "<tr>";
-                $table .= "<td>".++$key."</td>";
-                $table .= "<td>".$spare_data['booking_id']."</td>";
-                $table .= "<td>".$spare_data['id']."</td>";
-                $table .= "<td>".$spare_data['parts_shipped']."</td>";
-                $table .= "<td>".$spare_data['part_number']."</td>";
-                $table .= "<td>".$spare_data['challan_approx_value']."</td>";
+                $table .= "<td>" . ++$key . "</td>";
+                $table .= "<td>" . $spare_data['booking_id'] . "</td>";
+                $table .= "<td>" . $spare_data['id'] . "</td>";
+                $table .= "<td>" . $spare_data['parts_shipped'] . "</td>";
+                $table .= "<td>" . $spare_data['part_number'] . "</td>";
+                $table .= "<td>" . $spare_data['challan_approx_value'] . "</td>";
                 $table .= "</tr>";
             }
             $table .= "</tbody>";
             $table .= "</table>";
         }
-        
+
         return $table;
     }
 
@@ -882,4 +882,3 @@ class Around_scheduler_model extends CI_Model {
         return true;
     }
 }
-

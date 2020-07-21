@@ -4056,7 +4056,7 @@ class Booking extends CI_Controller {
                 $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                 $row[] = "<a id='cancel' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>";
             }else if($booking_status === _247AROUND_CANCELLED){
-                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit'><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                $row[] = "<a id='edit' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id."' title='Edit' target='_blank' disabled><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
             }
             if($booking_status === _247AROUND_COMPLETED &&  $order_list->amount_paid > 0){
                  $row[] = "<a id='open' class='btn btn-sm btn-color' href='".base_url()."employee/booking/get_convert_booking_to_pending_form/".$order_list->booking_id."/".$booking_status."' title='Open' target='_blank' disabled><i class='fa fa-calendar' aria-hidden='true'></i></a>";
@@ -6215,6 +6215,10 @@ class Booking extends CI_Controller {
         }
         if (!empty($bookings)) {
             $arr_post = $this->input->post();
+            if(empty($arr_post['selected_price_tags'])){
+                redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+            }
+            else{
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
                 if ($checkValidation) {
@@ -6271,7 +6275,9 @@ class Booking extends CI_Controller {
                 $error = & load_class('Exceptions', 'core');
                 echo $error->show_error($heading, $message, 'custom_error');
             }
-        } else {
+        }
+        }
+         else {
             echo "Booking Id Not Exist...\n Already Updated.";
         }
     }
@@ -6729,22 +6735,21 @@ class Booking extends CI_Controller {
     }
 
     /*
-     * ST-224
+     * CRM-6300
      * Get cancellation reasons of 247around
      * return HTML
      */
-
-        function get_cancellation_reasons() {
-            $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-            $where = array('reason_of' => $reason_of);
-            $cancellation_reasons = $this->booking_model->cancelreason($where);
-            $options = '<option selected disabled>Select reason</option>';
-            if (!empty($cancellation_reasons)) {
-                foreach ($cancellation_reasons as $reason) {
-                    $options .= '<option>' . $reason->reason . '</option>';
-                }
+    function get_cancellation_reasons() {
+        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
+        $where = array('reason_of' => $reason_of);
+        $cancellation_reasons = $this->booking_model->cancelreason($where);
+        $options = '<option selected disabled>Select reason</option>';
+        if (!empty($cancellation_reasons)) {
+            foreach ($cancellation_reasons as $reason) {
+                $options .= '<option>' . $reason->reason . '</option>';
             }
-            echo $options;
         }
+        echo $options;
+    }
 
 }

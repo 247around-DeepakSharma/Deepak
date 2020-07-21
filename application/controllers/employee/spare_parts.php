@@ -2643,6 +2643,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
          $where["spare_parts_details.is_micro_wh != 1"] = NULL;
          $where["spare_parts_details.parts_shipped IS NOT NULL"] = NULL;
          $where["spare_parts_details.part_warranty_status"] = $part_warranty_status;
+       //$where["DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) > 7"] = NULL;
 
        //$where["DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) > 7"] = NULL;
          //$where["spare_parts_details.defective_part_shipped IS NULL"] = NULL;

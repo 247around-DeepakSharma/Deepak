@@ -263,6 +263,10 @@
                                         <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php
                                             if (!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00') {echo $booking_history[0]['booking_date'];
                                             }
+                                            else
+                                            {
+                                                echo "";
+                                            }
                                             ?>" readonly="readonly">
                                     </div>
                                 </div>

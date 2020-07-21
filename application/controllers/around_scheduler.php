@@ -2880,6 +2880,7 @@ class Around_scheduler extends CI_Controller {
             $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
         }
     }
+
     //CRM-6107 Send autogenrated authorization certificate to all SF
     function send_authorization_certificate($vendor_id = NULL){
         $this->load->library('SFauthorization_certificate');

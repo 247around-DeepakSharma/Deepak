@@ -2665,7 +2665,6 @@ values('agreement_email_template','',
 ALTER TABLE `inventory_invoice_mapping` ADD `invoice_or_challan` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = invoice, 0 = challan' AFTER `settle_qty`;
   
 ALTER TABLE `india_pincode` ADD `latitude` VARCHAR(20) NULL DEFAULT NULL AFTER `state`, ADD `longitude` VARCHAR(20) NULL DEFAULT NULL AFTER `latitude`;
-<<<<<<< HEAD
 
 -- Prity 15-05-2020
 -- 73Branch
@@ -2784,6 +2783,7 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
 
+>>>>>>> CRM_Release_1.73.0.1
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 

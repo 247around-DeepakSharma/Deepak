@@ -405,7 +405,6 @@ if ($this->uri->segment(3)) {
                 $(this).val('');
                 return false;
             }
-
         },
         "mouseout": function () {
             var weight_kg = $(this).val();
