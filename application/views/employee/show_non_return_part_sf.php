@@ -40,6 +40,19 @@
                     </h3>
                     <hr>
                     <div class="row">
+                        
+                 <div class="col-md-5">       
+                      <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested">        
+                                    <option value="" selected="selected" disabled="">Select Partners</option>       
+                                    <?php       
+                                        foreach($partners as $val){ ?>      
+                                            <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>       
+                                    <?php } ?>      
+                       </select>       
+                   </div> 
+                        
+                        <div class="col-md-2"><button class="btn btn-success" id="partner_submit">Submit</button></div>
+                        
                     </div>
                     <button class="btn btn-success pull-right" id="generate_invoice_btn">Generate Invoice</button>
                     <div class="clearfix"></div>
@@ -104,8 +117,8 @@
                 "ajax": {
                     url: "<?php echo base_url(); ?>employee/inventory/get_no_return_parts_by_sf_list",
                     type: "POST",
-                    data: function (d) {
-                        
+                    data: function (d) {      
+                    d.partner_id =  $('#partner_wise_parts_requested').val();     
                     }
                 }
             });
@@ -229,6 +242,15 @@
 
             });
             
-
+    $('#partner_wise_parts_requested').select2({        
+       placeholder:'Select Partner',        
+       allowClear: true     
+    });  
+    
+    
+    // For show filtered data in ajax reload  //
+    $('#partner_submit').click(function(){     
+        no_return_parts_by_sf.ajax.reload(null, false);       
+    }); 
 
         </script>

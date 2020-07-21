@@ -3242,7 +3242,7 @@ function generate_image($base64, $image_name,$directory){
         }
         //add 2 columns upcountry and Municipal Limit in the Partner Serviceability Report
         $select[] = "CASE when service_centres.is_upcountry = '1' then 'Upcountry' Else 'Local' End as Flag";
-        $select[] = "service_centres.min_upcountry_distance as municipal_limit";
+        $select[] = "service_centres.min_upcountry_distance as 'Municipal Limit'";
         $select[] ="india_district_coordinates.zone_color as covid_zone";
         $join['service_centres'] =  'service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.on_off = 1 AND service_centres.active = 1';
         $join['india_district_coordinates'] =  'vendor_pincode_mapping.City = india_district_coordinates.district';

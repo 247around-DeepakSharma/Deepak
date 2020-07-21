@@ -10,13 +10,19 @@
 
 function check_text(){
   var reason = document.myForm.cancellation_reason.value;
+  var remark = document.myForm.cancellation_reason_text.value;
   //var cancel_text = document.myForm.cancellation_reason_text.value;  
 
-    if(reason === '' ){
+    if(reason === ''){
       alert("Please select checkbox to select cancellation reason");
       return false;
     }
-
+    if(remark === ''){
+      alert("Please enter remark");
+      return false;
+    }
+    $('#btn-cancel').css("pointer-events", "none");
+    $('#btn-cancel').css("opacity", "0.5");
 }
 </script>
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
@@ -115,7 +121,7 @@ function check_text(){
                         <div class="form-group-cancel">
                            <label for="booking_date" class="col-md-4">Booking Date</label>
                            <div class="col-md-6">
-                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (!empty($user_and_booking_details[0]['booking_date']) && $user_and_booking_details[0]['booking_date'] != '0000-00-00') {echo $user_and_booking_details[0]['booking_date']; } ?>" readonly="readonly">
+                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (!empty($user_and_booking_details[0]['booking_date']) && $user_and_booking_details[0]['booking_date'] != '0000-00-00') {echo date("d-m-Y", strtotime($user_and_booking_details[0]['booking_date'])) ; } ?>" readonly="readonly">
                            </div>
                         </div>
                   </div>
@@ -182,7 +188,7 @@ function check_text(){
  
                     <div class="col-md-6 col-md-offset-3">
                     <?php if(!$isdisable && empty($is_invoice_generated) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM, _247AROUND_AM])) {?>
-                        <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                        <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " id="btn-cancel" onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php } ?>
                   
                 </div>

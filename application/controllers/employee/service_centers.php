@@ -1518,6 +1518,12 @@ class Service_centers extends CI_Controller {
             if (!$this->input->post("call_from_api")) {
                 $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
             } else {
+
+                /* IF Agent Do not Come then to to find it */
+                $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($service_center_id);
+                if (!empty($sc_agent)) {
+                    $sc_agent_id = $sc_agent[0]['id'];
+                }
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
             $partner_id = $this->input->post("partner_id");
@@ -6744,19 +6750,24 @@ class Service_centers extends CI_Controller {
                     $sc_data['internal_status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                    $booking['internal_status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                    /***
+                     * Check spare part pending in request.
+                     * If not then update booking internal status and dependency.
+                     */
+                    $check_pending_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id, 'status IN ("'. SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL), TRUE, false, false);
                     $actor = $next_action = 'not_define';
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
-                    if (!empty($partner_status)) {
-                        $booking['partner_current_status'] = $partner_status[0];
-                        $booking['partner_internal_status'] = $partner_status[1];
-                        $actor = $booking['actor'] = $partner_status[2];
-                        $next_action = $booking['next_action'] = $partner_status[3];
+                    if(empty($check_pending_spare)) {
+                        $booking['internal_status'] = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                        if (!empty($partner_status)) {
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $actor = $booking['actor'] = $partner_status[2];
+                            $next_action = $booking['next_action'] = $partner_status[3];
+                        }
+                        $this->booking_model->update_booking($booking_id, $booking);
                     }
                     
-                    
-                    $this->booking_model->update_booking($booking_id, $booking);
-
                     $userSession = array('success' => 'Parts Updated');
                     $this->session->set_userdata($userSession);
                     if(!empty($this->session->userdata('warehouse_id'))) {
