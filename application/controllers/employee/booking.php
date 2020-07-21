@@ -80,7 +80,7 @@ class Booking extends CI_Controller {
                 return TRUE;
             }
             else{
-                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) || (($this->session->userdata('userType') == 'dealers') && !empty($this->session->userdata('dealer_id')))) {
+                if (($this->session->userdata('userType') == 'partner' && !empty($this->session->userdata('partner_id')) && $this->session->userdata('loggedIn') == TRUE) || (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) || (($this->session->userdata('userType') == 'dealers') && !empty($this->session->userdata('dealer_id')))) {
                     return TRUE;
                 } 
                 else {
