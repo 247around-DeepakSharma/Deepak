@@ -2417,6 +2417,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }       
         return $stateData;
     }
+
     function tat_calculation_full_view($rmID,$is_ajax=0,$is_am=0,$is_pending = FALSE,$agent_type = "",$agent_id=""){
         $endDate = date("Y-m-d");
         $startDate =  date('Y-m-d', strtotime('-30 days'));
@@ -2508,7 +2509,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                  $_POST['request_type'][] = $request_type;
             }
             $this->load->view('dashboard/tat_calculation_full_view',array('state' => $stateData,'sf'=>$sfData,'partners'=>$partners,'rmID'=>$rmID,'filters'=>$this->input->post(),'services'=>$services,
-                "is_am"=>$is_am,'sf_state'=>$sfStateArray,"is_pending" => $is_pending));
+                "is_am"=>$is_am,'sf_state'=>$sfStateArray,"is_pending" => $is_pending, "agent_type" => $agent_type, "agent_id" => $agent_id));
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{

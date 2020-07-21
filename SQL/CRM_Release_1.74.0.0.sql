@@ -46,3 +46,21 @@ INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `active`, 
 
 -- Ankit
 ALTER TABLE `inventory_ledger` ADD `spare_id` int(11) NULL DEFAULT NULL;
+
+-- Raman
+-- 30-06-2020
+
+CREATE TABLE custom_report_queries (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    tag varchar(50) NOT NULL,
+    subject text NOT NULL,
+    query text NOT NULL,
+    create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
+
+INSERT INTO `custom_report_queries` (`id`, `tag`, `subject`, `query`, `create_date`) VALUES (NULL, 'insert_partner_contacts_list', '', 'SELECT partners.company_name,partners.public_name,partners.primary_contact_email,partners.owner_email,partners.owner_alternate_email,entity_login_table.email FROM partners JOIN\r\nentity_login_table ON entity_login_table.entity_id = partners.id;', '2020-07-01 00:15:42');
+
+
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Custom Reports', NULL, 'employee/reports/custom_reports', 2, '80', 'admin,developer,regionalmanager,areasalesmanager, 'main_nav', 1, '2020-07-01 03:20:02');
+  

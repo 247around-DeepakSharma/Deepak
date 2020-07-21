@@ -551,7 +551,7 @@ class Spare_parts extends CI_Controller {
             $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL, NULL, NULL, NULL);
 
         } else {
-            $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL,NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
+            $post['column_order'] = array(NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_part_pending_to_sf', NULL, NULL, NULL, NULL);
         }
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -829,7 +829,7 @@ class Spare_parts extends CI_Controller {
             unset($post['where']['status']);
             $post['where']['status in ("'.SPARE_SHIPPED_BY_PARTNER.'", "'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")'] = NULL;
         }
-        
+
         $list = $this->inventory_model->get_spare_parts_query($post);
         
         $no = $post['start'];
@@ -3837,11 +3837,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-        
+        $where = array(); 
         if($icwh == 1){
             $tmp_subject =  "CWH ";
             $temp_function = 'get_msl_data';
-             $template = "msl_data.xlsx";
+            $template = "msl_data.xlsx";
         } else {
             $tmp_subject =  "MWH ";
             $temp_function = 'get_microwarehouse_msl_data';
