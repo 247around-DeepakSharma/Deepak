@@ -556,7 +556,7 @@ class User_invoice extends CI_Controller {
         $invoice_amount = $reason = array();
         $booking_id = $this->input->post('booking_id');
         $remarks = $this->input->post('remarks');
-        $sd = $ed = $invoice_date = '2020-03-31'; #date("Y-m-d");
+        $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                             . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
@@ -793,7 +793,7 @@ class User_invoice extends CI_Controller {
         $partner_reference_invoice = array();
         $vendor_reference_invoice = array();
         //$invoice_id = "";
-        $sd = $ed = $invoice_date = '2020-03-31';#date("Y-m-d");
+        $sd = $ed = $invoice_date = date("Y-m-d");
         $booking_data = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id, partner_id', array('booking_id' => $booking_id));
 
         if (!empty($booking_data) & !empty($booking_data[0]['assigned_vendor_id'])) {
@@ -1638,7 +1638,7 @@ class User_invoice extends CI_Controller {
     function process_repair_oow_spare_invoice(){
         $data = array();
         $spare_parts_detail_ids = array();
-        $sd = $ed = $invoice_date = '2020-03-31';#date("Y-m-d");
+        $sd = $ed = $invoice_date = date("Y-m-d");
         $vendor_email_parts_name = "";
         $email_parts_name_partner = "";
         $partner_id = 0;
@@ -1852,4 +1852,115 @@ class User_invoice extends CI_Controller {
         }
     }
     
+    
+        
+    /*
+     * @desc: This function is used to settle the sell parts to warehouse.
+     * @param: void
+     * @return: boolean
+     */
+
+    function process_to_sell_parts_by_warehouses() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+
+//        $str = '{"awb":"85064","agent_type":"247Around","agent_id":"10047","shipped_date":"2020-05-07","courier_name":"dtdc","shipped_spare_parts_weight_in_kg":"30","shipped_spare_parts_weight_in_gram":"150","shipped_spare_parts_boxes_count":"5","shipped_spare_parts_small_boxes_count":"2","exist_courier_image":"test.jpg","receiver_type":"0","inventory_data":"[{\"inventory_id\":52115,\"quantity\":2,\"booking_partner_id\":\"247130\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"STAND\",\"part_name\":\"STAND,SIDE,ABS,BLACK,GLOSSY,RIGHT,32SB18\",\"part_number\":\"1200091428\",\"basic_price\":\"8.25\",\"gst_rate\":\"18\",\"total_amount\":\"9.74\",\"sub_total_amount\":19.48,\"warehouse_id\":\"15\",\"is_micro_wh\":2,\"shipping_quantity\":2},{\"inventory_id\":50772,\"quantity\":1,\"booking_partner_id\":\"247130\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"PCB OTHERS\",\"part_name\":\"BAR,LED,39DLED,HCG,13LED,FHD,COREACH\",\"part_number\":\"1200073692\",\"basic_price\":\"585.75\",\"gst_rate\":\"18\",\"total_amount\":\"691.19\",\"sub_total_amount\":691.19,\"warehouse_id\":\"15\",\"is_micro_wh\":2,\"shipping_quantity\":1},{\"inventory_id\":51132,\"quantity\":1,\"booking_partner_id\":\"247130\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"CHASSIS\",\"part_name\":\"CHASSIS,V59,SHARP,LQ315T3HC34,32PFL5039\",\"part_number\":\"1200077912\",\"basic_price\":\"2,316.00\",\"gst_rate\":\"18\",\"total_amount\":\"2732.88\",\"sub_total_amount\":2732.88,\"warehouse_id\":\"15\",\"is_micro_wh\":2,\"shipping_quantity\":1},{\"inventory_id\":43717,\"quantity\":1,\"booking_partner_id\":\"247130\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"WALL MOUNT\",\"part_name\":\"KIT,WALL MOUNTING,32DLED,200X200MM\",\"part_number\":\"1100141342\",\"basic_price\":\"107.25\",\"gst_rate\":\"18\",\"total_amount\":\"126.56\",\"sub_total_amount\":126.56,\"warehouse_id\":\"15\",\"is_micro_wh\":2,\"shipping_quantity\":1},{\"inventory_id\":51643,\"quantity\":1,\"booking_partner_id\":\"247130\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"PCB OTHERS\",\"part_name\":\"ASSY,PCB,LED,BAR,01,LED,MODI,SVC\",\"part_number\":\"1200085244\",\"basic_price\":\"22.50\",\"gst_rate\":\"18\",\"total_amount\":\"26.55\",\"sub_total_amount\":26.55,\"warehouse_id\":\"15\",\"is_micro_wh\":2,\"shipping_quantity\":1}]","label":"WEBUPLOAD","partner_id":"247130","wh_type":"1","warehouse_id":"15","warehouse_name":" 247 Around Warehouse Ghaziabad ( Uttar Pradesh ) ","from_gst_number":"7","to_gst_number":"8","receiver_id":"null"}';
+//        $_POST = json_decode($str, true);
+        $return_data = $this->input->post();
+
+        $partner_id = $this->input->post('partner_id');
+        $wh_id = $this->input->post('warehouse_id');
+        $wh_name = $this->input->post('warehouse_name');
+        $shipped_date = $this->input->post('shipped_date');
+        $from_gst_id = $this->input->post('from_gst_number');
+        $to_gst_id = $this->input->post('to_gst_number');
+        $receiver_type = $this->input->post('receiver_type');
+        $receiver_id = $this->input->post('receiver_id');
+        $kilo_gram = (!empty($this->input->post('shipped_spare_parts_weight_in_kg')) ? $this->input->post('shipped_spare_parts_weight_in_kg') : '0');
+        $gram = (!empty($this->input->post('shipped_spare_parts_weight_in_gram')) ? $this->input->post('shipped_spare_parts_weight_in_gram') : '00');
+        $billable_weight = $kilo_gram . "." . $gram;
+        $return_data = $this->input->post();
+        $file_exist = true;
+        if (!empty($return_data['awb']) && !empty($return_data['shipped_date']) && !empty($return_data['warehouse_id'])) {
+
+            if (!empty($return_data['exist_courier_image'])) {
+
+                $return_data['courier_image_file'] = $return_data['exist_courier_image'];
+                $file_exist = true;
+            } else {
+                $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+                $s = $this->miscelleneous->upload_file_to_s3($_FILES["shippped_courier_pic"], "msl_return", $allowedExts, rand(10, 1000), "vendor-partner-docs", "courier_image_file");
+                if ($s) {
+                    $file_exist = true;
+                    $return_data['courier_image_file'] = $this->input->post('courier_image_file');
+                } else {
+
+                    $file_exist = false;
+                }
+            }
+
+            if (isset($return_data['courier_image_file']) && (!empty($return_data['courier_image_file']))) {
+                $postData = json_decode($return_data['inventory_data'], TRUE);
+                $flag = false;
+                if (!empty($postData)) {
+                    foreach ($postData as $key => $value) {
+                        if (!empty($value['inventory_id'])) {
+                            $stock = "stock - '" . $value['quantity'] . "'";
+                            $where = array('inventory_stocks.entity_id' => $value['warehouse_id'], 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, 'inventory_stocks.inventory_id' => $value['inventory_id']);
+                            $update_stocks = $this->inventory_model->update_inventory_stock($where, $stock);
+                            $insert_data = array("warehouse_id" => $value['warehouse_id'], "inventory_id" => $value['inventory_id'], "quantity" => $value['quantity']);
+                            if ($update_stocks) {
+                                $flag = true;
+                                $this->inventory_model->insert_into_personal_used_spare($insert_data);
+                            }
+                        }
+                    }
+
+                    if (!empty($flag)) {
+
+                        $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $return_data['awb']), array());
+                        if (empty($exist_courier_details)) {
+                            $sc_details = $this->vendor_model->getVendorDetails("district, state", array('service_centres.id' => $wh_id));
+                            $from_city = $sc_details[0]['district'];
+                            $from_state = $sc_details[0]['state'];
+                            $to_city = $entity_details[0]['district'];
+                            $to_state = $entity_details[0]['state'];
+                            $awb_data = array(
+                                'awb_number' => trim($return_data['awb']),
+                                'company_name' => trim($return_data['courier_name']),
+                                'partner_id' => trim($partner_id),
+                                'courier_charge' => trim($return_data['courier_price']),
+                                'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //1,
+                                'small_box_count' => trim($this->input->post('shipped_spare_parts_small_boxes_count')), //1,
+                                'billable_weight' => trim($billable_weight), //'0.00',
+                                'actual_weight' => trim($billable_weight), //'0.00',
+                                'basic_billed_charge_to_partner' => '0.00',
+                                'booking_id' => '',
+                                'courier_invoice_file' => trim($return_data['courier_image_file']),
+                                'shippment_date' => trim($return_data['shipped_date']),
+                                'created_by' => 1,
+                                'is_exist' => 1,
+                                'sender_city' => $from_city,
+                                'receiver_city' => $to_city,
+                                'sender_state' => $from_state,
+                                'receiver_state' => $to_state
+                            );
+
+                            $courier_id = $this->service_centers_model->insert_into_awb_details($awb_data);
+                        } else {
+                            $courier_id = $exist_courier_details[0]['id'];
+                        }
+
+                        echo json_encode(array('status' => true, 'message' => 'spare settle successfully'), true);
+                    }
+                } else {
+                    echo json_encode(array('status' => false, 'message' => 'There is no inventory data .'), true);
+                }
+            } else {
+                echo json_encode(array('status' => false, 'message' => 'Please Upload Courier Receipt less than 2 MB'), true);
+            }
+        } else {
+            echo json_encode(array('status' => false, 'message' => 'Please Select AWB Number or Shipped Date'), true);
+        }
+    }
+
 }

@@ -3890,4 +3890,16 @@ class Inventory_model extends CI_Model {
         $this->db->insert_ignore_duplicate_batch('courier_serviceable_area', $data);
         return $this->db->insert_id();
     }
+    
+    /*
+     * @desc This is used to insert details into courier_services table
+     * @param: $data
+     * @return: last_insert_id
+     */
+
+    function insert_into_personal_used_spare($data) {
+        $this->db->insert('personal_used_spare_parts', $data);
+        return $this->db->insert_id();
+    }
+
 }

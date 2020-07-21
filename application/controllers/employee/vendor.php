@@ -6541,9 +6541,10 @@ class vendor extends CI_Controller {
 
     }
     /*
-     * Display list of unapproved SF
-     * Unaaproved SF can only approve their RM/ASM 
-     */
+         * Display list of unapproved SF
+         * Unaaproved SF can only approve their RM/ASM 
+         */
+
     function unapprovered_service_centers() {
         if ($this->input->post('sf_id')) {
             $where = 'id = ' . $this->input->post('sf_id');
@@ -6555,14 +6556,16 @@ class vendor extends CI_Controller {
             echo json_encode(array('result' => 0));
             return;
         }
-        
-        if(!in_array($this->session->userdata('user_group'),array(_247AROUND_ADMIN,_247AROUND_RM))){
+
+        if (!in_array($this->session->userdata('user_group'), array(_247AROUND_ADMIN, _247AROUND_RM))) {
             redirect('employee/vendor/viewvendor');
         }
         $id = $this->session->userdata('user_group') == _247AROUND_RM ? $this->session->userdata('id') : NULL;
-        $post['where'] = "rm_id = $id";
+        if ($id !== NULL) {
+            $post['where'] = "rm_id = $id";
+        }
         $post['length'] = -1;
-        $data['records'] = $this->vendor_model->viewallvendor($post,'service_centres.*');
+        $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
     }

@@ -432,16 +432,22 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         if(download_btn == 'download_complete_booking') {
             var partner_id = $('#partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
             var state_id = $('#state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
-            
-            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
+            var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
         }
         
         if(download_btn == 'download_cancelled_booking') {
             var partner_id = $('#partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
             var state_id = $('#state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
+            var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             var cancellation_reason_id = $('#cancellation_reason_<?php echo $is_partner; ?><?php echo $sub_id?>').val();
+            var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
 
-            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+ "&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
         }
     });
 

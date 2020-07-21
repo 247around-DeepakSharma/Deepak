@@ -3511,7 +3511,7 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="type_' . $inventory_list->inventory_id . '">' . $inventory_list->type . '</span>';
         $row[] = '<span id="part_name_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_name . '</span>';
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
-        $row[] = $inventory_list->description;
+        $row[] = '<span style="word-break: break-all;">' . $inventory_list->description . '</span>';
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
         $row[] = $inventory_list->pending_request_count;
 
@@ -3572,6 +3572,11 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == "employee") {
             $row[] = '<input style="max-width: 87px;" readonly type="number" name="quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="qty_' . $inventory_list->inventory_id . '" />';
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
+        }
+        
+        if ($this->session->userdata('userType') == "employee") {
+            $row[] = '<input style="max-width: 87px;" readonly type="number" name="mwh_sell_quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="sell_by_mwh_qty_' . $inventory_list->inventory_id . '" />';
+            $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md" onclick="addnewpartformwh(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">Used</a>';
         }
 
         if ($this->session->userdata('userType') == 'service_center') {
