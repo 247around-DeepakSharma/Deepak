@@ -5139,7 +5139,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Function Start ");
         $this->miscelleneous->create_serviceability_report_csv($this->input->post());
         $output_file = TMP_FOLDER . "serviceability_report.csv";
-        $subject = 'Servicablity Report from 247Around';
+        $subject = 'Serviceablity Report from 247Around';
         $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
         log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
