@@ -5872,7 +5872,7 @@ class Booking extends CI_Controller {
         if(!empty($total_rows)){
             $data['per_page'] = 50;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where, $orderBY);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where,$join,$orderBY);
             $data['status'] = $status;
             $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
