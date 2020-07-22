@@ -2022,7 +2022,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             //Filter on upcountry
             if($upcountry !="not_set"){
-                $upcountryArray = explode(":",$upcountry);
+                if(is_array($upcountry)){
+                    $upcountryArray = $upcountry;
+                }
+                else
+                {
+                    $upcountryArray = explode(":",$upcountry);
+                }            
                 $ucount = count($upcountryArray);
                 if($ucount < 2){
                     $upcountryValue = 0;
