@@ -419,6 +419,9 @@ class dealerApi extends CI_Controller {
                 $this->gethomeFilters(); /* get homeFilters API */
                 break;
             
+            case 'homeDashboard':
+                $this->getHomeDashboard(); /* get getHomeDashboard API */
+                break;
 
             default:
                 break;
@@ -711,7 +714,7 @@ function getStatesCities(){
 function getBookingDetails(){
 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("booking_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
+        $validation = $this->validateKeys(array("entity_id","appliance_id","is_repeat","show_all_capacity"), $requestData);
         if (!empty($requestData['booking_id']) && !empty($requestData['appliance_id'])) { 
                 $response =  $this->around_generic_lib->getBookingDetails($requestData['booking_id'],$requestData['appliance_id'],$requestData['is_repeat'],$requestData['show_all_capacity']); 
                  $this->jsonResponseString['response'] = $response;
@@ -725,8 +728,83 @@ function getBookingDetails(){
 
 }
 
+     /*
+     * @Desc - This function is used to get Booking TAT of the dealer
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+function  getHomeDashboard(){
+    
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+        if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
+            
+                    if(isset($requestData['status']) && !empty($requestData['status'])){
+                       $status= $requestData['status'];
+                    }else{
+                       $status="not_set";  
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id'])){
+                       $service_id = $requestData['status'];
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type'])){
+                       $request_type = $requestData['status'];
+                    }else{
+                       $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid'])){
+                       $free_paid = $requestData['status'];
+                    }else{
+                       $free_paid ="not_set";  
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry'])){
+                       $upcountry = $requestData['status'];
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    if(isset($requestData['entity_type']) && !empty($requestData['entity_type'])){
+                        $for = "Dealer";
+                    }else{
+                        $for = "Brand";
+                    }
+                    
+                   
+                    $is_pending = FALSE;
+                    $partner_id = NULL;
+                    //Call curl for TAT
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/".$for."/".$is_pending."/".$partner_id;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = curl_exec($ch);
+                    curl_close($ch);
+                
+                
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }  
+    
+}
 
-  /*
+
+
+
+/*
      * @Desc - This function is used to get tracking details
      * @param - 
      * @response - json
