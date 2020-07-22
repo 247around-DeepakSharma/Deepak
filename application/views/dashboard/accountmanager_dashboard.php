@@ -32,7 +32,7 @@
                      <span class="collape_icon" href="#AM_TAT_Reporting_div" data-toggle="collapse" onclick="initialise_AM_TAT_reporting()" style="margin-right: 8px;"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-            <div class="table-responsive collapse" id="AM_TAT_Reporting_div" ng-controller="completedBooking_ControllerAM" ng-cloak="">
+            <div class="table-responsive x_content collapse" id="AM_TAT_Reporting_div" ng-controller="completedBooking_ControllerAM" ng-cloak="">
                 <form action="" method="post" target="_blank" id="am_completed_booking_form" style="float: left;width: 1090px;">
                 <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                         <div class="item form-group">
@@ -215,7 +215,7 @@
                     <span class="collape_icon" href="#AM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_AM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="AM_TAT_Reporting_pending" class="collapse">
+                <div id="AM_TAT_Reporting_pending" class="x_content collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerAM" ng-cloak="">
                     <form action="" method="post" target="_blank" id="am_pending_booking_form" style="float: left;width: 1090px;">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
@@ -504,7 +504,7 @@
                             <td style="padding: 4px 12px;">{{$index+1}}</td>
 <!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                             <td style="padding: 4px 12px;"><button style="margin-top: 10px;" type="button" id="vendor_{{completedBookingByRM.leg_1[$index].id}}" class="btn btn-info" target="_blank" 
-                                         onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">
+                                         onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','0','rm_completed_booking_form')">
                                    {{completedBookingByRM.leg_1[$index].entity}} </button><p style="float:right;margin-bottom: 0px;">leg_1<br>leg_2<br>Total</p></td>
                                    
                            <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_0}} ({{completedBookingByRM.leg_1[$index].TAT_0_per}}%)<br>
@@ -570,7 +570,7 @@
                     <span class="collape_icon" href="#RM_TAT_Reporting_pending" data-toggle="collapse" onclick="initiate_RM_Pending_TAT_Reporting()"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="RM_TAT_Reporting_pending" class="collapse">
+                <div id="RM_TAT_Reporting_pending" class="x_content collapse">
                 <div class="table-responsive" id="escalation_data" ng-controller="pendingBooking_ControllerRM" ng-cloak="">
                     <form action="" method="post" target="_blank" id="rm_pending_booking_form" style="float: left;width: 1090px;">
                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
@@ -674,7 +674,7 @@
  <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
                                        <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
                                             <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
@@ -718,7 +718,7 @@
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
                             <td>{{$index+1}}</td>
                             <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','1','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
                             <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
