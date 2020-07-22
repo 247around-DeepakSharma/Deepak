@@ -33,6 +33,7 @@ class dealerApi extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('engineer_model');
         $this->load->model("dealer_model");
+        $this->load->model("reusable_model");
         $this->load->model("service_centers_model");
         $this->load->library('notify');
         $this->load->library("miscelleneous");
@@ -414,6 +415,11 @@ class dealerApi extends CI_Controller {
             case 'submitEscalation':
                 $this->submitEscalation(); /* get Spare Details API */
                 break;
+            
+            case 'homeFilters':
+                $this->gethomeFilters(); /* get homeFilters API */
+                break;
+            
 
             default:
                 break;
@@ -1048,6 +1054,40 @@ function submitEscalation(){
             $this->jsonResponseString['response'] = array();
             $this->sendJsonResponse(array("1010", "Data Not Found !"));
         }
+    }
+    
+     /*
+     * @Desc - This function is used get dashboard filter data
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    function gethomeFilters(){
+        
+        
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+        	/* Get Partner , Service , warramty data from  DB */
+                  $response = array(); 
+                  
+                  $response['request_type'] = array('not_set'=>'All','Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
+                  $response['warranty'] = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
+                  $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
+                  $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
+                  $response['partners'] = $this->partner_model->getpartner();
+                  $serviceWhere['isBookingActive'] =1;
+                  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $this->jsonResponseString['response'] = $response;
+                  
+                  $this->sendJsonResponse(array('0000', "Dashboard filters found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1010", "Dashboard Filters  not found !")); 
+        }
+        
     }
 
 }
