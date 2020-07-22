@@ -1081,7 +1081,7 @@ class vendor extends CI_Controller {
             $this->vendor_model->edit_vendor($vendor, $id);
             //Generate auth certificate for those SF's who was diactive and now going to activate
             if($is_active == 1){
-                $this->sfauthorization_certificate->create_new_certificate($id);
+               $this->sfauthorization_certificate->create_new_certificate($id);
             }
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
@@ -1096,10 +1096,10 @@ class vendor extends CI_Controller {
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
 
-                //Getting template from Database 
-                $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
-                $template = $this->booking_model->get_booking_email_template($tag);
-                if (!empty($template)) {
+            //Getting template from Database 
+            $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
+            $template = $this->booking_model->get_booking_email_template($tag);
+            if (!empty($template)) {
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
@@ -1108,14 +1108,14 @@ class vendor extends CI_Controller {
                     } else {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
-                        if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
-                            $to .= ",".$template[1];
-                        }
+                            if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
+                                $to .= ",".$template[1];
+                            }
                     }
                     $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
-                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
