@@ -2712,10 +2712,10 @@ CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE N
 CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
 
 -- Sarvendra CRM-3450
-insert into boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
+INSERT INTO boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
 values('sf_permanent_on_off_is_micro_wh','',
-'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
-'','booking@247around.com','','accounts@247around.com','',1);
+'Dear Inventory Team/ Accounts Team/ %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
+'','booking@247around.com','warehouse_noida@247around.com,accounts@247around.com','','',1);
 
 -- Prity
 -- 73 Release
