@@ -3897,13 +3897,10 @@ class Inventory_model extends CI_Model {
      * @return: last_insert_id
      */
 
-
     function insert_into_non_returnable_consumed_parts($data) {
         $this->db->insert('non_returnable_consumed_parts', $data);
         return $this->db->insert_id();
     }
-
-   
     
     
     
