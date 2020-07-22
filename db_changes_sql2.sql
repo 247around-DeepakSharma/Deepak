@@ -2591,15 +2591,16 @@ CREATE TABLE `booking_amount_differences` (
 
 
 
---Sarvendra 04-05-2020 - CRM-6175
---74
-ALTER TABLE `boloaaka`.`service_centres` 
-ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_year`;
+    --Sarvendra 04-05-2020 - CRM-6175
+    --74
+    ALTER TABLE `boloaaka`.`service_centres` 
+    ADD COLUMN `is_approved` INT(1) NULL DEFAULT 0 AFTER `auth_certificate_validate_year`;
 
-Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
-values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
-2,36,'admin,developer,regionalmanager,areasalesmanager',
-'main_nav',1);
+    Insert INTO boloaaka.header_navigation (entity_type,title,title_icon,link,level,parent_ids,groups,nav_type,is_active)
+    values('247Around','Unapproved Service Centers','','employee/vendor/unapprovered_service_centers',
+    2,36,'admin,developer,regionalmanager',
+    'main_nav',1);
+
 values('Total_GST_Hold_Amount', 'Total Amount', '',"SELECT IFNULL(sum(cgst_tax_amount + sgst_tax_amount + igst_tax_amount), 0) as count FROM `vendor_partner_invoices` ;", "", 'accountant', 1, 'service', 1, CURRENT_TIMESTAMP);
 
 
@@ -2785,9 +2786,31 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
+----Gorakh 07-07-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Upload Courier Serviceable Area File', NULL, 'employee/inventory/upload_courier_serviceable_area_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 02:24:48');
+
+
 -- Raman 74
 -- 12-06-2020
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"Current Booking Date\"' WHERE `partner_summary_report_mapping`.`id` = 19;
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
+--Gorakh 10-06-2020
+ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+--Gorakh Nath 06-05-2020
+CREATE TABLE `personal_used_spare_parts` (
+  `id` int(11) NOT NULL,
+ `warehouse_id` int(11) NOT NULL,
+ `quantity` int(11) DEFAULT NULL,
+ `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+ ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
+ALTER TABLE `personal_used_spare_parts`
+ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
+--Gorakh 21-07-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');

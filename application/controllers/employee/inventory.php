@@ -9728,6 +9728,90 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         return $row;
     }
+       
+     /*
+     *  @desc : This function is used to get courier serviceable area list.
+     *  @param : void
+     *  @return : Json
+     */
+
+    function get_courier_serviceable_area_list() {
+        $data = $this->get_courier_serviceable_area_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_courier_serviceable_area_list($post),
+                "recordsFiltered" => $this->inventory_model->count_courier_serviceable_area_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    /*
+     *  @desc : This function is used to draw courier serviceable area list in bulk.
+     *  @param : void
+     *  @return : void
+     */
+    function get_courier_serviceable_area_list_data() {
+        $post = $this->get_post_data();
+        $courier_flag = trim($this->input->post('courier_flag'));
+        $data = array();
+        if (!empty($courier_flag)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('courier_serviceable_area.courier_company_name', 'courier_serviceable_area.pincode');
+            $post['where'] = "";
+            $select = "courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode, courier_serviceable_area.status, courier_serviceable_area.create_date";
+            $list = $this->inventory_model->get_courier_serviceable_area_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $courier_serviceable_area_list) {
+                $no++;
+                $row = $this->get_courier_serviceable_area_list_table($courier_serviceable_area_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+     /*
+     *  @desc : This function is used to draw courier serviceable area list in single line item.
+     *  @param : $serviceable_area
+      * @param : $no
+     *  @return : array
+     */
+    function get_courier_serviceable_area_list_table($serviceable_area, $no) {
+        $row = array();
+        $json_data = json_encode($serviceable_area);
+        $row[] = $no;
+        $row[] = $serviceable_area->courier_company_name;
+        $row[] = $serviceable_area->pincode;
+        $row[] = date('d-F-Y', strtotime($serviceable_area->create_date));
+        if ($serviceable_area->status == 1) {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+        } else {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' style='cursor:not-allowed' title='Edit not allowed account deactivated'><i class = 'fa fa-edit'></i></a>";
+        }
+        $row[] = $update;
+        if ($serviceable_area->status == 1) {
+            $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Deactivate</button>";
+        } else {
+            $action = "<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Activate</button>";
+        }
+        $row[] = $action;
+
+        return $row;
+    }
     
     /*
      *  @desc : This function is used to open the download courier invoice page 

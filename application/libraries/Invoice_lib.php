@@ -705,7 +705,7 @@ class Invoice_lib {
             if (!empty($spare_details[0][0]['courier_name'])) {
                 $excel_data['excel_data']['courier_servicable_area'] = $spare_details[0][0]['courier_name'];
             } else if (!empty($sf_details[0]['pincode'])) {
-                $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $sf_details[0]['pincode']), array());
+                $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $sf_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
                 if (!empty($serviceable_area)) {
                     $couriers_name = implode(', ', array_map(function ($entry) {
                                 return $entry['courier_company_name'];
@@ -900,7 +900,7 @@ class Invoice_lib {
 
                 $vendor_details = $this->ci->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $spare_parts_details_value[0]['service_center_id']), 'name', array(), array(), array());
                     if (!empty($vendor_details)) {
-                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
                         if (!empty($serviceable_area)) {
                             $couriers_name = implode(', ', array_map(function ($entry) {
                                         return $entry['courier_company_name'];
@@ -1015,7 +1015,7 @@ class Invoice_lib {
                    
                     $vendor_details = $this->ci->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $spare_parts_details_value[0]['assigned_vendor_id']), 'name', array(), array(), array());
                     if (!empty($vendor_details)) {
-                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
                         if (!empty($serviceable_area)) {
                             $couriers_name = implode(', ', array_map(function ($entry) {
                                         return $entry['courier_company_name'];
