@@ -2613,10 +2613,10 @@ CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE N
 CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
 
 -- Sarvendra CRM-3450
-insert into boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
+INSERT INTO boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
 values('sf_permanent_on_off_is_micro_wh','',
-'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
-'','booking@247around.com','','accounts@247around.com','',1);
+'Dear Inventory Team/ Accounts Team/ %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
+'','booking@247around.com','warehouse_noida@247around.com,accounts@247around.com','','',1);
 
 -- Prity
 -- 73 Release
@@ -2766,3 +2766,6 @@ ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
 ALTER TABLE `personal_used_spare_parts`
  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
+--Gorakh 21-07-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');

@@ -2934,49 +2934,4 @@ class Around_scheduler extends CI_Controller {
         echo 'Data has been update successfully.';
         
     }
-    
-    /**
-     * @desc: download multiple challans in pdf file.
-     */
-    public function download_challan() {
-
-        $json_data = file_get_contents(base_url().'sf_challan.json'); 
-        $delivery_challan_file_name_array = json_decode($json_data, true);
-
-        ////  ZIP The Challan files ///
-        $challan_file = 'challan_file' . date('dmYHis');
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
-        }
-        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
-        foreach ($delivery_challan_file_name_array as $value1) {
-            $zip .= " " . $value1['challan_link'] . " ";
-        }
-        
-        $challan_file_zip = $challan_file . ".zip";
-        $res = 0;
-        system($zip, $res);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
-
-        $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
-        readfile(TMP_FOLDER . $challan_file . '.zip');
-//        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-//            unlink(TMP_FOLDER . $challan_file . '.zip');
-//            if (file_exists(TMP_FOLDER . $challan_file_zip)) {
-//                unlink(TMP_FOLDER . $challan_file_zip);  // ZIP extension coming two times // 
-//            }
-//
-//            foreach ($delivery_challan_file_name_array as $value_unlink) {
-//                if (file_exists(TMP_FOLDER . $value_unlink)) {
-//                    unlink(TMP_FOLDER . $value_unlink);
-//                }
-//            }
-//        }
-                
-      
-        echo 'Done';exit;
-    }
 }
