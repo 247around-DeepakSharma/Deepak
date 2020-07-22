@@ -4219,7 +4219,7 @@ class Service_centers extends CI_Controller {
                             if (!empty($value['assigned_vendor_id'])) {
                                 $vendor_details = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $value['assigned_vendor_id']), 'name', array(), array(), array());
                                 if (!empty($vendor_details)) {
-                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode']), array());
+                                    $serviceable_area = $this->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
                                     if (!empty($serviceable_area)) {
                                         $couriers_name = implode(', ', array_map(function ($entry) {
                                                     return $entry['courier_company_name'];

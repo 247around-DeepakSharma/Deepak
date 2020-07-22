@@ -2786,6 +2786,7 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
+
 ----Gorakh 07-07-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Upload Courier Serviceable Area File', NULL, 'employee/inventory/upload_courier_serviceable_area_file', 3, '228', 'accountmanager,admin,closure,developer', 'main_nav', 1, '2020-03-19 02:24:48');
@@ -2799,6 +2800,7 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.bo
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
 --Gorakh Nath 06-05-2020
 CREATE TABLE `personal_used_spare_parts` (
   `id` int(11) NOT NULL,
@@ -2810,4 +2812,9 @@ CREATE TABLE `personal_used_spare_parts` (
 ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
 ALTER TABLE `personal_used_spare_parts`
  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
 ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
+--Gorakh 21-07-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');
+
