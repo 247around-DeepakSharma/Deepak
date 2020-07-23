@@ -123,8 +123,6 @@
     </div>
 </div>
 </div>
-
-
 <div id="reverse_sale_invoice_model" class="modal fade" role="dialog"  data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog">
 
@@ -135,7 +133,7 @@
         <h4 class="modal-title">Generate Sale Invoice</h4>
       </div>
       <div class="modal-body">
-          <label>Please Enter Remarks<sup>*</sup></label>
+          <label>Please Enter Remarks</label>
           <textarea id='remarks_revese_sale' class='form-control' style='height:100px;resize:none' onkeyup="$('#remarks_revese_sale').css('border','');"></textarea>
         <input id='reverse_sale_id' class='form_control' type='hidden'>
       </div>
@@ -149,17 +147,12 @@
 </div>
 <script>
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-
     function generate_sale_invoice(){
         var remarks_revese_sale = $("#remarks_revese_sale").val();
         remarks_revese_sale = remarks_revese_sale.trim();
         var reverse_sale_id = $("#reverse_sale_id").val();
         var flag = true;
         $("#remarks_revese_sale").css('border','');
-        if(remarks_revese_sale==''){
-            $("#remarks_revese_sale").css('border','1px solid #F00');
-            flag = false;
-        }
         if(flag){
             var url = "<?php echo base_url(); ?>employee/invoice/generate_oow_parts_invoice/"+reverse_sale_id;
             $.ajax({
@@ -179,7 +172,7 @@
                      $("#generate_sale_invoice").css('pointer-events','');
                      $("#generate_sale_invoice").css('opacity','');
                      $(".close_button_generate_invoice").css('pointer-events','');
-                     window.location.href = window.location.href;
+                     location.reload();
                  }
             });
         }

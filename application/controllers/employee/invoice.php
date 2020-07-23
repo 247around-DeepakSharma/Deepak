@@ -4500,7 +4500,11 @@ exit();
                     "accounting" => 1
                 );
                 if(!empty($remarks_revese_sale)){
-                    $invoice_details['remarks'] =   $remarks_revese_sale;
+                    if(!empty($invoice_details['remarks'])){
+                        $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$remarks_revese_sale;
+                    }else{
+                        $invoice_details['remarks'] = "Remark:- ".$remarks_revese_sale;
+                    }
                 }
 
                 $this->invoices_model->action_partner_invoice($invoice_details);
@@ -4810,6 +4814,13 @@ exit();
                 "accounting" => 1,
                 "reference_invoice_id" => $reference_invoice_id
             );
+            if($this->input->post('remark') && !empty($this->input->post('remark'))){
+                if(!empty($invoice_details['remarks'])){
+                    $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$this->input->post('remark');
+                }else{
+                    $invoice_details['remarks'] = "Remark:- ".$this->input->post('remark');
+                }
+            }
 
             $this->invoices_model->insert_new_invoice($invoice_details);
 //            $this->invoices_model->insert_new_invoice($invoice_details);
@@ -6250,9 +6261,11 @@ exit();
         $data = array();
         $no = $post['start'];
         //create table data for each row
+        $row_index = 0;
         foreach ($list as $model_list) {
             $no++;
-            $row = $this->get_spare_sale_table($model_list, $no);
+            $row_index++;
+            $row = $this->get_spare_sale_table($model_list, $no, $row_index);
             $data[] = $row;
         }
 
@@ -6267,7 +6280,7 @@ exit();
      *  @param : array
      *  @return : array
      */
-     function get_spare_sale_table($model_list, $no) {
+     function get_spare_sale_table($model_list, $no, $row_index) {
         $row = array();
         $json_data = json_encode($model_list);
         $row[] = $no;
@@ -6279,7 +6292,7 @@ exit();
         $row[] = $model_list->sell_price;
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
-        $row_number = $no - 1;
+        $row_number = $row_index - 1;
         $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;
