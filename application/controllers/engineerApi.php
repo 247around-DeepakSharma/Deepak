@@ -3460,7 +3460,7 @@ class engineerApi extends CI_Controller {
             $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'], $requestData['service_id'], $requestData['partner_id'], 30, $initial_booking_date);
 
             /** get model number and date of purchase if spare part already ordered * */
-            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"],'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL));
             if (!empty($spare_details)) {
                 $response['spare_parts'] = $spare_details[0];
             }
