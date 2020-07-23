@@ -95,7 +95,7 @@ $min_time_diff += $since_start->i;
                             <div class="form-group">
                                 <label for="booking_date" class="col-md-4">Booking Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_date" name="booking_date" value="<?php if (isset($user_and_booking_details[0]['booking_date'])) {echo $user_and_booking_details[0]['booking_date']; } ?>" readonly="readonly">
+                                    <input type="text" class="form-control" id="booking_date" name="booking_date" value="<?php if (isset($user_and_booking_details[0]['booking_date'])) {echo date("d-m-Y", strtotime($user_and_booking_details[0]['booking_date'])); } ?>" readonly="readonly">
                                 </div>
                             </div>
                         </div>

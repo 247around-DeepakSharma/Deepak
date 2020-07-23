@@ -1843,7 +1843,7 @@ function get_data_for_partner_callback($booking_id) {
             CASE WHEN(current_status = 'Completed' || current_status = 'Cancelled') THEN (closing_remarks) ELSE (reschedule_reason) END AS 'Remarks',
             if(booking_date!='0000-00-00',booking_date,null) As 'Scheduled Appointment Date(DD/MM/YYYY)',
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
-            if(initial_booking_date!='0000-00-00',initial_booking_date,null) As 'First Booking Date',
+            if(initial_booking_date!='0000-00-00',DATE_FORMAT(`initial_booking_date`,'%d-%m-%Y'),null) As 'First Booking Date',
             partner_internal_status AS 'Final Status',
             DATE_FORMAT(`booking_details`.`closed_date`,'%d-%m-%Y') As 'Service Center Close Date',
             GROUP_CONCAT(spare_parts_details.parts_requested) As 'Requested Part', 

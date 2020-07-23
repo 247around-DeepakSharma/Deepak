@@ -192,7 +192,7 @@
                 }
             });
         $('input[name="booking_date"]').on('apply.daterangepicker', function (ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));  
+                $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));  
                 datatable1.ajax.reload();
             });
             $('input[name="booking_date"]').on('cancel.daterangepicker', function (ev, picker) {

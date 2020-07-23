@@ -33,7 +33,7 @@
                             <div class="form-group">
                                 <label for="name" class="col-md-4">Current Booking Date</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (isset($data[0]['booking_date'])) {echo $data[0]['booking_date']; }?>"  disabled>
+                                    <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (isset($data[0]['booking_date'])) {echo date("d-m-Y", strtotime($data[0]['booking_date'])); }?>"  disabled>
                                 </div>
                             </div>
                             <div class="form-group ">
@@ -104,15 +104,15 @@
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
-                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
+                minDate: '<?php echo date('H') >= 12 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day")); ?>',
+                maxDate: '<?php echo date("d-m-Y", strtotime("+15 day")); ?>',
                 locale:{
-                    format: 'YYYY-MM-DD'
+                    format: 'DD-MM-YYYY'
                 }
             });
             
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
     });
     
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
