@@ -121,7 +121,7 @@ function check_text(){
                         <div class="form-group-cancel">
                            <label for="booking_date" class="col-md-4">Booking Date</label>
                            <div class="col-md-6">
-                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (!empty($user_and_booking_details[0]['booking_date']) && $user_and_booking_details[0]['booking_date'] != '0000-00-00') {echo $user_and_booking_details[0]['booking_date']; } ?>" readonly="readonly">
+                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (!empty($user_and_booking_details[0]['booking_date']) && $user_and_booking_details[0]['booking_date'] != '0000-00-00') {echo date("d-m-Y", strtotime($user_and_booking_details[0]['booking_date'])) ; } ?>" readonly="readonly">
                            </div>
                         </div>
                   </div>
