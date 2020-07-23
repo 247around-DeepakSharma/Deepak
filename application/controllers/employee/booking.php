@@ -5968,6 +5968,7 @@ class Booking extends CI_Controller {
                 $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
             }
         } 
+        
         // Added Request Type Filter
         if(!empty($post_data['request_type'])) {  
             $request_type = $post_data['request_type'];
