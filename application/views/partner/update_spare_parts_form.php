@@ -284,7 +284,7 @@
                                     <div class="form-group">
                                         <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
                                             <div class="col-md-7">
-                                                <input required="" type="text" class="form-control" id="<?php echo "approx_value_" . $key; ?>" name="part[<?php echo $key; ?>][approx_value]" max="100000" value = "" placeholder="Please Enter approx value" <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?> >
+                                                <input required="" type="text" class="form-control spare_part_approx_value" id="<?php echo "approx_value_" . $key; ?>" name="part[<?php echo $key; ?>][approx_value]" max="100000" min="1" value = "" placeholder="Please Enter approx value" <?php //if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?> >
                                             </div>
                                     </div>
                                     </div>
@@ -464,7 +464,7 @@
                                     <div class="form-group ">
                                         <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
                                         <div class="col-md-7">
-                                            <input required="" type="text" class="form-control" id="approx_value"  max="100000" value = "" placeholder="Please Enter approx value"  <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?>>
+                                            <input required="" type="text" class="form-control spare_part_approx_value" id="approx_value"  max="100000" min="1" value = "" placeholder="Please Enter approx value"  <?php //if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?>>
                                         </div>
                                     </div>
                                     
@@ -645,7 +645,7 @@
               } 
         }
     });
-        
+    
     $(".hsn_code").on("change",function(){
     var string_id = $(this).attr("id");
     var array = string_id.split("_");
