@@ -776,9 +776,15 @@ function  getHomeDashboard(){
                         $for = "Brand";
                     }
                     
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
+                       $partner_id = $requestData['partner_id'];
+                    }else{
+                        $for = "not_set";
+                    }
+                    
                    
-                    $is_pending = FALSE;
-                    $partner_id = NULL;
+                    $is_pending = 0;
+                    
                     //Call curl for TAT
                     $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/".$for."/".$is_pending."/".$partner_id;
                     $ch = curl_init($url);
