@@ -423,6 +423,11 @@ class dealerApi extends CI_Controller {
             case 'homeDashboard':
                 $this->getHomeDashboard(); /* get getHomeDashboard API */
                 break;
+            
+            case 'getTopRatingSf':
+                $this->getTopRatingSfs(); /* get getTopRatingSfs API */
+                break;
+            
 
             default:
                 break;
@@ -1172,6 +1177,27 @@ function submitEscalation(){
             $this->sendJsonResponse(array("1010", "Dashboard Filters  not found !")); 
         }
         
+    }
+    
+     /*
+     * @Desc - This function is used get top 5 SFs
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */  
+    function getTopRatingSfs(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type","sf_limit"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+                 $rating_data = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
+        }
     }
 
 }
