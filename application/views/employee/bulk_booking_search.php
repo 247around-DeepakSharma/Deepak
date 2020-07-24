@@ -44,6 +44,7 @@
                         <tr>
                             <th>No.</th>
                             <th>Booking ID</th>
+		            <th>Request Type</th>
                             <th>OrderID</th>
                             <th>Contact No.</th>
                             <th>Partner</th>
@@ -56,7 +57,7 @@
                             <th>Brand</th>
                             <th>Category</th>
                             <th>Capacity</th>
-                            <th>Request Type</th>
+                            <th>Price Tag</th>
                             <th>Product/Service</th>
                         </tr>
                     </thead>
@@ -104,9 +105,9 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'bank_transactions',
+                    title: 'Bulk_Booking_Search_Data',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9,10],
+                       columns: [1,2,3,4,5,6,7,8,9,10,11],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
