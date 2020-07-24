@@ -1186,12 +1186,10 @@ function submitEscalation(){
      * @Author  - Abhishek Awasthi
      */  
     function getTopRatingSfs(){
-        $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5(10);
-        print_r($rating_data); exit;
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        $validation = $this->validateKeys(array("entity_type","sf_limit"), $requestData);
         if (!empty($requestData['entity_type'])) { 
-                 $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($this->session->userdata('service_center_id')); 
+                 $rating_data = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
                
