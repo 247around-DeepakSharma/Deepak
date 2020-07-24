@@ -135,6 +135,30 @@
     </div>
     
 </div>
+
+<div id="reverse_sale_invoice_model" class="modal fade" role="dialog"  data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button_generate_invoice" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Generate Reverse Sale Invoice</h4>
+      </div>
+      <div class="modal-body">
+          <label>Please Enter Remarks</label>
+          <textarea id='remarks_revese_sale' class='form-control' style='height:100px;resize:none' onkeyup="$('#remarks_revese_sale').css('border','');"></textarea>
+        <input id='reverse_sale_id' class='form_control' type='hidden'>
+        <input id='index_id' class='form_control' type='hidden'>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="reverse_spare_sale_invoice()" id='generate_sale_invoice'>Reverse Sale Invoice</button>
+        <button type="button" class="btn btn-default close_button_generate_invoice" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <script>
     var sold_spare_parts_table;
     var time = moment().format('D-MMM-YYYY');
@@ -193,34 +217,54 @@
             "deferRender": true       
         });
     }
-    
-    //function to reverse spare sale invoice
     function reverse_spare_sale(id, row_index)
     {
+        $('#reverse_sale_invoice_model').modal('show');
+        $("#reverse_sale_id").val(id);
+        $("#index_id").val(row_index);
+        $("#remarks_revese_sale").val('');
+    }
+    //function to reverse spare sale invoice
+    function reverse_spare_sale_invoice()
+    {
+        $('#reverse_sale_invoice_model').modal('show');
         //popup for confirmation
         var status = confirm("Are you sure?");
+        var id = $("#reverse_sale_id").val();
+        var remark = $("#remarks_revese_sale").val();
+        var row_index = $("#index_id").val();
         if (status) {
             //user confirmed to continue
             document.getElementById("btn"+row_index).disabled = true;
             document.getElementById("btn"+row_index).innerHTML = "Generating...";
+             $("#generate_sale_invoice").html("Reverse Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
+             $("#generate_sale_invoice").css('pointer-events','none');
+             $("#generate_sale_invoice").css('opacity','.6');
+             $(".close_button_generate_invoice").css('pointer-events','none');
             var temp = sold_spare_parts_table.row(row_index).data();
             var url = '<?php echo base_url(); ?>employee/invoice/reverse_sale_for_part_lost/'+id;
             var success_msg = "Reverse spare sale invoice created successfully!";
             var error_msg = "Something went wrong while creating reverse spare sale invoice!";
 
             $.ajax({
-            type: 'GET',
+            type: 'POST',
             url: url,
-            data: {}
+            data: {remark:remark}
           })
           .done (function(data) {
              // success case
+                data = data.trim();
+                $("#generate_sale_invoice").html("Reverse Sale Invoice");
+                $("#generate_sale_invoice").css('pointer-events','');
+                $("#generate_sale_invoice").css('opacity','');
+                $(".close_button_generate_invoice").css('pointer-events','');
               if(data){
                   // success response
                   //change datatable - replace 'Reverse Sale Invoice' button with created reverse invoice id pdf link
                   temp[9] = "<?php echo "<a href='" . 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" ?>" + data + "<?php echo ".pdf' target='_blank' title='Click to view generated reverse sale invoice'>" ?>" + data + "<?php echo "</a>"; ?>";
                   sold_spare_parts_table.row(row_index).data(temp).invalidate();
                   alert(success_msg);
+                  $('#reverse_sale_invoice_model').modal('hide');
               }
               else{
                   //fail response
