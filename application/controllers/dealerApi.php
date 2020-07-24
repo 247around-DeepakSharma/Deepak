@@ -422,7 +422,7 @@ class dealerApi extends CI_Controller {
             case 'homeDashboard':
                 $this->getHomeDashboard(); /* get getHomeDashboard API */
                 break;
-           
+
             case 'getTopRatingSf':
                 $this->getTopRatingSfs(); /* get getTopRatingSfs API */
                 break;
@@ -430,7 +430,6 @@ class dealerApi extends CI_Controller {
             case 'getStateTATData':
                 $this->getStateTATData(); /* get getStateTATData API */
                 break;
-
             default:
                 break;
         }
@@ -1188,7 +1187,7 @@ function submitEscalation(){
         }
         
     }
-   
+
      /*
      * @Desc - This function is used get top 5 SFs
      * @param - 
