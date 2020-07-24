@@ -1219,6 +1219,10 @@ class User extends CI_Controller {
                 $result = $result2;
             }
         }
+        $zone_result = $this->employee_model->get_rm_details(array(_247AROUND_RM),$rm_ID);
+        if(!empty($zone_result)){
+          $zone_id = $zone_result[0]['zone_id'];
+        }
         if (!empty($result)) {
             $resultOtherAgentDistrict = array_map(function ($entry) {
                 return $entry['id'];
@@ -1231,7 +1235,8 @@ class User extends CI_Controller {
         $array_state_district = array();
         foreach($resultArray as $key => $value)
         {
-            $array_state_district[$value['state']][$value['id']]=$value['district'];
+            $array_state_district[$value['state']][$value['id']]['district']    =   $value['district'];
+            $array_state_district[$value['state']][$value['id']]['zone_id']     =   $value['zone_id'];
         }
         
         $count = 0;
@@ -1264,6 +1269,7 @@ class User extends CI_Controller {
                             $checked = 'checked';
                          }
                          $class ="myselectall$count";
+
                          if(in_array($key_d,$resultOtherAgentDistrict))
                          {
                              $checked = '';
@@ -1272,7 +1278,15 @@ class User extends CI_Controller {
                              $style=";color:#ccc";
                              $title ='You can not map this district as this is already mapped with other agent.';
                          }
-                        $html .="<div class='col-md-3' style='padding:5px 0px$style' title='$title'><input type='checkbox' $checked class='$class ' $disabled name='district[]' value='$key_d'>&nbsp;&nbsp;$value_d</div>"; 
+                         if(!empty($zone_id) && $zone_id!=$value_d['zone_id']){
+                             $checked = '';
+                             $disabled ='disabled';
+                             $class = '';
+                             $style=";color:#ccc";
+                             $title ='You can not map this district as this is district does not belong to zone of selected user.';
+                         }
+
+                        $html .="<div class='col-md-3' style='padding:5px 0px$style' title='$title'><span data-toggle='tooltip' title='$title' data-placement='right'><input type='checkbox' $checked class='$class ' $disabled name='district[]' value='$key_d'>&nbsp;&nbsp;".$value_d['district']."</span></div>"; 
                      }
                         
                   $html .='</div>
