@@ -172,8 +172,13 @@ class vendor extends CI_Controller {
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
                 }
-                   $engineer['service_center_id'] =  $sc_id;
                    $engineer['name'] = "Default Engineer";
+                   $engineer['phone'] = "";
+                   $engineer['alternate_phone'] = "";
+                   $engineer['service_center_id'] =  $sc_id;
+                   $engineer['active'] = 1;
+                   $engineer['create_date'] = date('Y-m-d H:i:s');
+
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
                    $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
