@@ -2,10 +2,10 @@
 <div id="page-wrapper" >
     <div class="col-md-12" style="border-bottom: 1px solid #ccc; margin-bottom: 30px;">
         <div class="col-md-6">
-            <h2 class="page-header" style="border: none;">Spare Invoice List</h2>
+            <?php if(empty($dashboard)){ ?><h2 class="page-header" style="border: none;">Spare Invoice List</h2><?php } ?>
         </div>
         <div class="col-md-6">
-            <button onclick="open_create_invoice_form()" style="margin-top: 45px;float: right;" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">create</button>
+            <button onclick="open_create_invoice_form()" style="<?php if(empty($dashboard)){ ?>margin-top: 45px;<?php } ?>float: right;" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">create</button>
         </div>
     </div>
     <div class="col-md-12">
@@ -145,8 +145,54 @@
 
   </div>
 </div>
+<?php
+if(!empty($dashboard)){
+?>
 <script>
+    $(document).ready(function () {
+        $('#invoice_table').DataTable({
+            "processing": true,
+            "serverSide": false,
+            "dom": 'lBfrtip',
+            "buttons": [
+            ],
+            "order": [],
+            "ordering": true,
+            "deferRender": true,
+            //"searching": false,
+            //"paging":false
+            "aLengthMenu": [[10, 20, 50, 100, -1], [10, 20, 50, 100, 'All']],
+            "pageLength": 20,
+            "language": {
+                "emptyTable": "No Data Found",
+                "searchPlaceholder": "Search by any column."
+            },
+        });
+    });
+    $(function() {
+        $('#invoice_date').daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 1901,
+        maxYear: parseInt(moment().format('YYYY'),10),
+        locale: {
+          format: 'YYYY-MM-D'
+        }
+        });
+    });
+   </script>
+<?php
+}
+else{
+?>
+   <script>
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    </script>
+  <?php
+}
+?>
+   <script>
+   
     function generate_sale_invoice(){
         var remarks_revese_sale = $("#remarks_revese_sale").val();
         remarks_revese_sale = remarks_revese_sale.trim();
@@ -155,6 +201,7 @@
         $("#remarks_revese_sale").css('border','');
         if(flag){
             var url = "<?php echo base_url(); ?>employee/invoice/generate_oow_parts_invoice/"+reverse_sale_id;
+            var dashboard = "<?php if(!empty($dashboard)){ echo 'dashboard'; }?>";
             $.ajax({
                  method:'POST',
                  dataType: "json",
@@ -172,7 +219,11 @@
                      $("#generate_sale_invoice").css('pointer-events','');
                      $("#generate_sale_invoice").css('opacity','');
                      $(".close_button_generate_invoice").css('pointer-events','');
-                     location.reload();
+                     if(dashboard==''){
+                            location.reload();
+                        }else{
+                            bring_generate_sale_invoice_view();
+                        }
                  }
             });
         }
@@ -287,6 +338,7 @@
                     
     
          var fd = new FormData(document.getElementById("purchase_invoice_form"));
+         var dashboard = "<?php if(!empty($dashboard)){ echo 'dashboard'; }?>";
              fd.append("label", "WEBUPLOAD");
                 $.ajax({
                  type: "POST",
@@ -318,7 +370,11 @@
                         $("#hsn_code").val("");
                         $("#remarks").val("");
                         swal("Thanks!", "Booking updated successfully!", "success");
-                        location.reload();
+                        if(dashboard==''){
+                            location.reload();
+                        }else{
+                            bring_generate_sale_invoice_view();
+                        }
     
                      } else {
                          swal("Oops", data, "error");
