@@ -117,12 +117,15 @@ class Employee_model extends CI_Model{
        * @return: Array
        * 
        */
-      function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM]){
-          $this->db->select('employee.*, zones.zone');
+      function get_rm_details($arr_groups = [_247AROUND_RM,_247AROUND_ASM],$rm_id=''){
+          $this->db->select('employee.*, zones.zone, zones.id as zone_id');
           $this->db->join('rm_zone_mapping', 'employee.id = rm_zone_mapping.rm_id', 'left');
           $this->db->join('zones', 'rm_zone_mapping.zone_id = zones.id', 'left');
           $this->db->where_in('employee.groups', $arr_groups);
           $this->db->where('employee.active','1');
+          if(!empty($rm_id)){
+              $this->db->where('employee.id',$rm_id);
+          }
           $query = $this->db->get('employee');          
           return $query->result_array();
       }
@@ -616,7 +619,7 @@ class Employee_model extends CI_Model{
      */
     function get_district_from_states($state_selected_string = '') {
         if (!empty($state_selected_string)) {
-            $sql = "SELECT district_state_mapping.id,district_state_mapping.district,state_code.state FROM district_state_mapping join state_code on district_state_mapping.state_code = state_code.state_code  where state_code.state in ($state_selected_string) order by field(state_code.state,$state_selected_string),district_state_mapping.district ASC";
+            $sql = "SELECT district_state_mapping.id,district_state_mapping.district,state_code.state,state_code.zone_id FROM district_state_mapping join state_code on district_state_mapping.state_code = state_code.state_code  where state_code.state in ($state_selected_string) order by field(state_code.state,$state_selected_string),district_state_mapping.district ASC";
             $query = $this->db->query($sql);
             return $query->result_array();
         }
