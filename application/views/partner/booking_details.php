@@ -575,10 +575,29 @@
                                                                 <th >EDD </th>
                                                                 <th >Remarks By Partner</th>
                                                                 <th>Challan File</th>
+                                                                <th>Is Defective Parts Required</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){?>
+                                                <?php foreach ($booking_history['spare_parts'] as $sp) {                                                             
+                                                            if ($sp['defective_part_required'] == '0') {
+                                                                    $required_parts = 'REQUIRED_PARTS';
+                                                                    $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
+                                                                    $cl = "btn-primary";
+                                                                } else {
+                                                                    $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
+                                                                    $required_parts = 'NOT_REQUIRED_PARTS';
+                                                                    $cl = "btn-danger";
+                                                                }
+
+                                                                if (!empty($sp['consumed_part_status_id']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS') {
+                                                                     $button = '<button type="button" disabled data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                } else {
+                                                                    $button = '<button type="button" data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                }
+
+                                                            if (!empty($sp['parts_shipped'])) {
+                                                    ?>
                                                                 <tr>
                                                                     <td>
                                                                     <a href="javascript:void(0);"  data-spare_id="<?php echo $sp['id']; ?>" class="spare_history_tracking"><?php echo $sp['id']; ?></a>
@@ -589,7 +608,7 @@
                                                                     <th ><?php echo $sp['shipped_quantity']; ?></th>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                                                     <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     <td><?php echo date("d-M-Y", strtotime($sp['shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['edd']; ?></td>
                                                                     <td><?php echo $sp['remarks_by_partner']; ?></td>
@@ -598,6 +617,7 @@
                                                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['partner_challan_file']; ?>" target="_blank">Click Here to view</a>
                                                                         <?php } ?>
                                                                     </td>
+                                                                    <td><?php echo $button; ?></td>
                                                                 </tr>
                                                             <?php }} ?>
                                                         </tbody>
@@ -779,7 +799,7 @@
                               
                                     
                                 <?php } ?>
-                                <div class="text-danger">Spare Part Not Requested</div>
+                                <div class="text-danger">Spare Part Not Requested </div>
                                       <div style="overflow-x:auto;">
                                     <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
@@ -984,6 +1004,29 @@
     </div>
 </div>
 <!-- Start Spare History Modal -->
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal_title"></h4>
+            </div>
+            <div class="modal-body">
+                <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title"></h4>
+                <div id="part_warranty_option"></div>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
+                <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
+            </div>
+            <input type="hidden" id="url"></input>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="defective_manager()" id="reject_btn">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function update_purchase_price(spare_id,booking_unit_id){
         var price = $('#edit_purchase_price').val();
@@ -1165,4 +1208,45 @@
        }
        
    });
+   
+    $(document).on("click", ".open-adminremarks", function () {
+         var booking_id = $(this).data('booking_id');
+         var url = $(this).data('url');
+         var split_url = url.split('/');
+         if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
+             button_txt = 'Move To Not Required';
+         }else{
+             button_txt = 'Move To Required';
+         }
+
+         $("#reject_btn").html(button_txt);  
+         $('#modal_title').text(booking_id);
+         $("#url").val(url);
+    });
+    
+     function defective_manager(){
+      var remarks =  $('#textarea').val();     
+      if(remarks !== ""){
+        $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{ remarks:remarks },
+            success: function(data){
+                $('#reject_btn').attr('disabled',false);
+                if(data === "Success"){
+                    $('#myModal2').modal('hide');
+                    alert("Updated Successfully");
+                    window.location.reload();
+                } else {
+                    alert("Updated Failed!");
+                }
+            }
+        });
+      } else {
+          alert("Please Enter Remarks");
+      }
+    }
+    
 </script>
