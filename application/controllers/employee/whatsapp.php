@@ -41,7 +41,7 @@ class Whatsapp extends CI_Controller {
         $post['column_order'] = array();
         $post['column_search'] = array('source', 'destination', 'content');
         // $post['group_by'] = 'destination';          
-        $select = "id,source,destination,channel,direction,content,created_on as created_on,status";
+        $select = "id,source,destination,channel,direction,content,created_on as created_on,status,content_type";
 
         $list = $this->whatsapp_model->get_whatsapp_log_list($post, $select);
         $data = array();
@@ -76,7 +76,37 @@ class Whatsapp extends CI_Controller {
         $row[] = '<a class="chat_number" data-id="' . $log_list['id'] . '" id="destination' . $log_list['id'] . '" style="text-decoration:none;" data-number="' . $log_list['destination'] . '" href="#">' . $log_list['destination'] . '<a>';
         $row[] = $log_list['channel'];
         $row[] = $log_list['direction'];
-        $row[] = $log_list['content'];
+        
+        if($log_list['content_type']=='media'){
+             $media = json_decode($log_list['content']);
+           //  print_r($media);
+             $url = $media->url;
+             $type_media = $media->type;
+             if($type_media=='image'){
+                 $row[] = "<img src='".$url."' style='height:50px;width:50px;' />" ;
+             }else if($type_media=='video'){
+               $video = ' <video width="50" height="50" controls src="https://api.karix.io/media/cadcf426-f30f-4cc4-baa8-43cee0e059d2">Video</video>';
+                 $row[] = $video ;
+             }else{
+                 $row[] = "<a target='_blank' href='".$url."' style='height:50px;width:50px;' >Download</a>" ;
+             }
+             
+             
+        }else if($log_list['content_type']=='location'){
+             $location = json_decode($log_list['content']);
+             $lat  = $location->latitude;
+             $long = $location->longitude;   
+             $map = "http://maps.google.com/maps?q=loc:".$lat.",".$long."77.7060387";
+             $row[] ='<a style="font-size: 25px;" href="'.$map.'" ><i class="fa fa-map-marker" aria-hidden="true"></i> Click on icon </a>'; 
+            
+        }else{
+           $row[] = $log_list['content'];   
+        } 
+        
+       
+        
+        
+        
         if ($log_list['status'] == 'failed') {
             $row[] = '<span class="label label-danger">Failed</span>';
         } else {
