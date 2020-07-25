@@ -31,10 +31,10 @@ class Dashboard extends CI_Controller {
         $this->load->dbutil();
         $this->load->helper(array('file'));
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee' || $this->session->userdata('userType') == 'partner' || $this->session->userdata('userType') == 'service_center')) {
-            return TRUE;
+          //  return TRUE;
         } else {
-            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-            redirect(base_url() . "employee/login");
+       //     echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+       //     redirect(base_url() . "employee/login");
         }
     }
 
@@ -2164,7 +2164,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
      * @Author  - Abhishek Awasthi
      */       
         
-        function get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$dealer = ""){
+        function get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type,$dealer = ""){
              if($this->session->userdata('partner_id') ){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
@@ -2216,7 +2216,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //            $conditionsArray['joinType']['zones'] = 'left';
 	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
-            $conditionsArray['orderBy']['entity'] = 'asc';
+          //  $conditionsArray['orderBy']['entity'] = 'asc';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         
@@ -2261,7 +2261,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data = $this->get_booking_tat_report_by_Brand($is_pending,$startDateField,$conditionsArray,$request_type);
         }else if($for == "Dealer"){
             
-            $data = $this->get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$dealer_id); 
+            $data = $this->get_booking_tat_report_by_dealer($is_pending,$startDateField,$conditionsArray,$request_type); 
         }
         if(!empty($data)){
             $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
