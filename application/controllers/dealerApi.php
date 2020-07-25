@@ -736,9 +736,9 @@ function getBookingDetails(){
      */
 function  getHomeDashboard(){
     
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
-   
+       $requestData = json_decode($this->jsonRequestData['qsh'], true);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+          
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
                     if(isset($requestData['status']) && !empty($requestData['status'])){
@@ -793,11 +793,10 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = curl_exec($ch);
-                    curl_close($ch);
-                
-                
+                    $curl_response = curl_exec($ch);                 
+              //  
                 $this->jsonResponseString['response'] = $curl_response;
                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
