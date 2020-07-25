@@ -2216,7 +2216,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 //            $conditionsArray['joinType']['zones'] = 'left';
 	    $conditionsArray['join']['booking_tat'] = "booking_details.booking_id = booking_tat.booking_id"; 
             $conditionsArray['joinType']['booking_tat'] = 'left';
-          //  $conditionsArray['orderBy']['entity'] = 'asc';
+            $conditionsArray['orderBy']['booking_details.booking_id'] = 'asc';
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,$conditionsArray['orderBy'],$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
         
