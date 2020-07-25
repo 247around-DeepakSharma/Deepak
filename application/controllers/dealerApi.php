@@ -738,6 +738,7 @@ function  getHomeDashboard(){
     
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+   
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
                     if(isset($requestData['status']) && !empty($requestData['status'])){
@@ -779,13 +780,14 @@ function  getHomeDashboard(){
                     if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
                        $partner_id = $requestData['partner_id'];
                     }else{
-                        $for = "not_set";
+                        $partner_id = "not_set";
                     }
                     
                    
                     $is_pending = 0;
                     
                     //Call curl for TAT
+                    $postData = array();
                     $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/".$for."/".$is_pending."/".$partner_id;
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -796,7 +798,7 @@ function  getHomeDashboard(){
                     curl_close($ch);
                 
                 
-                $this->jsonResponseString['response'] = $response;
+                $this->jsonResponseString['response'] = $curl_response;
                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
         } else {
