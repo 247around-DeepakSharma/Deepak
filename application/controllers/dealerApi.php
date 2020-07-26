@@ -784,11 +784,6 @@ function  getHomeDashboard(){
                        $upcountry ="not_set";  
                     }
                     
-                    if(isset($requestData['entity_type']) && !empty($requestData['entity_type'])){
-                        $for = "Dealer";
-                    }else{
-                        $for = "Brand";
-                    }
                     
                     if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
                        $partner_id = $requestData['partner_id'];
@@ -801,7 +796,7 @@ function  getHomeDashboard(){
                     
                     //Call curl for TAT
                     $postData = array();
-                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/".$for."/".$is_pending."/".$partner_id;
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id;
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
