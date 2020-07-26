@@ -928,7 +928,7 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
-    
+   
     /**
      * @desc: this is used to get the sf rating for those bookings which rating was done
      * @param: $sf_id string
@@ -1685,5 +1685,20 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             return false;
         }
     }
+    
+    
+        
+     /**
+     * @desc: this is used to get the sf rating for those bookings which rating was done
+     * @param: $limit
+     * @return: array()
+     *  Abhishek Awasthi
+     */
+    function get_vendor_rating_data_top_5($limit){
+        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating , count(booking_id) as count,service_centres.name,service_centres.id FROM booking_details JOIN service_centres ON booking_details.assigned_vendor_id=service_centres.id WHERE rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."' group by booking_details.assigned_vendor_id HAVING count>100 ORDER BY rating DESC LIMIT ".$limit;  
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
 
 }

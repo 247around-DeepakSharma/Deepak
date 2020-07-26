@@ -5049,7 +5049,7 @@ class Booking extends CI_Controller {
     }
     function get_bulk_search_result_view(){
        $receieved_Data = $this->input->post();
-       $bookingDetailsSelect = "booking_details.booking_id,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
+       $bookingDetailsSelect = "booking_details.booking_id,booking_details.request_type,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
                 . "service_centres.company_name,services.services,booking_details.current_status,booking_details.internal_status";
         $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
        if($this->input->post("is_unit_details")){

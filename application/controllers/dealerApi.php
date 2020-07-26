@@ -423,6 +423,11 @@ class dealerApi extends CI_Controller {
             case 'homeDashboard':
                 $this->getHomeDashboard(); /* get getHomeDashboard API */
                 break;
+            
+            case 'getTopRatingSf':
+                $this->getTopRatingSfs(); /* get getTopRatingSfs API */
+                break;
+            
 
             default:
                 break;
@@ -744,8 +749,9 @@ function getBookingDetails(){
      */
 function  getHomeDashboard(){
     
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+       $requestData = json_decode($this->jsonRequestData['qsh'], true);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+          
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
                     if(isset($requestData['status']) && !empty($requestData['status'])){
@@ -778,33 +784,28 @@ function  getHomeDashboard(){
                        $upcountry ="not_set";  
                     }
                     
-                    if(isset($requestData['entity_type']) && !empty($requestData['entity_type'])){
-                        $for = "Dealer";
-                    }else{
-                        $for = "Brand";
-                    }
                     
                     if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
                        $partner_id = $requestData['partner_id'];
                     }else{
-                        $for = "not_set";
+                        $partner_id = "not_set";
                     }
                     
                    
                     $is_pending = 0;
                     
                     //Call curl for TAT
-                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/".$for."/".$is_pending."/".$partner_id;
+                    $postData = array();
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id;
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = curl_exec($ch);
-                    curl_close($ch);
-                
-                
-                $this->jsonResponseString['response'] = $response;
+                    $curl_response = curl_exec($ch);                 
+              //  
+                $this->jsonResponseString['response'] = $curl_response;
                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
         } else {
@@ -1172,6 +1173,27 @@ function submitEscalation(){
             $this->sendJsonResponse(array("1010", "Dashboard Filters  not found !")); 
         }
         
+    }
+    
+     /*
+     * @Desc - This function is used get top 5 SFs
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */  
+    function getTopRatingSfs(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type","sf_limit"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+                 $rating_data = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
+        }
     }
 
 }
