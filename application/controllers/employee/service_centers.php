@@ -1517,6 +1517,11 @@ class Service_centers extends CI_Controller {
                 $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
             } else {
 
+                /* IF Agent Do not Come then to to find it */
+                $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($service_center_id);
+                if (!empty($sc_agent)) {
+                    $sc_agent_id = $sc_agent[0]['id'];
+                }
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
             $partner_id = $this->input->post("partner_id");
@@ -2856,7 +2861,7 @@ class Service_centers extends CI_Controller {
             }
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->miscelleneous->process_inventory_stocks($in);
             $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, true, FALSE);
         }
@@ -6644,6 +6649,7 @@ class Service_centers extends CI_Controller {
                                     $data['agent_type'] = _247AROUND_SF_STRING;
                                     $data['is_wh'] = TRUE;
                                     $data['inventory_id'] = $data['shipped_inventory_id'];
+                                    $data['spare_id'] = $spare_id;
                                     $this->miscelleneous->process_inventory_stocks($data);
                                 }
 
