@@ -2340,7 +2340,12 @@ class Booking_model extends CI_Model {
         }
         if (!empty($post['join'])) {
             foreach($post['join'] as $key=>$values){
-                $this->db->join($key, $values);
+                if(!empty($post['joinTypeArray']) && array_key_exists($key, $post['joinTypeArray'])){
+                    $this->db->join($key, $values,$post['joinTypeArray'][$key]);
+                }
+                else{
+                    $this->db->join($key, $values);
+                }                
             }
         }
         
