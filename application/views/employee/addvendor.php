@@ -2221,6 +2221,10 @@ function manageAccountNameField(value){
             $('#'+container+' #contract_file').attr('readonly');
             $('#'+container+' a[title="Remove Image"]').css('display','none');
         }
+
+            <?php }else{ ?>
+                $('#'+container+' a[title="Remove Image"]').css('display','inline');
+            <?php } ?>
     }
     
     function check_documents() {
