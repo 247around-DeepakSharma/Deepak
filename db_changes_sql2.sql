@@ -2713,10 +2713,10 @@ CHANGE COLUMN `final_defective_status_date` `final_defective_status_date` DATE N
 CHANGE COLUMN `vendor_reversal_date` `vendor_reversal_date` DATE NULL DEFAULT NULL ;
 
 -- Sarvendra CRM-3450
-insert into boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
+INSERT INTO boloaaka.email_template (`tag`,`subject`,`template`,`booking_id`,`from`,`to`,`cc`,`bcc`,`active`)
 values('sf_permanent_on_off_is_micro_wh','',
-'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
-'','booking@247around.com','','accounts@247around.com','',1);
+'Dear Inventory Team/ Accounts Team/ %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team',
+'','booking@247around.com','warehouse_noida@247around.com,accounts@247around.com','','',1);
 
 -- Prity
 -- 73 Release
@@ -2783,7 +2783,6 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_de
 
 UPDATE `partner_summary_report_mapping` SET `sub_query` = '(CASE WHEN booking_details.current_status IN (\"Pending\",\"Rescheduled\",\"FollowUp\") THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,\"%Y-%m-%d\")) ELSE \"\" END) as Ageing' WHERE `partner_summary_report_mapping`.`id` = 26;
 
->>>>>>> CRM_Release_1.73.0.1
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
@@ -2800,3 +2799,18 @@ UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.bo
 UPDATE `partner_summary_report_mapping` SET `sub_query` = 'if(booking_details.initial_booking_date != \'0000-00-00\', DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, \"%Y-%m-%d\"), \"%d/%c/%Y\"),null) As \"First Booking Date\"\n' WHERE `partner_summary_report_mapping`.`id` = 20;
 --Gorakh 10-06-2020
 ALTER TABLE `courier_tracking_details` CHANGE `checkpoint_status` `checkpoint_status` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+--Gorakh Nath 06-05-2020
+CREATE TABLE `personal_used_spare_parts` (
+  `id` int(11) NOT NULL,
+ `warehouse_id` int(11) NOT NULL,
+ `quantity` int(11) DEFAULT NULL,
+ `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+ ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `personal_used_spare_parts` ADD PRIMARY KEY (`id`);
+ALTER TABLE `personal_used_spare_parts`
+ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `warehouse_id`;
+--Gorakh 21-07-2020
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');

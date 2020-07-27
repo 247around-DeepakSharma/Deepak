@@ -172,8 +172,13 @@ class vendor extends CI_Controller {
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
                 }
-                   $engineer['service_center_id'] =  $sc_id;
                    $engineer['name'] = "Default Engineer";
+                   $engineer['phone'] = "";
+                   $engineer['alternate_phone'] = "";
+                   $engineer['service_center_id'] =  $sc_id;
+                   $engineer['active'] = 1;
+                   $engineer['create_date'] = date('Y-m-d H:i:s');
+
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
                    $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
@@ -1081,7 +1086,7 @@ class vendor extends CI_Controller {
             $this->vendor_model->edit_vendor($vendor, $id);
             //Generate auth certificate for those SF's who was diactive and now going to activate
             if($is_active == 1){
-                $this->sfauthorization_certificate->create_new_certificate($id);
+               $this->sfauthorization_certificate->create_new_certificate($id);
             }
             $this->vendor_model->update_service_centers_login(array('service_center_id' => $id), array('active' => $is_active));
 
@@ -1096,10 +1101,10 @@ class vendor extends CI_Controller {
             if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
 
-                //Getting template from Database 
-                $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
-                $template = $this->booking_model->get_booking_email_template($tag);
-                if (!empty($template)) {
+            //Getting template from Database 
+            $tag = ($sf_details[0]['is_micro_wh'] == 1 && $is_active == 0) ? 'sf_permanent_on_off_is_micro_wh' : 'sf_permanent_on_off';
+            $template = $this->booking_model->get_booking_email_template($tag);
+            if (!empty($template)) {
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
@@ -1108,14 +1113,14 @@ class vendor extends CI_Controller {
                     } else {
                        $email['on_off'] = 'OFF';
                        $subject = " Permanent OFF Vendor " . $sf_name;
-                        if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
-                            $to .= ",".$template[1];
-                        }
+                            if($sf_details[0]['is_micro_wh'] == 1 && $template[1] != ''){
+                                $to .= ",".$template[1];
+                            }
                     }
                     $email['action_by'] = $agent_name;
                     
                     $emailBody = vsprintf($template[0], $email);
-                    $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
+                        $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",$tag);
                 }
 
                 log_message('info', __FUNCTION__ . ' Permanent ON/OFF of Vendor' . $sf_name. " status ". $is_active);
@@ -1334,16 +1339,6 @@ class vendor extends CI_Controller {
                     'internal_status' => _247AROUND_PENDING);
                 
                 $actor = $next_action = 'not_define';
-                if(empty($spare_data)){
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
-
-                    if (!empty($partner_status)) {
-                        $assigned_data['partner_current_status'] = $partner_status[0];
-                        $assigned_data['partner_internal_status'] = $partner_status[1];
-                        $actor = $assigned_data['actor'] = $partner_status[2];
-                        $next_action = $assigned_data['next_action'] = $partner_status[3];
-                    }
-                }
                 
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
@@ -1519,6 +1514,18 @@ class vendor extends CI_Controller {
                     $sf_phone = $query[0]['phone_1'] . ", " . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
                     $sf_address = $query[0]['address'].", ".$query[0]['sf_district'];
                     $this->miscelleneous->sms_sf_address_to_customer($services, $sf_phone, $sf_address, $query[0]['booking_id'], $query[0]['user_id'],  $query[0]['booking_primary_contact_no']);
+                }
+                
+                /*  Update Booking Status */
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
                 //End
 

@@ -1237,6 +1237,9 @@ class Inventory extends CI_Controller {
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
                     $track_status = $new_state = "Spare Parts Not Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Not Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     
                     /**
@@ -1293,6 +1296,9 @@ class Inventory extends CI_Controller {
                         }
 //                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
@@ -9661,6 +9667,90 @@ function get_bom_list_by_inventory_id($inventory_id) {
         
         return $row;
     }
+       
+     /*
+     *  @desc : This function is used to get courier serviceable area list.
+     *  @param : void
+     *  @return : Json
+     */
+
+    function get_courier_serviceable_area_list() {
+        $data = $this->get_courier_serviceable_area_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_courier_serviceable_area_list($post),
+                "recordsFiltered" => $this->inventory_model->count_courier_serviceable_area_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    /*
+     *  @desc : This function is used to draw courier serviceable area list in bulk.
+     *  @param : void
+     *  @return : void
+     */
+    function get_courier_serviceable_area_list_data() {
+        $post = $this->get_post_data();
+        $courier_flag = trim($this->input->post('courier_flag'));
+        $data = array();
+        if (!empty($courier_flag)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('courier_serviceable_area.courier_company_name', 'courier_serviceable_area.pincode');
+            $post['where'] = "";
+            $select = "courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode, courier_serviceable_area.status, courier_serviceable_area.create_date";
+            $list = $this->inventory_model->get_courier_serviceable_area_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $courier_serviceable_area_list) {
+                $no++;
+                $row = $this->get_courier_serviceable_area_list_table($courier_serviceable_area_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+     /*
+     *  @desc : This function is used to draw courier serviceable area list in single line item.
+     *  @param : $serviceable_area
+      * @param : $no
+     *  @return : array
+     */
+    function get_courier_serviceable_area_list_table($serviceable_area, $no) {
+        $row = array();
+        $json_data = json_encode($serviceable_area);
+        $row[] = $no;
+        $row[] = $serviceable_area->courier_company_name;
+        $row[] = $serviceable_area->pincode;
+        $row[] = date('d-F-Y', strtotime($serviceable_area->create_date));
+        if ($serviceable_area->status == 1) {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+        } else {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' style='cursor:not-allowed' title='Edit not allowed account deactivated'><i class = 'fa fa-edit'></i></a>";
+        }
+        $row[] = $update;
+        if ($serviceable_area->status == 1) {
+            $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Deactivate</button>";
+        } else {
+            $action = "<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Activate</button>";
+        }
+        $row[] = $action;
+
+        return $row;
+    }
     
     /*
      *  @desc : This function is used to open the download courier invoice page 
@@ -10269,7 +10359,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 $partnerWhere['partners.id'] = $partner_id;
                 $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
                 $publicName = $partner_details[0]['public_name'];
-                $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount";
+                $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount,invoice_details.taxable_value";
                 $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
                 $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
                 $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
@@ -10277,8 +10367,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 $purchasecount = 0;
                 $salecount = 0;
                 foreach ($list as $key => $value) {
+                   
                     $invoice_type = $value->invoice_type;
-                    $total_amount = $value->total_amount;
+                    $total_amount = $value->taxable_value;
                     if ($invoice_type == 'purchase_invoice') {
                         $total_Inward = $total_Inward + $total_amount;
                         $purchasecount = $purchasecount + 1;
@@ -10353,7 +10444,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 $total_part_amount = 0;
 
                 $select = 'SUM(spare_parts_details.sell_price)  as total_sell_price';
-                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_purchase_invoice_id is  null'=>NULL,'spare_parts_details.part_warranty_status'=>2),true);
+                $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('booking_details.partner_id'=>$partner_id,'spare_parts_details.sell_invoice_id is not null'=>NULL,'spare_parts_details.reverse_sale_invoice_id is  null'=>NULL),true);
+                
                 if(!empty($spare_parts_details)){
                     $saleout_warranty = $spare_parts_details[0]['total_sell_price'];
                 }
@@ -10362,7 +10454,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                 $in_transit_item_array = array(strtoupper(DEFECTIVE_PARTS_SHIPPED), strtoupper(OK_PARTS_SHIPPED), strtoupper(DAMAGE_PARTS_SHIPPED));
 
-                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_REJECTED), strtoupper(OK_PARTS_REJECTED));
+                $in_transit_item_array1 = array(strtoupper(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(DEFECTIVE_PARTS_PENDING), strtoupper(OK_PART_TO_BE_SHIPPED), strtoupper(SPARE_DELIVERED_TO_SF), strtoupper(OK_PARTS_REJECTED_BY_WAREHOUSE), strtoupper(SPARE_OOW_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED),strtoupper(SPARE_PARTS_SHIPPED_BY_WAREHOUSE));
 
                 $completed_cancelled_array = array(_247AROUND_CANCELLED, 'Booking Completed - Defective Part Shipped By SF', 'Booking Completed - Defective Part To Be Shipped By SF', SPARE_PARTS_CANCELLED, 'Part Lost', 'Booking Completed - Ok Part To Be Shipped By SF', 'Booking Completed - Defective Part Rejected By Partner', 'Booking Completed By Service Centre', _247AROUND_COMPLETED, 'Cancelled - Customer not reachable / Customer not picked phone', NRN_APPROVED_BY_PARTNER, BOOKING_COMPLETED_BY_ENGINEER_STATUS, 'Cancelled - Refused By Customer', 'Cancelled - Customer out of station', 'Booking Completed - Defective Part Received By Partner', 'Booking Completed - Defective Part Rejected By Warehouse', 'Booking Completed - Defective Part Received By Warehouse', BOOKING_CANCELLED_BY_ENGINEER_STATUS, 'Booking Cancelled By Service Centre', 'Cancelled (Customer Refused Service)', 'Booking In Progress - Spare Parts Cancelled');
                 $completed_cancelled_array = array_map('strtoupper', $completed_cancelled_array);
