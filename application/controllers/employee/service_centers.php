@@ -1516,6 +1516,7 @@ class Service_centers extends CI_Controller {
             if (!$this->input->post("call_from_api")) {
                 $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
             } else {
+
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
             $partner_id = $this->input->post("partner_id");
