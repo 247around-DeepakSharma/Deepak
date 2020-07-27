@@ -2272,7 +2272,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $tracking_details = array('spare_id' => $spare_id, 'action' => SPARE_PARTS_REQUESTED, 'remarks' => $reason, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                         $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     }
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND_DEFAULT_AGENT, NULL, $spare_id);
+                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND, NULL, $spare_id);
 
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
