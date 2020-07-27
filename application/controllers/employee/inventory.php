@@ -1239,6 +1239,9 @@ class Inventory extends CI_Controller {
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
                     $track_status = $new_state = "Spare Parts Not Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Not Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     
                     /**
@@ -1295,6 +1298,9 @@ class Inventory extends CI_Controller {
                         }
 //                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
