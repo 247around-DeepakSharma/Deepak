@@ -29,8 +29,9 @@ class Reporting_utils extends CI_Model {
         DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) > 2
                 AND booking_details.assigned_vendor_id IS NOT NULL";
         }
+        // Adding ` before address, to avoid any calculation error
         $query = $this->db->query("SELECT DISTINCT booking_details.booking_id,
-                booking_details.booking_address,
+                CONCAT('`',booking_details.booking_address) as booking_address,
                 booking_details.booking_pincode,
                 booking_details.booking_date,
                 booking_details.booking_timeslot,
