@@ -1420,8 +1420,8 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL,$having_arr=array(),$where_arr=array(),$join_arr=array()) {
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage,$having_arr,$where_arr,$join_arr);
+    function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL,$having_arr=array(),$where_arr=array(),$orderBY=NULL) {
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage,$having_arr,$where_arr,$orderBY);
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
@@ -2340,7 +2340,12 @@ class Booking_model extends CI_Model {
         }
         if (!empty($post['join'])) {
             foreach($post['join'] as $key=>$values){
-                $this->db->join($key, $values);
+                if(!empty($post['joinTypeArray']) && array_key_exists($key, $post['joinTypeArray'])){
+                    $this->db->join($key, $values,$post['joinTypeArray'][$key]);
+                }
+                else{
+                    $this->db->join($key, $values);
+                }                
             }
         }
         
