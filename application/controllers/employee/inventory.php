@@ -5522,6 +5522,7 @@ class Inventory extends CI_Controller {
                     $in['agent_type'] = _247AROUND_SF_STRING;
                     $in['is_wh'] = TRUE;
                     $in['inventory_id'] = $data->inventory_id;
+                    $in['spare_id'] = $spare_booking_value['id'];
                     $this->miscelleneous->process_inventory_stocks($in);
                     $pcb = array();
                     $cb_url = base_url() . "employee/service_centers/acknowledge_delivered_spare_parts/" . $data->booking_id . "/" . $receiver_entity_id . "/" . $spare_booking_value['id'] . "/" . $sender_entity_id . "/1/0";
@@ -5586,6 +5587,7 @@ class Inventory extends CI_Controller {
                             $in['agent_type'] = _247AROUND_SF_STRING;
                             $in['is_wh'] = TRUE;
                             $in['inventory_id'] = $data->inventory_id;
+                            $in['spare_id'] = $value['id'];
                             $this->miscelleneous->process_inventory_stocks($in);
                             $pcb = array();
                             $cb_url = base_url() . "employee/service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $value['id'] . "/" . $sender_entity_id . "/1/0";
@@ -5655,6 +5657,7 @@ class Inventory extends CI_Controller {
                                 $in['agent_type'] = _247AROUND_SF_STRING;
                                 $in['is_wh'] = TRUE;
                                 $in['inventory_id'] = $data->inventory_id;
+                                $in['spare_id'] = $value['id'];
                                 $this->miscelleneous->process_inventory_stocks($in);
 
                                 $pcb = array();
@@ -7464,7 +7467,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
                 } else {
-                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name";
+                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -9214,7 +9217,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
             "agent_id" => $this->session->userdata("service_center_agent_id"),
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
-            "is_cancel_part" => TRUE
+            "is_cancel_part" => TRUE,
+            "spare_id" => $spare_parts_id
         );
         $this->miscelleneous->process_inventory_stocks($data);
         echo $spare_action;

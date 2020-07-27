@@ -2861,7 +2861,7 @@ class Service_centers extends CI_Controller {
             }
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->miscelleneous->process_inventory_stocks($in);
             $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, true, FALSE);
         }
@@ -6649,6 +6649,7 @@ class Service_centers extends CI_Controller {
                                     $data['agent_type'] = _247AROUND_SF_STRING;
                                     $data['is_wh'] = TRUE;
                                     $data['inventory_id'] = $data['shipped_inventory_id'];
+                                    $data['spare_id'] = $spare_id;
                                     $this->miscelleneous->process_inventory_stocks($data);
                                 }
 
