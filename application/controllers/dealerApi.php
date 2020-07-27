@@ -743,30 +743,40 @@ function  getHomeDashboard(){
             
                     if(isset($requestData['status']) && !empty($requestData['status'])){
                        $status= $requestData['status'];
-                    }else{
+                    }else if($requestData['status']=='All'){
                        $status="not_set";  
+                    }else{
+                        $status="not_set";
                     }
                     
                     if(isset($requestData['service_id']) && !empty($requestData['service_id'])){
-                       $service_id = $requestData['status'];
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
                     }else{
                        $service_id ="not_set";  
                     }
                    
                     if(isset($requestData['request_type']) && !empty($requestData['request_type'])){
-                       $request_type = $requestData['status'];
-                    }else{
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
                        $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
                     }
                     
                     if(isset($requestData['free_paid']) && !empty($requestData['free_paid'])){
-                       $free_paid = $requestData['status'];
-                    }else{
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
                        $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
                     }
                     
                     if(isset($requestData['upcountry']) && !empty($requestData['upcountry'])){
-                       $upcountry = $requestData['status'];
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
                     }else{
                        $upcountry ="not_set";  
                     }
@@ -774,8 +784,10 @@ function  getHomeDashboard(){
                     
                     if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
                        $partner_id = $requestData['partner_id'];
-                    }else{
+                    }else if($requestData['partner_id']=='All'){
                         $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
                     }
                     
                    
@@ -790,7 +802,7 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = curl_exec($ch);                 
+                    $curl_response = json_decode(curl_exec($ch));                 
               //  
                 $this->jsonResponseString['response'] = $curl_response;
                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
