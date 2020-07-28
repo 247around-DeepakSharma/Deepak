@@ -1217,14 +1217,15 @@ function submitEscalation(){
             
                    $postData = array(
                       //  "escalation_reason_id" => $requestData['escalation_reason_id'],
-                      //  "escalation_remarks" => $requestData['escalation_remarks']
+                        "call_from_api" => TRUE
                     );
                     //Call curl for updating booking 
-                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00";
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/1";
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
                     curl_close($ch);
