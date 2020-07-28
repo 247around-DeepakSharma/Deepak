@@ -749,7 +749,7 @@ function  getHomeDashboard(){
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
-                    if(isset($requestData['status']) && !empty($requestData['status'])){
+                    if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
                        $status= $requestData['status'];
                     }else if($requestData['status']=='All'){
                        $status="not_set";  
@@ -757,7 +757,7 @@ function  getHomeDashboard(){
                         $status="not_set";
                     }
                     
-                    if(isset($requestData['service_id']) && !empty($requestData['service_id'])){
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
                        $service_id = $requestData['service_id'];
                     } else if($requestData['service_id']=='All'){
                         $service_id ="not_set"; 
@@ -765,7 +765,7 @@ function  getHomeDashboard(){
                        $service_id ="not_set";  
                     }
                    
-                    if(isset($requestData['request_type']) && !empty($requestData['request_type'])){
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
                        $request_type = $requestData['request_type'];
                     }else if($requestData['request_type']=='All'){
                        $request_type ="not_set";  
@@ -773,7 +773,7 @@ function  getHomeDashboard(){
                       $request_type ="not_set";  
                     }
                     
-                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid'])){
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
                        $free_paid = $requestData['free_paid'];
                     }else if($requestData['free_paid']=='All'){
                        $free_paid ="not_set";  
@@ -781,7 +781,7 @@ function  getHomeDashboard(){
                        $free_paid ="not_set";
                     }
                     
-                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry'])){
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
                        $upcountry = $requestData['upcountry'];
                     }else if($requestData['upcountry']=='All'){
                        $upcountry ="not_set";  
@@ -790,7 +790,7 @@ function  getHomeDashboard(){
                     }
                     
                     
-                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id'])){
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
                        $partner_id = $requestData['partner_id'];
                     }else if($requestData['partner_id']=='All'){
                         $partner_id = "not_set";
