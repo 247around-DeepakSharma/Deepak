@@ -2573,6 +2573,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
+            
+           if($this->input->post('call_from_api')){
+                 echo  json_encode($stateData);
+           }else{
             if($is_pending){
                 echo  json_encode($sfData);
             }
@@ -2583,7 +2587,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     echo  json_encode($sfData);
                 }
-            }
+            } 
+           } 
+
+            
+            
         }
     }
     
