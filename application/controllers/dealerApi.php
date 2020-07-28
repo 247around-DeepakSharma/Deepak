@@ -313,8 +313,7 @@ class dealerApi extends CI_Controller {
     }
 
 
-
-        /**
+    /**
      * Simple function to replicate PHP 5 behaviour
      */
     function microtime_float() {
@@ -423,7 +422,7 @@ class dealerApi extends CI_Controller {
             case 'homeDashboard':
                 $this->getHomeDashboard(); /* get getHomeDashboard API */
                 break;
-            
+           
             case 'getTopRatingSf':
                 $this->getTopRatingSfs(); /* get getTopRatingSfs API */
                 break;
@@ -431,7 +430,6 @@ class dealerApi extends CI_Controller {
             case 'getStateTATData':
                 $this->getStateTATData(); /* get getStateTATData API */
                 break;
-            
 
             default:
                 break;
@@ -507,9 +505,9 @@ class dealerApi extends CI_Controller {
             $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
           /*  Token Update */
-          	
-          	$update_dealer =array();
-          	if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
+            
+            $update_dealer =array();
+            if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
                 $update_dealer = array(
                     'device_firebase_token' => $requestData['device_firebase_token']
                 );
@@ -613,7 +611,7 @@ function getStatesCities(){
         $response=array();
         if (!empty($requestData['state_code'])) { 
 
-        	    if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
+                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
                     /// Will Come Dealer State Cities Mapped ///
                     $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
                 }else{
@@ -637,7 +635,7 @@ function getStatesCities(){
      * @param - $search_value
      * @response - json
      */
-          
+
     function getSearchData() {
         log_message("info", __METHOD__ . " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -666,12 +664,7 @@ function getStatesCities(){
                 $post['column_order'] = array('booking_details.booking_id');
                 $post['unit_not_required'] = true;
                 $post['where']['nrn_approved'] = 0; // Do not Show booking which are NRN Approved //
-                if($requestData['entity_type']==_247AROUND_DEALER_STRING){
-                $post['where']['booking_details.dealer_id'] = $requestData['entity_id']; // if dealer then search for dealer ID 
-                }else{
-                $post['where']['booking_details.partner_id'] = $requestData['entity_id']; // IF partner then search for partner ID
-                }
-                
+
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post, $select, array(), 2)->result_array();
             } else {
                 // Search   booking  on phone number
@@ -691,9 +684,7 @@ function getStatesCities(){
                         $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                         }
                         $data['Bookings'][$key]['booking_distance'] = $distance;
-                        /** Cancel and Reschedule Reason **/
-                        $data['Bookings'][$key]['scheduled_reason'] = $value['reschedule_reason'];
-                        $data['Bookings'][$key]['cancelled_reason'] = $this->booking_model->cancelreason(array('id'=>$value['cancellation_reason']))[0]->reason;
+
                         $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value['booking_id']), false, "appliance_brand, appliance_category, appliance_capacity,sf_model_number,model_number,serial_number,price_tags,customer_total,appliance_description");
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
@@ -847,7 +838,7 @@ function getTrackingData(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("carrier_code","awb_number"), $requestData);
         if (!empty($requestData['carrier_code']) && !empty($requestData['awb_number'])) { 
-        	/* getting tracking data of AWB from trackmoreAPI */
+            /* getting tracking data of AWB from trackmoreAPI */
                 $response =  $this->around_generic_lib->getTrackingData($requestData['carrier_code'],$requestData['awb_number']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Tracking details found successfully")); // send success response //
@@ -873,7 +864,7 @@ function getSpareTrackingHistory(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("spare_id"), $requestData);
         if (!empty($requestData['spare_id'])) { 
-        	/* Get Spare tracking data from DB */
+            /* Get Spare tracking data from DB */
                 $response =  $this->around_generic_lib->getSpareTrackingHistory($requestData['spare_id']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Spare tracking details found successfully")); // send success response //
@@ -1190,7 +1181,7 @@ function submitEscalation(){
         }
         
     }
-    
+   
      /*
      * @Desc - This function is used get top 5 SFs
      * @param - 
@@ -1226,14 +1217,15 @@ function submitEscalation(){
             
                    $postData = array(
                       //  "escalation_reason_id" => $requestData['escalation_reason_id'],
-                      //  "escalation_remarks" => $requestData['escalation_remarks']
+                        "call_from_api" => TRUE
                     );
                     //Call curl for updating booking 
-                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00";
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/1";
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = curl_exec($ch);
                     curl_close($ch);
