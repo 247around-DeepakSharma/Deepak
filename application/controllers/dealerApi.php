@@ -428,6 +428,10 @@ class dealerApi extends CI_Controller {
                 $this->getTopRatingSfs(); /* get getTopRatingSfs API */
                 break;
             
+            case 'getStateTATData':
+                $this->getStateTATData(); /* get getStateTATData API */
+                break;
+            
 
             default:
                 break;
@@ -1206,6 +1210,43 @@ function submitEscalation(){
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
         }
+    }
+    
+     /*
+     * @Desc - This function is used get top 5 SFs
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    function getStateTATData(){
+      
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+            
+                   $postData = array(
+                      //  "escalation_reason_id" => $requestData['escalation_reason_id'],
+                      //  "escalation_remarks" => $requestData['escalation_remarks']
+                    );
+                    //Call curl for updating booking 
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00";
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = curl_exec($ch);
+                    curl_close($ch);
+                    $this->jsonResponseString['response'] = $curl_response;
+                    $this->sendJsonResponse(array('0000', "Data found successfully"));
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1018", "Data not found !")); 
+        }
+        
+        
     }
 
 }
