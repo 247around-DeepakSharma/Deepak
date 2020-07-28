@@ -24,7 +24,7 @@
                 Search Booking: 
                 <form name="myForm" id="myForm" class="form-horizontal" action="<?php echo base_url(); ?>employee/inventory/update_part_price_details"  method="POST" >
                     <input type="text" class="form-control" name="booking_id" value="<?php
-                    if (isset($data) & !empty($data)) {
+                    if (!empty($data[0])) {
                         echo $data[0]['booking_id'];
                     }
                     ?>" id="booking_id" />
@@ -47,24 +47,25 @@
                                    
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Estimate Given </label>
                                     <input type="number" step="0.01" class="form-control charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
-                                    if (isset($data)) {
+                                    if (!empty($data[0])) {
                                         echo $data[0]['booking_id'];
                                     }
                                     ?>" id="booking_id" />
-                                    <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($data)){ echo $data[0]['assigned_vendor_id']; }?>" />
+                                    <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($data[0])){ echo $data[0]['assigned_vendor_id']; }?>" />
                                     
                                 </div>
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Part Commission </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_part_commission']; }?>" placeholder="Enter Around Commission" required>
-                                   
+                                    <input type="number" step="0.01" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_part_commission']; } else { echo '30';} ?>" placeholder="Enter Around Commission" required>
                                 </div>
                             </div>
 
@@ -73,22 +74,46 @@
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Service Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" step="0.01" class="form-control charges" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Service Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
-                                    <label for="parts">Transport Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Parts Charge" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group col-md-12 ">
-                                    <label for="parts">Courier Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Parts Charge" required>
+                                    <label for="parts">Around Service Commission </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="around_service_commission" name="around_service_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_service_commission']; } else { echo '0'; } ?>" placeholder="Enter Service Commission" required>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Transport Charges </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
+                                </div>
+                            </div>
+                             <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Around Transport Commission </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="around_transport_commission" name="around_transport_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_transport_commission']; } else { echo '0'; } ?>" placeholder="Enter Transport Commission" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Courier Charges </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Courier Charge" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Around Courier Commission </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="around_courier_commission" name="around_courier_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_courier_commission']; } else { echo '0'; } ?>" placeholder="Enter Courier Commission" required>
+                                </div>
+                            </div>
+                        </div>                 
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
@@ -239,8 +264,7 @@ $(document).on('keyup', '.part_estimate', function (e) {
     charges = 0;
     $(".part_estimate").each(function (i) {
         price = $(this).val();
-       
-        charges += Number(price * 0.15);
+        charges += Number(price * 0.30);
         $("#around_part_commission").val((charges).toFixed(2));
     });
 });
