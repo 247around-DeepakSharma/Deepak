@@ -1227,7 +1227,7 @@ function submitEscalation(){
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = curl_exec($ch);
+                    $curl_response = json_decode(curl_exec($ch));
                     curl_close($ch);
                     $this->jsonResponseString['response'] = $curl_response;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
