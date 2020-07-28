@@ -2543,7 +2543,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
          $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(!$is_ajax){
+        if(!$is_ajax && !$this->input->post('call_from_api')){
             if($this->session->userdata('userType') == 'employee'){
                 $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             }
@@ -2589,9 +2589,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
             } 
            } 
-
-            
-            
         }
     }
     

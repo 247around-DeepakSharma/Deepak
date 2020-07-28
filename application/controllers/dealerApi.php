@@ -1220,7 +1220,7 @@ function submitEscalation(){
                         "call_from_api" => TRUE
                     );
                     //Call curl for updating booking 
-                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/1";
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00";
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
