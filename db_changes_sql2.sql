@@ -2769,3 +2769,7 @@ ALTER TABLE `personal_used_spare_parts` ADD `inventory_id` INT NOT NULL AFTER `w
 --Gorakh 21-07-2020
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Add Courier Serviceable area', NULL, 'employee/courier/add_courier_serviceable_area', 2, '172', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');
+--Gorakh 24-07-2020
+ALTER TABLE `zopper_estimate_details` ADD `around_service_commission` DECIMAL(10,2) NOT NULL AFTER `service_charge`;
+ALTER TABLE `zopper_estimate_details` ADD `around_transport_commission` DECIMAL(10,2) NOT NULL AFTER `transport_charge`;
+ALTER TABLE `zopper_estimate_details` ADD `around_courier_commission` DECIMAL(10,2) NOT NULL AFTER `courier_charge`;
