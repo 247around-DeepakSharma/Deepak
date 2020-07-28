@@ -810,7 +810,14 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = json_decode(curl_exec($ch));                 
+                    $curl_response = json_decode(curl_exec($ch));   
+                    if($curl_response==null || empty($curl_response)){   
+                    $this->jsonResponseString['response'] = $curl_response;
+                    $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
+                    }else{
+                     $this->jsonResponseString['response'] = $curl_response;
+                     $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+                    }
               //  
                 $this->jsonResponseString['response'] = $curl_response;
                 $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
@@ -1229,7 +1236,17 @@ function submitEscalation(){
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = json_decode(curl_exec($ch));
                     curl_close($ch);
-                    $this->jsonResponseString['response'] = $curl_response;
+                    
+                    foreach ($curl_response->TAT as $key=>$value){
+                     $state =   $value->entity; 
+                     $return['D0'][]  = array('state'=>$state,'percent'=>$value->TAT_0)  ;
+                     //$return['D0'][]['state'][]  = $value->TAT_0  ;
+                     $return['D1'][]  = array('state'=>$state,'percent'=>$value->TAT_1)  ;
+                     $return['D2'][] = array('state'=>$state,'percent'=>$value->TAT_2)  ;
+                     $return['D4'][]  = array('state'=>$state,'percent'=>$value->TAT_3)  ;
+                     //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
+                    $this->jsonResponseString['response'] = $return;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
                
         } else {
@@ -1240,5 +1257,5 @@ function submitEscalation(){
         
         
     }
-
+    
 }
