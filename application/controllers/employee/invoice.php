@@ -4379,6 +4379,7 @@ exit();
      * @param int $spare_id
      */
     function generate_oow_parts_invoice($spare_id) {
+        $remarks_revese_sale = '';
         if($this->input->post('remarks_revese_sale')){
             $remarks_revese_sale = $this->input->post('remarks_revese_sale');
         }
@@ -4814,11 +4815,16 @@ exit();
                 "accounting" => 1,
                 "reference_invoice_id" => $reference_invoice_id
             );
-            if($this->input->post('remark') && !empty($this->input->post('remark'))){
+            $remarks = $this->input->post('remark');
+            if($this->input->post('remark')){
+                $remarks = $this->input->post('remark');
+            }
+
+            if(!empty($remarks)){
                 if(!empty($invoice_details['remarks'])){
-                    $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$this->input->post('remark');
+                    $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$remarks;
                 }else{
-                    $invoice_details['remarks'] = "Remark:- ".$this->input->post('remark');
+                    $invoice_details['remarks'] = "Remark:- ".$remarks;
                 }
             }
 
