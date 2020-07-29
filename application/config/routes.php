@@ -83,6 +83,7 @@ $route['pass-through-android-app'] = 'api/pass_through_android_app';
 $route['pass-through-ac-service'] = 'api/pass_through_ac_service';
 $route['service_center'] = 'employee/service_centers';
 $route['service_center/login'] = 'employee/service_centers';
+$route['service_center/devmode'] = 'employee/service_centers';
 $route['service_center/pending_booking'] = 'employee/service_centers/pending_booking';
 $route['service_center/pending_booking/(:any)'] = 'employee/service_centers/pending_booking/$1';
 $route['service_center/completed_booking'] = 'employee/service_centers/completed_booking';
@@ -194,6 +195,7 @@ $route['service_center/do_delivered_spare_transfer'] = 'employee/service_centers
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';
+$route['partner/devmode'] = 'employee/partner';
 $route['partner/spare_shipped_history'] = 'employee/partner/spare_shipped_history';
 $route['partner/home'] = 'employee/partner/partner_default_page';
 $route['partner/dashboard'] = 'employee/partner/partner_dashboard';
@@ -313,6 +315,7 @@ $route['partner/invoice'] = 'employee/partner/inactive_partner_default_page';
 
 $route['dealers'] = 'employee/login/dealer_login_form';
 $route['dealer/login'] = 'employee/login/dealer_login_form';
+$route['dealer/devmode'] = 'employee/login/dealer_login_form';
 $route['dealers/login'] = 'employee/login/dealer_login_process';
 $route['dealers/add_booking'] = 'employee/dealers/add_booking';
 $route['dealers/process_addbooking'] = 'employee/dealers/process_addbooking';
@@ -365,6 +368,8 @@ $route['partner/search_docket'] = 'employee/partner/search_docket';
 $route['employee/sf_authorization_certificate'] = 'employee/SF_authorization_certificate/index';
 $route['employee/vendor/unapprovered_service_centers'] = 'employee/vendor/unapprovered_service_centers';
 $route['employee/courier/add_courier_serviceable_area'] = 'employee/spare_parts/add_courier_serviceable_area';
+
+$route['employee/devmode'] = 'employee/login';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

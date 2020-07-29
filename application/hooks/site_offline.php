@@ -11,23 +11,45 @@ if (!defined('BASEPATH'))
 class Site_Offline extends CI_Hooks {
 
     function __construct() {
-       
-        
+    
     }
 
     public function is_offline() {
         if (file_exists(APPPATH . 'config/config.php')) {
             include(APPPATH . 'config/config.php');
+            
+            $this->My_CI = & get_instance();
+            $this->My_CI->load->library("session");
+             
             //Getting Base Url
             $base_url=(isset($_SERVER['HTTPS']) ? "https://" : "http://").$_SERVER['HTTP_HOST'];
             $base_url.= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-            $_247_CRM = explode('/',$_SERVER['REQUEST_URI'])[1];
-            //&& $_247_CRM !="employee"
-            //if (isset($config['is_offline']) && $config['is_offline'] === TRUE ) {
-               
-                $this->show_site_offline($base_url);
-                exit;
-           // }
+            
+            if (isset($config['is_offline']) && $config['is_offline'] === TRUE ) {
+                if ($this->My_CI->session->userdata('loggedIn') == TRUE) {
+                    if(($this->My_CI->session->userdata('userType') == 'employee') && ($this->My_CI->session->userdata('id') == _247AROUND_DEFAULT_AGENT) ){
+                         //Here we allow to access crm
+                    } if(($this->My_CI->session->userdata('userType') == 'partner') && ($this->My_CI->session->userdata('agent_id') == 3) ){
+                         //Here we allow to access crm
+                    } if(($this->My_CI->session->userdata('userType') == 'service_center') && ($this->My_CI->session->userdata('service_center_agent_id') == 1548) ){
+                         //Here we allow to access crm
+                    }  else {
+                        $this->My_CI->session->sess_destroy();
+                       // $this->show_site_offline($base_url);
+                        exit;
+                    }
+                    
+                } else {
+                    $devmode = explode('/',$_SERVER['REQUEST_URI']);
+                    if(isset($devmode[2]) && !empty($devmode[2]) && $devmode[2] == $config['developer_mode']){
+                        //Here we allow to login
+                    } else {
+                        $this->show_site_offline($base_url);
+                        exit;
+                    }
+                    
+                }
+            }
         }
     }
 
@@ -111,7 +133,7 @@ hr {
 
 <script>
 
-var countDownDate = new Date("April 04, 2020 21:00:00").getTime();
+var countDownDate = new Date("July 29, 2020 21:00:00").getTime();
 
 // Update the count down every 1 second
 var countdownfunction = setInterval(function() {
