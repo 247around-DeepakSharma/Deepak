@@ -1047,13 +1047,13 @@
             order: [[ 14, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13,14,15 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17 ]
                     },
                     title: 'partner_shipped_oow_part'
                 }
@@ -1086,7 +1086,7 @@
             order: [[ 14, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1128,7 +1128,7 @@
             order: [[ 14, "desc" ]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1185,7 +1185,7 @@
             order:[[ 17, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1239,7 +1239,7 @@
             order:[[ 18, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1287,7 +1287,7 @@
             "order": [],
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1386,7 +1386,7 @@
             order: [[ 17, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1423,7 +1423,7 @@
             order: [[19, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1465,7 +1465,7 @@
             order: [[17, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1503,7 +1503,7 @@
             order: [[15, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1542,7 +1542,7 @@
             order: [[15, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1580,13 +1580,13 @@
             order: [], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[50, 100, 500, -1 ],['50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
                     },
                     title: 'defective_part_shipped_by_sf'
                 }
@@ -1618,7 +1618,7 @@
             order: [[16, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1659,7 +1659,7 @@
             order: [[16, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1703,7 +1703,7 @@
             order: [[14, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1748,7 +1748,7 @@
             order: [[14, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -1793,7 +1793,7 @@
             order: [[15, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',
