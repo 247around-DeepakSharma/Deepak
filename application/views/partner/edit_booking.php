@@ -403,7 +403,7 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
     </form>
 </div>
 <!-- Repeat Booking Model  -->
-<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true" style="z-index: 2">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -1347,6 +1347,10 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
         $(".repeat-close").click(function(){
             alert("Repeat booking can not be created without Parent Booking");
             $(".repeat_Service").prop("checked", false);
+            // enable other checkboxes
+            $('.Service').each(function() {
+               $(this).prop('disabled', false);
+            });
         });
     });
         
