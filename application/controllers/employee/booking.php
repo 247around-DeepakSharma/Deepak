@@ -5787,7 +5787,7 @@ class Booking extends CI_Controller {
      }
     }
     
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0, $sort_on = '', $sort_order = ''){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL, $request_type = NULL, $min_review_age = 0, $max_review_age = 0, $sort_on = 0, $sort_order = 0){
         $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
@@ -5854,10 +5854,10 @@ class Booking extends CI_Controller {
         // put all selected values in array to show these filter values above filtered data
         $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['request_types'] = $arr_request_types;
-        $data['partner_selected'] = $partner_id;
-        $data['request_type_selected'] = $request_type;
-        $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : "";
-        $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : "";
+        $data['partner_selected'] = !empty($partner_id) ? $partner_id : 0;
+        $data['request_type_selected'] = !empty($request_type) ? $request_type : 0;
+        $data['min_review_age_selected'] = !empty($min_review_age) ? $min_review_age : 0;
+        $data['max_review_age_selected'] = !empty($max_review_age) ? $max_review_age : 0;
         $data['sort_on_selected'] = $sort_on;
         $data['sort_order_selected'] = $sort_order;
         
@@ -5971,13 +5971,13 @@ class Booking extends CI_Controller {
                 $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
             }
         } 
-        if(!empty($post_data['request_type'])) {
-        $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
-        foreach ($arr_request_types as $key => $value) {
-            if($key == $request_type){
-                $where["booking_details.request_type = '" .$value."'"] = NULL ; 
-                }
-            }
+        // Added Request Type Filter
+        if(!empty($post_data['request_type'])) {  
+            $request_type = $post_data['request_type'];
+            $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];        
+            $request_type_selected = !empty($arr_request_types[$request_type]) ? $arr_request_types[$request_type] : "";   
+            $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
+            $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
         }
         if(!empty($post_data['review_age_min']) && !empty($post_data['review_age_min']) ){
             $where["DATEDIFF(
@@ -5987,8 +5987,7 @@ class Booking extends CI_Controller {
             )) BETWEEN '".$review_age_min."' AND '".$review_age_max."'"] = NULL;
         }
         
-        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,$join);
-        
+        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,NULL,$join);
         foreach($data as $k => $d) {
             unset($data[$k]['unit_details']);
             unset($data[$k]['service_id']);
