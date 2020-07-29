@@ -1516,11 +1516,17 @@ class vendor extends CI_Controller {
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
 
                     if (!empty($partner_status)) {
-                        $assigned_data['partner_current_status'] = $partner_status[0];
-                        $assigned_data['partner_internal_status'] = $partner_status[1];
-                        $actor = $assigned_data['actor'] = $partner_status[2];
-                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                        $assigned_data2['partner_current_status'] = $partner_status[0];
+                        $assigned_data2['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data2['actor'] = $partner_status[2];
+                        $next_action = $assigned_data2['next_action'] = $partner_status[3];
+                    }else{
+                       $assigned_data2['actor'] = 'Vendor'; 
+                       $assigned_data2['next_action'] = 'Visit to Customer';
                     }
+                    
+                    
+                    $this->booking_model->update_booking($booking_id, $assigned_data);
                 }
                 //End
 
