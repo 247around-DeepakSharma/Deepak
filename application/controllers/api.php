@@ -2314,7 +2314,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process cancel booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $booking_id = $requestData['booking_id'];
         $cancellation_reason = $requestData['reason'];
@@ -2349,7 +2349,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process reschedule booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+       // $this->apis->logTable($activity);
 
         $booking_id = $requestData['booking_id'];
         $booking_date = $requestData['booking_date'];
@@ -2407,7 +2407,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process get tag hints', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $service = $requestData['searched_service'];
         //log_message('info', "Service: " . $service);
@@ -2430,7 +2430,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //print_r($requestData);
         $activity = array('activity' => 'process save feedback', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
+        //$this->apis->logTable($activity);
 
         $user_id = $requestData['user_id'];
         $feedback = $requestData['feedback'];

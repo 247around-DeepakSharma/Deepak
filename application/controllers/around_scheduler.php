@@ -1909,11 +1909,11 @@ class Around_scheduler extends CI_Controller {
     }
     /**
      * @desc This function is used to approve cancellation, which was cancelled by the vendor
-     * @param int $days - default value is 10. We will approve below age of cancellation
+     * @param int $days - default value is 10. We will approve whose cancellation age is greater than given days.
      * @param boolean $is_sms - If we have to send sms while cancelling booking then pass TRUE otherwise FALSE
      * @param int $partner_id - If we have to approve any specific partner then pass Partner_id 
      */
-    function auto_approve_cancelled_review_booking($days = 10, $is_sms = false, $partner_id = false){
+    function auto_approve_cancelled_review_booking($days = 10, $is_sms = 0, $partner_id = false){
         log_message('info', __METHOD__. "Start Days ". $days. " SMS ". $is_sms );
         $where = array("sc.current_status"=> SF_BOOKING_INPROCESS_STATUS,
         "sc.internal_status IN ('"._247AROUND_COMPLETED."', '"._247AROUND_CANCELLED."') "=> NULL,
@@ -1933,7 +1933,7 @@ class Around_scheduler extends CI_Controller {
         if(!empty($cancelled_booking)){
             foreach($cancelled_booking as $val){
                     $data['partner_id'][$val['booking_id']] = $val['partner_id'];
-                     $data['approved_booking'][] = $val['booking_id'];
+                    $data['approved_booking'][] = $val['booking_id'];
             }
             $data['approved_by'] = _247AROUND;
             //Call function to review the bookings
@@ -1946,9 +1946,9 @@ class Around_scheduler extends CI_Controller {
      * This Function is used to complete review bookings
      * Input  - $bookingData this array will contain 3 keys
      */
-    function checked_complete_review_booking($bookingData, $is_sms = true) {
+    function checked_complete_review_booking($bookingData, $is_sms = 1) {
         log_message('info', __FUNCTION__ . ' Function Start ');
-        print_r($bookingData);  
+        //print_r($bookingData);  
         $requested_bookings = $bookingData['approved_booking'];
         if($requested_bookings){
         $where['is_in_process'] = 0;
@@ -1958,7 +1958,7 @@ class Around_scheduler extends CI_Controller {
         foreach($tempArray as $values){
             $approved_booking[] = $values['booking_id'];
         }
-        $url = base_url() . "employee/do_background_process/complete_booking";
+        $url = base_url() . "employee/do_background_process/complete_booking/".$is_sms;
         if (!empty($approved_booking)) {
             //$this->booking_model->mark_booking_in_process($approved_booking);
             $data['booking_id'] = $approved_booking;
