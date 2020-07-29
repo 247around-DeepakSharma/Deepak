@@ -5143,14 +5143,14 @@ class Booking extends CI_Controller {
     function download_serviceability_data() {
         log_message('info', __FUNCTION__ . " Function Start ");
         $this->miscelleneous->create_serviceability_report_csv($this->input->post());
-        $output_file = TMP_FOLDER . "serviceability_report.csv";
-        $subject = 'Serviceablity Report from 247Around';
-        $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
-        log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
-        unlink($output_file);
+        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/serviceability_report.csv"));
+        // $output_file = TMP_FOLDER . "serviceability_report.csv";
+        // $subject = 'Servicablity Report from 247Around';
+        // $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+        // $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+        // log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
+        // unlink($output_file);
     }
-
     /**
      * @desc: This function is used to combined the excel sheet
      * @params: array $excel_file_list
