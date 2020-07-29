@@ -4379,6 +4379,10 @@ exit();
      * @param int $spare_id
      */
     function generate_oow_parts_invoice($spare_id) {
+        $remarks_revese_sale = '';
+        if($this->input->post('remarks_revese_sale')){
+            $remarks_revese_sale = $this->input->post('remarks_revese_sale');
+        }
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
         $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_shipped, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
@@ -4496,6 +4500,13 @@ exit();
                     "sub_category" => OUT_OF_WARRANTY,
                     "accounting" => 1
                 );
+                if(!empty($remarks_revese_sale)){
+                    if(!empty($invoice_details['remarks'])){
+                        $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$remarks_revese_sale;
+                    }else{
+                        $invoice_details['remarks'] = "Remark:- ".$remarks_revese_sale;
+                    }
+                }
 
                 $this->invoices_model->action_partner_invoice($invoice_details);
 //                $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4804,6 +4815,18 @@ exit();
                 "accounting" => 1,
                 "reference_invoice_id" => $reference_invoice_id
             );
+            $remarks = $this->input->post('remark');
+            if($this->input->post('remark')){
+                $remarks = $this->input->post('remark');
+            }
+
+            if(!empty($remarks)){
+                if(!empty($invoice_details['remarks'])){
+                    $invoice_details['remarks'] = $invoice_details['remarks'].", "."Remark:- ".$remarks;
+                }else{
+                    $invoice_details['remarks'] = "Remark:- ".$remarks;
+                }
+            }
 
             $this->invoices_model->insert_new_invoice($invoice_details);
 //            $this->invoices_model->insert_new_invoice($invoice_details);
@@ -6244,9 +6267,11 @@ exit();
         $data = array();
         $no = $post['start'];
         //create table data for each row
+        $row_index = 0;
         foreach ($list as $model_list) {
             $no++;
-            $row = $this->get_spare_sale_table($model_list, $no);
+            $row_index++;
+            $row = $this->get_spare_sale_table($model_list, $no, $row_index);
             $data[] = $row;
         }
 
@@ -6261,7 +6286,7 @@ exit();
      *  @param : array
      *  @return : array
      */
-     function get_spare_sale_table($model_list, $no) {
+     function get_spare_sale_table($model_list, $no, $row_index) {
         $row = array();
         $json_data = json_encode($model_list);
         $row[] = $no;
@@ -6273,7 +6298,7 @@ exit();
         $row[] = $model_list->sell_price;
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
-        $row_number = $no - 1;
+        $row_number = $row_index - 1;
         $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;

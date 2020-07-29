@@ -1799,7 +1799,7 @@ class Booking extends CI_Controller {
             if (empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 /* getting symptom */
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1, 'spare_cancel_reason' => 1,'symptom'=>1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight', array('spare_parts_details.booking_id' => $booking_id), false, false, false, $arr, TRUE, TRUE,TRUE,TRUE,TRUE);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id), true, false, false, $arr, TRUE, TRUE,TRUE,TRUE,TRUE);
                 if (!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
@@ -4350,7 +4350,7 @@ class Booking extends CI_Controller {
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.model_number,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
-                . "booking_details.booking_primary_contact_no,booking_details.booking_alternate_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
+                . "booking_details.booking_primary_contact_no,booking_details.booking_alternate_contact_no, DATE_FORMAT(`booking_details`.`booking_date`,'%d-%m-%Y'),DATE_FORMAT(`booking_details`.`initial_booking_date`,'%d-%m-%Y'), "
                 ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as age_of_booking, "
                 ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
@@ -5049,7 +5049,7 @@ class Booking extends CI_Controller {
     }
     function get_bulk_search_result_view(){
        $receieved_Data = $this->input->post();
-       $bookingDetailsSelect = "booking_details.booking_id,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
+       $bookingDetailsSelect = "booking_details.booking_id,booking_details.request_type,booking_details.order_id,booking_details.booking_primary_contact_no,bookings_sources.source,booking_details.city,"
                 . "service_centres.company_name,services.services,booking_details.current_status,booking_details.internal_status";
         $unitDetailsSelect =", 'Not_found' as purchase_date, 'Not_found' as appliance_brand,'Not_found' as appliance_category,'Not_found' as appliance_capacity,'Not_found' as price_tags,'Not_found' as product_or_services";
        if($this->input->post("is_unit_details")){
@@ -5148,12 +5148,13 @@ class Booking extends CI_Controller {
     function download_serviceability_data() {
         log_message('info', __FUNCTION__ . " Function Start ");
         $this->miscelleneous->create_serviceability_report_csv($this->input->post());
-        $output_file = TMP_FOLDER . "serviceability_report.csv";
-        $subject = 'Servicablity Report from 247Around';
-        $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
-        log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
-        unlink($output_file);
+        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/serviceability_report.csv"));
+        // $output_file = TMP_FOLDER . "serviceability_report.csv";
+        // $subject = 'Servicablity Report from 247Around';
+        // $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+        // $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+        // log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
+        // unlink($output_file);
     }
 
     /**
@@ -5970,6 +5971,17 @@ class Booking extends CI_Controller {
            $whereIN['booking_details.state'] = [$state];
         }
 
+        // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
+        //Wrong area bookings will be shown in seperate TAB
+        if($review_status == _247AROUND_CANCELLED) {
+            if(!empty($post_data['cancellation_reason_id'])){
+                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['id'];
+                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+            }
+            else {
+                $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
+            }
+        } 
         if(!empty($post_data['request_type'])) {
         $arr_request_types = [1 => 'Installation & Demo (Paid)',2 => 'Installation & Demo (Free)', 3 => 'Repair - In Warranty', 4 => 'Repair - Out Of Warranty', 5 => 'Extended Warranty', 6 => 'Gas Recharge', 7 => 'PDI', 8 => 'Repeat Booking', 9 => 'Presale Repair'];
         foreach ($arr_request_types as $key => $value) {
@@ -5985,17 +5997,6 @@ class Booking extends CI_Controller {
                 '%Y-%m-%d'
             )) BETWEEN '".$review_age_min."' AND '".$review_age_max."'"] = NULL;
         }
-        // Do not show Wrong Call Area Bookings in Bookings Cancelled by SF TAB
-        //Wrong area bookings will be shown in seperate TAB
-        if($review_status == _247AROUND_CANCELLED) {
-            if(!empty($post_data['cancellation_reason_id'])){
-                $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['id'];
-                $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
-            }
-            else {
-                $where['(sc.cancellation_reason IS NULL OR sc.cancellation_reason <> "'.CANCELLATION_REASON_WRONG_AREA_ID.'")'] = NULL;
-            }
-        } 
         
         $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,$join);
         

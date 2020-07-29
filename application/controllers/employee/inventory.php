@@ -1239,6 +1239,9 @@ class Inventory extends CI_Controller {
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
                     $track_status = $new_state = "Spare Parts Not Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Not Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     
                     /**
@@ -1295,6 +1298,9 @@ class Inventory extends CI_Controller {
                         }
 //                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
@@ -1514,7 +1520,7 @@ class Inventory extends CI_Controller {
                 $success = $this->insert_zopper_form_data();
                 if ($success['success']) {
                     $customer_total = $data['service_charge'] + $data['transport_charge'] +
-                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'];
+                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'] + $data['around_service_commission'] + $data['around_transport_commission'] + $data['around_courier_commission'];
                     //same_diff_vendor 1 means different vendor arrange part
                     if ($data['arrange_part_by'] == 1) {
 
@@ -1778,8 +1784,11 @@ class Inventory extends CI_Controller {
         $z['booking_id'] = $this->input->post("booking_id");
         $z['around_part_commission'] = $this->input->post("around_part_commission");
         $z['service_charge'] = $this->input->post("service_charge");
+        $z['around_service_commission'] = $this->input->post("around_service_commission");
         $z['transport_charge'] = $this->input->post("transport_charge");
+        $z['around_transport_commission'] = $this->input->post("around_transport_commission");
         $z['courier_charge'] = $this->input->post("courier_charge");
+        $z['around_courier_commission'] = $this->input->post("around_courier_commission");
         $z['arrange_part_by'] = $this->input->post("arrange_part_by");
         $z['remarks'] = $this->input->post("remarks");
         $z['part_name'] = $this->input->post("part_name");
@@ -2525,7 +2534,11 @@ class Inventory extends CI_Controller {
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
                 . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, oow_spare_invoice_details.invoice_amount as basic_amount";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
+        if($this->input->post('dashboard')){
+            $data['dashboard']  =   $this->input->post('dashboard');
+        }else{
         $this->miscelleneous->load_nav_header();
+        }
         $this->load->view("employee/spare_invoice_list", $data);
     }
 
@@ -9554,6 +9567,90 @@ class Inventory extends CI_Controller {
             $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Deactivate</button>";
         } else {
             $action = "<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Activate</button>";
+        }
+        $row[] = $action;
+
+        return $row;
+    }
+       
+     /*
+     *  @desc : This function is used to get courier serviceable area list.
+     *  @param : void
+     *  @return : Json
+     */
+
+    function get_courier_serviceable_area_list() {
+        $data = $this->get_courier_serviceable_area_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_courier_serviceable_area_list($post),
+                "recordsFiltered" => $this->inventory_model->count_courier_serviceable_area_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    /*
+     *  @desc : This function is used to draw courier serviceable area list in bulk.
+     *  @param : void
+     *  @return : void
+     */
+    function get_courier_serviceable_area_list_data() {
+        $post = $this->get_post_data();
+        $courier_flag = trim($this->input->post('courier_flag'));
+        $data = array();
+        if (!empty($courier_flag)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('courier_serviceable_area.courier_company_name', 'courier_serviceable_area.pincode');
+            $post['where'] = "";
+            $select = "courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode, courier_serviceable_area.status, courier_serviceable_area.create_date";
+            $list = $this->inventory_model->get_courier_serviceable_area_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $courier_serviceable_area_list) {
+                $no++;
+                $row = $this->get_courier_serviceable_area_list_table($courier_serviceable_area_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+     /*
+     *  @desc : This function is used to draw courier serviceable area list in single line item.
+     *  @param : $serviceable_area
+      * @param : $no
+     *  @return : array
+     */
+    function get_courier_serviceable_area_list_table($serviceable_area, $no) {
+        $row = array();
+        $json_data = json_encode($serviceable_area);
+        $row[] = $no;
+        $row[] = $serviceable_area->courier_company_name;
+        $row[] = $serviceable_area->pincode;
+        $row[] = date('d-F-Y', strtotime($serviceable_area->create_date));
+        if ($serviceable_area->status == 1) {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
+        } else {
+            $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_serviceable_area' data-id='$json_data' style='cursor:not-allowed' title='Edit not allowed account deactivated'><i class = 'fa fa-edit'></i></a>";
+        }
+        $row[] = $update;
+        if ($serviceable_area->status == 1) {
+            $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Deactivate</button>";
+        } else {
+            $action = "<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='serviceable_area_status' data-id='$json_data'>Activate</button>";
         }
         $row[] = $action;
 
