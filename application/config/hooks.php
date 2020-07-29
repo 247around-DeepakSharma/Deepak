@@ -10,12 +10,12 @@
 |
 */
 
-//$hook['pre_system'][] = array(
-//                       'class' => 'site_offline',
-//                       'function' => 'is_offline', 
-//                       'filename' => 'site_offline.php',
-//                       'filepath' => 'hooks'
-//);
+$hook['post_controller_constructor'][] = array(
+                       'class' => 'site_offline',
+                       'function' => 'is_offline', 
+                       'filename' => 'site_offline.php',
+                       'filepath' => 'hooks'
+);
 
 $hook['pre_system'][] = array(
 	    'class'    => 'PHPFatalError',

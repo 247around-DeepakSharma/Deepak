@@ -172,19 +172,14 @@ class Do_background_process extends CI_Controller {
         }
     }
 
-    function complete_booking() {
+    function complete_booking($is_sms = 1) {
         log_message('info', "Entering: " . __METHOD__ . " " . json_encode($this->input->post()));
-       
         $approvalBooking_id = $this->input->post('booking_id');
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
         $partner_id_array = $this->input->post('partner_id');
         $approved_by = $this->input->post('approved_by');
-        $is_sms = TRUE;
-
-        if(isset($_POST['is_sms'])){
-            $is_sms = $this->input->post('is_sms');
-        }        
+    
         foreach ($approvalBooking_id as $booking_id) {
             
             $partner_id = $partner_id_array[$booking_id];
@@ -336,7 +331,7 @@ class Do_background_process extends CI_Controller {
 //                        $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $agent_id, 
 //                            $agent_name, $actor,$next_action,$approved_by);
 //                    }
-                    if($is_sms){
+                    if($is_sms == 1){
                         $this->notify->send_sms_email_for_booking($booking_id, $current_status);
                     }
                     
