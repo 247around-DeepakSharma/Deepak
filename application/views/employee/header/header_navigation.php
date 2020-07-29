@@ -636,13 +636,17 @@ function send_csv_request(appliance_opt,pincode_opt,state_opt,city_opt,service_i
     if(!service_id){
         service_id = 'all';
     }
-    document.getElementById('response_holder_csv').style.display='block';
-    document.getElementById('response_holder_csv').innerHTML = 'Soon you will get requested report via Email';
+    // document.getElementById('response_holder_csv').style.display='block';
+    // document.getElementById('response_holder_csv').innerHTML = 'Soon you will get requested report via Email';
     $.ajax({
     type: 'POST',
     url: '<?php echo base_url(); ?>employee/booking/download_serviceability_data',
     data: {appliance_opt: appliance_opt,pincode_opt: pincode_opt,state_opt: state_opt,city_opt: city_opt,service_id: service_id},
     success: function (response) {
+            var jsondata = JSON.parse(response);
+            if(jsondata['response'] === "success"){
+                    window.location.href = jsondata['path'];
+              }
     }
     });
 }
