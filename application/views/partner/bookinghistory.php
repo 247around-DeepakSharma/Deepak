@@ -17,6 +17,9 @@
                                     <th>Name</th>
                                     <th>Appliance</th>
                                     <th>Booking Date</th>
+                                    <th>Purchase Date</th>
+                                    <th>Booking Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
+                                    <th>Current Warranty Status <span data-toggle="tooltip" title="No Data found means waranty plan not found."><i class="fa fa-info-circle" aria-hidden="true"></i></span></th>
                                     <th>Status</th>
                                     <th>View</th>
                                     <th>More Action</th>
@@ -32,10 +35,13 @@
                                 <tr>
                                     <td> <?php echo $count;$count++;?>.</td>
                                     <td><?= $row['order_id']; ?></td>
-                                    <td><?= $row['booking_id']; ?></td>
+                                    <td><?= $row['booking_id']; ?><script>$(document).ready(function(){check_warranty_booking('<?php echo $row['booking_id'];?>');});</script></td>
                                     <td><?= $row['customername']; ?></td>
                                     <td><?= $row['services']; ?></td>
                                     <td><?php if(!empty($row['booking_date']) && $row['booking_date'] != '0000-00-00'){ echo date("d-M-Y", strtotime($row['booking_date']));} ?></td>
+                                    <td id='purchase_date_<?php echo $row['booking_id'];?>'></td>
+                                    <td id='booking_type_<?php echo $row['booking_id'];?>'></td>
+                                    <td id='current_warranty_<?php echo $row['booking_id'];?>'></td>
                                     <td><?php echo $row['partner_internal_status']; ?></td>
                                     <td>
                                         <?php
@@ -131,3 +137,26 @@
     
     });
 </script>
+
+ <script>
+    function check_warranty_booking(booking_id){
+        var datastring ="booking_id="+booking_id;
+        var request = $.ajax({
+        type: 'POST',
+        data: datastring,
+        url: "<?php echo base_url(); ?>employee/user/check_warranty_booking_search",
+        beforeSend: function(){
+            $("#purchase_date_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+            $("#booking_type_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+            $("#current_warranty_"+booking_id).html("<img src='<?php echo base_url(); ?>images/loader.gif' style='width:30px'>");
+        },
+        success: function(data){
+            var obj = JSON.parse(data);
+            $("#purchase_date_"+booking_id).html(obj.purchase_date);
+            $("#booking_type_"+booking_id).html(obj.booking_warranty_status);
+            $("#current_warranty_"+booking_id).html(obj.current_warranty_status);
+        }
+        });
+    }
+    </script>
+
