@@ -28,7 +28,7 @@ class User extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('warranty_utilities');
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['finduser'];
+        $arr_functions_skip_from_validation = ['finduser','check_warranty_booking_search'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForPartner = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
