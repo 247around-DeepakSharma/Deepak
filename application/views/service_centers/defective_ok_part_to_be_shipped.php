@@ -815,7 +815,30 @@ if ($this->uri->segment(3)) {
                             $("#defective_parts_shipped_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
                             $("#defective_parts_shipped_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
                         }
-
+                    } else if (data.code === 777) {
+                        // show message if shipment done more than 7 days ago.
+                        alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
+                        $('#awb_by_sf').val('');
+                        $('body').loadingModal('destroy');
+                        $("#aws_receipt").css("display", "block");
+                        $("#courier_charges_by_sf").css("display", "block");
+                        $("#same_awb").css("display", "none");
+                        $("#exist_courier_image").removeAttr("readonly");
+                        $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").val("");
+                        $("#courier_charges_by_sf").removeAttr('readonly');
+                        $("#courier_charges_by_sf").val("");
+                        $("#aws_receipt").attr("required", "required");
+                        $("#defective_part_shipped_date").val("");
+                        $("#defective_parts_shipped_boxes_count").val("");
+                        $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
+                        $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
+                        $("#defective_parts_shipped_weight_in_kg").val("");
+                        $("#defective_parts_shipped_weight_in_gram").val("");
+                        $("#remarks").val("");
+                        $("#aws_receipt").css("display", "block");
+                        $("#courier_boxes_weight_flag").val("0");
+                        
                     } else {
                         $('body').loadingModal('destroy');
                         $("#aws_receipt").css("display", "block");

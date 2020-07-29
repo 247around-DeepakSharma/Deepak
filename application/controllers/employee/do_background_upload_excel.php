@@ -1029,7 +1029,7 @@ class Do_background_upload_excel extends CI_Controller {
                         if (stristr($prod, "Microwave") || stristr($prod, "MWO")) {
                             $data['valid_data'][$key]['appliance'] = 'Microwave';
                         }
-                        if (stristr($prod, "Audio system ( walk in)")) {
+                        if (stristr($prod, "Audio system ( walk in)") || stristr($prod, "Audio System ( walk in )")) {
                             $data['valid_data'][$key]['appliance'] = 'Audio System (Walk-In)';
                         }
                         if (stristr($prod, "Purifier")) {

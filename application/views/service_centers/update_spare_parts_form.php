@@ -976,7 +976,13 @@
                             $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
                         }
 
-                    } else {
+                    } if (data.code === 777) { 
+                        // show message if shipment done more than 7 days ago.
+                        alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
+                        $("#same_awb").css("display", "block");
+                        $('body').loadingModal('destroy');
+                        $("#same_awb").css("display", "none");
+                    }else {
 
                         $('body').loadingModal('destroy');
                         $("#courier_image").css("display", "block");

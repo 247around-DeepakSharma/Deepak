@@ -2528,7 +2528,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $stateData = $this->get_data_for_state_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);            
         }
         //Get Data Group BY SF
-        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id);        
+        if(!$this->input->post('call_from_api')){
+        $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type,$agent_type,$agent_id); 
+        }
+        
         if($is_am){
             if($rmID != "00"){
                 $partnerWhere["agent_filters.agent_id"] = $rmID;
@@ -2540,7 +2543,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
          $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(!$is_ajax){
+        if(!$is_ajax && !$this->input->post('call_from_api')){
             if($this->session->userdata('userType') == 'employee'){
                 $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
             }
@@ -2570,6 +2573,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $this->load->view('dashboard/dashboard_footer');   
         }
         else{
+            
+           if($this->input->post('call_from_api')){
+                 echo  json_encode($stateData);
+           }else{
             if($is_pending){
                 echo  json_encode($sfData);
             }
@@ -2580,7 +2587,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     echo  json_encode($sfData);
                 }
-            }
+            } 
+           } 
         }
     }
     

@@ -1520,7 +1520,7 @@ class Inventory extends CI_Controller {
                 $success = $this->insert_zopper_form_data();
                 if ($success['success']) {
                     $customer_total = $data['service_charge'] + $data['transport_charge'] +
-                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'];
+                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'] + $data['around_service_commission'] + $data['around_transport_commission'] + $data['around_courier_commission'];
                     //same_diff_vendor 1 means different vendor arrange part
                     if ($data['arrange_part_by'] == 1) {
 
@@ -1784,8 +1784,11 @@ class Inventory extends CI_Controller {
         $z['booking_id'] = $this->input->post("booking_id");
         $z['around_part_commission'] = $this->input->post("around_part_commission");
         $z['service_charge'] = $this->input->post("service_charge");
+        $z['around_service_commission'] = $this->input->post("around_service_commission");
         $z['transport_charge'] = $this->input->post("transport_charge");
+        $z['around_transport_commission'] = $this->input->post("around_transport_commission");
         $z['courier_charge'] = $this->input->post("courier_charge");
+        $z['around_courier_commission'] = $this->input->post("around_courier_commission");
         $z['arrange_part_by'] = $this->input->post("arrange_part_by");
         $z['remarks'] = $this->input->post("remarks");
         $z['part_name'] = $this->input->post("part_name");
@@ -3776,7 +3779,7 @@ class Inventory extends CI_Controller {
 
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate, inventory_master_list.oow_around_margin', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate, inventory_master_list.oow_around_margin, inventory_master_list.service_id', $where);
             if (!empty($inventory_details)) {
                 if ($this->session->userdata('userType') == 'service_center') {
                     $select_stock = "*";
@@ -3795,6 +3798,7 @@ class Inventory extends CI_Controller {
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
                 $data['oow_around_margin'] = $inventory_details[0]['oow_around_margin'];
+                $data['service_id'] = $inventory_details[0]['service_id'];
             } else {
                 $data['price'] = '';
                 $data['inventory_id'] = '';
@@ -4765,9 +4769,10 @@ class Inventory extends CI_Controller {
      */
     function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
+        $invoice_date = date('Y-m-d'); 
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                 . "state,address as company_address,company_name,district, pincode", array("id" => $wh_id));
-
+                        
         $not_updated_data = array();
 
         if (empty($entity_details[0]['gst_number'])) {
