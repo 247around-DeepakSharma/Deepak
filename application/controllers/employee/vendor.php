@@ -1532,7 +1532,7 @@ class vendor extends CI_Controller {
                     }
                     
                     
-                    $this->booking_model->update_booking($booking_id, $assigned_data);
+                    $this->booking_model->update_booking($booking_id, $assigned_data2);
                 }
                 //End
 
