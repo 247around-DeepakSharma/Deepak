@@ -2258,7 +2258,7 @@ class Partner extends CI_Controller {
         }
         
         $shipped_part_details = $this->input->post("part");
-
+     
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
             $invoide_data = array();
@@ -2285,7 +2285,9 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
-                    $data['challan_approx_value'] = $value['approx_value'];
+                    $margin = $this->inventory_model->get_oow_margin($value['requested_inventory_id'], array('part_type' => $value['shipped_part_type'],
+                    'inventory_parts_type.service_id' => $value['service_id']));
+                    $data['challan_approx_value'] = round($value['approx_value'] * ( 1 + $margin['oow_around_margin'] / 100), 0);
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
