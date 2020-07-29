@@ -1025,7 +1025,12 @@
                                             <span id=<?php echo "shipment_date_edit".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
                                         </td>
                                         <td><?php echo $sp['edd']; ?></td>
-                                        <td><?php echo $sp['remarks_by_partner']; ?></td>
+                                        <td>
+                                            <?php if($booking_history[0]['current_status'] != _247AROUND_COMPLETED && in_array($this->session->userdata('user_group'), [_247AROUND_ADMIN, INVENTORY_USER_GROUP])) { ?>
+                                                <span class="serial_no_text" id="<?php echo $sp['id']."|remarks_by_partner";?>"><?php echo $sp['remarks_by_partner']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                                <input type="hidden" value="<?php echo $sp['remarks_by_partner'];  ?>" id="<?php echo $sp['id']."_remarks_by_partner";?>" />
+                                            <?php } else { echo $sp['remarks_by_partner']; }?>
+                                        </td>
                                         <td>                                         
                                             <span class="serial_no_text" id="<?php echo $sp['id']."|partner_challan_number";?>"><?php echo str_replace(array('-','_'), ' ', $sp['partner_challan_number']); ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <input type="hidden" value="<?php echo $sp['partner_challan_number'];  ?>" id="<?php echo $sp['id']."_partner_challan_number";?>" />
