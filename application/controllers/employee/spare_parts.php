@@ -3802,9 +3802,9 @@ class Spare_parts extends CI_Controller {
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
-        $where = array();        
-        if ($icwh == 1) {
-            $tmp_subject = "CWH ";
+        $where = array(); 
+        if($icwh == 1){
+            $tmp_subject =  "CWH ";
             $temp_function = 'get_msl_data';
             $template = "msl_data.xlsx";
         } else {

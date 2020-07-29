@@ -1239,6 +1239,9 @@ class Inventory extends CI_Controller {
                     $data['defective_part_required'] = 0;
                     $where = array('id' => $id);
                     $track_status = $new_state = "Spare Parts Not Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Not Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     
                     /**
@@ -1295,6 +1298,9 @@ class Inventory extends CI_Controller {
                         }
 //                   }
                     $track_status = $new_state = "Spare Parts Required To Warehouse";
+                    if ($this->session->userdata('partner_id')) {
+                        $track_status = $new_state = "Spare Parts Required To Partner";
+                    }
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
@@ -1514,7 +1520,7 @@ class Inventory extends CI_Controller {
                 $success = $this->insert_zopper_form_data();
                 if ($success['success']) {
                     $customer_total = $data['service_charge'] + $data['transport_charge'] +
-                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'];
+                            $data['courier_charge'] + $data['part_estimate_given'] + $data['around_part_commission'] + $data['around_service_commission'] + $data['around_transport_commission'] + $data['around_courier_commission'];
                     //same_diff_vendor 1 means different vendor arrange part
                     if ($data['arrange_part_by'] == 1) {
 
@@ -1778,8 +1784,11 @@ class Inventory extends CI_Controller {
         $z['booking_id'] = $this->input->post("booking_id");
         $z['around_part_commission'] = $this->input->post("around_part_commission");
         $z['service_charge'] = $this->input->post("service_charge");
+        $z['around_service_commission'] = $this->input->post("around_service_commission");
         $z['transport_charge'] = $this->input->post("transport_charge");
+        $z['around_transport_commission'] = $this->input->post("around_transport_commission");
         $z['courier_charge'] = $this->input->post("courier_charge");
+        $z['around_courier_commission'] = $this->input->post("around_courier_commission");
         $z['arrange_part_by'] = $this->input->post("arrange_part_by");
         $z['remarks'] = $this->input->post("remarks");
         $z['part_name'] = $this->input->post("part_name");

@@ -23,9 +23,7 @@
     div.dt-button-background{
         position: inherit;
     }
-    .select2{
-    width: 572px !important;
-    }
+   
 </style>
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
@@ -53,22 +51,25 @@
                 ?>
                
                
-               </br>
-               <div class="pull-right">
-                   <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
-               </div>                           
-               <div class="pull-right" style="margin-right: 80px;">
-                   <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
-                   <p id="partner_err"></p>
-               </div>    
-               <div class="pull-right" style="margin-right: 80px;">
-                   <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
-                   <p id="service_centers_id_err"></p>
-               </div> 
-               <div class="pull-left" style="margin-left: 20px;"><h2 class="panel-title">Consolidated Report</h2> </div> 
-           </div>
-       </div>
-       </br>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="pull-left"><h2 class="panel-title">Consolidated Report</h2> </div> 
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
+                    <p id="partner_err"></p>
+                </div>    
+                <div class="col-md-4">
+                    <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
+                    <p id="service_centers_id_err"></p>
+                </div> 
+                <div class="col-md-2">
+                    <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+                </div>
+            </div>
+        </div>
+            <br><br>         
        <div class="col-md-12">
            <div class="panel panel-default">               
                <div class="panel-heading">

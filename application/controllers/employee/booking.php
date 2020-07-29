@@ -1799,7 +1799,7 @@ class Booking extends CI_Controller {
             if (empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 /* getting symptom */
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1, 'spare_cancel_reason' => 1,'symptom'=>1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight', array('spare_parts_details.booking_id' => $booking_id), false, false, false, $arr, TRUE, TRUE,TRUE,TRUE,TRUE);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,symptom.symptom as symptom_text,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf,ccid.box_count as sf_box_count,ccid.billable_weight as sf_billable_weight,cc_invoice_details.box_count as wh_box_count,cc_invoice_details.billable_weight as wh_billable_weight, cci_details.box_count as p_box_count, cci_details.billable_weight as p_billable_weight, booking_details.partner_id as booking_partner_id', array('spare_parts_details.booking_id' => $booking_id), true, false, false, $arr, TRUE, TRUE,TRUE,TRUE,TRUE);
                 if (!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
@@ -5148,12 +5148,13 @@ class Booking extends CI_Controller {
     function download_serviceability_data() {
         log_message('info', __FUNCTION__ . " Function Start ");
         $this->miscelleneous->create_serviceability_report_csv($this->input->post());
-        $output_file = TMP_FOLDER . "serviceability_report.csv";
-        $subject = 'Servicablity Report from 247Around';
-        $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
-        log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
-        unlink($output_file);
+        echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/serviceability_report.csv"));
+        // $output_file = TMP_FOLDER . "serviceability_report.csv";
+        // $subject = 'Servicablity Report from 247Around';
+        // $message = 'Hi , <br>Requested Report is ready please find attachment<br>Thanks!';
+        // $this->notify->sendEmail(NOREPLY_EMAIL_ID, $this->session->userdata('official_email'), "", "", $subject, $message, $output_file,"Servicablity_Report");
+        // log_message('info', __FUNCTION__ . " Function End ".$this->session->userdata('official_email'));
+        // unlink($output_file);
     }
 
     /**
