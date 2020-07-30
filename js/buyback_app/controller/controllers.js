@@ -538,13 +538,6 @@ rm_dashboard.controller('rm_dashboardController', function ($scope, $http) {
          $("#e_date").val(dateRange[1]);
          $scope.loadAllRMView(baseUrl + "/employee/dashboard/get_escalation_by_all_rm/"+dateRange[0]+"/"+dateRange[1]);
     }
-//Escalation End
-//Pending Booking Start
-// var pending_booking_url = baseUrl + "/employee/dashboard/pending_booking_by_rm/"+rm_id;
-//    $http.get(pending_booking_url).then(function (response) {
-//            $scope.pendingBookingData = response.data;
-//     });
-//Pending Booking End
 });
 //Missing Pincode Full View
     bracket_allocation.controller('bracketAllocationController', function ($scope, $http) {
