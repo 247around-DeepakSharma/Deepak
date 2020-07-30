@@ -407,12 +407,13 @@
 
                 <div class="x_content collapse" id="escalation_data_div">
 
-                    <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">
+                    <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">                        
                         <button type="button" class="btn btn-info" ng-click="mytoggle = !mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
-                        <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
+                        <form class="form-inline" action="<?php echo base_url(); ?>employee/partner/get_escalation_data">
                             <div class="form-group">
                                 <input type="text" class="form-control" name="daterange" id="daterange_id" ng-change="daterangeloadFullRMView()" ng-model="dates">
-                            </div>
+                            </div>                      
+                            <button type="submit" class="btn btn-info" id="download_escalation_data" style="margin-left:10px;">Download Report</button>
                         </form>
                         <p>
                         <table class="table table-striped table-bordered jambo_table bulk_action">
@@ -651,18 +652,16 @@
     }
     
 function initiate_escalation_data(){
-//    var d = new Date();
-//        n = d.getMonth();
-//        y = d.getFullYear();
-//        date = d.getDate();
         $('input[name="daterange"]').daterangepicker({
-             timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
-            format: 'YYYY-MM-DD'
-        },
-        //startDate: y+'-'+n+'-'+date
-        startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+            timePicker: true,
+            timePickerIncrement: 30,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            dateLimit: {
+                days: 92
+            },
+            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
     });
 }
 

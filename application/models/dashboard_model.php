@@ -1128,4 +1128,50 @@ class dashboard_model extends CI_Model {
         
     }
     
+    /**
+     * @desc: This function is used to get excel data for Escalations done by Call Center / ASMs / Partners
+     * @param $startDate, $endDate
+     * @return array
+     */
+    function get_escalation_data($startDate, $endDate, $partner_id){
+        $this->db->_protect_identifiers = FALSE;
+        
+        // set select statement
+        $select =   "booking_details.booking_id as 'Booking Id',
+                    services.services as 'Appliance',
+                    booking_details.request_type as 'Booking Type',
+                    booking_details.city as 'City',
+                    booking_details.state as 'State',    
+                    service_centres.company_name as 'SF Name',
+                    employee_am.full_name as 'AM Name',
+                    employee_asm.full_name as 'ASM Name',
+                    employee_rm.full_name as 'RM Name',    
+                    vendor_escalation_log.create_date as 'Escalation Date',
+                    vendor_escalation_policy.entity as 'Escalation Entity',
+                    vendor_escalation_policy.escalation_reason as 'Escalation Reason'";
+        
+        // set where condition
+        $where =    "booking_details.partner_id =  '$partner_id'
+                    AND date(vendor_escalation_log.create_date) >= '$startDate'
+                    AND date(vendor_escalation_log.create_date) < '$endDate'";
+        
+        // Query here
+        $this->db->select($select);
+        $this->db->from('vendor_escalation_log');
+        $this->db->join('service_centres', 'vendor_escalation_log.vendor_id = service_centres.id');
+        $this->db->join('booking_details', 'booking_details.booking_id = vendor_escalation_log.booking_id');
+        $this->db->join('employee as employee_rm', 'employee_rm.id = service_centres.rm_id');
+        $this->db->join('services', 'booking_details.service_id = services.id');
+        $this->db->join('vendor_escalation_policy', 'vendor_escalation_log.escalation_reason = vendor_escalation_policy.id');        
+        $this->db->join('employee as employee_asm', 'employee_asm.id = service_centres.asm_id', 'left');
+        $this->db->join('agent_filters', 'booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = "247around"', 'left');
+        $this->db->join('employee as employee_am', 'employee_am.id = agent_filters.agent_id', 'left');
+        $this->db->where($where);
+        $this->db->order_by('vendor_escalation_log.create_date');
+        $this->db->group_by('booking_details.booking_id');
+        
+        // return query object
+        $query = $this->db->get();
+        return $query;
+    }
 }
