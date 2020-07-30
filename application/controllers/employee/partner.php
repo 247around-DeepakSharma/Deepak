@@ -171,9 +171,12 @@ class Partner extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'][0]['dealer_id'])){ 
-            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
-            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
-            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+           $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+           
+            if (!empty($dealer_detail)) {
+                $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+                $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+            }
         }
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
@@ -2261,7 +2264,7 @@ class Partner extends CI_Controller {
         }
         
         $shipped_part_details = $this->input->post("part");
-
+     
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
             $invoide_data = array();
@@ -2281,7 +2284,9 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
-                    $data['challan_approx_value'] = $value['approx_value'];
+                    $margin = $this->inventory_model->get_oow_margin($value['requested_inventory_id'], array('part_type' => $value['shipped_part_type'],
+                    'inventory_parts_type.service_id' => $value['service_id']));
+                    $data['challan_approx_value'] = round($value['approx_value'] * ( 1 + $margin['oow_around_margin'] / 100), 0);
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -9739,5 +9744,165 @@ class Partner extends CI_Controller {
         }
     }
    
-
+    /**
+     * @desc: This function is used to download the list of Escalations done by Call Center / ASMs / Partners
+     * @param void
+     * @param excel : true if wants to generate excel of the report data else false
+     * @return json
+     */
+    function get_escalation_data($excel = true) {
+        if(!empty($this->input->post('esDate')) && !empty($this->input->post('eeDate'))){
+            $sDate = $this->input->post('esDate');
+            $eDate = $this->input->post('eeDate');
+            $startDate = date('Y-m-d', strtotime($sDate));
+            $endDate = date('Y-m-d', strtotime($eDate));
+        }
+        // set default date filter of 1 Month
+        else{ 
+            $endDate = date('Y-m-d', strtotime(date('Y-m-d', strtotime('+1 days'))));
+            $startDate = date('Y-m-d', strtotime(date('Y-m-d', strtotime('-30 days'))));
+        }
+        
+        // for Admin Panel
+        if(!empty($this->input->post('partner_id'))){
+            $partner_id = $this->input->post('partner_id');
+        }
+        // for Partner Panel
+        else
+        {
+            $partner_id = $this->session->userdata('partner_id');
+        }
+        
+        // get Data
+        $escalation_data = $this->dashboard_model->get_escalation_data($startDate, $endDate, $partner_id);
+        // Generate and Download Excel
+        if($excel){
+            $this->download_escalation_data($startDate, $endDate, $escalation_data); 
+        }
+        // Return CSV of generated report
+        else
+        {
+            $newCSVFileName = "escalated_bookings_report_" . date('Y-m-d').($partner_id+211).rand(10,100000000). ".csv";
+            $csv = TMP_FOLDER . $newCSVFileName;
+        
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($escalation_data, $delimiter, $newline);
+            write_file($csv, $new_report);
+            return $newCSVFileName;
+        }
+    }
+    
+    /**
+     * This function is used to download escalation data Excel
+     * @param type $startDate
+     * @param type $endDate
+     * @param type $escalation_data
+     */
+    function download_escalation_data($startDate, $endDate, $escalation_data)
+    {
+        $closureCsv = "Escalation_Report_" . date("Y-m-d", strtotime($startDate)) . "_to_".date("Y-m-d", strtotime($endDate)).".csv";
+        $csv = TMP_FOLDER . $closureCsv;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($escalation_data, $delimiter, $newline);
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+        if(file_exists($csv)){
+            unlink($csv);
+        }     
+        exit;
+    }
+    
+    /**
+     * @desc: This function is used to show the escalation report panel.
+        This view is called from Reports -> Escalation Report Menu on Admin Panel
+     * @param void
+     */
+    function show_escalation_report() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_escalation_report');
+    }
+    
+    /**
+     * This function creates partner wise escalation report within a give daterange
+     * @param type $partnerID
+     */
+    function create_and_save_partner_escalation_report(){
+            log_message('info', __FUNCTION__ . " Function Start For Create and Save Escalation Report ".print_r($this->input->post(),true));
+            $postArray = $this->input->post();
+            
+            //Create Summary Report
+            $newCSVFileName = $this->get_escalation_data(false);
+            
+            //Save File on AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "escalation-reports/" . $newCSVFileName;
+            $is_upload = $this->s3->putObjectFile(realpath(TMP_FOLDER . $newCSVFileName), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            unlink(TMP_FOLDER . $newCSVFileName);
+            if($is_upload == 1){
+                //Save File log in report log table
+                $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                $data['entity_id'] = $postArray['partner_id'];
+                $data['report_type'] = "partner_escalation_report";
+                $data['filters'] = json_encode($postArray);
+                $data['url'] = $directory_xls;
+                $data['agent_id'] = $this->session->userdata('agent_id');
+                $is_save = $this->reusable_model->insert_into_table("reports_log",$data);
+                if($is_save){
+                   $src=  base_url()."employee/partner/download_custom_summary_report/".$directory_xls;
+                   echo  json_encode(array("response"=>"SUCCESS","url"=>$src));
+                }
+                else{
+                    echo  json_encode(array("response"=>"FAILURE","url"=>$directory_xls));
+                }
+            }
+    }
+    
+    /**
+     * Method shows the view of download history of escalated bookings report.
+     * @author Prity Sharma
+    */
+    function get_escalation_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID, 'report_type' => 'partner_escalation_report'),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }                    
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
 }

@@ -551,7 +551,7 @@
         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
         return false;
         }
-
+        }
 
 
         var courier_price= parseFloat(postData['courier_price_by_wh']);
@@ -677,7 +677,7 @@
                     });
 
                         },
-                    url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_awb_exist',
+                    url: '<?php echo base_url() ?>employee/service_centers/check_warehouse_shipped_defective_awb_exist',
                     data:{awb:awb},
                     success: function (response) {
                         console.log(response);
@@ -688,11 +688,12 @@
                             $('body').loadingModal('destroy');
                             $("#defective_parts_shippped_date_id").val(data.message[0].shipped_date);
                             $("#courier_name_by_wh_id").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_id").val("0");
-                            $("#courier_price_id").css("display","none");
+                            $("#courier_price_id").val(data.message[0].courier_price_by_wh);
+                            //$("#courier_price_id").css("display","none");
                             if(data.message[0].courier_invoice_file){
                                 $("#exist_courier_image").val(data.message[0].courier_invoice_file);
-                                $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
+                                $("#defective_parts_shippped_courier_pic_by_wh").val(data.message[0].courier_invoice_file);
+                                //$("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
                             }
                             $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
                             if (data.message[0]['box_count'] === 0) {
@@ -708,6 +709,13 @@
                                 $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
                                 $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
                             }
+
+                        } else if (data.code === 777) {
+                            // show message if shipment done more than allowed days ago.
+                            alert("<?php echo UPDATE_AWB_NUMBER_DAYS_MESSAGE; ?>");
+                            $("#same_awb").css("display", "block");
+                            $('body').loadingModal('destroy');
+                            $("#same_awb").css("display", "none");
 
                         } else {
                             $('body').loadingModal('destroy');

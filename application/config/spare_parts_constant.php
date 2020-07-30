@@ -209,3 +209,7 @@ define('SPARE_ACKNOWLEDGE_TEAM', 'Defective/Ok Acknowledge Team');
 define('COURIER_AUDIT_TEAM', 'Courier Audit Team');
 // part to be billed string
 define('PART_TO_BE_BILLED', 'Part Return Warning -<br>To Be Billed');
+// allow awb number updation for days
+define('UPDATE_AWB_NUMBER_DAYS', 7);
+// message to show awb number used more than UPDATE_AWB_NUMBER_DAYS ago. 
+define('UPDATE_AWB_NUMBER_DAYS_MESSAGE', "Entered AWB Number has been already used more than 7 days ago.");
