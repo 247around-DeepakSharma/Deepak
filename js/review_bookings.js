@@ -164,9 +164,9 @@ function send_remarks() {
 
 function review_search(status,is_partner,sub_id,sort_on){
     sub_id = sub_id || '';
-    sort_on = sort_on || '';        
+    sort_on = sort_on || '0';        
     // Add sort order value 
-    var sort_order = '';
+    var sort_order = '0';
     if($("input[name='sort_order']").length && $("input[name='sort_order']:checked"). val() !== undefined){
         sort_order = $("input[name='sort_order']:checked"). val();
     } 
@@ -174,7 +174,7 @@ function review_search(status,is_partner,sub_id,sort_on){
     var bookingID = $('#search_'+status+'_'+is_partner+sub_id).val();
      
     if(bookingID == '') {
-        bookingID = 0;
+        bookingID = '0';
     }
     var cancellation_reason = '0';
     if($('#cancellation_reason_'+is_partner+sub_id).length && $('#cancellation_reason_'+is_partner+sub_id).val() != '') {
@@ -199,8 +199,8 @@ function review_search(status,is_partner,sub_id,sort_on){
 	partner = $(partner_input_id).val();
     }
     
-    if($('#request_type_'+is_partner+'_'+status+sub_id).length && $('#request_type_'+is_partner+'_'+status+sub_id).val() != '') {
     var request_type = '0';
+    if($('#request_type_'+is_partner+'_'+status+sub_id).length && $('#request_type_'+is_partner+'_'+status+sub_id).val() != '') {    
         var request_type_id = '#request_type_'+is_partner+'_'+status+sub_id;
         request_type = $(request_type_id).val();
     }

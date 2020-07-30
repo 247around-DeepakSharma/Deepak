@@ -4769,9 +4769,10 @@ class Inventory extends CI_Controller {
      */
     function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
+        $invoice_date = date('Y-m-d'); 
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                 . "state,address as company_address,company_name,district, pincode", array("id" => $wh_id));
-
+                        
         $not_updated_data = array();
 
         if (empty($entity_details[0]['gst_number'])) {
