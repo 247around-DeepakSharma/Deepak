@@ -1517,7 +1517,8 @@ class vendor extends CI_Controller {
                 }
                 
                 /*  Update Booking Status */
-                if(empty($spare_data)){
+                $spare_data_new = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
+                if(empty($spare_data_new)){
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
 
                     if (!empty($partner_status)) {
