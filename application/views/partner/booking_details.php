@@ -579,7 +579,7 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                <?php foreach ($booking_history['spare_parts'] as $sp) {                                                             
+                                                <?php foreach ($booking_history['spare_parts'] as $sp) {
                                                             if ($sp['defective_part_required'] == '0') {
                                                                     $required_parts = 'REQUIRED_PARTS';
                                                                     $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
@@ -591,9 +591,17 @@
                                                                 }
 
                                                                 if (!empty($sp['consumed_part_status_id']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS') {
-                                                                     $button = '<button type="button" disabled data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                    if ($sp['defective_part_received_by_wh'] != 1) {
+                                                                        $button = '<button type="button" disabled data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                    } else {
+                                                                        $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';
+                                                                    }
                                                                 } else {
-                                                                    $button = '<button type="button" data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                    if (empty($sp['defective_part_shipped_date'])) {
+                                                                        $button = '<button type="button" data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                    } else {
+                                                                        $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';
+                                                                    }
                                                                 }
 
                                                             if (!empty($sp['parts_shipped'])) {
