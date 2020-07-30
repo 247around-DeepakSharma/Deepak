@@ -171,9 +171,12 @@ class Partner extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'][0]['dealer_id'])){ 
-            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
-            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
-            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+           $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+           
+            if (!empty($dealer_detail)) {
+                $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+                $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+            }
         }
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
