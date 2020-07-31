@@ -145,4 +145,4 @@ define('WAREHOUSE_RECEIVE_PART_FROM_SF', 'parts_received_by_warehouse');
 define('PARTNER_COURIER_INVOICE_EMAIL_TAG','partner_courier_invoice_detailed');
 define('SF_ACCESSORIES_INVOICE', 'sf_accessories_invoice');
 define('PART_TO_BE_BILLED_PENDING_MORE_THAN_15_DAYS', 'part_to_be_billed');
-
+define('AGREEMENT_EMAIL','agreement_email_template');

@@ -3031,7 +3031,9 @@ function generate_image($base64, $image_name,$directory){
                     'response_msg' => 'PDF generated Successfully and uploaded on S3',
                     'output_pdf_file' => $filename,
                     'bucket_dir' => BITBUCKET_DIRECTORY,
-                    'id' => $booking_id
+                    'id' => $booking_id,
+                    'temp_path' => $tempfilePath,
+                    'file_name' => $filename
                 );
                 //unlink($tempfilePath);
 
@@ -3042,7 +3044,9 @@ function generate_image($base64, $image_name,$directory){
                     'response_msg' => 'PDF generated Successfully But Unable To Upload on S3',
                     'output_pdf_file' => $filename,
                     'bucket_dir' => BITBUCKET_DIRECTORY,
-                    'id' => $booking_id
+                    'id' => $booking_id,
+                    'file_name' => '',
+                    'temp_path' => ''
                 );
                 return json_encode($response_data);
             }

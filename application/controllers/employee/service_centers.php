@@ -1388,6 +1388,10 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['entity_id']);
         }
+        $sf_skip_sf_id = 'sf_skip_'.$this->session->userdata('service_center_id');
+        if((isset($_COOKIE[$sf_skip_sf_id]))){
+            delete_cookie($sf_skip_sf_id);
+        }
         $this->cache->clean();
         $this->session->sess_destroy();
         redirect(base_url() . "service_center/login");

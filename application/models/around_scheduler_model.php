@@ -633,19 +633,29 @@ class Around_scheduler_model extends CI_Model {
      * @return Array
      */
 
-    function get_sf_details($sf_email = NULL, $email_sent = 0, $reminder = 0, $reminder_date = NULL) {
+//    function get_sf_details($sf_email = NULL, $email_sent = 0, $reminder = 0, $reminder_date = NULL) {
+//        $sql = 'select service_centres.*,e1.full_name as rm_full_name,e1.official_email as rm_email,e2.full_name as asm_full_name,e2.official_email as asm_email from service_centres '
+//                . 'LEFT JOIN employee as e1 on e1.id = service_centres.rm_id '
+//                . 'LEFT JOIN employee as e2 on e2.id = service_centres.asm_id ';
+//        if ($reminder == 0) {
+//            if (!is_null($sf_email)) {
+//                $sql .= " where service_centres.owner_email = '" . $sf_email . "' and service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.agreement_email_sent = $email_sent and service_centres.is_sf_agreement_signed = 0";
+//            } else {
+//                $sql .= ' where service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.is_sf_agreement_signed = 0 and service_centres.agreement_email_sent = ' . $email_sent;
+//            }
+//        } else if ($sf_email == NULL && $reminder == 1 && $reminder_date != NULL && $reminder_date != '0000-00-00') {
+//            $sql .= " where service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.agreement_email_sent = 1 and service_centres.is_sf_agreement_signed = 0 and service_centres.agreement_email_sent = 1 and agreement_email_reminder_date = '$reminder_date'";
+//        }
+//        $query = $this->db->query($sql);
+//        return $query->result_array();
+//    }
+    
+    function get_sf_details($sf_id) {
         $sql = 'select service_centres.*,e1.full_name as rm_full_name,e1.official_email as rm_email,e2.full_name as asm_full_name,e2.official_email as asm_email from service_centres '
                 . 'LEFT JOIN employee as e1 on e1.id = service_centres.rm_id '
                 . 'LEFT JOIN employee as e2 on e2.id = service_centres.asm_id ';
-        if ($reminder == 0) {
-            if (!is_null($sf_email)) {
-                $sql .= " where service_centres.owner_email = '" . $sf_email . "' and service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.agreement_email_sent = $email_sent and service_centres.is_sf_agreement_signed = 0";
-            } else {
-                $sql .= ' where service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.is_sf_agreement_signed = 0 and service_centres.agreement_email_sent = ' . $email_sent;
-            }
-        } else if ($sf_email == NULL && $reminder == 1 && $reminder_date != NULL && $reminder_date != '0000-00-00') {
-            $sql .= " where service_centres.active = 1 and service_centres.is_sf = 1 and service_centres.agreement_email_sent = 1 and service_centres.is_sf_agreement_signed = 0 and service_centres.agreement_email_sent = 1 and agreement_email_reminder_date = '$reminder_date'";
-        }
+       
+        $sql .= " where service_centres.id = '" . $sf_id . "' and service_centres.active = 1 and service_centres.is_sf = 1";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
