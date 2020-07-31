@@ -193,6 +193,19 @@ class Partner extends CI_Controller {
             
         }
         
+           $response_db = $this->booking_utilities->getBookingCovidZoneAndContZone($data['booking_history'][0]['district']);
+            
+            if(isset($response_db[0]['zone']) && !empty($response_db[0]['zone'])){
+            $response = json_decode($response_db[0]['zone'],true);
+            if(!empty($response)){    
+            $districtZoneType = $response['zone'];
+            $data['booking_history'][0]['zone'] = $districtZoneType;
+            }else{
+            $districtZoneType = '-'; 
+            $data['booking_history'][0]['zone'] = $districtZoneType;  
+            }
+            }
+ 
         $data['symptom'] =  $data['completion_symptom'] = $data['technical_defect'] = $data['technical_solution'] = array();
         
         if(count($data['booking_symptom'])>0) {
