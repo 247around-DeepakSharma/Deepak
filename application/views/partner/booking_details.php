@@ -74,7 +74,28 @@
                                     </tr>
                                     <tr>
                                         <th>City/District: </th>
-                                        <td><?php echo $booking_history[0]['city']; ?>/<?php echo $booking_history[0]['district']; ?></td>
+                                        <td><?php echo $booking_history[0]['city']; ?>/<?php echo $booking_history[0]['district']; ?>
+                                        
+                              <?php 
+                              $districtZoneType = "";
+                              if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
+                              if (strpos($booking_history[0]['zone'], 'Red') !== false) {
+                               $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Orange') !== false) {
+                              $districtZoneType = '<span class="label label-warning">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Green') !== false) {
+                              $districtZoneType = '<span class="label label-success">COVID ZONE</span>';
+                              }
+                              }else{
+                               $districtZoneType = '';
+                              }
+                             ?>  
+                             <?php  echo $districtZoneType; ?>  
+                                        
+                                        
+                                        </td>
                                         <th>State: </th>
                                         <td><?php echo $booking_history[0]['state']; ?></td>
                                     </tr>
