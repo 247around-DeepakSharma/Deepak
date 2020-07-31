@@ -520,7 +520,7 @@ $('#myModalCovid').modal({
 
 $("#myBtncovid").click();
 <?php
-$this->session->unset_userdata('covid_popup');
+//$this->session->unset_userdata('covid_popup');
  } 
  ?>
 
