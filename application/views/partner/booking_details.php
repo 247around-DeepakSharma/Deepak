@@ -592,7 +592,12 @@
 
                                                                 if (!empty($sp['consumed_part_status_id']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS') {
                                                                     if ($sp['defective_part_received_by_wh'] != 1) {
-                                                                        $button = '<button type="button" disabled data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                        $defective_arr = array(Ok_PARTS_RECEIVED_BY_WAREHOUSE, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, OK_PARTS_SHIPPED, DEFECTIVE_PARTS_SHIPPED);
+                                                                        if(!in_array($sp['status'], $defective_arr)){
+                                                                            $button = '<button type="button"  data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+                                                                        }else{
+                                                                            $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';   
+                                                                        }
                                                                     } else {
                                                                         $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';
                                                                     }
