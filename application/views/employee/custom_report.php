@@ -32,9 +32,9 @@
                                                         <td><?php echo $sno; ?></td>
                                                         <td style="font-size:15px;"><?php echo $description; ?></td>
                                                          <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;font-size:30px;" class="glyphicon glyphicon-download"></span></a></td>
+                                                    <?php $sno++; ?>
                                                         <?php } ?>        
                                                     </tr>
-                                                    <?php $sno++; ?>
                                                 </tbody>
                                             </table>
                                         </div>
