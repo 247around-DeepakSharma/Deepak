@@ -5844,7 +5844,7 @@ class Booking extends CI_Controller {
         if(!empty($total_rows)){
             $data['per_page'] = 50;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where, $orderBY);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where,$orderBY,$join);
             $data['status'] = $status;
             $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
@@ -5896,6 +5896,9 @@ class Booking extends CI_Controller {
         $post_data = $this->input->get();
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
+        $request_type = $post_data['request_type'];
+        $review_age_min = $post_data['review_age_min'];
+        $review_age_max = $post_data['review_age_max'];
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
