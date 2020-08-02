@@ -107,7 +107,7 @@
                                 foreach($summaryReportData as $summaryReport){
                                     $finalFilterArray = array();
                                     $filterArray = json_decode($summaryReport['filters'],true);
-                                    
+                                    if(is_array($filterArray)){ 
                                     foreach($filterArray as $key=>$value){
                                         if($key == "Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
@@ -136,6 +136,7 @@
                                         $finalFilterArray[] = $key." : ". $value; 
                                         
                                     }
+			            }
                                     ?>
                                 <tr>
                                     <td> <?php echo implode(", ", $finalFilterArray); ?></td>
