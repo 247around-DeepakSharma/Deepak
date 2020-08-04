@@ -17,32 +17,34 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 
 
-<div class="" style="margin-top: 30px;">
+<div class="" style="margin-top: 20px;">
         <!--Heading Panel-->
-        <div class="col-md-12">
-            <h2 style="margin-left: 13px;border-bottom:1px solid #ddd;" >
-                <b><?php echo $status; ?> Bookings<?php echo $sub_heading?></b>
-            </h2>
+        <div class="row" style="margin-left:10px;">
+            <div class="col-md-11" style="padding:0px;">
+                <h2 style="font-size: 18x;padding:0px;" >
+                    <b><?php echo $status; ?> Bookings<?php echo $sub_heading?></b>
+                </h2>
+            </div>            
+            <?php if($status == 'Completed') { ?>
+                <div class="col-md-1 pull-right">
+                    <a href="javascript:void(0);" class="btn btn-primary pull-right download btn-sm" name="download_complete_booking" value="Download" title="Download Complete Bookings List" style="margin-top: 20px;">Export Data</a>
+                </div>
+            <?php } ?>                
+            <?php if($status == 'Cancelled') { ?>
+                <div class="col-md-1 pull-right" style="">
+                    <a href="javascript:void(0);" class="btn btn-primary pull-right download btn-sm" name="download_cancelled_booking" value="Download" title="Download Cancelled Bookings List" style="margin-top: 20px;">Export Data</a>
+                </div>
+            <?php } ?>
         </div>
-        <!--Filter Panel-->
-        <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">    
-         <div class="row">
-                <?php if($status == 'Completed') { ?>
-                    <div class="col-md-1 pull-right" style="margin-top:20px;">
-                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_complete_booking" value="Download" title="Download Complete Bookings List">Export</a>
-                    </div>
-                <?php } ?>                
-                <?php if($status == 'Cancelled') { ?>
-                    <div class="col-md-1 pull-right" style="margin-top:20px;">
-                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_cancelled_booking" value="Download" title="Download Cancelled Bookings List">Export</a>
-                    </div>
-                <?php } ?>
-            <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">
-               
+        <!--Filter Panel-->        
+        <div class="row" style="margin-left:10px;border:1px solid #ddd;">
+            <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">                 
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">               
+                <label for="search">Custom Search</label>
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
-            </div>
-            
-            <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">                           
+            </div>            
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                           
+                <label for="request_type">Request Type</label>
                 <select type="text" class="form-control"  id="request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="request_type" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value="">Choose Request Type</option>
                     <?php
@@ -52,37 +54,27 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                 </select>                           
             </div> 
              <?php if($status == 'Completed') { ?>
-             <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">
-              
-                
+             <div class="col-md-2 pull-right" style="padding:10px;width:12%">                            
+                <label for="state">State</label>
                 <select type="text" class="form-control"  id="state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
-                  
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
+                </select>                
             </div>
-             <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">
-              
-                
+             <div class="col-md-2 pull-right" style="padding:10px;width:12%">                
+                <label for="partner">Partner</label>
                 <select type="text" class="form-control"  id="partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
-                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
-                  
+                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
-            </div>
-                  
-                 
-            
-             <?php } if($status == 'Cancelled') { ?>
-             <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">                      
+                </select>                              
+            </div>           
+            <?php } if($status == 'Cancelled') { ?>
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                      
+                <label for="cancellation_reason">Cancellation Reason</label>
                 <?php if(empty($sub_heading)) { ?>             
                 <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?><?=$sub_id?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
@@ -97,41 +89,32 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                 </select> 
                 <?php }?>
             </div>            
-             <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">
-              
-                
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                
+                <label for="state">State</label>
                 <select type="text" class="form-control"  id="state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
-                    
-                  
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
+                </select>               
             </div>
-             <div class="col-md-2 pull-right" style="margin-top:20px;padding:10px;width:12%">
-              
-                
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">
+                <label for="partner">Partner</label>
                 <select type="text" class="form-control"  id="partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
                     <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
                   
                     <?php } ?>
-                </select>
-               
-                
-            </div>
-                         
-             <?php } ?>             
+                </select>                             
+            </div>                         
+            <?php } ?>             
             <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?> 
-            <div class="col-md-2 pull-right" style="padding:10px;width:12%">
-                <label for="review">Review Age Range</label><br/>
-                <input type="number" min="0" id="review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_min" style="width:50px;" value="<?php echo(!empty($min_review_age_selected) ? $min_review_age_selected : '')?>"> - 
-                <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:50px;" value="<?php echo(!empty($max_review_age_selected) ? $max_review_age_selected : '')?>">                                
-                <button class="btn btn-sm btn-success" style="width:30px;padding:2px;margin-left:5px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id; ?>','<?php echo $sort_on_selected; ?>')">OK</button>
+            <div class="col-md-2 pull-right" style="padding:10px;width:13%">
+                <label for="review">Review Age Range</label>
+                <input type="number" min="0" id="review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_min" style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $min_review_age_selected : '')?>"> - 
+                <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $max_review_age_selected : '')?>">                                
+                <button class="btn btn-sm btn-primary" style="width:30px;padding:2px;margin-left:5px;height:28px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id; ?>','<?php echo $sort_on_selected; ?>')">OK</button>
             </div>
             <!--Sorting Drop Down-->
             <div class="col-md-2 pull-left" style="padding:10px;width:12%">
@@ -147,9 +130,13 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <option value="">Select Sort Option</option>
                     <option value="initial_booking_date"  <?php echo $age_order_selected; ?>>Age</option>
                     <option value="service_center_closed_date"  <?php echo $review_age_order_selected; ?>>Review Age</option>
-                </select>
+                </select>                
             </div>
+<!--            <div class="col-md-1 pull-left" style="width:30px;padding:2px;height:28px;margin-top:35px;">
+                <button class="btn btn-sm btn-primary">OK</button>
+            </div>-->
             <?php } ?>
+        </div>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
                   <div class="col-md-12" style="font-size:82%;margin-top:10px;">
                       <table class="table table-bordered table-hover table-striped completed_cancelled_review_table" id="completed_cancelled_review_table">
@@ -157,13 +144,12 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                            <tr>
                               <th class="jumbotron no-sort" >S.N.</th>
                               <th class="jumbotron no-sort" >Booking Id</th>
-<!--                              <th class="jumbotron" >Service Center </th>-->
                               <th class="jumbotron no-sort" style="text-align: center;">Price Details</th>
                               <th class="jumbotron no-sort" >Amount Due</th>
                               <th class="jumbotron no-sort" >Amount Paid</th>
                               <th class="jumbotron" >Age</th>
                               <?php
-                              if($review_status == "Completed" || $review_status == "Cancelled"){
+                              if($review_status == "Completed" || $review_status == "Cancelled" || $review_status == "Completed_By_SF"){
                               ?>
                                 <th class="jumbotron" title="Age after SF completed action from his side.">Review Age&nbsp;<i class="fa fa fa-info-circle"></i></th>
                               <?php
@@ -276,7 +262,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <td style="text-align: center;white-space: inherit;"><strong><?php if(isset($value['booking'][0]['amount_due'])){ echo $value['booking'][0]['amount_due']; } ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['age'];?></strong></td>
-                              <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?>
+                              <?php if($review_status == "Completed" || $review_status == "Cancelled"  || $review_status == "Completed_By_SF"){ ?>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['review_age'] ?></strong></td>
                               <?php } ?>
                               <?php if($review_status == "Completed"){ ?>                              

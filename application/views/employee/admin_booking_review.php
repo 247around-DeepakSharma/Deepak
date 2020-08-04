@@ -4,7 +4,7 @@
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
+            <div class="x_panel" style="border : 0px;">
                 <div class="x_content">
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
