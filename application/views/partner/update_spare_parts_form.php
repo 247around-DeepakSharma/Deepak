@@ -6,6 +6,9 @@
     padding: 0;
     text-align: left;
     }
+    .select2-container {
+    width: 100% !important;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -284,7 +287,7 @@
                                     <div class="form-group">
                                         <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
                                             <div class="col-md-7">
-                                                <input required="" type="text" class="form-control" id="<?php echo "approx_value_" . $key; ?>" name="part[<?php echo $key; ?>][approx_value]" max="100000" value = "" placeholder="Please Enter approx value" <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?> >
+                                                <input required="" type="text" class="form-control spare_part_approx_value" id="<?php echo "approx_value_" . $key; ?>" name="part[<?php echo $key; ?>][approx_value]" max="100000" min="1" value = "" placeholder="Please Enter approx value" <?php //if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?> >
                                             </div>
                                     </div>
                                     </div>
@@ -328,6 +331,8 @@
                     <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">
                     <input type="hidden" id="<?php echo "estimatecostgivendate_".$key ?>" name= "part[<?php echo $key;?>][estimate_cost_given_date_h]" value="<?php echo $value->estimate_cost_given_date; ?>">
                     <input type="hidden" name= "part[<?php echo $key;?>][spare_part_warranty_status]" value="<?php echo $value->part_warranty_status ;?>">
+                    <input type="hidden" name="part[<?php echo $key; ?>][oow_around_margin]" id="<?php echo "oow_around_margin_" . $key; ?>">
+                    <input type="hidden" name="part[<?php echo $key; ?>][service_id]" id="<?php echo "service_id_" . $key; ?>">
                     <?php } ?>
                     
                     <div id="template" class="hide">
@@ -366,7 +371,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
-                                            <select class="form-control spare_parts shipped_parts_name shipped-part-name" id="shippedpartsname" >
+                                            <select class="form-control spare_parts shipped-part-name" id="shippedpartsname" >
                                             </select>
                                             <span id="spinner" style="display:none"></span>
                                         </div>
@@ -464,7 +469,7 @@
                                     <div class="form-group ">
                                         <label for="shipped_part_type" class="col-md-4">Spare Charges (Inclusive Tax)* </label>
                                         <div class="col-md-7">
-                                            <input required="" type="text" class="form-control" id="approx_value"  max="100000" value = "" placeholder="Please Enter approx value"  <?php if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?>>
+                                            <input required="" type="text" class="form-control spare_part_approx_value" id="approx_value"  max="100000" min="1" value = "" placeholder="Please Enter approx value"  <?php //if (isset($inventory_details) && !empty($inventory_details)) { echo 'readonly'; }?>>
                                         </div>
                                     </div>
                                     
@@ -495,6 +500,8 @@
                             </div>
                             <input type="hidden"  id="inventoryid">
                             <input type="hidden" id="spare_id">
+                            <input type="hidden" id="oow_around_margin">
+                            <input type="hidden" id="service_id">
                         </div>
                     </div>
                 </div>
@@ -645,7 +652,7 @@
               } 
         }
     });
-        
+    
     $(".hsn_code").on("change",function(){
     var string_id = $(this).attr("id");
     var array = string_id.split("_");
@@ -945,7 +952,7 @@
      
     function change_parts_name(key){
     
-        var model_number_id = $('#shipped_model_number_id').val();
+        var model_number_id = $('#shippedmodelnumberid_'+ key).val();
         var part_name = $('#shippedpartsname_' + key).val();
         var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
@@ -965,6 +972,8 @@
                 success:function(data){
                     //console.log(data);
                     var obj = JSON.parse(data);
+                    $('#oow_around_margin_' + key).val(obj.oow_around_margin);
+                    $("#service_id_"+ key).val(obj.service_id);
                     if(obj.inventory_id){
                         $('#submit_form').attr('disabled',false);
                     }else{
@@ -1166,8 +1175,10 @@
                 .find('[id="purchase_price"]').attr('name', 'part[' + partIndex + '][purchase_price]').attr('id','purchase_price_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','quantity_'+partIndex).end()
                 .find('[id="error_span"]').attr('id','error_span_'+partIndex).end()
-                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();  
-    
+                .find('[id="oow_around_margin"]').attr('name', 'part[' + partIndex + '][oow_around_margin]').attr('id','oow_around_margin_'+partIndex).end() 
+                .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','service_id_'+partIndex).end()    
+                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();
+
         })
             <?php } else { ?>
                  $clone
@@ -1187,8 +1198,10 @@
                 .find('[id="invoice_date"]').attr('name', 'part[' + partIndex + '][invoice_date]').attr('id','invoice_date_'+partIndex).end()
                 .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','gst_rate_'+partIndex).end()
                 .find('[id="purchase_price"]').attr('name', 'part[' + partIndex + '][purchase_price]').attr('id','purchase_price_'+partIndex).end()
-                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','quantity_'+partIndex).end()
-                 .find('[id="error_span"]').attr('id','error_span_'+partIndex).end()
+                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','quantity_'+partIndex).end()
+                .find('[id="error_span"]').attr('id','error_span_'+partIndex).end()
+                .find('[id="oow_around_margin"]').attr('name', 'part[' + partIndex + '][oow_around_margin]').attr('id','oow_around_margin_'+partIndex).end()
+                .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','service_id_'+partIndex).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();
     
         })

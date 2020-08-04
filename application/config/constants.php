@@ -745,5 +745,11 @@ define('GEOIQ_HOST', 'https://data.geoiq.io/dataapis/v1.0/covid/locationcheck');
 
 // Leg_1 & leg_2 Default Count
 define('LEG_DEFAULT_COUNT', 16);
+
+
+define('BOOKING_RESCHEDULE_ERROR_MSG', 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.');
+define('EMP_DEACTIVATION_ERROR', 'Employee can not be deactivated, There are some Vendors associated with this employee. Kindly unmap this Employee from all associated Areas/Vendors, and then de-activate the employee.');
+// CRM-6513 warranty chcker at product level constant for plan_depends_on column
+define('WARRANTY_PLAN_ON_PRODUCT', 2);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

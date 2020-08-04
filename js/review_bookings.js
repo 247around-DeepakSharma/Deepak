@@ -1,4 +1,3 @@
-
 var review_completeUrl = baseUrl + '/employee/booking/complete_review_booking/';
 var admin_remarksUrl = baseUrl + '/employee/booking/reject_booking_from_review/';
 var partner_remarksUrl = baseUrl + '/employee/partner/reject_booking_from_review/';
@@ -155,12 +154,19 @@ function send_remarks_multitab(review_status, is_partner) {
 
 }
 
-function review_search(status,is_partner,sub_id){
+function review_search(status,is_partner,sub_id,sort_on){
     sub_id = sub_id || '';
+    sort_on = sort_on || '0';        
+    // Add sort order value 
+    var sort_order = '0';
+    if($("input[name='sort_order']").length && $("input[name='sort_order']:checked"). val() !== undefined){
+        sort_order = $("input[name='sort_order']:checked"). val();
+    } 
+    
     var bookingID = $('#search_'+status+'_'+is_partner+sub_id).val();
      
     if(bookingID == '') {
-        bookingID = 0;
+        bookingID = '0';
     }
     var cancellation_reason = '0';
     if($('#cancellation_reason_'+is_partner+sub_id).length && $('#cancellation_reason_'+is_partner+sub_id).val() != '') {
@@ -185,8 +191,8 @@ function review_search(status,is_partner,sub_id){
 	partner = $(partner_input_id).val();
     }
     
-    if($('#request_type_'+is_partner+'_'+status+sub_id).length && $('#request_type_'+is_partner+'_'+status+sub_id).val() != '') {
     var request_type = '0';
+    if($('#request_type_'+is_partner+'_'+status+sub_id).length && $('#request_type_'+is_partner+'_'+status+sub_id).val() != '') {    
         var request_type_id = '#request_type_'+is_partner+'_'+status+sub_id;
         request_type = $(request_type_id).val();
     }
@@ -212,9 +218,8 @@ function review_search(status,is_partner,sub_id){
     if(is_partner){
         var tab = "#tabs-4";
     }
-
     if(sub_id != ""){
         var tab = "#tabs-6";
     }
-    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age, tab,0);
+    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state+'/'+request_type+'/'+min_review_age+'/'+max_review_age+'/'+sort_on+'/'+sort_order, tab,0);
 }
