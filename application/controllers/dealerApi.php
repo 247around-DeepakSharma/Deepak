@@ -35,6 +35,7 @@ class dealerApi extends CI_Controller {
         $this->load->model("dealer_model");
         $this->load->model("reusable_model");
         $this->load->model("service_centers_model");
+        $this->load->model('indiapincode_model');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -574,15 +575,8 @@ function getAllStates(){
         $validation = $this->validateKeys(array("entity_type"), $requestData);
         $response=array();
         if (!empty($requestData['entity_type'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer States Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
-                }else{
-                    $result =  $this->around_generic_lib->getAllStates();
-                    $response = $result['data'];
-                }
-                
+            
+                $response = $this->vendor_model->get_allstates();
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
                
@@ -610,14 +604,7 @@ function getStatesCities(){
         $validation = $this->validateKeys(array("state_code"), $requestData);
         $response=array();
         if (!empty($requestData['state_code'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer State Cities Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
-                }else{
-                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
-                    $response = $result['data'];
-                }
+                 $response  = $this->indiapincode_model->getStateCities($state_code);
                 //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
@@ -1239,12 +1226,14 @@ function submitEscalation(){
                     
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
-                     $return['D0'][]  = array('state'=>$state,'percent'=>$value->TAT_0)  ;
+                     if($state!='Total'){
+                     $return['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return['D1'][]  = array('state'=>$state,'percent'=>$value->TAT_1)  ;
-                     $return['D2'][] = array('state'=>$state,'percent'=>$value->TAT_2)  ;
-                     $return['D4'][]  = array('state'=>$state,'percent'=>$value->TAT_3)  ;
+                     $return['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1)  ;
+                     $return['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2)  ;
+                     $return['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3)  ;
                      //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
                     }
                     $this->jsonResponseString['response'] = $return;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
