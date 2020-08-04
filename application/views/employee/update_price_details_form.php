@@ -95,7 +95,6 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
-
                                     <input type="number" step="0.01" class="form-control total_charges transport_charge" id="transport_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
                                 </div>
                             </div>
