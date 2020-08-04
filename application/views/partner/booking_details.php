@@ -592,16 +592,17 @@
                                                                     $required_parts = 'NOT_REQUIRED_PARTS';
                                                                     $cl = "btn-danger";
                                                                 }
+                                                                $detectivePartbutton = array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE,_247AROUND_COMPLETED,DEFECTIVE_PARTS_PENDING,OK_PART_TO_BE_SHIPPED);
                                                                 
                                                                 if (!empty($sp['consumed_part_status_id']) && $sp['is_consumed'] != 1 && $required_parts == 'NOT_REQUIRED_PARTS') {
                                                                    
-                                                                        if (empty($sp['defective_part_shipped_date'])){
+                                                                        if (empty($sp['defective_part_shipped_date']) || in_array($sp['status'],$detectivePartbutton)){
                                                                             $button = '<button type="button"  data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
                                                                         }else{
                                                                             $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';   
                                                                         }
                                                                 } else {
-                                                                    if (empty($sp['defective_part_shipped_date'])) {
+                                                                    if (empty($sp['defective_part_shipped_date']) || in_array($sp['status'],$detectivePartbutton)) {
                                                                         $button = '<button type="button" data-booking_id="' . $sp['booking_id'] . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $sp['id'] . '/' . $sp['booking_id'] . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
                                                                     } else {
                                                                         $button = '<button type="button" style="cursor: not-allowed;" class="btn btn-sm ' . $cl . ' open-adminremarks">' . $text . '</button>';
