@@ -163,7 +163,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <th class="jumbotron no-sort" >Amount Paid</th>
                               <th class="jumbotron" >Age</th>
                               <?php
-                              if($review_status == "Completed" || $review_status == "Cancelled"){
+                              if($review_status == "Completed" || $review_status == "Cancelled" || $review_status == "Completed_By_SF"){
                               ?>
                                 <th class="jumbotron" title="Age after SF completed action from his side.">Review Age&nbsp;<i class="fa fa fa-info-circle"></i></th>
                               <?php
@@ -276,7 +276,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <td style="text-align: center;white-space: inherit;"><strong><?php if(isset($value['booking'][0]['amount_due'])){ echo $value['booking'][0]['amount_due']; } ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['amount_paid']; ?></strong></td>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['age'];?></strong></td>
-                              <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?>
+                              <?php if($review_status == "Completed" || $review_status == "Cancelled"  || $review_status == "Completed_By_SF"){ ?>
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['review_age'] ?></strong></td>
                               <?php } ?>
                               <?php if($review_status == "Completed"){ ?>                              
