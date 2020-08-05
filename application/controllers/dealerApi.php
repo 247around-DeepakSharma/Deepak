@@ -730,12 +730,30 @@ function  getHomeDashboard(){
                         $partner_id = "not_set"; 
                     }
                     
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['city']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
                    
                     $is_pending = 0;
                     
                     //Call curl for TAT
                     $postData = array();
-                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id;
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id."/".$state."/".$city;
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -744,10 +762,11 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = json_decode(curl_exec($ch));   
                     if($curl_response==null || empty($curl_response)){
-                    $curl_response['states_cities'] = $state_with_cities;
+                    $curl_response->state_city = $state_with_cities;
                     $this->jsonResponseString['response'] = $curl_response;
                     $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
                     }else{
+                     $curl_response->state_city = $state_with_cities;
                      $this->jsonResponseString['response'] = $curl_response;
                      $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                     }
