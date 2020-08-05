@@ -2998,12 +2998,30 @@ class Around_scheduler extends CI_Controller {
                         . "</tr>";
                 foreach ($remaining_outstanding as $keyI => $valueI) {
                     //print_r($value);exit;
-                    $closing_Balance = $valueI['total_amount_collected'] - $valueI['amount_paid'];
+                    $closing_Balance = sprintf("%.2f",$valueI['total_amount_collected'] - $valueI['amount_paid']);
 
                     $invoice_date = date('d.m.Y', strtotime($valueI['invoice_date']));
                     $invoice_month = date('m/y', strtotime($valueI['invoice_date']));
                     $credit_note = 0;
-                    $credit_period = '';
+
+                    $from_date  = strtotime($valueI['from_date']);
+                    $to_date    = strtotime($valueI['to_date']);
+                    $datediff = $to_date - $from_date;
+
+
+
+                    $credit_period = round($datediff / (60 * 60 * 24));
+                    if($credit_period < 1){
+                        $credit_period = '';
+                    }else if($credit_period < 31){
+                        $credit_period = '< 31 days';
+                    }else if ($credit_period >=31 && $credit_period < 61){
+                        $credit_period = '31-60 days';
+                    }else if ($credit_period >=61 && $credit_period < 91){
+                        $credit_period = '61-90 days';
+                    }else if ($credit_period >=91){
+                        $credit_period = '> 91 days';
+                    }
 
                     $invoice_detail[$keyI]['invoice_id'] = $valueI['invoice_id'];
                     $invoice_detail[$keyI]['invoice_date'] = $invoice_date;
@@ -3048,7 +3066,7 @@ class Around_scheduler extends CI_Controller {
                 $htmlMessage .= "</table>";
 
 
-                $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
+                echo $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
 
                 $attachment = '';
                 $email_from = $email_template[2];
@@ -3093,5 +3111,4 @@ class Around_scheduler extends CI_Controller {
             }
         }
     }
-
 }
