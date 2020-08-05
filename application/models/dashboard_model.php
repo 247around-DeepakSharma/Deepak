@@ -242,7 +242,7 @@ class dashboard_model extends CI_Model {
                 (SUM(IF (new_state = 'Completed_Rejected', 1, 0)) + SUM(IF (new_state = 'Completed', 1, 0))) as total_bookings
                 FROM (SELECT employee.full_name, employee.id, new_state,employee_id FROM
                  booking_state_change as bsc, employee WHERE employee.groups ='closure' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate' AND agent_id = employee.id AND partner_id='"._247AROUND."' 
-                group by employee_id,booking_id,date(bsc.create_date)) as data group by data.employee_id";
+                group by employee_id,booking_id,bsc.create_date) as data group by data.employee_id";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -302,7 +302,7 @@ class dashboard_model extends CI_Model {
                 SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) as edit_completed,
                 (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0))) as total_bookings
                 FROM (SELECT employee.full_name,employee.id,new_state,old_state,employee_id FROM booking_state_change as bsc, employee WHERE employee.groups ='closure' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate' AND agent_id = employee.id AND partner_id='"._247AROUND."' 
-                GROUP BY employee_id,booking_id,date(bsc.create_date)) AS data group by data.employee_id";
+                GROUP BY employee_id,booking_id,bsc.create_date) AS data group by data.employee_id";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
