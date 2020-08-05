@@ -195,9 +195,9 @@
                             $('.payment_preview').html(response);
                             $('#btn_download').show();
                             //table_pagination();
-                             $('#payment_history_table').DataTable({
-                                 pageLength: 50
-                             });
+                             // $('#payment_history_table').DataTable({
+                             //     pageLength: 50
+                             // });
 //                            $('#payment_history_table').DataTable({
 //                                dom: 'Bfrtip',
 //                                pageLength: 50
