@@ -35,6 +35,7 @@ class dealerApi extends CI_Controller {
         $this->load->model("dealer_model");
         $this->load->model("reusable_model");
         $this->load->model("service_centers_model");
+        $this->load->model('indiapincode_model');
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -379,14 +380,7 @@ class dealerApi extends CI_Controller {
             case 'dealerLogin':
                 $this->processDealerLogin();
                 break;
-            case 'getStates':
-                $this->getAllStates();
-                break;
-
-             case 'getStatesCities':
-                $this->getStatesCities();
-                break;
-
+            
             case 'searchData':
                 $this->getSearchData();
                 break;
@@ -558,79 +552,7 @@ function check_for_upgrade(){
 }
 
 
-    /**
-     *  @desc : This function is to get all states.
-     *
-     *  All the distinct states of India in Ascending order From Table state_code
-     *
-     *  @param : void
-     *  @return : json of states
-     *  @author : Abhishek Awasthi
-     */
-
-
-function getAllStates(){
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_type"), $requestData);
-        $response=array();
-        if (!empty($requestData['entity_type'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer States Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateMapped($requestData['entity_id']);
-                }else{
-                    $result =  $this->around_generic_lib->getAllStates();
-                    $response = $result['data'];
-                }
-                
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
-               
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
-        }
-
-}
-
-    /**
-     *  @desc : This function is to get all cities of state.
-     *
-     *  All the distinct states of India in Ascending order  
-     *
-     *  @param : void
-     *  @return : json of cities
-     *  @author : Abhishek Awasthi
-     */
- 
-
-function getStatesCities(){
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("state_code"), $requestData);
-        $response=array();
-        if (!empty($requestData['state_code'])) { 
-
-                if(!empty($requestData['entity_type']) == _247AROUND_DEALER_STRING){
-                    /// Will Come Dealer State Cities Mapped ///
-                    $response =  $this->around_generic_lib->getDealerStateCitiesMapped($requestData['entity_id'],$requestData['state_code']);
-                }else{
-                    $result =  $this->around_generic_lib->getStateCities($requestData['state_code']);
-                    $response = $result['data'];
-                }
-                //$response =  $this->around_generic_lib->getStateCities($requestData['state_code']); 
-                 $this->jsonResponseString['response'] = $response;
-                 $this->sendJsonResponse(array($response['code'], $response['message'])); // send success response //
-               
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1002", "You are now allowed to perform action . Please login again!")); 
-        }
-}
-
-
-  /*
+/*
      * @Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
      * @param - $search_value
      * @response - json
@@ -749,6 +671,16 @@ function  getHomeDashboard(){
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
+            
+            
+            /* Getting State And their Cities */
+                    $state_with_cities = array();
+                    $response_state = $this->indiapincode_model->get_allstates();
+                    foreach($response_state as $state){    
+                    $cities = $this->indiapincode_model->getStateCities($state['state_code']);
+                    $state_with_cities[] = array('state'=>$state['state'],'cities'=>$cities);   
+                    } 
+
                     if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
                        $status= $requestData['status'];
                     }else if($requestData['status']=='All'){
@@ -811,7 +743,8 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = json_decode(curl_exec($ch));   
-                    if($curl_response==null || empty($curl_response)){   
+                    if($curl_response==null || empty($curl_response)){
+                    $curl_response['states_cities'] = $state_with_cities;
                     $this->jsonResponseString['response'] = $curl_response;
                     $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
                     }else{
@@ -1199,19 +1132,19 @@ function submitEscalation(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("entity_type","sf_limit"), $requestData);
         if (!empty($requestData['entity_type'])) { 
-                 $rating_data = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
+                 $response = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
                  $this->jsonResponseString['response'] = $response;
-                 $this->sendJsonResponse(array('0000', "Escalation details found successfully")); // send success response //
+                 $this->sendJsonResponse(array('0000', "Ratings found successfully")); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); 
-            $this->sendJsonResponse(array("1008", "Escalation details not found !")); 
+            $this->sendJsonResponse(array("1008", "Rating details not found !")); 
         }
     }
     
      /*
-     * @Desc - This function is used get top 5 SFs
+     * @Desc - This function is used get States TAT Data
      * @param - 
      * @response - json
      * @Author  - Abhishek Awasthi
@@ -1239,12 +1172,14 @@ function submitEscalation(){
                     
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
-                     $return['D0'][]  = array('state'=>$state,'percent'=>$value->TAT_0)  ;
+                     if($state!='Total'){
+                     $return['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return['D1'][]  = array('state'=>$state,'percent'=>$value->TAT_1)  ;
-                     $return['D2'][] = array('state'=>$state,'percent'=>$value->TAT_2)  ;
-                     $return['D4'][]  = array('state'=>$state,'percent'=>$value->TAT_3)  ;
+                     $return['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1)  ;
+                     $return['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2)  ;
+                     $return['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3)  ;
                      //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
                     }
                     $this->jsonResponseString['response'] = $return;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));

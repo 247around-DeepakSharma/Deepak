@@ -52,7 +52,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Part Estimate Given </label>
-                                    <input type="number" step="0.01" class="form-control charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
+                                    <input type="number" step="0.01" class="form-control total_charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
                                     if (!empty($data[0])) {
                                         echo $data[0]['booking_id'];
@@ -62,25 +62,36 @@
                                     
                                 </div>
                             </div>
-                             <div class="col-md-4">
+                            <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Part Commission </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="around_part_commission" name="around_part_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_part_commission']; } else { echo '30';} ?>" placeholder="Enter Around Commission" required>
+                                    <input type="number" step="0.01" class="form-control total_charges around_part_commission" id="around_part_commission" name="around_part_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_part_commission']; } else { echo '30';} ?>" placeholder="Enter Around Commission" required>
                                 </div>
                             </div>
-
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Total Parts Charges  </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="total_parts_charges" name="total_parts_charges" value = "" placeholder="Total Parts Charges" readonly="">
+                                </div>
                             </div>
+                        </div>
                         <div class="col-md-12">
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Service Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Service Charge" required>
+                                    <input type="number" step="0.01" class="form-control total_charges service_charge" id="service_charge" name="service_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['service_charge']; }?>" placeholder="Enter Service Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Service Commission </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="around_service_commission" name="around_service_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_service_commission']; } else { echo '0'; } ?>" placeholder="Enter Service Commission" required>
+                                    <input type="number" step="0.01" class="form-control total_charges around_service_commission" id="around_service_commission" name="around_service_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_service_commission']; } else { echo '0'; } ?>" placeholder="Enter Service Commission" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Total Service Charges  </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="total_service_charges" name="total_service_charges" value = "" placeholder="Total Service Charges" readonly="">
                                 </div>
                             </div>
                         </div>
@@ -89,13 +100,19 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="trans_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
+                                    <input type="number" step="0.01" class="form-control total_charges transport_charge" id="transport_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
                                 </div>
                             </div>
                              <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Transport Commission </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="around_transport_commission" name="around_transport_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_transport_commission']; } else { echo '0'; } ?>" placeholder="Enter Transport Commission" required>
+                                    <input type="number" step="0.01" class="form-control total_charges around_transport_commission" id="around_transport_commission" name="around_transport_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_transport_commission']; } else { echo '0'; } ?>" placeholder="Enter Transport Commission" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Total Transport Charges  </label>
+                                    <input type="number" step="0.01" class="form-control total_charges charges" id="total_transport_charges" name="total_transport_charges" value = "" placeholder="Totol Transport Charges" readonly="">
                                 </div>
                             </div>
                         </div>
@@ -104,13 +121,19 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Courier Charges </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Courier Charge" required>
+                                    <input type="number" step="0.01" class="form-control total_charges courier_charge" id="courier_charge" name="courier_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['courier_charge']; }?>" placeholder="Enter Courier Charge" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Around Courier Commission </label>
-                                    <input type="number" step="0.01" class="form-control charges" id="around_courier_commission" name="around_courier_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_courier_commission']; } else { echo '0'; } ?>" placeholder="Enter Courier Commission" required>
+                                    <input type="number" step="0.01" class="form-control total_charges around_courier_commission" id="around_courier_commission" name="around_courier_commission" value = "<?php if(!empty($zopper)){ echo $zopper[0]['around_courier_commission']; } else { echo '0'; } ?>" placeholder="Enter Courier Commission" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group col-md-12 ">
+                                    <label for="parts">Total Courier Charges  </label>
+                                    <input type="number" step="0.01" class="form-control charges" id="total_courier_charges" name="total_courier_charges" value = "" placeholder="Total Courier Charges" readonly="">
                                 </div>
                             </div>
                         </div>                 
@@ -263,12 +286,84 @@ function partner_vendor(vendor_partner) {
 $(document).on('keyup', '.part_estimate', function (e) {
     charges = 0;
     $(".part_estimate").each(function (i) {
+        commission_in_persentage = ($("#around_part_commission").val()/100);
         price = $(this).val();
-        charges += Number(price * 0.30);
-        $("#around_part_commission").val((charges).toFixed(2));
+        charges += Number(price * commission_in_persentage);
+        $("#total_parts_charges").val((Number(price)+Number(charges)).toFixed(2));
     });
 });
-$(document).on('keyup', '.charges', function (e) {
+
+$(document).on('keyup', '.around_part_commission', function (e) {
+    charges = 0;
+    $(".around_part_commission").each(function (i) {
+        commission_in_persentage = ($(this).val()/100);
+        price = $("#part_charge").val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_parts_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.service_charge', function (e) {
+    charges = 0;
+    $(".service_charge").each(function (i) {
+        commission_in_persentage = ($("#around_service_commission").val()/100);
+        price = $(this).val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_service_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.around_service_commission', function (e) {
+    charges = 0;
+    $(".around_service_commission").each(function (i) {
+        commission_in_persentage = ($(this).val()/100);
+        price = $("#service_charge").val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_service_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.transport_charge', function (e) {
+    charges = 0;
+    $(".transport_charge").each(function (i) {
+        commission_in_persentage = ($("#around_transport_commission").val()/100);
+        price = $(this).val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_transport_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.around_transport_commission', function (e) {
+    charges = 0;
+    $(".around_transport_commission").each(function (i) {
+        commission_in_persentage = ($(this).val()/100);
+        price = $("#transport_charge").val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_transport_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.courier_charge', function (e) {
+    charges = 0;
+    $(".courier_charge").each(function (i) {
+        commission_in_persentage = ($("#around_courier_commission").val()/100);
+        price = $(this).val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_courier_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.around_courier_commission', function (e) {
+    charges = 0;
+    $(".around_courier_commission").each(function (i) {
+        commission_in_persentage = ($(this).val()/100);
+        price = $("#courier_charge").val();
+        charges += Number(price * commission_in_persentage);
+        $("#total_courier_charges").val((Number(price)+Number(charges)).toFixed(2));
+    });
+});
+
+$(document).on('keyup', '.total_charges', function (e) {
     charges = 0;
     $(".charges").each(function (i) {
         price = $(this).val();

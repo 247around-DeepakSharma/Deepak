@@ -47,6 +47,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Step 1</h2>
+                    <a class=" btn btn-md btn-primary" href="<?php echo base_url().'employee/warranty/index/'.$this->session->userdata('partner_id'); ?>" style="float:right;margin-right: 20px;">Warranty Checker</a>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
