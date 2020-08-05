@@ -1177,7 +1177,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
-        $from_date = date('Y-m-d', strtotime('-4 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
@@ -1549,7 +1549,7 @@ class invoices_model extends CI_Model {
      * @return : array
      */
     function generate_vendor_foc_detailed_invoices($vendor_id, $from_date_tmp, $to_date_tmp, $is_regenerate) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-20 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
        
         $is_invoice_null = "";
