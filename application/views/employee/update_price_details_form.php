@@ -240,7 +240,7 @@ $(document).on('keyup', '.part_estimate', function (e) {
     $(".part_estimate").each(function (i) {
         price = $(this).val();
        
-        charges += Number(price * 0.15);
+        charges += Number(price * 0.30);
         $("#around_part_commission").val((charges).toFixed(2));
     });
 });
