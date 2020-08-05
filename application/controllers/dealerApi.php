@@ -671,11 +671,11 @@ function  getHomeDashboard(){
           
         if (!empty($requestData['entity_id']) && !empty($requestData['entity_type'])) {
             
-            
-            
             /* Getting State And their Cities */
                     $state_with_cities = array();
                     $response_state = $this->indiapincode_model->get_allstates();
+                    $citi['district'] = 'All';
+                    array_push($state_with_cities,array('state'=>'All','cities'=>array($citi)));
                     foreach($response_state as $state){    
                     $cities = $this->indiapincode_model->getStateCities($state['state_code']);
                     $state_with_cities[] = array('state'=>$state['state'],'cities'=>$cities);   
