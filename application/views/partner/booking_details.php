@@ -830,11 +830,11 @@
                                     </div>
                                 </div>
                                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
-                              
+                                    <div class="text-danger">Spare Part Not Requested </div>
+                                    
                                     
                                 <?php } ?>
-                                <div class="text-danger">Spare Part Not Requested </div>
-                                      <div style="overflow-x:auto;">
+                                    <div style="overflow-x:auto;">
                                     <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
                                             <div class="col-md-12">
