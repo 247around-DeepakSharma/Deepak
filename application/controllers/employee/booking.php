@@ -5942,8 +5942,8 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
-        $review_age_min = $post_data['review_age_min'];
-        $review_age_max = $post_data['review_age_max'];
+        $review_age_min = !empty($post_data['review_age_min']) ? $post_data['review_age_min'] : 0;
+        $review_age_max = !empty($post_data['review_age_max']) ? $post_data['review_age_max'] : 0;
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
@@ -5996,12 +5996,10 @@ class Booking extends CI_Controller {
             $request_type_selected = strtoupper(str_replace(" ", "", $request_type_selected));
             $where['REPLACE(UPPER(booking_details.request_type)," ","") LIKE "%'.$request_type_selected.'%"'] = NULL;
         }
-        if(!empty($post_data['review_age_min']) && !empty($post_data['review_age_min']) ){
-            $where["DATEDIFF(
-            CURDATE(), STR_TO_DATE(
-                booking_details.service_center_closed_date,
-                '%Y-%m-%d'
-            )) BETWEEN '".$review_age_min."' AND '".$review_age_max."'"] = NULL;
+        
+        // Added Review Age Filter
+        if(!empty($review_age_min) || !empty($review_age_max)) {
+           $where['(DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,"%Y-%m-%d")) BETWEEN "'.$review_age_min.'" AND "'.$review_age_max.'") '] = NULL;
         }
         
         $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having, $where,NULL,$join);
