@@ -902,7 +902,6 @@
                                         <tr>
                                             <th>Back Office Person</th>
                                             <th>Mobile</th>
-                                            <?php } ?>
                                             <th>Email</th>
                                             <th>Municipal Limit </th>
                                         </tr>
