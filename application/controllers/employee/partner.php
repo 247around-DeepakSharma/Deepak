@@ -171,9 +171,12 @@ class Partner extends CI_Controller {
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'][0]['dealer_id'])){ 
-            $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
-            $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
-            $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+           $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
+           
+            if (!empty($dealer_detail)) {
+                $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
+                $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
+            }
         }
         $unit_where = array('booking_id' => $booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
@@ -2258,7 +2261,7 @@ class Partner extends CI_Controller {
         }
         
         $shipped_part_details = $this->input->post("part");
-
+     
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
             $invoide_data = array();
@@ -2285,7 +2288,9 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
-                    $data['challan_approx_value'] = $value['approx_value'];
+                    $margin = $this->inventory_model->get_oow_margin($value['requested_inventory_id'], array('part_type' => $value['shipped_part_type'],
+                    'inventory_parts_type.service_id' => $value['service_id']));
+                    $data['challan_approx_value'] = round($value['approx_value'] * ( 1 + $margin['oow_around_margin'] / 100), 0);
                     $data['partner_id'] = $partner_id;
                     //$data['defective_return_to_entity_id'] = $partner_id;
                     $data['entity_type'] = _247AROUND_PARTNER_STRING;

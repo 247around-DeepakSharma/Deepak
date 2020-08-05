@@ -1064,7 +1064,9 @@
                                         </td>
                                         <?php if(!empty($booking_history[0]['service_center_closed_date'])){?>
                                         <td>
+                                        <?php if(empty($sp['defective_part_shipped_date']) || in_array($sp['status'],array(DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE,OK_PARTS_REJECTED_BY_WAREHOUSE,_247AROUND_COMPLETED,DEFECTIVE_PARTS_PENDING,OK_PART_TO_BE_SHIPPED))){ ?>
                                             <?php echo $sp['btn'] ?>
+                                        <?php }else{ echo 'Part already sent.'; } ?>
                                         </td>
                                         <?php } ?>
                                     </tr>
