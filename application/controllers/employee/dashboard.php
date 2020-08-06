@@ -2037,7 +2037,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
     
-    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL,$state='not_set',$city='not_set'){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -2051,6 +2051,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
+            }
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.state'] = $state;
+            }
+            
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.district'] = $city;
             }
             // Filter for excluding NRN Bookings 
             $conditionArray['where']['booking_details.nrn_approved = 0'] = NULL;
@@ -2236,7 +2243,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $startDateField = "CURRENT_TIMESTAMP";
         }
         else{
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
             $startDateField = "service_center_closed_date";
         }
         $finalData = $data = array();

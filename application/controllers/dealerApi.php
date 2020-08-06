@@ -733,7 +733,7 @@ function  getHomeDashboard(){
                     
                     if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
                         $state = $requestData['state'];
-                    }else if($requestData['city']=='All'){
+                    }else if($requestData['state']=='All'){
                         $state = "not_set";
                     }else{
                         $state = "not_set"; 
@@ -762,7 +762,7 @@ function  getHomeDashboard(){
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = json_decode(curl_exec($ch));   
                     if($curl_response==null || empty($curl_response)){
-                    $curl_response->state_city = $state_with_cities;
+                    $curl_response['state_city'] = $state_with_cities;
                     $this->jsonResponseString['response'] = $curl_response;
                     $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
                     }else{
