@@ -5569,13 +5569,8 @@ class Booking extends CI_Controller {
         //AM Specific Bookings
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            //$partnerIDArray=  $this->reusable_model->get_search_result_data("partners","id",array("account_manager_id"=>$am_id,'is_active'=>1),NULL,NULL,NULL,NULL,NULL);
             $where = array('agent_filters.agent_id' => $am_id,'partners.is_active'=>1,'agent_filters.entity_type'=>_247AROUND_EMPLOYEE_STRING);
             $join = array("agent_filters" => "partners.id=agent_filters.entity_id");
-            /*$partnerIDArray= $this->reusable_model->get_search_result_data("partners", "distinct partners.id", $where, $join, NULL, NULL, NULL, NULL);
-            foreach($partnerIDArray as $partner_ID){
-                $partnerArray[] = $partner_ID['id'];
-            }*/
         }
         
         $post['length'] = -1;
@@ -5588,12 +5583,13 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
+            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
             // Join with employee Table to fetch AM name
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";            
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left"];
-            $select = "booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as 'Customer Name',
+            // Show distinct Bookings
+            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
             booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Center Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry as 'Is Upcountry', service_centres.primary_contact_name as 'SF POC Name',
