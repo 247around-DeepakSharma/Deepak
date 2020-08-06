@@ -413,7 +413,7 @@ class Booking_model extends CI_Model {
         {
             $to = DEV_BOOKINGS_MAIL;
             $message = json_encode($appliance_detail)."<br/>".$this->db->last_query();
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "");            
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "","");            
         }
         return $this->db->insert_id();
     }
