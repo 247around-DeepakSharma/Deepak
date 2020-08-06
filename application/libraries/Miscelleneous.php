@@ -2430,6 +2430,10 @@ class Miscelleneous {
                         $insert_ledger_data['invoice_id'] = $data['invoice_id'];
                     }
 
+                    if (!empty($data['spare_id'])) {
+                        $insert_ledger_data['spare_id'] = $data['spare_id'];
+                    }
+                    
                     $insert_id = $this->My_CI->inventory_model->insert_inventory_ledger($insert_ledger_data);
                     if (!empty($insert_id)) {
                         log_message("info", __FUNCTION__ . " Inventory Ledger has been inserted successfully" . print_r($insert_ledger_data, true));
@@ -3217,7 +3221,7 @@ function generate_image($base64, $image_name,$directory){
 
         //add 2 columns upcountry and Municipal Limit in the Partner Serviceability Report
         $select[] = "CASE when service_centres.is_upcountry = '1' then 'Upcountry' Else 'Local' End as Flag";
-        $select[] = "service_centres.min_upcountry_distance as municipal_limit";
+        $select[] = "service_centres.min_upcountry_distance as 'Municipal Limit'";
         $select[] ="india_district_coordinates.zone_color as covid_zone";
         $join['service_centres'] =  'service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.on_off = 1 AND service_centres.active = 1';
         $join['india_district_coordinates'] =  'vendor_pincode_mapping.City = india_district_coordinates.district';
@@ -4680,7 +4684,7 @@ function generate_image($base64, $image_name,$directory){
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
-
+            $in['spare_id'] = $value['spare_id'];
             $this->process_inventory_stocks($in); 
  
             // $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
@@ -5226,7 +5230,8 @@ function generate_image($base64, $image_name,$directory){
             "agent_id" => $this->My_CI->session->userdata("service_center_agent_id"),
             "agent_type" => _247AROUND_SF_STRING,
             "is_wh" => TRUE,
-            "is_cancel_part" => TRUE
+            "is_cancel_part" => TRUE,
+            "spare_id" => $spare_id
         );
         
         $this->process_inventory_stocks($data);

@@ -74,7 +74,28 @@
                                     </tr>
                                     <tr>
                                         <th>City/District: </th>
-                                        <td><?php echo $booking_history[0]['city']; ?>/<?php echo $booking_history[0]['district']; ?></td>
+                                        <td><?php echo $booking_history[0]['city']; ?>/<?php echo $booking_history[0]['district']; ?>
+                                        
+                              <?php 
+                              $districtZoneType = "";
+                              if(isset($booking_history[0]['zone']) && !empty($booking_history[0]['zone'])){
+                              if (strpos($booking_history[0]['zone'], 'Red') !== false) {
+                               $districtZoneType = '<span class="label label-danger">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Orange') !== false) {
+                              $districtZoneType = '<span class="label label-warning">COVID ZONE</span>';
+                              }
+                              if (strpos($booking_history[0]['zone'], 'Green') !== false) {
+                              $districtZoneType = '<span class="label label-success">COVID ZONE</span>';
+                              }
+                              }else{
+                               $districtZoneType = '';
+                              }
+                             ?>  
+                             <?php  echo $districtZoneType; ?>  
+                                        
+                                        
+                                        </td>
                                         <th>State: </th>
                                         <td><?php echo $booking_history[0]['state']; ?></td>
                                     </tr>
@@ -809,11 +830,11 @@
                                     </div>
                                 </div>
                                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
-                              
+                                    <div class="text-danger">Spare Part Not Requested </div>
+                                    
                                     
                                 <?php } ?>
-                                <div class="text-danger">Spare Part Not Requested </div>
-                                      <div style="overflow-x:auto;">
+                                    <div style="overflow-x:auto;">
                                     <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
                                             <div class="col-md-12">

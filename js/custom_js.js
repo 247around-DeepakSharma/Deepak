@@ -593,6 +593,9 @@ function addBookingDialog(chanel = '') {
         if(!parant_id){
             alert("Parent ID not found, Repeat booking can not be created");
             $(".repeat_Service").prop("checked", false);
+            $('.Service').each(function() {
+                $(this).prop('disabled', false);
+            });
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
@@ -1219,6 +1222,10 @@ function set_upcountry() {
         $(".repeat-close").click(function(){
             alert("Repeat booking can not be created without Parent Booking");
             $(".repeat_Service").prop("checked", false);
+            // enable other checkboxes
+            $('.Service').each(function() {
+               $(this).prop('disabled', false);
+            });
         });
 });
 

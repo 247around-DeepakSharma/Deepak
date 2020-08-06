@@ -195,7 +195,7 @@
                         <th>S.No.</th>
                         <th>Booking Id</th>
                         <th>User Name / Phone Number</th>
-                        <th>Service Name</th>
+                        <th>Appliance / Request Type</th>
                         <th>Brand</th>
                         <th>Booking Date</th>
                         <th>Booking Age</th>
@@ -326,7 +326,7 @@
                     pageSize: 'LEGAL',
                     title: 'pending_bookings',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8,9],
+                       columns: [1,2,3,4,5,6,7,8,9,10],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

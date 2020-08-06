@@ -6,7 +6,7 @@ $sub_id = "";
 $sub_heading = "";
 if(!empty($cancellation_reason_selected) && $cancellation_reason_selected == CANCELLATION_REASON_WRONG_AREA_ID){
     $sub_id = "_wrongarea";
-    $sub_heading = "<br/>(Wrong Area Calls)";
+    $sub_heading = " (Wrong Area Calls)";
 }
 if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} 
 $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
@@ -17,26 +17,35 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 
 
-<div class="" style="margin-top: 30px;">
-        <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">    
-         <div class="row">
-                <?php if($status == 'Completed') { ?>
-                    <div class="col-md-1 pull-right" style="margin-top:20px;">
-                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_complete_booking" value="Download" title="Download Complete Bookings List">Export</a>
-                    </div>
-                <?php } ?>                
-                <?php if($status == 'Cancelled') { ?>
-                    <div class="col-md-1 pull-right" style="margin-top:20px;">
-                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_cancelled_booking" value="Download" title="Download Cancelled Bookings List">Export</a>
-                    </div>
-                <?php } ?>
-            <div class="col-md-3 pull-right" style="margin-top:20px;">
-               
-                <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
-            </div>
-            
-            <div class="col-md-3 pull-right" style="margin-top:20px;">                           
-                <select type="text" class="form-control"  id="request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="request_type" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+<div class="" style="margin-top: 20px;">
+        <!--Heading Panel-->
+        <div class="row" style="margin-left:10px;">
+            <div class="col-md-11" style="padding:0px;">
+                <h2 style="font-size: 18x;padding:0px;" >
+                    <b><?php echo $status; ?> Bookings<?php echo $sub_heading?></b>
+                </h2>
+            </div>            
+            <?php if($status == 'Completed') { ?>
+                <div class="col-md-1 pull-right">
+                    <a href="javascript:void(0);" class="btn btn-primary pull-right download btn-sm" name="download_complete_booking" value="Download" title="Download Complete Bookings List" style="margin-top: 20px;">Export Data</a>
+                </div>
+            <?php } ?>                
+            <?php if($status == 'Cancelled') { ?>
+                <div class="col-md-1 pull-right" style="">
+                    <a href="javascript:void(0);" class="btn btn-primary pull-right download btn-sm" name="download_cancelled_booking" value="Download" title="Download Cancelled Bookings List" style="margin-top: 20px;">Export Data</a>
+                </div>
+            <?php } ?>
+        </div>
+        <!--Filter Panel-->        
+        <div class="row" style="margin-left:10px;border:1px solid #ddd;">
+            <input type="hidden" name="sub_id" id="sub_id" value="<?php echo $sub_id; ?>">                 
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">               
+                <label for="search">Custom Search</label>
+                <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
+            </div>            
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                           
+                <label for="request_type">Request Type</label>
+                <select type="text" class="form-control"  id="request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="request_type" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value="">Choose Request Type</option>
                     <?php
                     foreach($request_types as $key => $request_type) { ?>
@@ -45,39 +54,29 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                 </select>                           
             </div> 
              <?php if($status == 'Completed') { ?>
-             <div class="col-md-3 pull-right" style="margin-top:20px;">
-              
-                
-                <select type="text" class="form-control"  id="state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+             <div class="col-md-2 pull-right" style="padding:10px;width:12%">                            
+                <label for="state">State</label>
+                <select type="text" class="form-control"  id="state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
-                  
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
+                </select>                
             </div>
-             <div class="col-md-3 pull-right" style="margin-top:20px;">
-              
-                
-                <select type="text" class="form-control"  id="partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+             <div class="col-md-2 pull-right" style="padding:10px;width:12%">                
+                <label for="partner">Partner</label>
+                <select type="text" class="form-control"  id="partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
-                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
-                  
+                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
-            </div>
-                 
-                 
-            
-             <?php } if($status == 'Cancelled') { ?>
-             <div class="col-md-3 pull-right" style="margin-top:20px;">                      
+                </select>                              
+            </div>           
+            <?php } if($status == 'Cancelled') { ?>
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                      
+                <label for="cancellation_reason">Cancellation Reason</label>
                 <?php if(empty($sub_heading)) { ?>             
-                <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?><?=$sub_id?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?><?=$sub_id?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
                     <option value="<?= $reason['id']; ?>" <?php if(!empty($cancellation_reason_selected) && $reason['id'] == $cancellation_reason_selected) { echo 'selected';}?>><?= $reason['reason']; ?></option>
@@ -85,51 +84,66 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <?php } ?>
                 </select> 
                 <?php } else { ?>
-                    <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?><?=$sub_id?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?><?=$sub_id?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value="<?php echo CANCELLATION_REASON_WRONG_AREA_ID;?>" selected><?php echo CANCELLATION_REASON_WRONG_AREA; ?></option>                    
                 </select> 
                 <?php }?>
             </div>            
-             <div class="col-md-3 pull-right" style="margin-top:20px;">
-              
-                
-                <select type="text" class="form-control"  id="state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">                
+                <label for="state">State</label>
+                <select type="text" class="form-control"  id="state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
-                    
-                  
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>                  
                     <?php } ?>
-                </select>
-               
-                
+                </select>               
             </div>
-             <div class="col-md-3 pull-right" style="margin-top:20px;">
-              
-                
-                <select type="text" class="form-control"  id="partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+            <div class="col-md-2 pull-right" style="padding:10px;width:12%">
+                <label for="partner">Partner</label>
+                <select type="text" class="form-control"  id="partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>','<?php echo $sort_on_selected; ?>')">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
                     <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
                   
                     <?php } ?>
-                </select>
-               
-                
+                </select>                             
+            </div>                         
+            <?php } ?>             
+            <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?> 
+            <div class="col-md-2 pull-right" style="padding:10px;width:13%">
+                <label for="review">Review Age Range</label>
+                <input type="number" min="0" id="review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_min" style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $min_review_age_selected : '')?>"> - 
+                <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $max_review_age_selected : '')?>">                                
+                <button class="btn btn-sm btn-primary" style="width:30px;padding:2px;margin-left:5px;height:28px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id; ?>','<?php echo $sort_on_selected; ?>')">OK</button>
             </div>
-             
-             <?php } ?>
-             <h2 style="margin-left: 13px;" >
-                  <b><?php echo $status; ?> Bookings<?php echo $sub_heading?></b>
-               </h2>
+            <!--Sorting Drop Down-->
+            <div class="col-md-2 pull-left" style="padding:10px;width:12%">
+                <?php
+                $age_order_selected = (!empty($sort_on_selected) && $sort_on_selected == 'initial_booking_date') ? 'selected' : "";
+                $review_age_order_selected = (!empty($sort_on_selected) && $sort_on_selected == 'service_center_closed_date') ? 'selected' : "";
+                $sort_order_asc = (!empty($sort_order_selected) && $sort_order_selected == 'desc') ? 'checked' : "";
+                $sort_order_desc = (!empty($sort_order_selected) && $sort_order_selected == 'asc') ? 'checked' : "";
+                ?>
+                <input type="radio" name="sort_order" value="desc" style="margin-left:10px;margin-right:2px;" <?php echo $sort_order_asc; ?>> Asc
+                <input type="radio" name="sort_order" value="asc" style="margin-left:20px;margin-right:2px;" <?php echo $sort_order_desc; ?>> Desc <br/>
+                <select type="text" class="form-control"  id="sort_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="sort_on" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id ?>',this.value)">
+                    <option value="">Select Sort Option</option>
+                    <option value="initial_booking_date"  <?php echo $age_order_selected; ?>>Age</option>
+                    <option value="service_center_closed_date"  <?php echo $review_age_order_selected; ?>>Review Age</option>
+                </select>                
+            </div>
+<!--            <div class="col-md-1 pull-left" style="width:30px;padding:2px;height:28px;margin-top:35px;">
+                <button class="btn btn-sm btn-primary">OK</button>
+            </div>-->
+            <?php } ?>
+        </div>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
-                  <div class="col-md-12" style="font-size:82%;">
+                  <div class="col-md-12" style="font-size:82%;margin-top:10px;">
                       <table class="table table-bordered table-hover table-striped completed_cancelled_review_table" id="completed_cancelled_review_table">
                         <thead>
                            <tr>
                               <th class="jumbotron no-sort" >S.N.</th>
                               <th class="jumbotron no-sort" >Booking Id</th>
-<!--                              <th class="jumbotron" >Service Center </th>-->
                               <th class="jumbotron no-sort" style="text-align: center;">Price Details</th>
                               <th class="jumbotron no-sort" >Amount Due</th>
                               <th class="jumbotron no-sort" >Amount Paid</th>
@@ -297,7 +311,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                      </table>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
-                        <center><input type="submit" value="Approve Bookings" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
+                        <center><input type="submit" value="Approve Bookings" id="btn-approve-booking" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
                      <?php } ?>
@@ -328,10 +342,12 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
              }
              for($i=0;$i<=$total_pages;$i++){
                  $offset = $per_page*$i;
+                 if(!empty($review_status)){
                  ?>
-                 <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>/<?php echo $request_type_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+                 <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>/<?php echo $request_type_selected; ?>/<?php echo $min_review_age_selected; ?>/<?php echo $max_review_age_selected; ?>/<?php echo $sort_on_selected; ?>/<?php echo $sort_order_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
-             }
+                }
+            }
              ?>
                  </div>
 
@@ -396,16 +412,22 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         if(download_btn == 'download_complete_booking') {
             var partner_id = $('#partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
             var state_id = $('#state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
+            var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
             
-            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
         }
         
         if(download_btn == 'download_cancelled_booking') {
             var partner_id = $('#partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
             var state_id = $('#state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?><?php echo $sub_id?>').val();
             var cancellation_reason_id = $('#cancellation_reason_<?php echo $is_partner; ?><?php echo $sub_id?>').val();
+            var request_type = $('#request_type_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_min = $('#review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
+            var review_age_max = $('#review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>').val();
 
-            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
+             window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+ "&request_type="+request_type+"&review_age_min="+review_age_min+"&review_age_max="+review_age_max+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
         }
     });
 
@@ -488,8 +510,11 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         }
    }
    function checkValidationForBlank_review(){
+       
     var is_checked = $('.checkbox1:checkbox:checked');
     if(is_checked.length != 0){
+        $("#btn-approve-booking").css("pointer-events", "none");
+        $("#btn-approve-booking").css("opacity", "0.5");
         return true;
     }
     else{

@@ -1575,7 +1575,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $finalPincodeArray = $this->missing_pincode_group_by_data_helper($dataArray,'services','District');
         $this->missing_pincode_group_by_view_helper($finalPincodeArray,'appliance_district','Appliance','District');
     }
-    function get_TAT_days_total_completed_bookings($finalData){
+    // set Flag $showCovidStatus if wants to show covid status along with entity name
+    function get_TAT_days_total_completed_bookings($finalData, $showCovidStatus = false){
         $tat_0_total = $tat_1_total = $tat_2_total = $tat_3_total = $tat_4_total =  $tat_5_total = $tat_8_total= $tat_16_total = 0;
          foreach($finalData as $values){
             if(!array_key_exists('TAT_0', $values)){
@@ -1635,6 +1636,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $totalTempArray["entity"] =  $values['entity_name'];
             $totalTempArray['id'] =  $values['entity_id'];
             $totalTempArray['sub_id'] =  !empty($values['sub_id']) ? $values['sub_id'] : "";
+            $totalTempArray['covid_zone'] =  !empty($values['covid_zone']) ? $values['covid_zone'] : "";
             $totalArray[] = $totalTempArray;
         }
         $totalTempArray['TAT_0'] = $tat_0_total;
@@ -1661,10 +1663,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $totalTempArray['entity'] =  "Total";
         $totalTempArray['id'] =  "00";
         $totalTempArray['sub_id'] =  "";
+        $totalTempArray['covid_zone'] = "";
         $totalArray[] = $totalTempArray;
         return $totalArray;
     }
-        function get_TAT_days_total_pending_bookings($finalData){
+    
+    // set Flag $showCovidStatus if wants to show covid status along with entity name
+    function get_TAT_days_total_pending_bookings($finalData, $showCovidStatus){
         foreach($finalData as $values){
             if(!array_key_exists('TAT_0', $values)){
                 $values['TAT_0'] = array();
@@ -1703,6 +1708,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tTempArray['id'] =  $values['entity_id'];
             $tTempArray['sub_id'] =  $values['sub_id'];
             $tTempArray["entity_type"] =  $values['entity_type'];
+            $tTempArray["covid_zone"] =  !empty($values['covid_zone']) ? $values['covid_zone'] : "";
             $totalArray[] = $tTempArray;
         }
         $total_0 = $total_1 = $total_2 = $total_3 = $total_4 = $total_5 = $total_8 = $total_16 = $total_pending = $total_greater_than_3 = 0;
@@ -1712,6 +1718,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tArray['entity'] = $pendingDetails['entity'];
             $tArray['id'] = $pendingDetails['id'];
             $tArray['sub_id'] = $pendingDetails['sub_id'];
+            $tArray['covid_zone'] = $pendingDetails['covid_zone'];
             // Add entity_type to show whether bookings are of RM, ASM or of Both
             $tArray['entity_type'] = $pendingDetails['entity_type'];
             if(strlen($pendingDetails['TAT_0_bookings']) != 0){
@@ -1777,6 +1784,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $totalTempArray['entity'] = "Total";
         $totalTempArray['id'] = "00";
         $totalTempArray['sub_id'] = "";
+        $totalTempArray['covid_zone'] = "";
         $totalTempArray['TAT_GREATER_THAN_3'] = $total_greater_than_3;
         $totalTempArray['TAT_0'] = $total_0;
         $totalTempArray['TAT_1'] = $total_1;
@@ -1815,7 +1823,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
     }
 
-    function get_tat_data_in_structured_format_pending($data){
+    function get_tat_data_in_structured_format_pending($data, $showCovidStatus = false){
         $finalArray = array();
         foreach($data as $tatData){
             // Check if TAT is of RM Independent Bookings,
@@ -1845,15 +1853,31 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
             }            
             $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+            // Show Covid statas along with entity name
+            if($showCovidStatus){
+                // Show Covid Status (Impact wise)     
+                $zoneCovidStatus = "";
+                if (strpos($covid_zone, 'Red') !== false) {
+                    $zoneCovidStatus = '<br><span class="label label-danger" >COVID ZONE</span>';
+                }
+                if (strpos($covid_zone, 'Orange') !== false) {
+                    $zoneCovidStatus = '<br><span  class="label label-warning" >COVID ZONE</span>';
+                }
+                if (strpos($covid_zone, 'Green') !== false) {
+                    $zoneCovidStatus = '<br><span class="label label-success" >COVID ZONE</span>';
+                }
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].$zoneCovidStatus;
+            }
             $finalArray[$tatData['entity']]['covid_zone'] = $covid_zone;
             $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
             $finalArray[$tatData['entity']]['entity_type'] = $tatData['entity_type'];
             $finalArray[$tatData['entity']]['sub_id'] = $tatData['sub_id'];
         }
-         $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray));
+         $structuredArray = $this->get_TAT_days_total_pending_bookings(array_values($finalArray), $showCovidStatus);
          return $structuredArray;   
     }
-    function get_tat_data_in_structured_format_completed($data,$key){
+    // set Flag $showCovidStatus if wants to show covid status along with entity name
+    function get_tat_data_in_structured_format_completed($data,$key,$showCovidStatus = false){
         $finalArray = array();
         foreach($data as $tatData){
             $tatData['sfcity'] = !empty($tatData['city']) ? $tatData['city'] : "";
@@ -1878,22 +1902,45 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $finalArray[$tatData['entity']]['TAT_16'][] = $tatData['booking_id'];
             }            
             $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'];
+            // Show Covid statas along with entity name
+            if($showCovidStatus){
+                // Show Covid Status (Impact wise)     
+                $zoneCovidStatus = "";
+                if (strpos($covid_zone, 'Red') !== false) {
+                    $zoneCovidStatus = '<br><span class="label label-danger" >COVID ZONE</span>';
+                }
+                if (strpos($covid_zone, 'Orange') !== false) {
+                    $zoneCovidStatus = '<br><span  class="label label-warning" >COVID ZONE</span>';
+                }
+                if (strpos($covid_zone, 'Green') !== false) {
+                    $zoneCovidStatus = '<br><span class="label label-success" >COVID ZONE</span>';
+                }
+                $finalArray[$tatData['entity']]['entity_name'] = $tatData['entity'].$zoneCovidStatus;
+            }
             $finalArray[$tatData['entity']]['covid_zone'] = $covid_zone;
             $finalArray[$tatData['entity']]['entity_id'] = $tatData['id'];
             $finalArray[$tatData['entity']]['total_bookings'][] = $tatData['booking_id'];
             $finalArray[$tatData['entity']]['sub_id'] = $tatData['sub_id'];
         }    
         
-        $structuredArray = $this->get_TAT_days_total_completed_bookings(array_values($finalArray));
+        $structuredArray = $this->get_TAT_days_total_completed_bookings(array_values($finalArray), $showCovidStatus);
         return $structuredArray;
     }
-    function get_tat_data_in_structured_format($data,$is_pending,$request_type){
+    /**
+     * 
+     * @param type $data
+     * @param type $is_pending
+     * @param type $request_type
+     * @param type $showCovidStatus used to describe whether covid status to be shown against entity name or not
+     * @return type
+     */
+    function get_tat_data_in_structured_format($data,$is_pending,$request_type,$showCovidStatus = false){
         $structuredArray = array();
         if($is_pending){
-          $structuredArray =  $this->get_tat_data_in_structured_format_pending($data);
+          $structuredArray =  $this->get_tat_data_in_structured_format_pending($data, $showCovidStatus);
         }
         else{
-          $structuredArray['TAT'] =  $this->get_tat_data_in_structured_format_completed($data,'TAT');
+          $structuredArray['TAT'] =  $this->get_tat_data_in_structured_format_completed($data,'TAT',$showCovidStatus);
           if($request_type == 'Repair_with_part'){
             $structuredArray['leg_1'] =  $this->get_tat_data_in_structured_format_completed($data,'leg_1');
             $structuredArray['leg_2'] =  $this->get_tat_data_in_structured_format_completed($data,'leg_2');
@@ -2254,7 +2301,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
-            $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending,$request_type);
+            $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending,$request_type,true);
             if($is_pending){
                 $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_GREATER_THAN_3', SORT_DESC);
                 $sfData['TAT'] = $sfData;
@@ -2504,7 +2551,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if(isset($onlyIDArray[1])){
                 $onlyID = $onlyIDArray[1];
             }
-            $tempArray[] = $entity;
+            $tempArray[] = explode("<br>", $entity)[0];
+            if(!empty($data_state)){
+                $tempArray[] = !empty($values['covid_zone']) ? $values['covid_zone'] : "";
+            }
             if(!empty($data_state)){
                 $sfSate = "";
                 if(array_key_exists("sf_".$onlyID, $data_state)){
@@ -2549,54 +2599,56 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $csv.=implode(",",$tempArray)."\n"; //Append data to csv
         }       
-            if(!empty($data_state)){
-                $headings[] = "SF";
-            }
-            $headings[] = "State";
-             if(array_key_exists('Total_Pending',$values)){
-                $headings[] = ">TAT_3";
-             }
-            $headings[] = "TAT_0";
-             if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_0_percentage";
-            }
-            $headings[] = "TAT_1";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_1_percentage";
-            }
-            $headings[] = "TAT_2";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_2_percentage";
-            }
-            $headings[] = "TAT_3";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_3_percentage";
-            }
-            $headings[] = "TAT_4";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_4_percentage";
-            }
-            $headings[] = "TAT_5";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_5_percentage";
-            }
-            $headings[] = "TAT_8";
-            if(!array_key_exists('Total_Pending',$values)){
-                 $headings[] = "TAT_8_percentage";
-            }
-            $headings[] = ">TAT_15";
-             if(array_key_exists('Total_Pending',$values)){
-                 $headings[] = 'Total';
-            }
-            $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename=' . "Tat_Report.csv");
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            echo $finalcsv;
-            exit;
+        // Show Covid status along with SF name
+        if(!empty($data_state)){
+            $headings[] = "SF";
+            $headings[] = "Covid Zone";
+        }
+        $headings[] = "State";
+         if(array_key_exists('Total_Pending',$values)){
+            $headings[] = ">TAT_3";
+         }
+        $headings[] = "TAT_0";
+         if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_0_percentage";
+        }
+        $headings[] = "TAT_1";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_1_percentage";
+        }
+        $headings[] = "TAT_2";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_2_percentage";
+        }
+        $headings[] = "TAT_3";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_3_percentage";
+        }
+        $headings[] = "TAT_4";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_4_percentage";
+        }
+        $headings[] = "TAT_5";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_5_percentage";
+        }
+        $headings[] = "TAT_8";
+        if(!array_key_exists('Total_Pending',$values)){
+             $headings[] = "TAT_8_percentage";
+        }
+        $headings[] = ">TAT_15";
+        if(array_key_exists('Total_Pending',$values)){
+             $headings[] = 'Total';
+        }
+        $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename=' . "Tat_Report.csv");
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        echo $finalcsv;
+        exit;
     }
     
     /**
