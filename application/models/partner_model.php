@@ -3008,18 +3008,12 @@ function get_data_for_partner_callback($booking_id) {
                               DATE(
                                     booking_details.service_center_closed_date
                               ),
-                              STR_TO_DATE(
-                                    booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
-                              )
+                              booking_details.initial_booking_date
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
                                     booking_details.service_center_closed_date
                               ),
-                              STR_TO_DATE(
-                                    booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
-                              )
+                              booking_details.initial_booking_date
                             )
                       END
                     ) ELSE ''
@@ -3030,10 +3024,7 @@ function get_data_for_partner_callback($booking_id) {
                       'Rescheduled',
                       'FollowUp') AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(
                             CURDATE(),
-                            STR_TO_DATE(
-                              booking_details.initial_booking_date,
-                              '%d-%m-%Y'
-                            )) ELSE ''
+                            booking_details.initial_booking_date) ELSE ''
                       END
                     ) AS Ageing,
                     booking_details.rating_stars AS 'Rating',
@@ -3184,18 +3175,12 @@ function get_data_for_partner_callback($booking_id) {
                               DATE(
                                     booking_details.service_center_closed_date
                               ),
-                              STR_TO_DATE(
-                                    booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
-                              )
+                              booking_details.initial_booking_date
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
                                     booking_details.service_center_closed_date
                               ),
-                              STR_TO_DATE(
-                                    booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
-                              )
+                              booking_details.initial_booking_date
                             )
                       END
                     ) ELSE ''
@@ -3206,10 +3191,7 @@ function get_data_for_partner_callback($booking_id) {
                       'Rescheduled',
                       'FollowUp') AND booking_details.service_center_closed_date IS NULL THEN DATEDIFF(
                             CURDATE(),
-                            STR_TO_DATE(
-                              booking_details.initial_booking_date,
-                              '%d-%m-%Y'
-                            )) ELSE ''
+                            booking_details.initial_booking_date) ELSE ''
                       END
                     ) AS Ageing,
                     IFNULL(booking_details.rating_stars, ' ') AS 'Rating',
