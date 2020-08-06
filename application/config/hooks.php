@@ -30,6 +30,12 @@ $hook['post_controller_constructor'][] = array(
                                 'filename' => 'session.php',
                                 'filepath' => 'hooks'
                                 );
+$hook['post_controller_constructor'][] = array(
+                                'class'    => 'SfAgreement',
+                                'function' => 'check_sf_login',
+                                'filename' => 'SfAgreement.php',
+                                'filepath' => 'hooks');
+
 
 /* End of file hooks.php */
 /* Location: ./application/config/hooks.php */

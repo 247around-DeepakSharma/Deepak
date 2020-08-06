@@ -2037,7 +2037,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         return array("where"=>$where,"joinType"=>$joinType,"join"=>$join,'where_in'=>$where_in);
     }
     
-    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+    function get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL,$state='not_set',$city='not_set'){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -2052,6 +2052,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.state'] = $state;
+            }
+            
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.district'] = $city;
+            }
             // Filter for excluding NRN Bookings 
             $conditionArray['where']['booking_details.nrn_approved = 0'] = NULL;
             $conditionArray['groupBy'] = array("booking_details.booking_id");
@@ -2060,7 +2067,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['joinType']['booking_tat'] = 'left';
             return $conditionArray;
         }
-        function get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL){
+        function get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id = NULL,$state='not_set',$city='not_set'){
             $conditionArray = $this->get_commom_filters_for_pending_and_completed_tat($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry ,$partner_id);
             //Filter For date
             if($startDate && $endDate){
@@ -2072,6 +2079,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($status !="not_set"){
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
             }
+            
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.state'] = $state;
+            }
+            
+            if($status !="not_set"){
+                $conditionArray['where']['booking_details.district'] = $city;
+            }
+            
             $conditionArray['where']['booking_details.type != "Query"'] = NULL;
              //Group by on booking_tat
             $conditionArray['groupBy'] = array("TAT","entity");
@@ -2101,7 +2117,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
-        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$agent_type = ""){
+        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$agent_type = "",$state="not_set",$city="not_set"){
              if($this->session->userdata('partner_id') ){
                  // Add entity_type(RM/ASM) in Query
                 if($is_pending){
@@ -2221,13 +2237,13 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         
         
-        function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL){
+        function get_booking_tat_report($startDate,$endDate,$status="not_set",$service_id="not_set",$request_type="not_set",$free_paid="not_set",$upcountry ="not_set",$for = "RM",$is_pending = FALSE,$partner_id = NULL,$state='not_set',$city='not_set'){
         if($is_pending){
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
             $startDateField = "CURRENT_TIMESTAMP";
         }
         else{
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
             $startDateField = "service_center_closed_date";
         }
         $finalData = $data = array();
@@ -2242,7 +2258,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             }
             $conditionsArray['where_in']['employee.id'] = $wherein;
             $service_centres_field = 'service_centres_id';
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field,$state,$city);
         }else if($for == "ARM"){
             $rm = $this->input->post("rm");
             // Need to discuss

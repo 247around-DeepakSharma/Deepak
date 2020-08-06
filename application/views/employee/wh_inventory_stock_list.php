@@ -63,12 +63,6 @@
   display: block;
 }
 
-.action-ban {
-  pointer-events: none;
-  cursor: default;
-  text-decoration: none;
-  color: black;
-}
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -80,8 +74,8 @@
                             <div class="dropdown">
                                 <button class="dropbtn">Select To Send Spare</button>
                                 <div class="dropdown-content">
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return()" id="sellItem" class="action-ban">Return new Parts (0)</a>
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_settle()" id="settle_item" class="action-ban">Micro Warehouse Stock OOW</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return new Parts (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Micro Warehouse Stock OOW(0)</a>
                                 </div>
                             </div>                         
                         </span>
@@ -141,8 +135,8 @@
                                         <th>Return Qty</th>
                                         <th>Add</th>
                                     <?php } ?>
-                                    <th> Qty </th>
-                                    <th>Used Parts</th>
+                                    <!--  <th> Qty </th>
+                                    <th>Used Parts</th>-->
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -381,154 +375,6 @@
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" id="courier_model_form_data" action="javascript:void(0)" method="post" novalidate="novalidate">
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="awb" class="col-md-4">AWB *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" onblur="check_awb_exist()" class="form-control"  id="mwh_awb" name="awb" placeholder="Please Enter AWB" required>
-                                        <input type="hidden" class="form-control"  id="agent_type" name="agent_type"  value="247Around">
-                                        <input type="hidden"  class="form-control"  id="agent_id" name="agent_id" value="<?php echo $this->session->userdata('id');?>" >
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="mwh_shipped_date" class="col-md-4">Courier Shipped Date *</label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="mwh_shipped_date" name="shipped_date" placeholder="Please enter Shipped Date" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <!-- <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="courier" class="col-md-4">Courier Price *</label>
-                                    <div class="col-md-8">
-                                        <input type="number" class="form-control"  id="courier_price" name="courier_price" placeholder="Please Enter Courier Price" required>
-                                    </div>
-                                </div>
-                            </div>-->
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="courier_name_" class="col-md-4">Courier Name *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control"  id="mwh_courier_name" name="courier_name" required>
-                                            <option selected="" disabled="" value="">Select Courier Name</option>
-                                            <?php foreach ($courier_details as $value1) { ?> 
-                                                <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="shipped_spare_parts_weight" class="col-md-4">Weight *</label>
-                                    <div class="col-md-8">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="mwh_shipped_spare_parts_weight_in_kg" name="shipped_spare_parts_weight_in_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="mwh_shipped_spare_parts_weight_in_gram"   value=""   name="shipped_spare_parts_weight_in_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="mwh_shipped_spare_parts_boxes_count" class="col-md-4">Large Box Count</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="mwh_shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required>
-                                            <option selected=""  value="">Select Large Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
-                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="mwh_shipped_spare_parts_small_boxes_count" class="col-md-4">Small Box Count</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="mwh_shipped_spare_parts_small_boxes_count" name="shipped_spare_parts_small_boxes_count"  required>
-                                            <option selected=""  value="">Select Small Boxes</option>
-                                            <?php for ($i = 1; $i < 11; $i++) { ?>
-                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="shippped_courier_pic" class="col-md-4">Courier Pic *</label>
-                                    <div class="col-md-8">
-                                        <input type="hidden" class="form-control"  id="mwh_exist_courier_image" name="exist_courier_image" >
-                                        <input type="file" class="form-control"  id="shippped_courier_pic" name="shippped_courier_pic" required>
-                                    </div>
-                                </div>
-                            </div>
-<!--                        <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="shippped_courier_pic" class="col-md-4">Courier Address </label>
-                                    <div class="col-md-8">
-                                        <a href="javascript:void(0)" onclick="print_courier_address()">Print Courier Addess</a>
-                                    </div>
-                                </div>
-                            </div>-->
-                        </div>
-                        <div class='row'>
-                            <div class="col-md-6" id='receiver_entity' style='display:none;'>
-                                <div class='form-group'>
-                                    <label for="courier" class="col-md-4">Partner/Warehouse *</label>
-                                    <div class="col-md-8">
-                                        <input type="radio" class='receiver_type' id="radio_partner" name="receiver_type" value='0' checked>&nbsp;&nbsp;Partner
-                                        <input type="radio" class='receiver_type' id="radio_wh" name="receiver_type" value='1' style="margin-left:10px;">&nbsp;&nbsp;Warehouse
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class='form-group'>
-                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="from_gst_number" required>
-                                            <option selected disabled value="">Select from GST number</option>
-                                            <?php
-                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
-                                            ?>
-                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
-                                            <?php
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6" id='to_gst'>
-                                <div class='form-group'>
-                                    <label for="to_gst_number" class="col-md-4">To GST Number *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="mwh_to_gst_number" required>
-                                            <option selected disabled value="">Select from GST number</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6" id='to_wh' style='display:none;'>
-                                <div class='form-group'>
-                                    <label for="to_wh_id" class="col-md-4">Warehouse *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="to_wh_id">
-                                            <option value="" disabled="">Select Warehouse</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
                     </form>
                     <div class="text-center">
                             <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
@@ -554,7 +400,7 @@
                         </table>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-success" id="submit_mwh_courier_form" onclick="check_settle_sell_parts()" >Submit</button>
+                  <button type="button" class="btn btn-success" id="submit_mwh_courier_form" onclick="settle_sell_parts()" >Submit</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
               </div>
@@ -818,7 +664,7 @@
     });
     
         
-    $("#shipped_spare_parts_weight_in_kg,#mwh_shipped_spare_parts_weight_in_kg").on({
+    $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 2) {
@@ -866,7 +712,7 @@
         }
     });
     
-    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg,#mwh_shipped_spare_parts_weight_in_gram,#mwh_shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
+    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
         switch (event.keyCode) {
             case 8:  // Backspace
             case 9:  // Tab
@@ -898,15 +744,5 @@
         }
     }
     
-    function check_settle_sell_parts(){
-        var shipped_spare_parts_boxes_count = $('#mwh_shipped_spare_parts_boxes_count').val() || 0;
-        var shipped_spare_parts_small_boxes_count= $('#mwh_shipped_spare_parts_small_boxes_count').val() || 0;
-        var total_boxes = shipped_spare_parts_boxes_count+shipped_spare_parts_small_boxes_count;
-        if(total_boxes > 0){
-            settle_sell_parts();
-        }else{
-           alert('Minimum box count should be 1, Please select from Large or small box count.');
-        }
-    }
-
+    
 </script>
