@@ -23,13 +23,62 @@
         padding: 0 0 0 19px;
     }
 </style>
+<style>
+.dropbtn {
+    background-color: #337ab7;
+    color: white;
+    padding: 9px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 220px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {background-color: #a8b7b863;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+</style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> 
-                        <span class="pull-right"><input type="button" id="sellItem" name="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span>
+                        <span class="pull-right">
+                            <div class="dropdown">
+                                <button class="dropbtn">Select To Send Spare</button>
+                                <div class="dropdown-content">
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return new Parts (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Micro Warehouse Stock OOW(0)</a>
+                                </div>
+                            </div>                         
+                        </span>
                         <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
                         <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
                     </h3>
@@ -86,6 +135,8 @@
                                         <th>Return Qty</th>
                                         <th>Add</th>
                                     <?php } ?>
+                                    <!--  <th> Qty </th>
+                                    <th>Used Parts</th>-->
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -307,6 +358,49 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Return New Parts</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal" onclick="sellItem.disabled=false" >Close</button>
+              </div>
+
+            </div>
+         </div>
+        <!-- Modal end -->
+         <!-- Modal Start -->
+        <div id="mwh_used_spare_modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" style="min-width:1400px;">
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Micro Warehouse Sell Parts</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="courier_model_form_data" action="javascript:void(0)" method="post" novalidate="novalidate">
+                    </form>
+                    <div class="text-center">
+                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
+                    </div>
+                    <br/>
+                  <table id="sell_mwh_parts_data" class="table table-bordered table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Appliance</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Number</th>
+                                    <th>Basic Price</th>
+                                    <th>GST Rate</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                    <th>Remove</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-success" id="submit_mwh_courier_form" onclick="settle_sell_parts()" >Submit</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
               </div>
 
@@ -644,5 +738,4 @@
             alert('Minimum box count should be 1, Please select from Large or small box count.');
         }
     }
-
 </script>

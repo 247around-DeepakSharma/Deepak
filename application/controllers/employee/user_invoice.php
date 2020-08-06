@@ -1842,8 +1842,42 @@ class User_invoice extends CI_Controller {
                 }
             }
             echo $result;
-        } else {
+        }
+        else{
             echo false;
+        }
+    }
+    
+    
+        
+    /*
+     * @desc: This function is used to settle the sell parts to warehouse.
+     * @param: void
+     * @return: boolean
+     */
+
+    function process_to_sell_parts_by_warehouses() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $return_data = $this->input->post();
+        $postData = json_decode($return_data['inventory_data'], TRUE);
+//        print_r($postData);
+//        die();
+        $flag = false;
+        if (!empty($postData)) {
+            foreach ($postData as $key => $value) {
+                if (!empty($value['inventory_id'])) {
+                    $stock = "stock - '" . $value['quantity'] . "'";
+                    $where = array('inventory_stocks.entity_id' => $value['warehouse_id'], 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, 'inventory_stocks.inventory_id' => $value['inventory_id']);
+                    $update_stocks = $this->inventory_model->update_inventory_stock($where, $stock);
+                    $insert_data = array("warehouse_id" => $value['warehouse_id'], "inventory_id" => $value['inventory_id'], "quantity" => $value['quantity']);
+                    if ($update_stocks) {
+                        $flag = true;
+                        $this->inventory_model->insert_into_personal_used_spare($insert_data);
+                    }
+                }
+            }
+        } else {
+            echo json_encode(array('status' => false, 'message' => 'There is no inventory data .'), true);
         }
     }
 }
