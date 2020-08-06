@@ -3587,10 +3587,6 @@ class Inventory extends CI_Controller {
             $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md add_inventory_to_return" onclick="addnewpart(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">ADD</a>';
         }
         
-        if ($this->session->userdata('userType') == "employee") {
-            $row[] = '<input style="max-width: 87px;" readonly type="number" name="mwh_sell_quantity[' . $inventory_list->inventory_id . '][]" class="form-control" id="sell_by_mwh_qty_' . $inventory_list->inventory_id . '" />';
-            $row[] = '<a href="javascript:void(0)" class="btn btn-primary btn-md" onclick="addnewpartformwh(' . $inventory_list->inventory_id . ', ' . $inventory_list->stock . ' )">Used</a>';
-        }
 
         if ($this->session->userdata('userType') == 'service_center') {
             $row[] = '<a href="' . base_url() . 'service_center/inventory/alternate_inventory_list/' . $inventory_list->entity_id . '/' . $inventory_list->inventory_id . '/' . $inventory_list->service_id . '" target="_blank" class="btn btn-info">View</a>';

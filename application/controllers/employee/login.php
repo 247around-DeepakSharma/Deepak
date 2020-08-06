@@ -516,6 +516,7 @@ class Login extends CI_Controller {
                     echo "service_center/dashboard";
                     return;
                 }
+                $this->session->unset_userdata('service_center_id');
                 $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                 $this->session->set_userdata($userSession);
                 echo "service_center/login";
@@ -622,6 +623,7 @@ class Login extends CI_Controller {
                         ));
                         redirect(base_url() . "service_center/dashboard");
                     }
+                    $this->session->unset_userdata('service_center_id');
                     $userSession = array('error' => 'Your login is not activated, please contact ASM/RM of your region.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/login");
