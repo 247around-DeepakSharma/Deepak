@@ -1,24 +1,7 @@
 <script>
     var booking_status = '<?php echo $booking_status;?>';
     var booking_id = '<?php echo $booking_id;?>';
-    var datatable1;
-    function get_filter_data(){
-    
-       $.ajax({
-         type: 'POST',
-     
-         data: {},
-         url: '<?php echo base_url(); ?>employee/booking/get_booking_filter_view/'+booking_status,
-         success: function (data) {
-             $('#loader_gif').attr('src',  "");
-             $('#loader_gif').css("display", "none");
-             $('#table_filter').html(data);
-             
-         }
-       });
-    }
-    get_filter_data();
-
+    var datatable1;    
     function load_cancelled_status_admin(booking_id){
         $.ajax({
            type: 'post',
@@ -300,7 +283,7 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script>
-    $(document).ready(function(){  
+    function load_datatable(){
         datatable1 = $('#datatable1').DataTable({
             "processing": true,        
             "language":{ 
@@ -372,15 +355,28 @@
             "fnInitComplete": function (oSettings, response) {
                $('input[type="search"]').attr("name", "search_value");           
             }   
-        });
-        
-        
-    });
+        });               
+    }
     
-function filter_changes(){
-datatable1.ajax.reload();
-}
-    
+    function filter_changes(){
+        datatable1.ajax.reload();
+    }
+  
+    function get_filter_data(){    
+       $.ajax({
+         type: 'POST',
+     
+         data: {},
+         url: '<?php echo base_url(); ?>employee/booking/get_booking_filter_view/'+booking_status,
+         success: function (data) {
+             $('#loader_gif').attr('src',  "");
+             $('#loader_gif').css("display", "none");
+             $('#table_filter').html(data);
+             load_datatable();
+         }
+       });
+    }
+    get_filter_data();  
 </script>
 <script>
     function getMultipleSelectedValues(fieldName){
