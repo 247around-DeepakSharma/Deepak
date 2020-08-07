@@ -1387,6 +1387,10 @@ class Service_centers extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['entity_id']);
         }
+        $sf_skip_sf_id = 'sf_skip_'.$this->session->userdata('service_center_id');
+        if((isset($_COOKIE[$sf_skip_sf_id]))){
+            delete_cookie($sf_skip_sf_id);
+        }
         $this->cache->clean();
         $this->session->sess_destroy();
         redirect(base_url() . "service_center/login");
@@ -9158,18 +9162,18 @@ class Service_centers extends CI_Controller {
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
-            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
             if(!empty($from_details))
             {
                 $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             }
-            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
             if(!empty($to_details))
             {
                 $toinventory_req_id = $to_details[0]['requested_inventory_id'];
             }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
-                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
+                $this->session->set_flashdata('error_msg', "Spare transfer for this is not allowed. Either out warranty parts involved in the bookings or no part is requested in any of two bookings.");
                 redirect(base_url() . 'service_center/delivered_spare_transfer');
             } else {
                 $data['from_booking'] = $from_details;
