@@ -49,6 +49,7 @@ class Collection_partner extends CI_Controller {
         $post['order'] = $this->input->post('order');
         $draw = $this->input->post('draw');
         
+        $post['where']['service_centres.active'] = 1;
         $list = $this->cp_model->get_cp_shop_address_list($post);
         $data = array();
         $no = $post['start'];
