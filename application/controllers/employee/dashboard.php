@@ -678,13 +678,13 @@ class Dashboard extends CI_Controller {
             $sf_id = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             if(!empty($sf_id)){
                 $sf_id = $sf_id[0]['service_centres_id'];
-                $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, "id IN ($sf_id)" => null));
+                $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, "id IN ($sf_id)" => null, 'active' => 1));
             }else{
                 $cp = '';
             }
             
         }else{
-            $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1));
+            $cp = $this->vendor_model->getVendorDetails("id, name", array('is_cp' => 1, 'active' => 1));
         }
         
         $total_advance_paid = 0;
