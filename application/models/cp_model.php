@@ -42,7 +42,6 @@ class Cp_model extends CI_Model {
         if(isset($post['where']) && !empty($post['where'])){
             $this->db->where($post['where']);
         }
-        $this->db->where('service_centres.active', 1);
         //$this->db->join('partners', 'partners.id = bb_shop_address.partner_id ');
         if (!empty($post['search_value'])) { // if datatable send POST for search
         $like = "";
