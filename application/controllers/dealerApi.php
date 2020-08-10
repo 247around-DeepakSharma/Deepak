@@ -1130,11 +1130,22 @@ function submitEscalation(){
                   $response['warranty'] = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
                   $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
                   $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
-                  $response['partners'] = $this->partner_model->getpartner();
-                  $serviceWhere['isBookingActive'] =1;
-                  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
-                  $this->jsonResponseString['response'] = $response;
                   
+                  $partner = array();
+                  $all_option = array('id'=>'All','public_name'=>'All');
+                  $partners = $this->partner_model->getpartner();
+                  array_unshift($partners,$all_option);
+                  $response['partners'] = $partner;
+                  
+                  $serviceWhere['isBookingActive'] =1;
+                  
+                  $services = array();
+                  $all_option_service = array('id'=>'All','public_name'=>'All');
+                  $partners = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  array_unshift($services,$all_option_service);
+                  $response['services'] = $services;
+                //  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $this->jsonResponseString['response'] = $response;
                   $this->sendJsonResponse(array('0000', "Dashboard filters found successfully")); // send success response //
                
         } else {
