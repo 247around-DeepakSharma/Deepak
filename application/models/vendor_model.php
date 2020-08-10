@@ -611,23 +611,6 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     *  @desc : This function is to select state from India pincode
-     *
-     *  @param : $state
-     *  @return : array of states
-     */
-    function getState_from_india_pincode($pincode) {
-        $this->db->distinct();
-        $this->db->select('state');
-        if($pincode != ""){
-            $this->db->where('pincode', trim($pincode));
-        }
-        $this->db->order_by('state');
-        $query = $this->db->get('india_pincode');
-        return $query->result_array();
-    }
-
-    /**
      *  @desc : This function is to select district where our vendors are active and also active for
      *          particular pincode
      *

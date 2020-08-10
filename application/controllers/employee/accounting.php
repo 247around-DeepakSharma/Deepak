@@ -1510,21 +1510,17 @@ class Accounting extends CI_Controller {
         $data['entity_id'] = $this->input->post('vendor_partner_id');
         $data['fixed_charges'] = $this->input->post('fixed_charges');
         $variable_charge_detail = $this->accounting_model->get_variable_charge("*", array('id'=>$this->input->post('charges_type')));
-        $data['charges_type'] = $variable_charge_detail[0]['type'];
-        $data['description'] = $variable_charge_detail[0]['description'];
-        $data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
-        $data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
-
+        $data['charges_type'] = $variable_charge_detail[0]['id'];
+        //$data['description'] = $variable_charge_detail[0]['description'];
+        //$data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
+        //$data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
+        // comment as these column are not present in vendor_partner_variable_charges table, fetch these from variable_charges_type table with join
         if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
            $data['update_date'] = date("Y-m-d H:i:s");
            $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
            $this->session->set_userdata('success', 'Data Updated Successfully');
         }else{
            $data['create_date'] = date("Y-m-d H:i:s");
-           unset($data['description']);
-           unset($data['hsn_code']);
-           unset($data['gst_rate']);
-           // Unset these columns as these are not present in vendor_partner_variable_charges table, fetch these from variable_charges_type table with join
            $result = $this->invoices_model->insert_into_variable_charge($data);
            $this->session->set_userdata('success', 'Data Entered Successfully');
         }
