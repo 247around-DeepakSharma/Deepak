@@ -755,7 +755,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is used to view vendor agreement list
-     *
+     * @author Ayush
      * @param: void
      * @return : array(result) to view
      */
