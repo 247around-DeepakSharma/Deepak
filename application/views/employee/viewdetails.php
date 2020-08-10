@@ -1108,6 +1108,7 @@
                                         <th> Rejected Defective Part Image </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
+                                        <th>Courier POD File</th>
                                         <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
@@ -1166,6 +1167,11 @@
                                             <?php } ?>
                                         </td>
                                         <td>
+                                            <?php if (!empty($sp['awb_by_sf_pod'])) { ?>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/courier-pod/<?php echo $sp['awb_by_sf_pod']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
+                                        <td>
                                             <a class="btn btn-primary" href="<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>" target="_blank">Update</a>
                                         </td>
                                     </tr>
@@ -1201,6 +1207,7 @@
                                         <th>Shipped date </th>
                                         <th>WH Challan Number</th>
                                         <th>WH Challan File</th>
+                                        <th>Courier POD File</th>
                                      </tr>
                                 </thead>
                                 <tbody>
@@ -1243,7 +1250,12 @@
                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 
                                                 <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['wh_challan_file']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
-                                        </td>    
+                                        </td>
+                                        <td>
+                                             <?php if (!empty($sp['awb_by_wh_pod'])) { ?>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/courier-pod/<?php echo $sp['awb_by_wh_pod']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                     <?php } } ?>
                                 </tbody>

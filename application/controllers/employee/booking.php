@@ -1801,6 +1801,22 @@ class Booking extends CI_Controller {
                             }
                         }
                     }
+                    $query1[$key1]['awb_by_wh_pod'] = '';
+                    $query1[$key1]['awb_by_sf_pod'] = '';
+                    $awb_by_wh =  $query1[$key1]['awb_by_wh'];
+                    $awb_by_sf =  $query1[$key1]['awb_by_sf'];
+                    if(!empty($awb_by_wh)){
+                        $awb_by_wh_pod = $this->inventory_model->get_courier_company_invoice_details('courier_pod_file',array('awb_number'=>$awb_by_wh));
+                        if(!empty($awb_by_wh_pod)){
+                            $query1[$key1]['awb_by_wh_pod'] = $awb_by_wh_pod[0]['courier_pod_file'];
+                        }
+                    }
+                    if(!empty($awb_by_sf)){
+                        $awb_by_sf_pod = $this->inventory_model->get_courier_company_invoice_details('courier_pod_file',array('awb_number'=>$awb_by_sf));
+                        if(!empty($awb_by_sf_pod)){
+                            $query1[$key1]['awb_by_sf_pod'] = $awb_by_sf_pod[0]['courier_pod_file'];
+                        }
+                    }
                 }
                 $data['booking_history']['spare_parts'] = $query1;
             }
