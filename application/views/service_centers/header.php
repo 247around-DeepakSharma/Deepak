@@ -374,6 +374,9 @@
                             <li><a href="<?php echo S3_WEBSITE_URL.'authorization_certificate/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">Authorization Certificate</a></li>
                         <?php } ?>
                         
+                        <?php if(!empty($this->session->userdata('agreement_acceptence_file'))) { ?>
+                            <li><a href="<?php echo S3_WEBSITE_URL.'sf_agreements/'.$this->session->userdata('auth_certificate_file_name'); ?>" target="_blank">View Agreement</a></li>
+                        <?php } ?>    
                     </ul>
                     <?php $is_buyback = $this->uri->segment(2);?>
                     <ul class="nav navbar-nav navbar-right">

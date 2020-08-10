@@ -754,6 +754,22 @@ class vendor extends CI_Controller {
     }
 
     /**
+     * @desc: This function is used to view vendor agreement list
+     *
+     * @param: void
+     * @return : array(result) to view
+     */
+    function view_agreement_list()
+    {
+        $this->miscelleneous->load_nav_header();
+        $this->checkUserSession();
+        $data = $this->vendor_model->get_sf_agreement_list();
+        $this->load->view('employee/view_agreement_list', array('results' => $data));
+    }
+    
+    
+    
+    /**
      * @desc: This function is to edit vendor's details
      *
      * Existing details will be be displayed in respective fields(allowed to edit)
