@@ -264,6 +264,17 @@ class vendor_model extends CI_Model {
     }
 
     /**
+     * @desc: This function is to get all the Sf list with agreement status
+     *
+     * @param: void
+     * @return: array of all active services
+     */
+    function get_sf_agreement_list() {
+        $query = $this->db->query("SELECT t1.id, t1.name, t2.is_accepted, t2.agreement_file, (CASE WHEN t2.is_accepted = '1' THEN 'Yes' ELSE 'No' END) agreement_status FROM service_centres t1 , sf_agreement_status t2 WHERE t1.id = t2.sf_id ORDER BY t1.id ASC");
+        return $query->result_array();
+    }
+    
+    /**
      * @desc: This function is to get all distinct brands
      *
      *  Will show all the brands we are working on.
@@ -596,6 +607,23 @@ class vendor_model extends CI_Model {
         $this->db->order_by('district');
         $query = $this->db->get('india_pincode');
 
+        return $query->result_array();
+    }
+    
+    /**
+     *  @desc : This function is to select state from India pincode
+     *
+     *  @param : $state
+     *  @return : array of states
+     */
+    function getState_from_india_pincode($pincode) {
+        $this->db->distinct();
+        $this->db->select('state');
+        if($pincode != ""){
+            $this->db->where('pincode', trim($pincode));
+        }
+        $this->db->order_by('state');
+        $query = $this->db->get('india_pincode');
         return $query->result_array();
     }
 
