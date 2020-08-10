@@ -1048,5 +1048,50 @@ function submitEscalation(){
             $this->sendJsonResponse(array("1010", "Data Not Found !"));
         }
     }
+     /*
+     * @Desc - This function is used get dashboard filter data
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    function gethomeFilters(){
+        
+        
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+        	/* Get Partner , Service , warramty data from  DB */
+                  $response = array(); 
+                  
+                  $response['request_type'] = array('not_set'=>'All','Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
+                  $response['warranty'] = array('not_set'=>'All','Yes'=>'Yes (In Warranty)','No'=>'No (Out Of Warranty)');
+                  $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
+                  $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
+                  
+                  $partner = array();
+                  $all_option = array('id'=>'All','public_name'=>'All');
+                  $partners = $this->partner_model->getpartner();
+                  array_unshift($partners,$all_option);
+                  $response['partners'] = $partner;
+                  
+                  $serviceWhere['isBookingActive'] =1;
+                  
+                  $services = array();
+                  $all_option_service = array('id'=>'All','public_name'=>'All');
+                  $partners = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  array_unshift($services,$all_option_service);
+                  $response['services'] = $services;
+                //  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $this->jsonResponseString['response'] = $response;
+                  $this->sendJsonResponse(array('0000', "Dashboard filters found successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1010", "Dashboard Filters  not found !")); 
+        }
+        
+    }
+
 
 }
