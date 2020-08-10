@@ -422,6 +422,7 @@ class invoices_model extends CI_Model {
     function getpartner_invoices_statuswise($partner_id, $completed_cond, $pending_cond ) {
         $sql1 = "SELECT booking_unit_details.id AS unit_id,"
                 . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (CONCAT('''', order_id)) END AS order_id, "
+                . " ( CASE WHEN NOT EXISTS (SELECT DISTINCT 1 as part from spare_parts_details WHERE spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."') THEN 'No' ELSE 'Yes' END ) AS spare_involved, "
                 . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
@@ -431,7 +432,7 @@ class invoices_model extends CI_Model {
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name, "
-                . " partner_net_payable, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
+                . " (partner_net_payable + partner_spare_extra_charge) as partner_net_payable,partner_spare_extra_charge, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
                     (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
@@ -681,7 +682,7 @@ class invoices_model extends CI_Model {
             $n = " OR ( ud.id IN(". implode(",", $nd).") ) ";
         }
         
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
+        $sql = "SELECT DISTINCT (`partner_net_payable` + partner_spare_extra_charge) AS rate, " . HSN_CODE . " AS hsn_code, 
                 CASE 
                   
                    WHEN (ud.`appliance_capacity` IS NULL) THEN
@@ -710,7 +711,7 @@ class invoices_model extends CI_Model {
                 END AS description, 
                 round(tax_rate,0) as gst_rate,
                 COUNT( ud.id ) AS qty, 
-                (partner_net_payable * COUNT( ud.id )) AS taxable_value,
+                ((partner_net_payable + partner_spare_extra_charge ) * COUNT( ud.id )) AS taxable_value,
                 `partners`.company_name, product_or_services,
                 `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state, partners.is_wh,
@@ -727,7 +728,7 @@ class invoices_model extends CI_Model {
                         AND ud.ud_closed_date < '$to_date'
                     ) $s $n
                   )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
+                GROUP BY  `partner_net_payable`, ud.partner_spare_extra_charge, ud.service_id,price_tags,product_or_services,tax_rate, ud.appliance_capacity   ";
 
         $query = $this->db->query($sql);
         $result['result'] = $query->result_array();
@@ -3331,7 +3332,7 @@ class invoices_model extends CI_Model {
      * @param String - $select, Array - $where, $join - boolean
      * @return Array
     */
-    function get_variable_charge($select, $where=array(), $join=null){
+    function get_variable_charge($select, $where=array(), $join=null, $join_variable_charges=null){
         $this->db->select($select);
         if(!empty($where)){
           $this->db->where($where);  
@@ -3339,6 +3340,9 @@ class invoices_model extends CI_Model {
         if(!empty($join)){
             $this->db->join('service_centres', 'service_centres.id = vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "vendor" ', "LEFT");
             $this->db->join('partners', 'partners.id =  vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "partner" ', "LEFT");
+        }
+        if(!empty($join_variable_charges)){
+            $this->db->join('variable_charges_type', 'variable_charges_type.id =  vendor_partner_variable_charges.charges_type');
         }
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();

@@ -3010,7 +3010,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
@@ -3018,7 +3018,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             )
                       END
@@ -3032,7 +3032,7 @@ function get_data_for_partner_callback($booking_id) {
                             CURDATE(),
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
-                              '%d-%m-%Y'
+                              '%Y-%m-%d'
                             )) ELSE ''
                       END
                     ) AS Ageing,
@@ -3186,7 +3186,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
@@ -3194,7 +3194,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             )
                       END
@@ -3208,7 +3208,7 @@ function get_data_for_partner_callback($booking_id) {
                             CURDATE(),
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
-                              '%d-%m-%Y'
+                              '%Y-%m-%d'
                             )) ELSE ''
                       END
                     ) AS Ageing,

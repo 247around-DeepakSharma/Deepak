@@ -784,6 +784,12 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     
+    function is_sc_accepted_agreement($sf_id){
+        $this->db->where('sf_id',$sf_id);
+        $query = $this->db->get('sf_agreement_status');
+        return $query->result_array();
+    }
+    
     function get_service_center_action_details($select, $where){
         $this->db->select($select);
         $this->db->where($where);
