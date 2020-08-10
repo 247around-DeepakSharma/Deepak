@@ -3332,7 +3332,7 @@ class invoices_model extends CI_Model {
      * @param String - $select, Array - $where, $join - boolean
      * @return Array
     */
-    function get_variable_charge($select, $where=array(), $join=null, $join_variable_charges=null){
+    function get_variable_charge($select, $where=array(), $join=null){
         $this->db->select($select);
         if(!empty($where)){
           $this->db->where($where);  
@@ -3340,9 +3340,6 @@ class invoices_model extends CI_Model {
         if(!empty($join)){
             $this->db->join('service_centres', 'service_centres.id = vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "vendor" ', "LEFT");
             $this->db->join('partners', 'partners.id =  vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "partner" ', "LEFT");
-        }
-        if(!empty($join_variable_charges)){
-            $this->db->join('variable_charges_type', 'variable_charges_type.id =  vendor_partner_variable_charges.charges_type');
         }
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();

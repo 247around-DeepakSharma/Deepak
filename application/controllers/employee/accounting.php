@@ -1474,8 +1474,8 @@ class Accounting extends CI_Controller {
      * @return view
      */
     function add_variable_charges(){ 
-        $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*,variable_charges_type.hsn_code,variable_charges_type.gst_rate,variable_charges_type.description";
-        $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true, true);
+        $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
+        $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
         $variable_charges['charges_type'] = $this->accounting_model->get_variable_charge("id, name");
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges', $variable_charges);  
@@ -1521,10 +1521,6 @@ class Accounting extends CI_Controller {
            $this->session->set_userdata('success', 'Data Updated Successfully');
         }else{
            $data['create_date'] = date("Y-m-d H:i:s");
-           unset($data['description']);
-           unset($data['hsn_code']);
-           unset($data['gst_rate']);
-           // Unset these columns as these are not present in vendor_partner_variable_charges table, fetch these from variable_charges_type table with join
            $result = $this->invoices_model->insert_into_variable_charge($data);
            $this->session->set_userdata('success', 'Data Entered Successfully');
         }
