@@ -5027,11 +5027,13 @@ function generate_image($base64, $image_name,$directory){
                     $this->cancel_delivered_but_not_consumed_micro_wh_part($spare_id, $booking_id, $status_id);
                     continue;
                 }                
-                
+                $generate_defective_ok_part_challan = false;
+                //If part is origannaly not required and no consumption of part then create challan for OK PART TO BE SHIPPED
                 // if part is out-warranty or in-warranty and consumption no then set spare status ok part to be shipped
                 if(!in_array($consumption_status_tag, [PART_CONSUMED_TAG, PART_NOT_RECEIVED_COURIER_LOST_TAG])) {
                     $up['status'] = OK_PART_TO_BE_SHIPPED;
                     $up['defective_part_required'] = 1;
+                    $generate_defective_ok_part_challan = true;
                 }
                 
                 // set remarks if remarks not empty.
@@ -5053,7 +5055,11 @@ function generate_image($base64, $image_name,$directory){
                     $this->My_CI->inventory_model->update_courier_company_invoice_details(['awb_number' => $spare_part_detail['awb_by_partner'], 'delivered_date is null' => NULL], ['delivered_date' => date('Y-m-d H:i:s')]);
                 }
                 
-                if (!empty($defective_part_required) && $defective_part_required == 1 && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                if(!empty($defective_part_required) && $defective_part_required == 1){
+                    $generate_defective_ok_part_challan = true;
+                }
+
+                if (!empty($generate_defective_ok_part_challan) && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
                     $partner_on_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
                         $select = 'spare_parts_details.id, spare_parts_details.defective_return_to_entity_type, spare_parts_details.defective_return_to_entity_id';
