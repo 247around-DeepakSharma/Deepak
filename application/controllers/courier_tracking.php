@@ -760,8 +760,6 @@ class Courier_tracking extends CI_Controller {
                         if(isset($value->tracking_number) && !empty($value->tracking_number)){
                             $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
-                            $this->update_pod_courier($value->tracking_number);
-                            //update pod file on Delivered status
                         }
                         $update_status = $this->update_defactive_return_to_partner_from_wh_status($value);
                         if($update_status){
