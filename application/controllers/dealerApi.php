@@ -1040,9 +1040,13 @@ function submitEscalation(){
                             if (!empty($expl_data[0])) {
 
                                 $kg = $expl_data[0] . ' KG ';
+                            }else{
+                                $kg = 0;
                             }
                             if (!empty($expl_data[1])) {
                                 $gm = $expl_data[1] . ' Gram';
+                            }else{
+                                $gm = 0;
                             }
                         }
                         $spare_defective[$key]['sf_billable_weight'] = $kg . " " . $gm;
