@@ -309,6 +309,7 @@ $route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_cen
 $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
 $route['service_center/send_to_partner_on_challan'] = 'employee/service_centers/warehouse_send_to_partner_on_challan';
+$route['service_center/generate_defective_ok_part_challan'] = 'employee/service_centers/generate_defective_ok_part_challan';
 $route['service_center/rejected_by_partner_on_challan'] = 'employee/service_centers/warehouse_rejected_by_partner_on_challan';
 $route['service_center/rejected_by_partner_on_invoice'] = 'employee/service_centers/warehouse_rejected_by_partner_on_invoice';
 $route['service_center/get_rejected_msl'] = 'employee/service_centers/get_rejected_msl';

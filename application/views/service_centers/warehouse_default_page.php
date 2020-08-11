@@ -48,6 +48,12 @@
                                     Send To Partner On Invoice
                                 </a>
                             </li>
+
+                            <li role="presentation">
+                                <a href="#tabs-12" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/generate_defective_ok_part_challan">
+                                   Generate Defective/ok Part Challan 
+                                </a>
+                            </li>
                             
                             <li role="presentation">
                                 <a href="#tabs-8" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_on_challan">
@@ -76,6 +82,7 @@
                             <div class="tab-pane" id="tabs-9"></div>
                             <div class="tab-pane" id="tabs-10"></div>
                             <div class="tab-pane" id="tabs-11"></div>
+                            <div class="tab-pane" id="tabs-12"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
@@ -316,6 +323,13 @@
         }else if(href === '#tabs-6'){
             $(this).tab('show');
         }else{
+            if(href === '#tabs-12') {
+                $('#tabs-8').empty(); 
+            }
+            if(href === '#tabs-8') {
+                $('#tabs-12').empty();
+            }
+
              //Loading view with Ajax data
             load_view(url,href);
         }
