@@ -254,7 +254,9 @@ class Notify {
         }
     }
 
-    function make_outbound_call($agent_phone, $customer_phone) {
+    // Add Booking Id in Param , so that we can save call recording against booking Id
+    // $booking_id contains the value of `id` column of `booking_details` Table
+    function make_outbound_call($agent_phone, $customer_phone, $booking_primary_id = '', $call_log_id = '') {
 	//Callback fn called by Exotel
 	switch (ENVIRONMENT) {
 	    case 'production':
@@ -262,7 +264,10 @@ class Notify {
 		    'From' => $agent_phone,
 		    'To' => $customer_phone,
 		    'CallerId' => OUTGOING_NUMBER, //247around call centre exophone number
-		    'CallType' => 'trans'
+		    'CallType' => 'trans',
+                    'StatusCallback' => base_url().'exotel-callback',
+//                    'StatusCallbackEvents' => ['booking_primary_id' => $booking_primary_id, 'call_log_id' => $call_log_id],                    
+                    'StatusCallbackContentType' => 'application/json'
 		);
 
 		$exotel_sid = "aroundhomz";

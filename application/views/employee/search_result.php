@@ -12,14 +12,14 @@
       });
     });
     
-    function outbound_call(phone_number){
+    function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
        
         if (confirm_call == true) {
             
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
                    
@@ -217,7 +217,7 @@
                     </td>
                     <td><?= $row->query_remarks; ?></td>
                     <?php if($c2c) { ?>
-                    <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                    <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>, <?php echo $row->booking_primary_id; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
                     <td><button type="button" json-data='<?php echo $sms_json; ?>' onclick="send_whtasapp_number(this)" class="btn btn-sm btn-color"><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button></td>
                     <?php } ?>
@@ -320,7 +320,7 @@
                         <td><button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ='<?php echo $row->booking_id ?>' onclick="show_contacts(this.id,1)">
                 <span class="glyphicon glyphicon-user"></span></button></td>
                         <?php } if($c2c) { ?>
-                        <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
+                        <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>, <?php echo $row->booking_primary_id; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
                         <?php } ?>
                         <td>
                             <?php echo "<a class='btn btn-sm btn-color' "
@@ -517,7 +517,7 @@
                         <td><?=$row->city; ?></td>
                         <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
                         <?php if($c2c) { ?>
-                        <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                        <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>, <?php echo $row->booking_primary_id; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>
                         <?php } ?>
                         <td>
@@ -656,7 +656,7 @@
                         <td><?=$row->city; ?></td>
                         <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
                         <?php if($c2c) { ?>
-                        <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                        <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>, <?php echo $row->booking_primary_id; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                         </td>
                         <?php } ?>
                         <td>

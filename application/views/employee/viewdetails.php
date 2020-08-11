@@ -123,9 +123,9 @@
                             <th>Mobile </th>
                             <td>
                                 <?php if($c2c){   ?>
-                                     <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>)"><?php echo $booking_history[0]['booking_primary_contact_no']; ?></a>
+                                     <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no'] ?>,<?php echo $booking_history[0]['booking_primary_id'] ?>)"><?php echo $booking_history[0]['booking_primary_contact_no']; ?></a>
                                     <?php if(!empty($booking_history[0]['booking_alternate_contact_no'])) { ?> 
-                                    / <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_alternate_contact_no'] ?>)"><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></a>   
+                                    / <a href="javascript:void(0);" onclick="outbound_call(<?php echo $booking_history[0]['booking_alternate_contact_no'] ?>,<?php echo $booking_history[0]['booking_primary_id'] ?>)"><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></a>   
                                 <?php } } else { ?>
                                     <?php echo $booking_history[0]['booking_primary_contact_no']; if(!empty($booking_history[0]['booking_alternate_contact_no'])){ echo ' / '.$booking_history[0]['booking_alternate_contact_no']; }?>
                                <?php } ?>
@@ -385,7 +385,7 @@
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
                                     <?php if($c2c) { ?>
-                                    <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
+                                    <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>, <?php echo $booking_history[0]['booking_primary_id'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                 <?php } }?>
                                 </td>
                                 <td><?php if(isset($booking_history[0]["municipal_limit"])) { echo $booking_history[0]["municipal_limit"]." KM"; }  ?></td>
@@ -2035,14 +2035,14 @@ function sf_tab_active(){
  
 <script type="text/javascript">    
 
-    function outbound_call(phone_number){
+    function outbound_call(phone_number, booking_primary_id = ""){
         var confirm_call = confirm("Call Customer ?");
     
         if (confirm_call == true) {
     
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
     

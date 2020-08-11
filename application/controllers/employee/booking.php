@@ -2178,13 +2178,12 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is used to call customer from admin panel
-     *  @param : Phone Number
+     *  @param : Customer Phone Number
+     *  @param : $booking_primary_id : id of booking_details
      *  @return : none
      */
-    function call_customer($cust_phone) {
-        // log_message('info', __FUNCTION__);
+    function call_customer($cust_phone, $booking_primary_id = '') {
         $s1 = $_SERVER['HTTP_REFERER'];
-        //$s2 = "https://www.aroundhomzapp.com/";
         $s2 = base_url();
         $redirect_url = substr($s1, strlen($s2));
         $this->checkUserSession();
@@ -2198,16 +2197,17 @@ class Booking extends CI_Controller {
         $agent_id = $this->session->userdata('id');
         $agent_phone = $this->session->userdata('phone');
         //Save call log
-        $this->booking_model->insert_outbound_call_log(array(
+        $call_log_id = $this->booking_model->insert_outbound_call_log(array(
             'agent_id' => $agent_id, 'customer_id' => $cust_id,
             'customer_phone' => $cust_phone
         ));
-        if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){
-        //if($agent_id == 22 || $agent_id == 10026 || $agent_id == 8 || $agent_id == 19 || $agent_id == 29 || $agent_id == 10028 || $agent_id == 10037 || $agent_id == 10045 || $agent_id == 10046){
+        if(CURRENT_TELEPHONY_SOLUTION == KNOWLARITY_STRING){        
             $this->notify->make_outbound_call_using_knowlarity($agent_phone, $cust_phone);
         }
         else{
-        $this->notify->make_outbound_call($agent_phone, $cust_phone);
+            // Add Booking Id in Param , so that we can save call recording against booking Id
+            // $booking_id contains the value of `id` column of `booking_details` Table
+            $this->notify->make_outbound_call($agent_phone, $cust_phone, $booking_primary_id, $call_log_id);
         }
         //Redirect to the page from where you landed in this function, do not refresh
         redirect(base_url() . $redirect_url);
