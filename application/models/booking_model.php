@@ -1460,6 +1460,7 @@ class Booking_model extends CI_Model {
      */
     function insert_outbound_call_log($details) {
         $this->db->insert('agent_outbound_call_log', $details);
+        return $this->db->insert_id();
     }
 
     /**

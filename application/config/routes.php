@@ -371,5 +371,6 @@ $route['employee/courier/add_courier_serviceable_area'] = 'employee/spare_parts/
 
 $route['employee/devmode'] = 'employee/login';
 
+$route['exotel-callback'] = 'api/recordUrl';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
