@@ -6996,6 +6996,7 @@ class Service_centers extends CI_Controller {
                 
                 $ledger_where = [
                     'spare_id' => $spare_id,
+                    'is_defective' => 1
                 ];
                 
                 $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);                
@@ -9853,10 +9854,10 @@ class Service_centers extends CI_Controller {
         /*Initialize variables*/
         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
         $booking_id = $spare_part_detail['booking_id'];
-        $partner_id = $spare_part_detail['partner_id'];
 
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        $partner_id = $booking_details['partner_id'];
         
         /**
          * Update spare parts.
@@ -9877,36 +9878,6 @@ class Service_centers extends CI_Controller {
         $spare_data['received_defective_part_pic_by_wh'] = NULL;
                 
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
-        
-        /**
-         * If Ok part then decrease stock.
-         */
-        if ($action == OK_PARTS_SHIPPED) {
-            /**
-             * check whether stock is handled by central warehouse or not.
-             * @modifiedBy Ankit Rajvanshi
-             */
-            $is_inventory_handled_by_247 = $this->inventory_model->check_stock_handled_by_central_wh($booking_details, $spare_part_detail);
-            if (!empty($is_inventory_handled_by_247) && !empty($spare_part_detail['shipped_inventory_id'])) {
-                
-                //update inventory stocks
-                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
-                if (!empty($is_entity_exist)) {
-                    $stock = "stock - '" . $spare_part_detail['shipped_quantity'] . "'";
-                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
-                } 
-                
-                // update ledger.
-                $ledger_data = [
-                    'receiver_entity_id' => NULL,
-                    'receiver_entity_type' => NULL,
-                    'is_wh_ack' => 0,
-                    'wh_ack_date' => NULL
-                ];
-                
-                $this->inventory_model->update_ledger_details($ledger_data, array('spare_id' => $spare_id, 'is_defective' => 1));                
-            }
-        }
         
         /**
          * Log this in spare tracking.
