@@ -1865,6 +1865,14 @@ class Service_centers extends CI_Controller {
                 $data['unit_model_number'] = $model_nunmber;
                 $data['unit_serial_number'] = $serial_number;
                 $data['purchase_date'] = $dateofpurchase;
+                /*  Again Ask for purchase date to fill if no spare involved or all are cancelled */
+                $part_dependency = $this->inventory_model->get_spare_parts_details("id, status,partner_id,service_center_id,shipped_inventory_id,shipped_quantity,booking_id,parts_shipped", array("booking_id"=>$booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL));
+                if(!empty($part_dependency)){   
+                 $data['ask_purchase_date'] = 0;   
+                }else{
+                   $data['ask_purchase_date'] = 1; 
+                }
+                
                 $data['is_disable'] = $is_disable;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);

@@ -5274,4 +5274,23 @@ class Api extends CI_Controller {
             $this->sendJsonResponse(array('0042', 'Booking Id or Brand or Partner Id or Service Id not found'));
         }
     }
+    
+    /**
+     * This function saves call recording url against each call
+     * This is a callback function from make_outbound_call() in Notify.php
+     */
+    public function recordUrl() {
+        $call_recording_response = $_POST;
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, "pritys@247around.com", "", "","EXOTEL API RESPONSE", print_R($call_recording_response), "", "", "", "");
+//        $data = [
+//            'recording_url' => $call_recording_response['RecordingUrl'],
+//            'call_sid' => $call_recording_response['CallSid'],
+//            'status' => $call_recording_response['Status'],
+//            'call_duration' => $call_recording_response['ConversationDuration'],
+//            'start_time' => $call_recording_response['StartTime'],
+//            'end_time' => $call_recording_response['EndTime'],
+//            'booking_primary_id' => $call_recording_response['booking_primary_id'],
+//        ];
+        
+    }
 }

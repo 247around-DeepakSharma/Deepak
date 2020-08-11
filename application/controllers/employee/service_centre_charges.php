@@ -1482,7 +1482,7 @@ class service_centre_charges extends CI_Controller {
                             $rm_email=(!empty($rm_details[0]['official_email']) ? $rm_details[0]['official_email'] : "");  
                             //if we have rm_email id then mail is sent to email_template[3] and rm_email in cc otherwise the mail is sent to email_template[3] in cc.
                             if(!empty($rm_email)){
-                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: ""); }
+                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: $rm_email); }
                             else{
                                 $cc= (!empty($email_template[3]) ? $email_template[3] : ""); } 
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
