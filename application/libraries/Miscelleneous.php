@@ -2493,10 +2493,11 @@ class Miscelleneous {
         $parentArray = $structuredData=$navFlowArray=array();
         $orderBYArray = array("level"=>"ASC");
         if($entity_type == "Partner"){
-            $orderBYArray = array("level"=>"ASC","header_navigation.title"=>"ASC");
+            $orderBYArray = array("priority"=>"DESC","level"=>"ASC","header_navigation.title"=>"ASC");
         }
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
                 array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,$orderBYArray,NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
+        
          foreach($data as $navData){
             $structuredData["id_".$navData['id']]['id'] = $navData['id']; 
             $structuredData["id_".$navData['id']]['title'] = $navData['title'];
@@ -3026,6 +3027,7 @@ function generate_image($base64, $image_name,$directory){
         $mpdf->Output($tempfilePath, 'F');
         if ($mpdf) {
             $is_file = $this->My_CI->s3->putObjectFile($tempfilePath, BITBUCKET_DIRECTORY, $s3_folder . "/" . $filename, S3::ACL_PUBLIC_READ);
+            //$is_file = TRUE;
             if ($is_file) {
                 $response_data = array('response' => 'Success',
                     'response_msg' => 'PDF generated Successfully and uploaded on S3',
