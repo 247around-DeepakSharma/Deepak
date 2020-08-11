@@ -5,7 +5,11 @@
     <input type="hidden" value="" name="receiver_partner_id" id="receiver_partner_id">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
+        <?php if(!empty($is_send_to_partner)) { ?>
           <h2>Send To Partner On Delivery Challan</h2>
+        <?php } else { ?>
+          <h2>Genarate Defective/Ok Part Challan</h2>
+        <?php }  ?>
          <div class="panel panel-default">            
             <div class="panel-body">
                 <div class="success_msg_div" style="display:none;">
@@ -42,9 +46,11 @@
                                 
                                    </form>                                
                             </div>
-                            <div class="approved pull-right">
-                                <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare_on_challan();">Send spare to partner</div>
-                            </div>
+                            <?php if(!empty($is_send_to_partner)) { ?>
+                                <div class="approved pull-right">
+                                    <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare_on_challan();">Send spare to partner</div>
+                                </div>
+                            <?php } ?>
                         </div>
                     </section>
                 </div>
@@ -54,7 +60,7 @@
                 <?php if(!empty($spare_parts)) { ?>
                 <div class="table-responsive">
                     <form target="_blank"  action="<?php echo base_url(); ?>employee/service_centers/process_partner_challan_file" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                    <table class="table table-bordered table-hover table-striped" id="defective_parts_send_to_partner_on_challan">
+                        <table class="table table-bordered table-hover table-striped" id="defective_parts_send_to_partner_on_challan">
                         <thead>
                            <tr>
                             <th class="text-center">No</th>
@@ -70,12 +76,22 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Quantity</th>
-                            <th class="text-center">Download Challan<input type="checkbox" id="selectall_challan_file"></th>
-                            <th class="text-center">
-                                Send To Partner
-                                <input type="checkbox" id="send_all">
-                            </th>
+                            <?php if(!empty($is_send_to_partner)) { ?>
+                            <th class="text-center">WH Challan Number</th>
+                            <?php } ?>
+                            <?php if(!empty($is_generate_challan)) { ?>
+                                <th class="text-center">Download Challan<input type="checkbox" id="selectall_challan_file"></th>
+                            <?php } ?>
+                            <?php if(!empty($is_send_to_partner)) { ?>    
+                                <th class="text-center">
+                                    Send To Partner
+                                    <input type="checkbox" id="send_all">
+                                </th>
+                            <?php } ?>
                             <th class="text-center">Action</th>
+                            <?php if(!empty($is_send_to_partner)) { ?>
+                            <th></th>
+                            <?php } ?>
                            </tr>
                         </thead>
                         <tbody>
@@ -132,25 +148,39 @@
                                      <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
 
                                      </td>
+                                     <?php if(!empty($is_send_to_partner)) { ?>
                                      <td>
-                                         <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id'];  ?>][]" id="download_challan_<?php echo $i; ?>"  value="<?php echo $row['id']?>" />
-                                    </td>
- 
-                                    <td>
-                                        
-                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
-                                    </td>
+                                        <a title="Click to view challan file" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $row['wh_challan_file']; ?>" target="_blank"><?php echo $row['wh_challan_number']; ?></a>
+                                     </td>
+                                     <?php } ?>
+                                     <?php if(!empty($is_generate_challan)) { ?>
+                                        <td>
+                                             <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan(this.id)" name="download_challan[<?php echo $row['defective_return_to_entity_id'];  ?>][]" id="download_challan_<?php echo $i; ?>"  value="<?php echo $row['id']?>" />
+                                        </td>
+                                     <?php } ?>
+                                     <?php if(!empty($is_send_to_partner)) { ?>
+                                        <td>
+                                            <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
+                                        </td>
+                                    <?php } ?>
                                     <td>
                                         <a href="javascript:void(0);" class="btn btn-warning" title="Reverse Defective/Ok Part Acknowledged By Warehouse" onclick="reverse_acknowledged_from_sf(<?php echo $row['id']; ?>)">Reverse</a>
                                     </td>
+                                    <?php if(!empty($is_send_to_partner)) { ?>
+                                    <td>
+                                        <a href="javascript:void(0);" class="btn btn-danger" title="Cancel Challan" onclick="cancel_challan(<?php echo $row['id']; ?>)">Remove Challan</a>
+                                    </td>    
+                                    <?php }?>
+
                             </tr>
                             <?php $sn_no++; $i++; } ?>
                         </tbody>
                         </table>
+                        <?php if(!empty($is_generate_challan)) { ?>
                         <center> 
-                          <input type= "button" id="button_send" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Select Address" >
+                          <input type= "button" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Select Address" >
                         </center>
-
+                        <?php } ?>
 
                           <!-- Modal -->
   <div class="modal fade" id="myModal22" role="dialog">
@@ -159,7 +189,7 @@
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="close" onclick="refresh_list()">&times;</button>
           <h4 class="modal-title">Select Warehouse</h4>
         </div>
         <div class="modal-body">
@@ -174,7 +204,7 @@
          <input type= "submit" id="button_send" class="btn btn-danger" onclick='return check_checkbox()'  style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
          
 
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default" onclick="refresh_list()">Close</button>
         </div>
       </div>
       
@@ -345,7 +375,11 @@
             return false;
          }else{
              $("#partner_err").html('');
-             load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8',partner_id);
+             <?php if(!empty($is_send_to_partner)) { ?>
+                load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8',partner_id);
+             <?php } else { ?>
+                load_view_send_to_partner('service_center/generate_defective_ok_part_challan', '#tabs-12',partner_id);
+             <?php } ?>
          }
          
      });
@@ -391,17 +425,51 @@
     
     function reverse_acknowledged_from_sf(spare_id) {
         if(confirm("Are you sure you want to reverse the parts acknowledged by warehouse?") == true) {
+            $('#loading_image').show();
             $.ajax({
                 method : 'POST',
                 url : '<?php echo base_url(); ?>employee/service_centers/reverse_acknowledged_from_sf',
                 data : {spare_id}
             }).done(function() {
+                $('#loading_image').hide();
                 alert("Part has been reversed successfully.");
-                load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8', $("#partner_id").val());
+                <?php if(!empty($is_send_to_partner)) { ?>
+                   load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8',$("#partner_id").val());
+                <?php } else { ?>
+                   load_view_send_to_partner('service_center/generate_defective_ok_part_challan', '#tabs-12',$("#partner_id").val());
+                <?php } ?>
             }).fail(function() {
                 alert("Some error occured.");
             });
         } 
+    }
+
+    <?php if(!empty($is_send_to_partner)) { ?>
+        function cancel_challan(spare_id) {
+            if(confirm("Are you sure you want to remove the part from the challan?") == true) {
+                $('#loading_image').show();
+                $.ajax({
+                    method : 'POST',
+                    url : '<?php echo base_url(); ?>employee/service_centers/cancel_wh_challan',
+                    data : {spare_id}
+                }).done(function() {
+                    $('#loading_image').hide();
+                    alert("Challan has been cancelled successfully.");
+                    load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8',$("#partner_id").val());
+                }).fail(function() {
+                    alert("Some error occured.");
+                });
+            }
+        }
+    <?php } ?>
+    
+    function refresh_list() {
+        <?php if(!empty($is_send_to_partner)) { ?>
+           load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-8',$("#partner_id").val());
+        <?php } else { ?>
+           $('#myModal22').modal('toggle'); 
+           load_view_send_to_partner('service_center/generate_defective_ok_part_challan', '#tabs-12',$("#partner_id").val());
+        <?php } ?>
     }
 </script>
 <script>
