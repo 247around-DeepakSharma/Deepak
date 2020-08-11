@@ -1188,12 +1188,93 @@ function submitEscalation(){
         $validation = $this->validateKeys(array("entity_type"), $requestData);
         if (!empty($requestData['entity_type'])) { 
             
+                   if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
+                   
+                    $is_pending = 0;
+            
                    $postData = array(
                       //  "escalation_reason_id" => $requestData['escalation_reason_id'],
-                        "call_from_api" => TRUE
+                        "call_from_api" => TRUE,
+                        "status" => $status,
+                        "startDate" => $startDate,
+                        "endDate" => $endDate,
+                        "services" => $service_id,
+                        "request_type" => $request_type,
+                        "partner_id" => $partner_id,
+                        "upcountry" => $upcountry,
+                        "free_paid" => $free_paid,
+                        "state" => $state,
+                        "city" => $city
                     );
+                   
                     //Call curl for updating booking 
-                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00";
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/0/0/".$is_pending;
                     $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, false);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
