@@ -754,6 +754,21 @@ class vendor extends CI_Controller {
     }
 
     /**
+     * @desc: This function is used to fetch state with respect to india pincode
+     * @author Ayush
+     * @param: void
+     * @return : array(result) to view
+     */
+    function get_state_from_pincode() {
+        $post_data = $this->input->post();
+        $data = array();
+        if (!empty($post_data['booking_pincode'])) {
+            $data[] = $this->vendor_model->get_state_from_india_pincode($post_data['booking_pincode']);
+        }
+        echo json_encode($data);
+    }
+    
+    /**
      * @desc: This function is to edit vendor's details
      *
      * Existing details will be be displayed in respective fields(allowed to edit)
