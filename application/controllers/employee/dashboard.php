@@ -2505,6 +2505,17 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $startDate = $dateArray[0];
             $endDate = $dateArray[1];
         }
+        
+        if($this->input->post('call_from_api')){
+            $startDate = $this->input->post('startDate');
+            $endDate = $this->input->post('endDate');
+        }
+        
+        if($this->input->post('call_from_api')){
+            $state = $this->input->post('state');
+            $city = $this->input->post('city');
+        }
+        
         if($this->input->post('status')){
             if(is_array($this->input->post('status'))){
                 $status = implode(":",$this->input->post('status'));
@@ -2537,7 +2548,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray  = $this->get_tat_conditions_by_filter_for_pending($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
         }
         else{
-            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id);
+            $conditionsArray  = $this->get_tat_conditions_by_filter_for_completed($startDate,$endDate,$status,$service_id,$request_type,$free_paid,$upcountry,$partner_id,$state,$city);
         }
         //Get Data Group BY State
        if(!$is_ajax){
