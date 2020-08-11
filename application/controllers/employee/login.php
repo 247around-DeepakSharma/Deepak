@@ -507,12 +507,26 @@ class Login extends CI_Controller {
                     $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent[0]['full_name']);
            
             if ($this->session->userdata('is_sf') === '1' && $this->session->userdata('is_wh') === '0') {
+                // Check, if service center accepted agreement
+                $agreement_data = $this->service_centers_model->is_sc_accepted_agreement($vendor_id);
                 //CRM-6107 validate SF has authorization certificate 
                 if (validate_sf_auth_certificate($sc_details[0]['has_authorization_certificate'], $sc_details[0]['auth_certificate_file_name'], $sc_details[0]['auth_certificate_validate_year']) !== FALSE) {
                     $this->session->set_userdata(array(
                         'has_authorization_certificate' => $sc_details[0]['has_authorization_certificate'],
                         'auth_certificate_file_name' => $sc_details[0]['auth_certificate_file_name']
                     ));
+
+                    // If service center has accepted the agreement , then show menu in sf header "View Agreement"
+                    if(!empty($agreement_data))
+                    {
+                        $agreement_status = $agreement_data[0]['is_accepted'];
+                        $agreement_file = $agreement_data[0]['agreement_file'];
+                        if($agreement_status == 1 && !empty($agreement_file))
+                        {
+                            $this->session->set_userdata(array('agreement_acceptence_file' => $agreement_file));
+                        }
+                    }
+                    
                     echo "service_center/dashboard";
                     return;
                 }
