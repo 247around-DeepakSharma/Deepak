@@ -9270,8 +9270,36 @@ class Service_centers extends CI_Controller {
                     'partner_challan_file' => $to_details[0]['partner_challan_file'],
                     'spare_request_symptom' => $to_details[0]['spare_request_symptom'],
                 );
-                $this->service_centers_model->update_spare_parts(array('id' => $to_spare_id), $to_details_array);
                 
+                /* Get details of spare parts that pening in requested and approval */
+               
+                 $where = array(
+                    "spare_parts_details.part_warranty_status" => SPARE_PART_IN_WARRANTY_STATUS,
+                      "spare_parts_details.booking_id" => $tobooking,
+                    "spare_parts_details.status IN ('" . SPARE_PARTS_REQUESTED . "', '" . SPARE_PART_ON_APPROVAL . "')" => NULL,
+                );
+                 
+                $to_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where);
+                
+                
+                $this->service_centers_model->update_spare_parts(array('id' => $to_spare_id), $to_details_array);
+                $bd_data = array();
+                if (count($to_booking_spare_details) > 1) {
+                    $bd_data['internal_status'] = SPARE_PARTS_REQUESTED;
+                    $bd_data['partner_internal_status'] = 'Spare Parts Requested By Service Centre';
+                    $bd_data['actor'] = _247AROUND_PARTNER_STRING;
+                    $bd_data['next_action'] = 'Send Spare Part';
+                } else {
+                    $bd_data['internal_status'] = SPARE_DELIVERED_TO_SF;
+                    $bd_data['partner_internal_status'] = SPARE_DELIVERED_TO_SF;
+                    $bd_data['actor'] = _247AROUND_SF_STRING;
+                    $bd_data['next_action'] = 'Acknowledge the Received Part';
+                }
+
+                if (!empty($bd_data)) {
+                    $this->booking_model->update_booking($tobooking, $bd_data);
+                }
+
                 /* Insert Spare Tracking Details */
                 if (!empty($to_spare_id)) {
                     $tracking_details = array('spare_id' => $to_spare_id, 'action' => $form_details[0]['status'], 'remarks' => "Spare Part Transfer from " . $frombooking . " to " . $tobooking, 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
@@ -9295,7 +9323,7 @@ class Service_centers extends CI_Controller {
                     $tracking_details = array('spare_id' => $from_spare_id, 'action' => $to_details[0]['status'], 'remarks' =>  "Spare Part Transfer from " . $tobooking . " to " . $frombooking,  'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                     $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
-
+                
                 $this->notify->insert_state_change($tobooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from " . $tobooking . " to " . $frombooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), "", "", NULL, $this->session->userdata('service_center_id'), "", $from_spare_id);
 
                 $sc_data1['current_status'] = _247AROUND_PENDING;
