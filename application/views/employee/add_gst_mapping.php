@@ -257,6 +257,7 @@
         type: 'post'
     });
 }
+    /*get city from user entered pin code and generate city list*/
     function get_city_based_on_pincode() {
     var postData = {};
     var pincode = $("#booking_pincode_for_gst").val();
@@ -286,8 +287,9 @@
         }
     }
 
-    var URLGETSTATEFROMPINCODE ='<?php echo base_url(); ?>employee/booking/get_state_from_pincode/';
+    var URLGETSTATEFROMPINCODE ='<?php echo base_url(); ?>employee/vendor/get_state_from_pincode/';
 
+    /*get state from user entered pin code and generate state list*/
     function get_state_based_on_pincode() {
     var postData = {};
     var pincode = $("#booking_pincode_for_gst").val();

@@ -73,6 +73,7 @@
                                 Send To Partner
                                 <input type="checkbox" id="send_all">
                             </th>
+                            <th class="text-center">Action</th>
                            </tr>
                         </thead>
                         <tbody>
@@ -130,6 +131,9 @@
                                     <td>
                                         
                                         <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0);" class="btn btn-warning" title="Reverse Defective/Ok Part Acknowledged By Warehouse" onclick="reverse_acknowledged_from_sf(<?php echo $row['id']; ?>)">Reverse</a>
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -406,6 +410,21 @@
                 $('#loading_image').hide();
             }
         });
+    }
+    
+    function reverse_acknowledged_from_sf(spare_id) {
+        if(confirm("Are you sure you want to reverse the parts acknowledged by warehouse?") == true) {
+            $.ajax({
+                method : 'POST',
+                url : '<?php echo base_url(); ?>employee/service_centers/reverse_acknowledged_from_sf',
+                data : {spare_id}
+            }).done(function() {
+                alert("Part has been reversed successfully.");
+                load_view_send_to_partner('service_center/send_to_partner_list', '#tabs-5', $("#partner_id_send_to_partner").val());
+            }).fail(function() {
+                alert("Some error occured.");
+            });
+        } 
     }
 </script>
 <script>
