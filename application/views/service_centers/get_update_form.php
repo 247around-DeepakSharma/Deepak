@@ -166,7 +166,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -1422,13 +1422,17 @@ function alpha(e) {
     });
         
     <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
+    <?php if($ask_purchase_date) { ?>
         $("#dop").attr('readonly', 'readonly');
         $("#dop").css("cursor", "not-allowed");
-        $("#dop").css("pointer-events","none");
+        $("#dop").css("pointer-events","none");    
+    <?php } ?>
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
+        <?php if($ask_purchase_date) { ?>
         $("#dop_calendar").attr("onclick", "").unbind("click");
         $("#dop").attr("tabindex",-1);
+        <?php } ?>
      <?php } } ?>
          
     <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>
