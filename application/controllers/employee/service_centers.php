@@ -7704,7 +7704,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
                     . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "','".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.consumed_part_status_id <> 2";
-            $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
+            $where .= " AND spare_parts_details.wh_challan_file is not null AND spare_parts_details.wh_challan_number is not null AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
         } else {
             $data['spare_parts'] = array();
@@ -7715,10 +7715,49 @@ class Service_centers extends CI_Controller {
             "entity_id" => _247AROUND,
         );
         $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
-
+        $data['is_send_to_partner'] = true;
+        $data['is_generate_challan'] = false;
+        
         $this->load->view('service_centers/send_to_partner_on_challan', $data);
     }
 
+    /**
+     * @desc: This method is used to display list of Received Defective Parts by Partner id
+     * @param Integer $offset
+     */
+    function generate_defective_ok_part_challan($offset = 0) {
+        if(!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+            $sf_id = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $sf_id = $this->session->userdata('service_center_id');
+        }
+        $data['sf_id'] = $sf_id;
+        log_message('info', __FUNCTION__ . " SF ID: " . $sf_id);
+
+        if ($this->input->post('partner_id')) {
+            $partner_id = $this->input->post('partner_id');
+            $data['filtered_partner'] = $this->input->post('partner_id');
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "','".Ok_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.consumed_part_status_id <> 2";
+            $where .= " AND spare_parts_details.wh_challan_file is null AND spare_parts_details.wh_challan_number is null AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
+            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+        } else {
+            $data['spare_parts'] = array();
+        }
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+        );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
+        $data['is_generate_challan'] = true;
+        $data['is_send_to_partner'] = false;
+        $this->load->view('service_centers/send_to_partner_on_challan', $data);
+    }
+    
+    
     /**
      * @desc: This method is used to display list of Received Defective Parts by Partner id
      * @param Integer $offset
@@ -9995,6 +10034,15 @@ class Service_centers extends CI_Controller {
         } else {
             $this->notify->insert_state_change($booking_id, $action, $spare_part_detail['status'], 'Wrongly Acknowledged', $this->session->userdata('service_center_agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'), $spare_id);
         }
+        
+        return true;
+    }
+    
+    function cancel_wh_challan() {
+        $post_data = $this->input->post();
+        $spare_id = $post_data['spare_id'];
+
+        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), ['wh_challan_file' => NULL, 'wh_challan_number' => NULL]);
         
         return true;
     }
