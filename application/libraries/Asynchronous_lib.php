@@ -26,7 +26,7 @@ class Asynchronous_lib {
             'verify_peer_name' => false
             ]
         ]);
-        $fp = stream_socket_client(AROUND_CONFIG_SSL.$parts['host'].":". AROUND_CONFIG_PORT, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $context);
+         $fp = stream_socket_client(AROUND_CONFIG_SSL.$parts['host'].":". AROUND_CONFIG_PORT, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $context);
         //$fp = fsockopen(AROUND_CONFIG_SSL . $parts['host'], isset($parts['port']) ? $parts['port'] : AROUND_CONFIG_PORT, $errno, $errstr, 30);
 	if (!$fp) {
 	    echo "Error occured while opening the socket: " . $errno . " Msg: " . $errstr;
