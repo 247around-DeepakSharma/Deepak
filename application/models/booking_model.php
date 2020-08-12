@@ -1502,7 +1502,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
-        $this->db->where('service_center_booking_action.internal_status', "Reschedule");
+        $this->db->where('service_center_booking_action.internal_status IN ("Reschedule", "'.ENGINEER_ON_ROUTE.'", "'.CUSTOMER_NOT_REACHABLE.'", "'.CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER.'") ', NULL);
         if(!empty($where)){
             $this->db->where($where);
         }
