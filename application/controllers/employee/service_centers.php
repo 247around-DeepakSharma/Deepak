@@ -3095,9 +3095,9 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to display whose booking updated by SC.
      */
     function convert_updated_booking_to_pending() {
-        $this->service_centers_model->get_updated_booking_to_convert_pending();
-        // Inserting values in scheduler tasks log
-        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+//        $this->service_centers_model->get_updated_booking_to_convert_pending();
+//        // Inserting values in scheduler tasks log
+//        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
     }
 
     /**
