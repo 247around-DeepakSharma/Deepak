@@ -764,7 +764,7 @@ class Service_centers_model extends CI_Model {
     function get_booking_id_to_convert_pending_for_spare_parts(){
         $sql = "SELECT sp.id, sp.booking_id, scb.service_center_id, b.partner_id FROM `spare_parts_details` as sp, service_center_booking_action as scb, booking_details as b "
                 . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= '".AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF."') "
-                . " AND sp.status = '".SPARE_SHIPPED_BY_PARTNER."' "
+                . " AND sp.status IN ('".SPARE_SHIPPED_BY_PARTNER."', '". SPARE_PARTS_SHIPPED_BY_WAREHOUSE."' ) "
                 . " AND scb.booking_id = sp.booking_id "
                 . " AND sp.booking_id = b.booking_id ";
         $query =  $this->db->query($sql);

@@ -764,6 +764,10 @@ define('FILTER_REPAIR_WITHOUT_PART', "Repair_without_part");
 define('SUCESS_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on your email');
 define('FAILURE_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on your email');
 
+define('FAILURE_MESSAGE_PARTS_CONSUMED_OW','It allows only for Micro Warehouse');
+define('FAILURE_MESSAGE_UNSETTLE_INVENTORY_NOT_EXIST','There is no exist unsettle Micro Warehouse invoice.');
+define('SUCESS_MESSAGE_PARTS_CONSUMED_OW','Updated Sucessfully! Thanks.');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 
