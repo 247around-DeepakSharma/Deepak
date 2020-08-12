@@ -2513,6 +2513,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         if($this->input->post('call_from_api')){
             $state = $this->input->post('state');
             $city = $this->input->post('city');
+        }else{
+          $state = 'not_set';
+          $city = 'not_set';  
         }
         
         if($this->input->post('status')){
