@@ -1417,14 +1417,14 @@ function alpha(e) {
     });
         
     <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
-    <?php if($ask_purchase_date) { ?>
+    <?php if(!$ask_purchase_date) { ?>
         $("#dop").attr('readonly', 'readonly');
         $("#dop").css("cursor", "not-allowed");
         $("#dop").css("pointer-events","none");    
     <?php } ?>
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
-        <?php if($ask_purchase_date) { ?>
+        <?php if(!$ask_purchase_date) { ?>
         $("#dop_calendar").attr("onclick", "").unbind("click");
         $("#dop").attr("tabindex",-1);
         <?php } ?>
