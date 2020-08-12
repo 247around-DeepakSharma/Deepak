@@ -1608,7 +1608,7 @@ class Invoice extends CI_Controller {
                     $debit_invoice_details = array(
                         'invoice_id' => "Around-GST-DN-".$invoice_data['meta']['invoice_id'],
                         "reference_invoice_id" => $invoice_data['meta']['invoice_id'],
-                        'type' => 'DebitNote',
+                        'type' => DEBIT_NOTE,
                         'credit_generated' => 0,
                         'vendor_partner_id' => $vendor_id,
                         'type_code' => 'A',
@@ -3806,7 +3806,7 @@ exit();
             switch ($type_code) {
 
                 case 'A':
-                    if($type == "DebitNote"){
+                    if($type == DEBIT_NOTE){
                         echo $this->create_invoice_id_to_insert("ARD-DN");
                     } else {
                         echo $this->create_invoice_id_to_insert("ARD-9");
@@ -3815,7 +3815,7 @@ exit();
                     break;
 
                 case 'B':
-                    if($type == "CreditNote"){
+                    if($type == CREDIT_NOTE){
                         echo $this->create_invoice_id_to_insert("ARD-CN");
                     }
                     else if ($vendor_partner_type == "vendor") {
@@ -5490,10 +5490,10 @@ exit();
 
             if (!empty($c_gst)) {
 
-                if ($data['type'] == "CreditNote") {
+                if ($data['type'] == CREDIT_NOTE) {
 
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
-                    $type = "Credit Note";
+                    $type = CREDIT_NOTE;
                     $data['type_code'] = "B";
                     $data['vertical'] = SERVICE;
                     $data['category'] = INSTALLATION_AND_REPAIR;
@@ -5502,7 +5502,7 @@ exit();
                 } else {
 
                     $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
-                    $type = "Debit Note";
+                    $type = DEBIT_NOTE;
                     $data['type_code'] = "A";
                     $data['vertical'] = SERVICE;
                     $data['category'] = INSTALLATION_AND_REPAIR;
@@ -5510,8 +5510,8 @@ exit();
                     $data['accounting'] = 1;
                 }
                 
-                $from_gst_number = (($data['type'] == "CreditNote") ? '': $gst_number);
-                $to_gst_number = (($data['type'] == "CreditNote") ? $gst_number: '');
+                $from_gst_number = (($data['type'] == CREDIT_NOTE) ? '': $gst_number);
+                $to_gst_number = (($data['type'] == CREDIT_NOTE) ? $gst_number: '');
 
                 $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $gst_number));
                 $main_company_state = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
@@ -5573,7 +5573,7 @@ exit();
                         $data['due_date'] = date("Y-m-d", strtotime($ed));
                         $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
                         $data['invoice_date'] = date("Y-m-d");
-                        if ($data['type'] == "CreditNote") {
+                        if ($data['type'] == CREDIT_NOTE) {
                             $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
                         } else {
                             $data['amount_collected_paid'] = $response['meta']['sub_total_amount'];
@@ -5725,7 +5725,7 @@ exit();
                 $credit_invoice_details = array(
                     'invoice_id' => "Around-GST-CN-" . $invoice_id,
                     "reference_invoice_id" => $invoice_details[0]['reference_invoice_id'],
-                    'type' => 'CreditNote',
+                    'type' => CREDIT_NOTE,
                     'vendor_partner_id' => $invoice_details[0]['vendor_partner_id'],
                     'type_code' => 'B',
                     'vendor_partner' => $invoice_details[0]['vendor_partner'],
@@ -6029,7 +6029,7 @@ exit();
                                 $tds['tds'] = 0;
                                 $tds['tds_rate'] = 0;
                             }
-                        } else if ($main['type'] == 'CreditNote' || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts" || $main['type'] == "Liquidation") {
+                        } else if ($main['type'] == CREDIT_NOTE || $main['type'] == 'Buyback' || $main['type'] == 'Stand' || $main['type'] == "Parts" || $main['type'] == "Liquidation") {
 
                             $tds['tds'] = 0;
                             $tds['tds_rate'] = 0;

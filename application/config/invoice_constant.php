@@ -126,7 +126,7 @@ define('NEGATIVE_FOC_MAIL_PERIOD', 30);
 define('ANNUAL_CHARGES', 'Annual Charges');
 //invoice dashboard array, values of constant array -> first field is value, second filed means we have to show row values in invoice table for that or leave that row blank
 //1 means show row data, 0 means leave row blank. Third parameter in the array represents whether we want to highlight that cell or not
-define("INVOICE_DASHBOARD_SERVICE", array(array("All Sales Are Without GST", 1, 1), array("Service Revenues", 0, 1), array("OEM / Brands", 1, 2), array("No. Of Billed Calls", 1, 0), array("Average Billing Per Call", 1, 0)
+define("INVOICE_DASHBOARD_SERVICE", array(array("All Sales Nos. Are Without GST", 1, 1), array("Service Revenues", 0, 1), array("OEM / Brands", 1, 2), array("No. Of Billed Calls", 1, 0), array("Average Billing Per Call", 1, 0)
                                   , array("", 0, 0), array("OOW / SFs (Through Customers)", 1, 2), array("No. Of Billed Calls", 1, 0)
                                   , array("% Of Out Of Warranty Calls For Billed In Warranty", 1, 0), array("Average Billing Per Call", 1, 0)
                                   , array("", 0, 0), array("Total Calls", 1, 2),  array("Total Services Revenues", 1, 2)

@@ -202,8 +202,8 @@
                             <div class="form-group col-md-12  ">
                                 <label for="Invoice type">Select Type *</label>
                                 <select name="invoice_type" id="invoice_type" class="form-control">
-                                    <option value="CreditNote">Credit Note</option>
-                                    <option value="DebitNote">Debit Note</option>
+                                    <option value="<?php echo CREDIT_NOTE; ?>"><?php echo CREDIT_NOTE;?></option>
+                                    <option value="<?php echo DEBIT_NOTE; ?>"><?php echo DEBIT_NOTE;?></option>
                                 </select>
                             </div>
                         </div>
