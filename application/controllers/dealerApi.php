@@ -1298,15 +1298,15 @@ function submitEscalation(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
-                     $return['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0)  ;
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1)  ;
-                     $return['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2)  ;
-                     $return['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per)  ;
                      //$return['D1'][]['state'][]  = $value->TAT_1  ;
                     }
                     }
-                    $this->jsonResponseString['response'] = $return;
+                    $this->jsonResponseString['response'] = $return_data;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
                
         } else {
