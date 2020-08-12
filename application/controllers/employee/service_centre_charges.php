@@ -1411,7 +1411,7 @@ class service_centre_charges extends CI_Controller {
         $this->form_validation->set_rules('validate_approval_misc_charges_file', 'Approval File', 'callback_validate_approval_misc_charges_file');
         $this->form_validation->set_rules('validate_purchase_invoice_file', 'Purchase Invoice File', 'callback_validate_purchase_invoice_file');
         if ($this->form_validation->run() == TRUE) {
-         
+         //if (1==1) {
             $booking_id = $this->input->post('booking_id');
             $booking_details = $this->booking_model->get_bookings_count_by_any("assigned_vendor_id", array('booking_id' => $booking_id));
             
@@ -1480,11 +1480,28 @@ class service_centre_charges extends CI_Controller {
                             //fetch rm email from corresponding sf
                              $rm_details =  $this->vendor_model->get_rm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
                             $rm_email=(!empty($rm_details[0]['official_email']) ? $rm_details[0]['official_email'] : "");  
-                            //if we have rm_email id then mail is sent to email_template[3] and rm_email in cc otherwise the mail is sent to email_template[3] in cc.
-                            if(!empty($rm_email)){
-                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: $rm_email); }
-                            else{
-                                $cc= (!empty($email_template[3]) ? $email_template[3] : ""); } 
+                            $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                            $asm_email = $asm_details[0]['official_email'];
+                            //if we have rm_email and asm_email both then mail is sent to email_template[3] and rm_email and asm_email, If we have asm_email then mail is sent to email_template[3] and asm_email in cc otherwise the mail is sent to email_template[3] in cc.
+                            if(!empty($rm_email))
+                            {
+                                if(!empty($asm_email))
+                                    $rm_email = $rm_email.",".$asm_email;
+                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: $rm_email); 
+
+                            }
+                            else
+                            {
+                                if(!empty($asm_email))
+                                {
+                                    $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$asm_email: $asm_email); 
+
+                                }
+                                else
+                                {
+                                    $cc= (!empty($email_template[3]) ? $email_template[3] : ""); 
+                                }
+                            }
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
