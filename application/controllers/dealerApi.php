@@ -1131,17 +1131,15 @@ function submitEscalation(){
                   $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
                   $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
                   
-                  $partner = array();
                   $all_option = array('id'=>'All','public_name'=>'All');
                   $partners = $this->partner_model->getpartner();
                   array_unshift($partners,$all_option);
-                  $response['partners'] = $partner;
+                  $response['partners'] = $partners;
                   
                   $serviceWhere['isBookingActive'] =1;
                   
-                  $services = array();
                   $all_option_service = array('id'=>'All','public_name'=>'All');
-                  $partners = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                   array_unshift($services,$all_option_service);
                   $response['services'] = $services;
                 //  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
@@ -1254,6 +1252,18 @@ function submitEscalation(){
                         $city = "not_set";
                     }else{
                         $city = "not_set"; 
+                    }
+                    
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
                     }
                     
                    
