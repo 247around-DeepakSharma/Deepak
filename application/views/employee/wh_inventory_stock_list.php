@@ -72,15 +72,16 @@
                     <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> 
                         <span class="pull-right">
                             <div class="dropdown">
-                                <button class="dropbtn">Select To Send Spare</button>
+                                <button class="dropbtn">MSL Return / Consume Non Return MSL <i class="fa fa-caret-down"></i></button>
                                 <div class="dropdown-content">
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return new Parts (0)</a>
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Micro Warehouse Stock OOW(0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return New Parts (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('3')" id="soldItem" class="action-ban">Consumed Parts Without Booking (0)</a>
                                 </div>
                             </div>                         
                         </span>
                         <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
-                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
+                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Central Warehouse Stock"></span>
                     </h3>
                     <hr>
                     <div class="clearfix"></div>
@@ -132,7 +133,7 @@
                                     <th>Total Price</th>
                                     <th>  Customer  Total</th>
                                     <?php if($this->session->userdata('userType') == "employee") { ?>
-                                        <th>Return Qty</th>
+                                        <th>Added Qty</th>
                                         <th>Add</th>
                                     <?php } ?>
                                     <!--  <th> Qty </th>
@@ -356,7 +357,7 @@
                         </table>
                 </div>
                   <div class="modal-footer">
-                      <button type="button" class="btn btn-success" id="submit_mwh_courier_form" onclick="check_settle_sell_parts()" >Submit</button>
+                      <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Submit</button>
                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   </div>
               </div>
@@ -371,14 +372,11 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">Micro Warehouse Sell Parts</h4>
+                  <h4 class="modal-title" id="mwh_action_title"></h4>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" id="courier_model_form_data" action="javascript:void(0)" method="post" novalidate="novalidate">
+                    <form class="form-horizontal" id="consumed_ow_form" action="javascript:void(0)" method="post" novalidate="novalidate">
                     </form>
-                    <div class="text-center">
-                            <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
-                    </div>
                     <br/>
                   <table id="sell_mwh_parts_data" class="table table-bordered table-responsive">
                             <thead>
@@ -400,7 +398,7 @@
                         </table>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-success" id="submit_mwh_courier_form" onclick="settle_sell_parts()" >Submit</button>
+                  <button type="button" class="btn btn-success" id="submit_mwh_consumed_form" onclick="mwh_consumed_ow()" >Remove Stock</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
               </div>
