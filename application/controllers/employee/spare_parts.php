@@ -4346,7 +4346,12 @@ class Spare_parts extends CI_Controller {
                 'entity_id' => $this->input->post('partner'),
                 'state' => $this->input->post('state'),
                 'gst_file' => $gst_file,
-                'gst_number' => $this->input->post('gst_number')
+                'gst_number' => $this->input->post('gst_number'),
+                'pincode' => $this->input->post('booking_pincode'),
+                'city' => $this->input->post('city'),
+                'contact_number' => $this->input->post('mobile_no'),
+                'email_id' => $this->input->post('email_id'),
+                'address' => $this->input->post('address')
             );
 
             $last_id = $this->inventory_model->insert_entity_gst_data($data);

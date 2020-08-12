@@ -127,20 +127,33 @@
         </div>
     </div>-->
     <div class="col-md-12">
-        <div class="modal-header">
+        <div class="modal-header col-md-6">
             <h4 class="modal-title">CRM Training and Invoice Queries<br/>Helpline Number:</h4>
         </div>
+        <div class="modal-header col-md-6">
+            <h4 class="modal-title">Spare Approval<br/>Helpline:</h4>
+        </div> 
         <div class="modal-body">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="card">
-                        <div class="card" style="padding: 10px 10px;">
+                        <div class="card" style="padding: 10px 10px; height:110px;">
                             <p>‭<i class="fa fa-phone"></i> +91 7428532447</p>
                             <p>‭<i class="fa fa-phone"></i> +91 9650702247</p>
                         </div>
                     </div>
                 </div>
+                 <div class="col-md-6">
+                    <div class="card">
+                        <div class="card" style="padding: 10px 10px; height:110px;">
+                            <p>‭<i class="fa fa-envelope"></i> spare-approval@247around.com</p>
+                            <br>
+                            <p style="font-size: 85%;">‭ for sending
+                                        video in panel replacement and gas charging cases</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>        
+        </div>
     </div>
 </div>

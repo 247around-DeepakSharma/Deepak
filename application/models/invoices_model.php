@@ -1568,7 +1568,7 @@ class invoices_model extends CI_Model {
 
         $sql1 = "SELECT  booking_unit_details.id AS unit_id, `booking_details`.booking_id, 
                     `booking_details`.city, `booking_details`.internal_status,
-		     date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
+		     date_format(`booking_unit_details`.`ud_closed_date`,'%d-%b-%Y') as closed_date,
                      `booking_unit_details`.ud_closed_date as closed_booking_date, 
                       rating_stars, `booking_unit_details`.price_tags,
 		     `booking_unit_details`.appliance_category, 
@@ -2044,7 +2044,7 @@ class invoices_model extends CI_Model {
             $sql = "SELECT booking_unit_details.id AS unit_id, "
                     . "`booking_details`.booking_id, "
                     . "`booking_details`.city,"
-                    . " date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date,"
+                    . " date_format(`booking_unit_details`.`ud_closed_date`,'%d-%b-%Y') as closed_date,"
                     . "`booking_unit_details`.ud_closed_date as closed_booking_date, "
                     . " `booking_unit_details`.price_tags, "
                     . "`booking_unit_details`.appliance_category,"
@@ -3332,7 +3332,7 @@ class invoices_model extends CI_Model {
      * @param String - $select, Array - $where, $join - boolean
      * @return Array
     */
-    function get_variable_charge($select, $where=array(), $join=null){
+    function get_variable_charge($select, $where=array(), $join=null, $join_variable_charges=null){
         $this->db->select($select);
         if(!empty($where)){
           $this->db->where($where);  
@@ -3340,6 +3340,9 @@ class invoices_model extends CI_Model {
         if(!empty($join)){
             $this->db->join('service_centres', 'service_centres.id = vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "vendor" ', "LEFT");
             $this->db->join('partners', 'partners.id =  vendor_partner_variable_charges.entity_id AND vendor_partner_variable_charges.entity_type = "partner" ', "LEFT");
+        }
+        if(!empty($join_variable_charges)){
+            $this->db->join('variable_charges_type', 'variable_charges_type.id =  vendor_partner_variable_charges.charges_type');
         }
         $query = $this->db->get('vendor_partner_variable_charges');
         return $query->result_array();

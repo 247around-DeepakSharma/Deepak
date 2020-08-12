@@ -166,7 +166,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -202,8 +202,22 @@
                                     <div class="form-group">
                                         <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
-                                        </div>
+                                            <?php 
+                                                $invoice_file = '';
+                                                if(!empty($bookinghistory['spare_parts'])) {
+                                                    foreach($bookinghistory['spare_parts'] as $spares) {
+                                                        if(!empty($spares['invoice_pic']) && $spares['status'] != _247AROUND_CANCELLED) {
+                                                            $invoice_file = $spares['invoice_pic'];
+                                                            break;
+                                                        }
+                                                    }
+                                                } 
+                                            ?>
+                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image" <?php if(!empty($invoice_file)) { echo 'style="cursor: not-allowed; pointer-events: none;background-color:#eee;"'; } ?>>
+                                            <?php if(!empty($invoice_file)) { ?>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $invoice_file; ?> " target="_blank">Click Here to view Invoice Picture</a>
+                                            <?php } ?>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -222,7 +236,7 @@
                                         <div class="form-group ">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status  <?php echo $bookinghistory[0]['request_type'];  ?></label>                                             
                                             <div class="col-md-6">
-        <input type="text" id="part_warranty_status_0"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
+        <input type="text" id="part_warranty_status_0"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]" class="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == false || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==false ){echo 'part_in_warranty_status';} ?>">  
                                             </div>
                                         </div>
                                     </div>
@@ -1045,8 +1059,8 @@ function alpha(e) {
                     }
                 }
             });
-    
-        var invoice_pic = $("#invoice_pic").val();    
+        <?php if(empty($invoice_file)) { ?>
+            var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "part_in_warranty_status"){
@@ -1057,12 +1071,12 @@ function alpha(e) {
                     }else if($(this).val() == 1 &&(invoice_pic =='' || invoice_pic == null)){
                         alert('Please Upload Invoice Picture.');    
                         checkbox_value = 0;
+                        return false;
                     }
                 }
             });
-            
-            <?php } ?>
-            
+           
+        <?php } } ?>
             /*$('.spare_request_symptom').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "spare_request_symptom"){
@@ -1403,13 +1417,17 @@ function alpha(e) {
     });
         
     <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
+    <?php if(!$ask_purchase_date) { ?>
         $("#dop").attr('readonly', 'readonly');
         $("#dop").css("cursor", "not-allowed");
-        $("#dop").css("pointer-events","none");
+        $("#dop").css("pointer-events","none");    
+    <?php } ?>
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
+        <?php if(!$ask_purchase_date) { ?>
         $("#dop_calendar").attr("onclick", "").unbind("click");
         $("#dop").attr("tabindex",-1);
+        <?php } ?>
      <?php } } ?>
          
     <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>
