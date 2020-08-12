@@ -4723,10 +4723,10 @@ class Partner extends CI_Controller {
      * This function load the view for bracket allocation
      */
 
-    function bracket_allocation() {
+    /*function bracket_allocation() {
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bracket_allocation');
-    }
+    }*/
 
     /*
      * This function return data to show bracket allocation table view 
