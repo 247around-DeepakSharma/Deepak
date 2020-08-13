@@ -764,7 +764,7 @@ function  getHomeDashboard(){
                     if($curl_response==null || empty($curl_response)){
                     $curl_response['state_city'] = $state_with_cities;
                     $this->jsonResponseString['response'] = $curl_response;
-                    $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
+                    $this->sendJsonResponse(array('0000', "Details not found")); // send success response //  
                     }else{
                      $curl_response->state_city = $state_with_cities;
                      $this->jsonResponseString['response'] = $curl_response;
@@ -1138,7 +1138,7 @@ function submitEscalation(){
                   
                   $serviceWhere['isBookingActive'] =1;
                   
-                  $all_option_service = array('id'=>'All','public_name'=>'All');
+                  $all_option_service = array('id'=>'All','services'=>'All');
                   $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                   array_unshift($services,$all_option_service);
                   $response['services'] = $services;
