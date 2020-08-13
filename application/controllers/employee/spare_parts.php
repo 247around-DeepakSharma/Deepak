@@ -5088,6 +5088,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
     }
 
+    /**
      *  @desc : This function is used to upload the rto to s3.
      * @param type $booking_id
      * @param type $tmp_name
