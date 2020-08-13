@@ -267,6 +267,8 @@ class invoices_model extends CI_Model {
         foreach ($data as $key => $value) {
 
             $result = $this->get_summary_invoice_amount($vendor_partner, $value['id'], $due_date_status);
+            
+            
            
             $data[$key]['vendor_partner'] = $vendor_partner;
             $data[$key]['final_amount'] = $result[0]['final_amount'];
@@ -300,7 +302,7 @@ class invoices_model extends CI_Model {
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
-                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
+                $s = " SUM( CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END ) as amount_collected_paid ";
                 $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
