@@ -1530,6 +1530,9 @@ class Service_centers extends CI_Controller {
                 }
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
+            // Update booking dependency from vendor to Admin
+            $booking['actor'] = '247Around';
+            $this->booking_model->update_booking($booking_id, $booking);
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
             if (!$this->input->post("call_from_api")) {
@@ -3097,9 +3100,9 @@ class Service_centers extends CI_Controller {
      * @desc: This method is used to display whose booking updated by SC.
      */
     function convert_updated_booking_to_pending() {
-        $this->service_centers_model->get_updated_booking_to_convert_pending();
-        // Inserting values in scheduler tasks log
-        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+//        $this->service_centers_model->get_updated_booking_to_convert_pending();
+//        // Inserting values in scheduler tasks log
+//        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
     }
 
     /**
@@ -9210,18 +9213,16 @@ class Service_centers extends CI_Controller {
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
-            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
-            if(!empty($from_details))
-            {
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
+            if (!empty($from_details)) {
                 $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             }
-            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-            if(!empty($to_details))
-            {
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
+            if (!empty($to_details)) {
                 $toinventory_req_id = $to_details[0]['requested_inventory_id'];
             }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
-                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
+                $this->session->set_flashdata('error_msg', "Spare transfer for this is not allowed. Either out warranty parts involved in the bookings or no part is requested in any of two bookings.");
                 if ($this->session->userdata('userType') == 'employee') {
                     $this->miscelleneous->load_nav_header();
                     redirect(base_url() . 'service_center/delivered_spare_transfer');
@@ -9286,8 +9287,8 @@ function do_delivered_spare_transfer() {
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to) || ($tobooking == $frombooking)) {   //// DO not transfer in between same booking spares ///
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
-            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $from_spare_id),true);
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $to_spare_id),true);
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {

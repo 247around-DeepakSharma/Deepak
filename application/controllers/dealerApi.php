@@ -764,15 +764,15 @@ function  getHomeDashboard(){
                     if($curl_response==null || empty($curl_response)){
                     $curl_response['state_city'] = $state_with_cities;
                     $this->jsonResponseString['response'] = $curl_response;
-                    $this->sendJsonResponse(array('1020', "Details not found")); // send success response //  
+                    $this->sendJsonResponse(array('0000', "Details not found")); // send success response //  
                     }else{
                      $curl_response->state_city = $state_with_cities;
                      $this->jsonResponseString['response'] = $curl_response;
                      $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                     }
               //  
-                $this->jsonResponseString['response'] = $curl_response;
-                $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+              //  $this->jsonResponseString['response'] = $curl_response;
+              //  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
@@ -1131,17 +1131,15 @@ function submitEscalation(){
                   $response['is_upcountry'] = array('not_set'=>'All','Yes'=>'Yes','No'=>'No');
                   $response['booking_status'] = array('not_set'=>'All','Completed'=>'Completed','Cancelled'=>'Cancelled');
                   
-                  $partner = array();
                   $all_option = array('id'=>'All','public_name'=>'All');
                   $partners = $this->partner_model->getpartner();
                   array_unshift($partners,$all_option);
-                  $response['partners'] = $partner;
+                  $response['partners'] = $partners;
                   
                   $serviceWhere['isBookingActive'] =1;
                   
-                  $services = array();
-                  $all_option_service = array('id'=>'All','public_name'=>'All');
-                  $partners = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+                  $all_option_service = array('id'=>'All','services'=>'All');
+                  $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                   array_unshift($services,$all_option_service);
                   $response['services'] = $services;
                 //  $response['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
@@ -1256,6 +1254,18 @@ function submitEscalation(){
                         $city = "not_set"; 
                     }
                     
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
+                    }
+                    
                    
                     $is_pending = 0;
             
@@ -1288,15 +1298,15 @@ function submitEscalation(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
-                     $return['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0)  ;
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1)  ;
-                     $return['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2)  ;
-                     $return['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per)  ;
                      //$return['D1'][]['state'][]  = $value->TAT_1  ;
                     }
                     }
-                    $this->jsonResponseString['response'] = $return;
+                    $this->jsonResponseString['response'] = $return_data;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
                
         } else {
