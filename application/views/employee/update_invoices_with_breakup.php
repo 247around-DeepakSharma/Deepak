@@ -60,12 +60,12 @@
                                             <option  value="Cash" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "Cash"){ echo "selected";}
                                                 } ?>>Cash</option>
-                                            <option value="DebitNote" <?php if (isset($invoice_details[0]['type'])) {
-                                                if($invoice_details[0]['type'] == "DebitNote"){ echo "selected";}
-                                                } ?>>DebitNote</option>
-                                            <option value="CreditNote" <?php if (isset($invoice_details[0]['type'])) {
-                                                if($invoice_details[0]['type'] == "CreditNote"){ echo "selected";}
-                                                } ?>>CreditNote</option>
+                                            <option value="<?php echo DEBIT_NOTE; ?>" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == DEBIT_NOTE){ echo "selected";}
+                                                } ?>><?php echo DEBIT_NOTE;?></option>
+                                            <option value="<?php echo CREDIT_NOTE; ?>" <?php if (isset($invoice_details[0]['type'])) {
+                                                if($invoice_details[0]['type'] == CREDIT_NOTE){ echo "selected";}
+                                                } ?>><?php echo CREDIT_NOTE;?></option>
                                             <option value="FOC" <?php if (isset($invoice_details[0]['type'])) {
                                                 if($invoice_details[0]['type'] == "FOC"){ echo "selected";}
                                                 } ?>>FOC</option>
