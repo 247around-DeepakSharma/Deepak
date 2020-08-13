@@ -4963,7 +4963,7 @@ class Spare_parts extends CI_Controller {
 
     function download_total_spare_shipped_part_sf_data() {
         log_message('info', __METHOD__ . ' Processing...');
-        ini_set('memory_limit', '256M');
+        ini_set('memory_limit', -1);
         $download_flag = $this->input->post('download_flag');
 
         $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
