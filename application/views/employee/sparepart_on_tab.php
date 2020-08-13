@@ -30,7 +30,9 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == 'employee'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
+                                    <?php } ?>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
 
                                 </tr>
@@ -112,7 +114,9 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == 'employee'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
+                                    <?php } ?>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 
                                 </tr>
