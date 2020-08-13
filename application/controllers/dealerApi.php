@@ -771,8 +771,8 @@ function  getHomeDashboard(){
                      $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                     }
               //  
-                $this->jsonResponseString['response'] = $curl_response;
-                $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+              //  $this->jsonResponseString['response'] = $curl_response;
+              //  $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
