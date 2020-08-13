@@ -1442,6 +1442,10 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
             // update booking.
             $booking['service_center_closed_date'] = $data["closed_date"];
+            /* Update Upcounty amount if available */
+            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
+                $booking['customer_paid_upcountry_charges']  = $requestData['upcountry_charges']; 
+            }
             $this->booking_model->update_booking($booking_id, $booking);
 
             if (isset($requestData['sc_agent_id'])) {
