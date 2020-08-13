@@ -2706,7 +2706,11 @@ class Inventory extends CI_Controller {
             }
 
         }
-
+        
+        $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
+        $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
+        $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
+        
         if(!empty($stock_list->is_defective_required)) {
             $row[] = 'Yes';
         } else {
