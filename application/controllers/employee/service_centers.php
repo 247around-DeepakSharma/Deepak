@@ -1530,9 +1530,6 @@ class Service_centers extends CI_Controller {
                 }
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
-            // Update booking dependency from vendor to Admin
-            $booking['actor'] = '247Around';
-            $this->booking_model->update_booking($booking_id, $booking);
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
             if (!$this->input->post("call_from_api")) {
