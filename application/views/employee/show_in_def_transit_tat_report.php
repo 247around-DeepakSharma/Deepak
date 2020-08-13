@@ -9,7 +9,7 @@
 <br><br>
 <div id="page-wrapper" >
     <div>
-        <h3> In Defective Transit TAT Report (OOT) </h3>
+        <h3> Defective In Transit TAT Report (OOT) </h3>
         <hr>
         <div class="stocks_table">
             

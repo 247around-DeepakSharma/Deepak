@@ -87,14 +87,14 @@
 ?>
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading"><center>Add Inventory Part Type</center></div>
+        <div class="panel-heading">Add Inventory Part Type</div>
         <div class="panel-body">
 
             <table class="table">
                 <thead>
                     <tr>                 
                         <th>Appliances *</th>                       
-                        <th>Inventory Part Type *</th>   
+                        <th>Part Type *</th>   
                         <th>HSN Code *</th>
                     </tr>
                 </thead>
@@ -146,7 +146,7 @@
             </table>           
             </form> 
                 <br>
-                <h4><strong>Inventory Part Type  List</strong></h4>
+                <h4><strong>Part Type  List</strong></h4>
         </div>
         
    <table class="table priceList table-striped table-bordered" id="inventory_part_type_table">
@@ -188,7 +188,7 @@
       <div class="modal-content">
         <div class="modal-header" style="padding:35px 50px;">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4>Edit Inventory Part Details</h4>
+          <h4>Edit Part Details</h4>
           <span id="update_status" style="font-size: 16px; font-weight: bold;"></span>
         </div>
         <div class="modal-body" style="padding:40px 50px;">
@@ -201,7 +201,7 @@
               <span id="service_modal_err"></span>
             </div>
             <div class="form-group">
-              <label for="psw"></span> Inventory Part Type</label>
+              <label for="psw"></span> Part Type</label>
               <input typt='text' name="part_type" id = "part_type_modal" class = "form-control" placeholder="Please Enter Part Type" style="text-transform: capitalize;"  required=""/>
               <span id="part_type_modal_err"></span>
             </div>

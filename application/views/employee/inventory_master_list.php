@@ -85,7 +85,7 @@
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Inventory Master List</h3>
+                    <h3>Part Master List</h3>
                 </div>
                 <div class="col-md-6">
                 <?php if(empty($entity_id)){?>
@@ -141,13 +141,14 @@
                         <th>Description</th>
                         <th>Size</th>
                         <th>HSN</th>
-                        <th>Basic Price</th>
+                        <th>247 Buying Price</th>
                         <th>GST Rate</th>
                         <th>Total Price</th>
                         <th>Vendor Margin</th>
                         <?php if(!$saas_module){ ?>
                         <th>Around Margin</th>
                         <?php } ?>
+                        <th>SF Buying Price</th>
                         <th>Is Defective/Ok<br>Part Required</th>
                         <th>Customer Price</th>
                         <th>Edit</th>
@@ -260,7 +261,7 @@
                         <div class="row">
                              <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4" for="price">Price*</label>
+                                    <label class="control-label col-md-4" for="price">247 Buying Price*</label>
                                     <div class="col-md-7 col-md-offset-1">
                                         <input type="text" class="form-control allowNumericWithDecimal" id="price" name="price">
                                     </div>
@@ -415,7 +416,7 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13,14]
                     },
                     title: 'inventory_master_list_'+time,
                     action: newExportAction
