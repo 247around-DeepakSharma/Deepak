@@ -2052,11 +2052,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
-            if($status !="not_set"){
+            if($state !="not_set"){
                 $conditionArray['where']['booking_details.state'] = $state;
             }
             
-            if($status !="not_set"){
+            if($city !="not_set"){
                 $conditionArray['where']['booking_details.district'] = $city;
             }
             // Filter for excluding NRN Bookings 
