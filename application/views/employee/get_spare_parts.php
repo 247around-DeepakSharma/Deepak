@@ -51,24 +51,28 @@
                 ?>
                
                
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="pull-left"><h2 class="panel-title">Consolidated Report</h2> </div> 
-                </div>
-                <div class="col-md-4">
-                    <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
-                    <p id="partner_err"></p>
-                </div>    
-                <div class="col-md-4">
-                    <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
-                    <p id="service_centers_id_err"></p>
-                </div> 
-                <div class="col-md-2">
-                    <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="pull-right"><h2 class="panel-title">Consolidated Report</h2> </div> 
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
+                        <p id="partner_err"></p>
+                    </div>    
+                    <div class="col-md-3">
+                        <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
+                        <p id="service_centers_id_err"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" name="spare_part_status"  id="spare_part_status" required=""></select>
+                        <p id="service_centers_id_err"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+                    </div>
                 </div>
             </div>
-        </div>
             <br><br>         
        <div class="col-md-12">
            <div class="panel panel-default">               
@@ -168,6 +172,7 @@
         spare_booking_on_tab();
         get_partner_list();
         get_service_centers_list();
+        get_spare_parts_status_list();
     });
     
     function spare_booking_on_tab(){
@@ -384,6 +389,7 @@
       $('#download_spare_list').click(function(){
         var partner_id = $("#partner_id").val();
         var service_center_id = $("#service_centers_id").val();
+        var spare_part_status = $("#spare_part_status").val();
         if(partner_id!=null && partner_id!='' || service_center_id !=null && service_center_id !=''){
             
             $("#partner_err").html('');
@@ -393,7 +399,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/download_spare_consolidated_data',
-                data: { partner_id : partner_id, service_center_id : service_center_id },
+                data: { partner_id : partner_id, service_center_id : service_center_id, spare_part_status:spare_part_status },
                 success: function (data) {
                     $('#download_spare_list').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
@@ -537,6 +543,17 @@
     }
     
     
+    function get_spare_parts_status_list(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/spare_parts/get_spare_parts_status',
+            data:{ is_active : 1 },
+            success: function (response) {
+                $("#spare_part_status").html(response);                
+            }
+        });
+    }
+    
     $('#partner_id').select2({
         placeholder:'Select Partner'
     });
@@ -545,9 +562,10 @@
         placeholder:'Select Service Center'
     });
     
-    $("#service_centers_id").on("change",function(){
-    
+    $('#spare_part_status').select2({
+        placeholder:'Select Spare Parts Status'
     });
+   
 </script>
 <?php 
     if ($this->session->userdata('error')) {
