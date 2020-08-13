@@ -5041,55 +5041,53 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
      * @return : Download link
      */
 
-    function download_total_spare_shipped_part_sf_data() {
-                log_message('info', __METHOD__ . ' Processing...');
-                ini_set('memory_limit', '256M');
-                $download_flag = $this->input->post('download_flag');
+      function download_total_spare_shipped_part_sf_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+        ini_set('memory_limit', -1);
+        $download_flag = $this->input->post('download_flag');
 
-                $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
-                        . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status',  booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number', spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
-                        . "spare_parts_details.model_number_shipped as 'Shipped Model Number', spare_parts_details.parts_shipped as 'Shipped Part', spare_parts_details.shipped_parts_type as 'Shipped Parts Type', i.part_number as 'Shipped Part Number', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date',"
-                        . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age',"
-                        . "challan_approx_value As 'Parts Charge', spare_parts_details.awb_by_partner as 'AWB By Partner', spare_parts_details.awb_by_sf as 'AWB By SF', spare_parts_details.awb_by_wh as 'AWB By WH',"
-                        . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status',  booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number', spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+                . "spare_parts_details.model_number_shipped as 'Shipped Model Number', spare_parts_details.parts_shipped as 'Shipped Part', spare_parts_details.shipped_parts_type as 'Shipped Parts Type', i.part_number as 'Shipped Part Number', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date',"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age',"
+                . "challan_approx_value As 'Parts Charge', spare_parts_details.awb_by_partner as 'AWB By Partner', spare_parts_details.awb_by_sf as 'AWB By SF', spare_parts_details.awb_by_wh as 'AWB By WH',"
+                . "(CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
 
-                $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
-                $post['where']['status NOT IN  ("' . _247AROUND_CANCELLED . '")'] = NULL;
-                $post['group_by'] = "spare_parts_details.id";
+        $post['where']['spare_parts_details.shipped_date IS NOT NULL'] = NULL;
+        $post['where']['status NOT IN  ("' . _247AROUND_CANCELLED . '")'] = NULL;
+        $post['group_by'] = "spare_parts_details.id";
 
-                if (!empty($download_flag)) {
-                    $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
+        if (!empty($download_flag)) {
+            $spare_details = $this->inventory_model->download_oot_pending_defective_part($post);
 
+            if ($spare_details) {
 
-                    if ($spare_details) {
+                $this->load->dbutil();
+                $this->load->helper('file');
 
-                        $this->load->dbutil();
-                        $this->load->helper('file');
+                $file_name = 'spare_part_shipped_to_sf_data_' . date('j-M-Y-H-i-s') . ".csv";
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+                write_file(TMP_FOLDER . $file_name, $new_report);
 
-                        $file_name = 'spare_part_shipped_to_sf_data_' . date('j-M-Y-H-i-s') . ".csv";
-                        $delimiter = ",";
-                        $newline = "\r\n";
-                        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
-                        write_file(TMP_FOLDER . $file_name, $new_report);
-
-                        if (file_exists(TMP_FOLDER . $file_name)) {
-                            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
-                            $res1 = 0;
-                            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
-                            $res['status'] = true;
-                            $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
-                        } else {
-                            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
-                            $res['status'] = FALSE;
-                            $res['msg'] = 'error in generating file';
-                        }
-
-                        echo json_encode($res);
-                    }
+                if (file_exists(TMP_FOLDER . $file_name)) {
+                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                    $res['status'] = true;
+                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                } else {
+                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                    $res['status'] = FALSE;
+                    $res['msg'] = 'error in generating file';
                 }
-            }
 
-     /**
+                echo json_encode($res);
+            }
+        }
+    }
+
      *  @desc : This function is used to upload the rto to s3.
      * @param type $booking_id
      * @param type $tmp_name
