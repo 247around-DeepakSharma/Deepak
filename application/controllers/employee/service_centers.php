@@ -9210,18 +9210,16 @@ class Service_centers extends CI_Controller {
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
-            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF));
-            if(!empty($from_details))
-            {
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' => SPARE_DELIVERED_TO_SF, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
+            if (!empty($from_details)) {
                 $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             }
-            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
-            if(!empty($to_details))
-            {
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED, 'part_warranty_status' => SPARE_PART_IN_WARRANTY_STATUS));
+            if (!empty($to_details)) {
                 $toinventory_req_id = $to_details[0]['requested_inventory_id'];
             }
             if (empty($from_details) || empty($to_details) || ($from==$to)) { /// Stop searching parts to transfer if both booking are same //
-                $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed. Either both bookings are same or no part is requested in any of two bookings.");
+                $this->session->set_flashdata('error_msg', "Spare transfer for this is not allowed. Either out warranty parts involved in the bookings or no part is requested in any of two bookings.");
                 if ($this->session->userdata('userType') == 'employee') {
                     $this->miscelleneous->load_nav_header();
                     redirect(base_url() . 'service_center/delivered_spare_transfer');
@@ -9286,8 +9284,8 @@ function do_delivered_spare_transfer() {
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to) || ($tobooking == $frombooking)) {   //// DO not transfer in between same booking spares ///
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
-            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $from_spare_id),true);
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id", array('spare_parts_details.id' => $to_spare_id),true);
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {
@@ -9977,10 +9975,11 @@ function do_delivered_spare_transfer() {
         /*Initialize variables*/
         $is_spare_consumed = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0]['is_consumed'];
         $booking_id = $spare_part_detail['booking_id'];
-        $partner_id = $spare_part_detail['partner_id'];
+        
 
         // fetch record from booking details of $booking_id.
         $booking_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0];
+        $partner_id = $booking_details['partner_id'];
         
         /**
          * Update spare parts.
@@ -10017,18 +10016,29 @@ function do_delivered_spare_transfer() {
                 $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock - '" . $spare_part_detail['shipped_quantity'] . "'";
-                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id'], 'stock > 0' => NULL), $stock);
                 } 
                 
                 // update ledger.
                 $ledger_data = [
-                    'receiver_entity_id' => NULL,
-                    'receiver_entity_type' => NULL,
                     'is_wh_ack' => 0,
                     'wh_ack_date' => NULL
                 ];
                 
-                $this->inventory_model->update_ledger_details($ledger_data, array('spare_id' => $spare_id, 'is_defective' => 1));                
+                if (!empty($this->session->userdata('warehouse_id'))) { 
+                    $receiver_entity_id = $this->session->userdata('warehouse_id');
+                } else {
+                    $receiver_entity_id = $this->session->userdata('service_center_id');
+                }                
+                
+                $ledger_where = [
+                    'receiver_entity_id' => $receiver_entity_id,
+                    'receiver_entity_type' => _247AROUND_SF_STRING,
+                    'spare_id' => $spare_id,
+                    'is_defective' => 1
+                ];
+                
+                $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);                
             }
         }
         

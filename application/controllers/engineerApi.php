@@ -1445,6 +1445,10 @@ class engineerApi extends CI_Controller {
             $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
             // update booking.
             $booking['service_center_closed_date'] = $data["closed_date"];
+            /* Update Upcounty amount if available */
+            if(isset($requestData['upcountry_charges']) && !empty($requestData['upcountry_charges'])){
+                $booking['customer_paid_upcountry_charges']  = $requestData['upcountry_charges']; 
+            }
             $this->booking_model->update_booking($booking_id, $booking);
 
             if (isset($requestData['sc_agent_id'])) {
@@ -2936,7 +2940,9 @@ class engineerApi extends CI_Controller {
             } else {
                 $response['is_consumption_required'] = false;
             }
-
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
+            $response['upcountry_paid_by_customer'] = $bookingDetails['upcountry_paid_by_customer'];
+            
             $response['booking_unit_details'] = $bookng_unit_details[0];
             log_message("info", __METHOD__ . "Product details found successfully");
 

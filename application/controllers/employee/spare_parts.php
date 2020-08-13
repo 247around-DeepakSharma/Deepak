@@ -4963,7 +4963,7 @@ class Spare_parts extends CI_Controller {
 
     function download_total_spare_shipped_part_sf_data() {
         log_message('info', __METHOD__ . ' Processing...');
-        ini_set('memory_limit', '256M');
+        ini_set('memory_limit', -1);
         $download_flag = $this->input->post('download_flag');
 
         $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking Id',service_centres.name as 'SF Name',(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', booking_details.current_status as 'Booking Status', "
@@ -5109,4 +5109,24 @@ class Spare_parts extends CI_Controller {
     }
 
     
+    /*
+     * @desc: This Function is used to get details of spare parts status
+     * @param: void
+     * @echo : Option
+     */
+    
+    function get_spare_parts_status() {
+        $is_active = $this->input->post('is_active');
+        if ($is_active == 1) {
+            $where = "spare_parts_details.status !='NULL' GROUP BY spare_parts_details.status";
+            $select = "spare_parts_details.id, spare_parts_details.status";
+            $status_list = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, array());
+            $option = '<option selected="" disabled="">Select Spare Parts Status</option>';
+            foreach ($status_list as $value) {
+                $option .= "<option value='" . $value['status'] . "'> " . $value['status'] . "</option>";
+            }
+            echo $option;
+        }
+    }
+
 }
