@@ -97,14 +97,14 @@
                     <tr>
                         <th>S.No</th>
                         <th>Appliance</th>
-                        <th>Type</th>
-                        <th>Name</th>
+                        <th>Part Type</th>
+                        <th>Part Name</th>
                         <th>Parts Number</th>
                         <th>Model Number</th>                        
                         <th>Description</th>
                         <th>Size</th>
                         <th>HSN</th>
-                        <th>Basic Price</th>
+                        <th>247 Buying Price</th>
                         <th>GST Rate</th>
                         <th>Total Price</th>
                         <th>Vendor Margin</th>
