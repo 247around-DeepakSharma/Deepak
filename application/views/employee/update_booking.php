@@ -162,7 +162,7 @@ if(empty($booking_history[0]['booking_id'])){
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
+                                        <select type="text" tabindex="-1" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php if(!empty($booking_history[0]['service_id']) && $booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>
@@ -428,7 +428,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
+                                                <select type="text" tabindex="-1" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php
                                                     if(!empty($category[0])) {
@@ -442,7 +442,7 @@ if(empty($booking_history[0]['booking_id'])){
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
+                                                <select type="text" tabindex="-1" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php 
                                                     if(!empty($capacity[0])) {
