@@ -1901,6 +1901,15 @@ class Apis extends CI_Model {
         return $this->db->insert_id();
     }
 
-
-
+    /**
+     * @desc: This function is used to update data in agent_outbound_call_log table against call id
+     * @param type $outbound_call_id
+     * @param type $updateData
+     */
+    function updateAgentOutboundCallLog($outbound_call_id, $updateData)
+    {
+        $this->db->where('id', $outbound_call_id);
+        $this->db->update('agent_outbound_call_log', $updateData);
+    }
+    
 }

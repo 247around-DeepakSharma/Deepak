@@ -258,6 +258,10 @@ class Notify {
     // $booking_id contains the value of `id` column of `booking_details` Table
     function make_outbound_call($agent_phone, $customer_phone, $booking_primary_id = '', $call_log_id = '') {
 	//Callback fn called by Exotel
+        $arr_custom = [
+            'booking_primary_id' => $booking_primary_id,
+            'call_log_id' => $call_log_id
+        ];
 	switch (ENVIRONMENT) {
 	    case 'production':
 		$post_data = array(
@@ -266,13 +270,12 @@ class Notify {
 		    'CallerId' => OUTGOING_NUMBER, //247around call centre exophone number
 		    'CallType' => 'trans',
                     'StatusCallback' => base_url().'exotel-callback',
-//                    'StatusCallbackEvents' => ['booking_primary_id' => $booking_primary_id, 'call_log_id' => $call_log_id],                    
-                    'StatusCallbackContentType' => 'application/json'
+                    'StatusCallbackEvents' => ['terminal']
 		);
 
 		$exotel_sid = "aroundhomz";
 		$exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-		$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect";
+		$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect?CustomField=".json_encode($arr_custom);
 
 		$ch = curl_init();
 
