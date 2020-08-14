@@ -3022,7 +3022,7 @@ function get_data_for_partner_callback($booking_id) {
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3033,7 +3033,7 @@ function get_data_for_partner_callback($booking_id) {
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
                               '%Y-%m-%d'
-                            )) ELSE ''
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     booking_details.rating_stars AS 'Rating',
@@ -3198,7 +3198,7 @@ function get_data_for_partner_callback($booking_id) {
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3209,7 +3209,7 @@ function get_data_for_partner_callback($booking_id) {
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
                               '%Y-%m-%d'
-                            )) ELSE ''
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     IFNULL(booking_details.rating_stars, ' ') AS 'Rating',

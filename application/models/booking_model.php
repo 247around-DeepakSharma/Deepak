@@ -852,7 +852,7 @@ class Booking_model extends CI_Model {
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
+            $sql = " SELECT booking_details.id as booking_primary_id,services.services, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
                . "from booking_details "
                . "LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id), "
                . "users, services ,partners "
@@ -1426,7 +1426,7 @@ class Booking_model extends CI_Model {
      * @return: Array of charges
      */
     function get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset = NULL, $perPage = NULL,$having_arr=array(),$where_arr=array(),$orderBY=NULL, $join_arr = NULL) {
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage,$having_arr,$where_arr,$orderBY);
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offset,$perPage,$having_arr,$where_arr,$orderBY,$join_arr);
         foreach ($charges as $key => $value) {
            // $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id'], "join");
