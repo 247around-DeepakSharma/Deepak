@@ -847,7 +847,7 @@ class Booking_model extends CI_Model {
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
+            $sql = " SELECT booking_details.id as booking_primary_id,services.services, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
                . "from booking_details "
                . "LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id), "
                . "users, services ,partners "
