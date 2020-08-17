@@ -852,7 +852,7 @@ class Booking_model extends CI_Model {
 
         } else {
             //NUll
-            $sql = " SELECT `services`.`services`, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
+            $sql = " SELECT booking_details.id as booking_primary_id,services.services, users.*, booking_details.*, partners.public_name, booking_cancellation_reasons.reason as cancellation_reason "
                . "from booking_details "
                . "LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id), "
                . "users, services ,partners "
@@ -1795,7 +1795,7 @@ class Booking_model extends CI_Model {
     }
     function update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest){
             log_message('info', __METHOD__ . " Booking ID " . $booking_id . "Old Price Tags " . print_r($oldPriceTag, true));
-            $whereNewPrice['MATCH (booking_id) AGAINST ("'.preg_replace("/[^0-9]/","",$booking_id).'")'] = NULL;
+            $whereNewPrice['( MATCH (booking_id) AGAINST ("'.preg_replace("/[^0-9]/","",$booking_id).'"))'] = NULL;
             $groupBY  = array('appliance_id');
             $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
             $finalOldPrice = array();
