@@ -1410,8 +1410,8 @@ function get_data_for_partner_callback($booking_id) {
         $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text_tmp);
         log_message("info", $searched_text);
         if(!empty($searched_text)){
-            $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
-      
+//            $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
+            $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR (MATCH (booking_id) AGAINST ('$searched_text')))";
        
             $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date, service_center_closed_date, current_status, internal_status "
                     . " FROM `booking_details`,users, services "
@@ -3004,7 +3004,7 @@ function get_data_for_partner_callback($booking_id) {
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3015,7 +3015,7 @@ function get_data_for_partner_callback($booking_id) {
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
                               '%Y-%m-%d'
-                            )) ELSE ''
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     booking_details.rating_stars AS 'Rating',
@@ -3180,7 +3180,7 @@ function get_data_for_partner_callback($booking_id) {
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3191,7 +3191,7 @@ function get_data_for_partner_callback($booking_id) {
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
                               '%Y-%m-%d'
-                            )) ELSE ''
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     IFNULL(booking_details.rating_stars, ' ') AS 'Rating',

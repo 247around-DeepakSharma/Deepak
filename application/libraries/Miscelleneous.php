@@ -2472,7 +2472,7 @@ class Miscelleneous {
         $parentArray = $structuredData=$navFlowArray=array();
         $orderBYArray = array("level"=>"ASC");
         if($entity_type == "Partner"){
-            $orderBYArray = array("level"=>"ASC","header_navigation.title"=>"ASC");
+			$orderBYArray = array("level"=>"ASC","sequence"=>"DESC","header_navigation.title"=>"ASC");
         }
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
                 array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,$orderBYArray,NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));

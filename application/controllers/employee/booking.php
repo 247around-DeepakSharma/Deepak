@@ -5908,7 +5908,7 @@ class Booking extends CI_Controller {
         if(!empty($total_rows)){
             $data['per_page'] = 50;
             $data['offset'] = $offset;
-            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where,$orderBY,$join);
+            $data['charges'] = $this->booking_model->get_booking_for_review($booking_id,$status,$whereIN,$is_partner,$offset,$data['per_page'],$having, $where, $orderBY, $join);
             $data['status'] = $status;
             $data['review_status'] = $review_status;
             $data['total_rows'] = count($total_rows);
@@ -5961,8 +5961,8 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
-        $review_age_min = !empty($post_data['review_age_min']) ? $post_data['review_age_min'] : 0;
-        $review_age_max = !empty($post_data['review_age_max']) ? $post_data['review_age_max'] : 0;
+        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : 0;
+        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : 0;
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
@@ -6370,6 +6370,8 @@ class Booking extends CI_Controller {
             foreach ($summaryReportData as $summaryReport) {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
+                // If no filters found, do not show any data
+                if(!empty($filterArray)){
                 foreach ($filterArray as $key => $value) {
                     if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
                         $dArray = explode(" - ", $value);
@@ -6391,7 +6393,7 @@ class Booking extends CI_Controller {
                         
                     }
                     $finalFilterArray[] = $key . " : " . $value;
-                }
+                }}
                 
                 $str_body .=  '<tr>';
                 $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
