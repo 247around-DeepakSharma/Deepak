@@ -3056,33 +3056,16 @@ function generate_image($base64, $image_name,$directory){
             $excel_data['excel_data']['date'] = date('Y-m-d');
             $excel_data['excel_data_line_item'] = array();
             $cell = 'B21';
-            if (file_exists($sf_details[0]['signature_file'])) {
-                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
-            } else {
-                $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
-                //get signature file from s3 and save it to server
-                copy($s3_bucket, TMP_FOLDER . $sf_details[0]['signature_file']);
-                system(" chmod 777 " . TMP_FOLDER . $sf_details[0]['signature_file']);
-                $signature_file = TMP_FOLDER . $sf_details[0]['signature_file'];
-            }
-            $output_file = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s');
-            $excel_file = $this->generate_excel_data($template, $output_file, $excel_data, false, $cell, $signature_file);
-            //generate pdf
-            if (file_exists($excel_file)) {
-                $json_result = $this->convert_excel_to_pdf($excel_file, $sf_details[0]['id'], 'vendor-partner-docs');
-                log_message('info', __FUNCTION__ . ' PDF JSON RESPONSE' . print_r($json_result, TRUE));
-                $pdf_response = json_decode($json_result, TRUE);
 
-                if ($pdf_response['response'] === 'Success') {
-                    $output_pdf_file = $pdf_response['output_pdf_file'];
-                    unlink($excel_file);
-                    log_message('info', __FUNCTION__ . ' Generated PDF File Name' . $excel_file);
-                } else if ($pdf_response['response'] === 'Error') {
+            $s3_bucket = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sf_details[0]['signature_file'];
+            $excel_data['excel_data']['signature_file'] = $s3_bucket;
+            $pdf_file_name = "sf_declaration_" . $sf_details[0]['id'] . "_" . date('d_M_Y_H_i_s').'.pdf';
 
-                    log_message('info', __FUNCTION__ . ' Error in Generating PDF File');
-                }
-            } else {
-                log_message("info", "File Not Generated for " . $sf_details[0]['id']);
+            $view_file_sf_declaration = $this->My_CI->load->view('templates/sf_declaration_view', $excel_data, true);
+            $json_result = $this->convert_html_to_pdf($view_file_sf_declaration,"",$pdf_file_name,"vendor-partner-docs");
+            $pdf_response = json_decode($json_result,TRUE);
+            if(strtoupper($pdf_response['response'])=='SUCCESS'){
+                $output_pdf_file = $pdf_response['output_pdf_file'];
             }
 
             if (!empty($output_pdf_file)) {
