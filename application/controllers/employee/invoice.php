@@ -1165,14 +1165,18 @@ class Invoice extends CI_Controller {
         log_message('info', 'Excel data: ' . print_r($meta, true));
 
         if ($invoice_type === "final") {
-            /* Stop sent invoice mail to RM
+
             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
             $rem_email_id = "";
+            $asm_email_id = "";
             if (!empty($rm_details)) {
                 $rem_email_id = ", " . $rm_details[0]['official_email'];
             }
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
-           */
+            if (!empty($rm_details[1]['official_email'])) {
+                $asm_email_id = ", " . $rm_details[1]['official_email'];
+            }
+            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
+
             
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
@@ -1245,7 +1249,7 @@ class Invoice extends CI_Controller {
              $this->update_invoice_id_in_unit_details($data, $meta['invoice_id'], $invoice_type, "vendor_cash_invoice_id");
              
             $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
-            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+            //$cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -1478,13 +1482,17 @@ class Invoice extends CI_Controller {
 
             if ($invoice_type === "final") {
                 log_message('info', __FUNCTION__ . " Final");
-                /* Stop sending invoice email to RM
+                // Stop sending invoice email to RM
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                 $rem_email_id = "";
+                $asm_email_id = "";
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                */
+                if (!empty($rm_details[1]['official_email'])) {
+                    $asm_email_id = ", " . $rm_details[1]['official_email'];
+                }
+
                
                 //Save this invoice info in table
                 $invoice_details_insert = array(
@@ -1595,7 +1603,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -2324,13 +2332,18 @@ exit();
         $invoice_month = date('F', strtotime($get_invoice_month));
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
-        /* Stop senging invoice email to RM
+        // Stop senging invoice email to RM
         $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+        $rem_email_id = "";
+        $asm_email_id = "";
         if (!empty($rm_details)) {
-           $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . ", " . $rm_details[0]['official_email'];
+           $rem_email_id = ", " . $rm_details[0]['official_email'];
         }
-        */
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
+        if (!empty($rm_details[1]['official_email'])) {
+            $asm_email_id = ", " . $rm_details[1]['official_email'];
+        }
+
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
@@ -2584,17 +2597,21 @@ exit();
             if($invoice_type == "final"){
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                 $rem_email_id = "";
+                $asm_email_id = "";
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
+                if (!empty($rm_details[1]['official_email'])) {
+                    $asm_email_id = ", " . $rm_details[1]['official_email'];
+                }
                 $to = $owner_email. ", " . $primary_contact_email;
-                
+
                 //get email template from database
                 $email_template = $this->booking_model->get_booking_email_template(BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 $subject = vsprintf($email_template[4], array($company_name,$sd,$ed));
                 $message = $email_template[0];
                 $email_from = $email_template[2];
-                $cc = $rem_email_id.",".$email_template[3];
+                $cc = $rem_email_id.",".$email_template[3].$asm_email_id;
              
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, "", "", BUYBACK_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG,$response);
                 
@@ -2857,10 +2874,14 @@ exit();
                             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
                             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                             $rem_email_id = "";
+                            $asm_email_id = "";
                             if (!empty($rm_details)) {
                                 $rem_email_id = ", " . $rm_details[0]['official_email'];
                             }
-                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+                            if (!empty($rm_details[1]['official_email'])) {
+                                $asm_email_id = ", " . $rm_details[1]['official_email'];
+                            }
+                            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id . $asm_email_id;
                             echo "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount'].PHP_EOL;
                             log_message('info', __FUNCTION__ . "Negative Invoice - ".$vendor_id. " Amount ".$invoices['meta']['sub_total_amount']);
 
