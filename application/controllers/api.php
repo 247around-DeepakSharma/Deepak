@@ -5281,16 +5281,33 @@ class Api extends CI_Controller {
      */
     public function recordUrl() {
         $call_recording_response = $_POST;
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID, "pritys@247around.com", "", "","EXOTEL API RESPONSE", print_R($call_recording_response), "", "", "", "");
-//        $data = [
-//            'recording_url' => $call_recording_response['RecordingUrl'],
-//            'call_sid' => $call_recording_response['CallSid'],
-//            'status' => $call_recording_response['Status'],
-//            'call_duration' => $call_recording_response['ConversationDuration'],
-//            'start_time' => $call_recording_response['StartTime'],
-//            'end_time' => $call_recording_response['EndTime'],
-//            'booking_primary_id' => $call_recording_response['booking_primary_id'],
-//        ];
+        // $this->notify->sendEmail(NOREPLY_EMAIL_ID, "pritys@247around.com", "", "","EXOTEL API RESPONSE", json_encode($call_recording_response)."```".json_encode($_GET), "", "", "", "");
+        if(empty($call_recording_response)){
+            return;
+        }
         
+        $booking_primary_id = "";
+        $outbound_call_id = "";
+        if(!empty($call_recording_response['CustomField'])){
+            $arrcustomField = json_decode($call_recording_response['CustomField'], true);
+            $booking_primary_id = $arrcustomField['booking_primary_id'];
+            $outbound_call_id = $arrcustomField['call_log_id'];
+        }
+        
+        // Data to be updated against call in agent_outbound_call_log Table
+        $data = [
+            'recording_url' => $call_recording_response['RecordingUrl'],
+            'call_sid' => $call_recording_response['CallSid'],
+            'status' => $call_recording_response['Status'],
+            'call_duration' => $call_recording_response['ConversationDuration'],
+            'start_time' => $call_recording_response['StartTime'],
+            'end_time' => $call_recording_response['EndTime'],
+            'booking_primary_id' => $booking_primary_id
+        ];
+        
+        // update data in agent_outbound_call_log table against call id
+        if(!empty($outbound_call_id) && !empty($booking_primary_id)){
+            $this->apis->updateAgentOutboundCallLog($outbound_call_id, $data);
+        }
     }
 }

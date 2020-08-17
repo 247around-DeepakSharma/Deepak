@@ -1530,9 +1530,6 @@ class Service_centers extends CI_Controller {
                 }
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $sc_agent_id, "Engineer", "not_define", "not_define", NULL, $service_center_id);
             }
-            // Update booking dependency from vendor to Admin
-            $booking['actor'] = '247Around';
-            $this->booking_model->update_booking($booking_id, $booking);
             $partner_id = $this->input->post("partner_id");
             $this->update_booking_internal_status($booking_id, $reason, $partner_id, 'reshedule');
             if (!$this->input->post("call_from_api")) {
@@ -10003,47 +10000,6 @@ function do_delivered_spare_transfer() {
         $spare_data['received_defective_part_pic_by_wh'] = NULL;
                 
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
-        
-        /**
-         * If Ok part then decrease stock.
-         */
-        if ($action == OK_PARTS_SHIPPED) {
-            /**
-             * check whether stock is handled by central warehouse or not.
-             * @modifiedBy Ankit Rajvanshi
-             */
-            $is_inventory_handled_by_247 = $this->inventory_model->check_stock_handled_by_central_wh($booking_details, $spare_part_detail);
-            if (!empty($is_inventory_handled_by_247) && !empty($spare_part_detail['shipped_inventory_id'])) {
-                
-                //update inventory stocks
-                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
-                if (!empty($is_entity_exist)) {
-                    $stock = "stock - '" . $spare_part_detail['shipped_quantity'] . "'";
-                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id'], 'stock > 0' => NULL), $stock);
-                } 
-                
-                // update ledger.
-                $ledger_data = [
-                    'is_wh_ack' => 0,
-                    'wh_ack_date' => NULL
-                ];
-                
-                if (!empty($this->session->userdata('warehouse_id'))) { 
-                    $receiver_entity_id = $this->session->userdata('warehouse_id');
-                } else {
-                    $receiver_entity_id = $this->session->userdata('service_center_id');
-                }                
-                
-                $ledger_where = [
-                    'receiver_entity_id' => $receiver_entity_id,
-                    'receiver_entity_type' => _247AROUND_SF_STRING,
-                    'spare_id' => $spare_id,
-                    'is_defective' => 1
-                ];
-                
-                $this->inventory_model->update_ledger_details($ledger_data, $ledger_where);                
-            }
-        }
         
         /**
          * Log this in spare tracking.

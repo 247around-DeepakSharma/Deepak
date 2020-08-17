@@ -294,15 +294,13 @@ class Service_centers_model extends CI_Model {
         if($state == 1){
             $filter_value=1;
             $stateWhere['agent_filters.agent_id="'.$this->session->userdata('agent_id').'"'] = NULL;
-            $stateWhere['agent_filters.is_active="' .$filter_value.'"']=NULL;
-//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
-//            $this->db->where($stateWhere, false);  
+            $stateWhere['agent_filters.is_active="' .$filter_value.'"']=NULL; 
             if(!empty($stateWhere)){
-             foreach ($stateWhere as $stateWhereKey=>$stateWhereKeyValue){
-                     $where_sc =$where_sc. " AND ".$stateWhereKey;
-             }
-         }
-         $join=$join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
+                foreach ($stateWhere as $stateWhereKey=>$stateWhereKeyValue){
+                        $where_sc =$where_sc. " AND ".$stateWhereKey;
+                }
+            }
+            $join = $join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
         
          if(!$select){
@@ -326,8 +324,8 @@ class Service_centers_model extends CI_Model {
          return $booking;
     }
 
-    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(), $orderBY = NULL) {
-        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, [],$having_arr);
+    function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array(),$where_arr=array(), $orderBY = NULL, $join_arr=array()) {
+        $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, $where_arr, 0, $orderBY, Null, 0, $join_arr,$having_arr);
         
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
