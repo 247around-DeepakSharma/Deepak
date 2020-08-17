@@ -2156,27 +2156,20 @@
     });
 
  
-});
+});   
 
-    $('#partner_wise_parts_requested').select2({        
-       placeholder:'Select Partner',        
-       allowClear: true     
-    });     
-
-    $('#appliance_wise_parts_requested').select2({      
-           placeholder:'Select Appliance',      
-           allowClear: true     
-    }); 
-
+   
 // For select2 in approved tab //
-    $('#partner_wise_parts_requested2').select2({        
+    $('#partner_wise_parts_requested,#partner_wise_parts_requested2').select2({        
        placeholder:'Select Partner',        
-       allowClear: true     
+       allowClear: true,
+       width: '100%'
     });     
 // For select2 in approved tab //
-    $('#appliance_wise_parts_requested2').select2({      
+    $('#appliance_wise_parts_requested,#appliance_wise_parts_requested2').select2({      
            placeholder:'Select Appliance',      
-           allowClear: true     
+           allowClear: true ,
+           width: '100%'
     });    
 
     $('#show_spare_list').click(function(){     
@@ -2262,6 +2255,9 @@
 </script>
 <style>
     #partner_wise_parts_requested2 .select2-container{
+        width: 572px !important;
+    }
+    .select2 select2-container select2-container--default select2-container--above{
         width: 572px !important;
     }
 </style>
