@@ -109,6 +109,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index() {
+        //print_r($_POST);
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
@@ -125,6 +126,20 @@ class Booking extends CI_Controller {
                     $this->partner_cb->partner_callback($status['booking_id']);
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
+                    
+                    $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
+                    if(!empty($city_details))
+                    {
+                        $zone_color = $city_details[0]['zone_color'];
+                        $sms['tag'] = "sms_to_redzone_customers";
+                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
+                        $sms['smsData']['partner'] = $this->input->post('partner_source');
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $this->input->post("user_id");    
+                        $this->notify->send_sms_msg91($sms);
+                    }
+                    
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
                     $this->addbooking($primary_contact_no);
