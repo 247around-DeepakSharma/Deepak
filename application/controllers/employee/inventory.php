@@ -10501,7 +10501,7 @@ class Inventory extends CI_Controller {
                 $grand_total_part_amount = $grand_total_part_amount + $total_part_amount;
 
                 $grand_intransit_part_count = $grand_intransit_part_count + $in_transit_part_count;
-                $grand_intransit_part_amount = $grand_intransit_part_count + $in_transit_part_amount;
+                $grand_intransit_part_amount = $grand_intransit_part_amount + $in_transit_part_amount;
 
                 if ($in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount > 0) {
                     $percentage = ($out_tat_part_completed_cancelled_amount + $out_tat_part_pending_rescheduled_amount) / ($in_tat_part_completed_cancelled_amount + $in_tat_part_pending_rescheduled_amount);

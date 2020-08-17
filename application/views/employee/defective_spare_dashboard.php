@@ -62,9 +62,9 @@
                                                         <th>IN Transit Part Count</th>
                                                         <th>IN Transit Amount</th>
                                                         <th>IN TAT- Part Count, Complete & Cancelled</th>
-                                                        <th>IN TAT Amount</th>
+                                                        <th>IN TAT Amount (Complete & Cancelled)</th>
                                                         <th>IN TAT- Part Count, Rescheduled & Pending</th>
-                                                        <th>IN TAT Amount</th>
+                                                        <th>IN TAT Amount (Rescheduled & Pending)</th>
                                                         <th>Total Part Count (out+in)</th>
                                                         <th>Total Amount (out+in)</th>
                                                         <th>Difference</th>
