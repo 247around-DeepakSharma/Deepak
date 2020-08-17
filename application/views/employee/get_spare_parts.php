@@ -27,105 +27,109 @@
 </style>
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
-   <div class="row" style="margin-top: 40px;">
-       <div class="row">
-           <div class="col-md-12">
-               <?php
-                    if ($this->session->userdata('error')) {
-                            echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert" style="margin-left: 50px;">
+    <div class="row" style="margin-top: 40px;">
+        <div class="row">
+            <div class="col-md-12">
+                <?php
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert" style="margin-left: 50px;">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
                             <strong>' . $this->session->userdata('error') . '</strong>
                             </div>';
-                    }
-                    
-                     if ($this->session->userdata('success')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-left: 50px; margin-right: 120px;">
+                }
+
+                if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-left: 50px; margin-right: 120px;">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                            <span aria-hidden="true">&times;</span>
                        </button>
                        <strong>' . $this->session->userdata('success') . '</strong>
                     </div>';
-                    }
+                }
                 ?>
-               
-               
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="pull-right"><h2 class="panel-title">Consolidated Report</h2> </div> 
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
-                        <p id="partner_err"></p>
-                    </div>    
-                    <div class="col-md-3">
-                        <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
-                        <p id="service_centers_id_err"></p>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-control" name="spare_part_status"  id="spare_part_status" required=""></select>
-                        <p id="service_centers_id_err"></p>
-                    </div>
-                    <div class="col-md-4">
-                        <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="pull-right"><h2 class="panel-title">Consolidated Report</h2> </div> 
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
+                            <p id="partner_err"></p>
+                        </div>    
+                        <div class="col-md-3">
+                            <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
+                            <p id="service_centers_id_err"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="spare_part_status"  id="spare_part_status" required=""></select>
+                            <p id="service_centers_id_err"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pull-right">
+                                <a class="btn btn-success"  href="#"  id="download_spare_list">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <br><br>         
-       <div class="col-md-12">
-           <div class="panel panel-default">               
-               <div class="panel-heading">
-                   <div class="row">
-                       <div class="col-md-6">
-                           <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Spare Parts Booking </h2>
-                       </div>                       
-                       <div class="col-md-12">                                               
-                           <div class="pull-right">
-                               <a class="btn btn-info pickup" id="schedule_pickup" data-request="pickup_schedule" style="margin-right: 15px;">Pickup Schedule</a><span class="badge" title="Pickup Schedule"></span>
-                           </div>
-                           <div class="pull-right">
-                               <a class="btn btn-primary pickup" id="request_pickup" data-request="pickup_request" style="margin-right: 20px;">Pickup Request</a><span class="badge" title="Pickup Request"></span>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-            <div class="panel-body">
-                <div role="tabpanel"> 
-                    <div class="col-md-12">
-                        <ul class="nav nav-tabs" role="tablist">                           
-                            <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Requested<span id="total_req_quote"></span></a></li>
-                            <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Given<span id="total_quote_given"></span></a></li>
-                            <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
-                            <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)<span id="total_approved_spare"></span></a></li>
-                            <li role="presentation" ><a href="#spare_parts_requested_rejected" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Rejected)<span id="total_rejected_spare"></span></a></li>
-                            <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)<span id="total_oow_shipped_part_pending"></span></a></li>
-                            <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part<span id="total_partner_shipped_part"></span></a></li>
-                            <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part<span id="total_sf_received_part"></span></a></li>
-                            <li role="presentation"><a href="#total_parts_shipped_to_sf" aria-controls="total_partshipped_to_sf" class="spare_parts_tabs" role="tab" data-toggle="tab">Total Part Shipped To SF<span id="total_part_shipped_to_sf"></span></a></li>
-                            <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost Approval<span id="total_courier_lost"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Pending/Ok Part (All)<span id="total_all_defective"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_pending_oot" aria-controls="defective_part_pending_oot" id="defective_part_oot" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Pending/Ok Part (OOT)<span id="total_defective_oot"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective/Ok Part Shipped By SF ( Courier Audit )<span id="total_courier_audit"></span></a></li>
-                            <li role="presentation"><a href="#courier_approved_defective_parts" aria-controls="courier_approved_defective_parts" class="spare_parts_tabs" role="tab" data-toggle="tab"> In Transit (Courier Approved Defective Parts)<span id="total_in_transit"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok To Be Received By Warehouse<span id="total_defective_received_by_wh"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Warehouse<span id="total_defective_rejected_by_wh"></span></a></li>
-                            <li role="presentation"><a href="#return_defective_parts_from_wh_to_partner" aria-controls="return_defective_parts_from_wh_to_partner" class="spare_parts_tabs" role="tab" data-toggle="tab"> Returned Defective Part From Warehouse To Partner<span id="total_defective_return_to_partner"></span></a></li>
-                            <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Partner<span id="total_defective_rejected_partner"></span></a></li>
-                        </ul>
+                <br><br>         
+                <div class="col-md-12">
+                    <div class="panel panel-default">               
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Spare Parts Booking </h2>
+                                </div>                       
+                                <div class="col-md-12">                                               
+                                    <div class="pull-right">
+                                        <a class="btn btn-info pickup" id="schedule_pickup" data-request="pickup_schedule" style="margin-right: 15px;">Pickup Schedule</a><span class="badge" title="Pickup Schedule"></span>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a class="btn btn-primary pickup" id="request_pickup" data-request="pickup_request" style="margin-right: 20px;">Pickup Request</a><span class="badge" title="Pickup Request"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div role="tabpanel"> 
+                                <div class="col-md-12">
+                                    <ul class="nav nav-tabs" role="tablist">                           
+                                        <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Requested<span id="total_req_quote"></span></a></li>
+                                        <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Given<span id="total_quote_given"></span></a></li>
+                                        <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
+                                        <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)<span id="total_approved_spare"></span></a></li>
+                                        <li role="presentation" ><a href="#spare_parts_requested_rejected" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Rejected)<span id="total_rejected_spare"></span></a></li>
+                                        <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)<span id="total_oow_shipped_part_pending"></span></a></li>
+                                        <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part<span id="total_partner_shipped_part"></span></a></li>
+                                        <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part<span id="total_sf_received_part"></span></a></li>
+                                        <li role="presentation"><a href="#total_parts_shipped_to_sf" aria-controls="total_partshipped_to_sf" class="spare_parts_tabs" role="tab" data-toggle="tab">Total Part Shipped To SF<span id="total_part_shipped_to_sf"></span></a></li>
+                                        <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost Approval<span id="total_courier_lost"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Pending/Ok Part (All)<span id="total_all_defective"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_pending_oot" aria-controls="defective_part_pending_oot" id="defective_part_oot" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Pending/Ok Part (OOT)<span id="total_defective_oot"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective/Ok Part Shipped By SF ( Courier Audit )<span id="total_courier_audit"></span></a></li>
+                                        <li role="presentation"><a href="#courier_approved_defective_parts" aria-controls="courier_approved_defective_parts" class="spare_parts_tabs" role="tab" data-toggle="tab"> In Transit (Courier Approved Defective Parts)<span id="total_in_transit"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok To Be Received By Warehouse<span id="total_defective_received_by_wh"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Warehouse<span id="total_defective_rejected_by_wh"></span></a></li>
+                                        <li role="presentation"><a href="#return_defective_parts_from_wh_to_partner" aria-controls="return_defective_parts_from_wh_to_partner" class="spare_parts_tabs" role="tab" data-toggle="tab"> Returned Defective Part From Warehouse To Partner<span id="total_defective_return_to_partner"></span></a></li>
+                                        <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Partner<span id="total_defective_rejected_partner"></span></a></li>
+                                    </ul>
+                                </div>
+                                <div class="tab-content" id="tab-content">
+                                    <center style="margin-top:30px;"> <img style="width: 60px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                                </div>
+                            </div>    
+                        </div>
                     </div>
-                    <div class="tab-content" id="tab-content">
-                        <center style="margin-top:30px;"> <img style="width: 60px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
-                    </div>
-                </div>    
+
+                </div>
             </div>
-           </div>
-           
-       </div>
-   </div>
-    <input type="hidden" id="reload_table_id" value="spare_parts_requested_table">
-<!--     <div class="custom_pagination" style="margin-left: 16px;" > <?php //if(isset($links)){ echo $links;} ?></div>-->    
+            <input type="hidden" id="reload_table_id" value="spare_parts_requested_table">
+        <!--     <div class="custom_pagination" style="margin-left: 16px;" > <?php //if(isset($links)){ echo $links;}  ?></div>-->    
+        </div>
+    </div>
 </div>
 <!-- Pickup Request Modal --->
 <div id="pickup_modal" class="modal fade" role="dialog">
@@ -563,7 +567,7 @@
     });
     
     $('#spare_part_status').select2({
-        placeholder:'Select Spare Parts Status'
+        placeholder:'Select Spare Status'
     });
    
 </script>
