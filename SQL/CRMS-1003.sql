@@ -1,0 +1,1 @@
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'sms_to_redzone_customers', 'Dear Customer, Your %s booking falls in the RED Covid Zone. Services may be delayed. Inconvenience is regretted. 247Around - %s Service Partner.', NULL, '1', '0', CURRENT_TIMESTAMP);
