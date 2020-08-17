@@ -2718,10 +2718,7 @@ class Booking extends CI_Controller {
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, _247AROUND_COMPLETED, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-//            if($booking['internal_status'] != _247AROUND_COMPLETED) {
-//                $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
-//                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-//            }
+
             if($booking['internal_status'] == _247AROUND_COMPLETED){
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $send['booking_id'] = $booking_id;
@@ -2742,8 +2739,17 @@ class Booking extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_BOOKING_RATING
                         ,RATING_NEXT_ACTION,_247AROUND);
                 // send sms after rating
-                $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+                //if 'do not send sms check then does not send sms'
+                if(!$this->input->post('not_send_sms')){
+                    $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+                }
             }
+            
+            // Case if customer not reachable for rating
+            if($this->input->post('not_reachable')){
+                $this->customer_not_reachable_for_rating($booking_id,$this->input->post('customer_id'),$this->input->post('booking_primary_contact_no'));
+            }
+            
             //Generate Customer payment Invoice
             if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
                 $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');

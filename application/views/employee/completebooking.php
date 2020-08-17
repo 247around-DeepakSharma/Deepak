@@ -595,10 +595,60 @@
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="rating_star" class="col-md-4" style="padding-left:10%;">Star Rating</label>
+                                <label for="remark" class="col-md-4" style="padding-left:10%;">Symptom *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
+                                        <option value="" selected="" disabled="">Please Select Symptom</option>
+                                        <?php if(isset($technical_problem)) {
+                                            foreach ($technical_problem as $value) { 
+                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time']))) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                            <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
+                                         
+                                        <?php } } ?>
+                                    </select>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">                            
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding:0;">Defect *</label>
+                                <div class="col-md-8" >
+                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
+                                        <option value="" selected="" disabled="">Please Select Defect</option>
+                                        <?php foreach ($technical_defect as $value) { 
+                                            $selected=((($value['defect_id'] == 0) || (!empty($booking_symptom) && ($value['defect_id'] == $booking_symptom[0]['defect_id_completion']))) ? 'selected' :''); ?>
+                                        <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
+                                    <?php }?>
+                                    </select>
+                                </div>
+                            </div>                            
+                            <div class="form-group col-md-6">
+                                <label for="remark" class="col-md-4" style="padding-left:10%;">Solution *</label>
+                                <div class="col-md-8" >
+                                    <select class="form-control" name="technical_solution" id="technical_solution" disabled required >
+                                        <option value="" selected="" disabled="">Please Select Solution</option>
+                                        <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
+                                        <option value="0" selected>Default</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-6">
+                                <label for="rating_star" class="col-md-4" style="padding:0;">Star Rating*</label>
                                 <div class="col-md-8">
-                                    <Select type="text" class="form-control"  name="rating_stars" value="">
+                                    <Select type="text" class="form-control" name="rating_stars" id="rating_star" value="">
                                         <option value="">Select</option>
+                                        <option <?php
+                                            if ($booking_history[0]['rating_stars'] == '-1') {
+                                                echo "selected";
+                                            }
+                                            ?>>-1</option>
                                         <option <?php
                                             if ($booking_history[0]['rating_stars'] == '1') {
                                                 echo "selected";
@@ -627,68 +677,36 @@
                                     </Select>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-4" style="padding:0;">Symptom *</label>
-                                <div class="col-md-8" >
-                                    <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
-                                        <option value="" selected="" disabled="">Please Select Symptom</option>
-                                        <?php if(isset($technical_problem)) {
-                                            foreach ($technical_problem as $value) { 
-                                                $selected=((($value['id'] == 0) || (!empty($booking_symptom) && ($value['id'] == $booking_symptom[0]['symptom_id_booking_completion_time']))) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
-                                            <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
-                                         
-                                        <?php } } ?>
-                                    </select>
+                            <div class="col-md-4">
+                                <div class="form-group" style="margin-left:14px;">
+                                    <div class="checkbox"> <label><input type="checkbox" id="not_reachable" name="not_reachable"><b>Customer Not Reachable</b></label></div>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-4" style="padding-left:10%;">Defect *</label>
-                                <div class="col-md-8" >
-                                    <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
-                                        <option value="" selected="" disabled="">Please Select Defect</option>
-                                        <?php foreach ($technical_defect as $value) { 
-                                            $selected=((($value['defect_id'] == 0) || (!empty($booking_symptom) && ($value['defect_id'] == $booking_symptom[0]['defect_id_completion']))) ? 'selected' :''); ?>
-                                        <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option> 
-                                    <?php }?>
-                                    </select>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <div class="checkbox"> <label><input type="checkbox" id="not_send_sms" name="not_send_sms"><b>Do Not Send SMS</b></label></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group col-md-6">
-                                <label for="remark" class="col-md-4" style="padding:0;">Solution *</label>
-                                <div class="col-md-8" >
-                                    <select class="form-control" name="technical_solution" id="technical_solution" disabled required >
-                                        <option value="" selected="" disabled="">Please Select Solution</option>
-                                        <?php if($technical_problem[count($technical_problem)-1]['id'] == 0) { ?>
-                                        <option value="0" selected>Default</option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <?php 
-                            if($booking_history[0]['is_upcountry'] == '1' 
-                                && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
-                            <div class="form-group col-md-6">
-                                <label for="type" class="col-md-4" style="padding-left:10%;">Paid Upcountry Charges</label>
-                                <div class="col-md-8">
-                                    <div class="input-group">
-                                        <div class="input-group-addon">Rs.</div>
-                                        <input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+                    <?php 
+                    if($booking_history[0]['is_upcountry'] == '1' && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group col-md-6">
+                                    <label for="type" class="col-md-4" style="padding-left:10%;">Paid Upcountry Charges</label>
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">Rs.</div>
+                                            <input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <?php } else { ?>
-                            <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
-                            <?php } ?>
                         </div>
-                    </div>
+                    <?php } else { ?>
+                        <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
+                    <?php } ?>                        
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -1163,16 +1181,6 @@
         $('#submitform').css("opacity", "1");
         return false;
     }
-//    var customer_paid_through_paytm = Number($("#customer_paid_through_paytm").val());
-//        if(customer_paid_through_paytm > 0){
-//        var grand_total_price = $("#grand_total_price").val();
-//            
-//       if(grand_total_price < customer_paid_through_paytm){
-//            alert("Please fill correct amount collected from customer");
-//            flag = 1;
-//            return false;
-//        }
-//    }
 
     $('.spare_consumption_status').each(function(index, value) {
         if($(this).val() == '' || $(this).val() == null) {
@@ -1192,6 +1200,23 @@
         flag = 1;
         $('#submitform').css("pointer-events", "auto");
         $('#submitform').css("opacity", "1");
+        return false;
+    }
+    
+    // Check rating is filled or not
+    var ratingStar = $("#rating_star").val();
+    var not_reachable = $("#not_reachable").prop('checked');
+    if(ratingStar && not_reachable){
+        flag = 1;
+        alert("Either Choose not reachable or add rating, Don't select both option together");
+        return false;
+    }
+    else if(ratingStar || not_reachable){
+        return true;
+    }
+    else{
+        alert("Please Add Rating or Select Choose not reachable");
+        flag = 1;
         return false;
     }
     
