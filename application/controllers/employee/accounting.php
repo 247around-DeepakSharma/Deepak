@@ -1526,8 +1526,7 @@ class Accounting extends CI_Controller {
         $data['entity_type'] = $this->input->post('vendor_partner');
         $data['entity_id'] = $this->input->post('vendor_partner_id');
         $data['fixed_charges'] = $this->input->post('fixed_charges');
-        $variable_charge_detail = $this->accounting_model->get_variable_charge("*", array('id'=>$this->input->post('charges_type')));
-        $data['charges_type'] = $variable_charge_detail[0]['id'];
+        $data['charges_type'] = $this->input->post('charges_type');
         //$data['description'] = $variable_charge_detail[0]['description'];
         //$data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
         //$data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
