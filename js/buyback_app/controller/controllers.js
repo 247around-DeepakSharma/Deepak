@@ -621,6 +621,9 @@ admin_dashboard.controller('admin_escalationController', function ($scope, $http
          var dateRange = $('#daterange_id').val().split(" - ");
          $("#s_date").val(dateRange[0]);
          $("#e_date").val(dateRange[1]);
+         // Add date in Escalation Filter 
+         $("#esDate").val(dateRange[0]);
+         $("#eeDate").val(dateRange[1]);
          $scope.loadAllRMView(baseUrl + "/employee/dashboard/get_escalation_by_all_rm/"+dateRange[0]+"/"+dateRange[1]);
     }
 //Escalation End
