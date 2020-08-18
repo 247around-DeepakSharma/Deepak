@@ -3974,7 +3974,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_courier_serviceable_area_list($post) {
-        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $this->_get_courier_serviceable_area_list($post, 'count(distinct(courier_serviceable_area.id)) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -3986,7 +3986,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_courier_serviceable_area_list($post){
-        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $this->_get_courier_serviceable_area_list($post, 'count(distinct(courier_serviceable_area.id)) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
