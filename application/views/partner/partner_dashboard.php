@@ -409,7 +409,9 @@
 
                     <div class="table-responsive" id="escalation_data" ng-controller="admin_escalationController" ng-cloak="">                        
                         <button type="button" class="btn btn-info" ng-click="mytoggle = !mytoggle" id="order_by_toggal" onclick="change_toggal_text()"style="float:right">Sort By Number Of Escalation</button>
-                        <form class="form-inline" action="<?php echo base_url(); ?>employee/partner/get_escalation_data">
+                        <form class="form-inline" action="<?php echo base_url(); ?>employee/partner/get_escalation_data" method="POST">
+                            <input type='hidden' name='esDate' id='esDate' value="<?php echo date('Y-m-d'); ?>">
+                            <input type='hidden' name='eeDate' id='eeDate' value="<?php echo date('Y-m-d'); ?>">
                             <div class="form-group">
                                 <input type="text" class="form-control" name="daterange" id="daterange_id" ng-change="daterangeloadFullRMView()" ng-model="dates">
                             </div>                      
