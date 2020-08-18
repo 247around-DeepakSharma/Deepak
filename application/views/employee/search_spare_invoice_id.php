@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="form-inline">
                         <div class="form-group col-md-4">
-                            <input type="text" class="form-control" id="invoice_id" placeholder="Spare Invoice Id" style="width:100%;">
+                            <input type="text" class="form-control" id="invoice_id" placeholder="Enter Partner Invoice Number" style="width:100%;">
                         </div>
                         <button class="btn btn-success col-md-2" id="get_invoice_id_data">Search</button>
                     </div>
@@ -24,7 +24,7 @@
                             <th>Sender Name</th>
                             <th>Receiver Name</th>
                             <th>Part Number</th>
-                            <th>Basic Price</th>
+                            <th>247 Buying Price</th>
                             <th>GST Rate</th>
                             <th>HSN Code</th>
                             <th>Quantity</th>

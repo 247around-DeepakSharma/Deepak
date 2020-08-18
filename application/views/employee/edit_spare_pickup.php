@@ -26,7 +26,7 @@
                                         <th data-orderable="false">Booking Id</th>
                                         <th data-orderable="false">AWB Number</th>
                                         <th data-orderable="false">Courier Charges</th>
-                                        <th data-orderable="false">Courier Name</th>
+                                        <th data-orderable="false">Courier Company Name</th>
                                         <th data-orderable="false">Action</th>
                                     </tr>
                                 </thead>

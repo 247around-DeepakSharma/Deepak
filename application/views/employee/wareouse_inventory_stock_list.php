@@ -120,10 +120,10 @@
                                     <th>Description</th>
                                     <th>Stock</th>
                                     <th>Pending Stock</th>
-                                    <th>SF Basic Price</th>
+                                    <th>247 Buying Price</th>
                                     <th>GST Rate</th>
                                     <th> Total Price</th>
-                                    <th>Customer Total Price</th>
+                                    <th>Customer Buying Price</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -134,6 +134,11 @@
         </div>
     </div>
 </div>
+<style>
+    .dataTables_filter label{
+        float: right;
+    }
+</style>
 <script>
 
     var inventory_stock_table;
