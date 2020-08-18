@@ -109,6 +109,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index() {
+        //print_r($_POST);
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
@@ -125,6 +126,20 @@ class Booking extends CI_Controller {
                     $this->partner_cb->partner_callback($status['booking_id']);
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
+                    
+                    $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
+                    if(!empty($city_details))
+                    {
+                        $zone_color = $city_details[0]['zone_color'];
+                        $sms['tag'] = "sms_to_redzone_customers";
+                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
+                        $sms['smsData']['partner'] = $this->input->post('partner_source');
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $this->input->post("user_id");    
+                        $this->notify->send_sms_msg91($sms);
+                    }
+                    
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
                     $this->addbooking($primary_contact_no);
@@ -2747,10 +2762,7 @@ class Booking extends CI_Controller {
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, _247AROUND_COMPLETED, _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-//            if($booking['internal_status'] != _247AROUND_COMPLETED) {
-//                $this->notify->insert_state_change($booking_id, $booking['internal_status'], _247AROUND_PENDING, $booking['closing_remarks'], $this->session->userdata('id'), 
-//                    $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
-//            }
+
             if($booking['internal_status'] == _247AROUND_COMPLETED){
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                 $send['booking_id'] = $booking_id;
@@ -2771,8 +2783,17 @@ class Booking extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, RATING_NEW_STATE, $status, $remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_BOOKING_RATING
                         ,RATING_NEXT_ACTION,_247AROUND);
                 // send sms after rating
-                $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+                //if 'do not send sms check then does not send sms'
+                if(!$this->input->post('not_send_sms')){
+                    $this->send_rating_sms($this->input->post('booking_primary_contact_no'), $booking['rating_stars'], $this->input->post('customer_id'), $booking_id);
+                }
             }
+            
+            // Case if customer not reachable for rating
+            if($this->input->post('not_reachable')){
+                $this->customer_not_reachable_for_rating($booking_id,$this->input->post('customer_id'),$this->input->post('booking_primary_contact_no'));
+            }
+            
             //Generate Customer payment Invoice
             if($total_amount_paid > MAKE_CUTOMER_PAYMENT_INVOICE_GREATER_THAN && $booking['current_status'] == _247AROUND_COMPLETED){
                 $invoice_url = base_url() . "employee/user_invoice/payment_invoice_for_customer/".$booking_id."/".$this->session->userdata('id');
@@ -5960,8 +5981,8 @@ class Booking extends CI_Controller {
         $review_status = $post_data['review_status'];
         $is_partner = $post_data['is_partner'];
         $request_type = $post_data['request_type'];
-        $review_age_min = !empty($post_data['review_age_min']) ? $post_data['review_age_min'] : 0;
-        $review_age_max = !empty($post_data['review_age_max']) ? $post_data['review_age_max'] : 0;
+        $review_age_min = !empty($post_data['review_age_min']) ? (int) $post_data['review_age_min'] : 0;
+        $review_age_max = !empty($post_data['review_age_max']) ? (int) $post_data['review_age_max'] : 0;
         $whereIN = $having = $where = [];
         $join = array();
         if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
