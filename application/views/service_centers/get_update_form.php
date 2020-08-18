@@ -187,7 +187,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4" id="serial_text">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
                                         <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
@@ -213,7 +213,7 @@
                                                     }
                                                 } 
                                             ?>
-                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image" <?php if(!empty($invoice_file)) { echo 'style="cursor: not-allowed; pointer-events: none;background-color:#eee;"'; } ?>>
+                                            <input type="file" class="form-control spare_parts" tabindex="-1" id="invoice_pic" name="invoice_image" <?php if(!empty($invoice_file)) { echo 'style="cursor: not-allowed; pointer-events: none;background-color:#eee;"'; } ?>>
                                             <?php if(!empty($invoice_file)) { ?>
                                                 <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $invoice_file; ?> " target="_blank">Click Here to view Invoice Picture</a>
                                             <?php } ?>
