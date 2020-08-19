@@ -693,8 +693,6 @@ class Invoice_lib {
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         if($challan_generated_by_wh == true){
             $excel_data['excel_data']['generated_by_wh'] = true;
-        }else{
-           $excel_data['excel_data']['generated_by_wh'] = false; 
         }
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         $excel_data['excel_data']['show_consumption_reason'] = $show_consumption_reason;
@@ -1059,12 +1057,12 @@ class Invoice_lib {
                 }
             } else {
                 if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-                    $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name, partners.pincode", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
+                    $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
                 }
             }
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
             $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date, false, true, true);
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true);
 
             $data['wh_challan_number'] = $wh_challan_number;
             $data['wh_challan_file'] = $wh_challan_file;
