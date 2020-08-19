@@ -1299,6 +1299,13 @@ class Inventory extends CI_Controller {
                     if ($this->session->userdata('partner_id')) {
                         $track_status = $new_state = "Spare Parts Required To Partner";
                     }
+                    $create_sf_challan_file = false;
+                    $service_center_id_challan = '';
+                    if($spare_part_detail['status']==_247AROUND_COMPLETED && empty($spare_part_detail['sf_challan_file'])){
+                        $create_sf_challan_file = $id;
+                        $service_center_id_challan = $spare_part_detail['service_center_id'];
+                    }
+
                     $old_state = SPARE_PARTS_REQUESTED;
                     break;
                 
@@ -1321,6 +1328,11 @@ class Inventory extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                 if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED") || $requestType == "QUOTE_REQUEST_REJECTED" ) { 
                     $this->update_inventory_on_cancel_parts($id, $booking_id, $old_state);
+                }
+                if($requestType == "REQUIRED_PARTS"){
+                    if(!empty($create_sf_challan_file) && !empty($service_center_id_challan)){
+                        $this->invoice_lib->generate_challan_file($create_sf_challan_file, $service_center_id_challan, '',true);
+                    }
                 }
             }
 
