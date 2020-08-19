@@ -687,10 +687,13 @@ class Invoice_lib {
      * @param Array $partner_challan_number
      * @return String $output_pdf_file_name
      */
-    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "",$show_consumption_reason=false,$show_courier_servicable_area=false) {
+    function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "",$show_consumption_reason=false,$show_courier_servicable_area=false, $challan_generated_by_wh=false) { 
         $excel_data = array();
         $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if($challan_generated_by_wh == true){
+            $excel_data['excel_data']['generated_by_wh'] = true;
+        }
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         $excel_data['excel_data']['show_consumption_reason'] = $show_consumption_reason;
         if(!empty($sf_details)){
@@ -1059,7 +1062,7 @@ class Invoice_lib {
             }
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
             $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true);
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true, true);
 
             $data['wh_challan_number'] = $wh_challan_number;
             $data['wh_challan_file'] = $wh_challan_file;
