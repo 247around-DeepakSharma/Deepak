@@ -2801,7 +2801,7 @@ function get_data_for_partner_callback($booking_id) {
      * @param type $whereConditions
      * @author Ankit Rajvanshi
      */
-    function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
+function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
         if(!$whereConditions){
             $where = "((booking_details.create_date > (CURDATE() - INTERVAL 3 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
         }
@@ -2981,7 +2981,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
@@ -2989,11 +2989,11 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3003,8 +3003,8 @@ function get_data_for_partner_callback($booking_id) {
                             CURDATE(),
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
-                              '%d-%m-%Y'
-                            )) ELSE ''
+                              '%Y-%m-%d'
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     booking_details.rating_stars AS 'Rating',
@@ -3157,7 +3157,7 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             ) < 0 THEN 0 ELSE DATEDIFF(
                               DATE(
@@ -3165,11 +3165,11 @@ function get_data_for_partner_callback($booking_id) {
                               ),
                               STR_TO_DATE(
                                     booking_details.initial_booking_date,
-                                    '%d-%m-%Y'
+                                    '%Y-%m-%d'
                               )
                             )
                       END
-                    ) ELSE ''
+                    ) ELSE '0'
                     END
                     ) AS TAT,
                     (
@@ -3179,8 +3179,8 @@ function get_data_for_partner_callback($booking_id) {
                             CURDATE(),
                             STR_TO_DATE(
                               booking_details.initial_booking_date,
-                              '%d-%m-%Y'
-                            )) ELSE ''
+                              '%Y-%m-%d'
+                            )) ELSE '0'
                       END
                     ) AS Ageing,
                     IFNULL(booking_details.rating_stars, ' ') AS 'Rating',
