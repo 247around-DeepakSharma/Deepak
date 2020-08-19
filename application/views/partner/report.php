@@ -648,6 +648,10 @@
             var eeDate = endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
             if(diffDays > 92) {
                 alert("Maximum range allowed is 3  month.");
+                $('#escalation_date').data('daterangepicker').setStartDate("<?php echo date("d/m/Y", strtotime("-1 month")); ?>");
+                $('#escalation_date').data('daterangepicker').setEndDate("<?php echo date("d/m/Y"); ?>");
+                $("#esDate").val("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                $("#eeDate").val("<?php echo date("Y-m-d"); ?>");
                 return false;
             }
             $("#esDate").val(esDate);
