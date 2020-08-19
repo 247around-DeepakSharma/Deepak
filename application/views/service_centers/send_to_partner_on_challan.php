@@ -103,7 +103,7 @@
                                         <?php echo $row['services']; ?>
                                     </td>
                                     <td style="word-break: break-all;">
-                                        <?php echo $row['part_number']; ?>
+                                        <?php echo $row['shipped_part_number']; ?>
                                     </td>
                                     
                                      <td>
