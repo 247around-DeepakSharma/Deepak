@@ -282,9 +282,9 @@ class dashboard_model extends CI_Model {
         $this->db->join('services', 'booking_details.service_id = services.id');
         $this->db->join('employee', 'bsc.agent_id = employee.id');
         $this->db->where($where);
+		$this->db->where_in('bsc.new_state',array('Completed_Rejected','Completed_Approved','Completed'));
         $this->db->order_by('employee.id');
-        $this->db->group_by('bsc.booking_id');
-        
+       	$this->db->group_by("employee.id,bsc.booking_id, DATE(bsc.create_date)"); 
         // return query object
         $query = $this->db->get();
         return $query;
@@ -332,7 +332,8 @@ class dashboard_model extends CI_Model {
                     AND bsc.create_date >= '$startDate'
                     AND bsc.create_date <= '$endDate'
                     AND bsc.partner_id = '"._247AROUND."'";
-        
+       	
+		$condition = "`Rejected Bookings` != '0' OR `Directly Approved Bookings` != '0' OR `Cancelled to Completed Bookings` != '0'  OR `Total Bookings` != '0'"; 
         // Query here
         $this->db->select($select);
         $this->db->from('booking_state_change AS bsc');
@@ -344,7 +345,7 @@ class dashboard_model extends CI_Model {
         $this->db->where($where);
         $this->db->order_by('employee.id');
         $this->db->group_by('bsc.booking_id');
-        
+        $this->db->having($condition);
         // return query object
         $query = $this->db->get();        
         return $query;
