@@ -6301,6 +6301,8 @@ class Booking extends CI_Controller {
             foreach ($summaryReportData as $summaryReport) {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
+                // If no filters found, do not show any data
+                if(!empty($filterArray)){
                 foreach ($filterArray as $key => $value) {
                     if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
                         $dArray = explode(" - ", $value);
@@ -6322,7 +6324,7 @@ class Booking extends CI_Controller {
                         
                     }
                     $finalFilterArray[] = $key . " : " . $value;
-                }
+                }}
                 
                 $str_body .=  '<tr>';
                 $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
