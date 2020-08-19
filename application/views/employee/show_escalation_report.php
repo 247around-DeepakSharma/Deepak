@@ -5,12 +5,12 @@
         </div>
     </div> 
     <hr/>
-    <div class="row">            
-        <div class="col-md-2" style='float:right;'>
-            <br/>
-            <span class="btn btn-primary" id="generate_report">Generate Report</span>
-        </div>
-        <div class="col-md-3" style='float:right;width:300px;'>
+    <div class="row">                    
+        <div class="col-md-3" style='width:400px;'>
+            <label for="partner_id">Partner*</label><br/>
+            <select class="form-control" id="partner_id" required="" name="partner_id"></select>
+        </div> 
+        <div class="col-md-3" style='width:300px;'>
             <label for="date">Date Range*</label><br/>
             <input type='hidden' name='esDate' id='esDate' value="<?php echo date('Y-m-d'); ?>">
             <input type='hidden' name='eeDate' id='eeDate' value="<?php echo date('Y-m-d'); ?>">
@@ -19,10 +19,10 @@
                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
         </div>
-        <div class="col-md-3" style='float:right;width:400px;'>
-            <label for="partner_id">Partner*</label><br/>
-            <select class="form-control" id="partner_id" required="" name="partner_id"></select>
-        </div>            
+        <div class="col-md-2">
+            <br/>
+            <span class="btn btn-primary" id="generate_report">Generate Report</span>
+        </div>        
     </div>
     <hr/>
     <div class="row">
@@ -42,14 +42,17 @@
                             $finalFilterArray = array();
                             $filterArray = json_decode($escalationReport['filters'], true);
                             foreach ($filterArray as $key => $value) {
-                                if ($key == "Date_Range") {
-                                    $dArray = explode(" - ", $value);
-                                    $key = "Registration Date";
-                                    $startTemp = strtotime($dArray[0]);
-                                    $endTemp = strtotime($dArray[1]);
+                                if ($key == "esDate") {
+                                    $key = "Escalation Start Date";
+                                    $startTemp = strtotime($value);
                                     $startD = date('d-F-Y', $startTemp);
+                                    $value = $startD;
+                                }
+                                if ($key == "eeDate") {
+                                    $key = "Escalation End Date";
+                                    $endTemp = strtotime($value);
                                     $endD = date('d-F-Y', $endTemp);
-                                    $value = $startD . " To " . $endD;
+                                    $value = $endD;
                                 }
                                 $finalFilterArray[] = $key . " : " . $value;
                             }
@@ -129,6 +132,10 @@
                 var eeDate = endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
                 if(diffDays > 92) {
                     alert("Maximum range allowed is 3  month.");
+                    $('#date').data('daterangepicker').setStartDate("<?php echo date("d/m/Y", strtotime("-1 month")); ?>");
+                    $('#date').data('daterangepicker').setEndDate("<?php echo date("d/m/Y"); ?>");
+                    $("#esDate").val("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                    $("#eeDate").val("<?php echo date("Y-m-d"); ?>");
                     return false;
                 }
                 $("#esDate").val(esDate);

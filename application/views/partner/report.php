@@ -43,7 +43,7 @@
                                  <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
-                                            <a href="<?php echo base_url()."employee/partner/download_real_time_summary_report/".$this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
+                                            <a href="<?php echo base_url()."employee/partner/download_real_time_summary_report_from_view/".$this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
                                             <div class="clear"></div>
                                             <form style="border: 2px solid #4b9c7a;padding: 10px 0px;">
                         <div class="form-group col-md-3"> 
@@ -648,6 +648,10 @@
             var eeDate = endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
             if(diffDays > 92) {
                 alert("Maximum range allowed is 3  month.");
+                $('#escalation_date').data('daterangepicker').setStartDate("<?php echo date("d/m/Y", strtotime("-1 month")); ?>");
+                $('#escalation_date').data('daterangepicker').setEndDate("<?php echo date("d/m/Y"); ?>");
+                $("#esDate").val("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                $("#eeDate").val("<?php echo date("Y-m-d"); ?>");
                 return false;
             }
             $("#esDate").val(esDate);
