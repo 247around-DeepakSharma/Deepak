@@ -4257,23 +4257,19 @@ class Booking extends CI_Controller {
            $sorting_type='ASC';
        }
         
-        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
-              //  $whereInArray,$JoinTypeTableArray);
         //process query and get result from database
         //After server side shorting
         $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
-       //convert database result into a required formate needed for datatales
+        //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
             array_unshift($tempArray, $index);
             $finalArray[] = $tempArray;
         }
-        //create final array required for database table\
+        //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
-        //get all records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
-       // get filtered records from tabble
+        // get filtered records from table
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;

@@ -87,6 +87,9 @@ var ad_table;
             "pageLength": 50,
             "deferLoading": 0,
             "dom": 'lBfrtip',
+            "language": {                
+                infoFiltered: ""
+            },
             "buttons": [
                 {
                     extend: 'excel',
