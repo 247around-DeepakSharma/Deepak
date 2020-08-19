@@ -111,22 +111,22 @@
         var brand = $("#brand option:selected").val();
         var model = $("#model option:selected").val();
         var purchase_date = $('#purchase_date').val();
-        if ((partner == "") || (partner === 'option_holder'))
+        if ((partner == "") || (partner === 'option_holder') || (partner == 'undefined'))
         {
             alert("Please Select Partner ");
             return false;
         }
-        else if ((service == "") || (service === 'option_holder'))
+        else if ((service == "") || (service === 'option_holder') || (service == 'undefined'))
         {
             alert("Please Select Product ");
             return false;
         }
-        else if ((brand == "") || (brand === 'option_holder'))
+        else if ((brand == "") || (brand === 'option_holder') || (brand == 'undefined'))
         {
             alert("Please Select Brand ");
             return false;
         }
-        else if ((model == "") || (model === 'option_holder'))
+        else if ((model == "") || (model === 'option_holder') || (model == 'undefined'))
         {
             alert("Please Select Model ");
             return false;
@@ -172,6 +172,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
+            async: false,
             data: {service_id: service_id, partner_id: partner_id},
             success: function (data) {
                 //First Resetting Options values present if any   
