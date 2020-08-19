@@ -37,7 +37,7 @@
             <section id="search_docket_number_details_div">
                 <div class="docket_number_details" style="display: none;">
                     <table  class="table table-response table-bordered" style="padding-top: 20px;" width="100%" id="docket_number_table">
-                        <thead id="other_header">
+                        <thead id="docket_header">
                             <th>Sr No</th>
                             <th>Booking Id</th>
                             <th>SF Name</th>
@@ -51,19 +51,10 @@
                             <th>Part Name</th>
                             <th>Part Code</th>
                             <th>Part Type</th>
-                            <th class="consumption" style="display: none;">Consumption</th>
-                            <th class="consumption-reason" style="display: none;">Consumption Reason</th>
+                            <th>Consumption</th>
+                            <th>Consumption Reason</th>
                             <th>Price</th>
                             <th>GST</th>
-                        </thead>
-                        <thead id="msl_header">
-                            <th>Sr No</th>
-                            <th> Invoice Id</th>
-                            <th> AWB Number</th>
-                            <th>Courier company_name</th>
-                            <th>Weight</th>
-                            <th>No. Of Boxes</th>
-                            <th>Price</th>
                         </thead>
                         <tbody id="docket_number_details_body"></tbody>
                     </table>
@@ -175,19 +166,14 @@
     
     function create_table(table_data, searchBy){
         $("#docket_number_table").dataTable().fnDestroy();
-
-        $("#docket_number_table").dataTable({
-            dom: 'Bfrtip',
-            pageLength: 50,
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    text: 'Export',
-                    title: 'docket_number' + time
-                }
-            ]
-        });    
-
+        
+        // set header
+        var table_head = '<tr><th>Sr No</th>'+'<th>Booking Id</th>'+'<th>SF Name</th>'+'<th>WH Name</th>'+'<th>Partner Challan Number</th>'+'<th>SF Challan Number</th>'+'<th>WH Challan Number</th>'+'<th>Partner AWB</th>'+
+        '<th>SF AWB</th>'+'<th>WH AWB</th>'+'<th>Part Name</th>'+'<th>Part Code</th>'+'<th>Part Type</th>'+'<th>Consumption</th>'+'<th>Consumption Reason</th>'+'<th>Price</th>'+'<th>GST</th></tr>';
+        
+        $('#docket_header').empty();
+        $('#docket_header').html(table_head);
+        
         var table_body = "";
         $.each(table_data, function (index,val) {
             table_body += "<tr>";
@@ -286,26 +272,19 @@
             /**
              * @modifiedBY Ankit Rajvanshi
              */
-            if(searchBy == 'awb_by_sf') {
-                $('.consumption').show();
-                $('.consumption-reason').show();
-                // consumption column
-                if(val['is_consumed'] === null){
-                    table_body += '<td></td>';
-                } else if(val['is_consumed'] == 1){
-                    table_body += '<td>Yes</td>';
-                } else {
-                    table_body += '<td>No</td>';
-                }
-                // consumption reason column
-                if(val['consumed_status'] === null){
-                    table_body += '<td></td>';
-                }else{
-                    table_body += '<td>' + val['consumed_status'] +'</td>';
-                }
+            // consumption column
+            if(val['is_consumed'] === null){
+                table_body += '<td></td>';
+            } else if(val['is_consumed'] == 1){
+                table_body += '<td>Yes</td>';
             } else {
-                $('.consumption').hide();
-                $('.consumption-reason').hide();
+                table_body += '<td>No</td>';
+            }
+            // consumption reason column
+            if(val['consumed_status'] === null){
+                table_body += '<td></td>';
+            } else {
+                table_body += '<td>' + val['consumed_status'] +'</td>';
             }
 
             if(val['price'] === null){
@@ -324,28 +303,57 @@
         });
         
         $('.docket_number_details').show();
-        $('#msl_header').hide();
-        $("#other_header").show();
         $('#docket_number_details_body').html(table_body);
         $('.docket_number__not_found_div').hide();
-        
+
+        if(searchBy == 'awb_by_sf') { 
+            $("#docket_number_table").dataTable({
+                dom: 'Bfrtip',
+                pageLength: 50,
+                buttons: [
+                    {
+                        extend: 'csv',
+                        text: 'Export',
+                        title: 'docket_number' + time
+                    }
+                ]
+            });    
+        } else {
+            $("#docket_number_table").dataTable({
+                dom: 'Bfrtip',
+                pageLength: 50,
+                 "columnDefs": [
+                    {
+                        "targets": [ 13 ],
+                        "visible": false,
+                        "searchable": false
+                    },
+                    {
+                        "targets": [ 14 ],
+                        "visible": false
+                    }
+                ],
+                buttons: [
+                    {
+                        extend: 'csv',
+                        text: 'Export',
+                        title: 'docket_number' + time,
+                        exportOptions: {
+                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,15,16]
+                        },
+                    }
+                ]
+            });    
+        }
     }
     
     function create_table_search_msl(table_data){
         $("#docket_number_table").dataTable().fnDestroy();
-        
-        $("#docket_number_table").dataTable({
-            dom: 'Bfrtip',
-            pageLength: 50,
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    text: 'Export',
-                    title: 'docket_number' + time
-                }
-            ]
-        });
-        
+
+        var table_head = '<tr><th>Sr No</th><th>Invoice Id</th><th> AWB Number</th><th>Courier company_name</th><th>Weight</th><th>No. Of Boxes</th><th>Price</th></tr>';
+        $('#docket_header').empty();
+        $('#docket_header').html(table_head);
+
         var table_body = "";
         $.each(table_data, function (index,val) {
             table_body += "<tr>";
@@ -393,10 +401,21 @@
         });
         
         $('.docket_number_details').show();
-        $('#msl_header').show();
-        $("#other_header").hide();
         $('#docket_number_details_body').html(table_body);
         $('.docket_number__not_found_div').hide();
+
+        $("#docket_number_table").dataTable({
+            dom: 'Bfrtip',
+            pageLength: 50,
+            buttons: [
+                {
+                    extend: 'csv',
+                    text: 'Export',
+                    title: 'docket_number' + time,
+                }
+            ]
+        });
+
     }
     
     $('#docket_number').bind('keydown', function (event) {
