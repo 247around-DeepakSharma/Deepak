@@ -654,16 +654,32 @@
     }
     
 function initiate_escalation_data(){
-        $('input[name="daterange"]').daterangepicker({
-            timePicker: true,
-            timePickerIncrement: 30,
-            locale: {
-                format: 'YYYY-MM-DD'
-            },
-            dateLimit: {
-                days: 92
-            },
-            startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
+    $('input[name="daterange"]').daterangepicker({
+        locale: {
+            format: 'DD/MM/YYYY',
+            cancelLabel: 'Clear',
+            maxDate: 'now'
+        },
+        startDate: "<?php echo date("d-m-Y", strtotime("-1 month")); ?>"
+    },  function(start, end, label) {
+            var startDateObj = new Date(start);
+            var endDateObj = new Date(end);
+            var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+
+            var date = startDateObj.getFullYear()+'-'+(("0" + (startDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + startDateObj.getDate()).slice(-2))+' - '+endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
+            var esDate = startDateObj.getFullYear()+'-'+(("0" + (startDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + startDateObj.getDate()).slice(-2));
+            var eeDate = endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
+            if(diffDays > 92) {
+                alert("Maximum range allowed is 3 month.");
+                $('#daterange_id').data('daterangepicker').setStartDate("<?php echo date("d/m/Y", strtotime("-1 month")); ?>");
+                $('#daterange_id').data('daterangepicker').setEndDate("<?php echo date("d/m/Y"); ?>");
+                $("#esDate").val("<?php echo date("Y-m-d", strtotime("-1 month")); ?>");
+                $("#eeDate").val("<?php echo date("Y-m-d"); ?>");
+                return false;
+            }
+            $("#esDate").val(esDate);
+            $("#eeDate").val(eeDate);
     });
 }
 
