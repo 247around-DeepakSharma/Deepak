@@ -4733,6 +4733,7 @@ class Partner extends CI_Controller {
         if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
             $pan_file = "Partner-" . strtoupper($this->input->post('pan'))  . "." . explode(".", $_FILES['pan_file']['name'])[1];
+            $pan_file = str_replace(" ","_",$pan_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
             //Upload files to AWS
@@ -4752,6 +4753,7 @@ class Partner extends CI_Controller {
         if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
             $registration_file = "Partner-" . strtoupper($this->input->post('registration_no'))  . "." . explode(".", $_FILES['registration_file']['name'])[1];
+            $registration_file = str_replace(" ","_",$registration_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
 
             //Upload files to AWS
@@ -4770,6 +4772,7 @@ class Partner extends CI_Controller {
         if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
             $tin_file = "Partner-" . strtoupper($this->input->post('tin')) . "." . explode(".", $_FILES['tin_file']['name'])[1];
+            $tin_file = str_replace(" ","_",$tin_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
             //Upload files to AWS
@@ -4788,6 +4791,7 @@ class Partner extends CI_Controller {
         if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
             $cst_file = "Partner-" . strtoupper($this->input->post('cst_no'))  . "." . explode(".", $_FILES['cst_file']['name'])[1];
+            $cst_file = str_replace(" ","_",$cst_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
             //Upload files to AWS
@@ -4806,6 +4810,7 @@ class Partner extends CI_Controller {
         if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
             $service_tax_file = "Partner-" .  strtoupper($this->input->post('service_tax'))  . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+            $service_tax_file = str_replace(" ","_",$service_tax_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
             //Upload files to AWS
@@ -4825,6 +4830,7 @@ class Partner extends CI_Controller {
             $tmpFile = $_FILES['gst_number_file']['tmp_name'];
             $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST_Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
                    
+            $gst_number_file = str_replace(" ","_",$gst_number_file);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "vendor-partner-docs/" . $gst_number_file;

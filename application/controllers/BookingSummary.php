@@ -372,6 +372,7 @@ class BookingSummary extends CI_Controller {
 
                 //Get populated XLS with data
                 $output_file = "BookingSummary-" . $sc['name'] . "-" . date('d-M-Y') . ".xls";
+                $output_file = str_replace(" ", "_", $output_file);
                 $R->render('excel2003', $output_file);
 
                 //log_message('info', "Report generated with $count records");

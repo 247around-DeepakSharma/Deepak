@@ -6157,6 +6157,7 @@ class Booking extends CI_Controller {
                 } else {
                    
                     $picName = $type . rand(10, 100) . $unit . "." . $extension;
+                    $picName = str_replace(" ","_",$picName);
                     $_POST[$post_name][$unit] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;
