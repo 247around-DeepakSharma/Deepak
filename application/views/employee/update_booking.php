@@ -893,7 +893,7 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="input-group input-append date">
                                     <input id="booking_date" class="form-control"  name="booking_date" type="date" 
                                            value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } 
-                                           else { if(date('H') < '13'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} } ?>" required echo readonly='true'>
+                                           else { if(date('H') < '14'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} } ?>" required echo readonly='true'>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>

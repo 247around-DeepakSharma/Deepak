@@ -155,7 +155,7 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
                         <div class="col-md-4">
                             <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                 <label for="booking_date">Booking Date *</label>
-                                <input type="text" class="form-control" readonly style="background-color:#FFF;"   id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo date('d-m-Y', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 12 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day"));}?>">
+                                <input type="text" class="form-control" readonly style="background-color:#FFF;"   id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo date('d-m-Y', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 14 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day"));}?>">
                                 <?php echo form_error('booking_date'); ?>
                             </div>
                         </div>
