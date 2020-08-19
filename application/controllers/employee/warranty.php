@@ -77,10 +77,12 @@ class Warranty extends CI_Controller {
             $data[] = $row;
         }
              
-        foreach ($list as $key => $value) {
-            $no++;
-            $row =  $this->warranty_data($list[$key], $no, $date_period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, $activeInWarrantyPlans, $activeExtendedWarrantyPlans, $create_date);
-            $data[] = $row;
+        if(!empty($list)){
+            foreach ($list as $key => $value) {
+                $no++;
+                $row =  $this->warranty_data($list[$key], $no, $date_period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, $activeInWarrantyPlans, $activeExtendedWarrantyPlans, $create_date);
+                $data[] = $row;
+            }        
         }
         
         $new_post['length'] = -1;
@@ -155,8 +157,8 @@ class Warranty extends CI_Controller {
         $row[] = date('d-M-Y', strtotime($warranty_list['period_end']));
         $row[] = $warranty_list['states'];
         $row[] = $warranty_list['part_types'];
-        $row[] = !empty($warranty_list['inclusive_svc_charge']) ? "No" : "Yes";
-        $row[] = !empty($warranty_list['inclusive_gas_charge']) ? "No" : "Yes";
+//        $row[] = !empty($warranty_list['inclusive_svc_charge']) ? "No" : "Yes";
+//        $row[] = !empty($warranty_list['inclusive_gas_charge']) ? "No" : "Yes";
         $row[] = (!empty($warranty_list['warranty_type']) && $warranty_list['warranty_type'] == 1) ? "In Warranty" : "Extended Warranty";
         $row[] = $warranty_list['warranty_period']. " Month(s)";
         $row[] = $warranty_list['warranty_grace_period']. " Day(s)";
@@ -791,15 +793,15 @@ class Warranty extends CI_Controller {
      public function validate_warranty_grace_period($integer)
     {
         $valid = 0;
-        if(isset($integer))
-        {
+        // if(isset($integer))
+        // {
             $integer = trim($integer);
-            if(ctype_digit($integer) && $integer > 0)
+            if(ctype_digit($integer) && $integer >= 0 || empty($integer))
             {
                 $valid = 1;
             }
             
-        }
+        // }
        
         
         if($valid)

@@ -28,7 +28,7 @@
                             <tr>
                                 <th>S No.</th>
                                 <th>AWB Number</th>
-                                <th>Company Name</th>
+                                <th>Courier Company Name</th>
                                 <th>Courier Charge</th>
                                 <th>Invoice Id</th>
                                 <th>Billable weight</th>

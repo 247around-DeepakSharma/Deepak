@@ -414,7 +414,7 @@
         </div>
     </div>
     
-        <div class="row">
+         <div class="row" style="display: none;">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
@@ -500,7 +500,7 @@
             </div>
         </div>
     </div>
- 
+  
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- Partner Booking Status -->
