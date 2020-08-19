@@ -10042,14 +10042,17 @@ class Partner extends CI_Controller {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
                 foreach ($filterArray as $key => $value) {
-                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
-                        $dArray = explode(" - ", $value);
-                        $key = "Registration Date";
-                        $startTemp = strtotime($dArray[0]);
-                        $endTemp = strtotime($dArray[1]);
+                    if ($key == "esDate") {
+                        $key = "Escalation Start Date";
+                        $startTemp = strtotime($value);
                         $startD = date('d-F-Y', $startTemp);
+                        $value = $startD;
+                    }
+                    if ($key == "eeDate") {
+                        $key = "Escalation End Date";
+                        $endTemp = strtotime($value);
                         $endD = date('d-F-Y', $endTemp);
-                        $value = $startD . " To " . $endD;
+                        $value = $endD;
                     }                    
                     $finalFilterArray[] = $key . " : " . $value;
                 }
