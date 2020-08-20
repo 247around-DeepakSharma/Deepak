@@ -5017,7 +5017,11 @@ class Spare_parts extends CI_Controller {
 
     function add_courier_serviceable_area() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/add_courier_serviceable_area');
+        $data = array();
+        $select = "courier_services.id, courier_services.courier_name, courier_services.courier_code, courier_services.status";
+        $where = array('courier_services.status' => 1);
+        $data['courier_details'] = $this->inventory_model->get_courier_services($select, $where);
+        $this->load->view('employee/add_courier_serviceable_area', $data);
     }
     
 
