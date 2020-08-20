@@ -26,6 +26,7 @@ class Whatsapp extends CI_Controller {
      * @Author Abhishek AWasthi
      */
     function history() {
+		$this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/whatsapp_chat_history');
     }
@@ -63,6 +64,17 @@ class Whatsapp extends CI_Controller {
         );
 
         echo json_encode($output);
+    }
+	
+	
+	function checkUserSession() {
+         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
     }
 
     /**

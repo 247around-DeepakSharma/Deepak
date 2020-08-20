@@ -604,7 +604,6 @@ class Partner extends CI_Controller {
      * @return : array(result) to view
      */
     function get_add_partner_form() {
-
         $results['services'] = $this->vendor_model->selectservice();
         $results['select_state'] = $this->vendor_model->get_allstates();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -799,7 +798,7 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-                         $sf_list = $this->vendor_model->viewvendor('', 1);
+                        $sf_list = $this->vendor_model->viewvendor('', 1,'','','','','',1);
                         $all_poc = implode(',', array_map(function ($entry) {
                                     return $entry['primary_contact_email'];
                                 }, $sf_list));
@@ -810,6 +809,12 @@ class Partner extends CI_Controller {
                         $all_owner_array = explode(',', $all_owner);
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
                         $bcc = '';
+                        $cc = $email_template[3];
+                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                        $message = vsprintf($email_template[0], array($html_table));
+                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        
+                        
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
@@ -817,12 +822,20 @@ class Partner extends CI_Controller {
                             $bcc = $email_list_String;
                             $bcc_array = explode(',', $bcc);
                             $bcc_array = array_filter($bcc_array);
-                            $bcc = implode(',', $bcc_array);
+                            //$bcc = implode(',', $bcc_array);
                         }
-                        $cc = $email_template[3];
-                        $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
-                        $message = vsprintf($email_template[0], array($html_table));
-                        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        
+                        // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
+                        if(!empty($bcc_array))
+                        {
+                            $cc = '';
+                            $bcc = '';
+                            for($i=0;count($bcc_array)>$i;$i++)
+                            {
+                                $to = $bcc_array[$i];
+                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                            }
+                        }
                     }
                     
                     //Adding Partner code in Bookings_sources table
@@ -4733,6 +4746,7 @@ class Partner extends CI_Controller {
         if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
             $pan_file = "Partner-" . strtoupper($this->input->post('pan'))  . "." . explode(".", $_FILES['pan_file']['name'])[1];
+            $pan_file = str_replace(" ","_",$pan_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
             //Upload files to AWS
@@ -4752,6 +4766,7 @@ class Partner extends CI_Controller {
         if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
             $registration_file = "Partner-" . strtoupper($this->input->post('registration_no'))  . "." . explode(".", $_FILES['registration_file']['name'])[1];
+            $registration_file = str_replace(" ","_",$registration_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
 
             //Upload files to AWS
@@ -4770,6 +4785,7 @@ class Partner extends CI_Controller {
         if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
             $tin_file = "Partner-" . strtoupper($this->input->post('tin')) . "." . explode(".", $_FILES['tin_file']['name'])[1];
+            $tin_file = str_replace(" ","_",$tin_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
             //Upload files to AWS
@@ -4788,6 +4804,7 @@ class Partner extends CI_Controller {
         if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
             $cst_file = "Partner-" . strtoupper($this->input->post('cst_no'))  . "." . explode(".", $_FILES['cst_file']['name'])[1];
+            $cst_file = str_replace(" ","_",$cst_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
             //Upload files to AWS
@@ -4806,6 +4823,7 @@ class Partner extends CI_Controller {
         if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
             $service_tax_file = "Partner-" .  strtoupper($this->input->post('service_tax'))  . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+            $service_tax_file = str_replace(" ","_",$service_tax_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
             //Upload files to AWS
@@ -4825,6 +4843,7 @@ class Partner extends CI_Controller {
             $tmpFile = $_FILES['gst_number_file']['tmp_name'];
             $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST_Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
                    
+            $gst_number_file = str_replace(" ","_",$gst_number_file);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "vendor-partner-docs/" . $gst_number_file;
@@ -9896,14 +9915,17 @@ class Partner extends CI_Controller {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
                 foreach ($filterArray as $key => $value) {
-                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
-                        $dArray = explode(" - ", $value);
-                        $key = "Registration Date";
-                        $startTemp = strtotime($dArray[0]);
-                        $endTemp = strtotime($dArray[1]);
+                    if ($key == "esDate") {
+                        $key = "Escalation Start Date";
+                        $startTemp = strtotime($value);
                         $startD = date('d-F-Y', $startTemp);
+                        $value = $startD;
+                    }
+                    if ($key == "eeDate") {
+                        $key = "Escalation End Date";
+                        $endTemp = strtotime($value);
                         $endD = date('d-F-Y', $endTemp);
-                        $value = $startD . " To " . $endD;
+                        $value = $endD;
                     }                    
                     $finalFilterArray[] = $key . " : " . $value;
                 }
