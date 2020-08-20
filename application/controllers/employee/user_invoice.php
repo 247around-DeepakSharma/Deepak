@@ -1171,7 +1171,7 @@ class User_invoice extends CI_Controller {
 //                                if ($courier_id) {
                                 list($response,$output_file,$output_file_main) = $this->generate_new_return_inventory($invoices, $wh_id, $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
                                 $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
-                                if($wh_type == 2 && $receiver_entity_type == _247AROUND_PARTNER_STRING){
+                                if($wh_type != 2 && $receiver_entity_type == _247AROUND_PARTNER_STRING){
                                     array_push($invoice_array, $invoices);
                                 }
                                 
