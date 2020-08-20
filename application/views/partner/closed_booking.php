@@ -150,7 +150,7 @@
     $("#serachInputCompleted").change(function () {
          if($('#serachInputCompleted').val() !== 'all'){
     table
-        .columns(7)
+        .columns(8)
         .search($('#serachInputCompleted').val())
         .draw();
          }
