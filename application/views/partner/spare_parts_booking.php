@@ -273,12 +273,13 @@
     function downloadSpare(){
         $("#spareDownload").css("display", "none");
         $("#messageSpare").text("Download In Progress");
+        var state = $("#state_search_spare").val();
+        var datastring = "state="+state;
          $.ajax({
             type: 'POST',
 
             url: '<?php echo base_url(); ?>file_process/downloadSpareRequestedParts/' + <?php echo $this->session->userdata("partner_id");?> + '/' + '<?php echo _247AROUND_PARTNER_STRING ; ?>',
 
-            contentType: false,
             cache: false,
             processData: false,
             success: function (data) {
