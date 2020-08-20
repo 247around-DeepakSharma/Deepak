@@ -818,13 +818,8 @@ class Partner extends CI_Controller {
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
                             $email_list = array_filter($email_list);
-                            $email_list_String = implode(',', $email_list);
-                            $bcc = $email_list_String;
-                            $bcc_array = explode(',', $bcc);
-                            $bcc_array = array_filter($bcc_array);
-                            //$bcc = implode(',', $bcc_array);
+                            $bcc_array = array_values($email_list);
                         }
-                        
                         // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
                         if(!empty($bcc_array))
                         {
