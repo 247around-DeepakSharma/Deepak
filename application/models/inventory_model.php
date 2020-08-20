@@ -537,6 +537,8 @@ class Inventory_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id','left');
+        $this->db->join('appliance_model_details','inventory_model_mapping.model_number_id = appliance_model_details.id', 'left');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         

@@ -2773,6 +2773,10 @@ class Inventory extends CI_Controller {
                 $post['where'] = "inventory_model_mapping.model_number_id = $model_number_id ";
             }
 
+            if(!empty($this->input->post('part_type'))) {
+                $post['where'] .= ' AND inventory_master_list.type = "'.trim($this->input->post('part_type')).'"';
+            }
+            
             $select = "inventory_master_list.*,appliance_model_details.model_number,services.services";
             $list = $this->inventory_model->get_serviceable_bom_master_list($post, $select);
             $no = $post['start'];
@@ -2799,11 +2803,14 @@ class Inventory extends CI_Controller {
         $row[] = $stock_list->gst_rate;
         $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->gst_rate)/100), 2, '.', '');
         $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->oow_vendor_margin / 100))), 2, '.', '');
-        $row[] = "<i class ='fa fa-inr'></i> " . $total;
-        $row[] = $stock_list->oow_vendor_margin . " %";
-        $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if($saas_partner){
-        $row[] = $stock_list->oow_around_margin . " %";
+        
+        if(empty($this->session->userdata('partner_id'))) {
+            $row[] = "<i class ='fa fa-inr'></i> " . $total;
+            $row[] = $stock_list->oow_vendor_margin . " %";
+            $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($saas_partner) {
+                $row[] = $stock_list->oow_around_margin . " %";
+            }
         }
         $row[] = number_format((float)$sf_price+($sf_price*($stock_list->oow_around_margin+$stock_list->oow_vendor_margin)/100), 2, '.', '');
         return $row;
@@ -3316,7 +3323,7 @@ class Inventory extends CI_Controller {
     function search_inventory_stock_available_warehouse() {
         
         $post = $this->get_post_data();
-        if (($this->input->post('sender_entity_id') && $this->input->post('part_number'))) {
+        if ($this->input->post('sender_entity_id') && (!empty($this->input->post('part_number')) || !empty($this->input->post('model_number_id')))) {
             $post[''] = array();
             $post['column_order'] = array();
             $post['column_search'] = array('part_name', 'part_number', 'type', 'services.services');
@@ -3335,8 +3342,19 @@ class Inventory extends CI_Controller {
                 unset($post['where']['inventory_stocks.stock <> 0']);
             }
             
-            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,service_centres.company_name as wh_name, service_centres.is_micro_wh";
+            if (!empty($this->input->post('model_number_id'))) {
+                $post['where']['inventory_model_mapping.model_number_id'] = $this->input->post('model_number_id');
+            }
 
+            if(!empty($this->input->post('part_type'))) {
+                $post['where']['inventory_master_list.type'] = trim($this->input->post('part_type'));
+            }
+            
+            if(!empty($this->input->post('service_id'))) {
+                $post['where']['inventory_master_list.service_id'] = trim($this->input->post('service_id'));
+            }
+            
+            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,service_centres.company_name as wh_name, service_centres.is_micro_wh";
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
             $data = array();
             $no = $post['start'];
