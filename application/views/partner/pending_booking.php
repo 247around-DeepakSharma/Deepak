@@ -60,6 +60,8 @@
                        <th class="text-center">State</th>
                         <th class="text-center">Booking Date</th>
                         <th class="text-center">Age (Days)</th>
+                        <th class="text-center">Check Spare<br/>Part Price</th>
+                        <th class="text-center">Check Spare<br/>Part Stock</th>
                         <th class="text-center">Send Email</th>
                         <th class="text-center">Action</th>
                         <th class="text-center">JobCard</th>

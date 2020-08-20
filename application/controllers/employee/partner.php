@@ -817,12 +817,7 @@ class Partner extends CI_Controller {
                         
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
-                            $email_list = array_filter($email_list);
-                            $email_list_String = implode(',', $email_list);
-                            $bcc = $email_list_String;
-                            $bcc_array = explode(',', $bcc);
-                            $bcc_array = array_filter($bcc_array);
-                            //$bcc = implode(',', $bcc_array);
+                            $bcc_array = array_values($email_list);
                         }
                         
                         // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
@@ -7081,6 +7076,9 @@ class Partner extends CI_Controller {
             $tempArray[] = $row->state;
             $tempArray[] = (!empty($row->booking_date) && $row->booking_date != '0000-00-00') ? date("d-M-Y", strtotime($row->booking_date)) : "";
             $tempArray[] = $row->aging;
+            $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/inventory_list_by_model/'. $row->partner_id .'/'. $row->service_id.'/'. $row->booking_id.'" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>';
+            $tempArray[] = '<a class="btn btn-sm btn-primary" href="'. base_url().'partner/inventory/stock_by_model/'. $row->partner_id .'/'. $row->service_id.'/'. $row->booking_id.'" target="_blank"><i class="fa fa-dropbox" aria-hidden="true"></i></a>';
+            
             $bookingIdTemp = "'".$row->booking_id."'";
             $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
             if ($row->type == _247AROUND_QUERY) { 
@@ -9941,4 +9939,70 @@ class Partner extends CI_Controller {
         
         echo $str_body;
     }
+    
+    /**
+     * 
+     * @param type $model_number_id
+     * @param type $service_id
+     * @param type $booking_id
+     */
+    function get_inventory_by_model($model_number_id = '', $service_id = '', $booking_id = '') {
+
+        if (!empty($booking_id)) {
+            $booking_unit = $this->booking_model->getunit_details($booking_id, $service_id);
+            if (!empty($booking_unit)) {
+                $data['model'] = $booking_unit[0]['model_number'];
+            }
+        }
+
+        if (!empty($model_number_id) && empty($service_id)) {
+            $model_number_id = urldecode($model_number_id);
+            $data['model_number_id'] = $model_number_id;
+            $data['partner_id'] = '';
+            $data['service_id'] = '';
+            
+            $where = array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1);
+            if(!empty($part_type)) {
+                $where['inventory_master_list.type'] = $part_type;
+            }
+            
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', $where);
+        } else {
+            $data['inventory_details'] = array();
+            $data['model_number_id'] = '';
+            $data['partner_id'] = urldecode($model_number_id);
+            $data['service_id'] = $service_id;
+        }
+        
+        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/show_inventory_details_by_model', $data);
+        $this->load->view('partner/partner_footer');
+    }
+    
+    /**
+     *  @desc : This function is used to get stock on the basis of model and part type.
+     *  @param : void
+     *  @return : void
+     */
+    function get_stock_by_model($model_number_id = '', $service_id = '', $booking_id = '', $part_type = ''){
+        $this->checkUserSession();
+
+        if (!empty($booking_id)) {
+            $booking_unit = $this->booking_model->getunit_details($booking_id, $service_id);
+            if (!empty($booking_unit)) {
+                $data['model'] = $booking_unit[0]['model_number'];
+            }
+        }
+        
+        $data['model_number_id'] = $model_number_id;
+        $data['service_id'] = $service_id;
+        $data['booking_id'] = $booking_id;
+        $data['part_type'] = $part_type;
+
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/show_stock_by_model', $data);
+        $this->load->view('partner/partner_footer');
+    }
+
 }

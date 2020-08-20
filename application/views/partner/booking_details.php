@@ -382,7 +382,7 @@
                                                                        echo "Warehouse (Central)";     
                                                                   }else { echo $booking_history[0]['city']. " Warehouse (Micro)";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a target='_blank' href='".base_url().'employee/partner/get_inventory_by_model/'.$sp['partner_id'].'/'.$booking_history[0]['service_id'].'/'.$sp['booking_id']."'><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
                                                                 <td>

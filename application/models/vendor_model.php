@@ -41,7 +41,7 @@ class vendor_model extends CI_Model {
         }
         if($on_off != "")
         {
-            $where_active = "service_centres.on_off= '$on_off'";
+            $where_active .= "AND service_centres.on_off= '$on_off'";
         }
         
         if($sf_list != ""){

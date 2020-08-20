@@ -106,6 +106,8 @@
                            // }?>
                             <input type="submit" value="New Booking" <?php echo $disabled; ?>  class=" btn btn-md btn-primary col-md-offset-4">
                             <a class=" btn btn-md btn-primary col-md-offset-1" href="<?php echo base_url().'employee/warranty/index/'.$this->session->userdata('partner_id'); ?>">Warranty Checker</a>
+                            <a class=" btn btn-md btn-primary col-md-offset-1" target="_blank" href="<?php echo base_url().'partner/inventory/inventory_list_by_model' ?>">Spare Part Price</a>
+                            <a class=" btn btn-md btn-primary col-md-offset-1" target="_blank" href="<?php echo base_url().'partner/inventory/stock_by_model' ?>">Spare Part Stock</a>
                             <p class="col-md-offset-4" style="color:red;"><?php if(empty($this->session->userdata('status'))){echo PREPAID_LOW_AMOUNT_MSG_FOR_PARTNER; }?></p>
                         </form>
                         <?php }?>
