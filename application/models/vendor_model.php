@@ -18,7 +18,8 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$state='',$city='') {
+
+	function viewvendor($vendor_id = "",$active = "",$sf_list = "", $is_cp = '',$is_wh = '',$state='',$city='',$on_off='') {
         $where_id = "";
         $where_active = "";
         $where_sf = "";
@@ -39,6 +40,11 @@ class vendor_model extends CI_Model {
         if ($active != "") {
             $where_active .= "service_centres.active= '$active'";
         }
+        if($on_off != "")
+        {
+            $where_active .= " AND service_centres.on_off= '$on_off'";
+        }
+        
         if($sf_list != ""){
             $where_sf .= "service_centres.id  IN (" .trim($sf_list, ',').")";
         }

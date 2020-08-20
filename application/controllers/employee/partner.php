@@ -637,7 +637,7 @@ class Partner extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function process_add_edit_partner_form() { 
+   	function process_add_edit_partner_form() { 
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
@@ -667,7 +667,7 @@ class Partner extends CI_Controller {
                         "entity_type" => "partner",
                         "entity_id" => $partner_id,
                         "notification_type" => 8,
-                        "message" => "Grace Period extended till ".date("d-m-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
+                        "message" => "Grace Period extended till ".date("d-M-Y", strtotime($edit_partner_data['partner']['grace_period_date'])),
                         "marquee" => 1,
                         "start_date" => date("Y-m-d H:i:s"),
                         "end_date" => date('Y-m-d H:i:s', strtotime("+1 day", strtotime(date("Y-m-d H:i:s")))),
@@ -803,7 +803,7 @@ class Partner extends CI_Controller {
                         $html_table = $this->table->generate();
                         
                         $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
-                         $sf_list = $this->vendor_model->viewvendor('', 1);
+                        $sf_list = $this->vendor_model->viewvendor('', 1,'','','','','',1);
                         $all_poc = implode(',', array_map(function ($entry) {
                                     return $entry['primary_contact_email'];
                                 }, $sf_list));
@@ -814,19 +814,28 @@ class Partner extends CI_Controller {
                         $all_owner_array = explode(',', $all_owner);
                         $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));
                         $bcc = '';
-                        if (count($email_list) > 0) {
-                            $email_list = array_unique($email_list);
-                            $email_list = array_filter($email_list);
-                            $email_list_String = implode(',', $email_list);
-                            $bcc = $email_list_String;
-                            $bcc_array = explode(',', $bcc);
-                            $bcc_array = array_filter($bcc_array);
-                            $bcc = implode(',', $bcc_array);
-                        }
                         $cc = $email_template[3];
                         $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                         $message = vsprintf($email_template[0], array($html_table));
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        
+                        
+                        if (count($email_list) > 0) {
+                            $email_list = array_unique($email_list);
+                            $email_list = array_filter($email_list);
+                            $bcc_array = array_values($email_list);
+                        }
+                        // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
+                        if(!empty($bcc_array))
+                        {
+                            $cc = '';
+                            $bcc = '';
+                            for($i=0;count($bcc_array)>$i;$i++)
+                            {
+                                $to = $bcc_array[$i];
+                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                            }
+                        }
                     }
                     
                     //Adding Partner code in Bookings_sources table
@@ -855,8 +864,7 @@ class Partner extends CI_Controller {
             }
             $this->get_add_partner_form();
         }
-    }
-    
+    } 
     /**
      * Function creates default contact person login for partner.
      * @param type $partner_id
