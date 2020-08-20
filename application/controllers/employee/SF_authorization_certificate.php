@@ -15,6 +15,11 @@ class SF_authorization_certificate extends CI_Controller {
         $this->load->model('reusable_model');
         $this->load->library('SFauthorization_certificate');
         $this->load->library('miscelleneous');
+        if ($this->session->userdata('loggedIn') == TRUE) {
+            return TRUE;
+        } else {
+            redirect(base_url() . "employee/login");
+        }
     }
     /*
      * List all active SF with thier authorization certificate and status
