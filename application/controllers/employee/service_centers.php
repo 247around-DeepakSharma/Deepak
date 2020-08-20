@@ -3033,6 +3033,9 @@ class Service_centers extends CI_Controller {
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         }
+                        
+                        $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                         
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
                             $this->session->set_userdata($userSession);
