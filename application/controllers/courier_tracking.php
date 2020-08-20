@@ -90,7 +90,7 @@ class Courier_tracking extends CI_Controller {
                     if($value->status == 'delivered'){
                         
                         if(isset($value->tracking_number) && !empty($value->tracking_number)){
-                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NOT NULL' => NULL),
+                            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' =>$value->tracking_number, 'delivered_date IS NULL' => NULL),
                                     array('delivered_date' => date('Y-m-d H:i:s')));
                             $this->update_pod_courier($value->tracking_number);
                             //update pod file on Delivered status
@@ -749,7 +749,7 @@ class Courier_tracking extends CI_Controller {
             $booking_id = $parts_details[2];
             $spare_id = $parts_details[0];
             $awb_number = $data->tracking_number;
-            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL, 
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status IN ('".OK_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')" => NULL, 
                 "defactive_part_return_to_partner_from_wh_date_by_courier_api IS NULL"=>NULL));
             if (!empty($getsparedata)) {
                 $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_wh"=>$awb_number), array('defactive_part_return_to_partner_from_wh_date_by_courier_api' => date("Y-m-d H:i:s")));
