@@ -152,9 +152,9 @@
                             <td entity_id='<?php echo $value['entity_id']; ?>'><?php echo $value['name']; ?></td>
                             <td><?php echo $value['charges_type']; ?></td>
                             <td><?php echo $value['fixed_charges']; ?></td>
-                            <td><?php echo $value['hsn_code']; ?></td>
-                            <td><?php echo $value['gst_rate']; ?></td>
-                            <td><?php echo $value['description']; ?></td>
+                            <td><?php if(!empty($value['hsn_code'])){ echo $value['hsn_code']; } ?></td>
+                            <td><?php if(!empty($value['gst_rate'])){ echo $value['gst_rate']; } ?></td>
+                            <td><?php if(!empty($value['description'])){ echo $value['description']; } ?></td>
                             <td><button type="button" class="btn btn-info btn-xs" onclick="update_charge(<?php echo $value['id']; ?>, this)">Update</button></td>
                         </tr>
                         <?php
