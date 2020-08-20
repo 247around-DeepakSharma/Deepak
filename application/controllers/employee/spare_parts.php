@@ -4149,7 +4149,48 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->load->view('service_centers/header');
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $partnerWhere['partners.is_active'] = 1;
+        $data['partner_list'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
         $this->load->view("service_centers/tag_spare_invoice_send_by_warehouse", $data);
+    }
+    /**
+     *  @desc : This function is used to get Non Returnable Consumed Spare
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    function spare_parts_booking_consumed_process_record() {
+        $array = array();
+        $post_data = $this->input->post();
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $partner_id_array = $post_data['partner_id'];
+        $warranty = $post_data['warranty'];
+        $search = trim($post_data['search']['value']);
+        $where_array['spare_parts_details.status'] = _247AROUND_COMPLETED;
+        $where_array['booking_details.partner_id'] = $partner_id_array;
+        $where_array['spare_parts_details.defective_part_required'] = 0;
+        $where_array['spare_parts_details.is_micro_wh'] = 1;
+        if (!empty($warranty)) {
+            $where_array['spare_parts_details.part_warranty_status'] = $warranty;
+        }
+        if (!empty($search)) {
+            $where_array['booking_details.booking_id'] = $search;
+        }
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.quantity,inventory_master_list.*', $where_array, true, false, false, array('is_inventory' => 1,'start'=>$post['start'],'length'=>$post['length']));
+        $count = $post['start']+1;
+        if (!empty($spare_parts_list)) {
+            foreach ($spare_parts_list as $key => $value) {
+                $array['data'][] = array($count, $value['booking_id'], $value['part_name'], $value['quantity'], "<input type='checkbox'>");
+                $count = $count+ 1;
+            }
+        } else {
+            $array['data'][] = array('', '', '', '', '');
+        }
+
+        $array['draw'] = $_POST['draw'];
+        $array['recordsTotal'] = count($array['data']);
+        $array['recordsFiltered'] = count($this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.quantity,inventory_master_list.*', $where_array, true, false, false, array('is_inventory' => 1)));
+        echo json_encode($array);
     }
 
     /*
