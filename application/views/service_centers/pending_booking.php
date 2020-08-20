@@ -562,12 +562,12 @@ span.stars span {
                }  else {
                     
                 $(".spare_"+block + key).css("display", "none");
-                $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                $("#spare_tomorrow"+key).css("display","none !important");
-                $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                $("#spare_rescheduled"+key).css("display","none !important");
-                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
-
+                $(".spare_tomorrow"+key).css("display","none !important");
+                $(".spare_delivered_tomorrow"+key).css("display","none !important");
+                $(".spare_cost_given_tomorrow"+key).css("display","none !important");                
+                $(".spare_rescheduled"+key).css("display","none !important");
+                $(".spare_delivered_rescheduled"+key).css("display","none !important");                
+                $(".spare_cost_given_rescheduled"+key).css("display","none !important");
                }
                //console.log(response);
 
