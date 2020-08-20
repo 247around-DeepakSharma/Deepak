@@ -711,15 +711,15 @@ class Warranty extends CI_Controller {
      public function validate_warranty_grace_period($integer)
     {
         $valid = 0;
-        if(isset($integer))
-        {
+        // if(isset($integer))
+        // {
             $integer = trim($integer);
-            if(ctype_digit($integer) && $integer > 0)
+            if(ctype_digit($integer) && $integer >= 0 || empty($integer))
             {
                 $valid = 1;
             }
             
-        }
+        // }
        
         
         if($valid)
