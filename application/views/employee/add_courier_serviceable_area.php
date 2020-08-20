@@ -41,7 +41,12 @@
                             <div class="form-group">
                                 <label for="excel" class="col-md-3" style="width: 20%;"> Courier Name <span style="color: red;">*</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" id="courier_name" required="" name="courier_name" placeholder="Please Enter Courier Name">
+                                    <select class="form-control" id="courier_name" name="courier_name" required="">
+                                        <option selected="" disabled="" value="">Select Courier Name</option>
+                                        <?php foreach ($courier_details as $value1) { ?> 
+                                            <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -155,12 +160,14 @@
                               ourier_serviceble_area_table.ajax.reload();
                               $("#header_line").html("Add Courier Service");
                               $('#courier_serviceable_area_form').trigger("reset");
+                              $("#courier_name").trigger('change');
                               $("#messages").html(result['message']).css('color','green');
                           }else{
                               if(result['message'] == 'Courier serviceable area successfuly Updated.'){
                                 ourier_serviceble_area_table.ajax.reload();
                                 $("#header_line").html("Add Courier Service");
                                 $('#courier_serviceable_area_form').trigger("reset");  
+                                $("#courier_name").trigger('change');
                                 $("#messages").html(result['message']).css('color','green');
                               }else{
                              $("#messages").html(result['message']).css('color','red');
@@ -263,7 +270,10 @@
         ourier_serviceble_area_table.ajax.reload();
     };
     
-   
+    $('#courier_name').select2({
+        placeholder:'Select Courier Name',
+        allowClear:true
+    });
 
 </script>
 

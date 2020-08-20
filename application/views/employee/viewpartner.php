@@ -163,15 +163,29 @@ if ($this->session->userdata('error')) {
                         <td><?= $row['customer_care_contact']; ?></td>
                         <td><?php if ($row['is_prepaid'] == 1) { ?> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><?php } ?></td>
                         <td><a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>employee/invoice/invoice_summary/partner/<?php echo $row['id']; ?>" target="_blank" title="Go To Invoice"><i class="fa fa-inr" aria-hidden="true"></i></a></td>
-
+                           
+                        <!--Only Allow Admin to activate/deactivate partners -->
+                        <?php
+                            if ($this->session->userdata['user_group'] == _247AROUND_ADMIN)
+                            {
+                                $activeClass = "activate_partner";
+                                $deactiveClass = "deactivate_partner";
+                            }
+                            else
+                            {
+                                $activeClass = "disabled";
+                                $deactiveClass= "disabled";
+                            }
+                        ?>
+                        
                         <td><?php if ($row['is_active'] == 1) { ?>
-                            <a class="btn btn-sm btn-primary activate_partner" href="javascript:void(0);"  id="<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
+                            <a class="btn btn-sm btn-primary <?php echo $activeClass?>" href="javascript:void(0);"  id="<?php echo $row['id'] ?>" title="Deactivate"><i class="fa fa-check" aria-hidden="true"></i></a>       
                             <?php } else { ?>
                                 <!--Do not allow Partner Activation if PAN details not found for partner-->                                    
                                 <?php if(empty($row['pan']) || empty($row['pan_file'])){ ?>
                                     <a class="btn btn-sm btn-danger" onclick="alert('Please Enter PAN Details of Partner to allow Activation');" title="Save PAN Details of Partner to allow Activation"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
                                 } else { ?>
-                                    <a class="btn btn-sm btn-danger deactivate_partner" href="javascript:void(0);" id="<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
+                                    <a class="btn btn-sm btn-danger <?php echo $deactiveClass?>" href="javascript:void(0);" id="<?php echo $row['id'] ?>" title="Activate"><i class="fa fa-ban" aria-hidden="true"></i></a><?php               
                                 } ?>                                
                             <?php } ?>
                         </td>

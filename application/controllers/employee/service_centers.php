@@ -4458,6 +4458,7 @@ class Service_centers extends CI_Controller {
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
             //Assigning File Name for uploaded shipment receipt
             $fileName = "Shipment-Receipt-" . $this->input->post('order_id') . '.' . explode('.', $_FILES['shipment_receipt']['name'])[1];
+            $fileName = str_replace(" ","_",$fileName);
             move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
 
             //Uploading images to S3 
@@ -9795,7 +9796,7 @@ function do_delivered_spare_transfer() {
     function update_courier_lost($spare_id) {
 
         /* Fetch spare part detail of $spare_id. */
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status', ['spare_parts_details.id' => $spare_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status, spare_parts_details.partner_id', ['spare_parts_details.id' => $spare_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
         /* update spare status. */
         $this->service_centers_model->update_spare_parts(['id' => $spare_id], 
             [

@@ -4320,23 +4320,19 @@ class Booking extends CI_Controller {
            $sorting_type='ASC';
        }
         
-        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
-              //  $whereInArray,$JoinTypeTableArray);
         //process query and get result from database
         //After server side shorting
         $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
-       //convert database result into a required formate needed for datatales
+        //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
             array_unshift($tempArray, $index);
             $finalArray[] = $tempArray;
         }
-        //create final array required for database table\
+        //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
-        //get all records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
-       // get filtered records from tabble
+        // get filtered records from table
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;
@@ -5672,13 +5668,15 @@ class Booking extends CI_Controller {
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
             // Join with employee Table to fetch AM name
-             $post['join']['service_centres as service_am'] = "employee.id = service_am.asm_id";   
+
+             
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";            
-            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'service_centres as service_am' => "left"];
+            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
+            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";         
+            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
-            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',employee.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
+            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
             booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Center Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry as 'Is Upcountry', service_centres.primary_contact_name as 'SF POC Name',
@@ -6155,6 +6153,7 @@ class Booking extends CI_Controller {
                 } else {
                    
                     $picName = $type . rand(10, 100) . $unit . "." . $extension;
+                    $picName = str_replace(" ","_",$picName);
                     $_POST[$post_name][$unit] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;

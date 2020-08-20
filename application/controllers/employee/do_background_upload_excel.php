@@ -2010,6 +2010,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "vendor-partner-docs/" . "Updated_file_with_booking_id_" . pathinfo($data['file_name'], PATHINFO_FILENAME) . ".xls";
+                $directory_xls = str_replace(" ","_",$directory_xls);
                 $this->s3->putObjectFile($file_name, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
                 //send email
