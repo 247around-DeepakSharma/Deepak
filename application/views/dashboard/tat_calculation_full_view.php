@@ -373,9 +373,6 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
-                            <p ng-if='completedBookingByRM.leg_1 !== undefined'>
-                    <?php echo BOOKING_VARY; ?>
-                             </p>
                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
                                 <input type="hidden" value='<?php if(isset($sf['TAT'])) { echo json_encode($sf['TAT']); } else { echo json_encode($sf); } ?>' name="data">
                                 <input type="hidden" value='<?php echo json_encode($sf_state);?>' name="data_state">
