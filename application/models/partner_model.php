@@ -1623,6 +1623,9 @@ function get_data_for_partner_callback($booking_id) {
                 $this->db->where_in($index, $value);
             }
         }
+        if (!empty($post['length'])) {
+             $this->db->limit($post['length'], $post['start']);
+        }
         
         $query = $this->db->get();
         return $query->result_array();
