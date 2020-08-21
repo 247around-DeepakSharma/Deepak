@@ -1975,8 +1975,8 @@ class User_invoice extends CI_Controller {
                                 $where = array('inventory_stocks.entity_id' => $wh_id, 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, 'inventory_stocks.inventory_id' => $value['inventory_id']);
                                 $this->inventory_model->update_inventory_stock($where, $stock);
 
-                                $insert_data = array("warehouse_id" => $wh_id, "inventory_id" => $value['inventory_id'],
-                                    "quantity" => $value['qty'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'credit_note' => $credit_invoice_id, 'debite_note' => $debit_invoice_id);
+                                $insert_data = array("warehouse_id" => $value['warehouse_id'], "inventory_id" => $value['inventory_id'],
+                                    "quantity" => $value['quantity'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'credit_note' => $credit_invoice_id, 'debite_note' => $debit_invoice_id);
                                 $this->inventory_model->insert_into_non_returnable_consumed_parts($insert_data);
                             }
                         }

@@ -4380,7 +4380,80 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->load->view('service_centers/header');
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $partnerWhere['partners.is_active'] = 1;
+        $data['partner_list'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
+        
+        $data['vendor_list'] = $this->partner_model->get_spare_parts_by_any('distinct service_centres.id, service_centres.name', array('spare_parts_details.is_micro_wh' => 1, 
+            'spare_parts_details.defective_part_required' => 0, 'status' => _247AROUND_COMPLETED, 'spare_parts_details.shipped_inventory_id IS NOT NULL' => NULL), false, true);
+
         $this->load->view("service_centers/tag_spare_invoice_send_by_warehouse", $data);
+    }
+    /**
+     *  @desc : This function is used to get Non Returnable Consumed Spare
+     *  @param : void()
+     *  @return : $post Array()
+     */
+    function get_non_returnable_consumed_msl() {
+        //log_message('info', __METHOD__. " ". json_encode($_POST, true));
+        $array = array();
+        $post_data = $this->input->post();
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $partner_id = $this->input->post('partner_id');
+        $vendor_id = $this->input->post('vendor_id');
+        $warranty = $this->input->post('warranty');
+        
+        $search = trim($post_data['search']['value']);
+        $where_array['spare_parts_details.status'] = _247AROUND_COMPLETED;
+        $where_array['spare_parts_details.defective_part_required'] = 0;
+        $where_array['(spare_parts_details.shipped_inventory_id IS NOT NULL or spare_parts_details.shipped_inventory_id !=0)'] = NULL;
+        
+        $post_array = array('is_inventory' => 1,'start'=>$post['start'],'length'=>$post['length']);
+        
+        if(!empty($vendor_id)){
+            $where_array['spare_parts_details.partner_id'] = $vendor_id;
+            $where_array['spare_parts_details.is_micro_wh'] = 1;
+            $post_array['non_returnable_consumed_parts'] = true;
+            
+        } else {
+            $where_array['booking_details.partner_id'] = $partner_id;
+            if (!empty($warranty)) {
+                $where_array['spare_parts_details.part_warranty_status'] = $warranty;
+            }
+            $where_array['spare_parts_details.is_micro_wh IN (1, 2)'] = NULL;
+            $where_array['spare_parts_details.reverse_purchase_invoice_id IS NULL'] = NULL;
+        }
+        
+        if (!empty($search)) {
+            $where_array['booking_details.booking_id'] = $search;
+        }
+        
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
+        $count = $post['start']+1;
+        if (!empty($spare_parts_list)) {
+            foreach ($spare_parts_list as $value) {
+                $row = array();
+                $row[] = $count;
+                $row[] = $value['booking_id'];
+                $row[] = $value['services'];
+                $row[] = $value['part_name'];
+                $row[] = $value['shipped_quantity'];
+                $row[] = "<form ><input type='checkbox' onchange='createPostArray()' class='non_consumable' id='spare_id_.".$value['spare_id'].".' ' data-spare_id ='".$value['spare_id']."' data-vendor_id ='".$value['service_center_id']."' "
+                        . " data-inventory_id='".$value['shipped_inventory_id']."' data-booking_id = '".$value['booking_id']."' data-shipped_quantity = '".$value['shipped_quantity']."' data-booking_partner_id = '".$value['partner_id']."' "
+                        . " data-is_micro_wh = '".$value['is_micro_wh']."' ></form>";
+                
+                $array['data'][] =$row;
+                
+                $count = $count+ 1;
+            }
+        } else {
+            $array['data'][] = array('', '', '', '', '', '');
+        }
+
+        $array['draw'] = $post_data['draw'];
+        $array['recordsTotal'] = count($array['data']);
+        $array['recordsFiltered'] = count($spare_parts_list);
+        echo json_encode($array);
     }
 
     /*

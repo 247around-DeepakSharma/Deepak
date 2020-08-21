@@ -1225,7 +1225,7 @@ class Invoice_lib {
                 if (!empty($from_gst_id)) {
                     $where['to_gst_number'] = $from_gst_id;
                 }
-                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $order_by = array('column_name' => "invoice_details.id", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
                 if (!empty($unsettle)) {
