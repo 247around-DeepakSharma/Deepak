@@ -5857,7 +5857,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-            $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
         }
         
         $status=$review_status;
