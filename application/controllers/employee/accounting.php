@@ -1593,6 +1593,10 @@ class Accounting extends CI_Controller {
         $otp = $this->input->post("otp", TRUE);
         $state = $this->input->post("state", TRUE);
         $state_username_gstin = $this->get_state_user_name_gstin($state);
+        $return_type = '';
+        if($this->input->post("return_type")){
+            $return_type = $this->input->post("return_type");
+        }
         $url = TAXPRO_AUTH_TOKEN_REQUEST_URL.'&gstin='.$state.'&username='.$state_username_gstin.'&otp='.$otp; 
         
         //$url = "http://testapi.taxprogsp.co.in/taxpayerapi/dec/v0.2/authenticate?action=AUTHTOKEN&aspid=".ASP_ID."&password=".ASP_PASSWORD."&gstin=27GSPMH0041G1ZZ&username=Chartered.MH.1&OTP=575757";
@@ -1610,10 +1614,18 @@ class Accounting extends CI_Controller {
        // print_r($response);
         if($response->status_cd == '1'){
            $this->fetch_taxpro_gstr2a_data($response->auth_token, $state);
-           echo "success";
+           if (!empty($return_type) && $return_type == 'json') {
+                echo json_encode(array('status' => 'success', 'message' => ''));
+            } else {
+                echo "success";
+            }
         }
         else{
-           echo "error";
+            if (!empty($return_type) && $return_type == 'json') {
+                echo json_encode(array('status' => 'error', 'message' => $response->error->message));
+            } else {
+                echo "error";
+            }
         }
     }
     
