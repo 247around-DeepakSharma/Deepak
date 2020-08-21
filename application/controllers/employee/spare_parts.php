@@ -672,7 +672,8 @@ class Spare_parts extends CI_Controller {
         $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_cancelled_date',NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type', 'booking_details.state');
-        $post['where_in']=array('booking_details.current_status'=>array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
+        $post['where_in'] = array('booking_details.current_status' => array(_247AROUND_PENDING, _247AROUND_RESCHEDULED));
+        $post['where']['part_warranty_status'] = SPARE_PART_IN_WARRANTY_STATUS;
         $post['spare_cancel_reason'] = 1;
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];  
