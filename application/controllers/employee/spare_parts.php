@@ -3429,7 +3429,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_courier_service_details',$data);
     }
-    
+
     /*
      *  @desc : This function is used manage courier service as add and edit.
      *  @status : Json data
@@ -5164,108 +5164,5 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
     }
     
-    
-    /*
-     *  @desc : This function is used add the new courier serviceable area.
-     *  @return : void();
-     */
 
-    function add_courier_serviceable_area() {
-        $this->miscelleneous->load_nav_header();
-        $data = array();
-        $select = "courier_services.id, courier_services.courier_name, courier_services.courier_code, courier_services.status";
-        $where = array('courier_services.status' => 1);
-        $data['courier_details'] = $this->inventory_model->get_courier_services($select, $where);
-        $this->load->view('employee/add_courier_serviceable_area', $data);
-    }
-    
-
-    /*
-     *  @desc : This function is used add and edit courier serviceable area.
-     *  @status : Json data
-     */
-
-    function add_edit_courier_serviceable_area() {
-        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
-        $courier_serviceable_area_id = $this->input->post("courier_serviceable_area_id");
-        $courier_name = $this->input->post("courier_name");
-        $pincode = $this->input->post("serviceble_area_pincode");
-
-        $status = array();
-        $data = array();
-        $data['courier_company_name'] = $courier_name;
-        $data['pincode'] = $pincode;
-        if (!empty($courier_serviceable_area_id)) {
-            $where = array("courier_serviceable_area.courier_company_name" => trim($courier_name), "courier_serviceable_area.pincode" => trim($pincode));
-            $serviceable_area = $this->inventory_model->get_generic_table_details('courier_serviceable_area', 'courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode', $where, '');
-            if (empty($serviceable_area)) {
-
-                if (!empty($data)) {
-                    $where = array("courier_serviceable_area.id" => $courier_serviceable_area_id);
-                    $affected_id = $this->inventory_model->update_courier_serviceable_area($data, $where);
-                    if ($affected_id) {
-                        $status["message"] = "Courier serviceable area successfuly Updated.";
-                    } else {
-                        $status["message"] = "Courier serviceable area not Updated.";
-                    }
-                }
-            } else {
-                $status["message"] = "Courier serviceable area already exist our system.";
-            }
-        } else {
-            if (!empty($courier_name)) {
-                $where = array("courier_serviceable_area.courier_company_name" => trim($courier_name), "courier_serviceable_area.pincode" => trim($pincode));
-                $serviceable_area = $this->inventory_model->get_generic_table_details('courier_serviceable_area', 'courier_serviceable_area.id, courier_serviceable_area.courier_company_name, courier_serviceable_area.pincode', $where, '');
-                if (empty($serviceable_area)) {
-                    if (!empty($data)) {
-                        $insert_id = $this->inventory_model->insert_courier_serviceable_area_data($data);
-                        if (!empty($insert_id)) {
-                            $status["message"] = "Courier serviceable area successfuly added.";
-                        } else {
-                            $status["message"] = "Courier serviceable area not added.";
-                        }
-                    }
-                } else {
-                    $status["message"] = "Courier serviceable area already exist our system.";
-                }
-            }
-        }
-        echo json_encode($status);
-    }
-
-    /*
-     *  @desc : This function is used activate/deactivate courier serviceable area.
-     *  @status : Json data
-     */
-
-    function process_courier_serviceable_area_satus() {
-        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
-        $response = array();
-        $data = array();
-        $serviceable_area_id = $this->input->post('data')['id'];
-        $status = $this->input->post('data')['status'];
-       
-        if (!empty($serviceable_area_id)) {
-            $where = array("courier_serviceable_area.id" => $serviceable_area_id);
-            if ($status == 1) {
-                $active = 0;
-            } else {
-                $active = 1;
-            }
-            $data['status'] = $active;
-            if (!empty($data)) {
-                $affected_id = $this->inventory_model->update_courier_serviceable_area($data, $where);
-                if ($affected_id) {
-                    $response["message"] = "Courier serviceable area successfuly Updated.";
-                } else {
-                    $response["message"] = "Courier serviceable area not Updated.";
-                }
-            }
-        } else {
-            $response["message"] = "Courier serviceable area id should not be blank.";
-        }
-        echo json_encode($response);
-    }
-
-    
 }
