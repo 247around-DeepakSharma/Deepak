@@ -280,6 +280,12 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span class="text-info text-bold" style="font-size:15px;float:right;"><i class="fa fa-info-circle" aria-hidden="true"></i> Note : Only In-Warranty parts can be reopened.</span>
+                            </div>
+                        </div>
+                        
                         <table id="spare_parts_requested_table_reject" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr>
