@@ -2562,7 +2562,11 @@ class Inventory extends CI_Controller {
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
                 . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, oow_spare_invoice_details.invoice_amount as basic_amount";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
+        if($this->input->post('dashboard')){
+            $data['dashboard']  =   $this->input->post('dashboard');
+        }else{
         $this->miscelleneous->load_nav_header();
+        }
         $this->load->view("employee/spare_invoice_list", $data);
     }
 
