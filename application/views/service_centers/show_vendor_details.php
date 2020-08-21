@@ -199,8 +199,8 @@
                         
                     </div>
                    
+                    </div>
                 </div>
-            </div>
             <div  class = "panel panel-info">
                 <div class="panel-heading "><b>POC Details</b></div>
                 <div class="panel-body form-horizontal">
@@ -742,8 +742,8 @@
                             
                     </div>
                                         </div>         
+                        </div>
                     </div>
-                </div>
                 <div  class = "panel panel-info">
                     <div class="panel-heading"><b>Bank Details</b></div>
                     <div class="panel-body form-horizontal">
