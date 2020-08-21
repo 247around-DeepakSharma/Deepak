@@ -424,6 +424,10 @@ class dealerApi extends CI_Controller {
             case 'getStateTATData':
                 $this->getStateTATData(); /* get getStateTATData API */
                 break;
+            
+            case 'registerUser':
+                $this->processUserRegister(); /* processUserRegister  API */
+                break;
 
             default:
                 break;
@@ -493,10 +497,9 @@ class dealerApi extends CI_Controller {
     function processDealerLogin() {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //log_message('info', "Request Login: " .print_r($requestData,true));
-        $data = $this->dealer_model->entity_login(array("entity" => "dealer",
-            "active" => 1, "user_id" => $requestData["mobile"]));
+        $data = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
         if (!empty($data)) {
-            $login = $this->dealer_model->entity_login(array("active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+            $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
           /*  Token Update */
             
@@ -511,7 +514,7 @@ class dealerApi extends CI_Controller {
                 );  
             }
 
-            $this->dealer_model->update_dealer($update_dealer,array('dealer_id'=>$login[0]['entity_id']));
+            $this->dealer_model->update_dealer($update_dealer,array('phone'=>$requestData["mobile"]));
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
                 $this->sendJsonResponse(array('0000', 'success'));
@@ -1173,6 +1176,31 @@ function submitEscalation(){
             $this->jsonResponseString['response'] = array(); 
             $this->sendJsonResponse(array("1008", "Rating details not found !")); 
         }
+    }
+    
+    
+    function processUserRegister(){
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("phone","first_name","password"), $requestData);
+        if (!empty($requestData['phone'])) { 
+                
+                $data = array(
+                     'phone'=> $requestData['phone'],
+                     'first_name'=>$requestData['first_name'],
+                     'last_name' =>$requestData['last_name'],
+                     'password'=>md5($requestData['password'])
+                     
+                 );
+                 $response =  $this->dealer_model->processUserRegisterRetailer($data);
+                 $this->jsonResponseString['response'] = $response;
+                 $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1022", "Error is user register !")); 
+        }   
+        
     }
     
      /*
