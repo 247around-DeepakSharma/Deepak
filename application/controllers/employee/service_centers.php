@@ -3035,6 +3035,9 @@ class Service_centers extends CI_Controller {
                         $sc_data['update_date'] = date("Y-m-d H:i:s");
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                         }
+                        
+                        $this->miscelleneous->send_spare_delivered_sms_to_customer($id, $booking_id);
+                         
                         if ($this->session->userdata('service_center_id')) {
                             $userSession = array('success' => 'Booking Updated');
                             $this->session->set_userdata($userSession);
@@ -8563,7 +8566,7 @@ class Service_centers extends CI_Controller {
             $data = $this->partner_model->get_spare_parts_by_any("awb_by_partner, courier_price_by_partner, "
                     . "courier_name_by_partner, courier_pic_by_partner, shipped_date", array('awb_by_partner' => $awb, 'status !="' . _247AROUND_CANCELLED . '" ' => NULL));
 
-            $courier_boxes_weight_details = $this->inventory_model->get_courier_company_invoice_details('*', array('awb_number' => $awb, 'IFNULL(DATEDIFF(CURDATE(), shippment_date), 0) <= 7' => NULL));
+            $courier_boxes_weight_details = $this->inventory_model->get_courier_company_invoice_details('*', array('awb_number' => $awb));
 
             if (!empty($data)) {
                 /**
@@ -8573,7 +8576,17 @@ class Service_centers extends CI_Controller {
                 $part_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($data[0]['shipped_date']));
                 $part_shipped_days = (int) $part_shipped_date->format("%a");
 
-                if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
+                
+                /**
+                 * check shippment date in courier_company_invoice_details.
+                 */
+                $courier_shipped_days = 0;
+                if(!empty($courier_boxes_weight_details)) {
+                    $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
+                    $courier_shipped_days = (int) $courier_shipped_date->format("%a");
+                }
+                
+                if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
                     if (!empty($courier_boxes_weight_details)) {
                         $data[0]['spare_part_shipped_date'] = $courier_boxes_weight_details[0]['shippment_date'];
@@ -8608,7 +8621,7 @@ class Service_centers extends CI_Controller {
             $data = $this->partner_model->get_spare_parts_by_any("awb_by_wh, courier_price_by_wh, "
                     . "courier_name_by_wh, defective_parts_shippped_courier_pic_by_wh, date(defective_parts_shippped_date_by_wh) as defective_parts_shippped_date_by_wh", array('awb_by_wh' => $awb, 'status !="' . _247AROUND_CANCELLED . '" ' => NULL));
 
-            $courier_boxes_weight_details = $this->inventory_model->get_courier_company_invoice_details('*', array('awb_number' => $awb, 'IFNULL(DATEDIFF(CURDATE(), shippment_date), 0) <= '.UPDATE_AWB_NUMBER_DAYS => NULL));
+            $courier_boxes_weight_details = $this->inventory_model->get_courier_company_invoice_details('*', array('awb_number' => $awb));
 
             if (!empty($data)) {
                 /**
@@ -8618,7 +8631,15 @@ class Service_centers extends CI_Controller {
                 $part_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($data[0]['defective_parts_shippped_date_by_wh']));
                 $part_shipped_days = (int) $part_shipped_date->format("%a");
 
-                if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
+                /**
+                 * check shippment date in courier_company_invoice_details.
+                 */
+                $courier_shipped_days = 0;
+                if(!empty($courier_boxes_weight_details)) {
+                    $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
+                    $courier_shipped_days = (int) $courier_shipped_date->format("%a");
+                }
+                if($part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
                     if (!empty($courier_boxes_weight_details)) {
                         $data[0]['spare_part_shipped_date'] = $courier_boxes_weight_details[0]['shippment_date'];
@@ -8662,8 +8683,17 @@ class Service_centers extends CI_Controller {
                  */
                 $defective_part_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($data[0]['defective_part_shipped_date']));
                 $defective_part_shipped_days = (int) $defective_part_shipped_date->format("%a");
+
+                /**
+                 * check shippment date in courier_company_invoice_details.
+                 */
+                $courier_shipped_days = 0;
+                if(!empty($courier_boxes_weight_details)) {
+                    $courier_shipped_date = date_diff(date_create(date('Y-m-d')), date_create($courier_boxes_weight_details[0]['shippment_date']));
+                    $courier_shipped_days = (int) $courier_shipped_date->format("%a");
+                }
                 
-                if($defective_part_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
+                if($defective_part_shipped_days <= UPDATE_AWB_NUMBER_DAYS && $courier_shipped_days <= UPDATE_AWB_NUMBER_DAYS) {
                     $data[0]['partcount'] = count($data);
                     if (!empty($courier_boxes_weight_details)) {
                         $data[0]['defective_part_shipped_date'] = $courier_boxes_weight_details[0]['shippment_date'];
@@ -9796,7 +9826,7 @@ function do_delivered_spare_transfer() {
     function update_courier_lost($spare_id) {
 
         /* Fetch spare part detail of $spare_id. */
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status', ['spare_parts_details.id' => $spare_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status, spare_parts_details.partner_id', ['spare_parts_details.id' => $spare_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];
         /* update spare status. */
         $this->service_centers_model->update_spare_parts(['id' => $spare_id], 
             [

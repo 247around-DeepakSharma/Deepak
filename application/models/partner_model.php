@@ -1420,7 +1420,7 @@ function get_data_for_partner_callback($booking_id) {
 //            $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR (MATCH (booking_id) AGAINST ('$searched_text')))";
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date, service_center_closed_date, current_status, internal_status "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date, service_center_closed_date, current_status, internal_status, service_id "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
@@ -1637,6 +1637,9 @@ function get_data_for_partner_callback($booking_id) {
 
                 $this->db->where_in($index, $value);
             }
+        }
+        if (!empty($post['length'])) {
+             $this->db->limit($post['length'], $post['start']);
         }
         
         $query = $this->db->get();
@@ -2495,6 +2498,23 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('agent_filters');
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get partner am mapped data from agent filter tabel
+     * @return Array
+     * 
+     */
+    function getpartner_data_from_agent_filter($partner_id)
+    {
+        $select = " GROUP_CONCAT( DISTINCT agent_filters.agent_id ) AS account_manager_id FROM agent_filters JOIN booking_details ON agent_filters.entity_id = booking_details.partner_id AND agent_filters.entity_id = booking_details.partner_id AND booking_details.state = agent_filters.state AND booking_details.partner_id = '$partner_id' AND agent_filters.entity_type ='"._247AROUND_EMPLOYEE_STRING."'";
+        $this->db->distinct();
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    
+    
     
     /**
      * @Desc: This function is used to get partner am mapped data

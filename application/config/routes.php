@@ -373,5 +373,14 @@ $route['employee/courier/add_courier_serviceable_area'] = 'employee/spare_parts/
 $route['employee/devmode'] = 'employee/login';
 
 $route['exotel-callback'] = 'api/recordUrl';
+
+$route['partner/inventory/inventory_list_by_model'] = 'employee/partner/get_inventory_by_model';
+$route['partner/inventory/inventory_list_by_model/(:any)'] = 'employee/partner/get_inventory_by_model/$1';
+$route['partner/inventory/inventory_list_by_model/(:any)'] = 'employee/partner/get_inventory_by_model/$1/$3';
+
+$route['partner/inventory/stock_by_model'] = 'employee/partner/get_stock_by_model';
+$route['partner/inventory/stock_by_model/(:any)'] = 'employee/partner/get_stock_by_model/$1';
+$route['partner/inventory/stock_by_model/(:any)'] = 'employee/partner/get_stock_by_model/$1/$3';
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
