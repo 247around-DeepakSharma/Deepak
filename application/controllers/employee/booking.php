@@ -5631,11 +5631,13 @@ class Booking extends CI_Controller {
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("'.SPARE_PARTS_SHIPPED.'","'.SPARE_OOW_SHIPPED.'","'.SF_BOOKING_CANCELLED_STATUS.'","'.SF_BOOKING_COMPLETE_STATUS.'","'.SPARE_PARTS_SHIPPED_BY_WAREHOUSE.'")' => NULL); 
             // Join with employee Table to fetch AM name
+            $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";            
-            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left"];
+            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";   
+            $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
+            $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
-            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,partners.public_name as Partner,users.name as 'Customer Name',
+            $select = " DISTINCT booking_details.booking_id as 'Booking ID',DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as Ageing,spare_parts_details.parts_requested as 'Part Requested',spare_parts_details.parts_shipped as 'Part Shipped',emp_asm.full_name as  'ASM name',partners.public_name as Partner,users.name as 'Customer Name',
             services.services as Services,penalty_on_booking.active as 'Penalty Active',users.phone_number as 'Phone Number',users.alternate_phone_number as 'Alternate Phone Number',booking_details.order_id as 'Order ID',booking_details.request_type as 'Request Type',booking_details.state as State,booking_details.internal_status as 'Internal Status',
             booking_details.booking_address as 'Booking Address',booking_details.booking_pincode as 'Booking Pincode',booking_details.booking_timeslot as 'Booking Timeslot',
             booking_details.booking_remarks as 'Booking Remarks',service_centres.name as 'Service Center Name' , engineer_details.name as 'Engineer Name', booking_details.is_upcountry as 'Is Upcountry', service_centres.primary_contact_name as 'SF POC Name',
