@@ -27,6 +27,8 @@ class Dealer_model extends CI_Model {
             return false;
         }
     }
+    
+
 
     function get_dealer_mapping_details($condition, $select){
         $this->db->distinct();
@@ -116,6 +118,53 @@ class Dealer_model extends CI_Model {
         $insert_id = $this->db->insert_id();
         return  $insert_id;
     }
+    
+     /**
+     * @desc: This is used insert in retailer login table
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function processUserRegisterRetailer($data){
+         $this->db->insert("retailer_login", $data);
+        $insert_id = $this->db->insert_id();
+        return  $insert_id;  
+        
+    }
+    
+    
+   /**
+     * @desc: This is used to retailer login
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */      
+    function retailer_login($data) {
+        $this->db->select('*');
+        $this->db->where($data);
+        $query = $this->db->get('retailer_login');
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result;
+        } else {
+
+            return false;
+        }
+    }
+    
+    
+        /**
+     * @desc: This is used to update the dealer details
+     * @param $data array
+     * @param $where array
+     * @return boolean
+     */
+    function update_retailer($data,$where){
+        $this->db->where($where);
+        return $this->db->update('retailer_login', $data);
+    }
+    
+    
     
     /**
      * @desc: This is used to get the dealer details by any 
