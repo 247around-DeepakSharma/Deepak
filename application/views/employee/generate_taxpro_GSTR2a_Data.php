@@ -108,7 +108,11 @@
                         $("#error_msg_div").hide();
                     }
                     else{
-                        $("#error_msg").text("Error in generating OTP. Please contact tech team.");
+                        var gst_error = '';
+                        if(typeof data.error.message != 'undefined'){
+                         var gst_error = " ("+data.error.message+")";
+                        }
+                        $("#error_msg").text("Error in generating OTP. Please contact tech team."+gst_error);
                         $("#success_msg_div").hide();
                         $("#error_msg_div").show();
                     }
@@ -122,7 +126,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_auth_token',
-                data: {otp:$("#otp").val(), state:$("#state").val()},
+                data: {otp:$("#otp").val(), state:$("#state").val(), return_type:'json'},
                 beforeSend: function(){
                     $('body').loadingModal({
                     position: 'auto',
@@ -134,14 +138,19 @@
                     });
                 },
                 success: function (data) {
-                    data=data.trim();
+                    var token_result = JSON.parse(data.trim());
+                    data=token_result.status;
                     if(data == "success"){
                         $("#success_msg").text("GSTR2a data updated successfully.");
                         $("#success_msg_div").show();
                         $("#error_msg_div").hide();
                     }
                     else{
-                        $("#error_msg").text("Error in updating GSTR2a data. Please contact tech team.");
+                        var gst_error = '';
+                        if(token_result.message != ''){
+                         var gst_error = " ("+token_result.message+")";
+                        }
+                        $("#error_msg").text("Error in updating GSTR2a data. Please contact tech team."+gst_error);
                         $("#success_msg_div").hide();
                         $("#error_msg_div").show();
                     }
