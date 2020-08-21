@@ -1168,7 +1168,10 @@ class User_invoice extends CI_Controller {
 //                                if ($courier_id) {
                                 list($response,$output_file,$output_file_main) = $this->generate_new_return_inventory($invoices, $wh_id, $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
                                 $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
-                                array_push($invoice_array, $invoices);
+                                if($wh_type != 2 && $receiver_entity_type == _247AROUND_PARTNER_STRING){
+                                    array_push($invoice_array, $invoices);
+                                }
+                                
                                 $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
                                 $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
                                 if (!empty($wh_incharge_id)) {
@@ -1245,6 +1248,7 @@ class User_invoice extends CI_Controller {
                             else {
                                 $courier_id = $exist_courier_details[0]['id'];
                             }
+                            
                             foreach ($invoice_array as $val) {
                                 foreach ($val as $key => $value) {
                                     $ledger_data = array();
@@ -1258,7 +1262,8 @@ class User_invoice extends CI_Controller {
                                     $ledger_data['agent_id'] = $return_data['agent_id'];
                                     $ledger_data['agent_type'] = $return_data['agent_type'];
                                     $ledger_data['booking_id'] = '';
-                                    $ledger_data['invoice_id'] = isset($value['invoice_id'])? $value['invoice_id'] : $response['meta']['invoice_id'];
+                                    $ledger_data['invoice_id'] =  isset($value['invoice_id'])? $value['invoice_id'] : $response['meta']['invoice_id'];
+                                    $ledger_data['micro_invoice_id'] = isset($value['invoice_id'])? $value['invoice_id'] : NULL;
                                     $ledger_data['is_partner_ack'] = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? 3 : NULL);
                                     $ledger_data['courier_id'] = $courier_id;
                                     $ledger_data['is_wh_micro'] = $wh_type;
@@ -1267,7 +1272,7 @@ class User_invoice extends CI_Controller {
                                     if(!empty($value['spare_id'])) {
                                         $ledger_data['spare_id'] = $value['spare_id'];
                                     }
-
+                                    
                                     $this->inventory_model->insert_inventory_ledger($ledger_data);
                                     $stock = "stock - '" . $value['qty'] . "'";
                                     $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);

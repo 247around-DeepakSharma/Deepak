@@ -1490,8 +1490,8 @@ class Accounting extends CI_Controller {
      * @return view
      */
     function add_variable_charges(){ 
-        $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*";
-        $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true);
+        $select = "IFNULL( service_centres.name, partners.public_name ) as name, vendor_partner_variable_charges.*,variable_charges_type.hsn_code,variable_charges_type.gst_rate,variable_charges_type.description";
+        $variable_charges['charges'] = $this->invoices_model->get_variable_charge($select, array(), true, true);
         $variable_charges['charges_type'] = $this->accounting_model->get_variable_charge("id, name");
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges', $variable_charges);  
@@ -1526,12 +1526,11 @@ class Accounting extends CI_Controller {
         $data['entity_type'] = $this->input->post('vendor_partner');
         $data['entity_id'] = $this->input->post('vendor_partner_id');
         $data['fixed_charges'] = $this->input->post('fixed_charges');
-        $variable_charge_detail = $this->accounting_model->get_variable_charge("*", array('id'=>$this->input->post('charges_type')));
-        $data['charges_type'] = $variable_charge_detail[0]['type'];
-        $data['description'] = $variable_charge_detail[0]['description'];
-        $data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
-        $data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
-
+        $data['charges_type'] = $this->input->post('charges_type');
+        //$data['description'] = $variable_charge_detail[0]['description'];
+        //$data['hsn_code'] = $variable_charge_detail[0]['hsn_code'];
+        //$data['gst_rate'] = $variable_charge_detail[0]['gst_rate'];
+        // comment as these column are not present in vendor_partner_variable_charges table, fetch these from variable_charges_type table with join
         if(!empty($this->input->post('variable_charges_id')) && $this->input->post('variable_charges_id') > 0){
            $data['update_date'] = date("Y-m-d H:i:s");
            $result = $this->invoices_model->update_into_variable_charge(array('id'=>$this->input->post('variable_charges_id')), $data); 
