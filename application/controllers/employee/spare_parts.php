@@ -627,7 +627,7 @@ class Spare_parts extends CI_Controller {
              $post['approved'] = 0;
             $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request', NULL, NULL, NULL);
         }
-
+        
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
         $post['approval_date_and_id'] = TRUE;  
@@ -1930,9 +1930,9 @@ class Spare_parts extends CI_Controller {
 
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
 
-
-        $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
-
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == 'employee') {
+            $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+        }
         $c_tag = ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS && $spare_list->status != SPARE_PARTS_REQUESTED) ? "QUOTE_REQUEST_REJECTED" : "CANCEL_PARTS";
         $row[] = '<button type="button" data-keys="spare_parts_cancel" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $c_tag . '" class="btn btn-danger btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-remove-sign" style="font-size: 17px;"></i></button>';
         return $row;
@@ -5132,7 +5132,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
     function add_courier_serviceable_area() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/add_courier_serviceable_area');
+        $data = array();
+        $select = "courier_services.id, courier_services.courier_name, courier_services.courier_code, courier_services.status";
+        $where = array('courier_services.status' => 1);
+        $data['courier_details'] = $this->inventory_model->get_courier_services($select, $where);
+        $this->load->view('employee/add_courier_serviceable_area', $data);
     }
     
 
@@ -5224,4 +5228,24 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
     }
 
     
+    /*
+     * @desc: This Function is used to get details of spare parts status
+     * @param: void
+     * @echo : Option
+     */
+    
+    function get_spare_parts_status() {
+        $is_active = $this->input->post('is_active');
+        if ($is_active == 1) {
+            $where = "spare_parts_details.status !='NULL' GROUP BY spare_parts_details.status";
+            $select = "spare_parts_details.id, spare_parts_details.status";
+            $status_list = $this->inventory_model->get_generic_table_details('spare_parts_details', $select, $where, array());
+            $option = '<option selected="" disabled="">Select Spare Parts Status</option>';
+            foreach ($status_list as $value) {
+                $option .= "<option value='" . $value['status'] . "'> " . $value['status'] . "</option>";
+            }
+            echo $option;
+        }
+    }
+
 }

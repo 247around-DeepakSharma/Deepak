@@ -30,7 +30,9 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == 'employee'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
+                                    <?php } ?>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
 
                                 </tr>
@@ -112,7 +114,9 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == 'employee'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
+                                    <?php } ?>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 
                                 </tr>
@@ -2156,27 +2160,20 @@
     });
 
  
-});
+});   
 
-    $('#partner_wise_parts_requested').select2({        
-       placeholder:'Select Partner',        
-       allowClear: true     
-    });     
-
-    $('#appliance_wise_parts_requested').select2({      
-           placeholder:'Select Appliance',      
-           allowClear: true     
-    }); 
-
+   
 // For select2 in approved tab //
-    $('#partner_wise_parts_requested2').select2({        
+    $('#partner_wise_parts_requested,#partner_wise_parts_requested2').select2({        
        placeholder:'Select Partner',        
-       allowClear: true     
+       allowClear: true,
+       width: '100%'
     });     
 // For select2 in approved tab //
-    $('#appliance_wise_parts_requested2').select2({      
+    $('#appliance_wise_parts_requested,#appliance_wise_parts_requested2').select2({      
            placeholder:'Select Appliance',      
-           allowClear: true     
+           allowClear: true ,
+           width: '100%'
     });    
 
     $('#show_spare_list').click(function(){     
@@ -2262,6 +2259,9 @@
 </script>
 <style>
     #partner_wise_parts_requested2 .select2-container{
+        width: 572px !important;
+    }
+    .select2 select2-container select2-container--default select2-container--above{
         width: 572px !important;
     }
 </style>

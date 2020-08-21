@@ -2502,7 +2502,7 @@ class Inventory_model extends CI_Model {
 
     /**
      * @Desc: This function is used to get data from the generic table
-     * @params $table string 
+     * @params: $table string 
      * @params: $select string
      * @params: $where array
      * @return: $query array
