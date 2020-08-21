@@ -1,0 +1,1 @@
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_contract_list', 'Non-Contract Partners List', 'Partners List with having no contract or crosed end date.<br><br> %s', '', 'noreply@247around.com', 'ayushg@247around.com', '', '', '1', '2020-05-23 15:30:19');
