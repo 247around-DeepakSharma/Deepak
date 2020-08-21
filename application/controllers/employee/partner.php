@@ -440,6 +440,8 @@ class Partner extends CI_Controller {
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
                     CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_SSL_VERIFYHOST => FALSE,
+                    CURLOPT_SSL_VERIFYPEER => FALSE,
                     CURLOPT_HTTPHEADER => array(
                         'Authorization: ' . $authToken,
                         'Content-Type: application/json'
@@ -817,9 +819,9 @@ class Partner extends CI_Controller {
                         
                         if (count($email_list) > 0) {
                             $email_list = array_unique($email_list);
+                            $email_list = array_filter($email_list);
                             $bcc_array = array_values($email_list);
                         }
-                        
                         // Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
                         if(!empty($bcc_array))
                         {
