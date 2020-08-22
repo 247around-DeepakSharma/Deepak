@@ -93,8 +93,8 @@ class Login extends CI_Controller {
             }
         } else {
            $data['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-           $select = "partner_logo,alt_text";
-           $where = array('partner_logo IS NOT NULL' => NULL);
+           $select = "partner_brand_logo.partner_logo,partner_brand_logo.alt_text,partners.is_active";
+           $where = array('partner_logo IS NOT NULL' => NULL,'is_active' => 1 );
            $data['partner_logo'] = $this->booking_model->get_partner_logo($select,$where);
            $this->load->view('employee/login',$data);
            
