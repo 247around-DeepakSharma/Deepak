@@ -373,6 +373,11 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
+                             <?php if ($is_pending) {
+
+                             echo BOOKING_COUNT_MISMATCH_MESSAGE ;
+                            }   
+    ?>
                             <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
                                 <input type="hidden" value='<?php if(isset($sf['TAT'])) { echo json_encode($sf['TAT']); } else { echo json_encode($sf); } ?>' name="data">
                                 <input type="hidden" value='<?php echo json_encode($sf_state);?>' name="data_state">
