@@ -4183,6 +4183,9 @@ class Booking extends CI_Controller {
         if(!empty($receieved_Data['booking_date'])){
            $whereArray = $this->get_dates_range_where_array($receieved_Data['booking_date']," - ",$whereArray,$dbfield_mapinning_option['booking_date'],"Y-m-d");
         }
+        if(!empty($receieved_Data['service_center_closed_date'])){
+           $whereArray = $this->get_dates_range_where_array($receieved_Data['service_center_closed_date']," - ",$whereArray,$dbfield_mapinning_option['service_center_closed_date'],"Y-m-d");
+        }
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
         }
@@ -4206,7 +4209,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'service_center_closed_date'=>'date(booking_details.service_center_closed_date)', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -4346,7 +4349,7 @@ class Booking extends CI_Controller {
            }
        }
       
-        $select = "users.name as customer_name, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+        $select = "users.name as customer_name, booking_details.service_center_closed_date, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.model_number,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"

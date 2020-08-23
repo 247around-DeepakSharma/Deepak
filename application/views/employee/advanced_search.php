@@ -31,6 +31,7 @@
                                     <thead>
                                         <tr>
                                             <td style="width:13%;"><input type="text" placeholder="Booking Date" class="form-control" id="booking_date" name="booking_date"/></td>
+                                            <td style="width:13%;"><input type="text" placeholder="SF close Date" class="form-control" id="service_center_closed_date" name="service_center_closed_date"/></td>
                                             <td style="width:13%;"><input type="text" placeholder="Close Date" class="form-control" id="close_date" name="close_date"/></td>
                                             <!-- ST-309 add new search feature booking search by created date -->
                                             <td style="width:13%;"><input type="text" placeholder="Created Date" class="form-control" id="created_date" name="created_date"/></td>
@@ -70,14 +71,14 @@
                                                     <option ng-repeat="y in product_or_service_list" value="{{y.option}}">{{y.option}}</option>
                                                 </select>
                                             </td>
+                                        </tr>
+                                        <tr>
                                             <td>
                                                 <select multiple style="width:100%" name="state[]" ui-select2 id="state"  class="form-control data_change" data-placeholder="States">
                                                     <option value="" ng-show="false"></option>
                                                     <option ng-repeat="y in state_list" value="{{y.state}}">{{y.state}}</option>
                                                 </select>
                                             </td>
-                                        </tr>
-                                        <tr>
                                             <td>
                                                 <select style="width:100%" name="upcountry" ui-select2 id="upcountry"  class="form-control data_change" data-placeholder="Is Upcountry">
                                                     <option value="" ng-show="false"></option>
