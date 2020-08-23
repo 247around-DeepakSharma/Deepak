@@ -428,6 +428,9 @@ class dealerApi extends CI_Controller {
             case 'registerUser':
                 $this->processUserRegister(); /* processUserRegister  API */
                 break;
+            
+            case 'getPartnerCompareData':
+                $this->getPartnerCompareTAT();
 
             default:
                 break;
@@ -1114,7 +1117,120 @@ function submitEscalation(){
         }
     }
     
+    
+    
+    
      /*
+     * @Desc - This function is used to get Booking TAT on partner Comparison
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */
+function  getPartnerCompareTAT(){
+    
+       $requestData = json_decode($this->jsonRequestData['qsh'], true);
+       $validation = $this->validateKeys(array("entity_id","entity_type"), $requestData);         
+        if (!empty($requestData['partner_id_1']) && !empty($requestData['partner_id_1'])) {
+            
+                     if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                                        
+                    $partner_id_1 = $requestData['partner_id_1'];
+                    $partner_id_2 = $requestData['partner_id_2'];
+
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['city']) && !empty($requestData['city']) && $requestData['city']!='All'){
+                        $city = $requestData['city'];
+                    }else if($requestData['city']=='All'){
+                        $city = "not_set";
+                    }else{
+                        $city = "not_set"; 
+                    }
+                    
+                   
+                    $is_pending = 0;
+                    
+                    //Call curl for TAT P1
+                    $postData = array();
+                    $url = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id_1."/".$state."/".$city;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response_1 = json_decode(curl_exec($ch));   
+                    
+ // TAT P2
+                    $url2 = base_url() . "employee/dashboard/get_booking_tat_report/".$requestData['startDate']."/".$requestData['endDate']."/".$status."/".$service_id."/".$request_type."/".$free_paid."/".$upcountry."/RM/".$is_pending."/".$partner_id_2."/".$state."/".$city;
+                    $ch2 = curl_init($url2);
+                    curl_setopt($ch2, CURLOPT_HEADER, false);
+                    curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch2, CURLOPT_POST, true);
+                    curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch2, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response_2 = json_decode(curl_exec($ch2));   
+                                        
+                    $response['partner_1'] = $curl_response_1;
+                    $response['partner_2'] = $curl_response_2;
+                    /// Sending Response ///
+                     $this->jsonResponseString['response'] = $response;
+                     $this->sendJsonResponse(array('0000', "Details found successfully")); // send success response //
+             
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1005", "Booking Details Not Found !")); 
+        }  
+    
+}
+    
+      /*
      * @Desc - This function is used get dashboard filter data
      * @param - 
      * @response - json
