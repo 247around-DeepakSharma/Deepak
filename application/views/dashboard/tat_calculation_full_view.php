@@ -373,7 +373,7 @@
     </table>
                                 </div>
                         <div class="tab-pane fade in" id="tab2">
-                            <?php if (!$is_pending) {
+                            <?php if ($is_pending) {
 
                              echo BOOKING_COUNT_MISMATCH_MESSAGE ;
                             }   

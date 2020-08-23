@@ -2251,6 +2251,7 @@ class Booking_model extends CI_Model {
     function get_partner_logo($select,$where){
         $this->db->select($select);
         $this->db->where($where);
+        $this->db->join("partners","partners.id = partner_brand_logo.partner_id");
         $this->db->order_by('logo_priority','ASC');
         $query = $this->db->get('partner_brand_logo');
         return $query->result_array();
@@ -2323,6 +2324,7 @@ class Booking_model extends CI_Model {
 //        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
+        $this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
         $this->db->join('employee', 'service_centres.rm_id = employee.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
         $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
