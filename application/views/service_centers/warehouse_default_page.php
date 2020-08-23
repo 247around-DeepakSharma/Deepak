@@ -32,7 +32,7 @@
                                 </a>
                             </li>                            
                             <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1" id="send_to_sf_id">
                                 <!--  Pending Spares--> Send To SF
                                 </a>
                             </li>
