@@ -129,7 +129,7 @@
 <div id="page-wrapper" >
     <div class="row">
         <h1 style="float:left;"> <?php echo ucfirst($booking_status);?> Bookings</h1>
-        <form class="form-horizontal" action="<?php echo base_url() ?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" method="POST">
+        <form class="form-horizontal"z action="<?php echo base_url() ?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" method="POST">
             <input type="hidden" id="bookingIDString" name="bookingIDString" value="<?php if(isset($bookingIDString)){ echo $bookingIDString; }  ?>" >
             <button type="submit" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 25px;">Download</button>
         </form>
@@ -182,7 +182,7 @@
                         <th>Booking Age</th>
                         <th>Status</th>
                         <th>Service Center</th>
-                        <th>RM</th>
+                        <th>ASM</th>
                         <th>State</th>
                         <?php if(isset($saas_module) && (!$saas_module)) { ?>
                         <th></th>

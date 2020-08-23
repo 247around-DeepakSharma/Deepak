@@ -85,6 +85,16 @@ class Partner_model extends CI_Model {
     }
 
     /*
+     * @desc: This is used to get active partner name those contarct has been expired or having no contract with us 
+     */
+    function get_expired_contarct_partner_list($select) {
+        $this->db->select($select);
+        $query = $this->db->get();
+        $this->db->last_query();
+        return $query->result_array();
+    }
+    
+    /*
      * @desc: This is used to get active partner details and also get partner details by partner id
      */
     function getpartner($partner_id = "", $is_active = true) {
@@ -1562,7 +1572,9 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, 
+            $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, 
+            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1576,9 +1588,11 @@ function get_data_for_partner_callback($booking_id) {
 
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+            $this->db->join('services', 'services.id = booking_details.service_id');
         }
         if($sf_details){
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+            $this->db->order_by('service_centres.name', 'asc');
         }
         
         if(!empty($post['is_inventory'])){
@@ -1592,6 +1606,10 @@ function get_data_for_partner_callback($booking_id) {
         
         if(!empty($post['spare_cancel_reason'])){
             $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
+        }
+        
+        if(!empty($post['non_returnable_consumed_parts'])){
+            $this->db->where('NOT EXISTS (Select spare_id from non_returnable_consumed_parts where non_returnable_consumed_parts.spare_id = spare_parts_details.id)', NULL, false);
         }
         
         if(!empty($wh_details)){

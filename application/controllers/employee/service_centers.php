@@ -4292,7 +4292,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 if (!empty($spare_details)) {
-                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true);
+                    $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details,'','',false,true,false);
                     array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
@@ -6155,6 +6155,51 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/alternate_parts_list');
     }
+    
+    /**
+     * @desc: This function is used to get those booking who has request to ship spare parts to SF
+     * @param: void
+     * @return void
+     */
+    function generate_challan_send_to_sf($offset = 0) {
+        log_message('info', __FUNCTION__ . " sf Id: " . $this->session->userdata('service_center_id'));
+
+        if (!empty($this->session->userdata('warehouse_id'))) {
+            $this->checkEmployeeUserSession();
+            $data['sf_id'] = $this->session->userdata('warehouse_id');
+        } else {
+            $this->check_WH_UserSession();
+            $data['sf_id'] = $this->session->userdata('service_center_id');
+        }
+
+        $where = "spare_parts_details.partner_id = '" . $data['sf_id'] . "' AND  spare_parts_details.entity_type =  '" . _247AROUND_SF_STRING . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
+                . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "', '" . _247AROUND_RESCHEDULED . "') "
+                . " AND wh_ack_received_part != 0 AND spare_parts_details.partner_challan_number IS NULL AND spare_parts_details.partner_challan_file IS NULL";
+
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
+                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
+                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+                . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . " spare_parts_details.quantity,"
+                . " spare_parts_details.shipped_quantity,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['is_send_to_sf'] = false;
+        $data['is_generate_challan'] = true;
+        if (empty($this->input->post('is_ajax'))) {
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/spare_parts_booking', $data);
+        } else {
+            $this->load->view('service_centers/spare_parts_booking', $data);
+        }
+    }
 
     /**
      * @desc: This function is used to get those booking who has request to ship spare parts to SF
@@ -6174,7 +6219,7 @@ class Service_centers extends CI_Controller {
         
         $where = "spare_parts_details.partner_id = '" . $data['sf_id'] . "' AND  spare_parts_details.entity_type =  '" . _247AROUND_SF_STRING . "' AND status = '" . SPARE_PARTS_REQUESTED . "' "
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "', '" . _247AROUND_RESCHEDULED . "') "
-                . " AND wh_ack_received_part != 0 ";
+                . " AND wh_ack_received_part != 0 AND spare_parts_details.partner_challan_number IS NOT NULL AND spare_parts_details.partner_challan_file IS NOT NULL";
 
         $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
@@ -6193,6 +6238,8 @@ class Service_centers extends CI_Controller {
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", $data['sf_id']);
 
         $data['is_ajax'] = $this->input->post('is_ajax');
+        $data['is_send_to_sf'] = true;
+        $data['is_generate_challan'] = false;
         if (empty($this->input->post('is_ajax'))) {
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/spare_parts_booking', $data);
@@ -6253,7 +6300,7 @@ class Service_centers extends CI_Controller {
 
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, spare_consumption_status.reason_text, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
-                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
+                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',s.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status, spare_parts_details.defective_part_rejected_by_wh";
         $group_by = "spare_parts_details.id";
         $limit = $post['length'];
         $offset = $post['start'];
@@ -10091,6 +10138,21 @@ function do_delivered_spare_transfer() {
 
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), ['wh_challan_file' => NULL, 'wh_challan_number' => NULL]);
         
+        return true;
+    }
+    
+    
+    /**
+     * @Desc: This function is used removed partner challan
+     * @params: void
+     * @return: true
+     * 
+     */
+    
+    function cancel_partner_challan() {
+        $post_data = $this->input->post();
+        $spare_id = $post_data['spare_id'];
+        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), ['partner_challan_number' => NULL, 'partner_challan_file' => NULL]);
         return true;
     }
 }

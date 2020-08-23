@@ -700,6 +700,8 @@ class Invoice_lib {
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         if($challan_generated_by_wh == true){
             $excel_data['excel_data']['generated_by_wh'] = true;
+        }else{
+           $excel_data['excel_data']['generated_by_wh'] = false; 
         }
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         $excel_data['excel_data']['show_consumption_reason'] = $show_consumption_reason;
@@ -1197,7 +1199,7 @@ class Invoice_lib {
                 if (!empty($from_gst_id)) {
                     $where['to_gst_number'] = $from_gst_id;
                 }
-                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $order_by = array('column_name' => "invoice_details.id", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
                 if (!empty($unsettle)) {
@@ -1210,8 +1212,6 @@ class Invoice_lib {
 
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1239,8 +1239,6 @@ class Invoice_lib {
                                 log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty < $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {

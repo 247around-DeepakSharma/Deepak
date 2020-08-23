@@ -3794,7 +3794,7 @@ class Booking extends CI_Controller {
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
@@ -3804,7 +3804,7 @@ class Booking extends CI_Controller {
          }
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
-            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name,
+            users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
@@ -3856,6 +3856,7 @@ class Booking extends CI_Controller {
         $request_type = $this->input->post('request_type');
         $current_status = $this->input->post('current_status');
         $actor = $this->input->post('actor');
+        $asm_id = $this->input->post('asm_id');
         $rm_id = $this->input->post('rm_id');
         $is_upcountry = $this->input->post('is_upcountry');
         $completed_booking=$this->input->post('completed_booking');
@@ -4231,6 +4232,9 @@ class Booking extends CI_Controller {
         if(!empty($receieved_Data['booking_date'])){
            $whereArray = $this->get_dates_range_where_array($receieved_Data['booking_date']," - ",$whereArray,$dbfield_mapinning_option['booking_date'],"Y-m-d");
         }
+        if(!empty($receieved_Data['service_center_closed_date'])){
+           $whereArray = $this->get_dates_range_where_array($receieved_Data['service_center_closed_date']," - ",$whereArray,$dbfield_mapinning_option['service_center_closed_date'],"Y-m-d");
+        }
         if(!empty($receieved_Data['close_date'])){
           $whereArray = $this->get_dates_range_where_array($receieved_Data['close_date']," - ",$whereArray,$dbfield_mapinning_option['close_date'],"Y-m-d");
         }
@@ -4254,7 +4258,7 @@ class Booking extends CI_Controller {
     function get_advance_search_result_data($receieved_Data,$select,$selectarray=array(),$column_sort_array = array()){
         $finalArray = array();
         //array of filter options name and affected database field by them
-        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
+        $dbfield_mapinning_option = array('booking_date'=>'STR_TO_DATE(booking_details.booking_date, "%Y-%m-%d")', 'service_center_closed_date'=>'date(booking_details.service_center_closed_date)', 'close_date'=>'date(booking_details.closed_date)', 'created_date'=>'date(booking_details.create_date)',
             'partner'=>'booking_details.partner_id','sf'=>'booking_details.assigned_vendor_id','city'=>'booking_details.city','current_status'=>'booking_details.current_status',
             'internal_status'=>'booking_details.internal_status','product_or_service'=>'booking_unit_details.product_or_services','upcountry'=>'booking_details.is_upcountry',
             'rating'=>'booking_details.rating_stars','service'=>'booking_details.service_id','categories'=>'booking_unit_details.appliance_category','capacity'=>'booking_unit_details.appliance_capacity',
@@ -4320,10 +4324,12 @@ class Booking extends CI_Controller {
            $sorting_type='ASC';
        }
         
+        //$result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array("booking_details.booking_id"=>"ASC"),
+              //  $whereInArray,$JoinTypeTableArray);
         //process query and get result from database
         //After server side shorting
         $result = $this->booking_model->get_advance_search_result_data("booking_details",$select,$whereArray,$joinDataArray,$limitArray,array($order_by_column=>$sorting_type),$whereInArray,$JoinTypeTableArray);
-        //convert database result into a required formate needed for datatales
+       //convert database result into a required formate needed for datatales
         for($i=0;$i<count($result);$i++){
             $index = $receieved_Data['start']+($i+1);
             $tempArray = array_values($result[$i]);
@@ -4333,6 +4339,7 @@ class Booking extends CI_Controller {
         //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
         // get filtered records from table
+        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;
@@ -4391,7 +4398,7 @@ class Booking extends CI_Controller {
            }
        }
       
-        $select = "users.name as customer_name, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
+        $select = "users.name as customer_name, booking_details.service_center_closed_date, booking_details.booking_id,booking_unit_details.sub_order_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_unit_details.model_number,booking_unit_details.price_tags,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
@@ -4676,7 +4683,7 @@ class Booking extends CI_Controller {
         // show internal_status instead of partner_internal_status because we are using internal_status in queries
         $row[] = $escalation." ".$order_list->internal_status." <br> Latest Ack Date : ".$last_spare;
         $row[] = "<a target = '_blank' href='".base_url()."employee/vendor/viewvendor/".$order_list->assigned_vendor_id."'>$sf</a><div id='cancelled_rejected_".$order_list->booking_id."'> <img style='width: 25%;' src='".base_url()."images/loader.gif' /></div>";
-        $row[] = $order_list->rm_name;
+        $row[] = $order_list->asm_name;
         $row[] = $state;
         if(isset($saas_flag) && (!$saas_flag)) {
             $row[] = '<button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ="'.$order_list->booking_id.'" onclick="show_contacts(this.id,1)">'
@@ -5672,7 +5679,9 @@ class Booking extends CI_Controller {
              
             $post['join']['spare_parts_details'] = "booking_details.booking_id  = spare_parts_details.booking_id";
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
-            $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
+            // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+            $post['join']['employee as employee_am'] = "agent_filters.entity_id = employee_am.id";
             $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";         
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
