@@ -4810,10 +4810,14 @@ class vendor extends CI_Controller {
     /*
           * This function will return the view to upload the vendor pin code mapping file
           */
-         function upload_pin_code_vendor($vendorID){
+         function upload_pin_code_vendor($vendorID=''){
+                    $message="";
+                    if(empty($vendorID)){
+                    $message = "Please Select Vendor before upload pincode";    
+                    }
                     $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                     $this->miscelleneous->load_nav_header();
-                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
+                    $this->load->view('employee/vendor_pincode_upload',array('error'=>$message,'vendorID'=>$vendorID,"services"=>$serviceArray));
           }
           /*
            * This function will save the vendor upload pincode file in file uploads table
