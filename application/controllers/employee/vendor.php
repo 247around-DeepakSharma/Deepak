@@ -1302,7 +1302,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         if(!empty($booking_id)){
             
-            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1, 'is_wh' => 0));
             // checks to validate whether booking can be re-assigned or not
             $arr_validation_checks = $this->check_reassign_validations($booking_id); 
 

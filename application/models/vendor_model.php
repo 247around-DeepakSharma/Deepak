@@ -1230,6 +1230,7 @@ class vendor_model extends CI_Model {
     function getactive_vendor(){
         $this->db->select('*');
         $this->db->where('active',1);
+        $this->db->where('is_wh',0);
         $this->db->order_by("name");
         $query = $this->db->get('service_centres');
         return $query->result_array();
