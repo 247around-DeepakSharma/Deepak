@@ -630,4 +630,14 @@ class Employee_model extends CI_Model{
         $this->db->insert('agent_action_log',$data);
         return  $this->db->insert_id();
     }
+    
+    /**
+     * @desc This function is used to store query Used by a agent in its respective Log Table
+     * @param Array $data
+     * @return type
+     */
+    function query_log($table_name, $data){
+        $this->db->insert($table_name,$data);
+        return  $this->db->insert_id();
+    }
 }

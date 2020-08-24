@@ -4262,10 +4262,13 @@ class Booking extends CI_Controller {
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode,$column_order);
+        // Save Query in Log against Logged-In Agent
+        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
-        }
+        }                                     
+        // return Table data
         echo json_encode($data);
     }
        
