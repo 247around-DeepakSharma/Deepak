@@ -30,7 +30,7 @@
                    <div class="form-group  <?php if (form_error('excel')) {
                         echo 'has-error';
                         } ?>">
-                        <label for="excel" class="col-md-1">Upload File</label>
+                        <label for="excel" class="col-md-1">Upload Docket Invoice File</label>
                         <div class="col-md-4">
                             <input type="file" class="form-control"  name="file" >
                             <?php if (form_error('excel')) {
