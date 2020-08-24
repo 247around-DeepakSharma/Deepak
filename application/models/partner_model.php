@@ -87,10 +87,9 @@ class Partner_model extends CI_Model {
     /*
      * @desc: This is used to get active partner name those contarct has been expired or having no contract with us 
      */
-    function get_expired_contarct_partner_list($select) {
+    function get_expired_contract_partner_list($select) {
         $this->db->select($select);
         $query = $this->db->get();
-        $this->db->last_query();
         return $query->result_array();
     }
     
