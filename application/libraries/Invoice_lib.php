@@ -1014,23 +1014,6 @@ class Invoice_lib {
                     }
                 }
 
-                if (!empty($spare_parts_details_value[0]['assigned_vendor_id'])) {
-                   
-                    $vendor_details = $this->ci->vendor_model->getVendorDetails("service_centres.id, service_centres.pincode", array("service_centres.id" => $spare_parts_details_value[0]['assigned_vendor_id']), 'name', array(), array(), array());
-                    if (!empty($vendor_details)) {
-                        $serviceable_area = $this->ci->inventory_model->get_generic_table_details("courier_serviceable_area", "courier_serviceable_area.courier_company_name", array("courier_serviceable_area.pincode" => $vendor_details[0]['pincode'], "courier_serviceable_area.status"=> 1), array());
-                        if (!empty($serviceable_area)) {
-                            $couriers_name = implode(', ', array_map(function ($entry) {
-                                        return $entry['courier_company_name'];
-                                    }, $serviceable_area));
-                        } else {
-                            $couriers_name = 'NA';
-                        }
-                    }else {
-                        $couriers_name = 'NA';
-                    }
-                }
-                $spare_parts_details[$spare_key][0]['courier_name'] = $couriers_name; 
             }
 
             $sf_details = $this->ci->vendor_model->getVendorDetails("name as company_name,concat(service_centres.address,',', service_centres.district,',',service_centres.state,',','Pincode - ',service_centres.pincode) as address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number", array('id' => $service_center_id));
@@ -1078,8 +1061,7 @@ class Invoice_lib {
 
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
             $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-
-            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true, true);
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date, false, true, true);
 
 
             $data['wh_challan_number'] = $wh_challan_number;
