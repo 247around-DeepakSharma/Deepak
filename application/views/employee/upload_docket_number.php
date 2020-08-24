@@ -24,7 +24,7 @@
                         <strong id="file_success_msg"></strong>
                     </div>
                 <h1 class="page-header">
-                    <b> Upload File</b>
+                    <b>Upload Docket Invoice File</b>
                 </h1>
                 <form class="form-horizontal"  id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
                    <div class="form-group  <?php if (form_error('excel')) {

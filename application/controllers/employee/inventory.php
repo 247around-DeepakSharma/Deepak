@@ -8895,22 +8895,29 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function download_warehouse_stock_data() {
+    function download_warehouse_stock_data($request_type_url ='') {
         log_message('info', __METHOD__ . ' Processing...');
 
+
         $request_type = $this->input->post('request_type');
+
+        $fetch_array = false;
+        if(empty($request_type) && !empty($request_type_url)){
+           $request_type = $request_type_url;
+           $fetch_array = true;
+        }
         $partner_id = $this->input->post('partner_id');
 
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
 
         if ($request_type == 'warehouse') {
 
-            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate'";
+            $select .= ", inventory_master_list.price AS '247 Buying Price',inventory_master_list.gst_rate as 'GST Rate'";
 
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
 
-            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate'";
+            $select .= ", inventory_master_list.price AS '247 Buying Price',inventory_master_list.gst_rate as 'GST Rate'";
             if (empty($partner_id)) {
                 $select .= ",inventory_master_list.oow_around_margin as 'Around Margin', inventory_master_list.oow_vendor_margin as 'Vendor Margin'";
             }
@@ -8924,7 +8931,36 @@ class Inventory extends CI_Controller {
 
         if (!empty($request_type)) {
 
-            $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select);
+            $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select,$fetch_array);
+            if (!empty($request_type_url)) {
+                $array = array();
+                foreach ($bom_details as $key => $value) {
+                    $array[$key][] = $value['Warehouse'];
+                    $array[$key][] = $value['Partner'];
+                    $array[$key][] = $value['Part Number'];
+                    $array[$key][] = $value['Part Name'];
+                    $array[$key][] = $value['Stock'];
+                    $array[$key][] = $value['247 Buying Price'];
+                    $array[$key][] = $value['GST Rate'];
+                    $array[$key][] = $value['Around Margin'];
+                    $array[$key][] = $value['Vendor Margin'];
+                    $vendor_margin = $value['Vendor Margin'];
+                    $around_margin = $value['Around Margin'];
+                    $base_price = $value['247 Buying Price'];
+                    $gst_rate = $value['GST Rate'];
+                    $basic_price_with_around_margin = (float) $base_price + ($base_price * ($around_margin / 100));
+                    $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($gst_rate / 100));
+                    $array[$key][] = number_format((float) $sf_total, 2, '.', '');
+
+                    $total = number_format((float) ($base_price + ($base_price * ($gst_rate / 100))), 2, '.', '');
+                    $customer_price = $total * ( 1 + ($vendor_margin + $around_margin) / 100 );
+
+                    $array[$key][] = number_format((float) $customer_price, 2, '.', '');
+                }
+                $headings = array("Warehouse", "Partner", "Part Number", "Part Name", "Stock", "247 Buying Price", "GST Rate", "Around Margin", "Vendor Margin", "SF Buying Price", "Customer Price");
+                $file_name = $request_type . '_stock_data_' . date('j-M-Y-H-i-s');
+                $this->miscelleneous->downloadCSV($array, $headings, $file_name);
+            } else{
 
             $this->load->dbutil();
             $this->load->helper('file');
@@ -8948,7 +8984,10 @@ class Inventory extends CI_Controller {
                 $res['msg'] = 'error in generating file';
             }
         }
-        echo json_encode($res);
+        if (empty($request_type_url)) {
+                echo json_encode($res);
+            }
+        }
     }
 
     /**
