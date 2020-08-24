@@ -4359,7 +4359,10 @@ class Booking extends CI_Controller {
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
-        }
+        }        
+        // Save Query in Log against Logged-In Agent
+        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());                       
+        // return Table data
         echo json_encode($data);
     }
        
