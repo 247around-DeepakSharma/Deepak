@@ -29,9 +29,18 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> 
-                        <span class="pull-right"><input type="button" id="sellItem" name="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span>
-                        <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
-                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
+                        <span class="pull-right">
+                            <div class="dropdown">
+                                <button class="dropbtn">MSL Return / Consume Non Return MSL <i class="fa fa-caret-down"></i></button>
+                                <div class="dropdown-content">
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return New Parts (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>
+                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('3')" id="soldItem" class="action-ban">Consumed Parts Without Booking (0)</a>
+                                </div>
+                            </div>                         
+                        </span>
+                        <span class="pull-right"><a href="<?php echo base_url(); ?>employee/inventory/download_warehouse_stock_data/micro_warehouse"><input type="button" id="micro_warehouse" class="btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></a></span>
+                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Central Warehouse Stock"></span>
                     </h3>
                     <hr>
                     <div class="clearfix"></div>
