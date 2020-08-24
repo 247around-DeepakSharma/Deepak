@@ -201,7 +201,7 @@
                                                 <p class="text-center"><strong>Quantity</strong></p>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>Total Basic Price</strong></p>
+                                                <p class="text-center"><strong>247 Buying Price</strong></p>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <p class="text-center"><strong>HSN Code</strong></p>
