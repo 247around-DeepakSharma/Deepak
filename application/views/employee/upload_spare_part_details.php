@@ -31,7 +31,7 @@
                     }
                     ?>
                 <h1 class="page-header">
-                    <b>Upload Part Model Mapping File</b>
+                    <b> Upload Inventory Master Details File</b>
                 </h1>
                 <section>
                     <div class="col-md-6">

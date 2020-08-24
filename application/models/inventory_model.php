@@ -2977,7 +2977,7 @@ class Inventory_model extends CI_Model {
      * @params: $select string
      * @return: Object 
      */
-    function get_warehouse_stocks($post, $select,$result_fetch = false) {
+    function get_warehouse_stocks($post, $select) {
 
         if (empty($select)) {
             $select = '*';
@@ -2995,11 +2995,7 @@ class Inventory_model extends CI_Model {
             $this->db->where($post['where']);
         }
         $query = $this->db->get();
-        if (empty($result_fetch)) {
-            return $query;
-        } else {
-            return $query->result_array();
-        }
+        return $query;
     }
     
      /**

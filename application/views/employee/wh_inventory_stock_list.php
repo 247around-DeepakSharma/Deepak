@@ -80,7 +80,7 @@
                                 </div>
                             </div>                         
                         </span>
-                        <span class="pull-right"><a href="<?php echo base_url(); ?>employee/inventory/download_warehouse_stock_data/micro_warehouse"><input type="button" id="micro_warehouse" class="btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></a></span>
+                        <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
                         <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Central Warehouse Stock"></span>
                     </h3>
                     <hr>
