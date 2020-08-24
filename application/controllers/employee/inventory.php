@@ -5222,7 +5222,8 @@ class Inventory extends CI_Controller {
         if ($is_wh_ack == 3) {
             $post['where']['i.is_wh_ack'] = $is_wh_ack;
         }
-
+        
+        $post['is_micro_wh'] = false;
         $select = "services.services, inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
@@ -6562,7 +6563,8 @@ class Inventory extends CI_Controller {
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.is_defective' => 1,
             '(i.is_partner_ack IS NULL OR i.is_partner_ack = 0)' => null);
-
+        
+        $post['is_micro_wh'] = false;
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
