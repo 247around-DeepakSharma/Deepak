@@ -128,8 +128,6 @@ class Around_scheduler extends CI_Controller {
                     $cc = $email_template[3];
                     $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
                     $message = vsprintf($email_template[0], array($html_table));
-                    $cc="";$to="ayushg@247around.com";
-                    //echo $to;exit;
                     $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
                      //Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
                     if(!empty($bcc_array))
