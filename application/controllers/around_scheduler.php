@@ -90,24 +90,24 @@ class Around_scheduler extends CI_Controller {
     function send_mail_list_of_having_expired_or_no_contracts_partners(){
         // Get All Partnners name having expired contracts
         $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(id) id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and end_date < now() and p.is_active = 1";
-        $data1 = $this->partner_model->get_expired_contarct_partner_list($query1);
+        $data1 = $this->partner_model->get_expired_contract_partner_list($query1);
         
         // Get All Partnners name having no contracts
         $query2 = " public_name FROM partners WHERE id not in (SELECT entity_id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and is_active = 1";
-        $data2 = $this->partner_model->get_expired_contarct_partner_list($query2);
+        $data2 = $this->partner_model->get_expired_contract_partner_list($query2);
         $body = "";
         if(!empty($data1))
         {
             foreach($data1 as $key => $value)
             {
-                $body .= $value['public_name']." - Contract ennded on ".$value['end_date']."<br>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ennded on ".$value['end_date']."</td></tr>";
             }
         }
         if(!empty($data2))
         {
             foreach($data2 as $key => $value)
             {
-                $body .= $value['public_name']." - Contract not present <br>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract not present</td></tr>";
             }
         }
         
@@ -2979,12 +2979,7 @@ class Around_scheduler extends CI_Controller {
      * Ghanshyam
      */
     function sent_partner_outstanding_reminder($partner_id = '') {
-        $partner_not_like = '';
-        $partnerType = '';
-        if (!$partnerType) {
-            $partner_not_like = INTERNALTYPE;
-            $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
-        }
+
         $partnerWhere['partners.is_active'] = 1;
         if (!empty($partner_id)) {
             $partnerWhere['partners.id'] = $partner_id;
@@ -3041,10 +3036,10 @@ class Around_scheduler extends CI_Controller {
 
                     $invoice_date = date('d.m.Y', strtotime($valueI['invoice_date']));
                     $invoice_month = date('m/y', strtotime($valueI['invoice_date']));
-                    $credit_note = 0;
+                    $credit_note = sprintf("%.2f",$valueI['amount_collected_paid']-$valueI['amount_paid']);
 
-                    $from_date  = strtotime($valueI['from_date']);
-                    $to_date    = strtotime($valueI['to_date']);
+                    $from_date  = strtotime($valueI['invoice_date']);
+                    $to_date    = strtotime(date('Y-m-d'));
                     $datediff = $to_date - $from_date;
 
 
@@ -3105,7 +3100,7 @@ class Around_scheduler extends CI_Controller {
                 $htmlMessage .= "</table>";
 
 
-                echo $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
+                $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
 
                 $attachment = '';
                 $email_from = $email_template[2];
@@ -3114,7 +3109,12 @@ class Around_scheduler extends CI_Controller {
                 if (!empty($value['invoice_email_cc'])) {
                     $to .= ',' . $value['invoice_email_cc'];
                 }
-                //print_r($booking_details);exit;
+                if(!empty($email_template[3])){
+                    $cc = $email_template[3];
+                }
+                if(!empty($email_template[5])){
+                    $bcc = $email_template[5];
+                }
 
                 $service_center_id = 1;
                 $template = 'partner_remaining_outstanding.xlsx';

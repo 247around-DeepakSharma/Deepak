@@ -8900,9 +8900,7 @@ class Inventory extends CI_Controller {
     function download_warehouse_stock_data($request_type_url ='') {
         log_message('info', __METHOD__ . ' Processing...');
 
-
         $request_type = $this->input->post('request_type');
-
         $fetch_array = false;
         if(empty($request_type) && !empty($request_type_url)){
            $request_type = $request_type_url;
@@ -8986,10 +8984,8 @@ class Inventory extends CI_Controller {
                 $res['msg'] = 'error in generating file';
             }
         }
-        if (empty($request_type_url)) {
-                echo json_encode($res);
-            }
         }
+        echo json_encode($res);
     }
 
     /**
