@@ -4232,8 +4232,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
             'i.sender_entity_type' => trim($this->input->post('sender_entity_type')));
-            // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
 
+        // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+        $post['is_micro_wh'] = false;
         $select = "services.services,sc.name as sname,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
