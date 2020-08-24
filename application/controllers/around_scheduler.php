@@ -2977,12 +2977,7 @@ class Around_scheduler extends CI_Controller {
      * Ghanshyam
      */
     function sent_partner_outstanding_reminder($partner_id = '') {
-        $partner_not_like = '';
-        $partnerType = '';
-        if (!$partnerType) {
-            $partner_not_like = INTERNALTYPE;
-            $partnerType = array(OEM, EXTWARRANTYPROVIDERTYPE, ECOMMERCETYPE);
-        }
+
         $partnerWhere['partners.is_active'] = 1;
         if (!empty($partner_id)) {
             $partnerWhere['partners.id'] = $partner_id;
@@ -3039,10 +3034,10 @@ class Around_scheduler extends CI_Controller {
 
                     $invoice_date = date('d.m.Y', strtotime($valueI['invoice_date']));
                     $invoice_month = date('m/y', strtotime($valueI['invoice_date']));
-                    $credit_note = 0;
+                    $credit_note = sprintf("%.2f",$valueI['amount_collected_paid']-$valueI['amount_paid']);
 
-                    $from_date  = strtotime($valueI['from_date']);
-                    $to_date    = strtotime($valueI['to_date']);
+                    $from_date  = strtotime($valueI['invoice_date']);
+                    $to_date    = strtotime(date('Y-m-d'));
                     $datediff = $to_date - $from_date;
 
 
@@ -3103,7 +3098,7 @@ class Around_scheduler extends CI_Controller {
                 $htmlMessage .= "</table>";
 
 
-                echo $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
+                $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
 
                 $attachment = '';
                 $email_from = $email_template[2];
@@ -3112,7 +3107,12 @@ class Around_scheduler extends CI_Controller {
                 if (!empty($value['invoice_email_cc'])) {
                     $to .= ',' . $value['invoice_email_cc'];
                 }
-                //print_r($booking_details);exit;
+                if(!empty($email_template[3])){
+                    $cc = $email_template[3];
+                }
+                if(!empty($email_template[5])){
+                    $bcc = $email_template[5];
+                }
 
                 $service_center_id = 1;
                 $template = 'partner_remaining_outstanding.xlsx';
