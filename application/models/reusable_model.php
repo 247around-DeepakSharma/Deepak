@@ -120,17 +120,20 @@ class reusable_model extends CI_Model {
        return $this->db->affected_rows();
     }
     
+    // This function gets RM against Pincode
+    // Added join of district_state_mapping , so that RM working in this district, will be selected
     function get_rm_for_pincode($pincode){
-        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN agent_state_mapping ON 
-        (state_code.state_code = agent_state_mapping.state_code) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
+        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as rm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN district_state_mapping ON (district_state_mapping.district=india_pincode.district) LEFT JOIN agent_state_mapping ON 
+        (state_code.state_code = agent_state_mapping.state_code AND agent_state_mapping.district_id = district_state_mapping.id) WHERE india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
     // This function gets ASM against Pincode
+    // Added join of district_state_mapping , so that ASM working in this district, will be selected
     function get_asm_for_pincode($pincode){
-        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as asm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN agent_state_mapping ON 
-        (state_code.state_code = agent_state_mapping.state_code) JOIN employee ON (agent_state_mapping.agent_id = employee.id) WHERE employee.groups = '"._247AROUND_ASM."' AND india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
+        $sql = "SELECT india_pincode.pincode,agent_state_mapping.agent_id as asm_id,state_code.id as state_id FROM india_pincode INNER JOIN state_code ON state_code.state=india_pincode.state LEFT JOIN district_state_mapping ON (district_state_mapping.district=india_pincode.district) LEFT JOIN agent_state_mapping ON 
+        (state_code.state_code = agent_state_mapping.state_code AND agent_state_mapping.district_id = district_state_mapping.id) JOIN employee ON (agent_state_mapping.agent_id = employee.id) WHERE employee.groups = '"._247AROUND_ASM."' AND india_pincode.pincode IN ('" . $pincode . "') GROUP BY india_pincode.pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
