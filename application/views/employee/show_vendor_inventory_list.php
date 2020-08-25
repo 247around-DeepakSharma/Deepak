@@ -24,13 +24,13 @@
     <!--                            <td><?php //echo $value['19_24_current_count'] ?></td>-->
                             <td>
                                 <?php
-                                if (is_numeric($value['19_24_current_count'])) {
+                                if (!empty($value['19_24_current_count']) && is_numeric($value['19_24_current_count'])) {
                                     $one_nine_two_four = $value['19_24_current_count'];
                                 } else {
                                     $one_nine_two_four = 0;
                                 }
 
-                                if (is_numeric($value['26_32_current_count'])) {
+                                if (!empty($value['26_32_current_count']) && is_numeric($value['26_32_current_count'])) {
                                     $two_six_three_two = $value['26_32_current_count'];
                                 } else {
                                     $two_six_three_two = 0;
