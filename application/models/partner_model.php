@@ -19,7 +19,18 @@ class Partner_model extends CI_Model {
       $this->db->insert("log_partner_table", $activity);
     }
 
-    function validate_partner($auth_token) {
+    /*
+     * @desc: This is used to get active partner name those contarct has been expired or having no contract with us 
+     */
+    function get_onboarded_partners_list_since_2020($select,$where,$not_in) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->where_not_in('t2.partner_type', $not_in);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+	function validate_partner($auth_token) {
       //TODO: Deactivate partner account if auth token mismatch happens 3 or more times in a day
       $this->db->select('partners.id, public_name');
       $this->db->from("partners");
