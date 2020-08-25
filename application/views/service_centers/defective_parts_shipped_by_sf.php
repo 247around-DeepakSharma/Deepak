@@ -254,13 +254,13 @@ if(flag) {
         return false;
     } 
     
-    var dockket_count = jQuery.unique(docket_uniqu_detail).length;
-    if(dockket_count > 1) {
-        alert('Please select unique docket number to acknowledge spare.');
-        $("#revieve_multiple_parts_btn").attr('disabled',false);
-        $(".recieve_defective").attr('disabled',false);
-        return false;
-    } 
+//    var dockket_count = jQuery.unique(docket_uniqu_detail).length;
+//    if(dockket_count > 1) {
+//        alert('Please select unique docket number to acknowledge spare.');
+//        $("#revieve_multiple_parts_btn").attr('disabled',false);
+//        $(".recieve_defective").attr('disabled',false);
+//        return false;
+//    } 
     
     var consumption_status_selected = jQuery.unique(consumption_status)[0];
     $.ajax({
