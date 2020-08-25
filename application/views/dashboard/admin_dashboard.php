@@ -3210,12 +3210,13 @@ function initiate_escalation_data(){
         });
     }
     
-    function create_chart_closure_cancelled_booking(response) {
+    function create_chart_closure_cancelled_booking(response) {       
         var data = JSON.parse(response);
         var closures = data.closures.split(',');
         var reject = JSON.parse("[" + data.reject + "]");
         var approved = JSON.parse("[" + data.approved + "]");
         var edit_complete = JSON.parse("[" + data.edit_complete + "]");
+        var edit_cancel = JSON.parse("[" + data.edit_cancel + "]");
         var total_bookings = JSON.parse("[" + data.total_bookings + "]");
         $('#loader_gif8').hide();
         $('#cancelled_booking_closure_chart').fadeIn();
@@ -3260,6 +3261,9 @@ function initiate_escalation_data(){
                 }, {
                     name: 'Directly Approved Bookings',
                     data: approved
+                }, {
+                    name: 'Edit Cancelled Bookings',
+                    data: edit_cancel
                 },
                 {
                     name: 'Cancelled to Completed Bookings',
