@@ -390,7 +390,7 @@ class Warranty_model extends CI_Model {
     
     function get_warranty_plan_details($plan_id)
     {
-        $this->db->select('wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end, wp.warranty_period, wp.is_active, s.id as service_id, p.id as partner_id, wp.warranty_type, wp.inclusive_svc_charge, wp.inclusive_gas_charge, wp.inclusive_transport_charge, wp.warranty_grace_period');
+        $this->db->select('wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end, wp.warranty_period, wp.is_active, s.id as service_id, p.id as partner_id, wp.warranty_type, wp.inclusive_svc_charge, wp.inclusive_gas_charge, wp.inclusive_transport_charge, wp.plan_depends_on, wp.warranty_grace_period');
         $this->db->from('warranty_plans as wp');
         $this->db->join('services as s', 'wp.service_id = s.id');
         $this->db->join('partners as p', 'wp.partner_id = p.id ');
