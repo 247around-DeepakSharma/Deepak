@@ -89,7 +89,7 @@
                             <div class="col-md-6">
                                 <input type="hidden" name="download_all" value="1">
                                 <input type="hidden" name="request_type" value="admin_search">
-                                <button type="submit" class="btn btn-success col-md-2" id="download_invoice_id_data" style="width:100%; margin-top: 23px;">Download</button>
+                                <button type="submit" class="btn btn-success col-md-2" id="download_invoice_id_data" style="width:200%; margin-top: 23px;">Download all invoices</button>
                             </div>
                         </div>
                         

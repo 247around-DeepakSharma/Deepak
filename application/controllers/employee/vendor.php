@@ -1313,7 +1313,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         if(!empty($booking_id)){
             
-            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1, 'is_wh' => 0));
             // checks to validate whether booking can be re-assigned or not
             $arr_validation_checks = $this->check_reassign_validations($booking_id); 
 
@@ -4783,10 +4783,14 @@ class vendor extends CI_Controller {
     /*
           * This function will return the view to upload the vendor pin code mapping file
           */
-         function upload_pin_code_vendor($vendorID){
+         function upload_pin_code_vendor($vendorID=''){
+                    $message="";
+                    if(empty($vendorID)){
+                    $message = "Please Select Vendor before upload pincode";    
+                    }
                     $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                     $this->miscelleneous->load_nav_header();
-                    $this->load->view('employee/vendor_pincode_upload',array('vendorID'=>$vendorID,"services"=>$serviceArray));
+                    $this->load->view('employee/vendor_pincode_upload',array('error'=>$message,'vendorID'=>$vendorID,"services"=>$serviceArray));
           }
           /*
            * This function will save the vendor upload pincode file in file uploads table
