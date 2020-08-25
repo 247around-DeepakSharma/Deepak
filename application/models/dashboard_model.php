@@ -298,7 +298,8 @@ class dashboard_model extends CI_Model {
                     SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) as completed_approved,
                     SUM(IF (new_state = 'Cancelled', 1, 0)) as total_completed,
                     SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) as edit_completed,
-                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0))) as total_bookings
+                    (SUM(IF (new_state = 'Cancelled', 1, 0)) - SUM(IF (new_state = 'Cancelled_Approved', 1, 0))) as edit_cancelled,
+                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) + (SUM(IF (new_state = 'Cancelled', 1, 0)) - SUM(IF (new_state = 'Cancelled_Approved', 1, 0)))) as total_bookings
                     FROM booking_state_change as bsc, employee WHERE employee.groups ='closure' AND bsc.create_date >= '$startDate' AND bsc.create_date <= '$endDate' AND agent_id = employee.id AND partner_id='"._247AROUND."' group by employee_id";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -321,15 +322,18 @@ class dashboard_model extends CI_Model {
                     services.services as Product,
                     SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) as 'Rejected Bookings',
                     SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) as 'Directly Approved Bookings',
+                    (SUM(IF (new_state = 'Cancelled', 1, 0)) - SUM(IF (new_state = 'Cancelled_Approved', 1, 0))) as 'Edit Cancelled Bookings',
                     SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) as 'Cancelled to Completed Bookings',
-                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0))) as 'Total Bookings'";
+                    (SUM(IF (new_state = 'Cancelled_Rejected', 1, 0)) + SUM(IF (new_state = 'Cancelled_Approved', 1, 0)) + SUM(IF ((old_state = 'InProcess_Cancelled' AND new_state = 'Completed'), 1, 0)) + (SUM(IF (new_state = 'Cancelled', 1, 0)) - SUM(IF (new_state = 'Cancelled_Approved', 1, 0)))) as 'Total Bookings'";
         
         // set where condition
         $where = "employee.groups = 'closure'
                     AND bsc.create_date >= '$startDate'
                     AND bsc.create_date <= '$endDate'
                     AND bsc.partner_id = '"._247AROUND."'";
-        
+					
+        $condition = "`Rejected Bookings` != '0' OR `Directly Approved Bookings` != '0' OR `Cancelled to Completed Bookings` != '0' OR `Edit Cancelled Bookings` != '0' OR `Total Bookings` != '0'";
+
         // Query here
         $this->db->select($select);
         $this->db->from('booking_state_change AS bsc');

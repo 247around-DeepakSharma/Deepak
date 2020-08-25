@@ -386,6 +386,7 @@ class Dashboard extends CI_Controller {
         $rejectCompleted = [];
         $approveComplted = [];
         $editCompleted = [];
+        $editCancelled = [];
         $totalCompleted = [];
         $closureName = [];
         if($status == "Completed"){
@@ -427,6 +428,14 @@ class Dashboard extends CI_Controller {
                                 array_push($editCompleted, '0');
                             }
                             break;
+                        // Booking that are cancelled from review page using edit button    
+                        case 'edit_cancelled':
+                            if (!empty($value)) {
+                                array_push($editCancelled, $value);
+                            } else {
+                                array_push($editCancelled, '0');
+                            }
+                            break;
                         case 'total_bookings':
                             if (!empty($value)) {
                                 array_push($totalCompleted, $value);
@@ -440,6 +449,9 @@ class Dashboard extends CI_Controller {
             $json_data['closures'] = implode(",", $closureName);
             $json_data['reject'] = implode(",", $rejectCompleted);
             $json_data['approved'] = implode(",", $approveComplted);
+            if($status == "Cancelled"){
+                $json_data['edit_cancel'] = implode(",", $editCancelled);
+            }
             $json_data['edit_complete'] = implode(",", $editCompleted);
             $json_data['total_bookings'] = implode(",", $totalCompleted);
             echo json_encode($json_data);
