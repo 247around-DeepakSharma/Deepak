@@ -58,8 +58,9 @@ class Service_centers_model extends CI_Model {
             } else {
                 if($i ==1){
                 // Today Day
-                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) >= 0) ";
-                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";
+                $day  = " ";
+                $status = " AND (((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) >= 0)  AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')) "
+                        . " OR ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%Y-%m-%d')) = -1)) AND bd.current_status='Pending' ) AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  AND bd.partner_internal_status !='Booking Completed By Engineer'";
                 // not show if engg complete
                 
                 } else if($i==2) {

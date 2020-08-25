@@ -24,10 +24,11 @@
         <?php $enable_button = TRUE; 
                 if($booking_history[0]['current_status'] == _247AROUND_COMPLETED){
                     if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated)
-                        && ($this->session->userdata('user_group') == "admin") 
-                        || ($this->session->userdata('user_group') == "closure")
-                        || ($this->session->userdata('user_group') == "inventory_manager" ) 
-                        || ($this->session->userdata('user_group') == "developer" )  )  {
+                        && ($this->session->userdata('user_group') == _247AROUND_ADMIN) 
+                        || ($this->session->userdata('user_group') == _247AROUND_CLOSURE)
+                        || ($this->session->userdata('user_group') == INVENTORY_USER_GROUP ) 
+                        || ($this->session->userdata('user_group') == _247AROUND_DEVELOPER )
+                        || ($this->session->userdata('user_group') == _247AROUND_RM ))  {
                              $enable_button = TRUE; 
 
                         } else {

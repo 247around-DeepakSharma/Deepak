@@ -167,7 +167,7 @@
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  readonly style="background : #fff;cursor:pointer;">
+                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '14'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  readonly style="background : #fff;cursor:pointer;">
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
