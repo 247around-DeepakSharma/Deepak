@@ -11,6 +11,27 @@ class Booking_model extends CI_Model {
     }
 
     /**
+     * @desc: get all files name having space from collateral table
+     * @return:  Array
+     */
+    
+    function get_file_list($select) {
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: update file name in collateral table
+     */
+    function update_file_name_collateral($id,$file)
+    {
+        $this->db->where('id', $id);
+        $this->db->update('collateral', array("file"=>$file));
+    }
+
+
+    /**
      *  @desc : This function is to add new brand to our database for a service.
      *
      *  This helps to add any new brand found(told by customer) for any
@@ -413,7 +434,8 @@ class Booking_model extends CI_Model {
         {
             $to = DEV_BOOKINGS_MAIL;
             $message = json_encode($appliance_detail)."<br/>".$this->db->last_query();
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "");            
+            //$this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "");            
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Appliance Id not Inserted', $message, "","","");
         }
         return $this->db->insert_id();
     }
