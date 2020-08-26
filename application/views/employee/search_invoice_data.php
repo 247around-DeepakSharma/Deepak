@@ -82,14 +82,14 @@
                              <label>Invoice Id</label>
                              <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Invoice Id" style="width:100%;">
                         </div>
-                        <div class="form-group col-md-3" style="margin-top: 15px;">
-                            <div class="col-md-6">
+                        <div class="form-group col-md-4" style="margin-top: 15px;">
+                            <div class="col-md-4">
                                 <div class="btn btn-success col-md-2" id="get_invoice_id_data" style="width:100%; margin-top: 23px;">Search</div>
                             </div>
                             <div class="col-md-6">
                                 <input type="hidden" name="download_all" value="1">
                                 <input type="hidden" name="request_type" value="admin_search">
-                                <button type="submit" class="btn btn-success col-md-2" id="download_invoice_id_data" style="width:100%; margin-top: 23px;">Download</button>
+                                <button type="submit" class="btn btn-success col-md-2" id="download_invoice_id_data" style="width:100%; margin-top: 23px;">Download all invoices</button>
                             </div>
                         </div>
                         
