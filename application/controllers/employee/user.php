@@ -852,17 +852,6 @@ class User extends CI_Controller {
      */
     function process_edit_employee(){
         $data = $this->input->post();
-
-        $isRM = count($this->employee_model->isRManager($data['id'])) > 0 ? true : false;
-        //If agent is not RM and is being promoted to RM then it has to unmap itself from all service centers and states
-        if(!$isRM && $data['groups']==_247AROUND_RM){
-            $result_district_mapped = $this->employee_model->get_rm_mapped_district($data['id']);
-            if(!empty($result_district_mapped)){
-                 $this->session->set_flashdata('error','Some district already mapped with this agent, Please remove them first.');
-                 redirect(base_url() . "employee/user/update_employee/".$data['id']);
-                 exit;
-            }
-        }
         $removeKeys = array('manager', 'subordinate');
         $data1=array_diff_key($data, array_flip($removeKeys));
         
