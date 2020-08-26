@@ -5999,13 +5999,12 @@ class Booking extends CI_Controller {
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
             unset($data[$k]['service_center_closed_date']);
-            unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
             unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);

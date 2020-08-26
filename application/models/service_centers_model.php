@@ -303,16 +303,20 @@ class Service_centers_model extends CI_Model {
             }
             $join = $join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
-        
          if(!$select){
-             $select = "sc.booking_id,booking_details.service_id,sc.amount_paid,sc.admin_remarks,booking_cancellation_reasons.reason as cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
+             $select = "sc.booking_id,partners.public_name,service_centres.name as sf_name,booking_details.service_id,sc.amount_paid,sc.admin_remarks,booking_cancellation_reasons.reason as cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state,users.name, booking_details.booking_primary_contact_no, booking_details.booking_alternate_contact_no, services.services appliance_category, employee.full_name asm_name, case when spare_parts_details.consumed_part_status_id = 1 then 'Yes' else 'No' end as consumption_status"
                 . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as age, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.service_center_closed_date,'%Y-%m-%d')) as review_age"
-                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_create_date,booking_details.service_center_closed_date,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due,booking_details.flat_upcountry $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
+                . " JOIN users ON booking_details.user_id = users.user_id"
+                . " JOIN service_centres ON booking_details.assigned_vendor_id = service_centres.id"
+                . " JOIN employee ON service_centres.asm_id = employee.id"
+                . " JOIN services ON services.id = booking_details.service_id"
                 . " LEFT JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
+                . " LEFT JOIN spare_parts_details ON booking_details.booking_id = spare_parts_details.booking_id AND spare_parts_details.consumed_part_status_id = 1"
                 . " JOIN partners ON booking_details.partner_id = partners.id "
                 . "$join"
                 . " WHERE sc.current_status = 'InProcess' "
@@ -322,6 +326,7 @@ class Service_centers_model extends CI_Model {
                 . " $groupBy  $having $orderBY $limit";
         $query = $this->db->query($sql);
         $booking = $query->result_array();        
+        //echo $this->db->last_query();exit;
          return $booking;
     }
 
@@ -349,6 +354,7 @@ class Service_centers_model extends CI_Model {
             $result = $query2->result_array();
             $booking[$key]['unit_details'] = $result;
         }
+        //print_r($booking);exit;
         return $booking;
     }
 
