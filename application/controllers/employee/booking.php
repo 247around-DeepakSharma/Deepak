@@ -4357,12 +4357,12 @@ class Booking extends CI_Controller {
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode,$column_order);
+        // Save Query in Log against Logged-In Agent
+        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
-        }        
-        // Save Query in Log against Logged-In Agent
-        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());                       
+        }                                      
         // return Table data
         echo json_encode($data);
     }
@@ -6166,7 +6166,6 @@ class Booking extends CI_Controller {
                 } else {
                    
                     $picName = $type . rand(10, 100) . $unit . "." . $extension;
-                    $picName = str_replace(" ","_",$picName);
                     $_POST[$post_name][$unit] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;

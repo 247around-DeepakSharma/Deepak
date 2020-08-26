@@ -517,7 +517,7 @@ class dealerApi extends CI_Controller {
                 );  
             }
 
-            $this->dealer_model->update_dealer($update_dealer,array('phone'=>$requestData["mobile"]));
+            $this->dealer_model->update_retailer($update_dealer,array('phone'=>$requestData["mobile"]));
 ////// LOGIN LOGIC ///
                 $this->jsonResponseString['response'] = $login[0];
                 $this->sendJsonResponse(array('0000', 'success'));
@@ -1297,19 +1297,30 @@ function  getPartnerCompareTAT(){
     
     function processUserRegister(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("phone","first_name","password"), $requestData);
-        if (!empty($requestData['phone'])) { 
+        $validation = $this->validateKeys(array("mobile","first_name","password"), $requestData);
+        if (!empty($requestData['mobile'])) { 
                 
                 $data = array(
-                     'phone'=> $requestData['phone'],
+                     'phone'=> $requestData['mobile'],
                      'first_name'=>$requestData['first_name'],
                      'last_name' =>$requestData['last_name'],
+                     'email' =>$requestData['email'],
                      'password'=>md5($requestData['password'])
                      
                  );
                  $response =  $this->dealer_model->processUserRegisterRetailer($data);
-                 $this->jsonResponseString['response'] = $response;
+                 if($response){
+                 $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
+                 $this->jsonResponseString['response'] = $login[0];
                  $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
+                  
+                 }else{
+                 $this->jsonResponseString['response'] = array();
+                 $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
+                     
+                 }
+                 
+
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);

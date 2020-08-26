@@ -4700,7 +4700,6 @@ class vendor extends CI_Controller {
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $signature_file = trim($_POST['cropped_image']);
-                $signature_file = str_replace(" ","_",$signature_file);
                 $directory_xls = "vendor-partner-docs/" . $signature_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
               //  $_POST['signature_file'] = $signature_file;
