@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
-                <h2>Customer Paid Charges</h2>
+                <h2>Customer Paid Service Charges Less than Rs. 100</h2>
                 <span class="collape_icon" href="#section_1" data-toggle="collapse" onclick=""><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
@@ -101,7 +101,7 @@
     <div class="col-md-12">
         <div class="x_panel">
             <div class="x_title" style="padding-left: 0px;">
-                <h2>Partner Invoice</h2>
+                <h2>Invoice Not Billed To Partner</h2>
                 <span class="collape_icon" href="#section_3" data-toggle="collapse"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                 <div class="clearfix"></div>
             </div>
