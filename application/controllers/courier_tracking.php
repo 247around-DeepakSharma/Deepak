@@ -694,7 +694,6 @@ class Courier_tracking extends CI_Controller {
                 }
                 else if (strpos($company_name, 'DTDC') !== false) {
                     $image_name = $awb_number . '_' . date('jMYHis') . '.jpg';
-                    $image_name = str_replace(" ","_",$image_name);
                     $str = file_get_contents("https://tracking.dtdc.com/ctbs-tracking/customerInterface.tr?submitName=showCITrackingDetails&cType=Consignment&cnNo=" . $awb_number);
                     $html = strip_tags($str);
                     preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $html, $match);

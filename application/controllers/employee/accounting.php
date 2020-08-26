@@ -78,7 +78,6 @@ class Accounting extends CI_Controller {
 
                 $tmpFile = $_FILES['challan_file']['tmp_name'];
                 $challan_file = trim($this->input->post('cin_no')) . '_challanfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['challan_file']['name'])[1];
-                $challan_file = str_replace(" ","_",$challan_file);
                 $_POST['challan_file_name'] = $challan_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
@@ -102,7 +101,6 @@ class Accounting extends CI_Controller {
 
                 $tmpFile = $_FILES['annexure_file']['tmp_name'];
                 $annexure_file = trim($this->input->post('cin_no')) . '_annexure_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['annexure_file']['name'])[1];
-                $annexure_file = str_replace(" ","_",$annexure_file);
                 $_POST['annexure_file_name'] = $annexure_file;
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;

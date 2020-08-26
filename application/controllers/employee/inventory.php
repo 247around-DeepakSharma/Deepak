@@ -279,7 +279,6 @@ class Inventory extends CI_Controller {
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
             //Assigning File Name for uploaded shipment receipt
             $fileName = "Shipment-Receipt-" . $this->input->post('order_id') . '.' . explode('.', $_FILES['shipment_receipt']['name'])[1];
-            $fileName = str_replace(" ","_",$fileName);
             move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
 
             //Uploading images to S3 
