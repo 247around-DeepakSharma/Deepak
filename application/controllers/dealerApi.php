@@ -431,6 +431,9 @@ class dealerApi extends CI_Controller {
             
             case 'getPartnerCompareData':
                 $this->getPartnerCompareTAT();
+                
+            case 'getStateTATDetails':
+                getStateDetailedTAT();
 
             default:
                 break;
@@ -1272,7 +1275,143 @@ function  getPartnerCompareTAT(){
         }
         
     }
-   
+    
+      /*
+     * @Desc - This function is used get States TAT Data
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    function getStateDetailedTAT(){
+      
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("entity_type"), $requestData);
+        if (!empty($requestData['entity_type'])) { 
+            
+                   if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    $city = "not_set"; 
+           
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
+                    }
+                    
+                   
+                    $is_pending = 0;
+            
+                   $postData = array(
+                      //  "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "call_from_api" => TRUE,
+                        "status" => $status,
+                        "startDate" => $startDate,
+                        "endDate" => $endDate,
+                        "services" => $service_id,
+                        "request_type" => $request_type,
+                        "partner_id" => $partner_id,
+                        "upcountry" => $upcountry,
+                        "free_paid" => $free_paid,
+                        "state" => $state,
+                        "city" => $city
+                    );
+                   
+                    //Call curl for updating booking 
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/0/0/".$is_pending;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = json_decode(curl_exec($ch));
+                    curl_close($ch);
+                    
+                    foreach ($curl_response->TAT as $key=>$value){
+                     $state =   $value->entity; 
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
+                     //$return['D0'][]['state'][]  = $value->TAT_0  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per)  ;
+                     //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
+                  //  $return_data = array_push($return_data,)
+                    $this->jsonResponseString['response'] = $return_data;
+                    $this->sendJsonResponse(array('0000', "Data found successfully"));
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1024", "Data not found !")); 
+        }
+        
+        
+    }
+    
+  
      /*
      * @Desc - This function is used get top 5 SFs
      * @param - 
