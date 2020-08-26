@@ -1304,12 +1304,23 @@ function  getPartnerCompareTAT(){
                      'phone'=> $requestData['phone'],
                      'first_name'=>$requestData['first_name'],
                      'last_name' =>$requestData['last_name'],
+                     'email' =>$requestData['email'],
                      'password'=>md5($requestData['password'])
                      
                  );
                  $response =  $this->dealer_model->processUserRegisterRetailer($data);
-                 $this->jsonResponseString['response'] = $response;
+                 if($response){
+                 $login = $this->dealer_model->retailer_login(array("active" => 1, "phone" => $requestData["mobile"]));
+                 $this->jsonResponseString['response'] = $login[0];
                  $this->sendJsonResponse(array('0000', "User registered successfully")); // send success response //
+                  
+                 }else{
+                 $this->jsonResponseString['response'] = array();
+                 $this->sendJsonResponse(array('10023', "User not registered successfully")); // send success response //
+                     
+                 }
+                 
+
                
         } else {
             log_message("info", __METHOD__ . $validation['message']);
