@@ -11,16 +11,15 @@
     }
 </style>
 <div class ="right_col">
-    <div class="calender_holder"style="margin-right: 50px;float: right;">
-        <form class="form-inline"style="float:left;background: #46b8da;color: #fff;padding: 3px;border-radius: 4px;">
-        <div class="form-group">
-            <input type="text" class="form-control" name="daterange" id="daterange_id" onchange="get_date_data()">
-        </div>
-    </form>
+    <div class="calender_holder row">
+        <form class="form-inline col-md-12">
+            <div class="form-group" style="float: right;">
+                <input type="text" class="form-control" name="daterange" id="daterange_id" onchange="get_date_data()">
+            </div>
+        </form>
    </div>
-    <div class="picChartHolder">
-    <div class="clear"></div>
-    <div id="upcountry_chart" style="float:left;width:35%">
+    <div class="picChartHolder row">
+    <div id="upcountry_chart" style="float:left;" class="col-md-4">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation <small></small></h2>
@@ -36,7 +35,7 @@
                 </div>
         </div>
     </div>
-    <div id="request_type" style="float:left;width:30%">
+    <div id="request_type" style="float:left;" class="col-md-4">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation <small></small></h2>
@@ -52,7 +51,7 @@
                 </div>
         </div>
     </div>
-    <div id="appliance" style="float:left;width:30%">
+    <div id="appliance" style="float:left;" class="col-md-4">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Escalation <small></small></h2>
@@ -69,8 +68,7 @@
         </div>
     </div>
 </div>
-    <div class="clear"></div>
-    <div class="barChartHolder">
+    <div class="barChartHolder row" style="margin-top: 10px;">
          <div id="performance_chart" align="center">
             <div class="x_panel">
                 <div class="x_title">
