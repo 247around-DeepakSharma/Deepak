@@ -332,6 +332,26 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('plan_depends_on')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="state" class="col-md-3 vertical-align">Plan Depends On*</label>
+                                        <div class="col-md-8">
+                                            <select id="plan_depends_on" class="plan_depend form-control" name ="plan_depends_on">
+                                                <option value="1">Model</option>
+                                                <option value="2">Product</option>
+                                            </select>
+                                            
+                                            <?php echo form_error('plan_depends_on'); ?>
+                                            <p class="alert alert-danger error_message" id="plan_depends_on_error">
+                                                
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             

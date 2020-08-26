@@ -4010,7 +4010,8 @@ class Booking extends CI_Controller {
         if(!empty($state)){
             $post['where']['service_centres.state = '] =  trim($state);
         }
-        $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
+        $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat","booking_age");
+       // $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
         $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
         return $post;
@@ -4356,10 +4357,13 @@ class Booking extends CI_Controller {
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode,$column_order);
+        // Save Query in Log against Logged-In Agent
+        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
-        }
+        }                                      
+        // return Table data
         echo json_encode($data);
     }
        
@@ -6162,7 +6166,6 @@ class Booking extends CI_Controller {
                 } else {
                    
                     $picName = $type . rand(10, 100) . $unit . "." . $extension;
-                    $picName = str_replace(" ","_",$picName);
                     $_POST[$post_name][$unit] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;

@@ -343,7 +343,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(date('H') < '13'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>" required readonly='true'>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(date('H') < '14'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>" required readonly='true'>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -596,7 +596,13 @@ $("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear
 // function to cross check request type of booking with warranty status of booking 
 function check_booking_request()
 {
-    $(".price_checkbox").attr("disabled", false);
+    $(".price_checkbox:checked").each(function(){
+        if(($(this).attr('data-price_tag') != "Gas Recharge - Out of Warranty") && ($(this).attr('data-price_tag') != "Gas Recharge - In Warranty") && ($(this).attr('data-price_tag') != "Gas Recharge (R410) - In Warranty"));
+        {
+            $(".price_checkbox").attr("disabled", false);
+        }
+    });
+    
     if($(".input-model").is(":hidden"))
     {
         var model_number = $(".select-model").val();

@@ -1313,7 +1313,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         if(!empty($booking_id)){
             
-            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1, 'is_wh' => 0));
             // checks to validate whether booking can be re-assigned or not
             $arr_validation_checks = $this->check_reassign_validations($booking_id); 
 
@@ -4700,7 +4700,6 @@ class vendor extends CI_Controller {
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $signature_file = trim($_POST['cropped_image']);
-                $signature_file = str_replace(" ","_",$signature_file);
                 $directory_xls = "vendor-partner-docs/" . $signature_file;
                 $this->s3->putObjectFile(TMP_FOLDER . $signature_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
               //  $_POST['signature_file'] = $signature_file;
