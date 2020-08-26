@@ -1052,18 +1052,24 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
  * This function get all escalation for a vendor and then get appliance,upcountry,request_type information for all escalated bookings
  * @input - Vendor ID, Dates are optional
  */
-function get_escalation_data($sfID,$startDate=NULL,$endDate=NULL){
+function get_escalation_data($sfID,$startDate=NULL,$endDate=NULL,$partner_id=NULL){
     //Create Where Array for escalation table
     $escalation_where["vendor_escalation_log.vendor_id"] =$sfID;
     //if dates are there then add given dates in where condition  
     if(!($startDate) && !($endDate)){
-            $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
-       }
-       //if dates are not set get current month escalaltion data
-       else{
-            $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
-       }
-       //get vendor total escalation total booking group by serviceID,Upcountry and requestType
+        $escalation_where["month(vendor_escalation_log.create_date) = month(now()) AND year(vendor_escalation_log.create_date) = year(now())"] =NULL;
+    }
+    //if dates are not set get current month escalaltion data
+    else{
+        $escalation_where["date(vendor_escalation_log.create_date) >= '".$startDate."' AND date(vendor_escalation_log.create_date) < '".$endDate."'"] =  NULL;
+    }
+    
+    // Add where condition for Partner
+    if(!empty($partner_id)) {
+        $escalation_where['booking_details.partner_id'] = $partner_id;
+    }
+    
+    //get vendor total escalation total booking group by serviceID,Upcountry and requestType
     $data = $this->reusable_model->get_search_result_data('vendor_escalation_log',"count(DISTINCT booking_details.booking_id) AS total_booking,count(vendor_escalation_log.booking_id) "
             . "AS total_escalation,booking_details.assigned_vendor_id,	services.services,service_centres.name,booking_details.is_upcountry,booking_details.request_type",$escalation_where,
                     array("booking_details"=>"vendor_escalation_log.booking_id=booking_details.booking_id","services"=>"services.id=booking_details.service_id"
@@ -1115,12 +1121,19 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
  * @input- Vendor ID , Dates are optional
  */
  function get_escalations_chart_data($sfID,$startDate=NULL,$endDate=NULL){    
-     //Create blank request type array (All request type will be divide only in Installation and Repair)
+        //Create blank request type array (All request type will be divide only in Installation and Repair)
         $finalData['upcountry']= array();
         $finalData['request_type'] = array();
         $requestTypeNewArray['Installation'] = $requestTypeNewArray['Repair'] = 0;
+        
+        // get Partner Specific data for Partner Panel
+        $partner_id = null;
+        if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+        }
+        
         // Get Escalation Data For Vendor
-        $data = $this->get_escalation_data($sfID,$startDate,$endDate);
+        $data = $this->get_escalation_data($sfID,$startDate,$endDate,$partner_id);
         // get escalation by upcountry
         $upcountryData= $this->get_escalation_chart_data_by_one_matrix($data,"is_upcountry");
         $finalData['upcountry']['upcountry'] = $finalData['upcountry']['non_upcountry'] =0;
@@ -1185,8 +1198,15 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     //Create Group by array for booking and escalation
     $groupBy['booking'] = array("MONTHNAME(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'))");
     $groupBy['escalation'] = array("MONTHNAME(vendor_escalation_log.create_date)");
+    
+    // get Partner Specific data for Partner Panel
+    $partner_id = null;
+    if($this->session->userdata('partner_id')){
+        $partner_id = $this->session->userdata('partner_id');
+    }
+    
     // Get escalation by vendor group by date
-    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,NULL);
+    $data = $this->dashboard_model->get_sf_escalation_by_rm_by_sf_by_date($startDate,$endDate,$sf,NULL,$groupBy,$partner_id);
     // Create Associative array for escalation (Pass Vendor ID Return Escalation number)
     foreach($data['escalation'] as $escalationData){
         $escalationAssociativeArray[$escalationData['escalation_month']]= $escalationData['total_escalation'];
