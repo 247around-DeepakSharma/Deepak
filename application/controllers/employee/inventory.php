@@ -4332,6 +4332,13 @@ class Inventory extends CI_Controller {
 
 
                 if (!empty($parts_details)) {
+                    /**
+                     * Check if inventory_id is zero.
+                     */
+                    $inventory_ids = array_column($parts_details, 'inventory_id');
+                    if(!in_array('0', $inventory_ids)) {
+                                        
+                    
                     if ($invoice_file_required) {
 
                         $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
@@ -4629,6 +4636,10 @@ class Inventory extends CI_Controller {
                     } else {
                         $res['status'] = false;
                         $res['message'] = $invoice_file['message'];
+                    }
+                    } else {
+                        $res['status'] = false;
+                        $res['message'] = "We can't update msl. Please refresh and try again.";
                     }
                 } else {
                     $res['status'] = false;

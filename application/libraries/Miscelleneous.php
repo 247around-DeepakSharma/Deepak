@@ -2379,7 +2379,7 @@ class Miscelleneous {
              * if exist then get the id of that part and use that id for further process
              */
             
-            if(isset($data['inventory_id'])){
+            if(isset($data['inventory_id']) && $data['inventory_id'] > 0){
                 $is_part_exist = array( 0 => array('inventory_id' => $data['inventory_id']));
             }else{
                 $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
