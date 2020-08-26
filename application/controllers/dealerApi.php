@@ -1297,11 +1297,11 @@ function  getPartnerCompareTAT(){
     
     function processUserRegister(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("phone","first_name","password"), $requestData);
+        $validation = $this->validateKeys(array("mobile","first_name","password"), $requestData);
         if (!empty($requestData['phone'])) { 
                 
                 $data = array(
-                     'phone'=> $requestData['phone'],
+                     'phone'=> $requestData['mobile'],
                      'first_name'=>$requestData['first_name'],
                      'last_name' =>$requestData['last_name'],
                      'email' =>$requestData['email'],
