@@ -5309,4 +5309,19 @@ function generate_image($base64, $image_name,$directory){
         }
         return;
     }
+    
+    /**
+     * This function is used to store query Used by a agent in its respective Log Table
+     * @param type $table_name
+     * @param type $str_query
+     * @return type
+     */
+    function save_query_log($table_name, $str_query){
+        $agent_id = $this->My_CI->session->userdata('id');
+        $data = [
+            'agent_id' => $agent_id,
+            'query' => $str_query
+        ];
+        return $this->My_CI->employee_model->query_log($table_name,$data);
+    }
 }
