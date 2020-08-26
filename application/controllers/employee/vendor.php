@@ -4649,6 +4649,7 @@ class vendor extends CI_Controller {
         $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
+        if(!empty($partner_data[0])){
         if ($partner_data[0]['is_wh'] == 1) {
             $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1);
@@ -4676,6 +4677,7 @@ class vendor extends CI_Controller {
                     $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
                 }
             }
+        }
         }
         
 
