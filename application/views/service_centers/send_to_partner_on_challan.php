@@ -912,7 +912,6 @@
     $('#selectall_challan_file').on('click', function () {
         if ($(this).is(':checked', true)){
             var total_lineItems = $(".checkbox_challan").length;
-            $(".checkbox_challan").prop('checked', false); 
             for(i = 1; i <= total_lineItems; i++){
                 if(i <= 30){
                     $("#download_challan_"+i).prop('checked', true); 
