@@ -117,11 +117,15 @@ function crate_table(request_type){
             tr += '<td>'+returnItemArray[i]['type']+'</td>';
             tr += '<td>'+returnItemArray[i]['part_name']+'</td>';
             tr += '<td>'+returnItemArray[i]['part_number']+'</td>';
-            tr += '<td> <i class="fa fa-rupee" ></i> '+returnItemArray[i]['basic_price']+'</td>';
-            tr += '<td>'+returnItemArray[i]['gst_rate']+'</td>';
+            if(request_type!=1){
+                tr += '<td> <i class="fa fa-rupee" ></i> '+returnItemArray[i]['basic_price']+'</td>';
+                tr += '<td>'+returnItemArray[i]['gst_rate']+'</td>';
+            }
             tr += '<td>'+returnItemArray[i]['quantity']+'</td>';
-            var stotal = Number(returnItemArray[i]['quantity'] * returnItemArray[i]['total_amount']);
-            tr += '<td> <i class="fa fa-rupee" ></i> '+stotal+'</td>';
+            if(request_type!=1){
+                var stotal = Number(returnItemArray[i]['quantity'] * returnItemArray[i]['total_amount']);
+                tr += '<td> <i class="fa fa-rupee" ></i> '+stotal+'</td>';
+            }
             
             tr += '<td><i class="fa fa-close" onclick="remove_inventory('+returnItemArray[i]['inventory_id']+', '+i+', '+request_type+')" style="font-size:48px;color:red; cursor:pointer"></i></td>';
             tr += '</tr>';
@@ -143,11 +147,15 @@ function crate_table(request_type){
          tr1 += '<td></td>';
          tr1 += '<td></td>';
          tr1 += '<td></td>';
-         tr1 += '<td></td>';
-         tr1 += '<td></td>';
+         if(request_type!=1){
+            tr1 += '<td></td>';
+            tr1 += '<td></td>';
+        }
          tr1 += '<td><b>Total</b></td>';
          tr1 += '<td><b>'+totalQty+'</b></td>';
-         tr1 += '<td><b><i class="fa fa-rupee" ></i> '+subtotal.toFixed(2)+'</b></td>';
+         if(request_type!=1){
+             tr1 += '<td><b><i class="fa fa-rupee" ></i> '+subtotal.toFixed(2)+'</b></td>';
+        }
          tr1 += '<td></td>';
          tr1 += '</tr>';
          if(request_type == '1'){
