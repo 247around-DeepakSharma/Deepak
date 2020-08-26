@@ -491,9 +491,10 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 </div>
                                   <?php } ?>
                                 <div class="col-md-2">
-                                <label class="checkbox-inline">
-                                    <input class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
+                                <label class="checkbox-inline checkbox-inline-no-edit">
+                                    <input <?php if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){ ?> onclick='return false' data-toggle="tooltip" title="Only Admin Can Uncheck" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
                                 </label>
+
                                 </div>
                             </div>
                         </div>
@@ -2267,6 +2268,11 @@ function manageAccountNameField(value){
         }
         load_form(1);
     });
+</script>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
 </script>
 <!--Validations here-->
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
