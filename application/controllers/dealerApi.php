@@ -1389,6 +1389,7 @@ function  getPartnerCompareTAT(){
                     $curl_response = json_decode(curl_exec($ch));
                     curl_close($ch);
                     
+                    if(!empty($curl_response)){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
@@ -1397,12 +1398,15 @@ function  getPartnerCompareTAT(){
                      $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
                      $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
                      $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
-                     //$return['D1'][]['state'][]  = $value->TAT_1  ;
                     }
-                   // if($state=='Total'){
-                   // $return_data['total'] = $value->TAT_1;
-                   // $return_data['total_completed'] = $value->TAT_1;
-                   // }
+                    }
+                    }else{
+                     $return_data['D0'][]  = array()  ;
+                     $return_data['D1'][]  = array()  ;
+                     $return_data['D2'][] = array()  ;
+                     $return_data['D4'][]  = array()  ;
+                        
+                        
                     }
                   //  $return_data = array_push($return_data,)
                     $this->jsonResponseString['response'] = $return_data;
