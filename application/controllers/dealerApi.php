@@ -433,7 +433,7 @@ class dealerApi extends CI_Controller {
                 $this->getPartnerCompareTAT();
                 
             case 'getStateTATDetails':
-                getStateDetailedTAT();
+                $this->getStateDetailedTAT();
 
             default:
                 break;
@@ -1286,8 +1286,8 @@ function  getPartnerCompareTAT(){
     function getStateDetailedTAT(){
       
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_type"), $requestData);
-        if (!empty($requestData['entity_type'])) { 
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if (!empty($requestData['mobile'])) { 
             
                    if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
                        $status= $requestData['status'];
@@ -1392,12 +1392,18 @@ function  getPartnerCompareTAT(){
                     
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
-                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per)  ;
+                     if($state!='Total'){
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per)  ;
-                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per)  ;
-                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
                      //$return['D1'][]['state'][]  = $value->TAT_1  ;
+                    }
+                   // if($state=='Total'){
+                   // $return_data['total'] = $value->TAT_1;
+                   // $return_data['total_completed'] = $value->TAT_1;
+                   // }
                     }
                   //  $return_data = array_push($return_data,)
                     $this->jsonResponseString['response'] = $return_data;
