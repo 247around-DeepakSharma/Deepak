@@ -132,12 +132,13 @@ class Dealer_model extends CI_Model {
         
     }
     
-    
+ 
    /**
      * @desc: This is used to retailer login
      * @param $data array
      * @param $where array
      * @return boolean
+    * 
      */      
     function retailer_login($data) {
         $this->db->select('*');
