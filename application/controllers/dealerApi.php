@@ -1420,9 +1420,9 @@ function  getPartnerCompareTAT(){
      */  
     function getTopRatingSfs(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("entity_type","sf_limit"), $requestData);
-        if (!empty($requestData['entity_type'])) { 
-                 $response = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5($requestData['sf_limit']);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if (!empty($requestData['mobile'])) { 
+                 $response = $rating_data = $this->service_centers_model->get_vendor_rating_data_top_5();
                  $this->jsonResponseString['response'] = $response;
                  $this->sendJsonResponse(array('0000', "Ratings found successfully")); // send success response //
                
