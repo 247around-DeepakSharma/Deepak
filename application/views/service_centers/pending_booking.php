@@ -19,7 +19,7 @@
         align-items: center;
     }
     #msl_info a{font-size:18px;color: #254d5d;}
-    #msl_info .count{text-decoration: underline;font-size: 36px;}
+    #msl_info .count{text-decoration: underline;font-size: 36px;
 </style>
 <div class="container-fluid">
     <div class="row" >
@@ -550,29 +550,20 @@ span.stars span {
 </script>
 <?php } ?>
 <script>
- function load_cancelled_status(booking_id, key, block){
-       $.ajax({
-           type: 'post',
-           url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id,
-           success: function (response) {
-               var obj = JSON.parse(response);
-               if($.trim(obj.status) === "success"){
-                   
-                   document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
-               }  else {
-                    
-                $(".spare_"+block + key).css("display", "none");
-                $(".spare_tomorrow"+key).css("display","none !important");
-                $(".spare_delivered_tomorrow"+key).css("display","none !important");
-                $(".spare_cost_given_tomorrow"+key).css("display","none !important");                
-                $(".spare_rescheduled"+key).css("display","none !important");
-                $(".spare_delivered_rescheduled"+key).css("display","none !important");                
-                $(".spare_cost_given_rescheduled"+key).css("display","none !important");
-               }
-               //console.log(response);
-
-          }
-       });
+    function load_cancelled_status(booking_id, key, block){
+        $.ajax({
+            type: 'post',
+            url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id,
+            success: function (response) {
+                //console.log(response);
+                var obj = JSON.parse(response);
+                if($.trim(obj.status) === "success"){                   
+                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
+                }  else {                    
+                    $(".spare_"+block + key).css("display", "none");
+                }
+            }
+        });
    }
    
    function load_delivered_status(booking_id, key, block){
@@ -583,27 +574,11 @@ span.stars span {
                var obj  = JSON.parse(response);
                //console.log(obj);
                if(obj[0].is_micro_wh==1){   //SPARE_DELIVERED_TO_SF
-
-                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/msl_available.png";
-                $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                $("#spare_tomorrow"+key).css("display","none !important");
-                $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                $("#spare_rescheduled"+key).css("display","none !important");
-                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
+                    document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/msl_available.png";
                }  else if(obj[0].status=='Spare Parts Delivered to SF') {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
-                $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                $("#spare_tomorrow"+key).css("display","none !important");
-                $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                $("#spare_rescheduled"+key).css("display","none !important");
-                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }else{
-                $(".spare_delivered_"+block + key).css("display", "none");
-                $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                $("#spare_tomorrow"+key).css("display","none !important");
-                $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                $("#spare_rescheduled"+key).css("display","none !important");
-                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
+                    $(".spare_delivered_"+block + key).css("display", "none");
                }
                
           }
@@ -616,20 +591,12 @@ span.stars span {
            url: '<?php echo base_url()  ?>employee/inventory/get_spare_status/' + booking_id,
            success: function (response) {
                var obj  = JSON.parse(response);
-               if($.trim(obj[0].status) == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){
-                   
+               if($.trim(obj[0].status) == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){                   
                    document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
-               }  else {
-                    
+               }  else {                   
                 $(".spare_cost_given_"+block + key).css("display", "none");
-                $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                $("#spare_tomorrow"+key).css("display","none !important");
-                $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                $("#spare_rescheduled"+key).css("display","none !important");
-                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }
                //console.log(response);
-
           }
        });
    }
@@ -639,22 +606,14 @@ span.stars span {
            type: 'post',
            url: '<?php echo base_url()  ?>employee/inventory/get_rejected_from_review/' + booking_id,
            success: function (response) {
-               var obj  = JSON.parse(response);
-               if($.trim(obj[0].internal_status) == '<?php echo REJECTED_FROM_REVIEW_STATUS; ?>'){
-                   document.getElementById("rejected_from_review_"+ block+ key).src="<?php echo base_url();?>images/rejected_from_review.png";
-               }  else {
-                    
-                   $("#rejected_from_review_"+block + key).css("display", "none");
-                   $("#spare_delivered_rescheduled"+key).css("display","none !important");
-                   $("#spare_tomorrow"+key).css("display","none !important");
-                   $("#spare_delivered_tomorrow"+key).css("display","none !important");
-                   $("#spare_rescheduled"+key).css("display","none !important");
-                   $("#spare_cost_given_rescheduled"+key).css("display","none !important");
-               }
-               //console.log(response);
-               
-               
-
+                console.log(response);
+                var obj  = JSON.parse(response);
+                if($.trim(obj[0].internal_status) == '<?php echo REJECTED_FROM_REVIEW_STATUS; ?>'){                 
+                   $(".rejected_from_review_"+block + key).attr("src", "<?php echo base_url();?>images/rejected_from_review.png");
+                   $(".rejected_from_review_"+block + key).show();
+                }  else {                    
+                   $(".rejected_from_review_"+block + key).css("display", "none");
+                }
           }
        });
    }

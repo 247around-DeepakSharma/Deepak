@@ -9989,7 +9989,7 @@ function do_delivered_spare_transfer() {
         $sms = [];
         
         // get booking contact number.
-        $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
+       $booking_deatils = $this->booking_model->get_booking_details('booking_primary_contact_no, user_id', ['booking_id' => $booking_id])[0];
         $booking_primary_contact_number = $booking_deatils['booking_primary_contact_no'];
         $user_id = $booking_deatils['user_id'];
         // prepare data for sms template.
