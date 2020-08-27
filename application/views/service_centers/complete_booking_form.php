@@ -482,7 +482,7 @@
                                         </div>-->
                                         <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
                                             <?php if(isset($en_signature_picture)){ ?>
-                                            <label>Engineer Signature</label>
+                                            <label>Customer Signature</label>
                                             <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $en_signature_picture;?>">   
                                             <img style="height:150px;width:150px;  <?php if(!empty($en_signature_picture)){ ?>border: 1px solid;<?php } ?>" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $en_signature_picture;?>" /></a>
                                             <?php } ?>
