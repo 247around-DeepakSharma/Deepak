@@ -109,7 +109,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index() {
-        //print_r($_POST);
+        //print_r($_POST);exit;
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
@@ -128,16 +128,20 @@ class Booking extends CI_Controller {
                     //Redirect to Default Search Page
                     
                     $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details))
+                    if(!empty($city_details) && !empty($status["booking_id"]))
                     {
                         $zone_color = $city_details[0]['zone_color'];
-                        $sms['tag'] = "sms_to_redzone_customers";
-                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
-                        $sms['smsData']['partner'] = $this->input->post('partner_source');
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $this->input->post("user_id");    
-                        $this->notify->send_sms_msg91($sms);
+                        if($zone_color == "Red")
+                        {
+                            $sms['tag'] = "sms_to_redzone_customers";
+                            $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                            $sms['smsData']['appliance'] = $this->input->post('service');
+                            $sms['smsData']['partner'] = $this->input->post('appliance_brand')[0];
+                            $sms['type'] = "user";
+                            $sms['booking_id'] = $status["booking_id"];
+                            $sms['type_id'] = $this->input->post("user_id");    
+                            $this->notify->send_sms_msg91($sms);
+                        }
                     }
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -6063,13 +6067,12 @@ class Booking extends CI_Controller {
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
             unset($data[$k]['service_center_closed_date']);
-            unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
             unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
             
     function sms_test($number,$text){
