@@ -1443,8 +1443,10 @@ class Spare_parts extends CI_Controller {
         if (!empty($spare_list->sell_invoice_id)) {
             $row[] = $spare_list->sell_invoice_id;
         } else {
-            
-            $row[] = '<a href="'.base_url().'employee/invoice/generate_oow_parts_invoice/'.$spare_list->id.'" id="btn_sell_invoice_'.$spare_list->id.'" onclick="disable_btn(this.id)"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+
+
+            $row[] = '<a id="btn_sell_invoice_' . $spare_list->id . '" onclick="generate_sale_invoice('.$spare_list->id.');disable_btn(this.id)"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+
         }
         
          if (!empty($spare_list->invoice_pdf)) {

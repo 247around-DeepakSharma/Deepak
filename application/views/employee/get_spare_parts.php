@@ -569,6 +569,27 @@
     $('#spare_part_status').select2({
         placeholder:'Select Spare Status'
     });
+    function generate_sale_invoice(reverse_sale_id){
+        var flag = true;
+        var button_id = "btn_sell_invoice_"+reverse_sale_id;
+        if(flag){
+            var url = "<?php echo base_url(); ?>employee/invoice/generate_oow_parts_invoice/"+reverse_sale_id;
+            var dashboard = "";
+            $.ajax({
+                 method:'POST',
+                 dataType: "json",
+                 url:url,
+                 //data: { remarks_revese_sale : remarks_revese_sale },
+                 beforeSend: function(){
+                     $("#"+button_id).html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
+                 },
+                 complete: function(data){
+                     alert('Invoice Generated Successfully');
+                     $("#"+button_id).html("Generate Sale Invoice");
+                 }
+            });
+        }
+    }
    
 </script>
 <?php 
