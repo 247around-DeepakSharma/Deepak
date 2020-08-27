@@ -131,8 +131,6 @@ $route['service_center/inventory/download_invoice_ledger'] = 'employee/inventory
 
 $route['service_center/spare_parts'] = 'employee/service_centers/get_spare_parts_booking';
 $route['service_center/spare_parts/(:any)'] = 'employee/service_centers/get_spare_parts_booking/$1';
-$route['service_center/generate_challan_send_to_sf'] = 'employee/service_centers/generate_challan_send_to_sf';
-$route['service_center/generate_challan_send_to_sf/(:any)'] = 'employee/service_centers/generate_challan_send_to_sf/$1';
 $route['service_center/defective_spare_parts'] = 'employee/service_centers/get_defective_parts_shipped_by_sf';
 $route['service_center/defective_spare_parts/(:any)'] = 'employee/service_centers/get_defective_parts_shipped_by_sf/$1';
 $route['service_center/update_spare_parts_form/(:any)'] = 'employee/service_centers/update_spare_parts_form/$1';
