@@ -9392,7 +9392,8 @@ function do_delivered_spare_transfer() {
                  
                 $to_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", $where);
                 
-                                
+                $from_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.part_warranty_status" => SPARE_PART_IN_WARRANTY_STATUS,"spare_parts_details.booking_id" => $frombooking,"spare_parts_details.status IN ('" . SPARE_PARTS_REQUESTED . "')" => NULL,));
+                
                 $bd_data = array();
                 if (empty($to_booking_spare_details)) {
                     $b = $this->booking_model->get_booking_details('current_status, partner_id', ['booking_id' => $tobooking])[0];
@@ -9424,7 +9425,6 @@ function do_delivered_spare_transfer() {
                 }
                 $this->service_centers_model->update_spare_parts(array('id' => $from_spare_id), $from_details_array);
                 
-                $from_booking_spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.part_warranty_status" => SPARE_PART_IN_WARRANTY_STATUS,"spare_parts_details.booking_id" => $frombooking,"spare_parts_details.status IN ('" . SPARE_PARTS_REQUESTED . "')" => NULL,));            
                 $bd = array();
                 if (!empty($from_booking_spare_details)) {
                     $booking = $this->booking_model->get_booking_details('current_status, partner_id', ['booking_id' => $frombooking])[0];
