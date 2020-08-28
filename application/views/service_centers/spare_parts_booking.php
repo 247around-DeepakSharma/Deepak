@@ -70,31 +70,14 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Inventory Stock</th>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
-                                    <th class="text-center">Partner Challan Number</th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
+                                    <th class="text-center">Download Challan</th>
                                     <th class="text-center">Update</th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
                                     <th class="text-center">Reject</th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
                                     <th class="text-center">SF GST Declaration</th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
                                     <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
-                                    <?php } ?>
                                    <!-- <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>-->
-                                    <?php if(!empty($is_generate_challan)){ ?>
-                                    <th class="text-center"> Generate Challan<input type="checkbox" id="selectall_challan"></th>
-                                    <?php } ?>
-                                    <?php if(!empty($is_send_to_sf)){ ?>
-                                    <th class="text-center">Action</th>
-                                    <?php } ?>
+                                    <th class="text-center"> Generate Challan<input type="checkbox" id="selectall_challan" ></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -148,27 +131,26 @@ if ($this->uri->segment(3)) {
                                         <td>
                                             <?php echo $row['stock']; ?>
                                         </td>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
-                                            <td style="width: 80px;">
-                                                <?php if (!empty($row['partner_challan_file'])) { ?>
-                                                <a target="_blank" href="<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>"><?php if(!empty($row['partner_challan_number'])){ echo $row['partner_challan_number'];} ?></a>  
-                                                <?php }  ?>
-                                            </td> 
+
+
+                                       <td style="width: 80px;">
+                                        <?php if (!empty($row['partner_challan_file'])) { ?>
+                                          <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>"><span style="font-size: 25px;color: #0edf0e;"><i class="fa fa-download" aria-hidden="true"></i></span></a>  
+                                        <?php }else{ ?>
+                                         <a href="#" class="challan_not_generated"><span style="font-size: 25px;color:red;"><i class="fa fa-remove" aria-hidden="true"></i></span></a>
+
                                         <?php } ?>
-                       
-                                        <?php if(!empty($is_send_to_sf)){ ?>
+                                        
+                                     </td> 
+
                                         <td>
                                             <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                         </td>
-                                        <?php } ?>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
                                         <td>
                                             <?php $spare_id = explode(",", $row['spare_id']);  if(count($spare_id) == 1) { ?>
                                             <a href="#" data-toggle="modal" id="<?php echo "spare_parts" . $spare_id[0]; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $spare_id[0] . "/" . $row['booking_id']; ?>/CANCEL_PARTS" data-booking_id="<?php echo $row['booking_id']; ?>" data-partner_id="<?php echo $row['partner_id']; ?>" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Reject" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class="fa fa-times" aria-hidden='true'></i></a>
                                             <?php } ?>
                                         </td>
-                                        <?php } ?>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
                                         <td>
                                             <?php if(!empty($row['gst_no']) && empty($row['signature_file'])){ ?> 
                                                 <a class="btn btn-sm btn-success" href="#" title="GST number is not available" style="background-color:#2C9D9C; border-color: #2C9D9C; cursor: not-allowed;"><i class="fa fa-close"></i></a>
@@ -178,31 +160,20 @@ if ($this->uri->segment(3)) {
                                                 <a class="btn btn-sm btn-success" href="<?php echo base_url();?>service_center/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#2C9D9C; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
                                             <?php } ?>
                                         </td>
-                                        <?php } ?>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
                                         <td>
                                             <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3, this.id)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
                                         </td>
-                                         <?php } ?>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1, this.id)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>
-                                         <?php } ?>
 <!--                                        <td>
                                             <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id']; ?>" />
                                         </td>-->
-                                        <?php if (!empty($is_generate_challan)) { ?>
+                                        
                                         <td>
                                             <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $i; ?>" onclick='check_checkbox(2, this.id)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
-                                        <?php } ?>
-                                        <?php if(!empty($is_send_to_sf)){ ?>
-                                        <td>
-                                            <a href="javascript:void(0);" class="btn btn-danger" title="Cancel Challan" onclick="removed_challan(<?php echo $row['id']; ?>)">Remove Challan</a>
-                                        </td>
-                                        <?php } ?>
-                                    
+
                                     </tr>
                                     <?php
                                     $sn_no++;
@@ -218,9 +189,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <?php if (!empty($is_generate_challan)) { ?>
-                        <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" id="download_shippment_address" value ="Print / Download" > </center>
-                        <?php } ?>
+                        <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print / Download" > </center>
                     </form>
                 </div>
             </div>
@@ -252,10 +221,6 @@ if ($this->uri->segment(3)) {
 <?php } ?>
 <div class="clearfix"></div>
 <script>
-    
-    $('#loading_image').show();
-     var table;
-    
     $(".challan_not_generated").click(function(){
 
        swal("Not able to download challan", "Challan was not generated. Try to complete booking once again.");
@@ -272,8 +237,6 @@ if ($this->uri->segment(3)) {
     
 <?php if(!empty($is_send_to_sf)) { ?>
     function removed_challan(spare_id) {
-        var url = $("#send_to_sf_id").attr("data-url");
-        var tab = $("#send_to_sf_id").attr('href');
         if(confirm("Are you sure you want to remove the part from the challan?") == true) {
             $('#loading_image').show();
             $.ajax({
@@ -283,7 +246,7 @@ if ($this->uri->segment(3)) {
             }).done(function() {
                 $('#loading_image').hide();
                 alert("Challan has been cancelled successfully.");
-                load_view(url, tab);
+                window.location.reload();
             }).fail(function() {
                 alert("Some error occured.");
             });
@@ -303,9 +266,8 @@ if ($this->uri->segment(3)) {
             }
         });
 
-        table = $("#datatable1").dataTable({
+        $("#datatable1").dataTable({
             "pageLength": 100,
-            "paging": false,
             dom: 'lBfrtip',
             "language": {                
                 "searchPlaceholder": "Search by Any Column",
@@ -313,23 +275,21 @@ if ($this->uri->segment(3)) {
             // Configure the drop down options.
             "lengthMenu": [[100, 200, 500, -1], [100, 200, 500, "All"]],
             // Add to buttons the pageLength option.
-                buttons: [
-                {
-                    extend: 'excel',
-                    text: 'Export',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11],
-                        modifier: {
-                            page: 'all'
-                        }
-                    },
-                    title: 'SpareBookings'
+            buttons: [
+            {
+            extend: 'excel',
+            text: 'Export',
+            exportOptions: {
+                columns: [0, 1, 2, 3, 4, 5, 6,7,8,9,10,11],
+                modifier: {
+                    page: 'all'
                 }
-                ]
+            },
+            title: 'SpareBookings'
+        }
+    ]
 
         });
-        
-        table.destroy();
     });
     
     function downloadSpare(){

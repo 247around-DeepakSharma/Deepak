@@ -27,12 +27,7 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/generate_challan_send_to_sf/0/1">
-                               Generate Challan Send To SF
-                                </a>
-                            </li>                            
-                            <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1" id="send_to_sf_id">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
                                 <!--  Pending Spares--> Send To SF
                                 </a>
                             </li>
@@ -80,7 +75,6 @@
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>
-                            <div class="tab-pane" id="tabs-4"></div>
                             <div class="tab-pane" id="tabs-5"></div>
                             <div class="tab-pane" id="tabs-3"></div>     
                             <div class="tab-pane" id="tabs-7"></div>
