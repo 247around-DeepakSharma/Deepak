@@ -84,6 +84,44 @@ class Around_scheduler extends CI_Controller {
     }
 
 	/**
+     * @desc: This is used to remove_space_from_the_file_and_upload_to_s3
+     */
+    
+    function Remove_Space_From_files_And_Upload()
+    {
+        $query = " id, file FROM collateral WHERE file LIKE '% %'";
+        $filedata = $this->booking_model->get_file_list($query);
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/";
+        if(!empty($filedata))
+        {
+            $file_path = "https://s3.amazonaws.com/$bucket/$directory_xls";
+            foreach($filedata as $key => $value)
+            {
+                $id = $value['id'];
+                $file = $value['file'];
+                $file_name_for_url = str_replace(" ","%20",$file);
+                $new_file = str_replace(" ","_",$file);
+                $url  = $file_path.$file_name_for_url;
+                $data = "";
+                $data = file_get_contents($url);
+                if(!empty($data))
+                {
+                    $fp = fopen(TMP_FOLDER.$new_file, 'w');
+                    fwrite($fp, $data);
+                    fclose($fp);                
+                }
+                if(file_exists(TMP_FOLDER.$new_file))
+                {
+                    $this->s3->putObjectFile(TMP_FOLDER . $new_file, $bucket, $directory_xls.$new_file, S3::ACL_PUBLIC_READ);
+                    $this->booking_model->update_file_name_collateral($id,$new_file);
+                    unlink(TMP_FOLDER . $new_file);
+                }
+            }
+        }
+    }
+
+	/**
      * @desc: This is used to send mail to all SF and employees for all brands onboarded since Jan2020
      */
     function Send_Partner_Onboarded_Mail()
