@@ -128,10 +128,7 @@
             <td style="border-top: hidden; border-right:hidden; border-left: hidden;"></td>
             <td colspan="7" style="border-top: hidden; border-left: hidden;"></td>
         </tr>
-    <?php if($excel_data['generated_by_wh'] == 1){ ?>
-        <tr><td colspan="14" style="border-left: hidden; border-right: hidden; text-align: center;">Any discrepancy found in parts should be reported to 247around within 4 working days. After which no responsibility of part mismatch will be of 247around as we will clear it for the SF.</td></tr>
-    <?php } ?>
-        <tr><td colspan="14" style="border-bottom: hidden;border-right: hidden;border-left: hidden;text-align: center;"><small>This is a computer generated challan and does not need signature.</td></tr>
+        <tr><td colspan="13" style="border-bottom: hidden;border-right: hidden;border-left: hidden; text-align: center;"><small>This is a computer generated challan and does not need signature.</tr>
     </table>
 
 <hr style="border-top: dashed 1px;">
