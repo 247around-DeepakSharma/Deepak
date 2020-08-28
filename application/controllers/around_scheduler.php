@@ -84,6 +84,107 @@ class Around_scheduler extends CI_Controller {
     }
 
 	/**
+     * @desc: This is used to remove_space_from_the_file_and_upload_to_s3
+     */
+    
+    function Remove_Space_From_files_And_Upload()
+    {
+        $query = " id, file FROM collateral WHERE file LIKE '% %'";
+        $filedata = $this->booking_model->get_file_list($query);
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/";
+        if(!empty($filedata))
+        {
+            $file_path = "https://s3.amazonaws.com/$bucket/$directory_xls";
+            foreach($filedata as $key => $value)
+            {
+                $id = $value['id'];
+                $file = $value['file'];
+                $file_name_for_url = str_replace(" ","%20",$file);
+                $new_file = str_replace(" ","_",$file);
+                $url  = $file_path.$file_name_for_url;
+                $data = "";
+                $data = file_get_contents($url);
+                if(!empty($data))
+                {
+                    $fp = fopen(TMP_FOLDER.$new_file, 'w');
+                    fwrite($fp, $data);
+                    fclose($fp);                
+                }
+                if(file_exists(TMP_FOLDER.$new_file))
+                {
+                    $this->s3->putObjectFile(TMP_FOLDER . $new_file, $bucket, $directory_xls.$new_file, S3::ACL_PUBLIC_READ);
+                    $this->booking_model->update_file_name_collateral($id,$new_file);
+                    unlink(TMP_FOLDER . $new_file);
+                }
+            }
+        }
+    }
+
+	/**
+     * @desc: This is used to send mail to all SF and employees for all brands onboarded since Jan2020
+     */
+    function Send_Partner_Onboarded_Mail()
+    {
+        $email_template = $this->booking_model->get_booking_email_template(NEW_PARTNER_ONBOARD_NOTIFICATION);
+        if(!empty($email_template)){
+            $query  = " t1.company_name, t1.public_name, t2.partner_type FROM partners t1, bookings_sources t2";
+            $where = array("t1.id = t2.partner_id" => NULL, "t1.is_active = " => "1","t1.create_date >=" => "2020-01-01");
+            $not_in = array('INTERNAL','BUYBACK');
+            $partner_list = $this->partner_model->get_onboarded_partners_list_since_2020($query,$where,$not_in); 
+            // Get All Active Sf's List to send email
+            $sf_list = $this->vendor_model->viewvendor('', 1,'','','','','',1);
+            $all_poc = implode(',', array_map(function ($entry) {
+             return $entry['primary_contact_email'];
+            }, $sf_list));
+            $all_poc_array = explode(',', $all_poc);
+            $all_owner = implode(',', array_map(function ($entry) {
+             return $entry['owner_email'];
+            }, $sf_list));
+            $all_owner_array = explode(',', $all_owner);
+            $email_list = array_unique(array_filter(array_merge($all_poc_array, $all_owner_array)));    
+            if (count($email_list) > 0) {
+                $email_list = array_unique($email_list);
+                $email_list = array_filter($email_list);
+                $bcc_array = array_values($email_list);
+            }
+            if(!empty($partner_list)){                
+                foreach($partner_list as $key => $value)
+                {
+                    $company_name = $value['public_name'];
+                    $public_name = $value['public_name'];
+                    $partner_type = $value['partner_type'];
+                    $template = array(
+                            'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+                        );
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('Company Name', 'Public Name', 'Partner Type'));
+                    $this->table->add_row(array($company_name,$public_name, $partner_type));
+                    $html_table = $this->table->generate();
+                    $to = $email_template[1];//ALL_EMP_EMAIL//all-emp@247around.com;
+                    $bcc = '';
+                    $cc = $email_template[3];
+                    $subject = vsprintf($email_template[4], array($this->input->post('public_name')));
+                    $message = vsprintf($email_template[0], array($html_table));
+                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                     //Unable to send mails for too many mail ids in bcc , So we process email one by one to each sf appearing in bcc
+                    if(!empty($bcc_array))
+                    {
+                        $cc = '';
+                        $bcc = '';
+                        for($i=0;count($bcc_array)>$i;$i++)
+                        {
+                            $to = $bcc_array[$i];
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", NEW_PARTNER_ONBOARD_NOTIFICATION);
+                        }
+                    }
+                }
+            }
+        }    
+    }
+
+
+	/**
      * @desc: This is used to send Weekly mail with the list of Active Partners name having no contract or null dates/crossed end date.
      */
     
