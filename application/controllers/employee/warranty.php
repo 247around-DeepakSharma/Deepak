@@ -31,7 +31,12 @@ class Warranty extends CI_Controller {
      *  @return : print warranty on warranty Page
      */
     public function index($partner_id = null, $service_id = null, $brand = null) {
-        $partners = $this->partner_model->getpartner(null, false);
+        // If Logged-in from Partner Panel, show only current partner Data 
+        if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+        }
+        
+        $partners = $this->partner_model->getpartner($partner_id, false);
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
