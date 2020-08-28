@@ -36,7 +36,7 @@ class Warranty extends CI_Controller {
             $partner_id = $this->session->userdata('partner_id');
         }
         
-        $partners = $this->partner_model->getpartner();
+        $partners = $this->partner_model->getpartner($partner_id, false);
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
