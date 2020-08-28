@@ -109,7 +109,8 @@
                         <th>Total Price</th>
                         <th>Vendor Margin</th>
                         <th>Around Margin</th>
-                        <th>Customer Price</th>
+                        <th>SF Buying Price</th>
+                        <th>Customer Buying Price</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
