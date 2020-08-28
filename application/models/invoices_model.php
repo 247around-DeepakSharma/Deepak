@@ -1263,17 +1263,11 @@ class invoices_model extends CI_Model {
             
             $parts_count = 0;
             $service_count = 0;
-            $count_booking = count($result);
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
             if($meta["invoice_template"] == "247around_Tax_Invoice_Intra_State.xlsx" || $meta["invoice_template"] == "247around_Tax_Invoice_Inter_State.xlsx"){
                 $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
-                if($count_booking > 1){
-                    $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL_WITHOUT_COUNT.(24 + $count_booking);
-                    $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL_WITHOUT_COUNT.(25 + $count_booking);
-                }else{
-                    $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
-                    $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
-                }
+                $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
+                $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
             }
             else{
                 $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
