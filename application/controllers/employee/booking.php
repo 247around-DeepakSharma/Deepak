@@ -128,16 +128,20 @@ class Booking extends CI_Controller {
                     //Redirect to Default Search Page
                     
                     $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details))
+					if(!empty($city_details) && !empty($status["booking_id"]))
                     {
                         $zone_color = $city_details[0]['zone_color'];
-                        $sms['tag'] = "sms_to_redzone_customers";
-                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
-                        $sms['smsData']['partner'] = $this->input->post('partner_source');
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $this->input->post("user_id");    
-                        $this->notify->send_sms_msg91($sms);
+                        if($zone_color == "Red")
+                        {
+                            $sms['tag'] = "sms_to_redzone_customers";
+                            $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                            $sms['smsData']['appliance'] = $this->input->post('service');
+                            $sms['smsData']['partner'] = $this->input->post('appliance_brand')[0];
+                            $sms['type'] = "user";
+                            $sms['booking_id'] = $status["booking_id"];
+                            $sms['type_id'] = $this->input->post("user_id");    
+                            $this->notify->send_sms_msg91($sms);
+                        }
                     }
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
