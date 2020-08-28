@@ -19,6 +19,27 @@ class Booking_model extends CI_Model {
      *  @param : service id and new brand
      *  @return : void737
      */
+
+	/**
+     * @desc: get all files name having space from collateral table
+     * @return:  Array
+     */
+    
+    function get_file_list($select) {
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: update file name in collateral table
+     */
+    function update_file_name_collateral($id,$file)
+    {
+        $this->db->where('id', $id);
+        $this->db->update('collateral', array("file"=>$file));
+    }
+
     function addNewApplianceBrand($service_id, $newbrand) {
         $data = array(
             'service_id'=>$service_id,
