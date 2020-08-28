@@ -633,6 +633,8 @@ define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Q
 define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
 define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
+define('_247AROUND_TAX_INVOICE_SEAL_CELL_WITHOUT_COUNT', 'G');
+define('_247AROUND_TAX_INVOICE_SIGN_CELL_WITHOUT_COUNT', 'K');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
