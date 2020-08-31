@@ -269,7 +269,9 @@ class Warranty extends CI_Controller {
         
         //set select and where conditions
          $where = "(warranty_plans.partner_id = '".$partner_id."' AND warranty_plans.service_id = '".$service_id."' ) OR warranty_plans.plan_id = '".$plan_id."'";
-        $select = "warranty_plans.plan_id, warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active, warranty_plans.is_active as is_active_plan";        
+        // $select = "warranty_plans.plan_id, warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active, warranty_plans.is_active as is_active_plan";      
+        $select = "warranty_plans.plan_id, warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id,warranty_plans.plan_depends_on, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active, warranty_plans.is_active as is_active_plan";        
+  
         $order_by = "warranty_plans.plan_name,appliance_model_details.model_number";
         $join['services']  = 'warranty_plans.service_id = services.id';
         $join['partners']  = 'warranty_plans.partner_id = partners.id';
@@ -356,6 +358,7 @@ class Warranty extends CI_Controller {
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_start));
         $row[]=date('jS M, Y', strtotime($warranty_plan_list->period_end));
         $row[]=$warranty_plan_list->warranty_type == 1 ? "IW" : "EW";
+        $row[]=$warranty_plan_list->plan_depends_on == 1 ? "Model" : "Product";
         $row[]=$warranty_plan_list->warranty_period." Months";
         $row[]=$warranty_plan_list->public_name;
         $row[]=$warranty_plan_list->services;
@@ -575,6 +578,7 @@ class Warranty extends CI_Controller {
                 $this->form_validation->set_rules('service', 'service', 'callback_validate_service'); 
                 $this->form_validation->set_rules('state', 'state', 'callback_validate_state'); 
                 $this->form_validation->set_rules('warranty_type', 'warranty type', 'callback_validate_warranty_type'); 
+                $this->form_validation->set_rules('plan_depends_on', 'plan depend on', 'callback_validate_plan_depend'); 
                 $this->form_validation->set_rules('start_date', 'plan start date', 'callback_validate_start_date'); 
                 $this->form_validation->set_rules('end_date', 'plan end date', 'callback_validate_end_date['.$this->input->post("start_date", TRUE).']'); 
                 $this->form_validation->set_rules('warranty_period', 'warranty period', 'callback_validate_warranty_period'); 
@@ -603,7 +607,7 @@ class Warranty extends CI_Controller {
                        $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                        $state = $this->input->post('state');
                        $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
-                       
+                        $arr_data['plan_depends_on'] = $this->input->post('plan_depends_on', TRUE);
                        //check if user selected checkboxes or not
                        if(isset($_POST['service_charge']))
                        {
@@ -638,7 +642,7 @@ class Warranty extends CI_Controller {
                        $created_by_name = $this->session->userdata('employee_id');
                        $created_by_id = $this->session->userdata('id');
                        $arr_data['created_by'] = $created_by_name;
-                       $arr_data['plan_depends_on'] = 1;
+                      // $arr_data['plan_depends_on'] = 1;
                        
                        //transaction start
                        $this->db->trans_start();
@@ -760,6 +764,38 @@ class Warranty extends CI_Controller {
         }
     }
     
+
+       /**
+     *  @desc : This function is used validate warranty type
+     *  @param : void
+     *  @return : void
+     */
+     public function validate_plan_depend($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && ($integer == 1 or $integer == 2))
+            {
+                $valid = 1;
+            }
+
+        }
+
+
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_plan_depend', 'The plan depend field should be valid');
+            return FALSE;
+        }    
+
+    }
+
     
     /**
      *  @desc : This function is used validate warranty period that it must be valid integer value greater than 0
@@ -1248,6 +1284,7 @@ class Warranty extends CI_Controller {
                         $this->form_validation->set_rules('service', 'service', 'callback_validate_service'); 
                         $this->form_validation->set_rules('state', 'state', 'callback_validate_state'); 
                         $this->form_validation->set_rules('warranty_type', 'warranty type', 'callback_validate_warranty_type'); 
+                        $this->form_validation->set_rules('plan_depends_on', 'plan depend on', 'callback_validate_plan_depend'); 
                         $this->form_validation->set_rules('start_date', 'plan start date', 'callback_validate_start_date'); 
                         $this->form_validation->set_rules('end_date', 'plan end date', 'callback_validate_end_date['.$this->input->post("start_date", TRUE).']'); 
                         $this->form_validation->set_rules('warranty_period', 'warranty period', 'callback_validate_warranty_period'); 
@@ -1273,7 +1310,7 @@ class Warranty extends CI_Controller {
                                $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
                                $state = $this->input->post('state');
                                $arr_data['plan_description'] = trim($this->input->post('description', TRUE));
-                               
+                               $arr_data['plan_depends_on'] = $this->input->post('plan_depends_on', TRUE);
                                $created_by_name = $this->session->userdata('employee_id');
                                $created_by_id = $this->session->userdata('id');
 
