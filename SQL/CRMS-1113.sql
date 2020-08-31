@@ -1,1 +1,3 @@
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'partner_contract_list', 'Non-Contract Partners List', '<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\"> <tr> <td colspan=\"10\">Partners List with having no contract or crosed end date</td> </tr> <tr><th>Public Name</th><th>Status</th></tr>%s</table>', '', 'noreply@247around.com', 'ayushg@247around.com', '', '', '1', '2020-05-23 15:30:19');
+
+UPDATE `email_template` SET `template` = '<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\"> <tr> <td colspan=\"10\">Partners List having no contract or crossed end date</td> </tr> <tr><th>Partner Name</th><th>Status</th></tr>%s</table>' WHERE `email_template`.`id` = 408;

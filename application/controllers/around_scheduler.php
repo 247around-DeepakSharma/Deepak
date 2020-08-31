@@ -100,7 +100,7 @@ class Around_scheduler extends CI_Controller {
         {
             foreach($data1 as $key => $value)
             {
-                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ennded on ".$value['end_date']."</td></tr>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td></tr>";
             }
         }
         if(!empty($data2))
