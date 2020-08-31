@@ -60,10 +60,11 @@
                                        
                                         <th>Registration Date </th>
                                         <td><?php 
+                                        if(!empty($booking_history[0]['create_date'])){
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
                                         $time2 = strtotime($createDatArray[0]);
                                         $reg_date = date('d-M-Y',$time2);
-                                        echo $reg_date; ?></td>
+                                        echo $reg_date; }?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
                                         if(!empty($booking_history[0]['booking_date']) && $booking_history[0]['booking_date'] != '0000-00-00'){

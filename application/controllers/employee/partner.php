@@ -1763,7 +1763,7 @@ class Partner extends CI_Controller {
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
 
-        if (!empty($booking_history)) {
+        if (!empty($booking_history[0]['booking_id'])) {
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
