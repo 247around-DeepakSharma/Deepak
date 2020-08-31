@@ -31,7 +31,12 @@ class Warranty extends CI_Controller {
      *  @return : print warranty on warranty Page
      */
     public function index($partner_id = null, $service_id = null, $brand = null) {
-        $partners = $this->partner_model->getpartner();
+        // If Logged-in from Partner Panel, show only current partner Data 
+        if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+        }
+        
+        $partners = $this->partner_model->getpartner($partner_id, false);
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
@@ -1031,14 +1036,15 @@ class Warranty extends CI_Controller {
         {
             $this->form_validation->set_message('validate_warranty_type', 'The warranty type field should be valid');
             return FALSE;
-        }    
+        }
+    }
         
-         /**
+    /**
      *  @desc : This function is used validate warranty type
      *  @param : void
      *  @return : void
      */
-     public function validate_plan_depend($integer)
+    public function validate_plan_depend($integer)
     {
         $valid = 0;
         if(isset($integer))
