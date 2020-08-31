@@ -133,7 +133,9 @@ class Booking extends CI_Controller {
                     //Redirect to Default Search Page
                     
                     $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details) && !empty($status["booking_id"]))
+                    $is_assigned_vendor = $this->booking_model->is_assigned_vendor($status['booking_id']);
+                    // Only Send SMS for those bookings, having assigned vendor id not null
+                    if(!empty($city_details) && !empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($is_assigned_vendor))
                     {
                         $zone_color = $city_details[0]['zone_color'];
                         if($zone_color == "Red")

@@ -31,6 +31,13 @@ class Booking_model extends CI_Model {
         return $query->num_rows();
     }
     
+    function is_assigned_vendor($booking_id)
+    {
+        $select = " id FROM booking_details WHERE booking_id = '$booking_id' and assigned_vendor_id is not NUll";
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
     /**
      * @desc: get all files name having space from collateral table
      * @return:  Array
