@@ -1033,7 +1033,8 @@ function get_sf_escalation_by_rm($rm_id,$startDate,$endDate){
            }
            if(array_key_exists("vendor_".$escalationData['vendor_id'], $sfIDNameArray)){
                $vendorName = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['name'];
-               $sf_name_for_partner = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['city']."_247Around_Service_center_".$escalationData['vendor_id'];
+               // $sf_name_for_partner = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['city']."_247Around_Service_center_".$escalationData['vendor_id'];
+               $sf_name_for_partner = $sfIDNameArray["vendor_".$escalationData['vendor_id']]['city']." 247Around_Service_center";
            }
            if($vendorBooking !=0){
            $tempArray= array("esclation_per"=>round((($escalationData['total_escalation']*100)/$vendorBooking),2),"vendor_id"=>$escalationData['vendor_id'],

@@ -109,7 +109,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index() {
-        //print_r($_POST);
+        //print_r($_POST);exit;
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
@@ -119,7 +119,12 @@ class Booking extends CI_Controller {
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
-                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.
+                
+                $status = "";
+                $is_booking_exist = $this->booking_model->is_booking_exist($this->input->post("user_id"),$this->input->post('service'),$this->input->post('appliance_category')[0],$this->input->post('appliance_capacity')[0]);
+                if(empty($is_booking_exist))
+                    $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
@@ -128,16 +133,20 @@ class Booking extends CI_Controller {
                     //Redirect to Default Search Page
                     
                     $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details))
+                    if(!empty($city_details) && !empty($status["booking_id"]))
                     {
                         $zone_color = $city_details[0]['zone_color'];
-                        $sms['tag'] = "sms_to_redzone_customers";
-                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
-                        $sms['smsData']['partner'] = $this->input->post('partner_source');
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $this->input->post("user_id");    
-                        $this->notify->send_sms_msg91($sms);
+                        if($zone_color == "Red")
+                        {
+                            $sms['tag'] = "sms_to_redzone_customers";
+                            $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                            $sms['smsData']['appliance'] = $this->input->post('service');
+                            $sms['smsData']['partner'] = $this->input->post('appliance_brand')[0];
+                            $sms['type'] = "user";
+                            $sms['booking_id'] = $status["booking_id"];
+                            $sms['type_id'] = $this->input->post("user_id");    
+                            $this->notify->send_sms_msg91($sms);
+                        }
                     }
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);

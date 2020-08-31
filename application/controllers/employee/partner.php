@@ -469,6 +469,26 @@ class Partner extends CI_Controller {
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
+                        $city_details = $this->indiapincode_model->getPinCoordinates($post['city']);
+                        if(!empty($city_details) && !empty($responseData['data']['response']['247aroundBookingID']))
+                        {
+                            $zone_color = $city_details[0]['zone_color'];
+                            log_message('info', 'Ayush1234' . $zone_color);
+                            if($zone_color == "Red")
+                            {
+                                $user_details = $this->user_model->search_user($post['mobile']);
+                                $user_id = $user_details[0]['user_id'];
+                                $sms_red_zone['tag'] = "sms_to_redzone_customers";
+                                $sms_red_zone['phone_no'] = $post['mobile'];
+                                $sms_red_zone['smsData']['appliance'] = $post['appliance_name'];
+                                $sms_red_zone['smsData']['partner'] = $post['partnerName'];
+                                $sms_red_zone['type'] = "user";
+                                $sms_red_zone['booking_id'] = $responseData['data']['response']['247aroundBookingID'];
+                                $sms_red_zone['type_id'] = $user_id;    
+                                $this->notify->send_sms_msg91($sms_red_zone);
+                            }
+                        }
+                        
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
                     } else {
@@ -1739,7 +1759,7 @@ class Partner extends CI_Controller {
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
 
-        if (!empty($booking_history)) {
+        if (!empty($booking_history[0]['booking_id'])) {
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
