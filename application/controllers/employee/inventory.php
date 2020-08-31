@@ -3229,7 +3229,7 @@ class Inventory extends CI_Controller {
                 unset($post['where']['inventory_stocks.stock <> 0']);
             }
             if ($this->input->post('service_id')) {
-                $post['where']['service_id'] = trim($this->input->post('service_id'));
+                $post['where']['inventory_master_list.service_id'] = trim($this->input->post('service_id'));
             }
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
