@@ -491,7 +491,17 @@ class Partner extends CI_Controller {
                         
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
-                    } else {
+                    }
+                    else if ($responseData['data']['code'] == -24700) {
+                        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Same booking has already been created. Please try after some time. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                        $this->insertion_failure($postData);
+
+                        $output = "Same booking has already been created. Please try after some time.";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/pending_booking");
+                    }
+                    else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 

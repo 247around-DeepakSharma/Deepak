@@ -11,15 +11,18 @@ class Booking_model extends CI_Model {
     }
 
     
-    function is_booking_exist($user_id,$appliance_name,$category,$capacity)
+    function is_booking_exist($user_id,$appliance_name,$category,$capacity,$service_id="")
     {
         if(!empty($capacity))
             $where["t2.appliance_capacity"] = "$capacity";
+        if(!empty($service_id))
+            $where["t3.id"] = $service_id;
+        if(!empty($appliance_name))
+            $where["t3.id = (SELECT id from services WHERE services = '$appliance_name')"] = NULL;
         $where["t2.appliance_category"] = "$category";
         $where["t1.booking_id = t2.booking_id"] = NULL;
         $where["t1.user_id"] = $user_id;
         $where["t2.service_id = t3.id"] = NULL;
-        $where["t3.id = (SELECT id from services WHERE services = '$appliance_name')"] = NULL;
         $where["t1.create_date > DATE_SUB(NOW(), INTERVAL 10 minute)"] = NULL;
         $select = " t1.booking_id FROM booking_details t1, booking_unit_details t2, services t3";
         $this->db->select($select);
@@ -28,6 +31,13 @@ class Booking_model extends CI_Model {
         return $query->num_rows();
     }
     
+    function is_assigned_vendor($booking_id)
+    {
+        $select = " id FROM booking_details WHERE booking_id = '$booking_id' and assigned_vendor_id is not NUll";
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
     /**
      * @desc: get all files name having space from collateral table
      * @return:  Array
