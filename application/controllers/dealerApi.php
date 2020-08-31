@@ -434,6 +434,9 @@ class dealerApi extends CI_Controller {
                 
             case 'getStateTATDetails':
                 $this->getStateDetailedTAT();
+            
+            case 'getSFDetailedDashboardData':
+                $this->getSFDetailedData();
 
             default:
                 break;
@@ -1442,6 +1445,160 @@ function  getPartnerCompareTAT(){
             $this->sendJsonResponse(array("1008", "Rating details not found !")); 
         }
     }
+    
+    
+    
+      /*
+     * @Desc - This function is used get  SFs TAT And other details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    
+    
+        function getSFDetailedData(){
+      
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if (!empty($requestData['mobile']) && !empty($requestData['vendor_id'])) { 
+            
+                   if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    $city = "not_set"; 
+           
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
+                    }
+                    
+                   
+                    $is_pending = 0;
+                    $vendor = $requestData['vendor_id'];
+            
+                    $postData = array(
+                      //  "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "call_from_api" => TRUE,
+                        "sf_call" => TRUE,
+                        "status" => $status,
+                        "vendor_id" => $vendor,
+                        "startDate" => $startDate,
+                        "endDate" => $endDate,
+                        "services" => $service_id,
+                        "request_type" => $request_type,
+                        "partner_id" => $partner_id,
+                        "upcountry" => $upcountry,
+                        "free_paid" => $free_paid,
+                        "state" => $state,
+                        "city" => $city
+                    );
+                   
+                    //Call curl for updating booking 
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/1/0/".$is_pending;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = json_decode(curl_exec($ch));
+                    curl_close($ch);
+                    
+//                    if(!empty($curl_response)){
+//                    foreach ($curl_response->TAT as $key=>$value){
+//                     $state =   $value->entity; 
+//                     if($state!='Total'){
+//                     $return_data['D0'][]  = array('percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
+//                     //$return['D0'][]['state'][]  = $value->TAT_0  ;
+//                     $return_data['D1'][]  = array('percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
+//                     $return_data['D2'][] = array('percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
+//                     $return_data['D4'][]  = array('percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
+//                    }
+//                    }
+//                    }else{
+//                     $return_data['D0'][]  = array()  ;
+//                     $return_data['D1'][]  = array()  ;
+//                     $return_data['D2'][] = array()  ;
+//                     $return_data['D4'][]  = array()  ;
+//                        
+//                        
+//                    }
+                  //  $return_data = array_push($return_data,)
+                    $this->jsonResponseString['response'] = $curl_response;
+                    $this->sendJsonResponse(array('0000', "Data found successfully"));
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1025", "Data not found !")); 
+        }
+        
+        
+    }
+    
+    
     
     
     function processUserRegister(){
