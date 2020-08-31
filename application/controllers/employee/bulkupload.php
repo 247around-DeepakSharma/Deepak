@@ -345,6 +345,7 @@ class Bulkupload extends CI_Controller {
                             $arr_data['is_active'] = (trim(strtoupper($sanitizes_row_data[12])) == 'YES') ? 1 : 0;
                             $arr_data['create_date'] = date('Y-m-d H:i:s');
                             $arr_data['created_by'] = $this->session->userdata('employee_id');
+                            $arr_data['plan_depends_on'] = (trim(strtoupper($sanitizes_row_data[14])) == 'PRODUCT') ? 2 : 1;
                             $plan_id = $this->reusable_model->insert_into_table('warranty_plans', $arr_data);
                             if (empty($plan_id)) {
                                 $returnMsg[$row][4] = "Invalid Data";

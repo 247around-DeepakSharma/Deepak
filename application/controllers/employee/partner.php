@@ -491,7 +491,17 @@ class Partner extends CI_Controller {
                         
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
-                    } else {
+                    }
+                    else if ($responseData['data']['code'] == -24700) {
+                        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Same booking has already been created. Please try after some time. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                        $this->insertion_failure($postData);
+
+                        $output = "Same booking has already been created. Please try after some time.";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/pending_booking");
+                    }
+                    else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 
@@ -1759,7 +1769,7 @@ class Partner extends CI_Controller {
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
 
-        if (!empty($booking_history)) {
+        if (!empty($booking_history[0]['booking_id'])) {
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);

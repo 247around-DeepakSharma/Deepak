@@ -6484,9 +6484,9 @@ class vendor extends CI_Controller {
                 return $arr_validation_checks;
             }
             // check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
-            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL), false, false, false, false, false, false, false, false, false, true);
+            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL, "booking_details.internal_status != '".InProcess_Completed."'" ), false, false, false, false, false, false, false, false, false, true);
             if(!empty($part_shipped_and_booking_closed)){
-                $arr_validation_checks[] = 'Part already shipped, Booking can not be re-assigned.';
+                $arr_validation_checks[] = 'Booking already completed by Vendor, can not be reassigned';
                 return $arr_validation_checks;
             }
             // check if booking already completed by SF
