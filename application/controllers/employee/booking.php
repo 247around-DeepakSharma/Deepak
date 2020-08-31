@@ -151,6 +151,10 @@ class Booking extends CI_Controller {
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
+                    if(!empty($is_booking_exist))
+                    {
+                        $this->session->set_userdata(['error' => 'Same booking has already been created. Please try after some time.']);
+                    }
                     $this->addbooking($primary_contact_no);
                 }
             } else {
