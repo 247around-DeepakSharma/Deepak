@@ -211,7 +211,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         "pageLength": 50,
         "deferLoading": 0,
         "lengthMenu": [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
-        dom: 'lBfrtip',
+        dom: 'Blfrtip',
         buttons: [
             {
                 extend: 'excel',
@@ -351,6 +351,10 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         padding-bottom : 20px !important;
     }
 
+    .dt-buttons {
+        float:left;  
+        margin-right: 10px;
+    }
 </style>
     <?php if($is_partner){ ?>
 <style>

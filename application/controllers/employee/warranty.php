@@ -40,13 +40,13 @@ class Warranty extends CI_Controller {
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
-        if($partner_id != null){
+        if($this->session->userdata('partner_id')){
             $this->miscelleneous->load_partner_nav_header();
         }else{
             $this->miscelleneous->load_nav_header();
         }
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
-        if($partner_id != null){
+        if($this->session->userdata('partner_id')){
             $this->load->view('partner/partner_footer');
         }
     }
