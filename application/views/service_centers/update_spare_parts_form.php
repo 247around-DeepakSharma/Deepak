@@ -618,17 +618,24 @@
                                 courier_price_by_partner: {
                                     digits: true,
                                     range: [0, 2000]
+                                },
+                                courier_image:{
+                                    required: true,
+                                    accept:"jpg,png,jpeg,pdf"
                                 }
                             },
                             messages: {
-
                                 courier_name: "Please Courier Name",
                                 awb: "Please Enter Valid AWB",
                                 shipment_date: "Please Enter Shipped date",
                                 courier_price_by_partner: {
                                     digits: "Courier Price can only be Numeric.",
                                     range: "Courier price should be in between 0 to 2000."
-                                }
+                                },
+                                courier_image:{
+                                    required: "Please Select Courier Image",
+                                    accept: "Only image type pdf/jpg/png/jpeg is allowed"
+                                }  
 
                             },
                             submitHandler: function (form) {
