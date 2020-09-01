@@ -205,7 +205,7 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select onchange= "getAppliance('<?php if(!empty($booking_history[0]['service_id'])) { echo $booking_history[0]['service_id'] ; } ?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select onchange= "getAppliance('<?php if(!empty($booking_history[0]['service_id'])) { echo $booking_history[0]['service_id'] ; } ?>')" class="booking_source form-control"  id="source_code" name="source_code" tabindex="-1" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option data-id="<?php echo $values['partner_id']; ?>" <?php if(!empty($booking_history[0]['partner_id']) && $values['partner_id'] == $booking_history[0]['partner_id']){ echo "selected"; } else {if($is_repeat){echo 'disabled';}}?> value=<?php echo $values['code']; ?>>
