@@ -2648,8 +2648,7 @@ class Booking extends CI_Controller {
             $booking_file['booking_id'] = $booking_id;
             $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
             $booking_file['file_name'] = $purchase_invoice_file_name;
-            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-            //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
             $booking_file['create_date'] = date("Y-m-d H:i:s");
             $this->booking_model->insert_booking_file($booking_file);
         }
@@ -2900,7 +2899,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -3621,7 +3620,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
