@@ -527,7 +527,7 @@ $("#myBtncovid").click();
 
 
 setTimeout(function () {
-    $("#close_covid").removeClass('hide');
+   // $("#close_covid").removeClass('hide');
 
 }, 10000);
 
