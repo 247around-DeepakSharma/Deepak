@@ -14,7 +14,7 @@
                ?> 
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review bookings</h1>
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Review Bookings</h1>
             </div>
              
              <?php //print_r($data);?>
