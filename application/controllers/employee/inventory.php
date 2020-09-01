@@ -1132,7 +1132,7 @@ class Inventory extends CI_Controller {
                                         break;
                                     }
                                     if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 1) {
-                                        $booking_new_internal_status = SPARE_SHIPPED_TO_WAREHOUSE;
+                                        $booking_new_internal_status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
                                         //If spare part is requested and shipped by partner and  acknowledgeby warehouse
                                         break;
                                     }
