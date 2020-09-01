@@ -1396,11 +1396,11 @@ function  getPartnerCompareTAT(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
-                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_0_per,'count'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
-                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
-                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_1_per,'count'=>$value->TAT_1)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_2_per,'count'=>$value->TAT_2)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_3_per,'count'=>$value->TAT_3)  ;
                     }
                     }
                     }else{
@@ -1565,26 +1565,23 @@ function  getPartnerCompareTAT(){
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     $curl_response = json_decode(curl_exec($ch));
                     curl_close($ch);
-                    
-//                    if(!empty($curl_response)){
-//                    foreach ($curl_response->TAT as $key=>$value){
-//                     $state =   $value->entity; 
-//                     if($state!='Total'){
-//                     $return_data['D0'][]  = array('percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
-//                     //$return['D0'][]['state'][]  = $value->TAT_0  ;
-//                     $return_data['D1'][]  = array('percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
-//                     $return_data['D2'][] = array('percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
-//                     $return_data['D4'][]  = array('percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
-//                    }
-//                    }
-//                    }else{
-//                     $return_data['D0'][]  = array()  ;
-//                     $return_data['D1'][]  = array()  ;
-//                     $return_data['D2'][] = array()  ;
-//                     $return_data['D4'][]  = array()  ;
-//                        
-//                        
-//                    }
+                    $return_data['eraned_details'] = $this->service_centers_model->get_sc_earned($vendor);
+                    $return_data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
+                    $return_data['request_type'] = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
+                    if(!empty($curl_response)){ 
+                     $return_data['D0'][]  = array('percent'=>$curl_response->TAT_0_per,'count'=>$curl_response->TAT_0)  ;
+                     $return_data['D1'][]  = array('percent'=>$curl_response->TAT_1_per,'count'=>$curl_response->TAT_1)  ;
+                     $return_data['D2'][] = array('percent'=>$curl_response->TAT_2_per,'count'=>$curl_response->TAT_2)  ;
+                     $return_data['D4'][]  = array('percent'=>$curl_response->TAT_3_per,'count'=>$curl_response->TAT_3)  ;
+
+                    }else{
+                     $return_data['D0'][]  = array()  ;
+                     $return_data['D1'][]  = array()  ;
+                     $return_data['D2'][] = array()  ;
+                     $return_data['D4'][]  = array()  ;
+                        
+                        
+                    }
                   //  $return_data = array_push($return_data,)
                     $this->jsonResponseString['response'] = $curl_response;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
