@@ -1209,6 +1209,8 @@
     if(ratingStar && not_reachable){
         flag = 1;
         alert("Either Choose not reachable or add rating, Don't select both option together");
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     else if(ratingStar || not_reachable){
@@ -1217,6 +1219,8 @@
     else{
         alert("Please Add Rating or Select Choose not reachable");
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     
