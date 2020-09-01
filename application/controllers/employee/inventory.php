@@ -9877,7 +9877,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         if(isset($date_array[1])){
-          $to_date = date("Y-m-d", strtotime($date_array[1]. "+1 days"));  
+          $to_date = date("Y-m-d", strtotime($date_array[1].  "+1 days"));  
         }
 
         if (!empty($partner_id)) {
