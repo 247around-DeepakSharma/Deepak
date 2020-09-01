@@ -613,7 +613,7 @@
                                 $image_src = $src;
                                 if (isset($files['file_name']) && !empty($files['file_name'])) {
                                     //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
