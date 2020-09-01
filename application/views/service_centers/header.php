@@ -492,7 +492,7 @@
  
   <div class="modal-content">
       <div class="modal-header">
-        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
+        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
         <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
       </div>
 

@@ -526,7 +526,7 @@ $this->session->unset_userdata('covid_popup');
 
 
 setTimeout(function () {
-    $("#close_covid").removeClass('hide');
+   // $("#close_covid").removeClass('hide');
 
 }, 10000);
 
