@@ -158,7 +158,7 @@
                                 </div>
 
                                 <div class="form-group ">
-                                    <label for="partner_source" class="col-md-4">Partner Source</label>
+                                    <label for="partner_source" class="col-md-4">Partner Source *</label>
                                 <div class="col-md-6">
                                     <select class="form-control"  id="partner_source" name="partner_source" required>
                                         <option value="" selected disabled>Please select seller channel</option>

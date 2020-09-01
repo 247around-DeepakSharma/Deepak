@@ -109,7 +109,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index() {
-        //print_r($_POST);
+        //print_r($_POST);exit;
         if ($this->input->post()) {
             $primary_contact_no = $this->input->post('booking_primary_contact_no');
             $user_id = $this->input->post("user_id");
@@ -119,7 +119,12 @@ class Booking extends CI_Controller {
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
-                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.
+                
+                $status = "";
+                $is_booking_exist = $this->booking_model->is_booking_exist($this->input->post("user_id"),$this->input->post('service'),$this->input->post('appliance_category')[0],$this->input->post('appliance_capacity')[0]);
+                if(empty($is_booking_exist))
+                    $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
@@ -128,20 +133,30 @@ class Booking extends CI_Controller {
                     //Redirect to Default Search Page
                     
                     $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details))
+                    $is_assigned_vendor = $this->booking_model->is_assigned_vendor($status['booking_id']);
+                    // Only Send SMS for those bookings, having assigned vendor id not null
+                    if(!empty($city_details) && !empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($is_assigned_vendor))
                     {
                         $zone_color = $city_details[0]['zone_color'];
-                        $sms['tag'] = "sms_to_redzone_customers";
-                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
-                        $sms['smsData']['partner'] = $this->input->post('partner_source');
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $this->input->post("user_id");    
-                        $this->notify->send_sms_msg91($sms);
+                        if($zone_color == "Red")
+                        {
+                            $sms['tag'] = "sms_to_redzone_customers";
+                            $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
+                            $sms['smsData']['appliance'] = $this->input->post('service');
+                            $sms['smsData']['partner'] = $this->input->post('appliance_brand')[0];
+                            $sms['type'] = "user";
+                            $sms['booking_id'] = $status["booking_id"];
+                            $sms['type_id'] = $this->input->post("user_id");    
+                            $this->notify->send_sms_msg91($sms);
+                        }
                     }
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
+                    if(!empty($is_booking_exist))
+                    {
+                        $this->session->set_userdata(['error' => 'Same booking has already been created. Please try after some time.']);
+                    }
                     $this->addbooking($primary_contact_no);
                 }
             } else {
@@ -2749,7 +2764,7 @@ class Booking extends CI_Controller {
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
-       $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' =>NULL,'parts_shipped NOT NULL ' =>NULL,'part_warranty_status'=>1), false);
+       $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' =>NULL,'parts_shipped IS NOT NULL ' =>NULL,'part_warranty_status'=>1), false);
        if(!empty($spare_check)){
        $this->check_and_update_partner_extra_spare($booking_id);    
        }
@@ -4010,7 +4025,8 @@ class Booking extends CI_Controller {
         if(!empty($state)){
             $post['where']['service_centres.state = '] =  trim($state);
         }
-        $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
+        $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat","booking_age");
+       // $post['column_order'] = array('booking_day',NULL,NULL,NULL,NULL,"initial_booking_date_as_dateformat");
         $post['column_search'] = array('booking_details.booking_id','booking_details.partner_id','booking_details.assigned_vendor_id','booking_details.closed_date','booking_details.booking_primary_contact_no','booking_details.query_remarks','booking_unit_details.appliance_brand','booking_unit_details.appliance_category','booking_unit_details.appliance_description','booking_details.city');
         
         return $post;
@@ -4356,12 +4372,12 @@ class Booking extends CI_Controller {
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode,$column_order);
+        // Save Query in Log against Logged-In Agent
+        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());
         foreach ($data['data'] as $index=>$serachResultData){
             $booking_with_link = "<a href =".base_url() . "employee/booking/viewdetails/".$serachResultData[1]." target='_blank'>".$serachResultData[1]."</a>";
             $data['data'][$index][1] = $booking_with_link;
-        }        
-        // Save Query in Log against Logged-In Agent
-        $this->miscelleneous->save_query_log('advance_search_log', $this->db->last_query());                       
+        }                                      
         // return Table data
         echo json_encode($data);
     }
@@ -6062,13 +6078,12 @@ class Booking extends CI_Controller {
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
             unset($data[$k]['service_center_closed_date']);
-            unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
             unset($data[$k]['flat_upcountry']);
         }
         //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
     }
             
     function sms_test($number,$text){
@@ -6165,7 +6180,6 @@ class Booking extends CI_Controller {
                 } else {
                    
                     $picName = $type . rand(10, 100) . $unit . "." . $extension;
-                    $picName = str_replace(" ","_",$picName);
                     $_POST[$post_name][$unit] = $picName;
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = $s3_directory . "/" . $picName;

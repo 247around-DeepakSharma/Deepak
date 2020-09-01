@@ -279,7 +279,6 @@ class Inventory extends CI_Controller {
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
             //Assigning File Name for uploaded shipment receipt
             $fileName = "Shipment-Receipt-" . $this->input->post('order_id') . '.' . explode('.', $_FILES['shipment_receipt']['name'])[1];
-            $fileName = str_replace(" ","_",$fileName);
             move_uploaded_file($tmpFile, TMP_FOLDER . $fileName);
 
             //Uploading images to S3 
@@ -1074,6 +1073,7 @@ class Inventory extends CI_Controller {
         if (!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))) {
             $this->checkUserSession();
         }
+        $booking_new_internal_status = '';
         
         if (!empty($id)) {
 
@@ -1087,7 +1087,7 @@ class Inventory extends CI_Controller {
             $b = array();
             $line_items = '';
             
-            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status';
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status, spare_parts_details.inventory_invoice_on_booking, spare_parts_details.wh_ack_received_part';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
                 . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
@@ -1105,7 +1105,49 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id);
                     $track_status = $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
+                    $status_string = array();
+                    if ($line_items >= 2) {
+                        foreach ($spare_parts_details as $key => $value) {
+                            if ($value['id'] !== $id) {
+                                $status_string[$key] = $value['status'];
+                            }
+                        }
+                        if (in_array(SPARE_PART_ON_APPROVAL, $status_string)) {
+                            $booking_new_internal_status = SPARE_PART_ON_APPROVAL;
+                        } else if (in_array(SPARE_OOW_EST_REQUESTED, $status_string)) {
+                            $booking_new_internal_status = SPARE_OOW_EST_REQUESTED;
+                        } else if (in_array(SPARE_PARTS_REQUESTED, $status_string)) {
+                            foreach ($spare_parts_details as $key => $value) {
+                                if ($value['id'] !== $id) {
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 0) {
+                                        $booking_new_internal_status = SPARE_PARTS_REQUESTED;
+                                        //If spare is requested and not shipped by partner
+                                        break;
+                                    }
 
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 0) {
+                                        $booking_new_internal_status = SPARE_SHIPPED_TO_WAREHOUSE;
+                                        //If spare part is requested and shipped by partner and not acknowledgeby warehouse
+                                        break;
+                                    }
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 1) {
+                                        $booking_new_internal_status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
+                                        //If spare part is requested and shipped by partner and  acknowledgeby warehouse
+                                        break;
+                                    }
+                                }
+                            }
+                        } else if (in_array(SPARE_PARTS_SHIPPED, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED;
+                        } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                        } else {
+                            if ($booking_details['current_status'] != _247AROUND_COMPLETED) {
+                                $booking_new_internal_status = SPARE_PARTS_CANCELLED;
+                            }
+                            //If defective part / ok part shipped received and booking is not completed rhen do not update status
+                        }
+                    }
                     //////   Handle agents for cancellation /// Abhishek
                     $approval_agent_id = _247AROUND_DEFAULT_AGENT;
                     $approval_entity_type = _247AROUND_SF_STRING;
@@ -1366,10 +1408,13 @@ class Inventory extends CI_Controller {
                 }
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if(empty($b['internal_status']) && !empty($booking_new_internal_status)){
+                $b['internal_status'] = $booking_new_internal_status;
+            }
             if (!empty($partner_id) && !empty($b['internal_status'])) {
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
                 if (!empty($partner_status)) {
-                    if ($line_items < 2) {
+                    if ($line_items < 2 || !empty($booking_new_internal_status)) {
                         $b['partner_current_status'] = $partner_status[0];
                         $b['partner_internal_status'] = $partner_status[1];
                         $b['actor'] = $partner_status[2];
@@ -2922,6 +2967,10 @@ class Inventory extends CI_Controller {
             $row[] = $stock_list->oow_vendor_margin . " %";
             $row[] = $stock_list->oow_around_margin . " %";
 
+            $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
+            $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
+            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
+            
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
 
@@ -3205,7 +3254,7 @@ class Inventory extends CI_Controller {
                 unset($post['where']['inventory_stocks.stock <> 0']);
             }
             if ($this->input->post('service_id')) {
-                $post['where']['service_id'] = trim($this->input->post('service_id'));
+                $post['where']['inventory_master_list.service_id'] = trim($this->input->post('service_id'));
             }
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
@@ -4243,6 +4292,13 @@ class Inventory extends CI_Controller {
 
 
                 if (!empty($parts_details)) {
+                    /**
+                     * Check if inventory_id is zero.
+                     */
+                    $inventory_ids = array_column($parts_details, 'inventory_id');
+                    if(!in_array('0', $inventory_ids)) {
+                                        
+                    
                     if ($invoice_file_required) {
 
                         $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
@@ -4540,6 +4596,10 @@ class Inventory extends CI_Controller {
                     } else {
                         $res['status'] = false;
                         $res['message'] = $invoice_file['message'];
+                    }
+                    } else {
+                        $res['status'] = false;
+                        $res['message'] = "We can't update msl. Please refresh and try again.";
                     }
                 } else {
                     $res['status'] = false;

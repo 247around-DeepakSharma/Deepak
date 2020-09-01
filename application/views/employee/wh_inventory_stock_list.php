@@ -345,10 +345,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
-                                    <th>Basic Price</th>
-                                    <th>GST Rate</th>
                                     <th>Quantity</th>
-                                    <th>Total Price</th>
                                     <th>Remove</th>
                                     
                                 </tr>

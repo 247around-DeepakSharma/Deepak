@@ -83,6 +83,46 @@ class Around_scheduler extends CI_Controller {
         log_message('info', __METHOD__ . '=> Exiting...');
     }
 
+    
+    /**
+     * @desc: This is used to remove_space_from_the_file_and_upload_to_s3
+     */
+    
+    function Remove_Space_From_files_And_Upload()
+    {
+        $query = " id, file FROM collateral WHERE file LIKE '% %'";
+        $filedata = $this->booking_model->get_file_list($query);
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/";
+        if(!empty($filedata))
+        {
+            $file_path = "https://s3.amazonaws.com/$bucket/$directory_xls";
+            foreach($filedata as $key => $value)
+            {
+                $id = $value['id'];
+                $file = $value['file'];
+                $file_name_for_url = str_replace(" ","%20",$file);
+                $new_file = str_replace(" ","_",$file);
+                $url  = $file_path.$file_name_for_url;
+                $data = "";
+                $data = file_get_contents($url);
+                if(!empty($data))
+                {
+                    $fp = fopen(TMP_FOLDER.$new_file, 'w');
+                    fwrite($fp, $data);
+                    fclose($fp);                
+                }
+                if(file_exists(TMP_FOLDER.$new_file))
+                {
+                    $this->s3->putObjectFile(TMP_FOLDER . $new_file, $bucket, $directory_xls.$new_file, S3::ACL_PUBLIC_READ);
+                    $this->booking_model->update_file_name_collateral($id,$new_file);
+                    unlink(TMP_FOLDER . $new_file);
+                }
+            }
+        }
+    }
+    
+    
     /**
      * @desc: This is used to send mail to all SF and employees for all brands onboarded since Jan2020
      */
@@ -162,7 +202,7 @@ class Around_scheduler extends CI_Controller {
         {
             foreach($data1 as $key => $value)
             {
-                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ennded on ".$value['end_date']."</td></tr>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td></tr>";
             }
         }
         if(!empty($data2))
@@ -2901,14 +2941,14 @@ class Around_scheduler extends CI_Controller {
         $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
         /**
          * Check if data exists then
-         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
+         * if check consumption status is part consumed then update status to DEFECTIVE_PARTS_PENDING.
          * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
          */
         if(!empty($spare_part_details))
         {
             foreach($spare_part_details as $spare_part_detail)
             {
-                if(empty($spare_part_detail['consumed_part_status_id']) || $spare_part_detail['consumed_part_status_id'] == 1)
+                if($spare_part_detail['consumed_part_status_id'] == 1)
                 {
                     $spare_status = DEFECTIVE_PARTS_PENDING;
                 } 

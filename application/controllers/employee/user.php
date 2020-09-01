@@ -852,7 +852,6 @@ class User extends CI_Controller {
      */
     function process_edit_employee(){
         $data = $this->input->post();
-
         $isRM = count($this->employee_model->isRManager($data['id'])) > 0 ? true : false;
         //If agent is not RM and is being promoted to RM then it has to unmap itself from all service centers and states
         if(!$isRM && $data['groups']==_247AROUND_RM){
@@ -1335,14 +1334,13 @@ class User extends CI_Controller {
         {
             $district = array();
             //$errormessage = "No district selected.";
-            // $statusFlg = false;
-            // $array_return['status'] = 'error';
-            // $array_return['message'] = $errormessage;
+            //$statusFlg = false;
+            //$array_return['status'] = 'error';
+            //$array_return['message'] = $errormessage;
         }
         ##########################check if state served by other ASM#####################################
         if (!$isRM && $statusFlg && !empty($reqDistrict)) {
             $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_ASM, $asmID);
-
             if (count($result) > 0) {
                 $stateString = implode(',', array_map(function ($entry) {
                             return $entry['district'];
@@ -1354,7 +1352,7 @@ class User extends CI_Controller {
             }
         }
         #########################check if District served by other RM#######################################
-        if ($rm_ID != 0 && $rm_ID != '' && $statusFlg  && !empty($reqDistrict)) {
+        if ($rm_ID != 0 && $rm_ID != '' && $statusFlg && !empty($reqDistrict)) {
             $result = $this->employee_model->get_district_of_rm_asm($reqDistrict, _247AROUND_RM, $rm_ID);
             if (count($result) > 0) {
                 $stateString = implode(',', array_map(function ($entry) {

@@ -469,9 +469,39 @@ class Partner extends CI_Controller {
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
+                        $city_details = $this->indiapincode_model->getPinCoordinates($post['city']);
+                        if(!empty($city_details) && !empty($responseData['data']['response']['247aroundBookingID']))
+                        {
+                            $zone_color = $city_details[0]['zone_color'];
+                            log_message('info', 'Ayush1234' . $zone_color);
+                            if($zone_color == "Red")
+                            {
+                                $user_details = $this->user_model->search_user($post['mobile']);
+                                $user_id = $user_details[0]['user_id'];
+                                $sms_red_zone['tag'] = "sms_to_redzone_customers";
+                                $sms_red_zone['phone_no'] = $post['mobile'];
+                                $sms_red_zone['smsData']['appliance'] = $post['appliance_name'];
+                                $sms_red_zone['smsData']['partner'] = $post['partnerName'];
+                                $sms_red_zone['type'] = "user";
+                                $sms_red_zone['booking_id'] = $responseData['data']['response']['247aroundBookingID'];
+                                $sms_red_zone['type_id'] = $user_id;    
+                                $this->notify->send_sms_msg91($sms_red_zone);
+                            }
+                        }
+                        
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
-                    } else {
+                    }
+                    else if ($responseData['data']['code'] == -24700) {
+                        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Same booking has already been created. Please try after some time. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                        $this->insertion_failure($postData);
+
+                        $output = "Same booking has already been created. Please try after some time.";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/pending_booking");
+                    }
+                    else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 
@@ -1739,7 +1769,7 @@ class Partner extends CI_Controller {
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
 
-        if (!empty($booking_history)) {
+        if (!empty($booking_history[0]['booking_id'])) {
             $data['booking_history'] = $booking_history;
             $partner_id = $this->session->userdata('partner_id');
             $partner_data = $this->partner_model->get_partner_code($partner_id);
@@ -4743,7 +4773,6 @@ class Partner extends CI_Controller {
         if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
             $tmpFile = $_FILES['pan_file']['tmp_name'];
             $pan_file = "Partner-" . strtoupper($this->input->post('pan'))  . "." . explode(".", $_FILES['pan_file']['name'])[1];
-            $pan_file = str_replace(" ","_",$pan_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $pan_file);
 
             //Upload files to AWS
@@ -4763,7 +4792,6 @@ class Partner extends CI_Controller {
         if (($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])) {
             $tmpFile = $_FILES['registration_file']['tmp_name'];
             $registration_file = "Partner-" . strtoupper($this->input->post('registration_no'))  . "." . explode(".", $_FILES['registration_file']['name'])[1];
-            $registration_file = str_replace(" ","_",$registration_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $registration_file);
 
             //Upload files to AWS
@@ -4782,7 +4810,6 @@ class Partner extends CI_Controller {
         if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
             $tmpFile = $_FILES['tin_file']['tmp_name'];
             $tin_file = "Partner-" . strtoupper($this->input->post('tin')) . "." . explode(".", $_FILES['tin_file']['name'])[1];
-            $tin_file = str_replace(" ","_",$tin_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $tin_file);
 
             //Upload files to AWS
@@ -4801,7 +4828,6 @@ class Partner extends CI_Controller {
         if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
             $tmpFile = $_FILES['cst_file']['tmp_name'];
             $cst_file = "Partner-" . strtoupper($this->input->post('cst_no'))  . "." . explode(".", $_FILES['cst_file']['name'])[1];
-            $cst_file = str_replace(" ","_",$cst_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $cst_file);
 
             //Upload files to AWS
@@ -4820,7 +4846,6 @@ class Partner extends CI_Controller {
         if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
             $tmpFile = $_FILES['service_tax_file']['tmp_name'];
             $service_tax_file = "Partner-" .  strtoupper($this->input->post('service_tax'))  . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-            $service_tax_file = str_replace(" ","_",$service_tax_file);
             move_uploaded_file($tmpFile, TMP_FOLDER . $service_tax_file);
 
             //Upload files to AWS
@@ -4840,7 +4865,6 @@ class Partner extends CI_Controller {
             $tmpFile = $_FILES['gst_number_file']['tmp_name'];
             $gst_number_file = "Partner-" . $this->input->post('public_name') . '-GST_Number' . "." . explode(".", $_FILES['gst_number_file']['name'])[1];
                    
-            $gst_number_file = str_replace(" ","_",$gst_number_file);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "vendor-partner-docs/" . $gst_number_file;
