@@ -96,7 +96,7 @@
                                 $image_src = $src;
                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
                                     //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history[0]['support_file'];
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$booking_history[0]['support_file'];
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
@@ -411,7 +411,7 @@
                                         <td><?php echo date("d-M-Y", strtotime($sp['create_date'])); ?></td>
                                         <td><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
+                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
                                             }
                                             ?>
                                         </td>

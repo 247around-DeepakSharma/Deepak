@@ -1286,14 +1286,14 @@ class engineerApi extends CI_Controller {
                         if (isset($value["purchase_invoice"])) {
                             if (!$purchase_inv_url) {
                                 $purchase_inv_url = $requestData['booking_id'] . "_" . $unit_id . "_purchase_inv_" . date("YmdHis") . ".png";
-                                $this->miscelleneous->generate_image($value["purchase_invoice"], $purchase_inv_url, "misc-images");
+                                $this->miscelleneous->generate_image($value["purchase_invoice"], $purchase_inv_url, "purchase-invoices");
                             }
                         }
                     } else {
                         if (isset($value["existing_purchase_invoice"])) {
                             if ($value["existing_purchase_invoice"]) {
                                 $purchase_inv_url = $requestData['booking_id'] . "_" . $unit_id . "_purchase_inv_" . date("YmdHis") . ".png";
-                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"], $purchase_inv_url, "misc-images");
+                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"], $purchase_inv_url, "purchase-invoices");
                             }
                         }
                     }
@@ -2472,7 +2472,7 @@ class engineerApi extends CI_Controller {
 
             if (isset($requestData["booking_id"])) {
                 $spare_select = 'spare_parts_details.serial_number, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                         . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
                 $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
                 if (!empty($spare_details)) {
@@ -2607,13 +2607,13 @@ class engineerApi extends CI_Controller {
                 if (isset($requestData['invoice_number_pic_exist'])) {
                     if ($requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                        $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
                     if ($requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "misc-images");
+                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 }
@@ -2940,7 +2940,7 @@ class engineerApi extends CI_Controller {
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
-                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
             /*  This is to get consumtption required or not */        
             $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL));

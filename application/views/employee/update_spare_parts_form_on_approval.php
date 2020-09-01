@@ -91,9 +91,9 @@
                                             <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image" <?php if(!empty($disable_model_number)) { echo 'style="pointer-events:none;background:#eee !important;"'; } ?>>
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
-                                        <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-                                        <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
-                                        <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        <?php if(!empty($spare_parts_details['invoice_pic'])){ ?>
+                                        <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
+                                        <img src="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                         </a>
                                       <?php } ?>
                                     </div>
