@@ -48,7 +48,7 @@
                                                     
                                                             if (isset($bookinghistory[0]['invoice_pic']) && !empty($bookinghistory[0]['invoice_pic'])) {
                                                                 //Path to be changed
-                                                                $src = "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $bookinghistory[0]['invoice_pic'];
+                                                                $src = "https://s3.amazonaws.com/bookings-collateral/purchase-invoices/" . $bookinghistory[0]['invoice_pic'];
                                                             }
                                                         }
                                                     }

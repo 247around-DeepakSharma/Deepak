@@ -445,7 +445,7 @@
                                 <?php  } ?> 
                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-M-Y'); ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
-                                    if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['serial_number_pic'])) {

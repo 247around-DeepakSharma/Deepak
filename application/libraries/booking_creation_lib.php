@@ -175,7 +175,7 @@ class booking_creation_lib {
      */
     function validate_booking() {
         $this->My_CI->form_validation->set_rules('service_id', 'Appliance', 'required');
-        $this->My_CI->form_validation->set_rules('source_code', 'Source Code', 'required');
+//        $this->My_CI->form_validation->set_rules('source_code', 'Source Code', 'required');
         $this->My_CI->form_validation->set_rules('type', 'Booking Type', 'required');
         $this->My_CI->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
         $this->My_CI->form_validation->set_rules('city', 'City', 'required');

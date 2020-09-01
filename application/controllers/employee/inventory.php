@@ -4090,7 +4090,9 @@ class Inventory extends CI_Controller {
         $spareColumn = $this->input->post('spareColumn');
         if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
             $file_dir = "courier-pod";
-        } else if (!empty($this->input->post('directory_name'))) {
+        }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
+            $file_dir = "purchase-invoices";
+        }else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";

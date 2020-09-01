@@ -66,7 +66,7 @@
                         if (isset($spare_parts[0]->invoice_pic)) {
                             if (!is_null($spare_parts[0]->invoice_pic)) {
                                 ?>
-                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->invoice_pic; ?>" target="_blank" id="invoice_pic">View Image</a>
+                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/purchase-invoices/<?php echo $spare_parts[0]->invoice_pic; ?>" target="_blank" id="invoice_pic">View Image</a>
                             <?php }
                         } ?>
                                     </div>
