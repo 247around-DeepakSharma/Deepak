@@ -3700,7 +3700,6 @@ class vendor extends CI_Controller {
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
         $sf_name = $sf_details[0]['name'];
-        
         //Sending Mail to corresponding RM and admin group 
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
@@ -3717,7 +3716,10 @@ class vendor extends CI_Controller {
                 $email['action_by'] = $agent_name;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
+                //Send mail to asm also in cc
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($id);
+                $asm_mail = $asm_details[0]['official_email'];
+                $this->notify->sendEmail($template[2], $to, $template[3].",".$asm_mail, '', $subject, $emailBody, "",'sf_temporary_on_off');
             }
 
             log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
@@ -4351,13 +4353,16 @@ class vendor extends CI_Controller {
                 //Getting RM Official Email details to send Welcome Mails to them as well
                 $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
                 $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                // Send Mail To asm also
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                $asm_mail = $asm_details[0]['official_email'];
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . "," . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
@@ -6483,35 +6488,36 @@ class vendor extends CI_Controller {
         {
             $arr_validation_checks = array();
             
-            // check if spare is involved and part_warranty_status = 2 AND part_shipped date not null 
+            // case 1: check if spare is involved and part_warranty_status = 2 AND part_shipped date not null 
             $ow_shipped_part = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "part_warranty_status" => SPARE_PART_IN_OUT_OF_WARRANTY_STATUS, "shipped_date IS NOT NULL" => NULL));
             if(!empty($ow_shipped_part)){
                 $arr_validation_checks[] = 'Part already shipped in Out-Warranty, Booking can not be re-assigned.';
                 return $arr_validation_checks;
             }
-            // check if spare is involved and is_micro = 1 AND part_shipped date not null 
+            //case 2: check if spare is involved and is_micro = 1 AND part_shipped date not null 
             $is_micro_wh = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "is_micro_wh" => 1, "shipped_date IS NOT NULL" => NULL));
             if(!empty($is_micro_wh)){
                 $arr_validation_checks[] = 'Micro Warehouse Involved, Booking can not be re-assigned.';
                 return $arr_validation_checks;
             }
-            // check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
-            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL, "booking_details.internal_status != '".InProcess_Completed."'" ), false, false, false, false, false, false, false, false, false, true);
-            if(!empty($part_shipped_and_booking_closed)){
-                $arr_validation_checks[] = 'Booking already completed by Vendor, can not be reassigned';
-                return $arr_validation_checks;
-            }
-            // check if booking already completed by SF
+
+                        //case 3: check if booking already completed by SF
             $booking_completed_by_sf = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status = "'.SF_BOOKING_COMPLETE_STATUS.'"' => NULL));            
             $spare_involved_in_booking = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL));
             if(!empty($booking_completed_by_sf) && !empty($spare_involved_in_booking)){
                 $arr_validation_checks[] = 'Booking already completed by SF, hence can not be re-assigned.';
                 return $arr_validation_checks;
             }
-            // check if booking cancelled by Admin
+            //case 4: check if booking cancelled by Admin
             $booking_cancelled_by_admin = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'current_status = "'._247AROUND_CANCELLED.'"' => NULL));            
             if(!empty($booking_cancelled_by_admin)){
                 $arr_validation_checks[] = 'Booking already cancelled, hence can not be re-assigned.';
+                return $arr_validation_checks;
+            }
+            //case 5: check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
+            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL), false, false, false, false, false, false, false, false, false, true);
+            if(!empty($part_shipped_and_booking_closed)){
+                $arr_validation_checks[] = 'Parts already shipped, Booking can not be re-assigned.';
                 return $arr_validation_checks;
             }
             
