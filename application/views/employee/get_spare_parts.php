@@ -579,13 +579,17 @@
                  method:'POST',
                  dataType: "json",
                  url:url,
-                 //data: { remarks_revese_sale : remarks_revese_sale },
+                 data: { return_response : true },
                  beforeSend: function(){
                      $("#"+button_id).html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
                  },
                  complete: function(data){
-                     alert('Invoice Generated Successfully');
-                     $("#"+button_id).html("Generate Sale Invoice");
+                     if(data=='SUCCESS'){
+                        alert('Invoice Generated Successfully');
+                    }else{
+                        alert('Invoice Not Generated');
+                    }
+					$("#"+button_id).html("Generate Sale Invoice");
                  }
             });
         }

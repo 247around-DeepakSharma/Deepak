@@ -4401,6 +4401,11 @@ exit();
      */
     function generate_oow_parts_invoice($spare_id) {
         $remarks_revese_sale = ''; // Initialte variable
+		$return_response = '';
+		$response_message = '';
+		if($this->input->post('return_response')){
+			$return_response = true;
+		}
         if($this->input->post('remarks_revese_sale')){
             $remarks_revese_sale = $this->input->post('remarks_revese_sale');
         }
@@ -4558,8 +4563,12 @@ exit();
                 $this->booking_model->update_booking_unit_details_by_any(array("booking_id" => $sp_data[0]->booking_id, "price_tags" => "Spare Parts"), 
                         array("pay_from_sf" => 0, "vendor_cash_invoice_id" => $response['meta']['invoice_id']));
                 log_message('info', __METHOD__ . ": ...Exit" . $response['meta']['invoice_id']);
+				$response_message = 'SUCCESS';
             }
         }
+		if(!empty($return_response)){
+			echo $response_message;
+		}
     }
     /**
      * @desc This function is used to generate reverse invoice for out of warranty booking
