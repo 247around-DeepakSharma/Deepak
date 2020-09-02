@@ -323,7 +323,7 @@
                                             $image_src = $src;
                                             if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$unit_details['quantity'][0]['sf_purchase_invoice'];
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
@@ -1207,6 +1207,8 @@
     if(ratingStar && not_reachable){
         flag = 1;
         alert("Either Choose not reachable or add rating, Don't select both option together");
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     else if(ratingStar || not_reachable){
@@ -1215,6 +1217,8 @@
     else{
         alert("Please Add Rating or Select Choose not reachable");
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     
