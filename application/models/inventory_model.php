@@ -1138,7 +1138,7 @@ class Inventory_model extends CI_Model {
             $this->db->join('courier_details', 'i.courier_id = courier_details.id','left');
         }
 
-        if ($post['is_micro_wh']) {
+        if (!empty($post['is_micro_wh'])) {
           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
