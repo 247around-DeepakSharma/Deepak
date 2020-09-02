@@ -177,7 +177,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                 <?php if (isset($value['booking'][0]['is_upcountry']) && $value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
                               </td>
                               
-                              <td  style="text-align: left;white-space: inherit;"><?php if(isset($value['booking'][0]['vendor_name'])){ echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; } ?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
+                              <td  style="text-align: left;white-space: inherit;"><?php if(isset($value['booking'][0]['vendor_name'])){ echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; } ?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
