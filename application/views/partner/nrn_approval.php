@@ -165,7 +165,7 @@
     background-color: transparent !important;
 }
 .dataTables_length {
-    width: 8% !important;
+    width: 14% !important;
     float: left;
 }
         </style>
