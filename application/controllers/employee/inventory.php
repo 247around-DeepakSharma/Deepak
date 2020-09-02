@@ -1143,10 +1143,10 @@ class Inventory extends CI_Controller {
                         } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
-                            if ($booking_details['current_status'] != _247AROUND_COMPLETED) {
-                                $booking_new_internal_status = SPARE_PARTS_CANCELLED;
+                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
+                                $booking_new_internal_status = array_values($status_string)[0];
                             }
-                            //If defective part / ok part shipped received and booking is not completed rhen do not update status
+                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
