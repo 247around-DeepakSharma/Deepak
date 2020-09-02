@@ -2806,8 +2806,11 @@ class Service_centers extends CI_Controller {
 
         $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
             'permission_type' => SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
+        
+        $access1 = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
+            'permission_type' => OW_SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
 
-        if (!empty($access)) {
+        if (!empty($access) || !empty($access1)) {
             $url = base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_id . "/" . $booking_id;
             $fields = array(
                 'remarks' => "Auto Approved",

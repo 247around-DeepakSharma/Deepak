@@ -1,0 +1,1 @@
+INSERT INTO `partner_permission` (`id`, `partner_id`, `permission_type`, `description`, `role`, `is_on`, `create_date`) VALUES (NULL, '247001', 'ow_auto_approve_requested_spare', NULL, NULL, '1', '2020-09-01 08:49:56');
