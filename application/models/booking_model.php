@@ -803,6 +803,30 @@ class Booking_model extends CI_Model {
     }
 
     /**
+     * @desc : This funtion is used to send sms for red zone bookings
+     *
+     */
+    function send_red_zone_sms($booking_id,$city,$appliance,$brand,$user_id,$primary_contact_no)
+    {
+        $city_details = $this->indiapincode_model->getPinCoordinates($city);
+        if(!empty($city_details))
+        {
+            $zone_color = $city_details[0]['zone_color'];
+            if($zone_color == "Red")
+            {
+                $sms['tag'] = "sms_to_redzone_customers";
+                $sms['phone_no'] = $primary_contact_no;
+                $sms['smsData']['appliance'] = $appliance;
+                $sms['smsData']['partner'] = $brand;
+                $sms['type'] = "user";
+                $sms['booking_id'] = $booking_id;
+                $sms['type_id'] = $user_id;    
+                $this->notify->send_sms_msg91($sms);
+            }
+        }
+    }
+    
+    /**
      * @desc : This funtion gives the name of the service
      *
      * Finds out the name of the service for a particular service id
@@ -841,8 +865,9 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason "
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
                . "from booking_details "
+               . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
                . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
                . " users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
