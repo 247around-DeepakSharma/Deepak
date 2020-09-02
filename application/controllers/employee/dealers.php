@@ -299,6 +299,8 @@ class Dealers extends CI_Controller {
         curl_setopt_array($ch, array(
             CURLOPT_POST => TRUE,
             CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_SSL_VERIFYHOST => FALSE,
+            CURLOPT_SSL_VERIFYPEER => FALSE,
             CURLOPT_HTTPHEADER => array(
                 'Authorization: ' . $authToken,
                 'Content-Type: application/json'
