@@ -215,7 +215,7 @@
                                             ?>
                                             <input type="file" class="form-control spare_parts" tabindex="-1" id="invoice_pic" name="invoice_image" <?php if(!empty($invoice_file)) { echo 'style="cursor: not-allowed; pointer-events: none;background-color:#eee;"'; } ?>>
                                             <?php if(!empty($invoice_file)) { ?>
-                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $invoice_file; ?> " target="_blank">Click Here to view Invoice Picture</a>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/purchase-invoices/<?php echo $invoice_file; ?> " target="_blank">Click Here to view Invoice Picture</a>
                                             <?php } ?>
                                     </div>
                                     </div>

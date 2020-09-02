@@ -468,30 +468,27 @@ class Partner extends CI_Controller {
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
-
-                        $city_details = $this->indiapincode_model->getPinCoordinates($post['city']);
-                        if(!empty($city_details) && !empty($responseData['data']['response']['247aroundBookingID']))
+                        // Send SMS to red Zone bookings
+                        if(!empty($responseData['data']['response']['247aroundBookingID']))
                         {
-                            $zone_color = $city_details[0]['zone_color'];
-                            log_message('info', 'Ayush1234' . $zone_color);
-                            if($zone_color == "Red")
-                            {
-                                $user_details = $this->user_model->search_user($post['mobile']);
-                                $user_id = $user_details[0]['user_id'];
-                                $sms_red_zone['tag'] = "sms_to_redzone_customers";
-                                $sms_red_zone['phone_no'] = $post['mobile'];
-                                $sms_red_zone['smsData']['appliance'] = $post['appliance_name'];
-                                $sms_red_zone['smsData']['partner'] = $post['partnerName'];
-                                $sms_red_zone['type'] = "user";
-                                $sms_red_zone['booking_id'] = $responseData['data']['response']['247aroundBookingID'];
-                                $sms_red_zone['type_id'] = $user_id;    
-                                $this->notify->send_sms_msg91($sms_red_zone);
-                            }
+                            $user_details = $this->user_model->search_user($post['mobile']);
+                            $user_id = $user_details[0]['user_id'];
+                            $this->booking_model->send_red_zone_sms($responseData['data']['response']['247aroundBookingID'],$post['city'],$post['appliance_name'],$post['partnerName'],$user_details[0]['user_id'],$post['mobile']);
                         }
                         
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
-                    } else {
+                    }
+                    else if ($responseData['data']['code'] == -24700) {
+                        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Same booking has already been created. Please try after some time. " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                        $this->insertion_failure($postData);
+
+                        $output = "Same booking has already been created. Please try after some time.";
+                        $userSession = array('error' => $output);
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "partner/pending_booking");
+                    }
+                    else {
                         log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
                         $this->insertion_failure($postData);
 
@@ -7067,7 +7064,7 @@ class Partner extends CI_Controller {
                } 
              $tempArray[] = $sn_no . $upcountryString. $districtZoneType;
             if($row->booking_files_purchase_inv){
-                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/purchase-invoices/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }
             else{
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
