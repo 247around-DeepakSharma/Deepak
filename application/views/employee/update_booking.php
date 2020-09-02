@@ -160,7 +160,7 @@ if(empty($booking_history[0]['booking_id'])){
                                 <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
-                                        <input type="hidden" name="service" id="services"/>
+                                        <input type="hidden" name="service" id="services" value="<?php if(!empty($booking_history[0]['services'])) { echo $booking_history[0]['services']; }  ?>"/>
                                         <select type="text" tabindex="-1" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
