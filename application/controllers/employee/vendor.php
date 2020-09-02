@@ -1245,13 +1245,20 @@ class vendor extends CI_Controller {
                 if(!empty($booking_id) || $booking_id != '0'){
 
                     if ($service_center_id != "") {
-
                         $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
                         if ($assigned) {
                             //Insert log into booking state change
                            $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
                                    ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
                            //Send Push Notification
+                           
+                           // Send SMS to red Zone bookings
+                           $bookings = $this->booking_model->getbooking_history($booking_id,"join");
+                            if($bookings[0]['is_red_zone_sms_sent'] == 0)
+                            {
+                                $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
+                            }
+                           
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
@@ -1574,7 +1581,12 @@ class vendor extends CI_Controller {
                     $this->booking_model->update_booking($booking_id, $assigned_data2);
                 }
                 //End
-
+                // Send SMS to red Zone bookings
+                $bookings = $this->booking_model->getbooking_history($this->input->post('booking_id'),"join");
+                if($bookings[0]['is_red_zone_sms_sent'] == 0)
+                {
+                    $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
+                }
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             $booking_id = $this->input->post('booking_id');
@@ -6484,9 +6496,9 @@ class vendor extends CI_Controller {
                 return $arr_validation_checks;
             }
             // check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
-            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL), false, false, false, false, false, false, false, false, false, true);
+            $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL, "booking_details.internal_status != '".InProcess_Completed."'" ), false, false, false, false, false, false, false, false, false, true);
             if(!empty($part_shipped_and_booking_closed)){
-                $arr_validation_checks[] = 'Part already shipped, Booking can not be re-assigned.';
+                $arr_validation_checks[] = 'Booking already completed by Vendor, can not be reassigned';
                 return $arr_validation_checks;
             }
             // check if booking already completed by SF

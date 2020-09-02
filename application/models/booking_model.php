@@ -11,15 +11,18 @@ class Booking_model extends CI_Model {
     }
 
     
-    function is_booking_exist($user_id,$appliance_name,$category,$capacity)
+    function is_booking_exist($user_id,$appliance_name,$category,$capacity,$service_id="")
     {
         if(!empty($capacity))
             $where["t2.appliance_capacity"] = "$capacity";
+        if(!empty($service_id))
+            $where["t3.id"] = $service_id;
+        if(!empty($appliance_name))
+            $where["t3.id = (SELECT id from services WHERE services = '$appliance_name')"] = NULL;
         $where["t2.appliance_category"] = "$category";
         $where["t1.booking_id = t2.booking_id"] = NULL;
         $where["t1.user_id"] = $user_id;
         $where["t2.service_id = t3.id"] = NULL;
-        $where["t3.id = (SELECT id from services WHERE services = '$appliance_name')"] = NULL;
         $where["t1.create_date > DATE_SUB(NOW(), INTERVAL 10 minute)"] = NULL;
         $select = " t1.booking_id FROM booking_details t1, booking_unit_details t2, services t3";
         $this->db->select($select);
@@ -28,6 +31,13 @@ class Booking_model extends CI_Model {
         return $query->num_rows();
     }
     
+    function is_assigned_vendor($booking_id)
+    {
+        $select = " id FROM booking_details WHERE booking_id = '$booking_id' and assigned_vendor_id is not NUll";
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
     /**
      * @desc: get all files name having space from collateral table
      * @return:  Array
@@ -798,6 +808,30 @@ class Booking_model extends CI_Model {
     }
 
     /**
+     * @desc : This funtion is used to send sms for red zone bookings
+     *
+     */
+    function send_red_zone_sms($booking_id,$city,$appliance,$brand,$user_id,$primary_contact_no)
+    {
+        $city_details = $this->indiapincode_model->getPinCoordinates($city);
+        if(!empty($city_details))
+        {
+            $zone_color = $city_details[0]['zone_color'];
+            if($zone_color == "Red")
+            {
+                $sms['tag'] = "sms_to_redzone_customers";
+                $sms['phone_no'] = $primary_contact_no;
+                $sms['smsData']['appliance'] = $appliance;
+                $sms['smsData']['partner'] = $brand;
+                $sms['type'] = "user";
+                $sms['booking_id'] = $booking_id;
+                $sms['type_id'] = $user_id;    
+                $this->notify->send_sms_msg91($sms);
+            }
+        }
+    }
+    
+    /**
      * @desc : This funtion gives the name of the service
      *
      * Finds out the name of the service for a particular service id
@@ -836,8 +870,9 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason "
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
                . "from booking_details "
+               . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
                . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
                . " users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
