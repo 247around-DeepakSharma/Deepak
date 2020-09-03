@@ -2923,7 +2923,7 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    '' as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('".BOOKING_AGENT_Partner."', '".BOOKING_AGENT_Dealer."') then entity_login_table.entity_name ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
@@ -3090,7 +3090,8 @@ function get_detailed_summary_report_query($partner_id,$whereConditions=NULL){
                     LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
                     LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
                     LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
-                    
+                    LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
+                    LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id
