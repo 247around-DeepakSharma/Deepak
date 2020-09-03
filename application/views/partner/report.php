@@ -574,6 +574,10 @@
                 return false;
             }        
         }
+        if((create_date == '' || create_date == null) && (completion_date == '' || completion_date == null)) {
+            alert('Please select a date range.');
+            return false;
+        }
         var status = $('#status_detailed').val();
         var state = getMultipleSelectedValues('state_detailed');
         if(!state){
