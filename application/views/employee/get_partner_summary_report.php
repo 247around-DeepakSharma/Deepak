@@ -185,6 +185,13 @@
             alert('Please select partner.');
             return false;
         }
+
+         var create_date = $('#create_date').val();
+         var completion_date = $('#completion_date').val(); 
+        if((create_date == '' || create_date == null) && (completion_date == '' || completion_date == null)) {
+            alert('Please select a date range.');
+            return false;
+        }
         var create_date = $('#create_date').val();
         var dateArray = create_date.split(" - ");
         var startDate = dateArray[0];
