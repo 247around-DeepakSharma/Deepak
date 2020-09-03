@@ -1479,13 +1479,12 @@ class service_centre_charges extends CI_Controller {
                             $subject = vsprintf($email_template[4], array($booking_id));
                             //fetch rm email from corresponding sf
                              $rm_details =  $this->vendor_model->get_rm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
-                            $cc_array[] = $rm_email=(!empty($rm_details[0]['official_email']) ? $rm_details[0]['official_email'] : "");  
-                            $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
-                            $cc_array[] = $asm_email = (!empty($asm_details[0]['official_email']) ? $asm_details[0]['official_email'] : "");
-                            $cc_array[] = $template_email = (!empty($email_template[3]) ? $email_template[3]: "");
-                            //if we have rm_email and asm_email both then mail is sent to email_template[3] and rm_email and asm_email, If we have asm_email then mail is sent to email_template[3] and asm_email in cc otherwise the mail is sent to email_template[3] in cc.
-                            $cc = implode(',', array_filter($cc_array));
-                            
+                            $rm_email=(!empty($rm_details[0]['official_email']) ? $rm_details[0]['official_email'] : "");  
+                            //if we have rm_email id then mail is sent to email_template[3] and rm_email in cc otherwise the mail is sent to email_template[3] in cc.
+                            if(!empty($rm_email)){
+                                $cc = (!empty($email_template[3]) ? $email_template[3] . "," .$rm_email: ""); }
+                            else{
+                                $cc= (!empty($email_template[3]) ? $email_template[3] : ""); } 
                             $bcc = (!empty($email_template[5]) ? $email_template[5] : "");
                             $agent_id = $this->session->userdata('emp_name');
                             $a = "<a href='". base_url()."employee/service_centre_charges/update_misc_charges/".$booking_id."'>Click Here</a>";
