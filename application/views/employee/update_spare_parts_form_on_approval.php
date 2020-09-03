@@ -81,9 +81,9 @@
                                             <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
-                                        <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-                                        <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
-                                        <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        <?php if(!empty($spare_parts_details['invoice_pic'])){ ?>
+                                        <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
+                                        <img src="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                         </a>
                                       <?php } ?>
                                     </div>
@@ -96,13 +96,20 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part In Warranty*</label>
+                                            <label for="part_warranty" class="col-md-4">Part Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
-                                                    <option selected="" disabled="">Select warranty status</option>
-                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
-                                                    <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
-                                                </select>
+                                                <?php if ($spare_parts_details['part_warranty_status'] == 1) { ?>
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                        <option selected="" disabled="">Select warranty status</option>
+                                                        <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
+                                                        <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    </select>
+                                                <?php } else { ?>
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                        <option selected="" disabled="">Select warranty status</option>
+                                                        <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    </select>
+                                                <?php } ?>
                                             </div>                                            
                                         </div>
                                     </div>

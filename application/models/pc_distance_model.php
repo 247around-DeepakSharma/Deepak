@@ -29,7 +29,7 @@ class pc_distance_model extends CI_Model {
             $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
                     . "$city_1,$postcode1,India&destinations=$city_1,$postcode2,India"
                     . "&mode=driving&language=en-EN&sensor=false"
-                    . "&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+                    . "&key=".GOOGLE_MAPS_API_KEY;
 
             $data = file_get_contents($url);
             $result = json_decode($data, true);            
@@ -67,7 +67,7 @@ class pc_distance_model extends CI_Model {
 
             $url1 = "https://maps.googleapis.com/maps/api/geocode/json?address="
                     . "$city_1+$state_1+INDIA"
-                    . "&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+                    . "&key=".GOOGLE_MAPS_API_KEY;
 
             $data1 = file_get_contents($url1);
             $result1 = json_decode($data1, true);            
@@ -81,7 +81,7 @@ class pc_distance_model extends CI_Model {
                 
                 $url2 = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                         . "$lat,$lng"
-                        . "&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+                        . "&key=".GOOGLE_MAPS_API_KEY;
 
                 $data2 = file_get_contents($url2);
                 $result2 = json_decode($data2, true);

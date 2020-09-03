@@ -732,7 +732,7 @@ class Service_centers extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
             if ($upload_file_status) {
@@ -2809,8 +2809,11 @@ class Service_centers extends CI_Controller {
 
         $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
             'permission_type' => SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
+        
+        $access1 = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
+            'permission_type' => OW_SPARE_REQUESTED_ON_APPROVAL, 'is_on' => 1));
 
-        if (!empty($access)) {
+        if (!empty($access) || !empty($access1)) {
             $url = base_url() . 'employee/spare_parts/spare_part_on_approval/' . $spare_id . "/" . $booking_id;
             $fields = array(
                 'remarks' => "Auto Approved",
@@ -7951,7 +7954,7 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['invoice_image']['tmp_name'])) {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
-            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["invoice_image"], "invoice_pic", $allowedExts, $booking_id, "misc-images", "invoice_pic");
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["invoice_image"], "invoice_pic", $allowedExts, $booking_id, "purchase-invoices", "invoice_pic");
             if ($defective_courier_receipt) {
 
                 return true;
