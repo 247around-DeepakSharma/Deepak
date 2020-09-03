@@ -816,11 +816,6 @@
         $('#selectall_challan_file').prop('checked', false); 
         $('#send_all').prop('checked', false); 
         var d_m = $('.check_single_row:checked');
-        var total_lineItmes = $('.checkbox_challan:checked').length;
-         if(total_lineItmes > 30){
-                $("#"+checkBox_id).prop('checked', false);
-                alert('You can not select more than 30.');
-            }
         if (d_m.length > 0) {
             $('.check_single_row').prop('checked', false);
         }
@@ -900,20 +895,52 @@
         }
         
     });
+                
+     $('#selectall_challan_file').on('click', function () {
         
-    $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true)){
-            var total_lineItems = $(".checkbox_challan").length;
-            $(".checkbox_challan").prop('checked', false); 
-            for(i = 1; i <= total_lineItems; i++){
-                if(i <= 30){
-                    $("#download_challan_"+i).prop('checked', true); 
-                }
-            }
-            
-        }else{
-            $(".checkbox_challan").prop('checked', false);
+        if($('#selectall_challan_file').is(':checked') == true){
+            var i = 1;
+            $(".checkbox_challan").each(function(){
+               if(i <= 30){
+                   i++;
+                   $(this).attr("disabled", false);
+                   $(this).prop("checked", true);
+               }else{
+                   $(this).prop("checked", false);
+                   $(this).attr("disabled", true);
+               }
+            });
+        } else {
+            var i = 1;
+            $(".checkbox_challan").each(function(){
+               if(i <= 30){
+                   i++;
+                   $(this).prop("checked", false);
+               }else{
+                   $(this).prop("checked", false);
+                   $(this).attr("disabled", false);
+               }
+            });
         }
+    });
+    
+    $(".checkbox_challan").change(function(){
+        
+        if(($('.checkbox_challan:checked').length) == 30 ){
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", true);
+            });
+        }else{
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", false);
+            });
+        }
+        
+        if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
+              $('#selectall_challan').prop('checked', true);
+         }else{
+           $('#selectall_challan').removeAttr('checked');
+         }
     });
     
      $("#shipped_spare_parts_weight_in_kg").on({
