@@ -144,7 +144,7 @@
                     alert("Reschedule Cancelled Successfully");
                 }
                 else {
-                    alert("Something Went Wrong Please Try Again");
+                    alert("Booking can not be rescheduled.");
                 }
                 location.reload();
             }

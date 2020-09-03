@@ -23,7 +23,7 @@
                             </select>
                         </div>
                         <div class="form-group col-md-4">
-                            <input type="text" class="form-control" id="shipment_daterange" name="shipment_daterange" style="width:100%;" placeholder="Select Date">
+                            <input type="text" class="form-control" id="shipment_daterange" name="shipment_daterange" style="width:100%;" placeholder="Select Invoice Date">
                         </div>
                         <div class="form-group col-md-2">
                             <a class="btn btn-success"  href="javascript:void(0);"  id="download_invoice_data">Download</a><span class="badge" title="download all spare data except requested spare"><i class="fa fa-info"></i></span>

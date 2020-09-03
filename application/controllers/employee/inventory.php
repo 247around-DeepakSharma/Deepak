@@ -1142,10 +1142,10 @@ class Inventory extends CI_Controller {
                         } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
-                            if ($booking_details['current_status'] != _247AROUND_COMPLETED) {
-                                $booking_new_internal_status = SPARE_PARTS_CANCELLED;
+                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
+                                $booking_new_internal_status = array_values($status_string)[0];
                             }
-                            //If defective part / ok part shipped received and booking is not completed rhen do not update status
+                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
@@ -4053,7 +4053,9 @@ class Inventory extends CI_Controller {
         $spareColumn = $this->input->post('spareColumn');
         if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
             $file_dir = "courier-pod";
-        } else if (!empty($this->input->post('directory_name'))) {
+        }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
+            $file_dir = "purchase-invoices";
+        }else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";
@@ -9834,11 +9836,11 @@ class Inventory extends CI_Controller {
         }
         
         if(isset($date_array[0])){
-          $from_date = date("Y-m-d H:i:s", strtotime($date_array[0]));  
+          $from_date = date("Y-m-d", strtotime($date_array[0]));  
         }
         
         if(isset($date_array[1])){
-          $to_date = date("Y-m-d H:i:s", strtotime($date_array[1]));  
+          $to_date = date("Y-m-d", strtotime($date_array[1].  "+1 days"));  
         }
 
         if (!empty($partner_id)) {

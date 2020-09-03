@@ -132,23 +132,10 @@ class Booking extends CI_Controller {
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     
-                    $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    $is_assigned_vendor = $this->booking_model->is_assigned_vendor($status['booking_id']);
                     // Only Send SMS for those bookings, having assigned vendor id not null
-                    if(!empty($city_details) && !empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($is_assigned_vendor))
+                    if(!empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($status['vendor_id']))
                     {
-                        $zone_color = $city_details[0]['zone_color'];
-                        if($zone_color == "Red")
-                        {
-                            $sms['tag'] = "sms_to_redzone_customers";
-                            $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                            $sms['smsData']['appliance'] = $this->input->post('service');
-                            $sms['smsData']['partner'] = $this->input->post('appliance_brand')[0];
-                            $sms['type'] = "user";
-                            $sms['booking_id'] = $status["booking_id"];
-                            $sms['type_id'] = $this->input->post("user_id");    
-                            $this->notify->send_sms_msg91($sms);
-                        }
+                        $this->booking_model->send_red_zone_sms($status["booking_id"],$this->input->post('city'),$this->input->post('service'),$this->input->post('appliance_brand')[0],$this->input->post("user_id"),$this->input->post('booking_primary_contact_no'));
                     }
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -200,6 +187,8 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
+        if(!empty($upcountry_data['vendor_id']))
+            $booking['vendor_id'] = $upcountry_data['vendor_id'];
         // Get Existing Price Tags
         $whereOldPrice['booking_id'] = $booking_id;
         $groupBY  = array('appliance_id');
@@ -2209,6 +2198,12 @@ class Booking extends CI_Controller {
                         }
                         else{
                             $this->session->set_userdata('success', 'Booking saved successfully with Booking Id : '.$status['booking_id']);
+                            
+                            // Only Send SMS for those bookings, having assigned vendor id not null
+                            if(!empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($status['vendor_id']))
+                            {
+                                $this->booking_model->send_red_zone_sms($status["booking_id"],$this->input->post('city'),$this->input->post('service'),$this->input->post('appliance_brand')[0],$status['user_id'],$this->input->post('booking_primary_contact_no'));
+                            }
                         }
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
@@ -2648,8 +2643,7 @@ class Booking extends CI_Controller {
             $booking_file['booking_id'] = $booking_id;
             $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
             $booking_file['file_name'] = $purchase_invoice_file_name;
-            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-            //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
             $booking_file['create_date'] = date("Y-m-d H:i:s");
             $this->booking_model->insert_booking_file($booking_file);
         }
@@ -2900,7 +2894,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -3621,7 +3615,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
