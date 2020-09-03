@@ -50,6 +50,12 @@ if(empty($booking_history[0]['booking_id'])){
         background : #eee !important;
     }    
     <?php } ?>
+    <?php if(!empty($str_disabled) && !empty($booking_history[0]['partner_source'])) { ?>
+    #partner_source{
+        pointer-events : none !important;
+        background : #eee !important;
+    }
+     <?php } ?>
 </style>
 
 <div id="page-wrapper" >
