@@ -45,11 +45,17 @@ if(empty($booking_history[0]['booking_id'])){
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
     <?php } ?>
+    <?php if(!empty($str_disabled) && !empty($booking_history[0]['partner_source'])) { ?>
+    #partner_source{
+        pointer-events : none !important;
+        background : #eee !important;
+    }
+     <?php } ?>
 </style>
 
 <div id="page-wrapper" >
