@@ -3884,6 +3884,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             }
         }
         $data = $this->inventory_model->$temp_function($date_365, '', $where);
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
         if (!empty($data)) {
             foreach ($data as $key => $value) {
 
@@ -3927,8 +3933,35 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 } else {
                     $data[$key]['recommended_30_days'] = 0;
                 }
+
+                if ($icwh == 2) {
+                    if (!empty($data[$key]['rm_id']) && !empty($rm_asm_list_array[$data[$key]['rm_id']])) {
+                        $data[$key]['rm_name'] = $rm_asm_list_array[$data[$key]['rm_id']];
+                    } else {
+                        $data[$key]['rm_name'] = '';
+                    }
+                    if (!empty($data[$key]['asm_id']) && !empty($rm_asm_list_array[$data[$key]['asm_id']])) {
+                        $data[$key]['asm_name'] = $rm_asm_list_array[$data[$key]['asm_id']];
+                    } else {
+                        $data[$key]['asm_name'] = '';
+                    }
+                    $sparepart_sell_report = $this->invoices_model->get_part_sell_amount_last_four_month($value['inventory_id'], $value['warehouse_id']);
+
+                    if (!empty($sparepart_sell_report)) {
+                        $data[$key]['m3_sale_to_sf'] = $sparepart_sell_report[0]['m3_part_sale'];
+                        $data[$key]['m2_sale_to_sf'] = $sparepart_sell_report[0]['m2_part_sale'];
+                        $data[$key]['m1_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                        $data[$key]['m_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                    } else {
+                        $data[$key]['m3_sale_to_sf'] = 0;
+                        $data[$key]['m2_sale_to_sf'] = 0;
+                        $data[$key]['m1_sale_to_sf'] = 0;
+                        $data[$key]['m_sale_to_sf'] = 0;
+                    }
+                }
             }
         }
+
         $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
@@ -3964,6 +3997,21 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $R->render('excel', TMP_FOLDER . $output_file_excel);
 
         system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+        if ($icwh == 2) {
+            $booking_landed_excel = $this->booking_landed();
+            $objPHPExcel1 = PHPExcel_IOFactory::load(TMP_FOLDER . $output_file_excel);
+            $objPHPExcel2 = PHPExcel_IOFactory::load(TMP_FOLDER . $booking_landed_excel);
+            $objPHPExcel1->getActiveSheet()->setTitle("MWH Consumption Report");
+            foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
+                $sheet = $objPHPExcel2->getSheetByName($sheetName);
+                $sheet->setTitle('Bookings Landed');
+                $objPHPExcel1->addExternalSheet($sheet);
+            }
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel2007');
+            $combined_excel = TMP_FOLDER . $output_file_excel;
+            $objWriter->save($combined_excel);
+            unlink(TMP_FOLDER . $booking_landed_excel);
+        }
 
        if(!empty($this->session->userdata('session_id'))) {
         $this->load->helper('download');
@@ -3984,6 +4032,118 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
              unlink(TMP_FOLDER . $output_file_excel);
         }
+
+    }
+    /**
+    * @Desc: This function is to get all micro-warehouse booking landed count last 4 month
+    * @params: none
+    * @return: array
+    * @author Ghanshyam
+    * @date : 02-09-2020
+    */
+    function booking_landed($rm_asm_list_arra=array()){
+        if(empty($rm_asm_list_array)){
+            $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+            $rm_asm_list_array = array();
+            foreach($rm_asm_list as $key => $value){
+                $rm_asm_list_array[$value['id']] = $value['full_name'];
+            }
+        }
+        $template = "booking_landed.xlsx";
+        $data = $this->invoices_model->get_mwh_last_four_month_booking_count();
+        foreach($data as $key => $value){
+            if(!empty($rm_asm_list_array[$value['rm_id']])){
+                $data[$key]['rm_name'] = $rm_asm_list_array[$value['rm_id']];
+            }else{
+                $data[$key]['rm_name'] = '';
+            }
+
+            if(!empty($rm_asm_list_array[$value['asm_id']])){
+                $data[$key]['asm_name'] = $rm_asm_list_array[$value['asm_id']];
+            }else{
+                $data[$key]['asm_name'] = '';
+            }
+        }
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $output_file_excel = "booking_landed_" . date('YmdHis') . ".xlsx";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $data,
+            )
+           )
+        );
+        //ob_end_clean();
+        $res1 = 0;
+        if (file_exists(TMP_FOLDER . $output_file_excel)) {
+
+            system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $this->load->dbutil();
+        $R->render('excel', TMP_FOLDER . $output_file_excel);
+        return $output_file_excel;
+    }
+    /**
+     * @Desc: This function is to get out of warranty revenue report model
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function download_oow_revenue_report(){
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
+        $data = $this->invoices_model->get_oow_revenue_report();
+        $array_to_download=array();
+        $heading = array('Sl. No.','Brand Name','Appliance','SF name','Part Number','Part Description','Last 247 Purchase Price (Without GST)','Last 247 to SF Sale Price (Without GST)','Qty','Amount','RM Name','ASM Name','Date');
+        $sn = 0;
+
+        foreach($data as $key => $value){
+          $array_to_download[$key][] =   ++$sn;
+          $array_to_download[$key][] =   $value['public_name'];
+          $array_to_download[$key][] =   $value['services'];
+          $array_to_download[$key][] =   $value['name'];
+          if(!empty($value['part_number'])){
+          $array_to_download[$key][] =   $value['part_number'];
+          $array_to_download[$key][] =   $value['description'];
+            $array_to_download[$key][] =   $value['price'];
+            $array_to_download[$key][] =   number_format((float) $value['price']+($value['price']*$value['oow_vendor_margin']/100), 2, '.', '');
+          }else{
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['qty'];
+          $array_to_download[$key][] =   $value['taxable_value'];
+          if(!empty($rm_asm_list_array[$value['rm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['rm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          if(!empty($rm_asm_list_array[$value['asm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['asm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['create_date'];
+        }
+         $file_name = "oow_revenue_report_" . date('YmdHis') . ".csv";
+        $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
+
+    }
+
 
 
        }
