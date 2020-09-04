@@ -372,7 +372,7 @@
                     </div>
                 </div>
             </div>
-            <div  class = "panel panel-info">
+            <div  class = "panel panel-info" style="border-bottom:none;">
                 <div class="panel-heading"><b>Registration Details</b></div>
                 <div class="panel-body form-horizontal">
                  <div class="row">
