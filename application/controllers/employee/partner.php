@@ -9374,10 +9374,13 @@ class Partner extends CI_Controller {
                         $data = array(
                             'nrn_approv_by_partner' => 1,
                             'status' => $status,
-                            'consumed_part_status_id' => $spare_consumption_status_tag['id']
+                            'consumed_part_status_id' => $spare_consumption_status_tag['id'],
+                            'defective_part_required' => 1
                         );
 
                     $response = $this->service_centers_model->update_spare_parts($where, $data);
+                     $this->invoice_lib->generate_challan_file($update_pending['id'],$update_pending['service_center_id'], '',true);
+                     //Update Defective required as 1 and Generate challan for Ok parts return spare
 
                 /* Insert Spare Tracking Details */
                 if (!empty($update_pending['id'])) {
