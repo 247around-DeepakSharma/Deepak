@@ -1176,7 +1176,6 @@ function initialise_AM_TAT_reporting(){
     
      function initialise_RM_TAT_reporting(){
         var dvSecond = document.getElementById('admin_dashboard_app_rm');
-         angular.element(document).ready(function() {
          angular.bootstrap(dvSecond, ['admin_dashboard']);
             $('input[id="completed_daterange_id"]').daterangepicker({
               timePicker: true,
@@ -1186,12 +1185,10 @@ function initialise_AM_TAT_reporting(){
              },
              startDate: "<?php echo date("Y-m-d", strtotime("-1 month")); ?>"
             });
-        });
     }
     
     function initiate_RM_Pending_TAT_Reporting(){
         var dvSecond = document.getElementById('admin_dashboard_app_pending_rm');
-        angular.element(document).ready(function() {
         angular.bootstrap(dvSecond, ['admin_dashboard']);
            $('input[id="pending_daterange_id_rm"]').daterangepicker({
            timePicker: true,
@@ -1201,12 +1198,10 @@ function initialise_AM_TAT_reporting(){
            },
            startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
        });
-       });
     }
     
      function initiate_AM_Pending_TAT_Reporting(){
         var dvSecond = document.getElementById('admin_dashboard_app_pending_am');
-        angular.element(document).ready(function() {
         angular.bootstrap(dvSecond, ['admin_dashboard']);
            $('input[id="pending_daterange_id_am"]').daterangepicker({
             timePicker: true,
@@ -1216,7 +1211,6 @@ function initialise_AM_TAT_reporting(){
             },
             startDate: "<?php echo date("Y-m-d", strtotime("-12 month")); ?>"
         });
-       });
     }
     function open_full_view(id,url,is_am,is_pending,form_id,entity_type="",sub_id=""){
       // Add entity_type(ASM/RM/Brand) 
