@@ -2198,12 +2198,6 @@ class Booking extends CI_Controller {
                         }
                         else{
                             $this->session->set_userdata('success', 'Booking saved successfully with Booking Id : '.$status['booking_id']);
-                            
-                            // Only Send SMS for those bookings, having assigned vendor id not null
-                            if(!empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($status['vendor_id']))
-                            {
-                                $this->booking_model->send_red_zone_sms($status["booking_id"],$this->input->post('city'),$this->input->post('service'),$this->input->post('appliance_brand')[0],$status['user_id'],$this->input->post('booking_primary_contact_no'));
-                            }
                         }
                         redirect(base_url() . DEFAULT_SEARCH_PAGE);
                     } else {
