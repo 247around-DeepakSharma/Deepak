@@ -165,7 +165,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <th class="jumbotron no-sort" >Admin Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Remarks</th>
                               <th class="jumbotron no-sort" >Vendor Cancellation Reason</th>
+                              <!--Direct Approval Checkbox not appears in case of Completed/Cancelled Review Tab-->
+                              <?php if(($review_status != "Completed" && $review_status != "Cancelled"  && $review_status != "Completed_By_SF") || !empty($sub_id)){ ?>
                               <th class="jumbotron no-sort" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>" onchange="selectall_checkboxes(this)"/></th>
+                              <?php } ?>
                               <th class="jumbotron no-sort" >Action</th>
                            </tr>
                         </thead>
@@ -278,8 +281,10 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                               <td style="text-align: left;white-space: inherit;font-size:90%">
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
+                              <?php if(($review_status != "Completed" && $review_status != "Cancelled"  && $review_status != "Completed_By_SF") || !empty($sub_id)){ ?>
                               <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo $tab_class;?> <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
                                          <?php if($status == _247AROUND_COMPLETED){?> onchange="is_sn_correct_validation('<?php echo $value['booking_id']?>')"<?php } ?>></input></td>
+                              <?php } ?>
                               <td>
                                  <?php echo "<a class='btn btn-sm btn-primary' style='margin-top:5px;' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -309,12 +314,13 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                            <?php $count++; } ?>
                         </tbody>
                      </table>
+                     <?php if(($review_status != "Completed" && $review_status != "Cancelled"  && $review_status != "Completed_By_SF") || !empty($sub_id)){ ?>
                      <?php if(!empty($charges)){?>
                      <div class="col-md-12">
                         <center><input type="submit" value="Approve Bookings" id="btn-approve-booking" onclick="return checkValidationForBlank_review()" style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success"></center>
                      </div>
-                     <?php } ?>
+                     <?php }} ?>
                        </div>
                </form>
             
