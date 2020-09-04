@@ -2107,6 +2107,36 @@ class Service_centers extends CI_Controller {
 
             if ($affected_row == TRUE) {
                 $spare_id = $this->input->post('spare_id');
+
+                /**
+                 * Update model number in all pending spares.
+                 * @modifiedBy Ankit Rajvanshi
+                 */
+                $other_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $this->input->post('booking_id'), 'spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null' => NULL), TRUE, TRUE, false, array('symptom'=>1));
+                if(empty($other_spare_parts_details)) {
+                    $other_pending_where = array(
+                        'booking_id' => $this->input->post('booking_id'),
+                        'status <> "'._247AROUND_CANCELLED.'"' => NULL,
+                        'id <> '.$this->input->post('spare_id') => NULL,
+                        'parts_shipped is null and shipped_date is null' => NULL
+                    );
+
+                    // set model details for other pending parts.
+                    $other_pending_data = array(
+                        'model_number' => $data['model_number'],
+                        'serial_number' => $data['serial_number'],
+                        'date_of_purchase' => $data['date_of_purchase'],
+                    );
+                    if (!empty($_FILES['serial_number_pic']['name'])) {
+                        $other_pending_data['serial_number_pic'] = $this->input->post('serial_number_pic');
+                    }
+                    if (!empty($_FILES['invoice_image']['name'])) {
+                        $other_pending_data['invoice_pic'] = $this->input->post('invoice_pic');
+                    }
+                    // update data.
+                    $this->service_centers_model->update_spare_parts($other_pending_where, $other_pending_data);
+                }
+                
                 /* Insert Spare Tracking Details */
                 if (!empty($spare_id)) {
                     $tracking_details = array('spare_id' => $spare_id, 'action' => SPARE_PART_UPDATED, 'remarks' => trim($data['remarks_by_sc']), 'agent_id' => $this->session->userdata("id"), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
