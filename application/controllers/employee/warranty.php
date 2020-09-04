@@ -230,17 +230,35 @@ class Warranty extends CI_Controller {
     public function get_warranty_specific_data_from_booking_id()
     {
         $booking_id = $this->input->post('booking_id');
-        $partner_id = $this->input->post('partner_id') != '' ? $this->input->post('partner_id') : NULL;
+        if($this->session->userdata('partner_id')){
+            $partner_id = $this->session->userdata('partner_id');
+        }
         $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings([$booking_id]);
+        
+        // Get Service Name from Service Id
+        if(!empty($arrBookings[0]['service_id'])){
+            $arr_service = $this->reusable_model->get_search_result_data("services","services",array("id"=>  stripslashes($arrBookings[0]['service_id'])),NULL,NULL,NULL,NULL,NULL,array());        
+            $service = !empty($arr_service[0]['services']) ? $arr_service[0]['services'] : "";
+            $arrBookings[0]['service'] = $service;
+        }
+        // Get Model Id from Number
         if(!empty($arrBookings[0]['model_number'])){
             $arr_model = $this->reusable_model->get_search_result_data("appliance_model_details","id",array("model_number"=>  stripslashes($arrBookings[0]['model_number']), "active" => 1),NULL,NULL,NULL,NULL,NULL,array());        
             $model_id = !empty($arr_model[0]['id']) ? $arr_model[0]['id'] : "";
             $arrBookings[0]['model_id'] = $model_id;
         }
-        if($partner_id !== NULL && !empty($arrBookings) && $arrBookings[0]['partner_id'] != $partner_id){
+        // Change Purchase Date Format to d-m-Y
+        if(!empty($arrBookings[0]['purchase_date'])){
+            $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrBookings[0]['purchase_date']));
+        }
+        // Change Booking Date Format to d-m-Y
+        if(!empty($arrBookings[0]['booking_create_date'])){
+            $arrBookings[0]['booking_create_date'] = date("d-m-Y", strtotime($arrBookings[0]['booking_create_date']));
+        }
+        if(!empty($partner_id) && !empty($arrBookings) && $arrBookings[0]['partner_id'] != $partner_id){
            $arrBookings = array('error'=>1,'err_msg'=>'Invalid Booking Id!');
         }
-       echo json_encode($arrBookings);
+        echo json_encode($arrBookings);
     }
 
     /**
