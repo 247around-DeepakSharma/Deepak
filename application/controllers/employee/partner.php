@@ -8114,7 +8114,7 @@ class Partner extends CI_Controller {
         
         $channel = $this->input->post('channel');
         $fetch_data = $this->partner_model->get_channels($select, $where);
-        $html = '<option value="">Please select seller channel</option>';
+        $html = '<option value="" selected disabled>Please select seller channel</option>';
         foreach ($fetch_data as $key => $value) {
            $html .= '<option ';
            if($channel ==$value['channel_name'] ){
