@@ -1297,7 +1297,7 @@ class Notify {
     $sms['smsData']['cdate'] = date("d-M-Y");
     $sms['smsData']['ctime'] = date("h:i:s A"); // New Templet data 
     $sms['smsData']['partner'] = $whatsapp_array['partner'];
-    $smsBody = vsprintf($template, $sms['smsData']);
+    $smsBody = vsprintf($template['template'], $sms['smsData']);
 
     $payloadName = '{
        "channel": "'.API_KARIX_CHANNEL.'",
