@@ -29,6 +29,12 @@ $str_disabled = ($is_spare_requested || $is_partner_invoiced) ? "pointer-events:
         background : #eee !important;
     }    
     <?php } ?>
+    <?php if(!empty($str_disabled) && !empty($booking_history[0]['partner_source'])) { ?>
+    #partner_source{
+        pointer-events : none !important;
+        background : #eee !important;
+    }
+     <?php } ?>
 </style>
 <?php
     if(!$is_repeat){
