@@ -360,9 +360,9 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                     $('#model').val(warrantyData[0]['model_id']);
                 }
                 // Auto fill Booking DOP 
-                $('#purchase_date').datepicker({'setDate' : warrantyData[0]['purchase_date'], 'dateFormat' : 'dd-mm-yy'}); 
+                $('#purchase_date').datepicker("setDate" , warrantyData[0]['purchase_date']); 
                 // Auto fill Booking Date 
-                $('#create_date').datepicker({'setDate' : warrantyData[0]['booking_create_date'], 'dateFormat' : 'dd-mm-yy'}); 
+                $('#create_date').datepicker("setDate" , warrantyData[0]['booking_create_date']);  
             },
             error: function (jqXHR, exception) {
                 $("#loadring").hide();
