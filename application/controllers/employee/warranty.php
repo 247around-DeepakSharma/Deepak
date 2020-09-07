@@ -247,16 +247,8 @@ class Warranty extends CI_Controller {
             $model_id = !empty($arr_model[0]['id']) ? $arr_model[0]['id'] : "";
             $arrBookings[0]['model_id'] = $model_id;
         }
-        // Change Purchase Date Format to d-m-Y
-        if(!empty($arrBookings[0]['purchase_date'])){
-            $arrBookings[0]['purchase_date'] = date("d-m-Y", strtotime($arrBookings[0]['purchase_date']));
-        }
-        // Change Booking Date Format to d-m-Y
-        if(!empty($arrBookings[0]['booking_create_date'])){
-            $arrBookings[0]['booking_create_date'] = date("d-m-Y", strtotime($arrBookings[0]['booking_create_date']));
-        }
-        if(!empty($partner_id) && !empty($arrBookings) && $arrBookings[0]['partner_id'] != $partner_id){
-           $arrBookings = array('error'=>1,'err_msg'=>'Invalid Booking Id!');
+        if((!empty($partner_id) && $arrBookings[0]['partner_id'] != $partner_id) || empty($arrBookings)){
+           $arrBookings = array('error'=>1,'err_msg'=>'Booking Not Found.');
         }
         echo json_encode($arrBookings);
     }
