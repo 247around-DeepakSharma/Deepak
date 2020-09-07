@@ -8368,7 +8368,9 @@ class Service_centers extends CI_Controller {
                 MSL,
                 MSL_SECURITY_AMOUNT,
                 MSL_NEW_PART_RETURN,
-                MSL_DEFECTIVE_RETURN
+                MSL_DEFECTIVE_RETURN,
+                MSL_Debit_Note,
+                MSL_Credit_Note
             )
                 ), NULL, array()
         );
@@ -8377,9 +8379,9 @@ class Service_centers extends CI_Controller {
         foreach ($mslSecurityData as $row) {
             if (!empty($row['sub_category']) && $row['sub_category'] == MSL_SECURITY_AMOUNT) {
                 $mslSecurityAmount += floatval($row['amount']);
-            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN)) {
+            } else if (!empty($row['sub_category']) && ($row['sub_category'] == MSL_DEFECTIVE_RETURN || $row['sub_category'] == MSL_NEW_PART_RETURN || $row['sub_category'] == MSL_Credit_Note)) {
                 $mslAmount -= floatval($row['amount']);
-            } else if ($row['sub_category'] == MSL) {
+            } else if ($row['sub_category'] == MSL || $row['sub_category'] == MSL_Debit_Note) {
                 $mslAmount += floatval($row['amount']);
             }
         }

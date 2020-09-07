@@ -3560,7 +3560,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'", "'.FNF.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
@@ -3580,7 +3580,7 @@ exit();
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, MSL_Credit_Note , MSL_Debit_Note ,IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -7059,7 +7059,7 @@ exit();
         
         $percentage_oow_vs_iw = $this->get_sum_array_index_wise($sf_invoice_total_booking, $select_total_partner_invoice_booking, 3);
         
-        $spare_part_brand_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, "sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."')" => NULL
+        $spare_part_brand_invoice_details = $this->invoices_model->get_invoices_details(array('invoice_date > "'.$sdate.'" ' =>NULL, 'invoice_date < "'.$edate.'"'=>NULL, 'vendor_partner' => _247AROUND_PARTNER_STRING, "sub_category in('".MSL_NEW_PART_RETURN."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."')" => NULL
             , "amount_collected_paid > 0" => NULL ), "YEAR(invoice_date) AS year, MONTH(invoice_date) AS month, DATE_FORMAT(invoice_date, '%M-%Y') as invoice_month, sum(total_amount_collected - igst_tax_amount - cgst_tax_amount - sgst_tax_amount) as '1', sum(parts_count) as '2'", array('year', 'month'));
         
         if(empty($spare_part_brand_invoice_details)){
@@ -7072,7 +7072,7 @@ exit();
         
         
         $select_total_spare_brand_invoice_details = "select YEAR(vpi.invoice_date) AS year, MONTH(vpi.invoice_date) AS month, count(distinct(il.booking_id)) as '1', DATE_FORMAT(vpi.invoice_date, '%M-%Y') as invoice_month from vendor_partner_invoices as vpi, inventory_ledger as il where vpi.invoice_id = il.invoice_id"
-                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_PARTNER_STRING."' and vpi.sub_category in('".MSL_NEW_PART_RETURN."', '".OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."') and amount_collected_paid > 0 GROUP BY `year`, `month`";
+                                           . " and vpi.invoice_date > '".$sdate."' and vpi.invoice_date < '".$edate."' and vendor_partner = '"._247AROUND_PARTNER_STRING."' and vpi.sub_category in('".MSL_NEW_PART_RETURN."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .OOW_NEW_PART_RETURN."', '".MSL_DEFECTIVE_RETURN."') and amount_collected_paid > 0 GROUP BY `year`, `month`";
         $spare_part_brand_invoice_call_details = $this->invoices_model->execute_query($select_total_spare_brand_invoice_details);
         if(empty($spare_part_brand_invoice_call_details)){
             //If we get no response from query, then set response to empty array 
