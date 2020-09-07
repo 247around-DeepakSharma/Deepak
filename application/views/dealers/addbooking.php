@@ -943,9 +943,10 @@
   }
     
     function send_post_request(){
-       
+        appliance_name = $("#service_id").find(':selected').attr('data-id');
         var fd = new FormData(document.getElementById("booking_form"));
         fd.append("label", "WEBUPLOAD");
+        fd.append("appliance_name",appliance_name);
           $.ajax({
                 type:"POST",
                 url: "<?php echo base_url()?>dealers/process_addbooking",

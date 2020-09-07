@@ -1563,16 +1563,33 @@ function  getPartnerCompareTAT(){
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    $curl_response = json_decode(curl_exec($ch));
+                    $curl_response = json_decode(curl_exec($ch),TRUE);
                     curl_close($ch);
-                    $return_data['eraned_details'] = $this->service_centers_model->get_sc_earned($vendor);
-                    $return_data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
+                    $arr['eraned_details'] = $this->service_centers_model->get_sc_earned($vendor);
+                    $m1 =  $arr['eraned_details'][0][0];
+                    $m2 =  $arr['eraned_details'][1][0];
+                    $m3 =  $arr['eraned_details'][2][0];
+   
+                    $return_data['earned_details']['m1'] = array('total_booking'=>$m1['total_booking'],'month'=>date('Y-m-d'),'earned'=>$m1['earned']);
+                    $return_data['earned_details']['m2'] = array('total_booking'=>$m2['total_booking'],'month'=>$m2['month'],'earned'=>$m2['earned']);
+                    $return_data['earned_details']['m3'] = array('total_booking'=>$m3['total_booking'],'month'=>$m3['month'],'earned'=>$m3['earned']);
+                    
+                    $cancel['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
+                    
+                    $m11 =  $cancel['cancel_booking'][0][0];
+                    $m22 =  $cancel['cancel_booking'][1][0];
+                    $m33 =  $cancel['cancel_booking'][2][0];
+   
+                    $return_data['cancel_booking']['m1'] = array('cancel_booking'=>$m11['cancel_booking'],'month'=>date('Y-m-d'),'lose_amount'=>$m11['lose_amount']);
+                    $return_data['cancel_booking']['m2'] = array('cancel_booking'=>$m22['cancel_booking'],'month'=>$m22['month'],'lose_amount'=>$m22['lose_amount']);
+                    $return_data['cancel_booking']['m3'] = array('cancel_booking'=>$m33['cancel_booking'],'month'=>$m33['month'],'lose_amount'=>$m33['lose_amount']);
+                    
                     $return_data['request_type'] = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
                     if(!empty($curl_response)){ 
-                     $return_data['D0'][]  = array('percent'=>$curl_response->TAT_0_per,'count'=>$curl_response->TAT_0)  ;
-                     $return_data['D1'][]  = array('percent'=>$curl_response->TAT_1_per,'count'=>$curl_response->TAT_1)  ;
-                     $return_data['D2'][] = array('percent'=>$curl_response->TAT_2_per,'count'=>$curl_response->TAT_2)  ;
-                     $return_data['D4'][]  = array('percent'=>$curl_response->TAT_3_per,'count'=>$curl_response->TAT_3)  ;
+                     $return_data['D0'][]  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
+                     $return_data['D1'][]  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
+                     $return_data['D2'][] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
+                     $return_data['D4'][]  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response['TAT_3'])  ;
 
                     }else{
                      $return_data['D0'][]  = array()  ;
@@ -1583,7 +1600,7 @@ function  getPartnerCompareTAT(){
                         
                     }
                   //  $return_data = array_push($return_data,)
-                    $this->jsonResponseString['response'] = $curl_response;
+                    $this->jsonResponseString['response'] = $return_data;
                     $this->sendJsonResponse(array('0000', "Data found successfully"));
                
         } else {
