@@ -559,7 +559,9 @@ class Spare_parts extends CI_Controller {
         
         if(!empty($post['where']) && $post['where']['status'] == DEFECTIVE_PARTS_PENDING) {
             unset($post['where']['status']);
-            $post['where']['status in ("'.DEFECTIVE_PARTS_PENDING.'","'.OK_PART_TO_BE_SHIPPED.'","'.DAMAGE_PART_TO_BE_SHIPPED.'")'] = NULL;
+
+            $where_clause = $this->check_where_condition($post);
+            $post['where'] = $where_clause['where'];
         }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
@@ -4725,7 +4727,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
-         if (empty($post['search']['value'])) {
+        if (empty($post['search']['value'])) {
             if ($this->session->userdata("user_group") == _247AROUND_RM) {
                 $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
                 $post['where']['(spare_parts_details.defective_part_shipped_date IS NULL OR (spare_parts_details.defective_part_shipped_date IS NOT NULL AND spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '" )))'] = NULL;
