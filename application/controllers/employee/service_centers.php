@@ -1985,8 +1985,8 @@ class Service_centers extends CI_Controller {
                     $data['quantity'] = $value['quantity'];
                 }
 
-                if(isset($value['defect_pic']) && !empty($valur['defect_pic'])){
-                    $data['defect_pic'] = $value['defect_pic'];
+                if(isset($value['defect_pic']) && !empty($value['defect_pic'])){
+                        $data['defect_pic'] = $value['defect_pic'];
                 }
 
                 if(isset($value['symptom']) && !empty($value['symptom'])){
