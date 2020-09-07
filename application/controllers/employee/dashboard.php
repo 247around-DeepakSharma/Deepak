@@ -2112,11 +2112,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $conditionArray['where_in']['booking_details.actor'] = explode(":",$status);
             }
             
-            if($status !="not_set"){
+            if($state !="not_set"){
                 $conditionArray['where']['booking_details.state'] = $state;
             }
             
-            if($status !="not_set"){
+            if($city !="not_set"){
                 $conditionArray['where']['booking_details.district'] = $city;
             }
             
