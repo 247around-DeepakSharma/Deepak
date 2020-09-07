@@ -776,7 +776,8 @@
                 swal("Error !", "Same part type can not be shipped.For multiple part please fill quantity.");
  
             }else{
-
+                
+            if(!$('#courier_not_shipping').is(":checked")){
                 let kg = $("#defective_parts_shipped_weight_in_kg").val();
                 let gm = $("#defective_parts_shipped_weight_in_gram").val();
                 let total = parseInt(kg)+parseInt(gm);
@@ -785,7 +786,10 @@
                 }else{
                 form.submit();   
                 }
-            }    
+            }else{
+               form.submit(); 
+            } 
+                }
 
                 }
             });
@@ -1247,15 +1251,15 @@
         }
         
         $("#courier_not_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', false);
         });
         
         $("#to_be_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_name").on('change',function(){
