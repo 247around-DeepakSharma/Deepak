@@ -5071,6 +5071,15 @@ class Service_centers extends CI_Controller {
         log_message('info', __METHOD__ . $this->session->userdata('service_center_id'));
         $data = $this->reusable_model->get_search_result_data("service_centres", "id as service_center_id,company_name,address as company_address,pan_no as company_pan_number"
                 . ",is_gst_doc as is_gst,gst_no as company_gst_number,gst_file as gst_certificate_file,signature_file", array("id" => $this->session->userdata('service_center_id')), NULL, NULL, NULL, NULL, NULL, array());
+        $select = "stamp_file";
+        $where['vendor_id'] = $this->session->userdata('service_center_id');
+        $where['status'] = 1;
+        $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
+        if(!empty($stamp_file)){
+            $data[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
+        }else{
+            $data[0]['stamp_file'] =='';
+        }
         if ($data[0]['is_gst'] == 1 && !empty($data[0]['gst_certificate_file'])) {
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/gst_details_view', $data[0]);
