@@ -98,14 +98,14 @@
         });
     });
     
-    function outbound_call(phone_number){
+    function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
     
         if (confirm_call == true) {
     
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                 }
             });
