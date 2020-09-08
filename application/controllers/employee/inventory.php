@@ -8664,10 +8664,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $response['reason'] = implode('<br>', array_filter($cancellation_reason));
         echo json_encode($response);
     }
-    
-    function get_spare_delivered_status($booking_id){
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
-        if(!empty($spare)){
+
+    function get_spare_delivered_status($booking_id) {
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
+        if (!empty($spare)) {
             echo json_encode($spare);
         } else {
             echo json_encode(array("Not Exist"));
