@@ -5696,7 +5696,7 @@ class Booking extends CI_Controller {
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-            $post['join']['employee as employee_am'] = "agent_filters.entity_id = employee_am.id";
+            $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
             $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";         
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
