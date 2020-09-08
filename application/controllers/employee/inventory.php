@@ -8701,7 +8701,7 @@ class Inventory extends CI_Controller {
     }
 
     function get_spare_delivered_status($booking_id) {
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
         if (!empty($spare)) {
             echo json_encode($spare);
         } else {
