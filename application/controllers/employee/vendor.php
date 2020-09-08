@@ -374,6 +374,9 @@ class vendor extends CI_Controller {
                 if(!empty($this->input->post('signature_file'))){
                     $vendor_data['signature_file'] = $this->input->post('signature_file');
                 }  
+                if(!empty($this->input->post('stamp_file'))){
+                    $vendor_data['stamp_file'] = $this->input->post('stamp_file');
+                }  
                 if(!empty($this->input->post('non_working_days'))){
                     $vendor_data['non_working_days'] = $this->input->post('non_working_days');
                 } 
@@ -609,6 +612,8 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details[0]['min_upcountry_distance'] . '</li>';
         $html .= "<li><b>" . 'Signature File' . '</b> =>';
         $html .= " " . $updated_vendor_details[0]['signature_file'] . '</li>';
+        $html .= "<li><b>" . 'Stamp File' . '</b> =>';
+        $html .= " " . $updated_vendor_details[0]['stamp_file'] . '</li>';
         $html .= "</ul>";
         
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
@@ -657,6 +662,9 @@ class vendor extends CI_Controller {
         }
         if (!empty($updated_vendor_details[0]['signature_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['signature_file'], 'attachment');
+        }
+         if (!empty($updated_vendor_details[0]['stamp_file'])) {
+            $this->email->attach($s3_url . $updated_vendor_details[0]['stamp_file'], 'attachment');
         }
         if (!empty($updated_vendor_details[0]['address_proof_file'])) {
             $this->email->attach($s3_url . $updated_vendor_details[0]['address_proof_file'], 'attachment');
@@ -772,7 +780,15 @@ class vendor extends CI_Controller {
         $results['select_state'] = $this->vendor_model->get_allstates();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
-
+        $select = "stamp_file";
+        $where['vendor_id'] = $id;
+        $where['status'] = 1;
+        $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
+        if(!empty($stamp_file)){
+            $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
+        }else{
+            $query[0]['stamp_file'] =='';
+        }
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
         $brands = $this->vendor_model->get_mapped_brands($id);
@@ -5618,12 +5634,12 @@ class vendor extends CI_Controller {
             }
         }
     }
-    
-    function save_vendor_documents(){
 
+        function save_vendor_documents(){
             $this->checkUserSession();
             $vendor = [];
             $data = $this->input->post();
+           //echo "<pre>"; print_r($data); die;
             $vendorArray = $this->reusable_model->get_search_result_data("service_centres", "name", array("id"=>$data['id']), NULL, NULL, NULL, NULL, NULL, array());
             $_POST['name'] = $vendorArray[0]['name'];
             //Start  Processing PAN File Upload
@@ -5740,6 +5756,7 @@ class vendor extends CI_Controller {
                     //return FALSE;
                 }
             }
+   
             if(!isset($_POST['is_pan_doc'])){
                 $_POST['is_pan_doc'] = 1;
             }
@@ -5808,14 +5825,33 @@ class vendor extends CI_Controller {
                     $vendor_data_miscellaneous['status'] = 1;
                     $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
                 }
+                $attachment_stamp = $this->upload_stamp_file($data);
+               // print_r($attachment_signature);
+                if($attachment_stamp){
+                } else {
+                    
+                    //return FALSE;
+                }
+            }
+                //$data['vendor_id'] = $this->input->post('id');
+                $data_miscelleneous['stamp_file'] = $attachment_stamp;
+                $data_miscelleneous['status'] = 0;
+                $where_miscellaneous['vendor_id'] = $this->input->post('id');
+                $where_miscellaneous['status'] =1;
+                $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
+             //print_r($attachment_stamp); die;   
+                $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
+                $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
+                $vendor_data_miscellaneous['status'] = 1;
+                $this->vendor_model->sf_insert_miscellaneous($vendor_data_miscellaneous);
                 $this->notify->insert_state_change('', NEW_SF_DOCUMENTS, NEW_SF_DOCUMENTS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
                
                 $this->session->set_userdata('vendor_added', 'Vendor Documents Has been updated Successfully , Please Fill other details');
-                $this->session->set_userdata('current_tab', 2);
+                // $this->session->set_usergdata('current_tab', 2);
                 redirect(base_url() . 'employee/vendor/editvendor/'.$data['id']);
             } 
-    }
+    
        //save brand details 
     function save_vendor_brand_mapping(){
         $this->checkUserSession();
@@ -6475,6 +6511,31 @@ class vendor extends CI_Controller {
         echo true;
     }
 
+     function signature_file(){
+         //   if (!empty($_POST["image"])){
+            $signature_file = $_POST["image"];
+            $image_array_1 = explode(";", $signature_file);
+            $image_array_2 = explode(",", $image_array_1[1]);
+            $signature_file = base64_decode($image_array_2[1]);
+            $filename='signature'.time().'.png';
+            $imageName = TMP_FOLDER.$filename;
+            file_put_contents($imageName, $signature_file);
+            echo json_encode(array('filename' => $filename));          
+         // }
+        }
+        function stamp_file(){
+         //   if (!empty($_POST["image"])){
+            $stamp_file = $_POST["image"];
+            $image_stamp_array_1 = explode(";", $stamp_file);
+            $image_stamp_array_2 = explode(",", $image_stamp_array_1[1]);
+            $stamp_file = base64_decode($image_stamp_array_2[1]);
+            $filename='stamp'.time().'.png';
+            $imageName = TMP_FOLDER.$filename;
+            file_put_contents($imageName, $stamp_file);
+            echo json_encode(array('filename' => $filename));          
+         // }
+        }
+
         
     /**
     * This function is used to check basic validation that if a booking can be re-assigned or not
@@ -6549,16 +6610,5 @@ class vendor extends CI_Controller {
         $data['records'] = $this->vendor_model->viewallvendor($post, 'service_centres.*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/unapproved_sf_list', $data);
-    }
-
-    function signature_file(){
-        $signature_file = $_POST["image"];
-        $image_array_1 = explode(";", $signature_file);
-        $image_array_2 = explode(",", $image_array_1[1]);
-        $signature_file = base64_decode($image_array_2[1]);
-        $filename='signature'.time().'.png';
-        $imageName = TMP_FOLDER.$filename;
-        file_put_contents($imageName, $signature_file);
-        echo json_encode(array('filename' => $filename));
     }
 }
