@@ -933,8 +933,9 @@ class User_invoice extends CI_Controller {
 //        }
 
             if (!empty($vendor_invoice_data)) {
-                $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
-                $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, "Debit Note", $invoice_date);
+
+                $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN", $invoice_date);
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, DEBIT_NOTE, $invoice_date);
                 $response['meta']['invoice_id'] = $vendor_invoice_id;
                 $response['meta']['reference_number'] = $booking_id;
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
@@ -988,7 +989,7 @@ class User_invoice extends CI_Controller {
 
 
                     $this->invoice_lib->insert_invoice_breackup($response);
-                    $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
+                    $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", DEBIT_NOTE, "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
                     $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
                     if ($last_invoice_id) {
                         $i = 0;
@@ -998,7 +999,7 @@ class User_invoice extends CI_Controller {
                                 "entity_id" => $booking_data[0]['assigned_vendor_id'],
                                 "booking_id" => $booking_id,
                                 "booking_unit_id" => $value->booking_unit_ids,
-                                "invoice_type" => "Debit Note",
+                                "invoice_type" => DEBIT_NOTE,
                                 "invoice_id" => $vendor_invoice_id,
                                 "reference_invoice_id" => $vendor_reference_invoice[$i]
                             );
@@ -1126,7 +1127,7 @@ class User_invoice extends CI_Controller {
                                     if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
 
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']. " - ".$value['part_name'] . "Reference Invoice ID " . $value['incoming_invoice_id'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']. " - ".$value['part_name'] . " Reference Invoice ID " . $value['incoming_invoice_id'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate']*$value['qty'];
         //                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
@@ -1390,18 +1391,18 @@ class User_invoice extends CI_Controller {
                 'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
             );
             $this->table->set_template($template1);
-            $this->table->set_heading(array('Part Name', 'Reference Invoice ID', 'Qty'));
+            $this->table->set_heading(array('Part Name', 'Part Number', 'Reference Invoice ID', 'Qty'));
 
             $invoice = array();
 
             foreach ($invoiceValue['data'] as $key1 => $value) {
                 $invoiceValue['data'][$key1]['booking_id'] = '';
-                $this->table->add_row($value['part_name'], $value['incoming_invoice_id'], $value['qty']);
+                $this->table->add_row($value['part_name'], $value['part_number'], $value['incoming_invoice_id'], $value['qty']);
 
                 if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
 
-                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']." - ". $value['part_name'] . "Reference Invoice ID " . $value['incoming_invoice_id'];
+                    $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']." - ". $value['part_name'] . " Reference Invoice ID " . $value['incoming_invoice_id'];
                     $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate']*$value['qty'];
 //                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                     $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
@@ -1842,8 +1843,206 @@ class User_invoice extends CI_Controller {
                 }
             }
             echo $result;
-        } else {
+        }
+        else{
             echo false;
+        }
+    }
+    
+    
+        
+    /*
+     * @desc: This function is used to settle stock & msl invoices when sf used msl for OW / Personal use.
+     * @param: void
+     * @return: boolean
+     */
+
+    function process_consumed_msl_ow() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $return_data = $this->input->post();
+        if ($return_data['wh_type'] == 2) {
+            $wh_id = $this->input->post('warehouse_id');
+            $postData = json_decode($return_data['inventory_data'], TRUE);
+
+            foreach ($postData as $key => $value) {
+                $postData[$key]['booking_partner_id'] = $wh_id;
+            }
+
+            $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
+                    . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("id" => $wh_id));
+
+            $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
+
+            if (!empty($invoiceData['processData'])) {
+
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                );
+                $this->table->set_template($template1);
+                $this->table->set_heading(array('Part Name', 'Part Number', 'Reference Invoice ID', 'Qty'));
+
+                foreach ($invoiceData['processData'] as $key => $invoiceValue) {
+                    $invoice = array();
+                    foreach ($invoiceValue['data'] as $key1 => $value) {
+                        $invoiceValue['data'][$key1]['booking_id'] = '';
+                        $this->table->add_row($value['part_name'], $value['part_number'], $value['incoming_invoice_id'], $value['qty']);
+                        if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
+
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number'] . " - " . $value['part_name'] . " Reference Invoice ID " . $value['incoming_invoice_id'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'] * $value['qty'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = (!empty($entity_details[0]['gst_number']) ? $entity_details[0]['gst_number'] : ''); //$value['to_gst_number'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['main_gst_number'] = $value['from_gst_number'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $entity_details[0]['company_address'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $entity_details[0]['district'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $entity_details[0]['pincode'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $entity_details[0]['state'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty']; //1;
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['hsn_code'] = $value['hsn_code'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['inventory_id'] = $value['inventory_id'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['partner_id'] = $value['booking_partner_id'];
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
+                        } else {
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty']; //1;
+                            if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
+                            } else {
+                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
+                            }
+
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
+                        }
+                    }
+
+                    $invoices = array_values($invoice);
+                    unset($invoice);
+
+                    $p = $this->table->generate();
+
+                    $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $invoices[0]['to_gst_number_id']));
+
+                    $receiver_state = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
+
+                    if (strcasecmp($invoices[0]['state'], $receiver_state) == 0) {
+                        $invoices[0]['c_s_gst'] = TRUE;
+                    } else {
+                        $invoices[0]['c_s_gst'] = FALSE;
+                    }
+
+                    $res = $this->_process_consumed_msl_ow($wh_id, $invoices, CREDIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
+
+                    $invoice_id = $res['invoice_id'];
+
+                    $this->_process_consumed_msl_ow($wh_id, $invoices, DEBIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
+
+                    foreach ($invoiceValue['mapping'] as $m) {
+                        $m['outgoing_invoice_id'] = $invoice_id;
+                        $this->invoices_model->insert_inventory_invoice($m);
+                    }
+
+                    if (!empty($invoices) && $return_data['invoice_type'] == 3) {
+                        foreach ($invoices as $value) {
+                            if (!empty($value['inventory_id'])) {
+                                $stock = "stock - '" . $value['quantity'] . "'";
+                                $where = array('inventory_stocks.entity_id' => $wh_id, 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, 'inventory_stocks.inventory_id' => $value['inventory_id']);
+                                $update_stocks = $this->inventory_model->update_inventory_stock($where, $stock);
+
+                                if ($update_stocks) {
+                                    $insert_data = array("warehouse_id" => $value['warehouse_id'], "inventory_id" => $value['inventory_id'],
+                                        "quantity" => $value['quantity'], 'agent_id' => $this->session->userdata('id'));
+                                    $this->inventory_model->insert_into_non_returnable_consumed_parts($insert_data);
+                                }
+                            }
+                        }
+                    }
+                }
+                echo json_encode(array('status' => true, 'message' => SUCESS_MESSAGE_PARTS_CONSUMED_OW));
+            } else {
+                echo json_encode(array('status' => false, 'message' => FAILURE_MESSAGE_UNSETTLE_INVENTORY_NOT_EXIST));
+            }
+        } else {
+            echo json_encode(array('status' => false, 'message' => FAILURE_MESSAGE_PARTS_CONSUMED_OW));
+        }
+    }
+    /**
+     * @desc This function is used to create Credit & Debit Note when sf used msl parts for personal/ OW.
+     * @param int $wh_id
+     * @param Array $invoices
+     * @param String $invoice_type
+     * @param Integer $owner_phone
+     * @param Array $invoiceValue
+     * @return Array
+     */
+
+    function _process_consumed_msl_ow($wh_id, $invoices, $invoice_type, $owner_phone, $invoiceValue, $around_gst, $receiver_state) {
+
+        if ($invoice_type == CREDIT_NOTE) {
+            $invoice_id = $this->invoice_lib->create_invoice_id('ARD-CN');
+            $sub_category = MSL_Credit_Note;
+            $type_code ='B';
+        } else {
+            $invoice_id = $this->invoice_lib->create_invoice_id('ARD-DN');
+            $sub_category = OUT_OF_WARRANTY;
+            $type_code ='A';
+        }
+        $sd = $ed = $invoice_date = date('Y-m-d');
+
+        $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, $invoice_type, $invoice_date);
+        
+        $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
+        $response['meta']['third_party_entity_id'] = $this->input->post('partner_id');
+        $response['meta']['main_company_state'] = $receiver_state;
+        $response['meta']['main_company_address'] = $around_gst[0]['address'] . ", " 
+                    . $around_gst[0]['city'] . ", " . $response['meta']['main_company_state'] . ", Pincode: "
+                    . $around_gst[0]['pincode'];
+        $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
+        $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
+        $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
+                
+        $response['meta']['invoice_id'] = $invoice_id;
+        $response['meta']['accounting'] = 1;
+        $response['meta']["vertical"] = SERVICE;
+        $response['meta']["category"] = SPARES;
+        $response['meta']["sub_category"] = $sub_category;
+
+        $response['meta']['owner_phone_1'] = $owner_phone;
+        $response['meta']['due_date'] = $response['meta']['invoice_date'];
+        $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
+
+        $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+        if ($status) {
+
+            $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+            $output_file_main = $convert['main_pdf_file_name'];
+            $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+            $template = "247around_inventory_invoice_annexure-v1.xlsx";
+
+            unset($response['meta']['main_company_logo_cell']);
+            unset($response['meta']['main_company_seal_cell']);
+            unset($response['meta']['main_company_sign_cell']);
+
+            $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
+            $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue, TMP_FOLDER . $output_file);
+            $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
+
+            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, $type_code, $invoice_type, "vendor", $wh_id, $convert, $this->session->userdata('id'));
+
+            $this->invoices_model->insert_new_invoice($invoice_details);
+
+            $this->invoice_lib->insert_def_invoice_breakup($response, 1);
+
+            unlink(TMP_FOLDER . $output_file);
+            unlink(TMP_FOLDER . $output_file_main);
+            unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . "copy_" . $output_file_main);
+            
+            return array('invoice_id' => $invoice_id, "output_file" => $pdf_attachement);
         }
     }
 }

@@ -283,14 +283,14 @@ class Paytm_gateway extends CI_Controller {
         $payer_name = '';
         if(!empty($partner_id)){
             //$partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
-            $partner_details = $this->partner_model->getpartner_data("public_name,owner_email,primary_contact_email,group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+            $partner_details = $this->partner_model->getpartner_data("public_name,owner_email,invoice_email_to, primary_contact_email,group_concat(distinct agent_filters.agent_id) as account_manager_id", 
                         array('partners.id' => $partner_id),"",0,1,1,"partners.id");
             if (!empty($partner_details[0]['account_manager_id'])) {
                 //$am_email = $this->employee_model->getemployeefromid($partner_details[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($partner_details[0]['account_manager_id'])[0]['official_email'];
             }
             
-            $partner_email = $partner_details[0]['owner_email'];
+            $partner_email = $partner_details[0]['owner_email']. ", ". $partner_details[0]['invoice_email_to'];
             $payer_name = $partner_details[0]['public_name'];
         }else{
             $update_payment_link_details = $this->booking_model->update_payment_link_details($this->session->userdata('payment_link_id'),array('status' => 1));
@@ -320,7 +320,7 @@ class Paytm_gateway extends CI_Controller {
         
         if($this->session->userdata('user_email')){
             $to = $this->session->userdata('user_email');
-        }else if(!empty ($partner_id)){
+        }else if(!empty ($partner_email)){
             $to = $partner_email;
         }else{
             $to = NITS_ANUJ_EMAIL_ID;

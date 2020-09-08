@@ -3881,5 +3881,147 @@ class Inventory_model extends CI_Model {
     }
         
     
-   
+     /**
+     * @desc This is used to insert details into Courier Serviceable area table
+     * @param Array $data
+     * @return string
+     */
+    function insert_courier_serviceable_area_details_batch($data){
+        $this->db->insert_ignore_duplicate_batch('courier_serviceable_area', $data);
+        return $this->db->insert_id();
+    }
+    
+    /*
+     * @desc This is used to insert details into courier_services table
+     * @param: $data
+     * @return: last_insert_id
+     */
+
+    function insert_into_non_returnable_consumed_parts($data) {
+        $this->db->insert('non_returnable_consumed_parts', $data);
+        return $this->db->insert_id();
+    }
+    
+    
+    
+     /*
+     *  @desc : This function is used to get details from courier serviceable area table.
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_courier_serviceable_area_list($post, $select = "", $is_array = false) {
+        $this->_get_courier_serviceable_area_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+                
+       if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+        
+    /*
+     * @Desc: This function is used to get data from courier_serviceable_area table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_courier_serviceable_area_list($post, $select) {
+
+        if (empty($select)) {
+            $select = '*';
+        }
+
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('courier_serviceable_area');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) {
+
+                if ($key === 0) {
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('courier_serviceable_area.id', 'ASC');
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+    }
+        
+    /**
+     *  @desc : This function is used to get total courier serviceable area
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_courier_serviceable_area_list($post) {
+        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get total filtered courier serviceable area
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_courier_serviceable_area_list($post){
+        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+
+    
+    /*
+     * @Desc: This function is used to update courier_services
+     * @data: Array
+     * @where: Array, Int id
+     * @return: boolean
+     */
+    function update_courier_serviceable_area($data,$where){
+        $this->db->where($where);
+        $this->db->update('courier_serviceable_area', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
+    /*
+     * @desc This is used to insert details into courier_serviceable_area table
+     * @param Array $data
+     * @return string
+     */
+    function insert_courier_serviceable_area_data($data) {
+      $this->db->insert('courier_serviceable_area', $data);
+      return $this->db->insert_id();
+    }
+    
+
 }
