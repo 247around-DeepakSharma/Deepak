@@ -790,7 +790,7 @@
                                     <div class='rect4' style='background-color:#3cba54'></div>\n\
                                 </div>",
                 "emptyTable":     "No Data Found",
-                "searchPlaceholder": "Search by BookingID / Spare Part Name / Spare Type / AWB Number",
+                "searchPlaceholder": "Search by BookingID / Spare Part Name / Spare Type / AWB Number / Invoice ID",
             },
             "order": [],
             "pageLength": 25,
