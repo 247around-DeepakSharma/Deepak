@@ -115,7 +115,8 @@
                       </div>
                       <?php if($c2c){ ?>
                       <div class="col-md-2">
-                          <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                          <?php $booking_primary_id = (!empty($data[0]['booking_primary_id']) ? $data[0]['booking_primary_id'] : "");?>  
+                          <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>, <?php echo $booking_primary_id; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                       </div>
                       <?php } ?>
                     </div>
@@ -178,14 +179,14 @@
 
    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
    
-   function outbound_call(phone_number){
+   function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
 
         if (confirm_call == true) {
 
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
 
