@@ -4680,10 +4680,14 @@ class Booking extends CI_Controller {
         $row[] = $no.$sn.$districtZoneType;
 
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>"
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span id='spare_delivered_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a>"
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span id='spare_delivered_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -4711,7 +4715,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."'); load_delivered_status('".$order_list->booking_id."')})</script>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5692,7 +5696,7 @@ class Booking extends CI_Controller {
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id"; 
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-            $post['join']['employee as employee_am'] = "agent_filters.entity_id = employee_am.id";
+            $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";
             $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";         
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
