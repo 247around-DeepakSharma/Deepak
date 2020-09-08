@@ -217,8 +217,8 @@
                                             <th>Brand</th>
                                             <th>Category</th>
                                             <th>Capacity</th>
-                                            <th>Model Number</th>
                                             <th>SF Model Number</th>
+                                            <th>Model Number</th>
                                             <th>SF Serial Number / <?php echo $booking_history[0]['public_name'] ?> Serial Number</th>
                                             <th>Description</th>
                                             <th>Purchase Date</th>
