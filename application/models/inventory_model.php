@@ -431,7 +431,6 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
-// Remove Print //
         return $query->result();
     }
     
@@ -1682,7 +1681,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners', 'booking_details.partner_id = partners.id');
         $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
-        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
         $this->db->join('employee', "employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
@@ -2687,8 +2686,8 @@ class Inventory_model extends CI_Model {
      * @return Array
      */
     function get_microwarehouse_msl_data($date, $inventory_id = "", $where){
-        $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
-                . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->select('public_name as company_name, sc.name as warehouse_name,sc.id as warehouse_id,ss.services, im.inventory_id,  part_name, part_number, '
+                . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock,sc.rm_id, sc.asm_id, sc.state,  ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
         $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
@@ -3500,7 +3499,6 @@ class Inventory_model extends CI_Model {
         }
 
         $query = $this->db->get();
-        //echo $this->db->last_query();
         return $query->result();
     }
 
@@ -4027,6 +4025,17 @@ class Inventory_model extends CI_Model {
     function insert_courier_serviceable_area_data($data) {
       $this->db->insert('courier_serviceable_area', $data);
       return $this->db->insert_id();
+    }
+    
+    /*
+     * @desc: This function is used to all pending defective and ok spare parts data
+     * @params: $post
+     * @return: Object
+     */
+   
+    function download_pending_defective_ok_spare_parts($post) {       
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
+        return $query;
     }
     
 }

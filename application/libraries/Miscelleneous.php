@@ -206,6 +206,9 @@ class Miscelleneous {
                      $engineer_action['internal_status'] = _247AROUND_PENDING;
                      $engineer_action["create_date"] = date("Y-m-d H:i:s");
                     
+                     /* Deleteing Data while reassign vendor case and inserting again  */
+                     $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
+                     
                      $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
                      if(!$enID){
                           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 

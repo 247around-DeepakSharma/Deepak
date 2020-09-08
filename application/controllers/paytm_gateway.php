@@ -173,7 +173,7 @@ class Paytm_gateway extends CI_Controller {
             if($this->session->userdata('partner_id')){
                 $partner_id = $this->session->userdata('partner_id');
             } else {
-                $a = explode('-', $param_list['ORDERID']);
+                $a = explode('_', $param_list['ORDERID']);
                 $partner_id = $a[0];
                 $this->session->set_userdata("partner_id",$partner_id);
             }

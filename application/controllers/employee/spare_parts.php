@@ -556,7 +556,8 @@ class Spare_parts extends CI_Controller {
 
         if (!empty($post['where']) && $post['where']['status'] == DEFECTIVE_PARTS_PENDING) {
             unset($post['where']['status']);
-            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+            $where_clause = $this->check_where_condition($post);
+            $post['where'] = $where_clause['where'];
         }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
@@ -3819,6 +3820,12 @@ class Spare_parts extends CI_Controller {
             }
         }
         $data = $this->inventory_model->$temp_function($date_365, '', $where);
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
         if (!empty($data)) {
             foreach ($data as $key => $value) {
 
@@ -3859,8 +3866,35 @@ class Spare_parts extends CI_Controller {
                 } else {
                     $data[$key]['recommended_30_days'] = 0;
                 }
+
+                if ($icwh == 2) {
+                    if (!empty($data[$key]['rm_id']) && !empty($rm_asm_list_array[$data[$key]['rm_id']])) {
+                        $data[$key]['rm_name'] = $rm_asm_list_array[$data[$key]['rm_id']];
+                    } else {
+                        $data[$key]['rm_name'] = '';
+                    }
+                    if (!empty($data[$key]['asm_id']) && !empty($rm_asm_list_array[$data[$key]['asm_id']])) {
+                        $data[$key]['asm_name'] = $rm_asm_list_array[$data[$key]['asm_id']];
+                    } else {
+                        $data[$key]['asm_name'] = '';
+                    }
+                    $sparepart_sell_report = $this->invoices_model->get_part_sell_amount_last_four_month($value['inventory_id'], $value['warehouse_id']);
+
+                    if (!empty($sparepart_sell_report)) {
+                        $data[$key]['m3_sale_to_sf'] = $sparepart_sell_report[0]['m3_part_sale'];
+                        $data[$key]['m2_sale_to_sf'] = $sparepart_sell_report[0]['m2_part_sale'];
+                        $data[$key]['m1_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                        $data[$key]['m_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                    } else {
+                        $data[$key]['m3_sale_to_sf'] = 0;
+                        $data[$key]['m2_sale_to_sf'] = 0;
+                        $data[$key]['m1_sale_to_sf'] = 0;
+                        $data[$key]['m_sale_to_sf'] = 0;
+                    }
+                }
             }
         }
+
         $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
@@ -3896,6 +3930,21 @@ class Spare_parts extends CI_Controller {
         $R->render('excel', TMP_FOLDER . $output_file_excel);
 
         system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+        if ($icwh == 2) {
+            $booking_landed_excel = $this->booking_landed();
+            $objPHPExcel1 = PHPExcel_IOFactory::load(TMP_FOLDER . $output_file_excel);
+            $objPHPExcel2 = PHPExcel_IOFactory::load(TMP_FOLDER . $booking_landed_excel);
+            $objPHPExcel1->getActiveSheet()->setTitle("MWH Consumption Report");
+            foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
+                $sheet = $objPHPExcel2->getSheetByName($sheetName);
+                $sheet->setTitle('Bookings Landed');
+                $objPHPExcel1->addExternalSheet($sheet);
+            }
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel2007');
+            $combined_excel = TMP_FOLDER . $output_file_excel;
+            $objWriter->save($combined_excel);
+            unlink(TMP_FOLDER . $booking_landed_excel);
+        }
 
         if (!empty($this->session->userdata('session_id'))) {
             $this->load->helper('download');
@@ -3916,6 +3965,115 @@ class Spare_parts extends CI_Controller {
                 unlink(TMP_FOLDER . $output_file_excel);
             }
         }
+    }
+    /**
+    * @Desc: This function is to get all micro-warehouse booking landed count last 4 month
+    * @params: none
+    * @return: array
+    * @author Ghanshyam
+    * @date : 02-09-2020
+    */
+    function booking_landed($rm_asm_list_arra=array()){
+        if(empty($rm_asm_list_array)){
+            $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+            $rm_asm_list_array = array();
+            foreach($rm_asm_list as $key => $value){
+                $rm_asm_list_array[$value['id']] = $value['full_name'];
+            }
+        }
+        $template = "booking_landed.xlsx";
+        $data = $this->invoices_model->get_mwh_last_four_month_booking_count();
+        foreach($data as $key => $value){
+            if(!empty($rm_asm_list_array[$value['rm_id']])){
+                $data[$key]['rm_name'] = $rm_asm_list_array[$value['rm_id']];
+            }else{
+                $data[$key]['rm_name'] = '';
+            }
+
+            if(!empty($rm_asm_list_array[$value['asm_id']])){
+                $data[$key]['asm_name'] = $rm_asm_list_array[$value['asm_id']];
+            }else{
+                $data[$key]['asm_name'] = '';
+            }
+        }
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $output_file_excel = "booking_landed_" . date('YmdHis') . ".xlsx";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $data,
+            )
+           )
+        );
+        //ob_end_clean();
+        $res1 = 0;
+        if (file_exists(TMP_FOLDER . $output_file_excel)) {
+
+            system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $this->load->dbutil();
+        $R->render('excel', TMP_FOLDER . $output_file_excel);
+        return $output_file_excel;
+    }
+    /**
+     * @Desc: This function is to get out of warranty revenue report model
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function download_oow_revenue_report(){
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
+        $data = $this->invoices_model->get_oow_revenue_report();
+        $array_to_download=array();
+        $heading = array('Sl. No.','Brand Name','Appliance','SF name','Part Number','Part Description','Last 247 Purchase Price (Without GST)','Last 247 to SF Sale Price (Without GST)','Qty','Amount','RM Name','ASM Name','Date');
+        $sn = 0;
+
+        foreach($data as $key => $value){
+          $array_to_download[$key][] =   ++$sn;
+          $array_to_download[$key][] =   $value['public_name'];
+          $array_to_download[$key][] =   $value['services'];
+          $array_to_download[$key][] =   $value['name'];
+          if(!empty($value['part_number'])){
+          $array_to_download[$key][] =   $value['part_number'];
+          $array_to_download[$key][] =   $value['description'];
+            $array_to_download[$key][] =   $value['price'];
+            $array_to_download[$key][] =   number_format((float) $value['price']+($value['price']*$value['oow_vendor_margin']/100), 2, '.', '');
+          }else{
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['qty'];
+          $array_to_download[$key][] =   $value['taxable_value'];
+          if(!empty($rm_asm_list_array[$value['rm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['rm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          if(!empty($rm_asm_list_array[$value['asm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['asm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['create_date'];
+        }
+         $file_name = "oow_revenue_report_" . date('YmdHis') . ".csv";
+        $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
+
     }
 
     /**
@@ -4035,7 +4193,7 @@ class Spare_parts extends CI_Controller {
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id, spare_parts_details.parts_shipped';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false,$post);
         $data['spare_parts_details'] = $spare_parts_details[0];
         $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
@@ -4056,6 +4214,17 @@ class Spare_parts extends CI_Controller {
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
         }
 
+        /**
+         * Check other spares status associated with this booking.
+         * If any spare has been shipped then model number can not be change.
+         */
+        $all_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id']), TRUE, TRUE, false, $post);
+        if(!empty($all_spare_parts_details)) {
+            $check_spare_shipped = array_filter(array_column($all_spare_parts_details, 'parts_shipped'));
+            if(!empty($check_spare_shipped)) {
+                $data['disable_model_number'] = true;
+            }
+        }
 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
@@ -4698,7 +4867,7 @@ class Spare_parts extends CI_Controller {
         $post['where']['spare_parts_details.defective_part_required'] = 1;
         $post['where']['spare_parts_details.consumed_part_status_id != 2'] = NULL;
         $post['where']['spare_parts_details.approved_defective_parts_by_admin = 0'] = NULL;
-         if (empty($post['search']['value'])) {
+        if (empty($post['search']['value'])) {
             if ($this->session->userdata("user_group") == _247AROUND_RM) {
                 $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
                 $post['where']['(spare_parts_details.defective_part_shipped_date IS NULL OR (spare_parts_details.defective_part_shipped_date IS NOT NULL AND spare_parts_details.status in ("' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '","' . OK_PARTS_REJECTED_BY_WAREHOUSE . '" )))'] = NULL;
@@ -4870,7 +5039,7 @@ class Spare_parts extends CI_Controller {
             }
         }
     }
-   
+       
     /**
      * @desc This method is called when a part is marked cancelled through RTO case.
      * @author Ankit Rajvanshi
@@ -5204,6 +5373,99 @@ class Spare_parts extends CI_Controller {
                 $option .= "<option value='" . $value['status'] . "'> " . $value['status'] . "</option>";
             }
             echo $option;
+        }
+    }
+    
+    
+    /* 
+     * @desc : This function is used get the common where cluase for view page and download excel reports.
+     * @param : void
+     * @return : Array 
+     */
+    
+    function check_where_condition($post) {
+
+        if ($this->session->userdata("user_group") == _247AROUND_RM) {
+            $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        if ($this->session->userdata("user_group") == _247AROUND_ASM) {
+            $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == _247AROUND_AM) {
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+        }
+
+        return $post;
+    }
+
+    /*
+     * @desc: This Function is used to download the pdnding defective or ok spare parts report
+     * @param: void
+     * @return : Download link
+     */
+
+     function download_pending_defective_ok_spare_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+        ini_set('memory_limit', -1);
+        $download_flag = $this->input->post('defective_ok_download_flag');
+        
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+                . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
+                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', (CASE WHEN datediff(CURRENT_DATE,spare_parts_details.shipped_date) > 60 THEN 'Out Of TAT' ELSE 'Under TAT' END) as 'TAT', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
+                . "DATE_FORMAT(spare_parts_details.acknowledge_date,'%d-%b-%Y') as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
+                . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
+                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"
+                . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
+                . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
+                . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as 'Purchase Invoice', "
+                . "if(spare_parts_details.sell_invoice_id is null,'',spare_parts_details.sell_invoice_id) as 'Sale Invoice', "
+                . "if(spare_parts_details.warehouse_courier_invoice_id is null,'',spare_parts_details.warehouse_courier_invoice_id) as 'Warehouse Courier Invoice', "
+                . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
+                . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
+                . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', (CASE WHEN spare_parts_details.spare_lost = 1 THEN 'Yes' ELSE 'NO' END) AS 'Spare Lost'";
+
+        $where_clause = $this->check_where_condition(array());
+        $post['where'] = $where_clause['where'];
+        $post['group_by'] = "spare_parts_details.id";
+        
+        if (!empty($download_flag)) {
+            $spare_details = $this->inventory_model->download_pending_defective_ok_spare_parts($post);
+            if ($spare_details) {
+
+                $this->load->dbutil();
+                $this->load->helper('file');
+
+                $file_name = 'pending_defective_or_ok_spare_parts_data_' . date('j-M-Y-H-i-s') . ".csv";
+                $delimiter = ",";
+                $newline = "\r\n";
+                $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+                write_file(TMP_FOLDER . $file_name, $new_report);
+
+                if (file_exists(TMP_FOLDER . $file_name)) {
+                    log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                    $res['status'] = true;
+                    $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+                } else {
+                    log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                    $res['status'] = FALSE;
+                    $res['msg'] = 'error in generating file';
+                }
+
+                echo json_encode($res);
+            }
         }
     }
 
