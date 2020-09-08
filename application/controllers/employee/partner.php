@@ -4557,7 +4557,7 @@ class Partner extends CI_Controller {
      */
     function download_sf_list_excel() {
         $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1','is_CP' => '0');
-        $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
+        $select = "service_centres.id,CONCAT('247around ',service_centres.district,' Service center') as name,CONCAT(MONTHNAME(service_centres.create_date),'-',year(service_centres.create_date)) as date,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
                 NULL,array("service_centres.state"=>"ASC"),NULL,array("sub_service_center_details"=>"left"),array("service_centres.id"));
