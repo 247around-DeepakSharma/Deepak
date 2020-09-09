@@ -5217,7 +5217,7 @@ class Inventory extends CI_Controller {
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
         $sender = trim($this->input->post('sender_entity_id'));
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id', 'i.invoice_id');
 
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
@@ -8701,7 +8701,7 @@ class Inventory extends CI_Controller {
     }
 
     function get_spare_delivered_status($booking_id) {
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
         if (!empty($spare)) {
             echo json_encode($spare);
         } else {
@@ -9075,7 +9075,7 @@ class Inventory extends CI_Controller {
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
                 . "vendor_partner_invoices.sub_category";
 
-        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '". MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  .  IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
         $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number','part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
@@ -9181,7 +9181,7 @@ class Inventory extends CI_Controller {
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
                 . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%b-%Y %H:%i:%s\") AS 'Shipment Date'";
 
-        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" .MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
         if (!empty($partner_id)) {
             $bom_details = $this->inventory_model->get_inventory_ledger_details_data($select, $where);
@@ -10435,7 +10435,7 @@ class Inventory extends CI_Controller {
                 $partner_details = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
                 $publicName = $partner_details[0]['public_name'];
                 $select = "invoice_details.id, case when (type_code = 'B') THEN 'purchase_invoice' ELSE 'sale_invoice' END AS 'invoice_type', total_amount,invoice_details.taxable_value";
-                $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+                $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" .MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
                 $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number', 'part_number');
                 $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where, $post);
 

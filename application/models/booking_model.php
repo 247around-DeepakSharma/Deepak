@@ -686,7 +686,7 @@ class Booking_model extends CI_Model {
         }
 
 
-        $query = $this->db->query("Select services.services,
+        $query = $this->db->query("Select booking_details.id as booking_primary_id,services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1, service_centres.min_upcountry_distance
@@ -1567,7 +1567,7 @@ class Booking_model extends CI_Model {
      * @return: void
      */
     function review_reschedule_bookings_request($whereIN=array(), $where=array(), $join=array()){
-        $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
+        $this->db->select('distinct(service_center_booking_action.booking_id),booking_details.id as booking_primary_id,assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
@@ -2404,7 +2404,7 @@ class Booking_model extends CI_Model {
 //        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
-        $this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
+        // $this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
         $this->db->join('employee', 'service_centres.rm_id = employee.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
         $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
@@ -2465,8 +2465,8 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0) {
-        $this->_get_bookings_by_status($post, $select);
+        function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array()) {        
+            $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
@@ -2491,6 +2491,16 @@ class Booking_model extends CI_Model {
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
             $this->db->group_by('booking_details.booking_id'); 
+        }
+        if(!empty($join_array)){
+            foreach ($join_array as $tableName => $joinCondition){
+                if(array_key_exists($tableName, $join_type_array)){
+                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
+            }
         }
         $query = $this->db->get();
         if($is_download){
@@ -2534,7 +2544,7 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->from('booking_details');
         if (empty($select)) {
-            $select = '*';
+            $select = 'booking_details.id as booking_primary_id,*';
         }
         
         $this->db->select($select,FALSE);

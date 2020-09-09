@@ -2172,7 +2172,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id') . " Booking id: " . $booking_id);
         $this->checkUserSession();
         $part_warranty_status = $this->input->post('part_warranty_status');
-
+        
         if (!empty($this->input->post('courier_status'))) {
             $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
@@ -2257,8 +2257,7 @@ class Partner extends CI_Controller {
                 );
 
                 $this->service_centers_model->insert_into_awb_details($awb_data);
-            }
-            else {
+            } else {
                 $awb_data = array(
                     'company_name' => trim($this->input->post('courier_name')),
                     'partner_id' => $partner_id,
@@ -2272,13 +2271,12 @@ class Partner extends CI_Controller {
                     'is_exist' => 1
                 );
 
-                $this->service_centers_model->update_awb_details($awb_data,trim($this->input->post('awb')));
+                $this->service_centers_model->update_awb_details($awb_data, trim($this->input->post('awb')));
             }
-            
         }
-        
-        
-        
+
+
+
         $shipped_part_details = $this->input->post("part");
         /* if parts empty no need to run loop */
         if(!empty($shipped_part_details)) {
@@ -2304,7 +2302,7 @@ class Partner extends CI_Controller {
         }
         
         $shipped_part_details = $this->input->post("part");
-     
+        
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
             $invoide_data = array();
@@ -4560,7 +4558,7 @@ class Partner extends CI_Controller {
      */
     function download_sf_list_excel() {
         $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1','is_CP' => '0');
-        $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
+        $select = "service_centres.id,CONCAT('247around ',service_centres.district,' Service center') as name,CONCAT(MONTHNAME(service_centres.create_date),'-',year(service_centres.create_date)) as date,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
                 NULL,array("service_centres.state"=>"ASC"),NULL,array("sub_service_center_details"=>"left"),array("service_centres.id"));
@@ -8122,7 +8120,7 @@ class Partner extends CI_Controller {
            }
            else{
                if($is_repeat){
-                    $html .= " disabled ";
+                    $html .= "  ";
                }
            }
            $html .=' >'.$value['channel_name'].'</option>'; 

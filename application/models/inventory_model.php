@@ -431,7 +431,6 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
-// Remove Print //
         return $query->result();
     }
     
@@ -4026,6 +4025,17 @@ class Inventory_model extends CI_Model {
     function insert_courier_serviceable_area_data($data) {
       $this->db->insert('courier_serviceable_area', $data);
       return $this->db->insert_id();
+    }
+    
+    /*
+     * @desc: This function is used to all pending defective and ok spare parts data
+     * @params: $post
+     * @return: Object
+     */
+   
+    function download_pending_defective_ok_spare_parts($post) {       
+        $query = $this->get_spare_consolidated_data($post['select'], $post['where'], $post['group_by']);
+        return $query;
     }
     
 }

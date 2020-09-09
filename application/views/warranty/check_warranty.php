@@ -9,7 +9,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
 <html>
     <body>
-        <div id="page-wrapper">
+        <div class="right_col" role="main">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -18,7 +18,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                             <input type="text" value="" name="booking_id" id="booking_id" placeholder="Enter Booking Id" style="float:right;font-size:20px;padding:5px;"/><br/>
                             <span style="float:right;font-size:12px;color:blue;">* Press Enter to continue with Booking Id.</span>
                         </h1>
-                        <form name="myForm" class="form-horizontal" method='post'> 
+                        <form name="myForm" class="form-horizontal x_panel" method='post'> 
                             <div class="row">
                                 <img src="<?php echo base_url();?>images/loadring.gif" id="loadring" style="display:none;position: relative;left: 49%;top:10%">
                             </div>
@@ -82,7 +82,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                         </form>
                     </div>
                 </div>
-                <div class="x_panel" style="height: auto;overflow: auto;">
+                <div class="row x_panel" style="height: auto;overflow: auto;">
                     <table id="warranty_details" class="table table-striped table-bordered">
                         <thead>
                             <tr>
@@ -360,9 +360,9 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                     $('#model').val(warrantyData[0]['model_id']);
                 }
                 // Auto fill Booking DOP 
-                $('#purchase_date').datepicker({'setDate' : warrantyData[0]['purchase_date'], 'dateFormat' : 'dd-mm-yy'}); 
+                $('#purchase_date').datepicker("setDate" , warrantyData[0]['purchase_date']); 
                 // Auto fill Booking Date 
-                $('#create_date').datepicker({'setDate' : warrantyData[0]['booking_create_date'], 'dateFormat' : 'dd-mm-yy'}); 
+                $('#create_date').datepicker("setDate" , warrantyData[0]['booking_create_date']);  
             },
             error: function (jqXHR, exception) {
                 $("#loadring").hide();
