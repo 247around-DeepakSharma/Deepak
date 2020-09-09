@@ -8106,7 +8106,7 @@ class Partner extends CI_Controller {
            }
            else{
                if($is_repeat){
-                    $html .= " disabled ";
+                    $html .= "  ";
                }
            }
            $html .=' >'.$value['channel_name'].'</option>'; 
