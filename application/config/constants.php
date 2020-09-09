@@ -722,8 +722,6 @@ define('BOOKING_SOURCE_Website', 18);
 // Agent Types for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
-define('BOOKING_AGENT_247Around', "247around");
-define('BOOKING_AGENT_Partner', "partner");
 define('BOOKING_AGENT_Employee', "employee");
 define('BOOKING_AGENT_Dealer', "dealers");
 //Constant for file upload history in bulk warrenty checker panel
