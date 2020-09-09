@@ -215,6 +215,9 @@ class CI_DB_utility extends CI_DB_forge {
 		}
 
 		$out = rtrim($out);
+                if($delim == ",") {
+                    $out = rtrim($out, ',');
+                }
 		$out .= $newline;
 
 		// Next blast through the result array and build out the rows
@@ -225,6 +228,9 @@ class CI_DB_utility extends CI_DB_forge {
 				$out .= $enclosure.str_replace($enclosure, $enclosure.$enclosure, $item).$enclosure.$delim;
 			}
 			$out = rtrim($out);
+                        if($delim == ",") {
+                            $out = rtrim($out, ',');
+                        }
 			$out .= $newline;
 		}
 
