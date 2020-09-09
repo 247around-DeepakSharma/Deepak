@@ -3796,7 +3796,7 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
+             $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -3808,7 +3808,7 @@ class Booking extends CI_Controller {
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,$join,$JoinTypeTableArray);
          }
          else{
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
+             $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
@@ -4083,9 +4083,10 @@ class Booking extends CI_Controller {
         }
         $c2c= $this->input->post('c2c');
         if($c2c){
-            $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
+            $booking_primary_id = (!empty($order_list->booking_primary_id) ? $order_list->booking_primary_id : "");
+            $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";            
             $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-            $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+            $call_btn .= ",$booking_primary_id)' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         }
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
@@ -4559,9 +4560,6 @@ class Booking extends CI_Controller {
 
 
         
-//        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
-//        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-//        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
             $rating_btn_disabled = "";
@@ -4772,7 +4770,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand,booking_details.id as booking_primary_id";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4824,7 +4822,7 @@ class Booking extends CI_Controller {
             $row[] = $pincode;
         }
         if($c2c){
-             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no, $order_list->booking_primary_id)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
              $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
         }
         

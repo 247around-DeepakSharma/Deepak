@@ -686,7 +686,7 @@ class Booking_model extends CI_Model {
         }
 
 
-        $query = $this->db->query("Select services.services,
+        $query = $this->db->query("Select booking_details.id as booking_primary_id,services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1, service_centres.min_upcountry_distance
@@ -1567,7 +1567,7 @@ class Booking_model extends CI_Model {
      * @return: void
      */
     function review_reschedule_bookings_request($whereIN=array(), $where=array(), $join=array()){
-        $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
+        $this->db->select('distinct(service_center_booking_action.booking_id),booking_details.id as booking_primary_id,assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
@@ -2544,7 +2544,7 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->from('booking_details');
         if (empty($select)) {
-            $select = '*';
+            $select = 'booking_details.id as booking_primary_id,*';
         }
         
         $this->db->select($select,FALSE);

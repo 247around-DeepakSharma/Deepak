@@ -925,6 +925,9 @@ function get_data_for_partner_callback($booking_id) {
      * @return Array
      */
     function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 36000);
+
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
@@ -2963,7 +2966,7 @@ function get_data_for_partner_callback($booking_id) {
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    (CASE WHEN booking_details.created_by_agent_type IN ('".BOOKING_AGENT_Partner."', '".BOOKING_AGENT_Dealer."') then entity_login_table.entity_name ELSE employee.full_name END) as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.entity_name ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
