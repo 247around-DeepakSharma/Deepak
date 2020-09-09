@@ -237,8 +237,6 @@ if ($this->uri->segment(3)) {
     
 <?php if(!empty($is_send_to_sf)) { ?>
     function removed_challan(spare_id) {
-        var url = $("#send_to_sf_id").attr("data-url");
-        var tab = $("#send_to_sf_id").attr('href');
         if(confirm("Are you sure you want to remove the part from the challan?") == true) {
             $('#loading_image').show();
             $.ajax({
@@ -248,7 +246,7 @@ if ($this->uri->segment(3)) {
             }).done(function() {
                 $('#loading_image').hide();
                 alert("Challan has been cancelled successfully.");
-                 load_view(url, tab);
+                window.location.reload();
             }).fail(function() {
                 alert("Some error occured.");
             });
