@@ -61,7 +61,7 @@ table {
                                 </a>
                             </li>
 
-                            <?php if ($partner_data[0]['spare_approval_by_partner']==1) { ?>
+                            <?php if (!empty($partner_data[0]['spare_approval_by_partner']) && $partner_data[0]['spare_approval_by_partner']==1) { ?>
 
                                 <li role="presentation">
                                 <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking_on_approval">
