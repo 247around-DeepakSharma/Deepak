@@ -925,6 +925,9 @@ function get_data_for_partner_callback($booking_id) {
      * @return Array
      */
     function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 36000);
+
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
