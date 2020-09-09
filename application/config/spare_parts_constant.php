@@ -210,3 +210,12 @@ define('COURIER_AUDIT_TEAM', 'Courier Audit Team');
 // part to be billed string
 define('PART_TO_BE_BILLED', 'Part Return Warning -<br>To Be Billed');
 
+// allow awb number updation for days
+define('UPDATE_AWB_NUMBER_DAYS', 7);
+// message to show awb number used more than UPDATE_AWB_NUMBER_DAYS ago. 
+define('UPDATE_AWB_NUMBER_DAYS_MESSAGE', "Entered AWB Number has been already used more than 7 days ago.");
+// Auto Acknowledged From API
+define('AUTO_ACKNOWLEDGED_FROM_API', 1);
+// Auto Acknowledged To Cron
+define('AUTO_ACKNOWLEDGED_TO_CRON', 2);
+
