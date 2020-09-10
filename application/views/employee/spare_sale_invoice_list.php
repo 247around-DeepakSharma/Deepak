@@ -127,6 +127,7 @@
                         <th>Service Centre</th>
                         <th>District</th>
                         <th>Reverse Sale Invoice Id</th>
+                        <th>Generate Reverse Sale Invoice Id</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -197,7 +198,7 @@
                     pageSize: 'LEGAL',
                     title: 'Spare_Sale_List',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7,8],
+                       columns: [1,2,3,4,5,6,7,8,9],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -261,7 +262,9 @@
               if(data){
                   // success response
                   //change datatable - replace 'Reverse Sale Invoice' button with created reverse invoice id pdf link
-                  temp[9] = "<?php echo "<a href='" . 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" ?>" + data + "<?php echo ".pdf' target='_blank' title='Click to view generated reverse sale invoice'>" ?>" + data + "<?php echo "</a>"; ?>";
+                  temp[10] = "<?php echo "<a href='" . 'https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . "/invoices-excel/" ?>" + data + "<?php echo ".pdf' target='_blank' title='Click to view generated reverse sale invoice'>" ?>" + data + "<?php echo "</a>"; ?>";
+                  sold_spare_parts_table.row(row_index).data(temp).invalidate();
+                  temp[9] = data;
                   sold_spare_parts_table.row(row_index).data(temp).invalidate();
                   alert(success_msg);
                   $('#reverse_sale_invoice_model').modal('hide');

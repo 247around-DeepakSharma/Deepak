@@ -6319,6 +6319,7 @@ exit();
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
         $row_number = $row_index - 1;
+        $row[] = '';
         $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;
