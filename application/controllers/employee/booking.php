@@ -6793,4 +6793,13 @@ class Booking extends CI_Controller {
         echo $options;
     }
 
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings($booking_primary_id) { 
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }    
 }
