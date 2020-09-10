@@ -14,14 +14,14 @@
       });
     });
 
-    function outbound_call(phone_number){
+    function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
 
         if (confirm_call === true) {
 
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
 
@@ -272,8 +272,8 @@
                         <?php echo $row->current_status; ?>
                         </td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
-
-                     <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
+                    <?php $booking_primary_id = (!empty($row->booking_primary_id) ? $row->booking_primary_id : "");?> 
+                     <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>, <?php echo $booking_primary_id; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
 
     			   <td>
 			    <?php echo "<a class='btn btn-sm btn-primary' "

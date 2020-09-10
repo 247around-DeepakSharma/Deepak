@@ -431,12 +431,19 @@ class dealerApi extends CI_Controller {
             
             case 'getPartnerCompareData':
                 $this->getPartnerCompareTAT();
+                break;
                 
             case 'getStateTATDetails':
                 $this->getStateDetailedTAT();
+                break;
             
             case 'getSFDetailedDashboardData':
                 $this->getSFDetailedData();
+                break;
+                
+            case 'getBookingCollaterals':
+                $this->getBookingDocuments();
+                break;
 
             default:
                 break;
@@ -1649,6 +1656,71 @@ function  getPartnerCompareTAT(){
         }   
         
     }
+    
+    
+    
+      /*
+     * @Desc - This function is used get Sbooking collatrals
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    
+       function getBookingDocuments() {
+        log_message("info", __METHOD__ . " Entering..");
+        $response = array();
+        $pdf_docs = array();
+        $video_docs = array();
+        $other_docs = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["booking_id"])) {
+            $documets = $this->service_centers_model->get_collateral_for_service_center_bookingsAPI($requestData["booking_id"]); /// Makeing seperate function for API
+            $i = 0;
+            foreach ($documets[0] as $key => $value) { 
+                if ($value['document_type'] == "pdf") {
+                    $pdf['document_type'] = $value['document_type'];
+                    $pdf['document_description'] = $value['document_description'];
+                   
+                    $pdf['brand'] = $value['brand'];
+                    $pdf['request_type'] = $value['request_type'];
+                    $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($pdf_docs, $pdf);
+                } else if ($value['document_type'] == "video") {
+                    $video['document_type'] = $value['document_type'];
+                    $video['document_description'] = $value['document_description'];
+                    
+                    $video['brand'] = $value['brand'];
+                    $video['request_type'] = $value['request_type'];
+                    $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($video_docs, $video);
+                } else {
+                    $others['document_type'] = $value['document_type'];
+                    $others['document_description'] = $value['document_description'];
+                   
+                    $others['brand'] = $value['brand'];
+                    $others['request_type'] = $value['request_type'];
+                    $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($other_docs, $others);
+                }
+                $i++;
+            }
+
+            $response['pdf'] = $pdf_docs;
+            $response['video'] = $video_docs;
+            $response['others'] = $other_docs;
+
+            log_message("info", __METHOD__ . "Helping Documents Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            log_message("info", __METHOD__ . "Booking Id not found - " . $requestData["booking_id"]);
+            $this->sendJsonResponse(array('0029', 'Booking Id not found'));
+        }
+    }
+
+    
+    
+    
     
      /*
      * @Desc - This function is used get States TAT Data
