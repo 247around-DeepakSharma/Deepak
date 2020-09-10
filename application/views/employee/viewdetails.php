@@ -103,6 +103,12 @@
     </button>
 </div>
     <?php }?>
+<!--This section will show all all recordings against this call-->
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab9" data-toggle="tab">
+        <div class="hidden-xs">Call Recordings</div>
+    </button>
+</div>
 </div>
   
 <div class="well">
@@ -1522,7 +1528,15 @@
 </div>
         <?php
                 }
-        ?>   
+        ?>  
+        <!--Tab Showing Call Recordings against Booking-->
+        <div class="tab-pane fade in" id="tab9">
+             <div style="padding: 0 15px;">
+                 <div class="row">
+                     <div id="callDetails"></div>
+                 </div>
+             </div>
+        </div>
         <div class="tab-pane fade in" id="tab7">
                 <div class="row">
                     <div class="col-md-12">
@@ -1958,6 +1972,7 @@ function sf_tab_active(){
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
         var emailsms_url = '<?php echo base_url() ?>employee/booking/get_booking_email_sms/<?php echo $booking_history[0]['booking_id'] ?>';
+        var recordings_url =  '<?php echo base_url() ?>employee/booking/get_booking_recordings/<?php echo $booking_history[0]['booking_primary_id'] ?>';
                 $.ajax({
                     type: 'POST',
                     url: booking_id,
@@ -1972,6 +1987,14 @@ function sf_tab_active(){
                     success: function (response) {
                         $('#email_and_sms_box').html(response);
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
+                    }
+                });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: recordings_url,
+                    success: function (response) {
+                        $('#callDetails').html(response);
                     }
                 });
         $(".check-stocks").click(function(){
