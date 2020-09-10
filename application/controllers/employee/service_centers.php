@@ -9851,7 +9851,7 @@ function do_delivered_spare_transfer() {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $where = array (
-            "status NOT IN ('" . _247AROUND_CANCELLED . "', '"._247AROUND_COMPLETED."')  " => NULL,
+            "status NOT IN ('" . _247AROUND_CANCELLED . "')  " => NULL,
             "spare_parts_details.parts_shipped is not null and spare_parts_details.shipped_date is not null" => NULL,
             "spare_parts_details.defective_part_shipped is null and spare_parts_details.defective_part_shipped_date is null" => NULL,
         );
