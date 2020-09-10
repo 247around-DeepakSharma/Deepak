@@ -83,6 +83,43 @@ class Around_scheduler extends CI_Controller {
         log_message('info', __METHOD__ . '=> Exiting...');
     }
 
+	/**
+     * @desc: This is used to send Weekly mail with the list of Active Partners name having no contract or null dates/crossed end date.
+     */
+    
+    function send_mail_list_of_having_expired_or_no_contracts_partners(){
+        // Get All Partnners name having expired contracts
+        $query1  = " p.public_name, c.end_date FROM collateral c JOIN partners p ON c.entity_id = p.id and c.id in (SELECT max(id) id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and end_date < now() and p.is_active = 1";
+        $data1 = $this->partner_model->get_expired_contract_partner_list($query1);
+        
+        // Get All Partnners name having no contracts
+        $query2 = " public_name FROM partners WHERE id not in (SELECT entity_id FROM collateral WHERE collateral_id = 7 GROUP BY entity_id) and is_active = 1";
+        $data2 = $this->partner_model->get_expired_contract_partner_list($query2);
+        $body = "";
+        if(!empty($data1))
+        {
+            foreach($data1 as $key => $value)
+            {
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td></tr>";
+            }
+        }
+        if(!empty($data2))
+        {
+            foreach($data2 as $key => $value)
+            {
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract not present</td></tr>";
+            }
+        }
+        
+        $email_template = $this->booking_model->get_booking_email_template("partner_contract_list");
+        $email_from = $email_template[2];
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $subject = $email_template[4];
+        $message = vsprintf($email_template[0], $body);
+        $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", "");
+    }
+
     /**
      * @desc: This is used to send SMS to customers for whom delivery is scheduled for tomorrow
      * or later to inform them about free installation when they give a missed call.
