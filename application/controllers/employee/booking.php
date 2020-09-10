@@ -132,12 +132,6 @@ class Booking extends CI_Controller {
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     
-                    // Only Send SMS for those bookings, having assigned vendor id not null
-                    if(!empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($status['vendor_id']))
-                    {
-                        $this->booking_model->send_red_zone_sms($status["booking_id"],$this->input->post('city'),$this->input->post('service'),$this->input->post('appliance_brand')[0],$this->input->post("user_id"),$this->input->post('booking_primary_contact_no'));
-                    }
-                    
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
                     if(!empty($is_booking_exist))
@@ -6863,4 +6857,13 @@ class Booking extends CI_Controller {
             echo $options;
         }
 
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings($booking_primary_id) { 
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }    
 }

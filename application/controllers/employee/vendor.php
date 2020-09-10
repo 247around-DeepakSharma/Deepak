@@ -1270,10 +1270,6 @@ class vendor extends CI_Controller {
                            
                            // Send SMS to red Zone bookings
                            $bookings = $this->booking_model->getbooking_history($booking_id,"join");
-                            if($bookings[0]['is_red_zone_sms_sent'] == 0)
-                            {
-                                $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
-                            }
                            
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
@@ -1595,13 +1591,6 @@ class vendor extends CI_Controller {
                     
                     
                     $this->booking_model->update_booking($booking_id, $assigned_data2);
-                }
-                //End
-                // Send SMS to red Zone bookings
-                $bookings = $this->booking_model->getbooking_history($this->input->post('booking_id'),"join");
-                if($bookings[0]['is_red_zone_sms_sent'] == 0)
-                {
-                    $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
                 }
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
