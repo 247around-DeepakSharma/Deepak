@@ -3792,7 +3792,9 @@ class Booking extends CI_Controller {
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
+            $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
+              $JoinTypeTableArray['employee as emp_asm'] = 'left';
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,$join,$JoinTypeTableArray);
          }
          else{
              $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
@@ -3801,7 +3803,9 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
+          $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
+              $JoinTypeTableArray['employee as emp_asm'] = 'left';
+               $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,null,0,$join,$JoinTypeTableArray);
          }
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -5679,7 +5683,7 @@ class Booking extends CI_Controller {
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-            $post['join']['employee as employee_am'] = "agent_filters.entity_id = employee_am.id";   
+           $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
             $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
@@ -5868,7 +5872,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+              $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
         }
         
         $status=$review_status;
