@@ -638,7 +638,7 @@
         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
         return false;
         }
-
+		}
 
 
         var courier_price= parseFloat(postData['courier_price_by_wh']);
