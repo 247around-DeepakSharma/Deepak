@@ -806,30 +806,6 @@ class Booking_model extends CI_Model {
 
         return $result;
     }
-
-    /**
-     * @desc : This funtion is used to send sms for red zone bookings
-     *
-     */
-    function send_red_zone_sms($booking_id,$city,$appliance,$brand,$user_id,$primary_contact_no)
-    {
-        $city_details = $this->indiapincode_model->getPinCoordinates($city);
-        if(!empty($city_details))
-        {
-            $zone_color = $city_details[0]['zone_color'];
-            if($zone_color == "Red")
-            {
-                $sms['tag'] = "sms_to_redzone_customers";
-                $sms['phone_no'] = $primary_contact_no;
-                $sms['smsData']['appliance'] = $appliance;
-                $sms['smsData']['partner'] = $brand;
-                $sms['type'] = "user";
-                $sms['booking_id'] = $booking_id;
-                $sms['type_id'] = $user_id;    
-                $this->notify->send_sms_msg91($sms);
-            }
-        }
-    }
     
     /**
      * @desc : This funtion gives the name of the service

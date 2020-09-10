@@ -468,13 +468,6 @@ class Partner extends CI_Controller {
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
-                        // Send SMS to red Zone bookings
-                        if(!empty($responseData['data']['response']['247aroundBookingID']))
-                        {
-                            $user_details = $this->user_model->search_user($post['mobile']);
-                            $user_id = $user_details[0]['user_id'];
-                            $this->booking_model->send_red_zone_sms($responseData['data']['response']['247aroundBookingID'],$post['city'],$post['appliance_name'],$post['partnerName'],$user_details[0]['user_id'],$post['mobile']);
-                        }
                         
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
