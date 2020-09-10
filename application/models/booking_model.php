@@ -3285,4 +3285,18 @@ class Booking_model extends CI_Model {
     $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
     return $this->db->query($sql)->result();
     }
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings_by_id($booking_primary_id, $select = "*"){
+        $this->db->select($select);
+        $this->db->from("agent_outbound_call_log");
+        $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
+        $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }
