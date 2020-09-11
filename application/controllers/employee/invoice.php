@@ -7602,9 +7602,9 @@ exit();
             }
         }
     }
-	/**
+    /**
      * @desc This function is used to cancel invoice
-     */
+    */
     function cancel_invoice(){
         $invoice_id = $this->input->post('invoice_id');
         $vendor_partner_type = $this->input->post('vendor_partner_type');
@@ -7680,6 +7680,7 @@ exit();
     function copy_invoices(){
         $this->miscelleneous->copy_invoices_from_s3();
     }
+
     /**
      * @desc This function is used to generate sf oow invoice at the end  of month
      */
