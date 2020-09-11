@@ -4428,8 +4428,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $where_array['booking_details.booking_id'] = $search;
         }
         
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, part_warranty_status, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
         $count = $post['start']+1;
+        $array['data'] = array();
         if (!empty($spare_parts_list)) {
             foreach ($spare_parts_list as $value) {
                 $row = array();
@@ -4437,6 +4438,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $row[] = $value['booking_id'];
                 $row[] = $value['services'];
                 $row[] = $value['part_name'];
+                $row[] = $value['part_number'];
+                $row[] = $value['part_warranty_status'];
                 $row[] = $value['shipped_quantity'];
                 $row[] = "<form ><input type='checkbox' onchange='createPostArray()' class='non_consumable' id='spare_id_.".$value['spare_id'].".' ' data-spare_id ='".$value['spare_id']."' data-vendor_id ='".$value['service_center_id']."' "
                         . " data-inventory_id='".$value['shipped_inventory_id']."' data-booking_id = '".$value['booking_id']."' data-shipped_quantity = '".$value['shipped_quantity']."' data-booking_partner_id = '".$value['partner_id']."' "
@@ -4446,9 +4449,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 
                 $count = $count+ 1;
             }
-        } else {
-            $array['data'][] = array('', '', '', '', '', '');
-        }
+        } 
 
         $array['draw'] = $post_data['draw'];
         $array['recordsTotal'] = count($array['data']);
