@@ -302,7 +302,7 @@
                                             <select onchange='non_consumable_parts_iw.ajax.reload(); get_partner_gst_number()' id='partner_id_iw' name='partner_id_iw' class="form-control partner_id_iw" required>
                                                 <option value ="" disabled selected>Select Partner</option>
                                                 <?php foreach ($partner_list as $key => $value) { ?>
-                                                <option value ="<?= $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
+                                                <option value ="<?php echo $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             <?php echo form_error('partner_id_iw'); ?>
@@ -335,6 +335,8 @@
                             <th>Booking ID</th>
                             <th>Appliance</th>
                             <th>Part Name</th>
+                            <th>Part Number</th>
+                            <th>Part Warranty</th>
                             <th>Quantity</th>
                             <th><button class="btn btn-md btn-primary" id="return_consumed_parts" onclick='createInvoiceForIW()'>Create Invoice</button></th>
                         </tr>
@@ -378,6 +380,8 @@
                             <th>Booking ID</th>
                             <th>Appliance</th>
                             <th>Part Name</th>
+                            <th>Part Number</th>
+                            <th>Part Warranty</th>
                             <th>Quantity</th>
                             <th><button class="btn btn-md btn-primary" id="adjust_consumed_msl" onclick='adjust_consumed_parts()'>Submit</button></th>
                         </tr>
@@ -1649,17 +1653,17 @@
     var from_gst_id = $("#from_gst_number_tab_2").val();
     var to_gst_id = $("#to_gst_number_tab_2").val();
     var partner_id = $("#partner_id_iw").val();
-    if(partner_id !=""){
+    if(partner_id ==""){
         alert('Please Select Partner');
         return false
     }
     
-    if(to_gst_id !=""){
+    if(to_gst_id ==""){
         alert('Please Select Partner Gst Number');
         return false
     }
     
-    if(from_gst_id !=""){
+    if(from_gst_id ==""){
         alert('Please Select 247around Gst Number');
         return false
     }
@@ -1699,6 +1703,7 @@
             $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
             $('#success_msg').html(obj.message);
             
+            //non_consumable_parts_iw.ajax.reload(null, false); 
             location.reload();
         }else{
             showConfirmDialougeBox(obj.message, 'warning');
@@ -1709,7 +1714,7 @@
     
         },
         complete: function() {
-    
+    $('body').loadingModal('destroy');
             }
         });
     }
@@ -1756,7 +1761,7 @@
             swal("Thanks!", "Details updated successfully!", "success");
             $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
             $('#success_msg').html(obj.message);
-            
+           // non_consumable_parts_vendor.ajax.reload(null, false); 
             location.reload();
         }else{
             showConfirmDialougeBox(obj.message, 'warning');
@@ -1765,7 +1770,7 @@
         }
     },
     complete: function() {
-       
+       $('body').loadingModal('destroy');
     }
     });
     } else {
