@@ -5,7 +5,7 @@ class Miscelleneous {
 
     public function __construct() {
         $this->My_CI = & get_instance();
-        $this->My_CI->load->helper(array('form', 'url'));
+        $this->My_CI->load->helper(array('form', 'url', 'file'));
         $this->My_CI->load->library('email');
         $this->My_CI->load->library('partner_cb');
         $this->My_CI->load->library('initialized_variable');
@@ -5365,7 +5365,7 @@ function generate_image($base64, $image_name,$directory){
         ];
         return $this->My_CI->employee_model->query_log($table_name,$data);
     }
-
+    
     /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
      * 
      */
