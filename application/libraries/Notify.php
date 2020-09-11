@@ -665,6 +665,25 @@ class Notify {
                         
                         $this->send_sms_msg91($dealerSms);
                     }
+                    
+                    if(covid_sms() == TRUE){
+                        $city_details = $this->indiapincode_model->getPinCoordinates($query1[0]['district']);
+                        if(!empty($city_details))
+                        {
+                            $zone_color = $city_details[0]['zone_color'];
+                            if($zone_color == "Red")
+                            {
+                                $sms1['tag'] = "sms_to_redzone_customers";
+                                $sms1['phone_no'] = $query1[0]['booking_primary_contact_no'];
+                                $sms1['smsData']['appliance'] = $query1[0]['services'];
+                                $sms1['smsData']['partner'] = $sms['smsData']['public_name'];
+                                $sms1['type'] = "user";
+                                $sms1['booking_id'] = $booking_id;
+                                $sms1['type_id'] = $query1[0]['user_id'];    
+                                $this->send_sms_msg91($sms1);
+                            }
+                        }
+                    }
                     // send sms to user for  Brand Collateral file link
                     $data = $this->My_CI->service_centers_model->get_collateral_for_service_center_bookings($query1[0]['booking_id']);
                     if(!empty($data))
