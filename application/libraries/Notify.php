@@ -69,6 +69,11 @@ class Notify {
                 }
 
 		break;
+            default :
+               $this->add_email_send_details($from, $to, $cc, $bcc, $subject, $message, $attachment,$template_tag, $booking_id);
+                log_message('info', __FUNCTION__ . ' Email Failed:  From =>' .$from. " To =>".$to. " CC =>". $cc. " Subject =>".$subject );
+                return true;
+                break;
 	}
     }
 
