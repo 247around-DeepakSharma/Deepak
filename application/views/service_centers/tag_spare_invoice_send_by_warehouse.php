@@ -29,8 +29,6 @@
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
 <!--                <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>-->
-                <li role="presentation" class=""><a href="#nrspareiw" aria-controls="nrspareiw" role="tab" data-toggle="tab">Non-Returnable Consumed MSL (In-Warranty)</a></li>
-                <li role="presentation" class=""><a href="#nrspareow" aria-controls="nrspareow" role="tab" data-toggle="tab">Non-Returnable Consumed MSL (Out-Warranty)</a></li>
             </ul>
         </div>
     </div>
@@ -284,85 +282,8 @@
                 </div>
             </div>
         </div>
-
-        <!------------->
-        <div role="tabpanel" class="tab-pane" id="nrspareiw">
-           <form name="rm_state_mapping" class="form-horizontal" id ="rm_state_mapping"   method="POST">
-              <div class="row">
-                 <div class="col-md-6">
-                    <div  class="form-group <?php
-                       if (form_error('state_name')) {
-                           echo 'has-error';
-                       }
-                       ?>">
-                       <label  for="state_name" class="col-md-4">Partner *</label>
-                       <div class="col-md-7 fullselect">
-                          <select onchange='annual_charges_report.ajax.reload();' id='state_name' name='state_name[]' class="form-control state_name" style="min-width:350px;"  required>
-                             <option value ="" disabled selected>Select</option>
-                             <?php foreach ($partner_list as $key => $value) { ?>
-                             <option value ="<?= $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
-                             <?php } ?>
-                          </select>
-                          <?php echo form_error('state_name'); ?>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-           </form>
-              <table id="annual_charges_report" class="table  table-striped table-bordered" style='width:100%'>
-                 <thead>
-                    <tr>
-                       <th>S. No.</th>
-                       <th>Booking ID</th>
-                       <th>Part Name</th>
-                       <th>Quantity</th>
-                       <th><input type='checkbox'></th>
-                    </tr>
-                 </thead>
-                 <tbody>
-                 </tbody>
-              </table>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="nrspareow">
-           <form name="rm_state_mapping" class="form-horizontal" id ="rm_state_mapping"   method="POST">
-              <div class="row">
-                 <div class="col-md-6">
-                    <div  class="form-group <?php
-                       if (form_error('state_name')) {
-                           echo 'has-error';
-                       }
-                       ?>">
-                       <label  for="state_name" class="col-md-4">Partner *</label>
-                       <div class="col-md-7 fullselect">
-                          <select onchange='annual_charges_report_new.ajax.reload();' id='state_name_new' name='state_name_new[]' class="form-control state_name" style="min-width:350px;"  required>
-                             <option value ="" >Select</option>
-                             <?php foreach ($partner_list as $key => $value) { ?>
-                             <option value ="<?= $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
-                             <?php } ?>
-                          </select>
-                          <?php echo form_error('state_name'); ?>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-           </form>
-           <table id="annual_charges_report_new" class="table  table-striped table-bordered" style='width: 100%;'>
-              <thead>
-                 <tr>
-                    <th>S. No.</th>
-                    <th>Booking ID</th>
-                    <th>Part Name</th>
-                    <th>Quantity</th>
-                    <th><input type='checkbox'></th>
-                 </tr>
-              </thead>
-              <tbody>
-              </tbody>
-           </table>
-        </div>
-
-        <!-------------> 
-        </div>
+        
+    </div>
     </div>
 </div>
  <!--Modal start [ send spare parts list ]-->
@@ -387,11 +308,6 @@
           </div>
       </div>
     <!--Modal end-->
-    <style>
-        .fullselect .select2{
-            width: 100% !important;
-        }
-    </style>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
 
@@ -1553,65 +1469,4 @@ $("#on_invoice_file").change(function(){
             $('#submit_btn').attr('disabled',false);
         }
     }
-</script>
-<script>
-        var annual_charges_report = $('#annual_charges_report').DataTable({
-	"processing": true,
-	"serverSide": true,
-	"lengthChange": true,
-	"ajax": {
-		"url": "<?php echo base_url(); ?>employee/spare_parts/spare_parts_booking_consumed_process_record",
-		"type": "POST",
-		"data": function (d) {
-			d.partner_id = $("#state_name").val();
-                        d.warranty = 1;
-
-		}
-	},
-	"dom": 'lBfrtip',
-	"buttons": [
-		
-	],
-	"order": [],
-	"ordering": false,
-	"deferRender": true,
-	//"searching": false,
-	//"paging":false
-	"pageLength": 50,
-	"language": {
-		"emptyTable": "No Data Found",
-		"searchPlaceholder": "Search by any column."
-	},
-        });
-
-
-    var annual_charges_report_new = $('#annual_charges_report_new').DataTable({
-	"processing": true,
-	"serverSide": true,
-	"lengthChange": true,
-	"ajax": {
-		"url": "<?php echo base_url(); ?>employee/spare_parts/spare_parts_booking_consumed_process_record",
-		"type": "POST",
-		"data": function (d) {
-			d.partner_id = $("#state_name_new").val();
-                        d.warranty = 2;
-
-		}
-	},
-	"dom": 'lBfrtip',
-	"buttons": [
-		
-	],
-	"order": [],
-	"ordering": false,
-	"deferRender": true,
-	//"searching": false,
-	//"paging":false
-	"pageLength": 50,
-	"language": {
-		"emptyTable": "No Data Found",
-		"searchPlaceholder": "Search by any column."
-	},
-        });
-    $(".state_name").select2();
 </script>
