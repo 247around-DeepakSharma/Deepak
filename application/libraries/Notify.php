@@ -359,6 +359,7 @@ class Notify {
      */
     function send_sms_email_for_booking($booking_id, $current_status) { 
 	log_message("info",__METHOD__);
+        
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 	if (!empty($query1)) {
 
@@ -582,11 +583,13 @@ class Notify {
 		    break;
 
 		case 'Newbooking':
+                  
                     $partner_type = $this->My_CI->reusable_model->get_search_query('bookings_sources','partner_type' , array('partner_id'=>$query1[0]['partner_id']),NULL, NULL ,NULL,NULL,NULL)->result_array()[0]['partner_type'];
                     if($query1[0]['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
                     }else{ 
+                        
                         $booking_id=$query1[0]['booking_id'];
                         $jobcard="BookingJobCard-".$booking_id.".pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
@@ -666,13 +669,13 @@ class Notify {
                         $this->send_sms_msg91($dealerSms);
                     }
                     
-                    if(covid_sms() == TRUE){
-                        $city_details = $this->indiapincode_model->getPinCoordinates($query1[0]['district']);
-                        if(!empty($city_details))
-                        {
+                     
+                    if(COVID_SMS == TRUE){
+                        $city_details = $this->My_CI->indiapincode_model->getPinCoordinates($query1[0]['district']);
+                        if(!empty($city_details)){
+                            
                             $zone_color = $city_details[0]['zone_color'];
-                            if($zone_color == "Red")
-                            {
+                            if($zone_color == "Red"){
                                 $sms1['tag'] = "sms_to_redzone_customers";
                                 $sms1['phone_no'] = $query1[0]['booking_primary_contact_no'];
                                 $sms1['smsData']['appliance'] = $query1[0]['services'];
