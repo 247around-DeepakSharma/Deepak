@@ -39,7 +39,9 @@
                         <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (!empty($data[0]['booking_date']) && $data[0]['booking_date'] != '0000-00-00') {echo date("d-m-Y", strtotime($data[0]['booking_date'])); }?>"  disabled>
                     </div>
 
-                    <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
+                    
+              </div>
+              <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
                       <label for="reason" class="col-md-4">Current Booking Timeslot</label>
                       <div class="col-md-6">
                         <input type="text"  class="form-control" name="booking_timeslot" value="<?php if (isset($data[0]['booking_timeslot'])) {echo $data[0]['booking_timeslot']; }?>"  disabled>
@@ -101,9 +103,9 @@
                       </div>
                         <?php echo form_error('remark'); ?>
                       </div>
-              </div>
-
-                  <div class="col-md-6">
+                  
+                </div>
+                <div class="col-md-6">
 
                     <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                       <label for="Mobile" class="col-md-4">Mobile</label>
@@ -156,8 +158,8 @@
 -->
                       
                   </div>
-
                 </div>
+
                
 
                 <div>
