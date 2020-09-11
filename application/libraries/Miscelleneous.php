@@ -5387,7 +5387,7 @@ function generate_image($base64, $image_name,$directory){
 
     /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
      * 
-     */
+    */
     function copy_invoices_from_s3() {
         // Tables & columns in  which invoices are stored
         $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];
