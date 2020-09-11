@@ -7654,5 +7654,8 @@ exit();
         }
     }
     
+    function copy_invoices(){
+        $this->miscelleneous->copy_invoices_from_s3();
+    }
     
 }
