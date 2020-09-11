@@ -757,5 +757,14 @@ define('FILTER_NOT_DEFINE', "not_set");
 define('FILTER_INSTALLATION', "Installation");
 define('FILTER_REPAIR_WITH_PART', "Repair_with_part");
 define('FILTER_REPAIR_WITHOUT_PART', "Repair_without_part");
+
+//Sucess message after Sf was acceptiing Agreement
+define('SUCESS_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on your email');
+define('FAILURE_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on your email');
+
+define('FAILURE_MESSAGE_PARTS_CONSUMED_OW','It allows only for Micro Warehouse');
+define('FAILURE_MESSAGE_UNSETTLE_INVENTORY_NOT_EXIST','There is no exist unsettle Micro Warehouse invoice.');
+define('SUCESS_MESSAGE_PARTS_CONSUMED_OW','Updated Sucessfully! Thanks.');
+define('COVID_SMS', true);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
