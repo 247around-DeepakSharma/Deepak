@@ -90,7 +90,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Download Missing Serviceable BOM</h2>
+                    <h2>Download BOM Missing Models</h2>
                     <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>
