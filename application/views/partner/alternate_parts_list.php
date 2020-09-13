@@ -72,7 +72,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Alternate Parts List</h3>
+                    <h3>View Alternate Parts</h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
