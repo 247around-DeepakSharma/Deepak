@@ -3948,7 +3948,7 @@ class Booking extends CI_Controller {
             $repair='Repair';$installation='Installation';$repair_arr=array('Repair','Repeat');
            if($request_type_booking==$repair)
            {
-                $post['where']['request_type Like "%Repair%" Or request_type Like "%Repeat%"'] =  NULL;
+                $post['where']['(request_type Like "%Repair%" Or request_type Like "%Repeat%")'] =  NULL;
            }
            elseif($request_type_booking==$installation)
            {
