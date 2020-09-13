@@ -29,3 +29,5 @@ UPDATE header_navigation SET is_active = '0' WHERE id in (201, 234, 215, 151, 24
 
 /* Arrange menu as requirement */
 UPDATE `header_navigation` SET `sequence` = '1' WHERE `header_navigation`.`id` in (161,128,143,127,142);
+UPDATE `header_navigation` SET `title` = 'View Serviceable BOM' WHERE `header_navigation`.`id` = 152;
+UPDATE `header_navigation` SET `title` = 'Download Serviceable BOM' WHERE `header_navigation`.`id` = 325;
