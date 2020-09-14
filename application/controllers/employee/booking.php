@@ -3959,7 +3959,7 @@ class Booking extends CI_Controller {
             $repair='Repair';$installation='Installation';$repair_arr=array('Repair','Repeat');
            if($request_type_booking==$repair)
            {
-                $post['where']['request_type Like "%Repair%" Or request_type Like "%Repeat%"'] =  NULL;
+                $post['where']['(request_type Like "%Repair%" Or request_type Like "%Repeat%")'] =  NULL;
            }
            elseif($request_type_booking==$installation)
            {
@@ -4342,7 +4342,6 @@ class Booking extends CI_Controller {
         //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
         // get filtered records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;
