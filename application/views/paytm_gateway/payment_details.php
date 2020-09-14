@@ -94,15 +94,42 @@
                                 </table>
                             </div>
                             <div class="clearfix"></div>
-                            
-<!--                            <div class="tds_details">
-                                <div class="radio">
-                                    <label><input type="checkbox" name="tds_rate" value="1"> Deduct TDS at <span id="tds_per">2</span>%</label>
-                                </div>
-                            </div>-->
+                            <div class="row">
+                                <div class="col-md-5 col-sm-12 col-xs-12">
+                                    <input type="hidden" name="TDS_RATE" id="apply_tds_percent" value="">
+                                    <input type="hidden" name="TDS_AMOUNT" id="apply_tds_amount" value="">
+                                    <table class="table" width="50%">
+                                        <tr>
+                                            <td width="15%" style="font-size:17px;">Deduct TDS at?</td>
+                                            <td width="8%">
+                                                <input type="radio" name="tds" onClick="deduct_tds(0);">&nbsp;None
+                                            </td>
+<!--                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(1);">&nbsp;1%
+                                            </td>-->
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(2);">&nbsp;2%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(5);">&nbsp;5%
+                                            </td>
+                                            <td width="8%">
+                                                <input class="tds" type="radio" name="tds" onClick="deduct_tds(10);">&nbsp;10%
+                                            </td>
+                                        </tr>
+                                    </table>
+                                 </div>
+                            </div>
+                            <div class="tds_deduction_amount">
+                                <hr>
+                                <h4 style="font-size:17px;"> TDS Deduction Amount : 
+                                    <i class="fa fa-inr"></i>
+                                    <span id="tds_deduction_amount"></span>
+                                </h4>
+                            </div>                            
                             <hr>
                             <div class="final_amount">
-                                <h4 style="font-size:17px;"> Total Amount To be Paid  
+                                <h4 style="font-size:17px;"> Total Amount To be Paid : 
                                     <i class="fa fa-inr"></i>
                                     <span id="final_amount"></span>
                                 </h4>
@@ -154,10 +181,18 @@
     });
     
     $('#other_amount').click(function () {
-            $('#other_amount_div').show();
+        // unselect tds radio buttons.
+        $("input:radio[class^=tds]").each(function(i) {
+            this.checked = false;
+        });
+        $('#other_amount_div').show();            
     });
     
     $('.initial_amount').click(function () {
+        // unselect tds radio buttons.
+        $("input:radio[class^=tds]").each(function(i) {
+            this.checked = false;
+        });        
         $('#other_amount_div').hide();
     });
     
@@ -191,15 +226,19 @@
         });
     }
     
-    function get_final_amount(){
+    function get_final_amount(is_tds_check = false){
         var final_amount;
         var amount = parseInt($('input[name=amount]').filter(':checked').val());
         
-        var is_tds_check = false;
         if(is_tds_check){
-            var tds_per = parseInt($('#tds_per').html());
-            final_amount = amount - amount * (tds_per/100);
+            var tds_per = parseInt($('#apply_tds_percent').val());
+            var tds_amount = ((amount/100) * tds_per).toFixed(2);
+            $('#tds_deduction_amount').html(tds_amount);
+            $('#apply_tds_amount').val(tds_amount);
+            final_amount = amount - tds_amount;            
         }else{
+            $('#tds_deduction_amount').html(0.00);
+            $('#apply_tds_amount').val(0);            
             final_amount = amount;
         }
         
@@ -221,6 +260,17 @@
 
         $('#final_amount').html(final_amount);
         $('#txn_amount').val(final_amount);
+    }
+
+    function deduct_tds(tds_percent) {
+        // hide TDS Amount section if none selected.
+        if(tds_percent == 0) {
+            $('.tds_deduction_amount').css('display', 'none');
+        } else {
+            $('.tds_deduction_amount').css('display', 'block');
+        }
+        $('#apply_tds_percent').val(tds_percent);
+        get_final_amount(true);
     }
     
     $("#other_amount_value").blur(function(){
