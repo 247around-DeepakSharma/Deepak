@@ -7435,14 +7435,21 @@ class Partner extends CI_Controller {
         );
         echo json_encode($output);
     }
-     function get_defactive_part_shipped_by_sf_bookings(){
+    
+/*
+*  @desc : This function is list the line items that send by wh to partners
+*  @param : void
+*  @return : JSON
+*/     
+    
+    function get_defactive_part_shipped_by_sf_bookings(){
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
       $where_internal_status = array("page" => "defective_parts", "active" => '1');
       $internal_status = $this->booking_model->get_internal_status($where_internal_status);
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((defective_part_shipped ) ))",
-          "column_4"=>"courier_name_by_sf","column_9"=>"spare_parts_details.defective_part_shipped_date");    
+          "column_4"=>"spare_parts_details.courier_name_by_wh","column_9"=>"spare_parts_details.defective_part_shipped_date");    
       $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -7468,11 +7475,10 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
-                . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
-                . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
-
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api,defective_part_shipped, spare_parts_details.defactive_part_return_to_partner_from_wh_date_by_courier_api, "
+                . " spare_parts_details.booking_id, users.name, spare_parts_details.courier_name_by_wh, spare_parts_details.awb_by_wh, spare_parts_details.wh_to_partner_defective_shipped_date,"
+                . "spare_parts_details.remarks_defective_part_by_wh,spare_parts_details.wh_challan_number"
+                . ",spare_parts_details.wh_challan_file, spare_parts_details.shipped_quantity,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number, spare_consumption_status.is_consumed";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -7488,19 +7494,20 @@ class Partner extends CI_Controller {
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
                     $tempArray[] = "<span>". $row['quantity'] ."</span>";
                     $tempArray[] = "<span>". $row['shipped_quantity'] ."</span>";
-                    $tempArray[] = $row['courier_name_by_sf'];
-                    $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
-                    $awb_by_sf = "'".$row['awb_by_sf']."'";
+
+                    $tempArray[] = $row['courier_name_by_wh'];
+                    $courier_name_by_wh = "'".$row['courier_name_by_wh']."'";
+                    $awb_by_wh = "'".$row['awb_by_wh']."'";
                     $spareStatus = "'".DELIVERED_SPARE_STATUS."'";
-                    if(!$row['defactive_part_received_date_by_courier_api']){
-                        $spareStatus = "'".DEFECTIVE_PARTS_SHIPPED."'";
+                    if(!$row['defactive_part_return_to_partner_from_wh_date_by_courier_api']){
+                        $spareStatus = "'".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."'";
                     }
-                    $container = "'awb_loader_".$row['awb_by_sf']."'";
-                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_sf.','.$awb_by_sf.','.$spareStatus.','.$container.')">'.$row['awb_by_sf'].'</a> 
+                    $container = "'awb_loader_".$row['awb_by_wh']."'";
+                    $awbString = '<a href="javascript:void(0)" onclick="get_awb_details('.$courier_name_by_wh.','.$awb_by_wh.','.$spareStatus.','.$container.')">'.$row['awb_by_wh'].'</a> 
                                             <span id='.$container.' style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>';
                     $tempArray[] = $awbString;
-                    if(!empty($row['sf_challan_file'])) {  
-                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['sf_challan_file'].'" target="_blank">'.$row["sf_challan_number"].'</a>';
+                    if(!empty($row['wh_challan_file'])) {  
+                         $tempString = '<a style="color: blue;" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/vendor-partner-docs/'.$row['wh_challan_file'].'" target="_blank">'.$row["wh_challan_number"].'</a>';
                     }
                     $tempArray[] = $tempString;
                      if(!empty($row['partner_challan_file'])) {
@@ -7511,15 +7518,15 @@ class Partner extends CI_Controller {
                     }
                     $tempArray[] = $tempString2;
                     
-                     if (!is_null($row['defective_part_shipped_date'])) {
-                         $tempString3 =  date("d-m-Y", strtotime($row['defective_part_shipped_date']));
+                     if (!is_null($row['wh_to_partner_defective_shipped_date'])) {
+                         $tempString3 =  date("d-M-Y", strtotime($row['wh_to_partner_defective_shipped_date']));
                      }
                     $tempArray[] = $tempString3;
                     
                      $bookingIdTemp = "'".$row['booking_id']."'";
                      $tempArray[] = '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email" onclick="create_email_form_2('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
                    
-                    $tempArray[] = $row['remarks_defective_part_by_sf'];
+                    $tempArray[] = $row['remarks_defective_part_by_wh'];
                     if($row['is_consumed'] == 1) {
                         $tempArray[] = 'Yes'; 
                     }else if($row['is_consumed'] == 0) {
