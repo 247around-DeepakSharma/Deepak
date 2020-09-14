@@ -111,7 +111,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             <?php } ?>             
             <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?> 
             <div class="col-md-2 pull-right" style="padding:10px;width:13%">
-                <label for="review">Review Age Range</label>
+                <label for="review">Review Age Range</label><br/>
                 <input type="number" min="0" id="review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_min" style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $min_review_age_selected : '')?>"> - 
                 <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $max_review_age_selected : '')?>">                                
                 <button class="btn btn-sm btn-primary" style="width:30px;padding:2px;margin-left:5px;height:28px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id; ?>','<?php echo $sort_on_selected; ?>')">OK</button>
@@ -132,9 +132,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <option value="service_center_closed_date"  <?php echo $review_age_order_selected; ?>>Review Age</option>
                 </select>                
             </div>
-<!--            <div class="col-md-1 pull-left" style="width:30px;padding:2px;height:28px;margin-top:35px;">
-                <button class="btn btn-sm btn-primary">OK</button>
-            </div>-->
             <?php } ?>
         </div>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
@@ -180,7 +177,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                                 <?php if (isset($value['booking'][0]['is_upcountry']) && $value['booking'][0]['is_upcountry'] == 1) { ?><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?>
                               </td>
                               
-                              <td  style="text-align: left;white-space: inherit;"><?php if(isset($value['booking'][0]['vendor_name'])){ echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; } ?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
+                              <td  style="text-align: left;white-space: inherit;"><?php if(isset($value['booking'][0]['vendor_name'])){ echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; } ?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">

@@ -64,7 +64,7 @@
                                     <label for="invoice_pic" class="col-md-4">Invoice Image</label>
                                     <div class="col-md-6">
                                         <?php if(!empty($spare_parts) && !is_null($spare_parts[0]->invoice_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo ((isset($spare_parts[0]->invoice_pic)) ? $spare_parts[0]->invoice_pic : '')?>" target="_blank" id="invoice_pic">View Image</a>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/purchase-invoices/<?php echo ((isset($spare_parts[0]->invoice_pic)) ? $spare_parts[0]->invoice_pic : '')?>" target="_blank" id="invoice_pic">View Image</a>
                                         <?php } ?>
                                     </div>
                                 </div>

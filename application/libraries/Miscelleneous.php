@@ -5,7 +5,7 @@ class Miscelleneous {
 
     public function __construct() {
         $this->My_CI = & get_instance();
-        $this->My_CI->load->helper(array('form', 'url'));
+        $this->My_CI->load->helper(array('form', 'url', 'file'));
         $this->My_CI->load->library('email');
         $this->My_CI->load->library('partner_cb');
         $this->My_CI->load->library('initialized_variable');
@@ -5314,5 +5314,41 @@ function generate_image($base64, $image_name,$directory){
             'query' => $str_query
         ];
         return $this->My_CI->employee_model->query_log($table_name,$data);
+    }
+    
+    /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
+     * 
+     */
+    function copy_invoices_from_s3() {
+        // Tables & columns in  which invoices are stored
+        $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];
+        
+        foreach($arr_tables as $table_name => $column_name){
+            // Get Last record updated date
+            $res = $this->My_CI->reusable_model->get_search_result_data('cron_config', '*', ['table' => $table_name, 'column' => $column_name], NULL, NULL, NULL, NULL, NULL);
+            $where = [];
+            if(!empty($res)){
+                $where[$column_name. " IS NOT NULL AND ". $column_name." <> ''"] = NULL;
+                // Get only those files which are not yet uploaded
+                if(!empty($res[0]['date'])){
+                    $where['create_date > "'.$res[0]['date'].'"'] = NULL;
+                }
+                $data = $this->My_CI->reusable_model->get_search_result_data($table_name, '*', $where, NULL, NULL, NULL, NULL, NULL);
+                foreach ($data as $invoice_data) {
+                    // copy file from misc-images to purchase-invoices
+                    $file = $invoice_data[$column_name];
+                    $csv = TMP_FOLDER . $file;
+                    $object = $this->My_CI->s3->getObject(BITBUCKET_DIRECTORY, "misc-images/".$file);
+                    if($object->body){
+                        write_file($csv, $object->body);
+                        $this->My_CI->s3->putObjectFile($csv, BITBUCKET_DIRECTORY, 'purchase-invoices/'.$file, S3::ACL_PUBLIC_READ);
+                        unlink($csv);
+                    }
+                    // Update date in config table 
+                    $this->My_CI->reusable_model->update_table("cron_config",['date' => $invoice_data['create_date']],['table' => $table_name, 'column' => $column_name]);
+                }
+            }
+        }
+        echo '******END*****';exit;
     }
 }

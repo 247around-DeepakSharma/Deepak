@@ -103,6 +103,12 @@
     </button>
 </div>
     <?php }?>
+<!--This section will show all all recordings against this call-->
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab9" data-toggle="tab">
+        <div class="hidden-xs">Call Recordings</div>
+    </button>
+</div>
 </div>
   
 <div class="well">
@@ -292,7 +298,7 @@
                                 $image_src = $src;
                                 if (isset($files['file_name']) && !empty($files['file_name'])) {
                                     //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
@@ -747,7 +753,7 @@
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
+                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
@@ -1522,7 +1528,15 @@
 </div>
         <?php
                 }
-        ?>   
+        ?>  
+        <!--Tab Showing Call Recordings against Booking-->
+        <div class="tab-pane fade in" id="tab9">
+             <div style="padding: 0 15px;">
+                 <div class="row">
+                     <div id="callDetails"></div>
+                 </div>
+             </div>
+        </div>
         <div class="tab-pane fade in" id="tab7">
                 <div class="row">
                     <div class="col-md-12">
@@ -1958,6 +1972,7 @@ function sf_tab_active(){
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
         var emailsms_url = '<?php echo base_url() ?>employee/booking/get_booking_email_sms/<?php echo $booking_history[0]['booking_id'] ?>';
+        var recordings_url =  '<?php echo base_url() ?>employee/booking/get_booking_recordings/<?php echo $booking_history[0]['booking_primary_id'] ?>';
                 $.ajax({
                     type: 'POST',
                     url: booking_id,
@@ -1972,6 +1987,14 @@ function sf_tab_active(){
                     success: function (response) {
                         $('#email_and_sms_box').html(response);
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
+                    }
+                });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: recordings_url,
+                    success: function (response) {
+                        $('#callDetails').html(response);
                     }
                 });
         $(".check-stocks").click(function(){
@@ -2369,8 +2392,8 @@ function uploadsupportingfile(id, file_id=''){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
-                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
+                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
                         if(file_id === '') {
                             location.reload();
                         }
@@ -2416,6 +2439,8 @@ function uploadfile(){
             directory_name = 'vendor-partner-docs';
         }else if(spareFileColumn=='courier_pod_file'){
             directory_name = 'courier-pod';
+        }else if(spareFileColumn=='invoice_pic'){
+            directory_name = 'purchase-invoices';
         }else{
             directory_name = '';
         }
@@ -2477,6 +2502,9 @@ function uploadfile(){
                                     $(this).html('Click Here to view');
                                 }
                             });
+                        }
+                        else if(spareFileColumn=='invoice_pic'){
+                            $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);   
                         }
                         }else{
                          $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   

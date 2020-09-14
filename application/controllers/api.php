@@ -5101,7 +5101,7 @@ class Api extends CI_Controller {
 
             if($requestData['invoice_number_pic_exist']){
                 $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                 $requestData['invoice_pic'] = $invoice_pic;
             }
         

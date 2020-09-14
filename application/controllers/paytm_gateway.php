@@ -34,6 +34,10 @@ class Paytm_gateway extends CI_Controller {
         $param_list = array();
 
         $ORDER_ID = $this->input->post('ORDER_ID');
+        // concate TDS rate & amount in order id.
+        if(!empty($this->input->post('TDS_RATE')) && !empty($this->input->post('TDS_AMOUNT'))) {
+            $ORDER_ID = $ORDER_ID.'_'.$this->input->post('TDS_RATE').'_'.$this->input->post('TDS_AMOUNT');
+        }        
         $CUST_ID = $this->input->post('CUST_ID');
         $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
         $CHANNEL_ID = $this->input->post('CHANNEL_ID');
@@ -50,7 +54,8 @@ class Paytm_gateway extends CI_Controller {
         $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
         $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
         $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
-
+        $param_list['TDS_RATE'] = $this->input->post('TDS_RATE');
+        $param_list['TDS_AMOUNT'] = $this->input->post('TDS_AMOUNT');
         /*
           $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
           $param_list["EMAIL"] = $EMAIL; //Email ID of customer
@@ -428,13 +433,18 @@ class Paytm_gateway extends CI_Controller {
     
     function generate_partner_payment_invoice($partner_id, $param_list, $TXNID){
         log_message("info", __METHOD__. " Partner Id ". $partner_id, " Response ". json_encode($param_list, true));
+
+        // Explode order_id to extract tds rate and amount from ORDER ID.
+        $order_id = explode('_', $param_list['ORDERID']);        
+        
         $postData = array(
             "partner_vendor" => "partner",
             "partner_vendor_id" => $partner_id,
             "credit_debit" => "Credit",
             "bankname" => isset($param_list['BANKNAME'])?$param_list['BANKNAME']:NULL,
             "transaction_date" => date('Y-m-d'),
-            "tds_amount" => 0,
+            "tds_rate" => (!empty($order_id[2]) ? $order_id[2] : 0),
+            "tds_amount" => (!empty($order_id[3]) ? $order_id[3] : 0),
             "amount" => $param_list['TXNAMOUNT'],
             "transaction_mode" => isset($param_list['PAYMENTMODE'])?$param_list['PAYMENTMODE']:NULL,
             "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',
