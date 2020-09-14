@@ -2390,7 +2390,7 @@ class Partner extends CI_Controller {
 
                     $spare_id = $value['spare_id'];
                     $status = _247AROUND_CANCELLED;
-                    $remarks_by_partner = $value['remarks_by_partner'];
+                    $remarks_by_partner = "Partner Reject Spare Part";
                     $current_status = _247AROUND_PENDING;
                     $internal_status = _247AROUND_PENDING;
 
