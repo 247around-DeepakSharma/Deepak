@@ -111,7 +111,7 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
             <?php } ?>             
             <?php if($review_status == "Completed" || $review_status == "Cancelled"){ ?> 
             <div class="col-md-2 pull-right" style="padding:10px;width:13%">
-                <label for="review">Review Age Range</label>
+                <label for="review">Review Age Range</label><br/>
                 <input type="number" min="0" id="review_age_min_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_min" style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $min_review_age_selected : '')?>"> - 
                 <input type="number" min="0" id="review_age_max_<?php echo $is_partner; ?>_<?php echo $review_status;?><?=$sub_id?>" name="review_age_max"  style="width:60px;height:28px;" value="<?php echo((!empty($min_review_age_selected) || !empty($max_review_age_selected)) ? $max_review_age_selected : '')?>">                                
                 <button class="btn btn-sm btn-primary" style="width:30px;padding:2px;margin-left:5px;height:28px;" onclick="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>,'<?php echo $sub_id; ?>','<?php echo $sort_on_selected; ?>')">OK</button>
