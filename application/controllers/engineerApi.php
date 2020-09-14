@@ -2625,6 +2625,7 @@ class engineerApi extends CI_Controller {
                     $check_serial['status'] = TRUE;
                 }
             }
+            if($booking_history[0]['request_type']!=FREE_INSTALLATION_REQUEST){
             if ($check_serial['status']) {
 		/* Check for duplicate Part Request */
                 $duplicate_part = $this->is_part_already_requested($requestData['part'],$requestData['booking_id']);
@@ -2733,6 +2734,10 @@ class engineerApi extends CI_Controller {
             } else {
                 log_message("info", __METHOD__ . "Serial number validation failed");
                 $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
+            }
+            }else {
+                log_message("info", __METHOD__ . "For Installation Booking Spare parts cant requested");
+                $this->sendJsonResponse(array('0077','For Installation Booking Spare parts cant requested.'));
             }
         } else {
             log_message("info", __METHOD__ . "Request validation failed " . $validation['message']);
