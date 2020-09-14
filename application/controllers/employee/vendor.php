@@ -815,8 +815,9 @@ class vendor extends CI_Controller {
         $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
         if(!empty($stamp_file)){
             $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
-        }else{
-            $query[0]['stamp_file'] =='';
+        }
+        else{
+            $query[0]['stamp_file'] ='';
         }
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
@@ -5793,11 +5794,13 @@ class vendor extends CI_Controller {
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
                // print_r($attachment_signature);
-                if($attachment_signature){
-                } else {
+                // if($attachment_signature){
+                // } else {
                     
-                    //return FALSE;
-                }
+                //     //return FALSE;
+                // }
+            }else{
+               $attachment_signature = $this->input->post('signature_file_hd'); 
             }
    
             if(!isset($_POST['is_pan_doc'])){
@@ -5852,11 +5855,13 @@ class vendor extends CI_Controller {
             if (($_FILES['stamp_file']['error'] != 4) && !empty($_FILES['stamp_file']['tmp_name'])) {
                 $attachment_stamp = $this->upload_stamp_file($data);
                // print_r($attachment_signature);
-                if($attachment_stamp){
-                } else {
+                // if($attachment_stamp){
+                // } else {
                     
-                    //return FALSE;
-                }
+                //     //return FALSE;
+                // }
+            }else{
+                $attachment_stamp = $this->input->post('stamp_file_hd');
             }
                 //$data['vendor_id'] = $this->input->post('id');
                 $data_miscelleneous['stamp_file'] = $attachment_stamp;

@@ -4342,7 +4342,6 @@ class Booking extends CI_Controller {
         //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
         // get filtered records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;

@@ -2364,11 +2364,6 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        $condition = "";
-        if(!empty($post['where']['booking_details.closed_date >= ']))
-        {
-            $condition = " AND booking_details.closed_date >= '".$post['where']['booking_details.closed_date >= ']."' AND booking_details.closed_date < '".$post['where']['booking_details.closed_date < ']."'";
-        }
         $this->db->_reserved_identifiers = array('*',"'%d-%b-%Y')", "SELECT");
         if (empty($select)) {
             $select = '*';
@@ -2376,7 +2371,7 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('users');
-        $this->db->join('booking_details', "booking_details.user_id  = users.user_id $condition", 'left');
+        $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
 //        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
