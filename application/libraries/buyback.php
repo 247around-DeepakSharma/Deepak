@@ -47,6 +47,7 @@ class Buyback {
         $cp_data = $this->get_cp_id_from_region( $this->POST_DATA['city']);
         
         $bb_charges = array();
+        $b_charges = array();
         $service_id = 0;
         $cp_id = NULL;
         if (!empty($cp_data)) {
@@ -59,7 +60,6 @@ class Buyback {
             
             $s_order_key = str_replace(":","",$file_order_key);
             $s_order_key1 = str_replace("_","",$s_order_key);
-            $b_charges = array();
             
             foreach($cp_data as $cp_unique_data){
                 $bb_charges = $this->My_CI->service_centre_charges_model->get_bb_charges(array(
