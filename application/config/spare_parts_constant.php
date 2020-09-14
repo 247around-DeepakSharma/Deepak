@@ -219,3 +219,4 @@ define('UPDATE_AWB_NUMBER_DAYS_MESSAGE', "Entered AWB Number has been already us
 define('AUTO_ACKNOWLEDGED_FROM_API', 1);
 // Auto Acknowledged To Cron
 define('AUTO_ACKNOWLEDGED_TO_CRON', 2);
+
