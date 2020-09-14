@@ -132,9 +132,6 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
                     <option value="service_center_closed_date"  <?php echo $review_age_order_selected; ?>>Review Age</option>
                 </select>                
             </div>
-<!--            <div class="col-md-1 pull-left" style="width:30px;padding:2px;height:28px;margin-top:35px;">
-                <button class="btn btn-sm btn-primary">OK</button>
-            </div>-->
             <?php } ?>
         </div>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
