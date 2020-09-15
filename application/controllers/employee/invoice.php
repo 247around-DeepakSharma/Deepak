@@ -6291,7 +6291,7 @@ exit();
         $i = 0;
         $post['where'] = $where;
 
-        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price, spd.id";
+        $select = "spd.booking_id, sc.company_name, sc.district, spd.parts_requested, spd.parts_requested_type, spd.model_number, spd.sell_invoice_id, spd.sell_price, spd.id, spd.reverse_sale_invoice_id";
         $list = $this->invoices_model->get_spare_sale_list($post, $select);
         $data = array();
         $no = $post['start'];
@@ -6328,7 +6328,7 @@ exit();
         $row[] = $model_list->company_name;
         $row[] = $model_list->district;
         $row_number = $row_index - 1;
-        $row[] = '';
+        $row[] = $model_list->reverse_sale_invoice_id;;
         $row[] = "<button class='btn btn-primary btn-sm' id='btn".$row_number."' onclick='reverse_spare_sale(\"".$model_list->id."\",".$row_number.")'>Reverse Sale Invoice</button>";
 
         return $row;
