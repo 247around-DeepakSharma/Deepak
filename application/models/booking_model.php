@@ -2227,7 +2227,18 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('email_sent');
         return $query->result_array();
     } 
-    
+    /**
+    * @Desc: This function is used to get whatsapp log for particular booking id
+    * @params: booking_id
+    * @return: array
+    * 
+    */
+    function get_whatsapp_log_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('whatsapp_logs');        
+        return $query->result_array();
+    }
     
     /**
      *  @desc : This function is used to insert appliance details into appliance_product_description table

@@ -3114,6 +3114,8 @@ class Booking extends CI_Controller {
         $data['data'] = array();
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        $where_whatsapp_log = array('booking_id' => $booking_id, "status not in ('failed')" => null);
+        $data['whatsapp_logs'] = $this->booking_model->get_whatsapp_log_details($where_whatsapp_log);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
