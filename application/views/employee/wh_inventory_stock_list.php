@@ -23,6 +23,47 @@
         padding: 0 0 0 19px;
     }
 </style>
+<style>
+.dropbtn {
+    background-color: #337ab7;
+    color: white;
+    padding: 9px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 220px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {background-color: #a8b7b863;}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+</style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
@@ -34,7 +75,7 @@
                                 <button class="dropbtn">MSL Return / Consume Non Return MSL <i class="fa fa-caret-down"></i></button>
                                 <div class="dropdown-content">
                                     <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return New Parts (0)</a>
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>
+<!--                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>-->
                                     <a href="javascript:void(0);" onclick="open_selected_parts_to_return('3')" id="soldItem" class="action-ban">Consumed Parts Without Booking (0)</a>
                                 </div>
                             </div>                         
@@ -92,9 +133,11 @@
                                     <th>Total Price</th>
                                     <th>  Customer  Total</th>
                                     <?php if($this->session->userdata('userType') == "employee") { ?>
-                                        <th>Return Qty</th>
+                                        <th>Added Qty</th>
                                         <th>Add</th>
                                     <?php } ?>
+                                    <!--  <th> Qty </th>
+                                    <th>Used Parts</th>-->
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -302,6 +345,44 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
+                                    <th>Quantity</th>
+                                    <th>Remove</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Submit</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+              </div>
+
+            </div>
+         </div>
+        <!-- Modal end -->
+         <!-- Modal Start -->
+        <div id="mwh_used_spare_modal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" style="min-width:1400px;">
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title" id="mwh_action_title"></h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="consumed_ow_form" action="javascript:void(0)" method="post" novalidate="novalidate">
+                    </form>
+                    <br/>
+                  <table id="sell_mwh_parts_data" class="table table-bordered table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Appliance</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th>Number</th>
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Quantity</th>
@@ -314,16 +395,17 @@
                         </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="submit_courier_form" onclick="check_return_new_parts()" >Return New Parts</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal" onclick="sellItem.disabled=false" >Close</button>
+                  <button type="button" class="btn btn-success" id="submit_mwh_consumed_form" onclick="mwh_consumed_ow()" >Remove Stock</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
               </div>
 
             </div>
          </div>
+          <!-- Modal end -->
 </div>
 <script>
-    $("#shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#shipped_date,#mwh_shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     var inventory_stock_table;
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
@@ -342,6 +424,8 @@
     });
     
     $('#get_inventory_data').on('click',function(){
+        $("#sellItem").addClass("action-ban");
+        $("#settle_item").addClass("action-ban");
         var wh_id = $('#wh_id').val();
         var partner_id = $('#partner_id').val();
         Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
@@ -349,7 +433,6 @@
         if(wh_id && partner_id){
             is_admin_crm = true;
             returnItemArray = [];
-            $("#sellItem").val("Return new Parts (0)");
             inventory_stock_table.ajax.reload( function ( json ) { 
             $("#total_stock").html('Total Stock (<i>'+json.stock+'</i>)').css({"font-size": "14px;", "color": "#288004;"});
         } );
@@ -575,31 +658,32 @@
         
     });
     
+        
     $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
-            var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
-                $(this).val('');
-                return false;
-            }
-        },
-        "keypress": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+        },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
         }
     });
     
-    $("#shipped_spare_parts_weight_in_gram").on({
+    $("#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
@@ -643,6 +727,7 @@
                 break;
         }
     });
+    
     function check_return_new_parts(){
         var shipped_spare_parts_boxes_count = $('#shipped_spare_parts_boxes_count').val() || 0;
         var shipped_spare_parts_small_boxes_count= $('#shipped_spare_parts_small_boxes_count').val() || 0;
@@ -653,5 +738,6 @@
             alert('Minimum box count should be 1, Please select from Large or small box count.');
         }
     }
-
+    
+    
 </script>
