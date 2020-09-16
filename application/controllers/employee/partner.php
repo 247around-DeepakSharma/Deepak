@@ -2302,16 +2302,13 @@ class Partner extends CI_Controller {
             $current_status = "";
             $internal_status = "";
             $remarks_by_partner = "";
-            $status = "";
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
-
                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $status = $data['status'] = SPARE_OOW_SHIPPED;
+                      $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
-                        $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                    }
-
+                      $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                    }                    
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
