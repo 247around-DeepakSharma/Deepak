@@ -1579,7 +1579,7 @@ function  getPartnerCompareTAT(){
    
                     $return_data['earned_details']['m1'] = array('count'=>$m1['total_booking'],'month'=>date("M",strtotime(date('Y-m-d'))),'earned'=>$m1['earned']);
                     $return_data['earned_details']['m2'] = array('count'=>$m2['total_booking'],'month'=>date("M",strtotime($m2['month'])),'earned'=>$m2['earned']);
-                    $return_data['earned_details']['m3'] = array('count'=>$m3['total_booking'],'month'=>$strtotime(m3['month']),'earned'=>$m3['earned']);
+                    $return_data['earned_details']['m3'] = array('count'=>$m3['total_booking'],'month'=>date("M",strtotime($m3['month'])),'earned'=>$m3['earned']);
                     
                     $cancel['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
                     

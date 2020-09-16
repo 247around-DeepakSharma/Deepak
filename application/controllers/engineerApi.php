@@ -4467,9 +4467,9 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version'] != APP_VERSION) {
+        $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        if ($requestData['app_version'] != $response[0]->app_version) { //APP_VERSION
             // get configuration data from table for App version upgrade // 
-            $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
             $this->jsonResponseString['response'] = array('configuration_type' => $response[0]->configuration_type, 'config_value' => $response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
             $this->sendJsonResponse(array('0000', 'success')); // send success response //
         } else {
