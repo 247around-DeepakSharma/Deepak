@@ -140,4 +140,8 @@ define('MSL_PACKAGING_LARGE_TAG', 'msl-packaging-variable-large-box');
 define('MSL_PACKAGING_SMALL_TAG', 'msl-packaging-variable-small-box');
 define('DEFECTIVE_PACKAGING_SMALL_TAG', 'defective-packaging-variable-small-box');
 define('DEFECTIVE_PACKAGING_LARGE_TAG', 'defective-packaging-variable-large-box');
+//MSL Debit Note
+define('MSL_Debit_Note', 'MSL Debit Note');
+// MSL Credit Note
+define('MSL_Credit_Note', 'MSL Credit Note');
 ?>
