@@ -6297,9 +6297,9 @@ class Service_centers extends CI_Controller {
         $data['is_generate_challan'] = true;
         if (empty($this->input->post('is_ajax'))) {
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/spare_parts_booking', $data);
+            $this->load->view('service_centers/generate_challan_send_to_sf', $data);
         } else {
-            $this->load->view('service_centers/spare_parts_booking', $data);
+            $this->load->view('service_centers/generate_challan_send_to_sf', $data);
         }
     }
 
