@@ -132,12 +132,6 @@ class Booking extends CI_Controller {
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     
-                    // Only Send SMS for those bookings, having assigned vendor id not null
-                    if(!empty($status["booking_id"]) && ($this->input->post('type') != 'Query') && !empty($status['vendor_id']))
-                    {
-                        $this->booking_model->send_red_zone_sms($status["booking_id"],$this->input->post('city'),$this->input->post('service'),$this->input->post('appliance_brand')[0],$this->input->post("user_id"),$this->input->post('booking_primary_contact_no'));
-                    }
-                    
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
                     if(!empty($is_booking_exist))
@@ -3126,6 +3120,8 @@ class Booking extends CI_Controller {
         $data['data'] = array();
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
         $data['email_sent_details'] = $this->booking_model->get_email_sent_details($booking_id);
+        $where_whatsapp_log = array('booking_id' => $booking_id, "status not in ('failed')" => null);
+        $data['whatsapp_logs'] = $this->booking_model->get_whatsapp_log_details($where_whatsapp_log);
         //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_booking_life_cycle', $data);
     }
@@ -3965,7 +3961,7 @@ class Booking extends CI_Controller {
             $repair='Repair';$installation='Installation';$repair_arr=array('Repair','Repeat');
            if($request_type_booking==$repair)
            {
-                $post['where']['request_type Like "%Repair%" Or request_type Like "%Repeat%"'] =  NULL;
+                $post['where']['(request_type Like "%Repair%" Or request_type Like "%Repeat%")'] =  NULL;
            }
            elseif($request_type_booking==$installation)
            {
@@ -4348,7 +4344,6 @@ class Booking extends CI_Controller {
         //create final array required for database table
         $data['draw'] = $receieved_Data['draw'];
         // get filtered records from table
-        $data['recordsTotal'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,NULL,$joinDataArray,NULL,NULL,NULL,$JoinTypeTableArray);
         $data['recordsFiltered'] = $this->booking_model->get_advance_search_result_count("booking_details",$select,$whereArray,$joinDataArray,NULL,NULL,$whereInArray,$JoinTypeTableArray);
         $data['data'] = $finalArray;
         return $data;
@@ -6459,7 +6454,7 @@ class Booking extends CI_Controller {
     public function cancellation_reasons()
     {
         $this->miscelleneous->load_nav_header();
-        $data = $this->booking_model->get_cancellation_reasons();
+        $data = $this->booking_model->cancelreason();
         $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
     }
     /**
@@ -6845,22 +6840,14 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
-    /*
-     * CRM-6300
-     * Get cancellation reasons of 247around
-     * return HTML
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
      */
-        function get_cancellation_reasons() {
-            $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-            $where = array('reason_of' => $reason_of);
-            $cancellation_reasons = $this->booking_model->cancelreason($where);
-            $options = '<option selected disabled>Select reason</option>';
-            if (!empty($cancellation_reasons)) {
-                foreach ($cancellation_reasons as $reason) {
-                    $options .= '<option>' . $reason->reason . '</option>';
-                }
-            }
-            echo $options;
-        }
-
+    function get_booking_recordings($booking_primary_id) { 
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }    
 }

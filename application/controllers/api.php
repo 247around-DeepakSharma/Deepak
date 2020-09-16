@@ -4537,8 +4537,11 @@ class Api extends CI_Controller {
         $status = $json_decode->data->status;
         $message_type = $json_decode->data->channel_details->whatsapp->type;
         $whatsapp_profile = $json_decode->data->channel_details->whatsapp->source_profile->name;
+        $data = $this->whatsapp_model->get_last_whatsapp_message_send_tag($source)[0];
+        $booking_id = $data['booking_id'];
         $whatsapp = array(
             'source' => $source,
+            'booking_id' => $booking_id,
             'destination' => $destination,
             'channel' => 'whatsapp',
             'direction' => $direction,
@@ -4575,10 +4578,8 @@ class Api extends CI_Controller {
             }else{
                 
                 
-            }
-            
-        $data = $this->whatsapp_model->get_last_whatsapp_message_send_tag($source)[0];
-        $booking_id = $data['booking_id'];
+            }            
+        
         $message_tag_id = $data['message_tag'];
         $reply= $rating;
         $data_options = $this->whatsapp_model->get_last_whatsapp_message_send_tag_options($message_tag_id,$reply)[0];   

@@ -148,6 +148,10 @@ class Spare_parts extends CI_Controller {
                 /* Courier Approved Defective Parts */
                 $this->get_in_transit_courier_approved_defective($post);
                 break;
+            case 18:
+                /* Auto Acknowledged Spare Parts */
+                $this->get_auto_acknowledged_spare_parts($post);
+                break;
         }
     }
 
@@ -1583,15 +1587,10 @@ class Spare_parts extends CI_Controller {
         ];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
         
-        /* Insert Spare Tracking Details*/
-        if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => COURIER_LOST, 'remarks' => COURIER_LOST_APPROVED_STATUS);
-            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        }
         
         /* Insert Spare Tracking Details */
         if (!empty($post_data['courier_lost_spare_id'])) {
-            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => _247AROUND_COMPLETED, 'remarks' => $post_data['remarks']." ".COURIER_LOST_APPROVED_STATUS, 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => COURIER_LOST, 'remarks' => $post_data['remarks'] . " " . COURIER_LOST_APPROVED_STATUS, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         // state change entry.
@@ -1654,8 +1653,8 @@ class Spare_parts extends CI_Controller {
             
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
             /* Insert Spare Tracking Details*/
-            if (!empty($spare_id)) {
-                $tracking_details = array('spare_id' => $spare_id, 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks']);
+            if (!empty($post_data['spare_id'])) {
+                $tracking_details = array('spare_id' => $post_data['spare_id'], 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks'], 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
             
@@ -4283,8 +4282,9 @@ class Spare_parts extends CI_Controller {
             $where_array['booking_details.booking_id'] = $search;
         }
         
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, part_warranty_status, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
         $count = $post['start']+1;
+        $array['data'] = array();
         if (!empty($spare_parts_list)) {
             foreach ($spare_parts_list as $value) {
                 $row = array();
@@ -4292,6 +4292,8 @@ class Spare_parts extends CI_Controller {
                 $row[] = $value['booking_id'];
                 $row[] = $value['services'];
                 $row[] = $value['part_name'];
+                $row[] = $value['part_number'];
+                $row[] = $value['part_warranty_status'];
                 $row[] = $value['shipped_quantity'];
                 $row[] = "<form ><input type='checkbox' onchange='createPostArray()' class='non_consumable' id='spare_id_.".$value['spare_id'].".' ' data-spare_id ='".$value['spare_id']."' data-vendor_id ='".$value['service_center_id']."' "
                         . " data-inventory_id='".$value['shipped_inventory_id']."' data-booking_id = '".$value['booking_id']."' data-shipped_quantity = '".$value['shipped_quantity']."' data-booking_partner_id = '".$value['partner_id']."' "
@@ -4301,9 +4303,7 @@ class Spare_parts extends CI_Controller {
                 
                 $count = $count+ 1;
             }
-        } else {
-            $array['data'][] = array('', '', '', '', '', '');
-        }
+        } 
 
         $array['draw'] = $post_data['draw'];
         $array['recordsTotal'] = count($array['data']);
@@ -4424,7 +4424,7 @@ class Spare_parts extends CI_Controller {
      * @since 31-May-2019
      */
     function spare_transfer_from_wh_to_wh_process() {
-
+        
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
         } else {
@@ -4510,6 +4510,12 @@ class Spare_parts extends CI_Controller {
                         $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                         $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                         if ($this->db->affected_rows() > 0) {
+                            /* Insert Spare Tracking Details */
+                            if (!empty($spareid)) {
+                                $tracking_details = array('spare_id' => $spareid, 'action' => _247AROUND_TRANSFERED_TO_WAREHOUSE, 'remarks' => $old_state." ".$new_state , 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            }
+                            
                             $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'));
                             if ($data['entity_type'] == _247AROUND_SF_STRING) {
                                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $data['inventory_id'], $booking['quantity']);
@@ -4627,17 +4633,20 @@ class Spare_parts extends CI_Controller {
 
         $agentid = _247AROUND_DEFAULT_AGENT;
         $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-        $login_partner_id = _247AROUND;
+        $tracking_entity_id = $login_partner_id = _247AROUND;
         $login_service_center_id = '';
+        $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
         if ($this->session->userdata('userType') == 'employee') {
             $agentid = $this->session->userdata('id');
             $agent_name = $this->session->userdata('emp_name');
-            $login_partner_id = _247AROUND;
+            $tracking_entity_id = $login_partner_id = _247AROUND;
+            $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
             $login_service_center_id = NULL;
         } else if ($this->session->userdata('userType') == 'service_center') {
             $agentid = $this->session->userdata('service_center_agent_id');
             $agent_name = $this->session->userdata('service_center_name');
-            $login_service_center_id = $this->session->userdata('service_center_id');
+            $tracking_entity_id = $login_service_center_id = $this->session->userdata('service_center_id');
+            $tracking_entity_type = _247AROUND_SF_STRING; 
             $login_partner_id = NULL;
         }
 
@@ -4787,6 +4796,11 @@ class Spare_parts extends CI_Controller {
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
                     $this->booking_model->update_booking($booking['booking_id'], $data_booking);
                 }
+            }
+            /* Insert Spare Tracking Details */
+            if (!empty($booking['id'])) {
+                $tracking_details = array('spare_id' => $booking['id'], 'action' => $next_action, 'remarks' => $old_state . " " . $new_state, 'agent_id' => $agentid, 'entity_id' => $tracking_entity_id, 'entity_type' => $tracking_entity_type);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
         }
 
@@ -5197,6 +5211,84 @@ class Spare_parts extends CI_Controller {
         return $row;
     }
     
+    
+    /*
+     * @desc: Used to create tab that spare parts auto acknowleged 
+     * @param: Array $post
+     * @echo:json
+     */
+     function get_auto_acknowledged_spare_parts($post) {
+
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  spare_parts_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
+                . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status,  booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
+                . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"
+                . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.acknowledge_date,"
+                . "(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'From API' ELSE 'To Acknowledged' END) AS auto_ack_status";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
+            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
+
+        unset($post['where']['status']);
+     
+        $post['where']['spare_parts_details.status'] = SPARE_DELIVERED_TO_SF;
+        $post['where']['auto_acknowledeged IN  ("' . AUTO_ACKNOWLEDGED_FROM_API . '", "' . AUTO_ACKNOWLEDGED_TO_CRON . '")'] = NULL;
+
+        $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->auto_acknowledged_spare_parts_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    
+     /*
+     * @desc: This function is used to create table row data total parts shipped to SF
+     * @param: Array $spare_list
+     * @param: int $no
+     * @return: Array
+     */
+      function auto_acknowledged_spare_parts_table_data($spare_list, $no) {
+
+        $row = array();
+        $row[] = $no;
+        $row[] = $spare_list->booking_id;
+        $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
+        $row[] = $spare_list->sf_status;
+        $row[] = $spare_list->partner_name;
+        $row[] = "<span class='line_break'>" . $spare_list->spare_status . "</span>";
+        $row[] = $spare_list->spare_warranty_status;
+        $row[] = "<span class='line_break'>" . $spare_list->nrn_status . "</span>";
+        $row[] = $spare_list->service_center_closed_date;
+        $row[] = "<span class='line_break'>" . $spare_list->booking_request_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_model_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = $spare_list->spare_part_shipped_date;
+        $row[] = $spare_list->spare_shipped_age;
+        $row[] = "<span class='line_break'>" . $spare_list->awb_by_partner . "</span>";
+        $row[] = $spare_list->awb_by_sf;
+        $row[] = $spare_list->parts_charge;
+        $row[] = $spare_list->auto_ack_status;
+        $row[] = date("d-M-Y", strtotime($spare_list->acknowledge_date));
+
+        return $row;
+    }
     
       /*
      * @desc: This Function is used to download the OOT report

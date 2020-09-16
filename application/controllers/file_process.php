@@ -15,7 +15,7 @@ class File_process extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library("session");
         $this->load->library('form_validation');
-
+        $this->load->library('email');
         $this->load->helper(array('form', 'url', 'file', 'array'));
         $this->load->dbutil();
     }
@@ -25,10 +25,10 @@ class File_process extends CI_Controller {
      */
     function downloadSpareRequestedParts($partner_id,$entity_type) {
         log_message("info", __METHOD__ . " Partner ID " . $partner_id);
-
+        ini_set('memory_limit', '-1');
         $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PARTS_REQUESTED . "' AND spare_parts_details.entity_type = '".$entity_type."' "
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') AND wh_ack_received_part = 1";
-                if($this->input->post('state')){
+        if($this->input->post('state')){
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
        }

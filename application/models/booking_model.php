@@ -780,8 +780,10 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($where, $order_by = "") {
-        $this->db->where($where);
+    function cancelreason($where = "", $order_by = "") {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         if(!empty($order_by)){
             $this->db->order_by($order_by,false);
         }
@@ -805,30 +807,6 @@ class Booking_model extends CI_Model {
         $result = $this->db->count_all_results();
 
         return $result;
-    }
-
-    /**
-     * @desc : This funtion is used to send sms for red zone bookings
-     *
-     */
-    function send_red_zone_sms($booking_id,$city,$appliance,$brand,$user_id,$primary_contact_no)
-    {
-        $city_details = $this->indiapincode_model->getPinCoordinates($city);
-        if(!empty($city_details))
-        {
-            $zone_color = $city_details[0]['zone_color'];
-            if($zone_color == "Red")
-            {
-                $sms['tag'] = "sms_to_redzone_customers";
-                $sms['phone_no'] = $primary_contact_no;
-                $sms['smsData']['appliance'] = $appliance;
-                $sms['smsData']['partner'] = $brand;
-                $sms['type'] = "user";
-                $sms['booking_id'] = $booking_id;
-                $sms['type_id'] = $user_id;    
-                $this->notify->send_sms_msg91($sms);
-            }
-        }
     }
     
     /**
@@ -2252,7 +2230,18 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('email_sent');
         return $query->result_array();
     } 
-    
+    /**
+    * @Desc: This function is used to get whatsapp log for particular booking id
+    * @params: booking_id
+    * @return: array
+    * 
+    */
+    function get_whatsapp_log_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('whatsapp_logs');        
+        return $query->result_array();
+    }
     
     /**
      *  @desc : This function is used to insert appliance details into appliance_product_description table
@@ -2388,11 +2377,6 @@ class Booking_model extends CI_Model {
      *  @return : $output Array()
      */
   function _get_bookings_by_status($post, $select = "") {
-        $condition = "";
-        if(!empty($post['where']['booking_details.closed_date >= ']))
-        {
-            $condition = " AND booking_details.closed_date >= '".$post['where']['booking_details.closed_date >= ']."' AND booking_details.closed_date < '".$post['where']['booking_details.closed_date < ']."'";
-        }
         $this->db->_reserved_identifiers = array('*',"'%d-%b-%Y')", "SELECT");
         if (empty($select)) {
             $select = '*';
@@ -2400,7 +2384,7 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->from('users');
-        $this->db->join('booking_details', "booking_details.user_id  = users.user_id $condition", 'left');
+        $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
 //        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
@@ -3088,19 +3072,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    /**
-     * @Desc: This function is used to get Booking cancellation reasons
-     * @return: array
-     */
-    function get_cancellation_reasons($select="*")
-    {
-        $this->db->select($select);
-        $this->db->from("booking_cancellation_reasons");
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
+        
     function update_service_status($where, $data){
         $this->db->where($where,FALSE);
         $this->db->update('services', $data);
@@ -3284,5 +3256,19 @@ class Booking_model extends CI_Model {
     function getBookingLastSpare($booking_id){
     $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
     return $this->db->query($sql)->result();
+    }
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings_by_id($booking_primary_id, $select = "*"){
+        $this->db->select($select);
+        $this->db->from("agent_outbound_call_log");
+        $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
+        $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
+        $query = $this->db->get();
+        return $query->result_array();
     }
 }

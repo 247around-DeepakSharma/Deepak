@@ -181,7 +181,7 @@ class vendor extends CI_Controller {
 
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($sc_id,$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -403,6 +403,11 @@ class vendor extends CI_Controller {
         if(!empty($rm_id)) {
             $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
         }
+        $employee_asm_relation = $this->vendor_model->get_asm_contact_details_by_sf_id($sf_id);
+                    $asm_email_id = "";
+                    if (!empty($employee_asm_relation)) {
+                    $asm_email_id = $employee_asm_relation[0]['official_email'];
+                }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
@@ -456,7 +461,7 @@ class vendor extends CI_Controller {
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
         // Added Accounts team Mail Id in CC in mail
-        $cc = ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTANT_EMAILID . ',' . $asm_email_id;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
@@ -815,8 +820,9 @@ class vendor extends CI_Controller {
         $stamp_file = $this->vendor_model->fetch_sf_miscellaneous_data($select,$where);
         if(!empty($stamp_file)){
             $query[0]['stamp_file'] = $stamp_file[0]['stamp_file'];
-        }else{
-            $query[0]['stamp_file'] =='';
+        }
+        else{
+            $query[0]['stamp_file'] ='';
         }
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
@@ -1270,10 +1276,6 @@ class vendor extends CI_Controller {
                            
                            // Send SMS to red Zone bookings
                            $bookings = $this->booking_model->getbooking_history($booking_id,"join");
-                            if($bookings[0]['is_red_zone_sms_sent'] == 0)
-                            {
-                                $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
-                            }
                            
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
@@ -1595,13 +1597,6 @@ class vendor extends CI_Controller {
                     
                     
                     $this->booking_model->update_booking($booking_id, $assigned_data2);
-                }
-                //End
-                // Send SMS to red Zone bookings
-                $bookings = $this->booking_model->getbooking_history($this->input->post('booking_id'),"join");
-                if($bookings[0]['is_red_zone_sms_sent'] == 0)
-                {
-                    $this->booking_model->send_red_zone_sms($bookings[0]['booking_id'],$bookings[0]['city'],$bookings[0]['services'],$bookings[0]['public_name'],$bookings[0]['user_id'],$bookings[0]['booking_primary_contact_no']);
                 }
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
@@ -5804,11 +5799,13 @@ class vendor extends CI_Controller {
             if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
                 $attachment_signature = $this->upload_signature_file($data);
                // print_r($attachment_signature);
-                if($attachment_signature){
-                } else {
+                // if($attachment_signature){
+                // } else {
                     
-                    //return FALSE;
-                }
+                //     //return FALSE;
+                // }
+            }else{
+               $attachment_signature = $this->input->post('signature_file_hd'); 
             }
    
             if(!isset($_POST['is_pan_doc'])){
@@ -5863,11 +5860,13 @@ class vendor extends CI_Controller {
             if (($_FILES['stamp_file']['error'] != 4) && !empty($_FILES['stamp_file']['tmp_name'])) {
                 $attachment_stamp = $this->upload_stamp_file($data);
                // print_r($attachment_signature);
-                if($attachment_stamp){
-                } else {
+                // if($attachment_stamp){
+                // } else {
                     
-                    //return FALSE;
-                }
+                //     //return FALSE;
+                // }
+            }else{
+                $attachment_stamp = $this->input->post('stamp_file_hd');
             }
                 //$data['vendor_id'] = $this->input->post('id');
                 $data_miscelleneous['stamp_file'] = $attachment_stamp;

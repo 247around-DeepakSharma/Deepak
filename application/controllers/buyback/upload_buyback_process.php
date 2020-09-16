@@ -770,7 +770,7 @@ class Upload_buyback_process extends CI_Controller {
             if(!empty($response)){
                 //Upload files to AWS
                 $directory_xls = "vendor-partner-docs/" . $response;
-                $this->My_CI->s3->putObjectFile(TMP_FOLDER.$response, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$response, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
         
                 //send mail 
                 $template = $this->booking_model->get_booking_email_template("buyback_price_sheet_with_quote");
@@ -931,8 +931,18 @@ class Upload_buyback_process extends CI_Controller {
             $order_key = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $sheet->getCell('K' . $row)->getValue()));
             $city = strtolower($sheet->getCell('J' . $row)->getValue());
             $search = array_keys($order_key_city_arr, array("order_key" => $order_key, "city" => $city));
+            
             if(!empty($search)){
-                $sheet->setCellValue('Y' . $row, $this->price_quote_data[$search[0]]['new_price_quote']);
+                /**
+                 * if new price quote comes blank then setting 0.
+                 */
+                if(!empty($this->price_quote_data[$search[0]]['new_price_quote'])) {
+                    $cell_value = $this->price_quote_data[$search[0]]['new_price_quote'];
+                } else {
+                    $cell_value = 0;
+                }
+                
+                $sheet->setCellValue('Y' . $row, $cell_value);
             }
         }
         

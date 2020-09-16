@@ -468,13 +468,6 @@ class Partner extends CI_Controller {
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
-                        // Send SMS to red Zone bookings
-                        if(!empty($responseData['data']['response']['247aroundBookingID']))
-                        {
-                            $user_details = $this->user_model->search_user($post['mobile']);
-                            $user_id = $user_details[0]['user_id'];
-                            $this->booking_model->send_red_zone_sms($responseData['data']['response']['247aroundBookingID'],$post['city'],$post['appliance_name'],$post['partnerName'],$user_details[0]['user_id'],$post['mobile']);
-                        }
                         
                         log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
                         redirect(base_url() . "partner/pending_booking");
@@ -2309,16 +2302,13 @@ class Partner extends CI_Controller {
             $current_status = "";
             $internal_status = "";
             $remarks_by_partner = "";
-            $status = "";
             foreach ($shipped_part_details as $key => $value) {   
                 if ($value['shippingStatus'] == 1) {
-
                     if ($value['spare_part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
-                        $status = $data['status'] = SPARE_OOW_SHIPPED;
+                      $status = $data['status'] = SPARE_OOW_SHIPPED;
                     } else {
-                        $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
-                    }
-
+                      $status = $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+                    }                    
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
@@ -2397,7 +2387,7 @@ class Partner extends CI_Controller {
                    
                     $spare_id = $value['spare_id'];
                     $status = _247AROUND_CANCELLED;
-                    $remarks_by_partner = $value['remarks_by_partner'];
+                    $remarks_by_partner = "Partner Reject Spare Part";
                     
                     $current_status = _247AROUND_PENDING;
                     $internal_status = _247AROUND_PENDING;
