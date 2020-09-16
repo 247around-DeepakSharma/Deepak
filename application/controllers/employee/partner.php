@@ -5583,7 +5583,7 @@ class Partner extends CI_Controller {
     
     function download_partner_pending_bookings($partnerID,$status){ 
         ob_start();
-        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status);
+        $report = $this->partner_model->get_partners_pending_bookings($partnerID,0,1,$status);        
         $newCSVFileName = $status."_booking_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $delimiter = ",";
@@ -7032,11 +7032,11 @@ class Partner extends CI_Controller {
         $bookingID = $this->input->post('booking_id');
         $finalArray = array();
         $partner_id = $this->session->userdata('partner_id');
-        $selectData = "Distinct services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
+        $selectData = " services.services,users.name as customername, users.phone_number,booking_details.*,appliance_brand,"
                 . "DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d')) as aging, count_escalation, booking_files.file_name as booking_files_purchase_inv";
-        $selectCount = "Count(DISTINCT booking_details.booking_id) as count";
-        $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'))[0]->count;
-        $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);
+        $selectCount = "Count(DISTINCT ud.booking_id) as count";
+        $bookingsCount = $this->partner_model->getPending_booking($partner_id, $selectCount,$bookingID,$state,NULL,NULL,$this->input->post('state'),$order,false)[0]->count;
+        $bookings = $this->partner_model->getPending_booking($partner_id, $selectData,$bookingID,$state,$this->input->post('start'),$this->input->post('length'),$this->input->post('state'),$order);       
         $sn_no = $this->input->post('start')+1;
         $upcountryString = "";
         foreach ($bookings as $key => $row) { 
@@ -7319,7 +7319,7 @@ class Partner extends CI_Controller {
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
         $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state as booking_state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name,booking_details.district, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
@@ -7372,7 +7372,7 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['quantity'];
                     $tempArray[] =  $row['model_number'];
                     $tempArray[] =  $row['serial_number'];
-                    $tempArray[] =  $row['state'];
+                    $tempArray[] =  $row['booking_state'];
                     $tempArray[] =  $row['remarks_by_sc'];
                     $bookingIdTemp = "'".$row['booking_id']."'";
                     $tempArray[] =  '<a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('.$bookingIdTemp.')"><i class="fa fa-envelope" aria-hidden="true"></i></a>';
