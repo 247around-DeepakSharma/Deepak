@@ -6454,7 +6454,7 @@ class Booking extends CI_Controller {
     public function cancellation_reasons()
     {
         $this->miscelleneous->load_nav_header();
-        $data = $this->booking_model->get_cancellation_reasons();
+        $data = $this->booking_model->cancelreason();
         $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
     }
     /**
@@ -6840,24 +6840,7 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
-    /*
-     * CRM-6300
-     * Get cancellation reasons of 247around
-     * return HTML
-     */
-        function get_cancellation_reasons() {
-            $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-            $where = array('reason_of' => $reason_of);
-            $cancellation_reasons = $this->booking_model->cancelreason($where);
-            $options = '<option selected disabled>Select reason</option>';
-            if (!empty($cancellation_reasons)) {
-                foreach ($cancellation_reasons as $reason) {
-                    $options .= '<option>' . $reason->reason . '</option>';
-                }
-            }
-            echo $options;
-        }
-
+    
     /**
      * @desc: This is used to show Call Recordings of particular Booking
      * params: String Booking_primary_ID
