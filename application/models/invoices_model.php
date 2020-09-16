@@ -2677,7 +2677,7 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
-        $this->db->where(" EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+        $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
                 . " AND spare_parts_details.shipped_date IS NOT NULL "
                 . " AND defective_part_required = 1 "
                 . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
