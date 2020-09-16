@@ -91,7 +91,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2><i class="fa fa-download" aria-hidden="true"></i> Download Alternate Part Master</h2>
+                    <h2><i class="fa fa-download" aria-hidden="true"></i> Download Alternate Part List</h2>
                     <input type="hidden" id="partner_id" name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>

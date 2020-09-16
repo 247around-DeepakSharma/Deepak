@@ -34,8 +34,8 @@
                     }
                     ?>
                 <div class="x_title">
-                    <h1 class="page-header">z
-                        <b> Upload Model vs Part Code Master</b>
+                    <h1 class="page-header">
+                        <b> Upload Serviceable BOM File</b>
                     </h1>
                      <a class="btn btn-info btn-sm" style="float:right" target='_blank'  href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/Part_model_mapping_sample.xlsx'>Download Sample File</a>
                     <section>
