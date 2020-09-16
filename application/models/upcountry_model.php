@@ -32,7 +32,7 @@ class Upcountry_model extends CI_Model {
         
         $city_1 = str_replace(' ', '%20', $city1);
         $city_2 = str_replace(' ', '%20', $city2);
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$city_1,$postcode1,India&destinations=$city_2,$postcode2,India&mode=driving&language=en-EN&sensor=false&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$city_1,$postcode1,India&destinations=$city_2,$postcode2,India&mode=driving&language=en-EN&sensor=false&key=".GOOGLE_MAPS_API_KEY;
         $data = file_get_contents($url);
         $result = json_decode($data, true);
         
@@ -44,7 +44,7 @@ class Upcountry_model extends CI_Model {
                 log_message('info', __FUNCTION__.' Wrong Distance Returned pincode1 '. $postcode1. ",". $postcode2);
 
                 //Try again
-                $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$postcode1,India&destinations=$postcode2,India&mode=driving&language=en-EN&sensor=false&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ";
+                $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$postcode1,India&destinations=$postcode2,India&mode=driving&language=en-EN&sensor=false&key=".GOOGLE_MAPS_API_KEY;
                 $data = file_get_contents($url);
                 $result = json_decode($data, true);
                 

@@ -939,7 +939,7 @@ EOD;
                         $value['service_center_pincode'] . ",India" .
                         "&destinations=" .
                         $value['booking_details_pincode'] . ",India" .
-                        "&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ");
+                        "&key=".GOOGLE_MAPS_API_KEY);
                 $djd = json_decode(utf8_encode($du), true);
                 $csv_array['distance'] = $djd['rows'][0]['elements'][0]['distance']['text'];
 

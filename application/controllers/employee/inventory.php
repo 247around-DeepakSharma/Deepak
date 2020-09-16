@@ -9840,11 +9840,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         if(isset($date_array[0])){
-          $from_date = date("Y-m-d H:i:s", strtotime($date_array[0]));  
+          $from_date = date("Y-m-d", strtotime($date_array[0]));  
         }
         
         if(isset($date_array[1])){
-          $to_date = date("Y-m-d H:i:s", strtotime($date_array[1]));  
+          $to_date = date("Y-m-d", strtotime($date_array[1]. "+1 days"));  
         }
 
         if (!empty($partner_id)) {

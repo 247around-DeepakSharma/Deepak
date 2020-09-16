@@ -39,7 +39,7 @@
                 <div class="dashboard_graph">
                     <div class="row x_title">
                         <div class="col-md-6">
-                            <h3>Invoice Details &nbsp;&nbsp;&nbsp;
+                            <h3>Invoice Summary Details &nbsp;&nbsp;&nbsp;
                                 <small>
                                 </small>
                             </h3>

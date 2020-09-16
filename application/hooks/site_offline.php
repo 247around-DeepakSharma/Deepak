@@ -131,7 +131,7 @@ hr {
 
 <script>
 
-var countDownDate = new Date("Aug 12, 2020 21:00:00").getTime();
+var countDownDate = new Date("Aug 26, 2020 20:30:00").getTime();
 
 // Update the count down every 1 second
 var countdownfunction = setInterval(function() {
