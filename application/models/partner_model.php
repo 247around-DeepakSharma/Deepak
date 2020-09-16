@@ -175,7 +175,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ,$select,$booking_id = '',$state=0,$offset = NULL,$limit = NULL,$stateValue = NULL,$order = array()){
+     function getPending_booking($partner_id ,$select,$booking_id = '',$state=0,$offset = NULL,$limit = NULL,$stateValue = NULL,$order = array(),$distinct = true){
          $join = "";
          $where = "";
          if($state == 1){
@@ -200,6 +200,11 @@ function get_data_for_partner_callback($booking_id) {
          if(!empty($order)){
              $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
+         
+         $groupBySubQuery = "";
+         if($distinct){
+             $groupBySubQuery = " GROUP BY booking_unit_details.booking_id ";
+         }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0";
 
@@ -210,7 +215,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
             LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )
             WHERE  $where AND booking_details.upcountry_partner_approved ='1'  "
-                  . "$orderSubQuery $limitSuubQuery"
+                  . "  $groupBySubQuery $orderSubQuery $limitSuubQuery"
         );
           $temp = $query->result();
           return $temp;
@@ -1844,7 +1849,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status){
         $agingSubQuery = "";
         if($status == 'Pending'){
-            $where = "booking_details.current_status IN ('Pending','Rescheduled')";
+            $where = "(booking_details.current_status IN ('Pending','Rescheduled')) AND booking_details.service_center_closed_date IS NULL  AND booking_details.upcountry_partner_approved ='1'";
             $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) as Aging';
         }
         else if($status == 'Completed'){
@@ -1886,12 +1891,12 @@ function get_data_for_partner_callback($booking_id) {
             ".$agingSubQuery.",
             IFNULL(dealer_details.dealer_name,'') AS 'Dealer Name',
             IFNULL(dealer_details.dealer_phone_number_1,'') AS 'Dealer Phone Number'
-            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+            FROM booking_details LEFT JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
-            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
+            WHERE (booking_details.partner_id = '$partner_id' OR booking_details.origin_partner_id = '$partner_id') AND $where GROUP BY ud.booking_id");
     }
     
     function getpartner_serialno($where){
