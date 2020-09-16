@@ -140,5 +140,30 @@ class Penalty extends CI_Controller {
         
         redirect(base_url() . "penalty/view_penalty_details");
     }
+    
+    /**
+     * This function is used to get Admin rejection reasons from review page
+     * It is used to create options in Rejection reason dropdown
+     * @author : Prity Sharma
+     * @date : 04-09-2020
+    */
+    function get_review_rejection_reasons() {
+        // Choose if rejection reasons are of booking completion or cancellation
+        $review_status = $this->input->post('review_status');
+        $reason_of = REVIEW_REJECT_CANCELLATION_REASON;
+        if (strpos(strtoupper($review_status), 'COMPLETE') !== false) {
+            $reason_of = REVIEW_REJECT_COMPLETION_REASON;
+        }
+        
+        $where = array('reason_of' => $reason_of);
+        $review_rejection_reasons = $this->penalty_model->get_penalty_details($where, true);
+        $options = '<option selected disabled>Select Rejection Reason</option>';
+        if (!empty($review_rejection_reasons)) {
+            foreach ($review_rejection_reasons as $reason) {
+                $options .= '<option value="'.$reason['id'].'">' . $reason['criteria'] . '</option>';
+            }
+        }
+        echo $options;
+    }
 
 }

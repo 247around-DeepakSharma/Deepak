@@ -29,14 +29,14 @@
                         foreach ($data as $value) { ?>
                             <tr>
                                 <td><?php echo $count;$count++ ?></td>
-                                <td><?php echo $value['reason']; ?></td>
+                                <td><?php echo $value->reason; ?></td>
                                 <td>
-                                    <select id="select<?=$value['id']?>" name="decision_flag" value="<?= $value['decision_flag']; ?>" class="form-control decision_flag" style="width:100px;">
+                                    <select id="select<?=$value->id?>" name="decision_flag" value="<?= $value->decision_flag; ?>" class="form-control decision_flag" style="width:100px;">
                                     <?php
                                         $arr_values = [0,1,2,3,4];
                                         foreach($arr_values as $rec_value)
                                         {
-                                            $selected = ($rec_value == $value['decision_flag']) ? "selected" : "";
+                                            $selected = ($rec_value == $value->decision_flag) ? "selected" : "";
                                             echo '<option value="'.$rec_value.'" '.$selected.'>'.$rec_value.'</option>';
                                         }
                                     ?>                            
