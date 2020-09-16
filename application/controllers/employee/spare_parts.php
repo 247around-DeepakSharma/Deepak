@@ -1583,17 +1583,10 @@ class Spare_parts extends CI_Controller {
         ];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
         
-        /* Insert Spare Tracking Details*/
-        if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => COURIER_LOST, 'remarks' => COURIER_LOST_APPROVED_STATUS);
-            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        }
-        // state change entry.
-        $this->notify->insert_state_change($spare_part_detail['booking_id'], COURIER_LOST, $spare_part_detail['status'], $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', $spare_part_detail['partner_id'], $spare_part_detail['service_center_id'], $spare_id);
 
         /* Insert Spare Tracking Details */
         if (!empty($post_data['courier_lost_spare_id'])) {
-            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => _247AROUND_COMPLETED, 'remarks' => $post_data['remarks']." ".COURIER_LOST_APPROVED_STATUS, 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => COURIER_LOST, 'remarks' => $post_data['remarks'] . " " . COURIER_LOST_APPROVED_STATUS, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         $this->notify->insert_state_change($spare_part_detail['booking_id'], COURIER_LOST_APPROVED_STATUS, $spare_part_detail['status'], $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $spare_part_detail['partner_id'], $post_data['courier_lost_spare_id']);
@@ -1654,8 +1647,8 @@ class Spare_parts extends CI_Controller {
             
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
             /* Insert Spare Tracking Details*/
-            if (!empty($spare_id)) {
-                $tracking_details = array('spare_id' => $spare_id, 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks']);
+            if (!empty($post_data['spare_id'])) {
+                $tracking_details = array('spare_id' => $post_data['spare_id'], 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks'], 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
             
@@ -4524,22 +4517,23 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (empty($this->session->userdata('userType'))) {
          redirect(base_url() . "employee/login");
         }
-    
-        $agentid=_247AROUND_DEFAULT_AGENT;
-        $agent_name=_247AROUND_DEFAULT_AGENT_NAME;
-        $login_partner_id=_247AROUND;
-        $login_service_center_id='';
+        $agentid = _247AROUND_DEFAULT_AGENT;
+        $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+        $tracking_entity_id = $login_partner_id = _247AROUND;
+        $login_service_center_id = '';
+        $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('id');
-            $agent_name =$this->session->userdata('emp_name');
-            $login_partner_id = _247AROUND;
-            $login_service_center_id =NULL;
-        }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('service_center_agent_id');
-            $agent_name =$this->session->userdata('service_center_name');
-            $login_service_center_id = $this->session->userdata('service_center_id');
-            $login_partner_id =NULL;
-           
+            $agentid = $this->session->userdata('id');
+            $agent_name = $this->session->userdata('emp_name');
+            $tracking_entity_id = $login_partner_id = _247AROUND;
+            $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
+            $login_service_center_id = NULL;
+        } else if ($this->session->userdata('userType') == 'service_center') {
+            $agentid = $this->session->userdata('service_center_agent_id');
+            $agent_name = $this->session->userdata('service_center_name');
+            $tracking_entity_id = $login_service_center_id = $this->session->userdata('service_center_id');
+            $tracking_entity_type = _247AROUND_SF_STRING; 
+            $login_partner_id = NULL;
         }
 
         $bookingidbulk = trim($this->input->post('bulk_input'));
@@ -4695,6 +4689,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
                         
 
+            }
+            /* Insert Spare Tracking Details */
+            if (!empty($booking['id'])) {
+                $tracking_details = array('spare_id' => $booking['id'], 'action' => $next_action, 'remarks' => $old_state . " " . $new_state, 'agent_id' => $agentid, 'entity_id' => $tracking_entity_id, 'entity_type' => $tracking_entity_type);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
         }
       
