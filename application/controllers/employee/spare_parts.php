@@ -5637,7 +5637,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
         if ($this->session->userdata("user_group") == _247AROUND_ASM) {
             $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
-            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '"")'] = NULL;
         }
 
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == _247AROUND_AM) {
