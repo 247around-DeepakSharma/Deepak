@@ -184,13 +184,16 @@ class Penalty_model extends CI_Model {
      * @param Array $where
      * @return boolean
      */
-    function get_penalty_details($where) {
+    function get_penalty_details($where, $all_records = false) {
         log_message('info', __FUNCTION__ . " Where: " . print_r($where, TRUE));
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('penalty_details');
         if ($query->num_rows > 0) {
-            return $query->result_array()[0];
+            if($all_records){
+                return $query->result_array();
+            }
+            return $query->result_array()[0];            
         } else {
             return FALSE;
         }
@@ -476,4 +479,22 @@ class Penalty_model extends CI_Model {
         return $query->result_array();        
     }
     
+    /**
+     * This function will check if penalty will be imposed on SF or not, 
+     * on the basis of SF booking cancellation reason and admin rejection reason 
+     * @param type $cancellation_reason
+     * @param $rejection_reason
+     */
+    function check_cancellation_penalty_applicable_or_not($cancellation_reason, $rejection_reason) {        
+        if(!empty($cancellation_reason) && !empty($rejection_reason)) {
+            $this->db->select('*');
+            $this->db->where('rejection_reason', $rejection_reason);
+            $this->db->where('cancellation_reason', $cancellation_reason);
+            $query = $this->db->get('cancellation_rejection_penalty_mapping');
+            if ($query->num_rows > 0) {
+                return true;   
+            }
+        }
+        return false;       
+    }
 }

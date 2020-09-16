@@ -531,14 +531,29 @@ $arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
         $('#commentModal_<?=$review_status?>_<?=$is_partner?>').modal(); 
            
     }
-    
-    function open_admin_remarks_modal(booking_id) {
-        $('.modal-title').text("");
-        $('.textarea').text("");
-        $('#model_remarks_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').modal();     
-        $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').val(booking_id);
-        $('#modal-title-<?=$review_status?>_<?=$is_partner?><?=$sub_id?>').html(booking_id);
-    }
+
+        function open_admin_remarks_modal(booking_id) {
+            $('.modal-title').text("");
+            $('.textarea').text("");
+            $('#model_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').modal();     
+            $('#modal_booking_id_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').val(booking_id);
+            $('#modal-title-<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').html(booking_id);
+            // fill rejection reason in rejection remark popup dropdown
+            $('#loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').show();
+            $('#btn_send_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').prop("disabled", true);
+            $.ajax({
+                type:'POST',
+                url:'<?php echo base_url(); ?>penalty/get_review_rejection_reasons',
+                data:{review_status: "<?php echo $review_status; ?>"},
+                success:function(data){
+                    if(data){
+                        $('#loader_gif_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').hide();
+                        $('#btn_send_remarks_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>').prop("disabled", false);
+                        $("#select_<?= $review_status ?>_<?= $is_partner ?><?= $sub_id ?>").html(data);
+                    }
+                }
+            });
+        }
 
 
     function open_admin_remarks_modal_assign(booking_id) {
