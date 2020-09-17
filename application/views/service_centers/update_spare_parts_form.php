@@ -669,21 +669,19 @@
                                     swal("Error !", "Same part type can not be shipped. For multiple part please fill quantity.");
 
                                 } else {
-
-
-                                    let kg = $("#shipped_spare_parts_weight_in_kg").val();
-                                    let gm = $("#shipped_spare_parts_weight_in_gram").val();
-                                    let total = parseInt(kg)+parseInt(gm);
-                                    if(!total){
+                                    if(!$('#courier_not_shipping').is(":checked")){
+                                        let kg = $("#shipped_spare_parts_weight_in_kg").val();
+                                        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+                                        let total = parseInt(kg)+parseInt(gm);
+                                        if(!total){
                                         swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+                                        }else{
+                                        form.submit();   
+                                        }
                                     }else{
-                                     form.submit();   
-                                    }
-
-
-                                    
+                                       form.submit(); 
+                                    } 
                                 }
-
                             }
                         });
                     }
