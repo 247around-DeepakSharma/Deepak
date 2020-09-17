@@ -1593,16 +1593,16 @@ function  getPartnerCompareTAT(){
                     
                     $return_data['request_type'] = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
                     if(!empty($curl_response)){ 
-                     $return_data['D0'][]  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
-                     $return_data['D1'][]  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
-                     $return_data['D2'][] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
-                     $return_data['D4'][]  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
+                     $return_data['D0']  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
+                     $return_data['D1']  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
+                     $return_data['D2'] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
+                     $return_data['D4']  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
 
                     }else{
-                     $return_data['D0'][]  = array()  ;
-                     $return_data['D1'][]  = array()  ;
-                     $return_data['D2'][] = array()  ;
-                     $return_data['D4'][]  = array()  ;
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
                         
                         
                     }
