@@ -328,7 +328,7 @@
                                             $image_src = $src;
                                             if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$unit_details['quantity'][0]['sf_purchase_invoice'];
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>

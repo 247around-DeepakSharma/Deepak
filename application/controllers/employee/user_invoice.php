@@ -710,18 +710,14 @@ class User_invoice extends CI_Controller {
                     $where_in = array('id' => $spare_id);
                     $result = $this->inventory_model->update_bluk_spare_data($where_in, array('defective_part_required' => 0, 'sell_invoice_id' => $invoice_id, 'spare_lost' => 1, 'sell_price' => $invoice_amount[$spare_id], 'status' => $reason[$spare_id]));
                 }
-
-                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED . '")' => NULL, 'spare_lost != 1' => NULL));
-
-                if (count($check_lost_part) === 0) {
-                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id' => $booking_id));
-                    if ($service_center_action[0]['service_center_closed_date']) {
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
-                        if (!empty($partner_status)) {
+                
+                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
+                
+                if(count($check_lost_part) === 0) {
+                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id'=>$booking_id));
+                    if(!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED) {
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];
@@ -1825,19 +1821,15 @@ class User_invoice extends CI_Controller {
                 $spare_update_data = array(
                     'sell_invoice_id' => $invoice_id,
                 );
-                $result = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
-
-                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED . '")' => NULL, 'spare_lost != 1' => NULL));
-
-                if (count($check_oow_lost_part) === 0) {
-                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id' => $booking_id));
-                    if ($service_center_action[0]['service_center_closed_date']) {
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, OUT_OF_WARRANTY, $partner_id, $booking_id);
-                        if (!empty($partner_status)) {
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
+                
+                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
+                
+                if(count($check_oow_lost_part) === 0) {
+                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id'=>$booking_id));
+                    if(!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED){
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, OUT_OF_WARRANTY, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];

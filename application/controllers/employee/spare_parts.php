@@ -150,6 +150,10 @@ class Spare_parts extends CI_Controller {
                 /* Courier Approved Defective Parts */
                 $this->get_in_transit_courier_approved_defective($post);
                 break;
+            case 18:
+                /* Auto Acknowledged Spare Parts */
+                $this->get_auto_acknowledged_spare_parts($post);
+                break;
         }
     }
     /**
@@ -5284,6 +5288,84 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         return $row;
     }
     
+    
+    /*
+     * @desc: Used to create tab that spare parts auto acknowleged 
+     * @param: Array $post
+     * @echo:json
+     */
+     function get_auto_acknowledged_spare_parts($post) {
+
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  spare_parts_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
+                . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status,  booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
+                . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"
+                . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.acknowledge_date,"
+                . "(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'From API' ELSE 'To Acknowledged' END) AS auto_ack_status";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
+            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
+
+        unset($post['where']['status']);
+     
+        $post['where']['spare_parts_details.status'] = SPARE_DELIVERED_TO_SF;
+        $post['where']['auto_acknowledeged IN  ("' . AUTO_ACKNOWLEDGED_FROM_API . '", "' . AUTO_ACKNOWLEDGED_TO_CRON . '")'] = NULL;
+
+        $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->auto_acknowledged_spare_parts_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    
+     /*
+     * @desc: This function is used to create table row data total parts shipped to SF
+     * @param: Array $spare_list
+     * @param: int $no
+     * @return: Array
+     */
+      function auto_acknowledged_spare_parts_table_data($spare_list, $no) {
+
+        $row = array();
+        $row[] = $no;
+        $row[] = $spare_list->booking_id;
+        $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
+        $row[] = $spare_list->sf_status;
+        $row[] = $spare_list->partner_name;
+        $row[] = "<span class='line_break'>" . $spare_list->spare_status . "</span>";
+        $row[] = $spare_list->spare_warranty_status;
+        $row[] = "<span class='line_break'>" . $spare_list->nrn_status . "</span>";
+        $row[] = $spare_list->service_center_closed_date;
+        $row[] = "<span class='line_break'>" . $spare_list->booking_request_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_model_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = $spare_list->spare_part_shipped_date;
+        $row[] = $spare_list->spare_shipped_age;
+        $row[] = "<span class='line_break'>" . $spare_list->awb_by_partner . "</span>";
+        $row[] = $spare_list->awb_by_sf;
+        $row[] = $spare_list->parts_charge;
+        $row[] = $spare_list->auto_ack_status;
+        $row[] = date("d-M-Y", strtotime($spare_list->acknowledge_date));
+
+        return $row;
+    }
     
       /*
      * @desc: This Function is used to download the OOT report

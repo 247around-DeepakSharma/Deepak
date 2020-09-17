@@ -303,7 +303,7 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = " SUM( CASE WHEN (amount_collected_paid > 0) THEN COALESCE((`amount_collected_paid` - amount_paid ),0) ELSE COALESCE((`amount_collected_paid` + amount_paid ),0) END ) as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL_Credit_Note . "', '"  . MSL_Debit_Note . "', '"  . MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."', '".FNF."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
                 $w = "";
@@ -436,7 +436,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " (partner_net_payable + partner_spare_extra_charge) as partner_net_payable,partner_spare_extra_charge, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
+                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
@@ -2683,7 +2683,7 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
-        $this->db->where(" EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+        $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
                 . " AND spare_parts_details.shipped_date IS NOT NULL "
                 . " AND defective_part_required = 1 "
                 . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
@@ -3707,7 +3707,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
+                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number

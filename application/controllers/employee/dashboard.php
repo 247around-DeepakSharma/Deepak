@@ -362,8 +362,8 @@ class Dashboard extends CI_Controller {
             $endDate = date('Y-m-d 23:59:59', strtotime($eDate));
         }
         else{ 
-            $endDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime('+1 days'))));
-            $startDate = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime('-7 days'))));
+            $endDate = date('Y-m-d 23:59:59', strtotime(date('Y-m-d')));
+            $startDate = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime('-6 days'))));
         }
         // Here Booking wise data is fetched
         if($type == "excel"){

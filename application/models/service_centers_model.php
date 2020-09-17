@@ -314,7 +314,7 @@ class Service_centers_model extends CI_Model {
                 . " JOIN booking_details ON booking_details.booking_id = sc.booking_id  "
                 . " JOIN users ON booking_details.user_id = users.user_id"
                 . " JOIN service_centres ON booking_details.assigned_vendor_id = service_centres.id"
-                . " JOIN employee ON service_centres.asm_id = employee.id"
+                . " LEFT JOIN employee ON service_centres.asm_id = employee.id"
                 . " JOIN services ON services.id = booking_details.service_id"
                 . " LEFT JOIN booking_cancellation_reasons ON sc.cancellation_reason = booking_cancellation_reasons.id  "
                 . " LEFT JOIN spare_parts_details ON booking_details.booking_id = spare_parts_details.booking_id AND spare_parts_details.consumed_part_status_id = 1"
@@ -1522,7 +1522,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->from('vendor_partner_invoices');
         $this->db->where('vendor_partner', 'vendor');
         $this->db->where('vendor_partner_id', $serviceCenterID);
-        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN, MSL_Credit_Note, MSL_Debit_Note));
+        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN));
         $res['error'] = false;
         if($countOnly){
             $res['payload'] = $this->db->get()->row_array();

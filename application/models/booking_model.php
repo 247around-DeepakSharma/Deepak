@@ -14,11 +14,13 @@ class Booking_model extends CI_Model {
     function is_booking_exist($user_id,$appliance_name,$category,$capacity,$service_id="")
     {
         if(!empty($capacity))
+        {
             $where["t2.appliance_capacity"] = "$capacity";
+        }
         if(!empty($service_id))
+        {
             $where["t3.id"] = $service_id;
-        if(!empty($appliance_name))
-            $where["t3.id = (SELECT id from services WHERE services = '$appliance_name')"] = NULL;
+        }
         $where["t2.appliance_category"] = "$category";
         $where["t1.booking_id = t2.booking_id"] = NULL;
         $where["t1.user_id"] = $user_id;
@@ -39,16 +41,6 @@ class Booking_model extends CI_Model {
         return $query->num_rows();
     }
     /**
-     *  @desc : This function is to add new brand to our database for a service.
-     *
-     *  This helps to add any new brand found(told by customer) for any
-     *      service(like for Television, Refrigerator, etc)
-     *
-     *  @param : service id and new brand
-     *  @return : void737
-     */
-
-	/**
      * @desc: get all files name having space from collateral table
      * @return:  Array
      */
@@ -68,6 +60,15 @@ class Booking_model extends CI_Model {
         $this->db->update('collateral', array("file"=>$file));
     }
 
+    /**
+     *  @desc : This function is to add new brand to our database for a service.
+     *
+     *  This helps to add any new brand found(told by customer) for any
+     *      service(like for Television, Refrigerator, etc)
+     *
+     *  @param : service id and new brand
+     *  @return : void
+     */
     function addNewApplianceBrand($service_id, $newbrand) {
         $data = array(
             'service_id'=>$service_id,
@@ -258,6 +259,7 @@ class Booking_model extends CI_Model {
         if($data['booking_status'] == _247AROUND_COMPLETED || $data['booking_status'] == _247AROUND_PENDING ){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
+
                     . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
                     . ' tax_rate, price_tags, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
 
@@ -775,8 +777,10 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($where, $order_by = "") {
-        $this->db->where($where);
+    function cancelreason($where = "", $order_by = "") {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         if(!empty($order_by)){
             $this->db->order_by($order_by,false);
         }
@@ -3055,19 +3059,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    /**
-     * @Desc: This function is used to get Booking cancellation reasons
-     * @return: array
-     */
-    function get_cancellation_reasons($select="*")
-    {
-        $this->db->select($select);
-        $this->db->from("booking_cancellation_reasons");
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
+        
     function update_service_status($where, $data){
         $this->db->where($where,FALSE);
         $this->db->update('services', $data);
@@ -3281,5 +3273,19 @@ class Booking_model extends CI_Model {
     function getBookingLastSpare($booking_id){
     $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
     return $this->db->query($sql)->result();
+    }
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings_by_id($booking_primary_id, $select = "*"){
+        $this->db->select($select);
+        $this->db->from("agent_outbound_call_log");
+        $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
+        $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
+        $query = $this->db->get();
+        return $query->result_array();
     }
 }

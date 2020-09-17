@@ -209,11 +209,11 @@
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
                                             if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$bookng_unit_details[0]['en_purchase_invoice'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$bookng_unit_details[0]['en_purchase_invoice'];
                                             } 
                                             else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$booking_history['spare_parts'][0]['invoice_pic'];
                                             }
                                             ?>
                                             <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo "View Purchase Invoice Pic"; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){ echo "View Purchase Invoice Pic"; } else{ echo ""; } ?></small></a>

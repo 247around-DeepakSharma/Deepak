@@ -119,7 +119,11 @@ class Booking extends CI_Controller {
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
-                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.                
+                $status = "";
+                $is_booking_exist = $this->booking_model->is_booking_exist($this->input->post("user_id"),$this->input->post('service'),$this->input->post('appliance_category')[0],$this->input->post('appliance_capacity')[0]);
+                if(empty($is_booking_exist))
+                    $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
@@ -129,6 +133,10 @@ class Booking extends CI_Controller {
                     
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
+                    if(!empty($is_booking_exist))
+                    {
+                        $this->session->set_userdata(['error' => 'Same booking has already been created. Please try after some time.']);
+                    }
                     $this->addbooking($primary_contact_no);
                 }
             } else {
@@ -2619,13 +2627,12 @@ class Booking extends CI_Controller {
         // insert in booking files.
         $booking_file = [];
         if(!empty($purchase_invoice_file_name)){
-        $booking_file['booking_id'] = $booking_id;
-        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
-        $booking_file['file_name'] = $purchase_invoice_file_name;
-        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
-        $booking_file['create_date'] = date("Y-m-d H:i:s");
-        $this->booking_model->insert_booking_file($booking_file);
+            $booking_file['booking_id'] = $booking_id;
+            $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+            $booking_file['file_name'] = $purchase_invoice_file_name;
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
+            $booking_file['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->insert_booking_file($booking_file);
         }
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
@@ -2871,7 +2878,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -3592,7 +3599,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -6441,7 +6448,7 @@ class Booking extends CI_Controller {
     public function cancellation_reasons()
     {
         $this->miscelleneous->load_nav_header();
-        $data = $this->booking_model->get_cancellation_reasons();
+        $data = $this->booking_model->cancelreason();
         $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
     }
     /**
@@ -6827,23 +6834,14 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
-
-    /*
-     * CRM-6300
-     * Get cancellation reasons of 247around
-     * return HTML
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
      */
-    function get_cancellation_reasons() {
-        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-        $where = array('reason_of' => $reason_of);
-        $cancellation_reasons = $this->booking_model->cancelreason($where);
-        $options = '<option selected disabled>Select reason</option>';
-        if (!empty($cancellation_reasons)) {
-            foreach ($cancellation_reasons as $reason) {
-                $options .= '<option>' . $reason->reason . '</option>';
-            }
-        }
-        echo $options;
-    }
-
+    function get_booking_recordings($booking_primary_id) { 
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }    
 }

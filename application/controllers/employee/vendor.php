@@ -3690,7 +3690,6 @@ class vendor extends CI_Controller {
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
         $sf_name = $sf_details[0]['name'];
-        
         //Sending Mail to corresponding RM and admin group 
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
@@ -3707,7 +3706,13 @@ class vendor extends CI_Controller {
                 $email['action_by'] = $agent_name;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
+                //Send mail to asm also in cc
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($id);
+                if(!empty($asm_details[0]['official_email']))
+                    $cc = $template[3].",".$asm_details[0]['official_email'];
+                else 
+                    $cc = $template[3];
+                $this->notify->sendEmail($template[2], $to, $cc, '', $subject, $emailBody, "",'sf_temporary_on_off');
             }
 
             log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
@@ -4341,13 +4346,17 @@ class vendor extends CI_Controller {
                 //Getting RM Official Email details to send Welcome Mails to them as well
                 $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
                 $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                // Send Mail To asm also
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                if(!empty($asm_details))
+                    $asm_mail = "," . $asm_details[0]['official_email'];
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
