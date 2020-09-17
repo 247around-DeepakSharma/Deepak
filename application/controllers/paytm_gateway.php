@@ -323,7 +323,7 @@ class Paytm_gateway extends CI_Controller {
         }else if(!empty ($partner_email)){
             $to = $partner_email;
         }else{
-            $to = NITS_ANUJ_EMAIL_ID;
+            $to = ANUJ_EMAIL_ID;
         }
         
         $email_template = $this->booking_model->get_booking_email_template("payment_transaction_email");
