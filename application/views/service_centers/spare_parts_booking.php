@@ -301,7 +301,9 @@ if ($this->uri->segment(3)) {
             }
         });
 
-        table = $("#datatable1").dataTable({
+    });
+    
+    table = $("#datatable1").dataTable({
             "pageLength": 100,
             "paging": false,
             dom: 'lBfrtip',
@@ -328,8 +330,6 @@ if ($this->uri->segment(3)) {
 
         });
         
-        //table.destroy();
-    });
     
     function downloadSpare(){
         $("#spareDownload").attr("disabled", true).html("Download In Progress");

@@ -633,8 +633,6 @@
         swal("Error !", "Weight in KG and GM must be greater than 0");
         return false;
         }
-        }
-
 
         var courier_price= parseFloat(postData['courier_price_by_wh']);
         if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
