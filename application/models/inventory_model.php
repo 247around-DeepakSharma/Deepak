@@ -1813,7 +1813,7 @@ class Inventory_model extends CI_Model {
      * 
      */
 
-    function get_courier_company_invoice_details($select, $where, $where_in=array()){
+    function get_courier_company_invoice_details($select, $where, $where_in=array(), $is_object = FALSE){
         $this->db->select($select);
         
         if(!empty($where)){
@@ -1824,8 +1824,14 @@ class Inventory_model extends CI_Model {
             $this->db->where_in(key($where_in), $where_in[key($where_in)]);
         }
 
-        $query = $this->db->get('courier_company_invoice_details');
-        return $query->result_array();
+        
+        if($is_object){
+            $this->db->order_by('courier_company_invoice_details.create_date', 'ASC');
+            return $this->db->get('courier_company_invoice_details');
+        } else {
+            $query = $this->db->get('courier_company_invoice_details');
+            return $query->result_array();
+        }
     }
     
      /**
