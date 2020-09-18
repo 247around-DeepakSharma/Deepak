@@ -181,8 +181,6 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
-        if(!empty($upcountry_data['vendor_id']))
-            $booking['vendor_id'] = $upcountry_data['vendor_id'];
         // Get Existing Price Tags
         $whereOldPrice['booking_id'] = $booking_id;
         $groupBY  = array('appliance_id');
