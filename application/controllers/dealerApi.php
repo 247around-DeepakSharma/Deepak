@@ -1579,7 +1579,7 @@ function  getPartnerCompareTAT(){
    
                     $return_data['earned_details']['m1'] = array('count'=>$m1['total_booking'],'month'=>date("M",strtotime(date('Y-m-d'))),'earned'=>$m1['earned']);
                     $return_data['earned_details']['m2'] = array('count'=>$m2['total_booking'],'month'=>date("M",strtotime($m2['month'])),'earned'=>$m2['earned']);
-                    $return_data['earned_details']['m3'] = array('count'=>$m3['total_booking'],'month'=>$strtotime(m3['month']),'earned'=>$m3['earned']);
+                    $return_data['earned_details']['m3'] = array('count'=>$m3['total_booking'],'month'=>date("M",strtotime($m3['month'])),'earned'=>$m3['earned']);
                     
                     $cancel['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
                     
@@ -1593,16 +1593,16 @@ function  getPartnerCompareTAT(){
                     
                     $return_data['request_type'] = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
                     if(!empty($curl_response)){ 
-                     $return_data['D0'][]  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
-                     $return_data['D1'][]  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
-                     $return_data['D2'][] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
-                     $return_data['D4'][]  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
+                     $return_data['D0']  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
+                     $return_data['D1']  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
+                     $return_data['D2'] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
+                     $return_data['D4']  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
 
                     }else{
-                     $return_data['D0'][]  = array()  ;
-                     $return_data['D1'][]  = array()  ;
-                     $return_data['D2'][] = array()  ;
-                     $return_data['D4'][]  = array()  ;
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
                         
                         
                     }
