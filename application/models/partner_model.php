@@ -2536,23 +2536,6 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     /**
-     * @Desc: This function is used to get partner am mapped data from agent filter tabel
-     * @return Array
-     * 
-     */
-    function getpartner_data_from_agent_filter($partner_id)
-    {
-        $select = " GROUP_CONCAT( DISTINCT agent_filters.agent_id ) AS account_manager_id FROM agent_filters JOIN booking_details ON agent_filters.entity_id = booking_details.partner_id AND agent_filters.entity_id = booking_details.partner_id AND booking_details.state = agent_filters.state AND booking_details.partner_id = '$partner_id' AND agent_filters.entity_type ='"._247AROUND_EMPLOYEE_STRING."'";
-        $this->db->distinct();
-        $this->db->select($select);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
-    
-    
-    
-    /**
      * @Desc: This function is used to get partner am mapped data
      * @param $select, Array $where, String $is_reporting_mail (O or 1), $is_am_details  (TRUE or FALSE), $is_booking_source (O or 1), $is_am ( use group_concat to fetch data otherwise multiple rows as per am will be fetched ) 
      * @return Array

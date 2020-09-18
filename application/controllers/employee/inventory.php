@@ -7648,6 +7648,8 @@ class Inventory extends CI_Controller {
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
 
+        
+
         $this->load->dbutil();
         $this->load->helper('file');
 
@@ -10697,6 +10699,43 @@ class Inventory extends CI_Controller {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_courier_serviceable_area',$data);
+    }
+    /**
+     * @desc This function is used to download all undelivered docket
+     */
+    function download_undelivered_docket(){
+        $select ="`awb_number` as 'Docket Number', `courier_invoice_id` as 'Courier Company Invoice ID', `company_name` as 'Courier Name', "
+                . "`courier_charge` as 'Courier Charges', `actual_weight` As 'Actual Weight', `billable_weight` As 'Billable Weight', `courier_invoice_file` As 'Courier Invoice File', "
+                . "`pickup_from` As 'Picku From', `box_count` as 'Large Box Count', `small_box_count` AS 'Small Box Count', `shippment_date` as 'Shippment Date', `courier_pod_file` as 'POD File',"
+                . " `is_rto`, `rto_file`, `create_date` AS 'Docket Entry Date'";
+        $where = array('delivered_date IS NULL' => NULL);
+        $data = $this->inventory_model->get_courier_company_invoice_details($select, $where, array(), true);
+        
+        $this->load->dbutil();
+        $this->load->helper('file');
+        $file_name = 'courier_data_' . date('jMYHis') . ".csv";
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($data, $delimiter, $newline);
+        write_file(TMP_FOLDER . $file_name, $new_report);
+        if (file_exists(TMP_FOLDER . $file_name)) {
+            ob_start();
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$file_name\"");
+            if(ob_get_length()>0) {
+                ob_end_flush();
+            }
+            $res1 = 0;
+            if(file_exists(TMP_FOLDER . $file_name)) {
+                system(" chmod 777 " . TMP_FOLDER . $file_name . '.zip ', $res1);
+                readfile(TMP_FOLDER . $file_name); 
+            }
+        } else {
+            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+        }
+
+        exit();
     }
 
 }
