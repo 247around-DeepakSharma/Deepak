@@ -88,7 +88,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
             <div class="panel-body">
-                <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])) { ?>
+                <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])) { ?>
                 <div class="alert alert-warning">
                     <span style="font-weight:bold;">You don't have permission to complete booking.</span>
                 </div>
