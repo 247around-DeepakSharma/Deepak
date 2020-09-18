@@ -1587,15 +1587,10 @@ class Spare_parts extends CI_Controller {
         ];
         $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
         
-        /* Insert Spare Tracking Details*/
-        if (!empty($spare_id)) {
-            $tracking_details = array('spare_id' => $spare_id, 'action' => COURIER_LOST, 'remarks' => COURIER_LOST_APPROVED_STATUS);
-            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-        }
         
         /* Insert Spare Tracking Details */
         if (!empty($post_data['courier_lost_spare_id'])) {
-            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => _247AROUND_COMPLETED, 'remarks' => $post_data['remarks']." ".COURIER_LOST_APPROVED_STATUS, 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
+            $tracking_details = array('spare_id' => $post_data['courier_lost_spare_id'], 'action' => COURIER_LOST, 'remarks' => $post_data['remarks'] . " " . COURIER_LOST_APPROVED_STATUS, 'agent_id' => $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         // state change entry.
@@ -1658,8 +1653,8 @@ class Spare_parts extends CI_Controller {
             
             $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data);
             /* Insert Spare Tracking Details*/
-            if (!empty($spare_id)) {
-                $tracking_details = array('spare_id' => $spare_id, 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks']);
+            if (!empty($post_data['spare_id'])) {
+                $tracking_details = array('spare_id' => $post_data['spare_id'], 'action' => 'Courier Lost Rejected By Admin', 'remarks' => $post_data['reject_courier_lost_spare_part_remarks'], 'agent_id' =>  $this->session->userdata('id'), 'entity_id' => _247AROUND, 'entity_type' => _247AROUND_EMPLOYEE_STRING);
                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
             
@@ -4429,7 +4424,7 @@ class Spare_parts extends CI_Controller {
      * @since 31-May-2019
      */
     function spare_transfer_from_wh_to_wh_process() {
-
+        
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
             
         } else {
@@ -4515,6 +4510,12 @@ class Spare_parts extends CI_Controller {
                         $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                         $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                         if ($this->db->affected_rows() > 0) {
+                            /* Insert Spare Tracking Details */
+                            if (!empty($spareid)) {
+                                $tracking_details = array('spare_id' => $spareid, 'action' => _247AROUND_TRANSFERED_TO_WAREHOUSE, 'remarks' => $old_state." ".$new_state , 'agent_id' => $this->session->userdata('service_center_agent_id'), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                            }
+                            
                             $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL, $this->session->userdata('service_center_id'));
                             if ($data['entity_type'] == _247AROUND_SF_STRING) {
                                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $service_center_to, $data['inventory_id'], $booking['quantity']);
@@ -4632,17 +4633,20 @@ class Spare_parts extends CI_Controller {
 
         $agentid = _247AROUND_DEFAULT_AGENT;
         $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-        $login_partner_id = _247AROUND;
+        $tracking_entity_id = $login_partner_id = _247AROUND;
         $login_service_center_id = '';
+        $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
         if ($this->session->userdata('userType') == 'employee') {
             $agentid = $this->session->userdata('id');
             $agent_name = $this->session->userdata('emp_name');
-            $login_partner_id = _247AROUND;
+            $tracking_entity_id = $login_partner_id = _247AROUND;
+            $tracking_entity_type = _247AROUND_EMPLOYEE_STRING;
             $login_service_center_id = NULL;
         } else if ($this->session->userdata('userType') == 'service_center') {
             $agentid = $this->session->userdata('service_center_agent_id');
             $agent_name = $this->session->userdata('service_center_name');
-            $login_service_center_id = $this->session->userdata('service_center_id');
+            $tracking_entity_id = $login_service_center_id = $this->session->userdata('service_center_id');
+            $tracking_entity_type = _247AROUND_SF_STRING; 
             $login_partner_id = NULL;
         }
 
@@ -4792,6 +4796,11 @@ class Spare_parts extends CI_Controller {
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
                     $this->booking_model->update_booking($booking['booking_id'], $data_booking);
                 }
+            }
+            /* Insert Spare Tracking Details */
+            if (!empty($booking['id'])) {
+                $tracking_details = array('spare_id' => $booking['id'], 'action' => $next_action, 'remarks' => $old_state . " " . $new_state, 'agent_id' => $agentid, 'entity_id' => $tracking_entity_id, 'entity_type' => $tracking_entity_type);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
             }
         }
 
@@ -5470,16 +5479,16 @@ class Spare_parts extends CI_Controller {
 
         if ($this->session->userdata("user_group") == _247AROUND_RM) {
             $post['where']['service_centres.rm_id'] = $this->session->userdata("id");
-            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
         }
 
         if ($this->session->userdata("user_group") == _247AROUND_ASM) {
             $post['where']['service_centres.asm_id'] = $this->session->userdata("id");
-            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '"")'] = NULL;
         }
 
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' || $this->session->userdata('user_group') == _247AROUND_AM) {
-            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '","' . DAMAGE_PART_TO_BE_SHIPPED . '")'] = NULL;
+            $post['where']['status in ("' . DEFECTIVE_PARTS_PENDING . '","' . OK_PART_TO_BE_SHIPPED . '")'] = NULL;
         }
 
         return $post;

@@ -2468,7 +2468,7 @@ class Service_centers extends CI_Controller {
         } else {
             $returnData = array();
         }
-        $service_center_id = "";
+        
         $this->form_validation->set_rules('booking_id', 'Booking Id', 'trim|required');
         $this->form_validation->set_rules('model_number', 'Model Number', 'trim|required');
         $this->form_validation->set_rules('model_number_id', 'Model Number', 'trim');
@@ -3034,6 +3034,13 @@ class Service_centers extends CI_Controller {
                     $sc_entity_id = NULL;
                     $entity_type = _247AROUND_SF_STRING;
                 }
+                
+                /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => 'SF acknowledged to receive spare parts', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
+                
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('Y-m-d', strtotime('+1 days'));
                     $booking['update_date'] = date("Y-m-d H:i:s");
@@ -3055,11 +3062,6 @@ class Service_centers extends CI_Controller {
 
                     if ($b_status) {
                         
-                        /* Insert Spare Tracking Details */
-                        if (!empty($id)) {
-                            $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => 'SF acknowledged to receive spare parts', 'agent_id' => $agent_id, 'entity_id' => $entity_id, 'entity_type' => $entity_type);
-                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                        }
                         if($update_service_center_bokking_action){
                         $this->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id, $id);
 
@@ -6295,9 +6297,9 @@ class Service_centers extends CI_Controller {
         $data['is_generate_challan'] = true;
         if (empty($this->input->post('is_ajax'))) {
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/spare_parts_booking', $data);
+            $this->load->view('service_centers/generate_challan_send_to_sf', $data);
         } else {
-            $this->load->view('service_centers/spare_parts_booking', $data);
+            $this->load->view('service_centers/generate_challan_send_to_sf', $data);
         }
     }
 

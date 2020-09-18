@@ -55,7 +55,7 @@ if ($this->uri->segment(3)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>service_center/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table id="datatable1" class="table table-bordered table-hover table-striped">
+                        <table id="generate_challan" class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -304,7 +304,7 @@ if ($this->uri->segment(3)) {
         });
     });
     
-     table = $("#datatable1").dataTable({
+     table = $("#generate_challan").dataTable({
             "pageLength": 100,
             "paging": false,
             dom: 'lBfrtip',
@@ -325,7 +325,7 @@ if ($this->uri->segment(3)) {
                             page: 'all'
                         }
                     },
-                    title: 'spare_send_to_sf'
+                    title: 'generate_challan_sent_to_sf'
                 }
                 ]
 

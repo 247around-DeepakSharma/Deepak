@@ -143,7 +143,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php $is_modal_number = false;  if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  onchange="check_booking_request()">
+                                            <select class="form-control spare_parts" id="model_number_id" tabindex="-1" name="model_number_id"  onchange="check_booking_request()">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option value="<?php echo $value['id']; ?>"   <?php if(trim(strtoupper($unit_model_number))==trim(strtoupper($value['model_number']))){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
@@ -156,7 +156,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                            <input type="text" class="form-control spare_parts" id="model_number" tabindex="-1" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -166,7 +166,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control" tabindex="-1" value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00" && $ask_purchase_date==0)){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
