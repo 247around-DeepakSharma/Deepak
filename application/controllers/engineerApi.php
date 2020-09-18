@@ -2941,7 +2941,9 @@ class engineerApi extends CI_Controller {
             } else {
                 $response['is_consumption_required'] = false;
             }
-
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,partner_upcountry_rate", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
+            $response['upcountry_paid_by_customer'] = $bookingDetails[0]['upcountry_paid_by_customer'];
+            $response['upcountry_paid_by_customer_amount'] = ceil($bookingDetails[0]['partner_upcountry_rate']*$bookingDetails[0]['partner_upcountry_rate']);
             $response['booking_unit_details'] = $bookng_unit_details[0];
             log_message("info", __METHOD__ . "Product details found successfully");
 
