@@ -98,12 +98,20 @@
 
             <tr style="text-align: center;">
                 <td style="width: 40%;" rowspan="3" align="center">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
-                <td rowspan="3" colspan="2"></td>
+                <td rowspan="3" colspan="2">
+                    <?php if(!empty($meta['vendor_stamp'])){ ?>
+                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/sf-stamp/".$meta['vendor_stamp']; ?>" style="width: 120px;">
+                    <?php } ?>
+                </td>
                 <td colspan="4" class="bold" style="background-color: rgb(211,211,211);">For <?php echo $meta['company_name']; ?></td>
             </tr>
 
             <tr>
-                <td colspan="3" height="30%" style="padding: 2%; border-right: 2px solid;"></td>
+                <td colspan="3" height="30%" style="padding: 2%; border-right: 2px solid;"  align="center">
+                    <?php if(!empty($meta['sign_path'])){ ?>
+                    <img src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$meta['sign_path']; ?>" style="width: 170px;">
+                    <?php } ?>
+                </td>
             </tr>
 
             <tr>
