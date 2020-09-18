@@ -2154,9 +2154,11 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-                    $bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message'];
+
+                    $bookings[$key]['pre_consume_req'] = $previous_consumption_required;
+                    $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    $bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] = $spare_resquest['message'];
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
@@ -2167,6 +2169,29 @@ class engineerApi extends CI_Controller {
         }
         return $bookings;
     }
+    
+ 
+    /*  Check if req type is  in warraty or out  or not return true/false
+
+      Author @ Abhishek Awasthi
+      parameters @ $request_type
+      return boolean
+
+     */
+    
+    function getBookingWarrantyFlag($request_type){
+        
+        $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
+        if(in_array($request_type, $in_warranty_array)){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
+        
+    }
+    
+    
 
     function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
@@ -2187,6 +2212,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     }
                     $missed_bookings[$key]['booking_distance'] = $distance;
+                    $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
@@ -2232,7 +2258,9 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-                    $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+
+                    $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                     $tomorrowBooking[$key]['pre_consume_req'] =  $previous_consumption_required;
