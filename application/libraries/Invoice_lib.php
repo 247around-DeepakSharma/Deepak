@@ -175,6 +175,36 @@ class Invoice_lib {
                 }
             }
         }
+        if(isset($meta['sign_path'])){
+            if($meta['sign_path']){
+                $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$meta['sign_path'];
+                if($this->remote_file_exists($main_sign_path)){
+                    if(copy($main_sign_path, TMP_FOLDER . $meta['sign_path'])){
+                        $sign_cell = $meta['sign_path_cell'];
+                        $sign_path = TMP_FOLDER . $meta['sign_path'];
+                        $res1 = 0;
+                        system(" chmod 777 " . $sign_path, $res1);
+                        $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
+                        array_push($imagePath, $sign_detail);
+                    }
+                }
+            }
+        }
+        if(isset($meta['vendor_stamp'])){
+            if($meta['vendor_stamp']){
+                $main_stamp_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/sf-stamp/".$meta['vendor_stamp'];
+                if($this->remote_file_exists($main_stamp_path)){
+                    if(copy($main_stamp_path, TMP_FOLDER . $meta['vendor_stamp'])){
+                        $vendor_stamp_cell = $meta['vendor_stamp_cell'];
+                        $stamp_path = TMP_FOLDER . $meta['vendor_stamp'];
+                        $res1 = 0;
+                        system(" chmod 777 " . $stamp_path, $res1);
+                        $stamp_detail = array("image_path" => $stamp_path, "cell" => $vendor_stamp_cell);
+                        array_push($imagePath, $stamp_detail);
+                    }
+                }
+            }
+        }
         
         $R->render('excel', $output_file_excel,$cell, $imagePath);
         
@@ -186,6 +216,9 @@ class Invoice_lib {
         }
         if(file_exists($sign_path)){
             unlink($sign_path);
+        }
+        if(file_exists($stamp_path)){
+            unlink($stamp_path);
         }
         
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);

@@ -2010,6 +2010,16 @@ class invoices_model extends CI_Model {
 //                $meta['sign_path'] = $path1;
 //                $meta['cell'] = "K".(26 + count($data['booking']));
 //            }
+            if(!empty($data['booking'][0]['signature_file'])){
+                $meta['sign_path'] = $data['booking'][0]['signature_file'];
+                $meta['sign_path_cell'] = "I".(23 + count($data['booking']));
+            }
+
+            $vendorStamp = $this->vendor_model->fetch_sf_miscellaneous_data('stamp_file',array('vendor_id'=>$vendor_id,'status'=>1));
+            if(!empty($vendorStamp)){
+                $meta['vendor_stamp'] = $vendorStamp[0]['stamp_file'];
+                $meta['vendor_stamp_cell'] = "D".(23 + count($data['booking']));
+            }
            
             if ($meta['sub_total_amount'] >= 0) {
                
