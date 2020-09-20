@@ -73,7 +73,8 @@ class User extends CI_Controller {
      */
     
     function finduser(){
-        $serial_number=$this->input->get('serial_number');
+        // $serial_number=$this->input->get('serial_number');
+         $serial_number = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('serial_number')));
         $booking_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('booking_id')));
         $order_id = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('order_id')));
         //$userName = preg_replace('/[^A-Za-z0-9\-]/', '',trim($this->input->get('userName')));
