@@ -492,7 +492,18 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                   <?php } ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <input <?php if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){ ?> onclick='return false' data-toggle="tooltip" title="Only Admin Can Uncheck" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
+                                    <?php
+                                    $can_uncheck = false;
+                                    $can_uncheck_message = "Only Admin Can Uncheck.";
+                                    if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']==_247AROUND_ADMIN){
+                                        $can_uncheck = true;
+                                    }
+                                    if(!empty($can_uncheck) && !empty($booking_pending_for_review)){
+                                        $can_uncheck = false;
+                                        $can_uncheck_message = "Some booking are pending for service center review, you can not uncheck.";
+                                    }
+                                    ?>
+                                    <input <?php if(empty($can_uncheck)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $can_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
                                 </label>
 
                                 </div>
