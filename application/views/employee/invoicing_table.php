@@ -169,6 +169,10 @@
                       <li><a href="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id']; ?>">Resend Invoice</a></li>
                       <li class="divider"></li>
                       <li><a href="<?php echo base_url(); ?>employee/invoice/view_invoice/<?php echo $invoice['vendor_partner']; ?>/<?php echo $invoice['invoice_id']; ?>" target="_blank">View Invoice</a></li>
+                      <?php if($invoice['sub_category']==OUT_OF_WARRANTY && ($this->session->userdata['user_group'] == _247AROUND_ADMIN || $this->session->userdata['user_group'] == _247AROUND_ACCOUNTANT)){ ?>
+                      <li class="divider"></li>
+                      <li><a onclick ="cancel_invoice('<?php echo $invoice['vendor_partner']; ?>','<?php echo $invoice['invoice_id']; ?>')" target="_blank">Cancel Invoice</a></li>
+                      <?php } ?>
                     </ul>
                 </div>
             <?php } ?>
@@ -687,6 +691,28 @@ function transd_update(btn, id, value,min_value, max_value){
         "paging":false
 });
 });
+</script>
+<script>
+    function cancel_invoice(vendor_partner_id, invoice_id){
+    	var confirm_cancel = confirm('Are you sure want to Cancel this invoice.');
+    	if(confirm_cancel){
+        var datastring = "vendor_partner_id="+vendor_partner_id+"&invoice_id="+invoice_id;
+        $.ajax({
+            method: 'post',
+            data: datastring,
+            url: '<?php echo base_url() ?>employee/invoice/cancel_invoice',
+            beforeSend: function(){
+            },
+            success: function(data){
+                var obj = JSON.parse(data);
+                alert(obj.message);
+                if(obj.status=='SUCCESS'){
+                    getInvoicingData('partner');
+                }
+            }
+        })
+    	}
+    }
 </script>
 <style>
 .form-control
