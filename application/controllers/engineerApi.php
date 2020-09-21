@@ -2176,13 +2176,16 @@ class engineerApi extends CI_Controller {
     function getBookingWarrantyFlag($request_type){
         
         $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
-        if(in_array($request_type, $in_warranty_array)){
-            return TRUE;
-        }else{
-            return FALSE;
+      
+        foreach($in_warranty_array as $warranty){
+           if(strripos($request_type,$warranty)){
+             return TRUE  ;
+           }else{
+               return FALSE;
+           }
+            
         }
-        
-        
+                
     }
     
     
@@ -2977,7 +2980,7 @@ class engineerApi extends CI_Controller {
             }
             $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             $response['upcountry_paid_by_customer'] = $bookingDetails[0]['upcountry_paid_by_customer'];
-            $response['upcountry_paid_by_customer_amount'] = ceil($bookingDetails[0]['partner_upcountry_rate']*$bookingDetails[0]['upcountry_distance']);
+            $response['upcountry_paid_by_customer_amount'] = $bookingDetails[0]['partner_upcountry_rate']*$bookingDetails[0]['upcountry_distance'];
             
             $response['booking_unit_details'] = $bookng_unit_details[0];
             log_message("info", __METHOD__ . "Product details found successfully");
