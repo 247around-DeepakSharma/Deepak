@@ -4363,21 +4363,25 @@ class vendor extends CI_Controller {
                 $to = $booking_details[0]['primary_contact_email'] . ',' . $booking_details[0]['owner_email'];
                 //From will be currently logged in user's official Email
                 $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
-
+                $cc = $template[3];
                 //Getting RM Official Email details to send Welcome Mails to them as well
                 $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
                 $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                $cc .= ",".$rm_official_email;
                 // Send Mail To asm also
                 $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
-                if(!empty($asm_details))
+                if(!empty($asm_details[0]['official_email']))
+                {
                     $asm_mail = "," . $asm_details[0]['official_email'];
+                    $cc .= ",".$asm_mail;
+                }                
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
+                $this->notify->sendEmail($from, $to, $cc, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);

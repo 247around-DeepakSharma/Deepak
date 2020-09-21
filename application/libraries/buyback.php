@@ -255,7 +255,7 @@ class Buyback {
         if ($order_data[0]['is_delivered'] == 0) {
             
                 // Do not update orders if status is claimed processed.
-                if(in_array($order_data[0]['current_status'],[_247AROUND_BB_TO_BE_CLAIMED, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, CLAIM_DEBIT_NOTE_RAISED, CLAIM_SUBMITTED, CLAIM_APPROVED, CLAIM_REJECTED, CLAIM_SETTLED]) && $this->POST_DATA['current_status'] != _247AROUND_BB_DELIVERED) {
+                if(in_array($order_data[0]['current_status'],[_247AROUND_BB_TO_BE_CLAIMED, _247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS, CLAIM_DEBIT_NOTE_RAISED, CLAIM_SUBMITTED, CLAIM_APPROVED, CLAIM_REJECTED, CLAIM_SETTLED, _247AROUND_BB_CANCELLED]) && $this->POST_DATA['current_status'] != _247AROUND_BB_DELIVERED) {
                     return false;    
                 }
             
