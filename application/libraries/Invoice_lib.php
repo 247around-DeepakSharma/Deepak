@@ -217,7 +217,7 @@ class Invoice_lib {
         if(file_exists($sign_path)){
             unlink($sign_path);
         }
-        if(file_exists($stamp_path)){
+        if(!empty($stamp_path) && file_exists($stamp_path)){
             unlink($stamp_path);
         }
         
