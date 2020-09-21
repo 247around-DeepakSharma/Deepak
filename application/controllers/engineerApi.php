@@ -2182,13 +2182,16 @@ class engineerApi extends CI_Controller {
     function getBookingWarrantyFlag($request_type){
         
         $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
-        if(in_array($request_type, $in_warranty_array)){
-            return TRUE;
-        }else{
-            return FALSE;
+      
+        foreach($in_warranty_array as $warranty){
+           if(strripos($request_type,$warranty)){
+             return TRUE  ;
+           }else{
+               return FALSE;
+           }
+            
         }
-        
-        
+                
     }
     
     
