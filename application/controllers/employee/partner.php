@@ -2382,7 +2382,7 @@ class Partner extends CI_Controller {
                     }
                 } else if ($value['shippingStatus'] == -1) {
                     $status = "SPARE TO BE SHIP";
-                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
                    
                     $spare_id = $value['spare_id'];

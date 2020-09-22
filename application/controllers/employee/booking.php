@@ -181,8 +181,6 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
-        if(!empty($upcountry_data['vendor_id']))
-            $booking['vendor_id'] = $upcountry_data['vendor_id'];
         // Get Existing Price Tags
         $whereOldPrice['booking_id'] = $booking_id;
         $groupBY  = array('appliance_id');
@@ -6847,7 +6845,8 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_recordings($booking_primary_id) { 
-        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }    
 }

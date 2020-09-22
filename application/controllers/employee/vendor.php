@@ -836,9 +836,20 @@ class vendor extends CI_Controller {
         $selected_non_working_days = explode(",", $non_working_days);
         $this->miscelleneous->load_nav_header();
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
+
+        $where_engineer['where'] = array("engineer_booking_action.current_status" => "InProcess");
+        $where_engineer['where']['engineer_booking_action.service_center_id'] = $id;
+        $data['booking_pending_for_review'] = 0;
+        $data_engineer_closed = $this->engineer_model->get_engineer_action_table_list($where_engineer, "engineer_booking_action.booking_id");
+        if (!empty($data_engineer_closed) && count($data_engineer_closed) > 0) {
+            $data['booking_pending_for_review'] = 1;
+        }
+        //If engineer complete or cancel booking and booking pending for service center review then Admin can not unckeck engineer App
+
+
+            $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $data['saas_module']));
+            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm,'saas_module' => $data['saas_module'],'booking_pending_for_review'=>$data['booking_pending_for_review']));
         } else{
             echo "Vendor Not Exist";
         }
@@ -5879,6 +5890,8 @@ class vendor extends CI_Controller {
                 $where_miscellaneous['status'] =1;
                 $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
              //print_r($attachment_stamp); die;   
+                 $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
+                $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING; 
                 $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
                 $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
                 $vendor_data_miscellaneous['status'] = 1;
