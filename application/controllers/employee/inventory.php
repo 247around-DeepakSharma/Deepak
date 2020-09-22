@@ -1422,6 +1422,23 @@ class Inventory extends CI_Controller {
                     }
                 }
 
+                if($b['internal_status'] == SPARE_PARTS_REQUESTED) {
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_PARTNER_STRING), TRUE, TRUE, false);
+                    if(empty($pending_spare_parts_details)) {
+                        // check on warehouse
+                        $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_SF_STRING), TRUE, TRUE, false);
+                        if(!empty($pending_spare_parts_details)) {
+                            $b['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                }
+                
                 $this->booking_model->update_booking($booking_id, $b);
             }
 
