@@ -253,6 +253,76 @@ class Inventory extends CI_Controller {
     }
 
     /**
+     * @Desc: This function is used to show review reject reason
+     * @params: Int order id
+     * @return : view
+     */
+    function review_reject_reason() {
+      $data['data'] = $this->inventory_model->get_review_reject();
+    // echo "<pre>";  print_r($data); die;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/review_reject', $data);
+    }
+     public function save() {
+       //echo "<pre>"; print_r($_POST); die;
+        $data['id'] = $this->input->post('inventory_id');
+        $data['criteria'] = $this->input->post('criteria');
+        $data['penalty_point'] = $this->input->post('penalty_point');
+        $data['reason_of'] = $this->input->post('reason_of');
+        $data['active'] = $this->input->post('active');
+        $this->inventory_model->save_inventory_data($data);                
+        redirect(base_url() . 'employee/inventory/review_reject_reason');
+    }
+
+    
+      public function update_inventory_status() {
+        $data = array(
+            'criteria' => $this->input->post('criteria'),
+            'penalty_point' => $this->input->post('penalty_point'),
+            'reason_of' => $this->input->post('reason_of'),
+            'active' => $this->input->post('active')
+        );
+        $where = array(
+            'id' => $this->input->post('id')
+        );
+        $response = $this->inventory_model->update_inventory_status($where, $data);
+        echo $response;
+    }
+    /**
+     * Update Data from this method.
+     *
+     * @return Response
+     */
+    public function get_inventory_data() {
+        $data = $this->input->post();
+        $id = !empty($data['id']) ? $data['id'] : "";
+        $inventory = [];
+        if(!empty($id))
+        {
+            $inventory = $this->db->get_where('penalty_details', array('id' => $id))->row();
+        }
+        
+        echo(json_encode($inventory));
+    }
+
+  public function validate_form()
+    {
+        $data = $this->input->post();
+        $key = $data['criteria']; 
+        $inventory_id = $data['id'];
+        $query = $this->db->get_where('penalty_details', array('criteria' => $key));
+        if(!empty($inventory_id)){
+            $query = $this->db->get_where('penalty_details', array('criteria' => $key, 'id != ' => $inventory_id)); 
+        }
+        $res = $query->result();
+        $count = count($res);
+        if($count > 0)
+        {
+            echo("fail");
+        }
+        exit;
+    }
+    /**
      * @Desc: This function is used to update shipment
      * @params: Int order id
      * @return : view
@@ -1422,6 +1492,23 @@ class Inventory extends CI_Controller {
                     }
                 }
 
+                if($b['internal_status'] == SPARE_PARTS_REQUESTED) {
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_PARTNER_STRING), TRUE, TRUE, false);
+                    if(empty($pending_spare_parts_details)) {
+                        // check on warehouse
+                        $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_SF_STRING), TRUE, TRUE, false);
+                        if(!empty($pending_spare_parts_details)) {
+                            $b['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                }
+                
                 $this->booking_model->update_booking($booking_id, $b);
             }
 

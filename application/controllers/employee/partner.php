@@ -2383,7 +2383,7 @@ class Partner extends CI_Controller {
                     }
                 } else if ($value['shippingStatus'] == -1) {
                     $status = "SPARE TO BE SHIP";
-                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['shipped_parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
+                    $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Partner Update - " . $value['parts_name'] . " To Be Shipped", "", "", "", $value['spare_id']);
                 } else if ($value['shippingStatus'] == 0) {
                    
                     $spare_id = $value['spare_id'];
@@ -2450,6 +2450,18 @@ class Partner extends CI_Controller {
                     }
                     
                     $this->booking_model->update_booking($booking_id, $booking);
+                } else {
+                    /**
+                     * Check booking internal status is spare parts requested 
+                     * then update actor (247around) if part requested pending on warehouse
+                     */
+                    $booking_internal_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['internal_status'];
+                    if(!empty($booking_internal_details) && in_array($booking_internal_details, [SPARE_PARTS_REQUIRED, SPARE_PARTS_REQUESTED])) {
+                        $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'entity_type' => _247AROUND_SF_STRING), TRUE, TRUE, false);
+                        if(!empty($pending_spare_parts_details)) {
+                            $this->booking_model->update_booking($booking_id, ['actor' => _247AROUND_EMPLOYEE_STRING]);
+                        }
+                    }
                 }
                 
                 $this->insert_details_in_state_change($booking_id, $internal_status, "Partner acknowledged to shipped spare parts", $actor, $next_action, "", $spare_id);

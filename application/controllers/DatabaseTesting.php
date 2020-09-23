@@ -732,69 +732,20 @@ function pending_count2(){
    }
 }
 
-function updateZonesDb(){
-$districts = file_get_contents('https://api.covid19india.org/zones.json');
+function updateZonesDb() {
+        $districts = file_get_contents('https://api.covid19india.org/zones.json');
 
-$districts = json_decode($districts,true);
+        $districts = json_decode($districts, true);
 
-foreach($districts['zones'] as $district){
-
-        $data =array(
-          'zone' => json_encode($district),
-          'district'=>$district['district'],
-          'zone_color'=>$district['zone'],
-          'update_date'=>date('Y-d-m')
-        );
-        $this->indiapincode_model->insertZone($data);
-
-}
-
-
-
-}
-
-
-function testwhatsapp(){
-    
-     
-$smsBody="Dear {{1}}, {{2}} of your Television is completed against Booking ID: {{3}} on {{4}} by  {{5}}. Thank you for choosing us! 247around, {{6}} Service Partner.\\n \\nPlease type from the given options to provide your feedback about our service and send:\\n \\n5 for Excellent Service\\n4 for Good Service\\n3 for Satisfactory Service\\n2 for Bad Service\\n1 for Terrible Service";
-   
-    $phone_number = "+917275746702";
-    $payloadName = '{
-       "channel": "'.API_KARIX_CHANNEL.'",
-       "source": "'.API_KARIX_SOURCE.'",
-       "destination": [
-       "'.$phone_number.'"
-       ],
-       "content": {
-       "text": "'.$smsBody.'"
-      } 
-     }';
-
-
-
-     $headers = array(
-    'Content-Type:application/json',
-    'Authorization: Basic '. API_KARIX_PASSWORD // <---
-     );
-     $additionalHeaders ="";
-     $ch = curl_init(KARIX_HOST);
-     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $additionalHeaders));
-//curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-     curl_setopt($ch, CURLOPT_HEADER, 0);
-     curl_setopt($ch, CURLOPT_USERPWD, API_KARIX_USER_ID . ":" . API_KARIX_PASSWORD);
-     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-     curl_setopt($ch, CURLOPT_POST, 1);
-     curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadName);
-     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-     $return = curl_exec($ch);
-     curl_close($ch);
-     $data = json_decode($return);   
-    
-    print_r($data);
-    
-}
-
-
+        foreach ($districts['zones'] as $district) {
+            $data = array(
+                'zone' => json_encode($district),
+                'district' => $district['district'],
+                'zone_color' => $district['zone'],
+                'update_date' => date('Y-d-m')
+            );
+            $this->indiapincode_model->insertZone($data);
+        }
+    }
 
 }
