@@ -36,7 +36,7 @@
                        <tbody>
                            <tbody>
                                 <?php  foreach($data as $key =>$row){?>
-                               <tr <?php if($row->mismatch_pincode == 1){ echo "style='color:red;'";} ?>>
+                               <tr <?php if($row->mismatch_pincode == 1){ echo "style='color:red;'"; echo 'data-toogle="tooltip" title= "Engineer’s pincode location while completing this booking, was not same as the customer pincode location"';} ?>>
                                     <td class="text-center">
                                         <?php echo $key +1; ?>
                                     </td>
@@ -269,4 +269,5 @@ function onsubmit_form(upcountry_flag, number_of_div) {
         return false;
     }
 }
+$('[data-toogle="tooltip"]').tooltip();
 </script>

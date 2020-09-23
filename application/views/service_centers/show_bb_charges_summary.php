@@ -26,7 +26,7 @@
     </div>
 </div>
 <hr>
-<table class="table table-striped table-bordered table-hover" style="font-size:13px">
+<table class="table table-striped table-bordered table-hover hidden" style="font-size:13px">
     <thead>
         <tr>
             <th >Order In-Transit In <?php echo date("M", strtotime($in_transit_charges[2][0]->month)); ?></th>

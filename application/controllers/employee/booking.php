@@ -180,8 +180,6 @@ class Booking extends CI_Controller {
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
-        if(!empty($upcountry_data['vendor_id']))
-            $booking['vendor_id'] = $upcountry_data['vendor_id'];
         // Get Existing Price Tags
         $whereOldPrice['booking_id'] = $booking_id;
         $groupBY  = array('appliance_id');
@@ -4675,13 +4673,13 @@ class Booking extends CI_Controller {
 
         if($order_list->booking_files_bookings){
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>"
-                    . "<p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
-                    . "<p><span id='spare_delivered_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."' > <img  style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span > <img id='spare_delivered_".$order_list->booking_id."' style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
         else{
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a>"
-                    . "<p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
-                    . "<p><span id='spare_delivered_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."' > <img  style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span> <img id='spare_delivered_".$order_list->booking_id."' style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -6065,9 +6063,18 @@ class Booking extends CI_Controller {
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
             unset($data[$k]['flat_upcountry']);
+            if($review_status == _247AROUND_CANCELLED) {
+                unset($data[$k]['consumption_status']);
+            }
         }
-        //echo"<pre>";print_r($data);exit;
-         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        
+        // For Cancelled BOokings
+        if($review_status == _247AROUND_CANCELLED) {
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        }
+        else { // For Completed Bookings
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        }         
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
@@ -6841,7 +6848,8 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_recordings($booking_primary_id) { 
-        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id);
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
         $this->load->view('employee/show_booking_recordings', $data);
     }    
 }

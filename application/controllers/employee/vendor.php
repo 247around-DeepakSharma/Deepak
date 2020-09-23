@@ -181,7 +181,7 @@ class vendor extends CI_Controller {
 
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($sc_id,$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -400,6 +400,11 @@ class vendor extends CI_Controller {
         if(!empty($rm_id)) {
             $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
         }
+        $employee_asm_relation = $this->vendor_model->get_asm_contact_details_by_sf_id($sf_id);
+                    $asm_email_id = "";
+                    if (!empty($employee_asm_relation)) {
+                    $asm_email_id = $employee_asm_relation[0]['official_email'];
+                }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
@@ -453,7 +458,7 @@ class vendor extends CI_Controller {
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
         // Added Accounts team Mail Id in CC in mail
-        $cc = ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTANT_EMAILID . ',' . $asm_email_id;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
