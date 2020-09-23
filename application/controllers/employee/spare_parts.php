@@ -1165,8 +1165,10 @@ class Spare_parts extends CI_Controller {
             $spare_pending_on = 'Micro-warehouse';
         } elseif ($spare_list->is_micro_wh == 2) {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
-            if(!empty($wh_details)){
-            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            if (!empty($wh_details)) {
+                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            } else {
+                $spare_pending_on = 'Warehouse';
             }
         } else {
             $spare_pending_on = 'Partner';
