@@ -1329,6 +1329,7 @@ class Partner extends CI_Controller {
     function invoices_details() {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+
 //        $data['vendor_partner'] = "partner";
 //        $data['vendor_partner_id'] = $partner_id;
 //        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
