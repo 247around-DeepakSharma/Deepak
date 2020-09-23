@@ -1,5 +1,6 @@
 <div style="width:100%;margin-left:10px;margin-right:5px;">
     <h2 align="left">Rescheduled Bookings</h2>
+    <h6>(Maximum 30 records can be selected at once)</h6>
     <div class="col-md-12" style="padding-left: 0px;">
         <?php
         if(is_array($data) && count($data) > 0)
@@ -62,7 +63,7 @@
                             </td>
                             <td><?php echo $value['reschedule_reason']; ?></td>
                             <td><input id="reschedule_checkbox" type="checkbox" 
-                                onclick="return checkabc()"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
+                                onclick="return check_count()"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
                                 <a href="#"><span style="float: right;" class="glyphicon glyphicon-remove" data-toggle="modal" data-target="#review_reject_form" onclick="create_reject_form(<?php echo "'" . $value['booking_primary_contact_no'] . "'"; ?>,<?php echo "'" . $value['booking_id'] . "'"; ?>)"></span> </a>
                             </td>
                     <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['partner_id']; ?>" >
@@ -124,7 +125,7 @@
           $(".checkbox_reschedule").prop('checked', false);
           var count =0;
           $(".checkbox_reschedule").each(function() {
-            if(count < 30){
+            if(count < 3){
               $(this).prop('checked', true);
               count = count+1;
             }
@@ -133,10 +134,10 @@
       });
     });
 
-function checkabc()
+function check_count()
  {
  var total_lineItmes = $('.checkbox_reschedule:checked').length;
-            if(total_lineItmes > 30){
+            if(total_lineItmes > 3){
                 
 alert('You can not select more than 30.');
 return false;
