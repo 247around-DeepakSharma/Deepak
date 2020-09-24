@@ -289,8 +289,6 @@ class Service_centers_model extends CI_Model {
         }
 
          if($userInfo){
-             $join = "JOIN users ON booking_details.user_id = users.user_id";
-             $join = $join." JOIN services ON booking_details.service_id = services.id";
              $userSelect = ",users.name,services.services";
          }
         if($state == 1){
