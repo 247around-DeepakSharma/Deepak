@@ -1144,9 +1144,14 @@ class Inventory extends CI_Controller {
                             $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
                         } else {
                             if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
-                                $booking_new_internal_status = array_values($status_string)[0];
+                                if(!empty($booking_details['service_center_closed_date'])){
+                                        $booking_new_internal_status = array_values($status_string)[0];
+                                        //Booking is Completed, now move booking as per status of spare
+                                }else{
+                                        $booking_new_internal_status = _247AROUND_PENDING;
+                                        //Booking is either Pending or Reschedule, now update internal status as pending and assign actor action accordingly
+                                }
                             }
-                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
                         }
                     }
                     //////   Handle agents for cancellation /// Abhishek
