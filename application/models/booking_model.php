@@ -2898,7 +2898,12 @@ class Booking_model extends CI_Model {
     }
     
     // check for duplicate serial number bookings which are not cancelled 
-    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
+    
+    function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id,$getDOI = false){
+        $strWhere = "";
+        if($getDOI){
+           $strWhere = " AND booking_details.request_type LIKE '%Installation%'"; 
+        }
         $sql = "SELECT 
                         *
                 FROM
@@ -2911,6 +2916,7 @@ class Booking_model extends CI_Model {
                         AND (service_center_booking_action.current_status != '"._247AROUND_CANCELLED."' || service_center_booking_action.internal_status != '"._247AROUND_CANCELLED."')
                         AND booking_unit_details.price_tags NOT IN ('Repeat Booking' , 'Presale Repair')
                         AND booking_unit_details.booking_id != '".$booking_id."'
+                        $strWhere
                 GROUP BY 
                         booking_details.booking_id";  
         $query = $this->db->query($sql);
