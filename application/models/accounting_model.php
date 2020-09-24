@@ -160,16 +160,21 @@ class accounting_model extends CI_Model {
         } else if ($invoice_data_by === 'period') {
             $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
         }
+        if($partner_vendor == _247AROUND_PARTNER_STRING){
+            $g_string ="gst_number as gst_number, ";
+        } else {
+            $g_string ="gst_no as gst_number, ";
+        }
 
         $sql = "SELECT invoice_details.invoice_id, product_or_services, vendor_partner, e1.gst_number as to_gst_number, "
                 . " e2.gst_number as from_gst_number, num_bookings,parts_count, "
                 . " IFNULL(sc.name,partners.company_name ) as company_name,  "
                 . " IFNULL(sc.address,partners.address ) as address,  "
                 . " IFNULL(sc.state,partners.state ) as state,  "
-                . " IFNULL(sc.gst_no,partners.gst_number ) as gst_number, "
                 . " IFNULL(sc.gst_taxpayer_type, '') as gst_reg_type, "
                 . " invoice_date, from_date,  to_date,"
                 . " `reference_invoice_id`,"
+                . $g_string
                 . " abs(`amount_collected_paid`) as amount_collected_paid,"
                 . " `tds_rate`,`tds_amount`,"
                 . " vpi.type,vpi.type_code,"
