@@ -58,7 +58,15 @@
         </tr>
         <tr>
             <td style="border-bottom: hidden;border-right: hidden;"></td>
-            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Date: </b><?php echo $excel_data['date']; ?></td>
+            <td colspan="8" align="left" style="border-bottom: hidden;"><b>Date: </b>
+               <?php 
+                    if ($excel_data['generated_by_wh'] == 1) {
+                        echo date("j M Y");
+                    } else {
+                        echo $excel_data['date'];
+                    }
+                ?>
+            </td>
         </tr>
         <tr>
             <td  colspan="5" align="left"><b>GST: </b><?php echo $excel_data['sf_gst']; ?></td>
