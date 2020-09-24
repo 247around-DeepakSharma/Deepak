@@ -490,9 +490,23 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 </label>
                                 </div>
                                   <?php } ?>
+                                <?php
+                                $check_uncheck_engineer = true;
+                                $check_uncheck_message = "";
+                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){
+                                    $check_uncheck_engineer = false;
+                                    $check_uncheck_message = "Only Admin can uncheck.";
+                                    //If already checked then only Admin can uncheck Enginner App checkbox
+                                }
+                                if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $check_uncheck_engineer && !empty($booking_pending_for_review)){
+                                    $check_uncheck_engineer = false;
+                                    $check_uncheck_message = "Some booking are pending for service center review, you can not uncheck.";
+                                    //If SF has some Engineer booking pending for review then Admin can not uncheck
+                                }
+                                ?>
                                 <div class="col-md-2">
                                 <label class="checkbox-inline checkbox-inline-no-edit">
-                                    <input <?php if(isset($query[0]['isEngineerApp']) && $query[0]['isEngineerApp'] == 1 && $this->session->userdata['user_group']!=_247AROUND_ADMIN){ ?> onclick='return false' data-toggle="tooltip" title="Only Admin Can Uncheck" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
+                                    <input <?php if(empty($check_uncheck_engineer)){ ?> onclick='return false' data-toggle="tooltip" title="<?php echo $check_uncheck_message; ?>" <?php } ?>  class='checkbox_input' type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1" readonly><b>Engineer App</b>
                                 </label>
 
                                 </div>
