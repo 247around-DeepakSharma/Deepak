@@ -1219,7 +1219,7 @@
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
-                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_wh'])); ?></td>
                                         <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
                                         if(!$sp['defactive_part_received_date_by_courier_api']){

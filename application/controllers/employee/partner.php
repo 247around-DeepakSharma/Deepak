@@ -1,4 +1,4 @@
-    <?php
+<?php
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -1345,7 +1345,7 @@ class Partner extends CI_Controller {
 
         $misc = $this->invoices_model->get_misc_charges_invoice_data($misc_select, "miscellaneous_charges.partner_invoice_id IS NULL", false, FALSE, "booking_details.partner_id", $partner_id, "partner_charge");
         if(!empty($misc)){
-            $msic_charge = (array_sum(array_column($unbilled_data, 'partner_charge')));
+            $msic_charge = (array_sum(array_column($misc, 'partner_charge')));
         }
         
         $upcountry = $this->upcountry_model->getupcountry_for_partner_prepaid($partner_id);
