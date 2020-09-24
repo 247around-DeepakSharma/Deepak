@@ -1062,8 +1062,8 @@ if(!empty($this->session->userdata('user_group')) && $this->session->userdata('u
                                 $image_stamp_crop = $('#stamp_image_demo').croppie({
                                 enableExif: true,
                                 viewport: {
-                                  width:250,
-                                  height:100,
+                                  width:200,
+                                  height:200,
                                   type:'square' 
                                 },
                                 boundary:{

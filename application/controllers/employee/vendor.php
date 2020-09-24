@@ -5890,6 +5890,8 @@ class vendor extends CI_Controller {
                 $where_miscellaneous['status'] =1;
                 $this->vendor_model->sf_update_miscellaneous($where_miscellaneous,$data_miscelleneous);
              //print_r($attachment_stamp); die;   
+                 $vendor_data_miscellaneous['agent_id'] = $this->session->userdata('id');
+                $vendor_data_miscellaneous['agent_type'] = _247AROUND_EMPLOYEE_STRING; 
                 $vendor_data_miscellaneous['vendor_id'] = $this->input->post('id');
                 $vendor_data_miscellaneous['stamp_file'] = $attachment_stamp;
                 $vendor_data_miscellaneous['status'] = 1;

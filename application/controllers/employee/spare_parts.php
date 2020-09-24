@@ -1164,6 +1164,8 @@ class Spare_parts extends CI_Controller {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
             if (!empty($wh_details)) {
                 $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            } else {
+                $spare_pending_on = 'Warehouse';
             }
         } else {
             $spare_pending_on = 'Partner';
@@ -2298,6 +2300,21 @@ class Spare_parts extends CI_Controller {
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                            $booking['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                    
                     //$this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
@@ -3113,6 +3130,21 @@ class Spare_parts extends CI_Controller {
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
+                    /**
+                     * Check spare part request pending on partner 
+                     * If Yes then do not change actor
+                     * Otherwise check spare request pending on warehouse
+                     * If yes then change actor to 247around
+                     */
+                    $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                    if(!empty($pending_spare_parts_details)) {
+                        $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                        // if no part request pending on partner then set 247around.
+                        if(!in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                            $booking['actor'] = _247AROUND_EMPLOYEE_STRING;
+                        }
+                    }
+                    
                     $new_state = PART_APPROVED_BY_ADMIN;
                     $state_change_partner_id = _247AROUND;
                     if ($this->session->userdata('userType') == 'partner') { //// Stare A/C to Session

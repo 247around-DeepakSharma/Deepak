@@ -6859,14 +6859,14 @@ class Service_centers extends CI_Controller {
                             }
                         }
 
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
+                       //$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
                         /* Insert Spare Tracking Details */
                             if (!empty($part_details['spare_id'])) {
-                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
+                                $tracking_details = array('spare_id' => $part_details['spare_id'], 'action' => "SPARE TO BE SHIP", 'remarks' => "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", 'agent_id' => $this->session->userdata("service_center_agent_id"), 'entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING);
                                 $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                             }
-                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
+                        $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['parts_name'] . " To Be Shipped", "", "", $part_details['spare_id']);
                     }
                 }
                 //If challan was already generated and some part shipped different from requested then regenerate challan
@@ -6931,6 +6931,24 @@ class Service_centers extends CI_Controller {
                             $next_action = $booking['next_action'] = $partner_status[3];
                         }
                         $this->booking_model->update_booking($booking_id, $booking);
+                    } else {
+                        /**
+                         * Check booking internal status is spare parts requested 
+                         * then update actor (partner) if part requested pending on partner
+                         */
+                        // fetch booking details
+                        $booking_internal_details = $this->booking_model->get_booking_details('*',['booking_id' => $booking_id])[0]['internal_status'];
+                        if(!empty($booking_internal_details) && in_array($booking_internal_details, [SPARE_PARTS_REQUIRED, SPARE_PARTS_REQUESTED])) { 
+                            // fetch all requested parts
+                            $pending_spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('spare_parts_details.booking_id' => $booking_id,'spare_parts_details.status' => SPARE_PARTS_REQUESTED), TRUE, TRUE, false);
+                            if(!empty($pending_spare_parts_details)) {
+                                $entity_types = array_unique(array_column($pending_spare_parts_details, 'entity_type'));
+                                // if no part request pending on warehouse then set Partner.
+                                if(in_array(_247AROUND_PARTNER_STRING, $entity_types)) {
+                                    $this->booking_model->update_booking($booking_id, ['actor' => _247AROUND_PARTNER_STRING]);
+                                }
+                            }
+                        }
                     }
                     
                     $userSession = array('success' => 'Parts Updated');

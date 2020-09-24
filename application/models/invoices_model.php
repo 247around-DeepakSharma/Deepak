@@ -2680,6 +2680,8 @@ class invoices_model extends CI_Model {
         $this->db->join('services', 'booking_details.service_id = services.id');
         if(!empty($current_status)){
             $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        } else {
+            $this->db->where('booking_details.current_status != ', _247AROUND_CANCELLED);
         }
         
         $this->db->where($vendor_partner_invoice, NULL);
@@ -2693,11 +2695,14 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
-        $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+        if($sf_partner_charge != "partner_charge"){
+            $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
                 . " AND spare_parts_details.shipped_date IS NOT NULL "
                 . " AND defective_part_required = 1 "
                 . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
                 . " AND spare_parts_details.status !='Cancelled' )", NULL, FALSE);
+        }
+        
         $query = $this->db->get();
         return $query->result_array();
     }
