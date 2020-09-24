@@ -25,8 +25,8 @@ if ($this->uri->segment(3)) {
                                         <th class="text-center">Amount</th>
                                         <th class="text-center">Consumption</th>
                                         <th class="text-center">Consumption Reason</th>
-                                        <th class="text-center" >Spare Tag<br><input type="checkbox" id="selectall_spare_tag" > </th>
-                                        <th class="text-center" >Address<br><input type="checkbox" id="selectall_address" > </th>
+                                        <th class="text-center" >Spare Tag/Address<br><input type="checkbox" id="selectall_spare_tag" > </th>
+<!--                                        <th class="text-center" >Address<br><input type="checkbox" id="selectall_address" > </th>-->
                                         <th class="text-center" >Challan<br><input type="checkbox" id="selectall_challan_file" > </th>   
                                         <th class="text-center" >Bulk Send<br><input type="checkbox" id="selectall_send_courier" > </th>                          
                                         <th class="text-center">Action</th>
@@ -88,9 +88,9 @@ if ($this->uri->segment(3)) {
                                             <td>
                                                 <input type="checkbox" class="form-control checkbox_spare_tag" onclick="remove_all_spare_tag_all()" name="download_spare_tag[]"  value="<?php echo $row['id']; ?>" />
                                             </td>
-                                            <td>
+<!--                                            <td>
                                                 <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id']; ?>" />
-                                            </td>
+                                            </td>-->
                                             <td>
 
                                         <?php if (!$partner_on_saas) { ?>
@@ -543,6 +543,7 @@ if ($this->uri->segment(3)) {
             $('#selectall_send_courier').prop('checked', false);
         }
         var total_lineItems = $('.checkbox_challan').length;
+        $(".checkbox_challan").prop('checked', false); 
         for( i = 1; i <= total_lineItems; i++ ){
             if(i <= 30){
               $("#download_challan_"+i).prop('checked', $(this).prop("checked"));
@@ -651,6 +652,7 @@ if ($this->uri->segment(3)) {
             $('#selectall_spare_tag').prop('checked', false);
         }
         var total_lineItmes = $('.checkbox_challan:checked').length;
+            $(".checkbox_challan").prop('checked', false); 
          if(total_lineItmes > 30){
                 $("#"+checkBox_id).prop('checked', false);
                 alert('You can not select more than 30.');

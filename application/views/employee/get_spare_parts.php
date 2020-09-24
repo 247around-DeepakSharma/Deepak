@@ -115,6 +115,7 @@
                                         <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Warehouse<span id="total_defective_rejected_by_wh"></span></a></li>
                                         <li role="presentation"><a href="#return_defective_parts_from_wh_to_partner" aria-controls="return_defective_parts_from_wh_to_partner" class="spare_parts_tabs" role="tab" data-toggle="tab"> Returned Defective Part From Warehouse To Partner<span id="total_defective_return_to_partner"></span></a></li>
                                         <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Ok Part Rejected By Partner<span id="total_defective_rejected_partner"></span></a></li>
+                                        <li role="presentation"><a href="#auto_acknowledged_spare" aria-controls="auto_acknowledged_spare" class="spare_parts_tabs" role="tab" data-toggle="tab">Auto Acknowledged Spare<span id="total_auto_acknowledge_spare"></span></a></li>
                                     </ul>
                                 </div>
                                 <div class="tab-content" id="tab-content">
@@ -569,6 +570,31 @@
     $('#spare_part_status').select2({
         placeholder:'Select Spare Status'
     });
+    function generate_sale_invoice(reverse_sale_id){
+        var flag = true;
+        var button_id = "btn_sell_invoice_"+reverse_sale_id;
+        if(flag){
+            var url = "<?php echo base_url(); ?>employee/invoice/generate_oow_parts_invoice/"+reverse_sale_id;
+            var dashboard = "";
+            $.ajax({
+                 method:'POST',
+                 dataType: "json",
+                 url:url,
+                 data: { return_response : true },
+                 beforeSend: function(){
+                     $("#"+button_id).html("Generate Sale Invoice... <i class='fa fa-spinner fa-spin' aria-hidden='true'></i>");
+                 },
+                 complete: function(data){
+                     if(data=='SUCCESS'){
+                        alert('Invoice Generated Successfully');
+                    }else{
+                        alert('Invoice Not Generated');
+                    }
+					$("#"+button_id).html("Generate Sale Invoice");
+                 }
+            });
+        }
+    }
    
 </script>
 <?php 

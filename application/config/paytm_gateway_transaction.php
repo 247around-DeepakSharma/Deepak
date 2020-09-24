@@ -24,7 +24,7 @@ if(ENVIRONMENT == 'production'){
 	define('PAYTM_GATEWAY_ENVIRONMENT', 'TEST'); // PROD
 	define('PAYTM_GATEWAY_MERCHANT_KEY', '@m8pOe%7LSZw63y2'); //Change this constant's value with Merchant key downloaded from portal
 	define('PAYTM_GATEWAY_MERCHANT_MID', '247Aro50898004256928'); //Change this constant's value with MID (Merchant ID) received from Paytm
-	define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEB_STAGING'); //Change this constant's value with Website name received from Paytm
+	define('PAYTM_GATEWAY_MERCHANT_WEBSITE', 'WEBSTAGING'); //Change this constant's value with Website name received from Paytm
 	define('PAYTM_GATEWAY_INDUSTRY_TYPE_ID','Retail');
 	define('PAYTM_GATEWAY_CHANNEL_ID', 'WEB');
 }

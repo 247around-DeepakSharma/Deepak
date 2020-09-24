@@ -851,6 +851,49 @@
         </div>
     </div>
 </div>
+
+<div role="tabpanel" class="tab-pane" id="auto_acknowledged_spare">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="auto_acknowledged_spare_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" data-orderable="false">No.</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">SF Name</th>
+                                        <th class="text-center" data-orderable="false">SF Status</th>
+                                        <th class="text-center" data-orderable="false">Partner Name</th>
+                                        <th class="text-center" data-orderable="false">Spare Status</th>
+                                        <th class="text-center" data-orderable="false">Spare Warranty Status</th>
+                                        <th class="text-center" data-orderable="false">NRN Status</th>
+                                        <th class="text-center" data-orderable="false">Service Center Closed Date</th>
+                                        <th class="text-center" data-orderable="false">Booking Request Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Model Number</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Type</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Number</th>
+                                        <th class="text-center" data-orderable="false">Spare Part Shipped Date</th>
+                                        <th class="text-center" data-orderable="true">Spare Shipped Age</th>
+                                        <th class="text-center" data-orderable="false">Partner AWB Number</th>
+                                        <th class="text-center" data-orderable="false">SF AWB Number</th>                                 
+                                        <th class="text-center" data-orderable="false">Parts Charge</th>
+                                        <th class="text-center" data-orderable="false">Acknowledged</th>
+                                        <th class="text-center" data-orderable="false">Acknowledged Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="purchase_invoice" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -1779,6 +1822,53 @@
             
                 $(".dataTables_filter").addClass("pull-right");
                 $("#total_part_shipped_to_sf").html('(<i>'+response.recordsFiltered+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+            }
+        });
+        
+        
+       /*
+        * @desc: It's used list the auto acknowledge spare parts to SF.
+        * @response: json 
+        */
+        
+          auto_acknowledged_spare_table = $('#auto_acknowledged_spare_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[15, "desc"]], 
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, 1000, -1 ],[ '50', '100', '500', '1000' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+                    },
+                    title: 'auto_acknowledged_spare_parts'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '18', status: '<?php echo SPARE_DELIVERED_TO_SF; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                 {
+                  "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $(".dataTables_filter").addClass("pull-right");
+                $("#total_auto_acknowledge_spare").html('(<i>'+response.recordsFiltered+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
             }
         });
         

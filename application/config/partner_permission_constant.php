@@ -22,3 +22,4 @@ define('PARTNER_ON_STATE_APPLIANCE','partner_on_state_appliance');
 define('DO_NOT_CHECK_DUPLICATE_SERIAL_NUMBER','do_not_check_duplicate_serial_number');
 define('DO_NOT_PULL_SERVICE_CENTRE_CLOSED_DATE','do_not_pull_service_centre_closed_date');
 define('DO_NOT_SEND_BOOKING_EMAIL_NOT_SENT_EMAIL','do_not_send_booking_email_not_sent_email');
+define('OW_SPARE_REQUESTED_ON_APPROVAL','ow_auto_approve_requested_spare');

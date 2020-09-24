@@ -568,6 +568,7 @@
         var reject = JSON.parse("[" + data.reject + "]");
         var approved = JSON.parse("[" + data.approved + "]");
         var edit_complete = JSON.parse("[" + data.edit_complete + "]");
+        var edit_cancel = JSON.parse("[" + data.edit_cancel + "]");
         var total_bookings = JSON.parse("[" + data.total_bookings + "]");
         $('#loader_gif8').hide();
         $('#cancelled_booking_closure_chart').fadeIn();
@@ -612,8 +613,10 @@
                 }, {
                     name: 'Directly Approved Bookings',
                     data: approved
-                },
-                {
+                }, {
+                    name: 'Edit Cancelled Bookings',
+                    data: edit_cancel
+                }, {
                     name: 'Cancelled to Completed Bookings',
                     data: edit_complete
                 }, {

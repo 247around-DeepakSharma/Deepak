@@ -326,8 +326,9 @@
                                 <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>
+                                <!--<li role="separator" class="divider"></li>
+                                <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>-->
+								<!--A new link already opened-->
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>employee/service_centers/summary_report">Download Bookings Data</a></li>
                                 <li role="separator" class="divider"></li>
@@ -495,7 +496,7 @@
  
   <div class="modal-content">
       <div class="modal-header">
-        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close hide" data-dismiss="modal">X</button>
+        <button style="color:#110101;font-weight:900;" type="button" id="close_covid" class="close" data-dismiss="modal">X</button>
         <h3 class="modal-title">Technician Safety Guidelines COVID 19 Working 20th April</h3>
       </div>
 
@@ -553,10 +554,10 @@
 <?php
 // Unset SF authorization certificate session CRM-6107
 if ($this->session->userdata('has_authorization_certificate')) {
-    $this->session->unset_userdata('has_authorization_certificate');
+    //$this->session->unset_userdata('has_authorization_certificate');
 }
 if ($this->session->userdata('auth_certificate_file_name')) {
-    $this->session->unset_userdata('auth_certificate_file_name');
+    //$this->session->unset_userdata('auth_certificate_file_name');
 }
 ?>
 <!-- End -->

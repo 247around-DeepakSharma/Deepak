@@ -103,6 +103,12 @@
     </button>
 </div>
     <?php }?>
+<!--This section will show all all recordings against this call-->
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" href="#tab9" data-toggle="tab">
+        <div class="hidden-xs">Call Recordings</div>
+    </button>
+</div>
 </div>
   
 <div class="well">
@@ -292,7 +298,7 @@
                                 $image_src = $src;
                                 if (isset($files['file_name']) && !empty($files['file_name'])) {
                                     //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
@@ -747,7 +753,7 @@
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
+                                        ?> <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
@@ -1109,7 +1115,6 @@
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
                                         <th>Courier POD File</th>
-                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1129,8 +1134,11 @@
                                             $spareStatus = $sp['status'];
                                         }
                                         ?>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id="<?php echo "awb_loader_".$sp['awb_by_sf'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                        <td>
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_sf";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></span> 
+                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                        </td>
                                         <td><?php if(!empty($sp['awb_by_sf']) && !empty($sp['sf_box_count'])){ echo $sp['sf_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_sf'])) {
@@ -1146,18 +1154,21 @@
                                                     }
                                                                 ?></td>
                                        <td><?php echo $sp['courier_charges_by_sf']; ?></td>
-                                        <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                        <td>
+                                            <div class="progress-bar progress-bar-success myprogress" id="myprogressdefective_courier_receipt<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>
+                                            <a class='defective_courier_receipt' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?>" target="_blank" id="<?php echo "a_defective_courier_receipt_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_sf'])){echo $sp['awb_by_sf'];} ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "defective_courier_receipt_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_courier_receipt');"></i>
+                                        </td>
+                                        <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td>
                                             <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>
-                                                <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
                                         <td>
                                             <?php if(!empty($sp['rejected_defective_part_pic_by_wh'])){ ?>
-                                                <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['rejected_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['rejected_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
@@ -1170,9 +1181,6 @@
                                             <?php if (!empty($sp['awb_by_sf_pod'])) { ?>
                                                 <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/courier-pod/<?php echo $sp['awb_by_sf_pod']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
-                                        </td>
-                                        <td>
-                                            <a class="btn btn-primary" href="<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>" target="_blank">Update</a>
                                         </td>
                                     </tr>
                                     <?php
@@ -1219,15 +1227,18 @@
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
-                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_wh'])); ?></td>
                                         <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
                                         if(!$sp['defactive_part_received_date_by_courier_api']){
                                             $spareStatus = $sp['status'];
                                         }
                                         ?>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
-                                            <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                        <td>
+                                            <span class="serial_no_text" id="<?php echo $sp['id']."|awb_by_wh";?>" style="color:blue; pointer:cursor" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></span> 
+                                            <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_wh'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                        </td>
                                         <td><?php if(!empty($sp['awb_by_wh']) && !empty($sp['wh_box_count'])){ echo $sp['wh_box_count']; } ?></td>
                                         <td><?php
                                                     if (!empty($sp['awb_by_wh'])) {
@@ -1243,8 +1254,12 @@
                                                     }
                                                                 ?></td>
                                        <td><?php echo $sp['courier_price_by_wh']; ?></td>
-                                        <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-m-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
+                                        <td>
+                                            <div class="progress-bar progress-bar-success myprogress" id="myprogressdefective_parts_shippped_courier_pic_by_wh<?php echo $sp['id']; ?>" role="progressbar" style="width: 0%;">100%</div>
+                                            <a class='defective_parts_shippped_courier_pic_by_wh' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?>" target="_blank" id="<?php echo "a_defective_parts_shippped_courier_pic_by_wh_".$sp['id']; ?>" line_item_id='<?php echo $sp['id']; ?>' awb_number="<?php if(!empty($sp['awb_by_wh'])){echo $sp['awb_by_wh'];} ?>">Click Here to view</a> &nbsp;&nbsp;<i id="<?php echo "defective_parts_shippped_courier_pic_by_wh_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','defective_parts_shippped_courier_pic_by_wh');"></i>
+                                            
+                                        </td>
+                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-M-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
                                         <td><?php echo $sp['wh_challan_number']; ?></td>
                                         <td>
                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 
@@ -1513,7 +1528,15 @@
 </div>
         <?php
                 }
-        ?>   
+        ?>  
+        <!--Tab Showing Call Recordings against Booking-->
+        <div class="tab-pane fade in" id="tab9">
+             <div style="padding: 0 15px;">
+                 <div class="row">
+                     <div id="callDetails"></div>
+                 </div>
+             </div>
+        </div>
         <div class="tab-pane fade in" id="tab7">
                 <div class="row">
                     <div class="col-md-12">
@@ -1949,6 +1972,7 @@ function sf_tab_active(){
     $('document').ready(function () {
         var booking_id = '<?php echo base_url() ?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id'] ?>';
         var emailsms_url = '<?php echo base_url() ?>employee/booking/get_booking_email_sms/<?php echo $booking_history[0]['booking_id'] ?>';
+        var recordings_url =  '<?php echo base_url() ?>employee/booking/get_booking_recordings/<?php echo $booking_history[0]['booking_primary_id'] ?>';
                 $.ajax({
                     type: 'POST',
                     url: booking_id,
@@ -1963,6 +1987,14 @@ function sf_tab_active(){
                     success: function (response) {
                         $('#email_and_sms_box').html(response);
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
+                    }
+                });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: recordings_url,
+                    success: function (response) {
+                        $('#callDetails').html(response);
                     }
                 });
         $(".check-stocks").click(function(){
@@ -2360,8 +2392,8 @@ function uploadsupportingfile(id, file_id=''){
                     obj = JSON.parse(response);
                     
                     if(obj.code === "success"){
-                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
-                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);
+                        $("#a_order_support_file_"+key).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
+                        $("#m_order_support_file_"+key).attr("src", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);
                         if(file_id === '') {
                             location.reload();
                         }
@@ -2407,6 +2439,8 @@ function uploadfile(){
             directory_name = 'vendor-partner-docs';
         }else if(spareFileColumn=='courier_pod_file'){
             directory_name = 'courier-pod';
+        }else if(spareFileColumn=='invoice_pic'){
+            directory_name = 'purchase-invoices';
         }else{
             directory_name = '';
         }
@@ -2468,6 +2502,9 @@ function uploadfile(){
                                     $(this).html('Click Here to view');
                                 }
                             });
+                        }
+                        else if(spareFileColumn=='invoice_pic'){
+                            $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>purchase-invoices/" + obj.name);   
                         }
                         }else{
                          $("#a_"+ spareFileColumn +"_" + spareID).attr("href", "<?php echo S3_WEBSITE_URL;?>misc-images/" + obj.name);   

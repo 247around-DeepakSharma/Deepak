@@ -84,6 +84,44 @@ class Around_scheduler extends CI_Controller {
     }
 
 	/**
+     * @desc: This is used to remove_space_from_the_file_and_upload_to_s3
+     */
+    
+    function Remove_Space_From_files_And_Upload()
+    {
+        $query = " id, file FROM collateral WHERE file LIKE '% %'";
+        $filedata = $this->booking_model->get_file_list($query);
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/";
+        if(!empty($filedata))
+        {
+            $file_path = "https://s3.amazonaws.com/$bucket/$directory_xls";
+            foreach($filedata as $key => $value)
+            {
+                $id = $value['id'];
+                $file = $value['file'];
+                $file_name_for_url = str_replace(" ","%20",$file);
+                $new_file = str_replace(" ","_",$file);
+                $url  = $file_path.$file_name_for_url;
+                $data = "";
+                $data = file_get_contents($url);
+                if(!empty($data))
+                {
+                    $fp = fopen(TMP_FOLDER.$new_file, 'w');
+                    fwrite($fp, $data);
+                    fclose($fp);                
+                }
+                if(file_exists(TMP_FOLDER.$new_file))
+                {
+                    $this->s3->putObjectFile(TMP_FOLDER . $new_file, $bucket, $directory_xls.$new_file, S3::ACL_PUBLIC_READ);
+                    $this->booking_model->update_file_name_collateral($id,$new_file);
+                    unlink(TMP_FOLDER . $new_file);
+                }
+            }
+        }
+    }
+
+	/**
      * @desc: This is used to send mail to all SF and employees for all brands onboarded since Jan2020
      */
     function Send_Partner_Onboarded_Mail()
@@ -163,7 +201,7 @@ class Around_scheduler extends CI_Controller {
         {
             foreach($data1 as $key => $value)
             {
-                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ennded on ".$value['end_date']."</td></tr>";
+                $body .= "<tr><td>".$value['public_name']."</td><td> Contract ended on ".$value['end_date']."</td></tr>";
             }
         }
         if(!empty($data2))
@@ -2900,14 +2938,14 @@ class Around_scheduler extends CI_Controller {
         $spare_part_details = $this->around_scheduler_model->get_spares_pending_for_more_than_45_days_after_shipment();
         /**
          * Check if data exists then
-         * if check consumption status is null then update status to DEFECTIVE_PARTS_PENDING.
+         * if check consumption status is part consumed then update status to DEFECTIVE_PARTS_PENDING.
          * else if consumption status is ok part then update status to OK_PART_TO_BE_SHIPPED.
          */
         if(!empty($spare_part_details))
         {
             foreach($spare_part_details as $spare_part_detail)
             {
-                if(empty($spare_part_detail['consumed_part_status_id']) || $spare_part_detail['consumed_part_status_id'] == 1)
+                if($spare_part_detail['consumed_part_status_id'] == 1)
                 {
                     $spare_status = DEFECTIVE_PARTS_PENDING;
                 } 
@@ -3033,6 +3071,184 @@ class Around_scheduler extends CI_Controller {
         
         echo 'Data has been update successfully.';
         
+    }
+
+    /**
+     * @desc This is used to Send partner outstanding Reminder
+     * @return boolean
+     * Ghanshyam
+     */
+    function sent_partner_outstanding_reminder($partner_id = '') {
+
+        $partnerWhere['partners.is_active'] = 1;
+        if (!empty($partner_id)) {
+            $partnerWhere['partners.id'] = $partner_id;
+        }
+        $allPartnerList = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name,invoice_email_to,invoice_email_cc', $partnerWhere, "", null, 1, '');
+
+        $email_template = $this->booking_model->get_booking_email_template('send_partner_outstanding_reminder');
+        $subject = vsprintf($email_template[4], array());
+        $current_financial_year = $this->invoice_lib->get_current_financial_year();
+        $financial_year = explode('/', $current_financial_year);
+        $financial_year_start = date('Y', strtotime($financial_year[0]));
+        $financial_year_end = date('Y', strtotime($financial_year[1]));
+        $financial_year_start_end = $financial_year_start . '-' . $financial_year_end;
+
+        $d2 = date('y-m-d', strtotime('-30 days'));
+
+        foreach ($allPartnerList as $key => $value) {
+            $remainnig_outstanding_invoice_array = array();
+            $remainnig_outstanding_invoice_array['vendor_partner'] = 'partner';
+            $remainnig_outstanding_invoice_array['vendor_partner_id'] = $value['id'];
+            $remainnig_outstanding_invoice_array['type_code'] = 'A';
+            $remainnig_outstanding_invoice_array['settle_amount'] = 0;
+            $remainnig_outstanding_invoice_array['invoice_date <'] = $d2;
+
+            $total_invoice_imount = 0;
+            $total_amount_received = 0;
+            $total_tds = 0;
+            $total_credit_note = 0;
+            $total_closing_balance = 0;
+
+            $remaining_outstanding = $this->invoices_model->getInvoicingData($remainnig_outstanding_invoice_array);
+
+            $invoice_detail = array();
+
+            $htmlMessage = '';
+
+            if (!empty($remaining_outstanding)) {
+
+                $htmlMessage = "<table style='width:100%;border-collapse: collapse'>";
+                $htmlMessage .= "<tr>"
+                        . "<th style='border: 1px solid black;'>Invoice No.</th>"
+                        . "<th style='border: 1px solid black;'>Invoice Date</th>"
+                        . "<th style='border: 1px solid black;'>Inv. Month</th>"
+                        . "<th style='border: 1px solid black;'>Total Inv. amt</th>"
+                        . "<th style='border: 1px solid black;'>Amount Recd.</th>"
+                        . "<th style='border: 1px solid black;'>TDS</th>"
+                        . "<th style='border: 1px solid black;'>Credit Note</th>"
+                        . "<th style='border: 1px solid black;'>Closing Balance</th>"
+                        . "<th style='border: 1px solid black;'>Credit Period</th>"
+                        . "</tr>";
+                foreach ($remaining_outstanding as $keyI => $valueI) {
+                    //print_r($value);exit;
+                    $closing_Balance = sprintf("%.2f",$valueI['total_amount_collected'] - $valueI['amount_paid']);
+
+                    $invoice_date = date('d.m.Y', strtotime($valueI['invoice_date']));
+                    $invoice_month = date('m/y', strtotime($valueI['invoice_date']));
+                    $credit_note = sprintf("%.2f",$valueI['amount_collected_paid']-$valueI['amount_paid']);
+
+                    $from_date  = strtotime($valueI['invoice_date']);
+                    $to_date    = strtotime(date('Y-m-d'));
+                    $datediff = $to_date - $from_date;
+
+
+
+                    $credit_period = round($datediff / (60 * 60 * 24));
+                    if($credit_period < 1){
+                        $credit_period = '';
+                    }else if($credit_period < 31){
+                        $credit_period = '< 31 days';
+                    }else if ($credit_period >=31 && $credit_period < 61){
+                        $credit_period = '31-60 days';
+                    }else if ($credit_period >=61 && $credit_period < 91){
+                        $credit_period = '61-90 days';
+                    }else if ($credit_period >=91){
+                        $credit_period = '> 91 days';
+                    }
+
+                    $invoice_detail[$keyI]['invoice_id'] = $valueI['invoice_id'];
+                    $invoice_detail[$keyI]['invoice_date'] = $invoice_date;
+                    $invoice_detail[$keyI]['invoice_month'] = $invoice_month;
+                    $invoice_detail[$keyI]['total_invoice_amount'] = $valueI['total_amount_collected'];
+                    $invoice_detail[$keyI]['amount_received'] = $valueI['amount_paid'];
+                    $invoice_detail[$keyI]['tds'] = $valueI['tds_amount'];
+                    $invoice_detail[$keyI]['credit_note'] = $credit_note;
+                    $invoice_detail[$keyI]['closing_balance'] = $closing_Balance;
+                    $invoice_detail[$keyI]['credit_period'] = $credit_period;
+
+
+                    $htmlMessage .= "<tr>"
+                            . "<td style='border: 1px solid black;'>" . $valueI['invoice_id'] . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $invoice_date . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $invoice_month . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $valueI['total_amount_collected'] . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $valueI['amount_paid'] . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $valueI['tds_amount'] . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $credit_note . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $closing_Balance . "</td>"
+                            . "<td style='border: 1px solid black;'>" . $credit_period . "</td>"
+                            . "</tr>";
+
+                    $total_invoice_imount = $total_invoice_imount + $valueI['total_amount_collected'];
+                    $total_amount_received = $total_amount_received + $valueI['amount_paid'];
+                    $total_tds = $total_tds + $valueI['tds_amount'];
+                    $total_credit_note = $total_credit_note + $credit_note;
+                    $total_closing_balance = $total_closing_balance + $closing_Balance;
+                }
+                $htmlMessage .= "<tr>"
+                        . "<td style='border: 1px solid black;'>Total</td>"
+                        . "<td style='border: 1px solid black;'></td>"
+                        . "<td style='border: 1px solid black;'></td>"
+                        . "<td style='border: 1px solid black;'>" . $total_invoice_imount . "</td>"
+                        . "<td style='border: 1px solid black;'>" . $total_amount_received . "</td>"
+                        . "<td style='border: 1px solid black;'>" . $total_tds . "</td>"
+                        . "<td style='border: 1px solid black;'>" . $total_credit_note . "</td>"
+                        . "<td style='border: 1px solid black;'>" . $total_closing_balance . "</td>"
+                        . "<td style='border: 1px solid black;'>" . $credit_period . "</td>"
+                        . "</tr>";
+                $htmlMessage .= "</table>";
+
+
+                $emailBody = vsprintf($email_template[0], array($value['public_name'], $financial_year_start_end, 'Current Month', $htmlMessage));
+
+                $attachment = '';
+                $email_from = $email_template[2];
+                $to = $value['invoice_email_to'];
+                $cc = $bcc = '';
+                if (!empty($value['invoice_email_cc'])) {
+                    $to .= ',' . $value['invoice_email_cc'];
+                }
+                if(!empty($email_template[3])){
+                    $cc = $email_template[3];
+                }
+                if(!empty($email_template[5])){
+                    $bcc = $email_template[5];
+                }
+
+                $service_center_id = 1;
+                $template = 'partner_remaining_outstanding.xlsx';
+                //set absolute path to directory with template files
+                $templateDir = __DIR__ . "/excel-templates/";
+                //set config for report
+                $config = array(
+                    'template' => $template,
+                    'templateDir' => $templateDir
+                );
+                //load template
+                if (ob_get_length() > 0) {
+                    ob_end_clean();
+                }
+                $R = new PHPReport($config);
+
+                $R->load(array(
+                    'id' => 'invoice_detail',
+                    'repeat' => TRUE,
+                    'data' => $invoice_detail
+                ));
+
+                $output_file_dir = TMP_FOLDER;
+                $output_file = "partner_remaining_outstanding_" . date('y-m-d');
+                $output_file_name = $output_file . ".xls";
+                $output_file_excel = $output_file_dir . $output_file_name;
+                $R->render('excel2003', $output_file_excel);
+
+                $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $emailBody, $output_file_excel, "", "", "");
+                if (file_exists($output_file_excel)) {
+                    unlink($output_file_excel);
+                }
+            }
+        }
     }
 
 }

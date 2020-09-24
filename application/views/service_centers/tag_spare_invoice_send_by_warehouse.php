@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
+<script src="<?php echo base_url();?>js/jquery.loading.js"></script>
 <style>
     .select2-container .select2-selection--single{
     height: 32px;
@@ -18,386 +20,411 @@
     text-decoration: none;
     }
     label.error {
-        color:red;
+    color:red;
     }
 </style>
 <!-- page content -->
 <div id="page-wrapper"  role="main">
     <div class="panel panel-default">
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <ul class="nav nav-tabs" role="tablist" >
-                <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
-<!--                <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>-->
-                <li role="presentation" class=""><a href="#nrspareiw" aria-controls="nrspareiw" role="tab" data-toggle="tab">Non-Returnable Consumed MSL (In-Warranty)</a></li>
-                <li role="presentation" class=""><a href="#nrspareow" aria-controls="nrspareow" role="tab" data-toggle="tab">Non-Returnable Consumed MSL (Out-Warranty)</a></li>
-            </ul>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <ul class="nav nav-tabs" role="tablist" >
+                    <li role="presentation" class="active"><a href="#onMsl" aria-controls="onMsl" role="tab" data-toggle="tab">Inventory On MSL</a></li>
+                    <!--                <li role="presentation" ><a href="#onBooking" aria-controls="onBooking" role="tab" data-toggle="tab">Inventory On Booking</a></li>-->
+                    <li role="presentation" class=""><a href="#nrspareiw" aria-controls="nrspareiw" role="tab" data-toggle="tab">Non-Returnable Consumed MSL(IW)</a></li>
+                    <li role="presentation" class=""><a href="#nrspareow" aria-controls="nrspareow" role="tab" data-toggle="tab">Non-Returnable Consumed MWH MSL</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="tab-content panel-body" id="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="onMsl">
-            <div class="row">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel" style="margin-top: 0px;">
-                       
-                        <div class="x_content">
-                            <div class="loader"></div>                            
-                            <div class="form-box">
-                                <div class="warehouse_print_address" style="display:none;">                                    
-                                    <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
-                                        Do You Want to Print Warehouse Address
-                                        <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                        </button>                                        
-                                    </div>
-                                </div>
-                                <div class="success_msg_div" style="display:none;">
-                                    <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                        </button>
-                                        <strong><span id="success_msg"></span></strong>
-                                    </div>
-                                </div>
-                                <div class="error_msg_div" style="display:none;">
-                                    <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                        </button>
-                                        <strong><span id="error_msg"></span></strong>
-                                    </div>
-                                </div>
-                                <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
-                                    <div class="static-form-box">
-                                        <div class="form-group">
-                                            <label class="col-xs-4 col-sm-2 control-label">Partner *</label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="partner_id" id="partner_id" required=""></select>
-                                                <label for="partner_id" class="error"></label>
-                                            </div>
-                                            <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around<?php }?> Warehouses *</label>
-                                            <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" id="wh_id" required="" >
-                                                    <option value="" disabled="">Select Warehouse</option>
-                                                </select>
-                                                <label for="wh_id" class="error"></label>
-                                            </div>
+        <div class="tab-content panel-body" id="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="onMsl">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel" style="margin-top: 0px;">
+                            <div class="x_content">
+                                <div class="loader"></div>
+                                <div class="form-box">
+                                    <div class="warehouse_print_address" style="display:none;">
+                                        <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                            Do You Want to Print Warehouse Address
+                                            <a href="#" id="print_warehouse_addr" target="_blank"> Print Warehouse Address </a>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>                                        
                                         </div>
-                                        <div class="form-group">                                            
-                                            <label class="col-xs-2 control-label">AWB Number *</label>
-                                            <div class="col-xs-4">
-                                                <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                                <label for="despatch_doc_no" class="error"></label>
+                                    </div>
+                                    <div class="success_msg_div" style="display:none;">
+                                        <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <strong><span id="success_msg"></span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="error_msg_div" style="display:none;">
+                                        <div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <strong><span id="error_msg"></span></strong>
+                                        </div>
+                                    </div>
+                                    <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
+                                        <div class="static-form-box">
+                                            <div class="form-group">
+                                                <label class="col-xs-4 col-sm-2 control-label">Partner *</label>
+                                                <div class="col-xs-8 col-sm-4">
+                                                    <select class="form-control" name="partner_id" id="partner_id" required=""></select>
+                                                    <label for="partner_id" class="error"></label>
+                                                </div>
+                                                <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around<?php }?> Warehouses *</label>
+                                                <div class="col-xs-8 col-sm-4">
+                                                    <select class="form-control" name="wh_id" id="wh_id" required="" >
+                                                        <option value="" disabled="">Select Warehouse</option>
+                                                    </select>
+                                                    <label for="wh_id" class="error"></label>
+                                                </div>
                                             </div>
-                                            <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
-                                             <label class="col-xs-2 control-label">Courier Name *</label>
-                                            <div class="col-xs-4">
-<!--                                                <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
-                                                <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
-                                                    <option selected="" disabled="" value="">Select Courier Name</option>
-                                                    <?php foreach ($courier_details as $value1) { ?> 
+                                            <div class="form-group">
+                                                <label class="col-xs-2 control-label">AWB Number *</label>
+                                                <div class="col-xs-4">
+                                                    <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                                    <label for="despatch_doc_no" class="error"></label>
+                                                </div>
+                                                <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
+                                                <label class="col-xs-2 control-label">Courier Name *</label>
+                                                <div class="col-xs-4">
+                                                    <!--                                                <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
+                                                    <select class="form-control" id="courier_name" name="courier_name" id="courier_name" required="">
+                                                        <option selected="" disabled="" value="">Select Courier Name</option>
+                                                        <?php foreach ($courier_details as $value1) { ?> 
                                                         <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                                <label for="courier_name" class="error"></label>
-                                            <?php echo form_error('courier_name'); ?>
+                                                        <?php } ?>
+                                                    </select>
+                                                    <label for="courier_name" class="error"></label>
+                                                    <?php echo form_error('courier_name'); ?>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">                                            
-                                           
-                                            <label class="col-xs-2 control-label">Courier Shipment Date</label>
-                                            <div class="col-xs-4">
-                                                <input placeholder="Select Courier Shipment Date" readonly=""  style="background-color:#FFF;" onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                            <div class="form-group">
+                                                <label class="col-xs-2 control-label">Courier Shipment Date</label>
+                                                <div class="col-xs-4">
+                                                    <input placeholder="Select Courier Shipment Date" readonly=""  style="background-color:#FFF;" onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
+                                                </div>
+                                                <label class="col-xs-2 control-label">Courier File</label>
+                                                <div class="col-xs-4">
+                                                    <input type="file" class="form-control" name="courier_file" id="courier_file"/>
+                                                </div>
                                             </div>
-                                            <label class="col-xs-2 control-label">Courier File</label>
-                                            <div class="col-xs-4">
-                                                <input type="file" class="form-control" name="courier_file" id="courier_file"/>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                         <label class="col-xs-2 control-label">Large Box Count</label>
-                                            <div class="col-xs-4">
-                                                <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
-                                                    <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
+                                            <div class="form-group">
+                                                <label class="col-xs-2 control-label">Large Box Count</label>
+                                                <div class="col-xs-4">
+                                                    <select class="form-control" name="box_count" id="box_count" onchange="$('#small_box_count').css('border','')">
+                                                        <option selected=""  value="">Select Boxes</option>
+                                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                                <label for="box_count" class="error" id='box_count_error'></label>
-                                            </div>
-                                         <label class="col-xs-2 control-label">Small Box Count</label>
-                                            <div class="col-xs-4">
-                                                <select class="form-control" name="small_box_count" id="small_box_count" onchange="$('#box_count').css('border','')">
-                                                    <option selected=""  value="">Select Boxes</option>
-                                                    <?php for ($i = 1; $i < 31; $i++) { ?>
+                                                        <?php } ?>
+                                                    </select>
+                                                    <label for="box_count" class="error" id='box_count_error'></label>
+                                                </div>
+                                                <label class="col-xs-2 control-label">Small Box Count</label>
+                                                <div class="col-xs-4">
+                                                    <select class="form-control" name="small_box_count" id="small_box_count" onchange="$('#box_count').css('border','')">
+                                                        <option selected=""  value="">Select Boxes</option>
+                                                        <?php for ($i = 1; $i < 31; $i++) { ?>
                                                         <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                                <label for="small_box_count" class="error"></label>
+                                                        <?php } ?>
+                                                    </select>
+                                                    <label for="small_box_count" class="error"></label>
+                                                </div>
                                             </div>
-                                          </div>
-                                        <div class="form-group">
-                                            <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
-                                            <div class="col-xs-4">
-                                                <select class="form-control" name="to_gst_number" id="from_gst_number" required="">
-                                                    <option value="" disabled="">Select From GST Number</option>
-                                                </select>
-                                                <label for="from_gst_number" class="error"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="dynamic-form-box" id="appliance_details_id">
-                                        <div class="form-group">
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
-                                                <p class="text-center"><strong>Appliance</strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <p class="text-center"><strong>Part Number</strong></p>
-                                            </div>
-                                             <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <p class="text-center"><strong>Part Name</strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
-                                                <p class="text-center"><strong>Booking Id <small>(Optional)</small></strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>Quantity</strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>Total Basic Price</strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>HSN Code</strong></p>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>GST Rate</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
-                                                <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
-                                                <select class="form-control" name="part[0][service_id]" id="serviceId_0" required=""></select>
-                                                <label for="serviceId_0" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <input type="text" class="form-control" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
-                                                <label for="partNumber_0" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" name="part[0][part_name]" id="partName_0" ></select>
-                                                <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
-                                                <label for="partName_0" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
-                                                <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" onblur="check_booking_id(this.id)"/>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][quantity]" id="quantity_0" min="1" required="" onblur="get_part_details(this.id)" />
-                                                <label for="quantity_0" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithDecimal" name="part[0][part_total_price]" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" id="partBasicPrice_0" value="0" />
-                                                <label for="partBasicPrice_0" id="lbl_partBasicPrice_0" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value=""/>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" min="5" max="28" value="" />
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
-                                                <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
-                                            </div>
-                                        </div>
-                                        <!-- The template for adding new field -->
-                                        <div class="form-group hide" id="partTemplate">
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
-                                                <input type="hidden" id="shippingStatus" value="1">
-                                                <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
-                                                <label for="service_id" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <input type="text" class="form-control" id="part_number"  required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
-                                                <label for="part_numbert" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-3">
-                                                <select class="form-control" id="part_name"></select>
-                                                <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
-                                                <label for="part_name" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
-                                                <input type="text" class="form-control" id="booking_id"  onblur="check_booking_id(this.id)"/>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="quantity" min="1" required="" onblur="get_part_details(this.id)" />
-                                                <label for="quantity" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" />
-                                                <label for="part_total_price" id="lbl_part_total_price" class="error"></label>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />
-                                            </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="hidden" class="form-control" id="inventory_id"  value=""/>
-                                                <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <div class="pull-right" style="margin-right:15px;">
-                                                    <strong>
-                                                    Total Price : <span id="total_spare_invoice_price">0</span>
-                                                    </strong>
+                                            <div class="form-group">
+                                                <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                                <div class="col-xs-4">
+                                                    <select class="form-control" name="to_gst_number" id="from_gst_number" required="">
+                                                        <option value="" disabled="">Select From GST Number</option>
+                                                    </select>
+                                                    <label for="from_gst_number" class="error"></label>
                                                 </div>
                                             </div>
                                         </div>
                                         <hr>
-                                        <div class="row">
-                                            <div class="col-xs-5 col-md-4 col-md-offset-5">
-                                                <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
-                                                <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
-                                                <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
-                                                <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('d/m/Y');?>"/>
-                                                <input type="hidden" name="sender_entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
-                                                <input type="hidden" name="sender_entity_id" value="<?php echo $this->session->userdata('service_center_id'); ?>">
-                                                <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
-                                                <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_WAREHOUSE; ?>">
-                                                <input type="hidden" id="confirmation" value="0">
+                                        <div class="dynamic-form-box" id="appliance_details_id">
+                                            <div class="form-group">
+                                                <div class="col-xs-12 col-sm-6 col-md-2">
+                                                    <p class="text-center"><strong>Appliance</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <p class="text-center"><strong>Part Number</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <p class="text-center"><strong>Part Name</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
+                                                    <p class="text-center"><strong>Booking Id <small>(Optional)</small></strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <p class="text-center"><strong>Quantity</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <p class="text-center"><strong>Total Basic Price</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <p class="text-center"><strong>HSN Code</strong></p>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <p class="text-center"><strong>GST Rate</strong></p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-xs-12 col-sm-6 col-md-2">
+                                                    <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
+                                                    <select class="form-control" name="part[0][service_id]" id="serviceId_0" required=""></select>
+                                                    <label for="serviceId_0" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <input type="text" class="form-control" name="part[0][part_number]" id="partNumber_0" required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
+                                                    <label for="partNumber_0" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <select class="form-control" name="part[0][part_name]" id="partName_0" ></select>
+                                                    <span id="part_loader_0" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
+                                                    <label for="partName_0" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
+                                                    <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" onblur="check_booking_id(this.id)"/>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][quantity]" id="quantity_0" min="1" required="" onblur="get_part_details(this.id)" />
+                                                    <label for="quantity_0" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithDecimal" name="part[0][part_total_price]" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" id="partBasicPrice_0" value="0" />
+                                                    <label for="partBasicPrice_0" id="lbl_partBasicPrice_0" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value=""/>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" min="5" max="28" value="" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
+                                                    <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                            <!-- The template for adding new field -->
+                                            <div class="form-group hide" id="partTemplate">
+                                                <div class="col-xs-12 col-sm-6 col-md-2">
+                                                    <input type="hidden" id="shippingStatus" value="1">
+                                                    <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
+                                                    <label for="service_id" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <input type="text" class="form-control" id="part_number"  required="" onblur="get_part_details(this.id)" placeholder="Enter Part Number">
+                                                    <label for="part_numbert" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-3">
+                                                    <select class="form-control" id="part_name"></select>
+                                                    <span id="part_loader" style="display: none; margin-left: 45%;"><i class='fa fa-spinner fa-spin'></i></span>
+                                                    <label for="part_name" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
+                                                    <input type="text" class="form-control" id="booking_id"  onblur="check_booking_id(this.id)"/>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithOutDecimal" id="quantity" min="1" required="" onblur="get_part_details(this.id)" />
+                                                    <label for="quantity" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" />
+                                                    <label for="part_total_price" id="lbl_part_total_price" class="error"></label>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-md-1">
+                                                    <input type="hidden" class="form-control" id="inventory_id"  value=""/>
+                                                    <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
+                                        <hr>
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <div class="pull-right" style="margin-right:15px;">
+                                                        <strong>
+                                                        Total Price : <span id="total_spare_invoice_price">0</span>
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-xs-5 col-md-4 col-md-offset-5">
+                                                    <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
+                                                    <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
+                                                    <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
+                                                    <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('d/m/Y');?>"/>
+                                                    <input type="hidden" name="sender_entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
+                                                    <input type="hidden" name="sender_entity_id" value="<?php echo $this->session->userdata('service_center_id'); ?>">
+                                                    <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                                    <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_WAREHOUSE; ?>">
+                                                    <input type="hidden" id="confirmation" value="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!------------->
-        <div role="tabpanel" class="tab-pane" id="nrspareiw">
-           <form name="rm_state_mapping" class="form-horizontal" id ="rm_state_mapping"   method="POST">
-              <div class="row">
-                 <div class="col-md-6">
-                    <div  class="form-group <?php
-                       if (form_error('state_name')) {
-                           echo 'has-error';
-                       }
-                       ?>">
-                       <label  for="state_name" class="col-md-4">Partner *</label>
-                       <div class="col-md-7 fullselect">
-                          <select onchange='annual_charges_report.ajax.reload();' id='state_name' name='state_name[]' class="form-control state_name" style="min-width:350px;"  required>
-                             <option value ="" disabled selected>Select</option>
-                             <?php foreach ($partner_list as $key => $value) { ?>
-                             <option value ="<?= $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
-                             <?php } ?>
-                          </select>
-                          <?php echo form_error('state_name'); ?>
-                       </div>
+            <!------------->
+            <div role="tabpanel" class="tab-pane" id="nrspareiw">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Reverse Invoice to Partner</div>
+                    <div class="panel-body">
+                        <form name="form_non_consumable_parts_vendor" class="form-horizontal" id ="form_non_consumable_parts_vendor"   method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('state_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <div class="col-md-4 fullselect">
+                                            <label  for="Partner" class="col-md-12">Partner</label>
+                                            <select onchange='non_consumable_parts_iw.ajax.reload(); get_partner_gst_number()' id='partner_id_iw' name='partner_id_iw' class="form-control partner_id_iw" required>
+                                                <option value ="" disabled selected>Select Partner</option>
+                                                <?php foreach ($partner_list as $key => $value) { ?>
+                                                <option value ="<?php echo $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('partner_id_iw'); ?>
+                                        </div>
+                                        <div class="col-md-4 fullselect">
+                                            <label  for="Partner" class="col-md-12">Partner GST Number  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Partner GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <select class="form-control" name="to_gst_number_tab_2" id="to_gst_number_tab_2" required="">
+                                                <option value="" disabled="">Select Partner GST Number</option>
+                                            </select>
+                                            <?php echo form_error('to_gst_number_tab_2'); ?>
+                                        </div>
+                                        <div class="col-md-4 fullselect">
+                                            <label  for="Partner" class="col-md-12">247around GST Number  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <select class="form-control" name="from_gst_number_tab_2" id="from_gst_number_tab_2" required="">
+                                                <option value="" disabled="">Select 247around GST Number</option>
+                                            </select>
+                                            <?php echo form_error('from_gst_number_tab_2'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                 </div>
-              </div>
-           </form>
-              <table id="annual_charges_report" class="table  table-striped table-bordered" style='width:100%'>
-                 <thead>
-                    <tr>
-                       <th>S. No.</th>
-                       <th>Booking ID</th>
-                       <th>Part Name</th>
-                       <th>Quantity</th>
-                       <th><input type='checkbox'></th>
-                    </tr>
-                 </thead>
-                 <tbody>
-                 </tbody>
-              </table>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="nrspareow">
-           <form name="rm_state_mapping" class="form-horizontal" id ="rm_state_mapping"   method="POST">
-              <div class="row">
-                 <div class="col-md-6">
-                    <div  class="form-group <?php
-                       if (form_error('state_name')) {
-                           echo 'has-error';
-                       }
-                       ?>">
-                       <label  for="state_name" class="col-md-4">Partner *</label>
-                       <div class="col-md-7 fullselect">
-                          <select onchange='annual_charges_report_new.ajax.reload();' id='state_name_new' name='state_name_new[]' class="form-control state_name" style="min-width:350px;"  required>
-                             <option value ="" >Select</option>
-                             <?php foreach ($partner_list as $key => $value) { ?>
-                             <option value ="<?= $value['id']; ?>"  ><?php echo $value['public_name']; ?></option>
-                             <?php } ?>
-                          </select>
-                          <?php echo form_error('state_name'); ?>
-                       </div>
+                </div>
+                <hr/>
+                <table id="non_consumable_parts_iw" class="table  table-striped table-bordered" style='width:100%'>
+                    <thead>
+                        <tr>
+                            <th>S. No.</th>
+                            <th>Booking ID</th>
+                            <th>Appliance</th>
+                            <th>Part Name</th>
+                            <th>Part Number</th>
+                            <th>Part Warranty</th>
+                            <th>Quantity</th>
+                            <th><button class="btn btn-md btn-primary" id="return_consumed_parts" onclick='createInvoiceForIW()'>Create Invoice</button></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="nrspareow">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Adjust MSL Amount</div>
+                    <div class="panel-body">
+                        <form name="form_non_consumable_parts_iw" class="form-horizontal" id ="form_non_consumable_parts_iw"   method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('state_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="partner_id" class="col-md-3">Micro Warehoue</label>
+                                        <div class="col-md-5 fullselect">
+                                            <select onchange='non_consumable_parts_vendor.ajax.reload();' id='nc_vendor_id' name='nc_vendor_id' class="form-control partner_id_iw" style="min-width:350px;"  required>
+                                                <option value ="" >Select</option>
+                                                <?php foreach ($vendor_list as $key => $value) { ?>
+                                                <option value ="<?= $value['id']; ?>"  ><?php echo $value['name']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('nc_vendor_id'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                 </div>
-              </div>
-           </form>
-           <table id="annual_charges_report_new" class="table  table-striped table-bordered" style='width: 100%;'>
-              <thead>
-                 <tr>
-                    <th>S. No.</th>
-                    <th>Booking ID</th>
-                    <th>Part Name</th>
-                    <th>Quantity</th>
-                    <th><input type='checkbox'></th>
-                 </tr>
-              </thead>
-              <tbody>
-              </tbody>
-           </table>
-        </div>
-
-        <!-------------> 
+                </div>
+                <table id="non_consumable_parts_vendor" class="table  table-striped table-bordered" style='width: 100%;'>
+                    <thead>
+                        <tr>
+                            <th>S. No.</th>
+                            <th>Booking ID</th>
+                            <th>Appliance</th>
+                            <th>Part Name</th>
+                            <th>Part Number</th>
+                            <th>Part Warranty</th>
+                            <th>Quantity</th>
+                            <th><button class="btn btn-md btn-primary" id="adjust_consumed_msl" onclick='adjust_consumed_parts()'>Submit</button></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-------------> 
         </div>
     </div>
 </div>
- <!--Modal start [ send spare parts list ]-->
-      <div id="map_appliance_model" class="modal fade" role="dialog">
-          <div class="modal-dialog modal-lg" style="width: 90%;">
-              <div class="modal-content">
-                  <button type="button" class="close btn-primary" style="margin: 6px 10px;" data-dismiss="modal">×</button>
-                  <div class="modal-header">
-                      <h4 class="modal-title">Send MSL Details To <strong id="modal_title_action"></strong> </h4>
-                  </div>
-                  <div class="modal-body" style="margin-right: -400px;">
-                          <form class="form-horizontal">
-                              <div id="clone_id" style="text-align: center;"></div>
-                              <div class="modal-footer" style="margin-right: 389px;text-align: center;">
-                                  <input type="hidden" id="mapped_model_table_id">
-                                  <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
-                                  <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
-                              </div>
-                          </form>
-                  </div>
-              </div>
-          </div>
-      </div>
-    <!--Modal end-->
-    <style>
-        .fullselect .select2{
-            width: 100% !important;
-        }
-    </style>
+<!--Modal start [ send spare parts list ]-->
+<div id="map_appliance_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <button type="button" class="close btn-primary" style="margin: 6px 10px;" data-dismiss="modal">×</button>
+            <div class="modal-header">
+                <h4 class="modal-title">Send MSL Details To <strong id="modal_title_action"></strong> </h4>
+            </div>
+            <div class="modal-body" style="margin-right: -400px;">
+                <form class="form-horizontal">
+                    <div id="clone_id" style="text-align: center;"></div>
+                    <div class="modal-footer" style="margin-right: 389px;text-align: center;">
+                        <input type="hidden" id="mapped_model_table_id">
+                        <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
+                        <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal end-->
+<style>
+    .fullselect .select2{
+    width: 100% !important;
+    }
+</style>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
-
-
     $("#invoice_file").change(function(){
-
+    
         var f = this.files[0];
         var flag =false;
         var ext = this.value.match(/\.(.+)$/)[1];
@@ -414,11 +441,11 @@
            //reset file upload control
            this.value = null;
         }
-
-});
-
-$("#on_invoice_file").change(function(){
-
+    
+    });
+    
+    $("#on_invoice_file").change(function(){
+    
         var f = this.files[0];
         var flag = false;
         var ext = this.value.match(/\.(.+)$/)[1];
@@ -435,8 +462,8 @@ $("#on_invoice_file").change(function(){
            //reset file upload control
            this.value = null;
         }
-
-});
+    
+    });
     
     $("#wh_id").on('change',function(){
         var wh_name = $("#wh_id option:selected").text();
@@ -494,9 +521,9 @@ $("#on_invoice_file").change(function(){
         $('#partName_0').select2({
             placeholder:'Select Part Name'
         });
-//        $('#partNumber_0').select2({
-//            placeholder:'Select Part Number'
-//        });
+    //        $('#partNumber_0').select2({
+    //            placeholder:'Select Part Number'
+    //        });
          
         $('#from_gst_number').select2({
             placeholder:'Select From GST Number'
@@ -511,10 +538,10 @@ $("#on_invoice_file").change(function(){
         });
         
         
-//         $("#on_partner_id").on('change',function(){
-//            var partner_id = $("#partner_id").val();              ;   
-//              get_vendor_by_booking('1',partner_id);
-//        });
+    //         $("#on_partner_id").on('change',function(){
+    //            var partner_id = $("#partner_id").val();              ;   
+    //              get_vendor_by_booking('1',partner_id);
+    //        });
         
         
         
@@ -545,7 +572,7 @@ $("#on_invoice_file").change(function(){
          $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD'));
         });
-
+    
         $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
             $(this).val('');
         });
@@ -612,28 +639,28 @@ $("#on_invoice_file").change(function(){
                             flag = false;
                             return false;
                         }
-
+    
                         if(Number($('#partHsnCode_'+i).val()) === ""){
                             showConfirmDialougeBox('Please enter HSN Code', 'warning');
                             $('#partHsnCode_'+i).addClass('text-danger');
                             flag = false;
                             return false;
                         }
-
+    
                         if(Number($('#partGstRate_'+i).val()) === ""){
                             showConfirmDialougeBox('Please enter Gst Rate', 'warning');
                             $('#partGstRate_'+i).addClass('text-danger');
                             flag = false;
                             return false;
                         }
-//                        else {
-//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
-//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-//                                $('#partGstRate_'+i).addClass('text-danger');
-//                                flag = false;
-//                                return false;
-//                            }
-//                        }
+    //                        else {
+    //                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+    //                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+    //                                $('#partGstRate_'+i).addClass('text-danger');
+    //                                flag = false;
+    //                                return false;
+    //                            }
+    //                        }
                     }
                 });
                 
@@ -702,12 +729,12 @@ $("#on_invoice_file").change(function(){
                             },
                             success:function(response){
                                 obj = JSON.parse(response);
-//                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
-//                                    var confirmation = confirm("Want to Print Warehouse Address");
-//                                    if (confirmation){
-//                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
-//                                    }
-//                                }                                
+    //                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
+    //                                    var confirmation = confirm("Want to Print Warehouse Address");
+    //                                    if (confirmation){
+    //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
+    //                                    }
+    //                                }                                
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
@@ -961,7 +988,7 @@ $("#on_invoice_file").change(function(){
                             $('#partGstRate_'+index).val(obj.gst_rate);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
-
+    
                             if (Number($.trim(quantity)) > Number($.trim(obj.total_stock))) {
                                 swal("Stock is less!", "Stock availability is less than your entered quantity!", "error");
                                 $("#quantity_"+index).val("");
@@ -970,7 +997,7 @@ $("#on_invoice_file").change(function(){
                                 $('#partBasicPrice_'+index).val("");
                                 $('#inventoryId_'+index).val("");
                             }else{
-
+    
                             var total_spare_invoice_price = 0;
                             $(".part-total-price").each(function(i) {
                                 if($.trim($('#partBasicPrice_'+i).val()) !== '') {
@@ -979,7 +1006,7 @@ $("#on_invoice_file").change(function(){
                             });
                             $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
                             }
-
+    
                         }else{
                             alert("Inventory Details not found for the selected combination.");
                             $('#submit_btn').attr('disabled',true);
@@ -1073,44 +1100,44 @@ $("#on_invoice_file").change(function(){
         }
     }
     
-   //Inventory On Booking
-//     $('#on_invoice_date').daterangepicker({
-//            autoUpdateInput: false,
-//            singleDatePicker: true,
-//            showDropdowns: true,
-//            minDate: date_before_15_days,
-//            maxDate:'today',
-//            locale:{
-//                format: 'YYYY-MM-DD'
-//            }
-//        });
+    //Inventory On Booking
+    //     $('#on_invoice_date').daterangepicker({
+    //            autoUpdateInput: false,
+    //            singleDatePicker: true,
+    //            showDropdowns: true,
+    //            minDate: date_before_15_days,
+    //            maxDate:'today',
+    //            locale:{
+    //                format: 'YYYY-MM-DD'
+    //            }
+    //        });
         
-//    $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
-//            $(this).val(picker.startDate.format('YYYY-MM-DD'));
-//     });
-//    
-//    $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
-//        $(this).val('');
-//    });
-//    
-//    $('#on_courier_shipment_date').daterangepicker({
-//            autoUpdateInput: false,
-//            singleDatePicker: true,
-//            showDropdowns: true,
-//            minDate: date_before_15_days,
-//            maxDate:'today',
-//            locale:{
-//                format: 'YYYY-MM-DD'
-//            }
-//        });
-//    
-//    $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-//        $(this).val(picker.startDate.format('YYYY-MM-DD'));
-//    });
-//
-//    $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
-//        $(this).val('');
-//    });
+    //    $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
+    //            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+    //     });
+    //    
+    //    $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
+    //        $(this).val('');
+    //    });
+    //    
+    //    $('#on_courier_shipment_date').daterangepicker({
+    //            autoUpdateInput: false,
+    //            singleDatePicker: true,
+    //            showDropdowns: true,
+    //            minDate: date_before_15_days,
+    //            maxDate:'today',
+    //            locale:{
+    //                format: 'YYYY-MM-DD'
+    //            }
+    //        });
+    //    
+    //    $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
+    //        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+    //    });
+    //
+    //    $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
+    //        $(this).val('');
+    //    });
     
     function search_booking_details(count){
         var booking_id = $("#onbookingid_" + count).val();
@@ -1118,7 +1145,7 @@ $("#on_invoice_file").change(function(){
             $.ajax({
                 method:'POST',
                 beforeSend: function(){
-
+    
                     $('body').loadingModal({
                     position: 'auto',
                     text: 'Loading Please Wait...',
@@ -1127,7 +1154,7 @@ $("#on_invoice_file").change(function(){
                     backgroundColor: 'rgb(0,0,0)',
                     animation: 'wave'
                 });
-
+    
                     },
                 url:'<?php echo base_url(); ?>employee/inventory/get_spare_line_item_for_tag_spare/'+booking_id +"/" + count,
                 data:{is_ajax:true},
@@ -1137,7 +1164,7 @@ $("#on_invoice_file").change(function(){
                      $('body').loadingModal('destroy');
                     if(obj.code === 247){
                         //onBookingIndex = (Number(count) + Number(obj.count) - 1);
-
+    
                         $("#sparelineitem_"+count).html(obj.data);
                         $(".part_name").select2();
                         var service_id = $('#onserviceId_'+count).val();
@@ -1195,7 +1222,7 @@ $("#on_invoice_file").change(function(){
        });
        
         function booking_calculate_total_price(id){
-
+    
             var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
             $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
         }
@@ -1274,14 +1301,14 @@ $("#on_invoice_file").change(function(){
        
          
     function onchange_part_number(index){
-
+    
         $('#oninventoryId_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-inventory_id'));
         $('#onpartBasicPrice_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
         $('#onpartBasic_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
         $('#onpartGstRate_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-gst_rate'));
         $('#onpartHsnCode_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-hsn_code'));
         $('#onspareType'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-type'));
-
+    
         $('#ontotal_amount_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-inventory_id'));
     }
     
@@ -1300,7 +1327,7 @@ $("#on_invoice_file").change(function(){
                         flag = false;
                         return false;
                     }
-
+    
                 });
                 
                 
@@ -1312,15 +1339,15 @@ $("#on_invoice_file").change(function(){
                         flag = false;
                         return false;
                     }
-//                    else {
-//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
-//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-//                            $('#onpartGstRate_'+i).addClass('text-danger');
-//                            flag = false;
-//                            return false;
-//                        }
-//                    }
-
+    //                    else {
+    //                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+    //                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+    //                            $('#onpartGstRate_'+i).addClass('text-danger');
+    //                            flag = false;
+    //                            return false;
+    //                        }
+    //                    }
+    
                 });
                 
                 $(".onpartHsnCode").each(function(i) {
@@ -1331,9 +1358,8 @@ $("#on_invoice_file").change(function(){
                         flag = false;
                         return false;
                     }
-
+    
                 });
-                
                 if(flag == true) {
                     var booking_id = $("#onbookingid_0").val();
                     if(booking_id !== ""){
@@ -1346,29 +1372,29 @@ $("#on_invoice_file").change(function(){
                                 var sh_id = this.id;
                                 var split_id = sh_id.split('_');
                                 var c = split_id[2];
-
+    
                                 if ($("#s_shippingStatus_" + c+":checked").val()) {
                                     var checked_shipped = $("#s_shippingStatus_" + c).val();
                                      if(Number(checked_shipped) === 1 ){
                                         our_invoice_amt += Number($(this).val());
                                      }
                                  }
-
+    
                             }
-
+    
                         });
                         if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
-
+    
                             onBookingshowConfirmDialougeBox('Are you sure you want to submit ?', 'info');
-
+    
                         }else{
                             onBookingshowConfirmDialougeBox('Amount of invoice does not match with total price', 'warning');
-
+    
                             return false;
                         }
                     } else {
                         onBookingshowConfirmDialougeBox('Please Enter Booking ID', 'warning');
-
+    
                         return false;
                     }
                 }
@@ -1537,10 +1563,16 @@ $("#on_invoice_file").change(function(){
                 $("#from_gst_number").html(response);
                 $('#from_gst_number option:eq(1)').prop('selected',true);
                 $('#select2-from_gst_number-container').text($("#from_gst_number").find(':selected').text());
+                
+                $("#from_gst_number_tab_2").html(response);
+                $('#from_gst_number_tab_2 option:eq(1)').prop('selected',true);
+                
+                
+                
             }
         });
     }
-   
+    
     function validateDecimal(id,value) {
         var RE = /^\d+(?:\.\d{1,2})?$/
         if(($.trim(value) !== '') && !RE.test(value)){
@@ -1555,63 +1587,227 @@ $("#on_invoice_file").change(function(){
     }
 </script>
 <script>
-        var annual_charges_report = $('#annual_charges_report').DataTable({
-	"processing": true,
-	"serverSide": true,
-	"lengthChange": true,
-	"ajax": {
-		"url": "<?php echo base_url(); ?>employee/spare_parts/spare_parts_booking_consumed_process_record",
-		"type": "POST",
-		"data": function (d) {
-			d.partner_id = $("#state_name").val();
-                        d.warranty = 1;
-
-		}
-	},
-	"dom": 'lBfrtip',
-	"buttons": [
-		
-	],
-	"order": [],
-	"ordering": false,
-	"deferRender": true,
-	//"searching": false,
-	//"paging":false
-	"pageLength": 50,
-	"language": {
-		"emptyTable": "No Data Found",
-		"searchPlaceholder": "Search by any column."
-	},
+    var non_consumable_parts_iw = $('#non_consumable_parts_iw').DataTable({
+    "processing": true,
+    "serverSide": true,
+    "lengthChange": true,
+    "ajax": {
+    "url": "<?php echo base_url(); ?>employee/spare_parts/get_non_returnable_consumed_msl",
+    "type": "POST",
+    "data": function (d) {
+    d.partner_id = $("#partner_id_iw").val();
+                    d.warranty = 1;
+    
+    }
+    },
+    "dom": 'lBfrtip',
+    "buttons": [
+    
+    ],
+    "order": [],
+    "ordering": false,
+    "deferRender": true,
+    //"searching": false,
+    //"paging":false
+    "pageLength": 50,
+    "language": {
+    "emptyTable": "No Data Found",
+    "searchPlaceholder": "Search by any column."
+    },
+    });
+    
+    
+    var non_consumable_parts_vendor = $('#non_consumable_parts_vendor').DataTable({
+    "processing": true,
+    "serverSide": true,
+    "lengthChange": true,
+    "ajax": {
+    "url": "<?php echo base_url(); ?>employee/spare_parts/get_non_returnable_consumed_msl",
+    "type": "POST",
+    "data": function (d) {
+    d.vendor_id = $("#nc_vendor_id").val();
+    
+    }
+    },
+    "dom": 'lBfrtip',
+    "buttons": [
+    
+    ],
+    "order": [],
+    "ordering": false,
+    "deferRender": true,
+    //"searching": false,
+    //"paging":false
+    "pageLength": 50,
+    "language": {
+    "emptyTable": "No Data Found",
+    "searchPlaceholder": "Search by any column."
+    },
+    });
+    $(".partner_id_iw").select2();
+    var returnItemArray = [];
+    
+    function createInvoiceForIW(){
+    var formData = new FormData();
+    var from_gst_id = $("#from_gst_number_tab_2").val();
+    var to_gst_id = $("#to_gst_number_tab_2").val();
+    var partner_id = $("#partner_id_iw").val();
+    if(partner_id ==""){
+        alert('Please Select Partner');
+        return false
+    }
+    
+    if(to_gst_id ==""){
+        alert('Please Select Partner Gst Number');
+        return false
+    }
+    
+    if(from_gst_id ==""){
+        alert('Please Select 247around Gst Number');
+        return false
+    }
+    
+    if(returnItemArray.length > 0){
+            formData.append('inventory_data',JSON.stringify(returnItemArray));  
+            formData.append("label", "WEBUPLOAD");
+            formData.append("partner_id", $("#partner_id_iw").val());
+            formData.append("to_gst_id", $("#to_gst_number_tab_2").val());
+            formData.append("from_gst_id", $("#from_gst_number_tab_2").val());
+            $('#return_consumed_parts').attr('disabled',true); 
+        $.ajax({
+            method:'POST',
+            url:  '<?php echo base_url();?>/employee/user_invoice/non_return_msl_reverse_partner_invoice',
+            data:formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function(){
+    
+                $('body').loadingModal({
+                position: 'auto',
+                text: 'Loading Please Wait...',
+                color: '#fff',
+                opacity: '0.7',
+                backgroundColor: 'rgb(0,0,0)',
+                animation: 'wave'
+            });
+    
+                },
+            
+            success:function(response){
+                 obj = JSON.parse(response);
+            $('#return_consumed_parts').attr('disabled',false);
+    
+        if(obj.status){
+            swal("Thanks!", "Details updated successfully!", "success");
+            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+            $('#success_msg').html(obj.message);
+            
+            //non_consumable_parts_iw.ajax.reload(null, false); 
+            location.reload();
+        }else{
+            showConfirmDialougeBox(obj.message, 'warning');
+            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+            $('#error_msg').html(obj.message);
+        }
+    
+    
+        },
+        complete: function() {
+    $('body').loadingModal('destroy');
+            }
         });
-
-
-    var annual_charges_report_new = $('#annual_charges_report_new').DataTable({
-	"processing": true,
-	"serverSide": true,
-	"lengthChange": true,
-	"ajax": {
-		"url": "<?php echo base_url(); ?>employee/spare_parts/spare_parts_booking_consumed_process_record",
-		"type": "POST",
-		"data": function (d) {
-			d.partner_id = $("#state_name_new").val();
-                        d.warranty = 2;
-
-		}
-	},
-	"dom": 'lBfrtip',
-	"buttons": [
-		
-	],
-	"order": [],
-	"ordering": false,
-	"deferRender": true,
-	//"searching": false,
-	//"paging":false
-	"pageLength": 50,
-	"language": {
-		"emptyTable": "No Data Found",
-		"searchPlaceholder": "Search by any column."
-	},
-        });
-    $(".state_name").select2();
+    }
+    }
+    
+    function adjust_consumed_parts(){
+    var formData = new FormData();
+    var vendor_id = $("#nc_vendor_id").val();
+    if(vendor_id ===""){
+    alert("Please select Micro Warehouse");
+    }
+    
+    if(returnItemArray.length > 0){
+    formData.append('inventory_data',JSON.stringify(returnItemArray));  
+    formData.append("label", "WEBUPLOAD");
+    formData.append("warehouse_id", $("#nc_vendor_id").val());
+    formData.append("wh_type", 2);
+    formData.append("invoice_type", 4);
+    $('#adjust_consumed_msl').attr('disabled',true); 
+    $.ajax({
+    method:'POST',
+    url:  '<?php echo base_url();?>/employee/user_invoice/process_consumed_non_return_mwh_msl',
+    data:formData,
+    contentType: false,
+    processData: false,
+    beforeSend: function(){
+                
+    
+        $('body').loadingModal({
+        position: 'auto',
+        text: 'Loading Please Wait...',
+        color: '#fff',
+        opacity: '0.7',
+        backgroundColor: 'rgb(0,0,0)',
+        animation: 'wave'
+    });
+    
+        },
+    success:function(response){
+       obj = JSON.parse(response);
+            $('#adjust_consumed_msl').attr('disabled',false);
+    
+        if(obj.status){
+            swal("Thanks!", "Details updated successfully!", "success");
+            $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
+            $('#success_msg').html(obj.message);
+           // non_consumable_parts_vendor.ajax.reload(null, false); 
+            location.reload();
+        }else{
+            showConfirmDialougeBox(obj.message, 'warning');
+            $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
+            $('#error_msg').html(obj.message);
+        }
+    },
+    complete: function() {
+       $('body').loadingModal('destroy');
+    }
+    });
+    } else {
+    alert('Please select checkbox');
+    }
+    
+    
+    }
+    
+    
+    function createPostArray(){
+    
+    var i =0;
+    $.each($(".non_consumable:checked"), function(){            
+        returnItemArray[i] = {
+            'inventory_id': $(this).attr('data-inventory_id'),
+            'spare_id': $(this).attr('data-spare_id'),
+            'vendor_id':$(this).attr('data-vendor_id'),
+            'quantity': $(this).attr('data-shipped_quantity'),
+            'booking_partner_id':$(this).attr('data-booking_partner_id'),
+            'is_micro_wh': $(this).attr('data-is_micro_wh'),
+            'shipping_quantity':$(this).attr('data-shipped_quantity'),
+            'booking_id':$(this).attr('data-booking_id'),
+       
+        }
+        i++;
+    });
+    }
+    
+    function get_partner_gst_number(){
+    var partner_id = $('#partner_id_iw').val();
+    $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url() ?>employee/inventory/get_partner_gst_number',
+        data:{partner_id:partner_id},
+        success: function (response) {
+            $("#to_gst_number_tab_2").html(response);
+        }
+    });
+    }
 </script>

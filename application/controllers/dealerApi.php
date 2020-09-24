@@ -431,9 +431,19 @@ class dealerApi extends CI_Controller {
             
             case 'getPartnerCompareData':
                 $this->getPartnerCompareTAT();
+                break;
                 
             case 'getStateTATDetails':
                 $this->getStateDetailedTAT();
+                break;
+            
+            case 'getSFDetailedDashboardData':
+                $this->getSFDetailedData();
+                break;
+                
+            case 'getBookingCollaterals':
+                $this->getBookingDocuments();
+                break;
 
             default:
                 break;
@@ -1394,11 +1404,11 @@ function  getPartnerCompareTAT(){
                     foreach ($curl_response->TAT as $key=>$value){
                      $state =   $value->entity; 
                      if($state!='Total'){
-                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_0_per,'count'=>$value->TAT_0)  ;
+                     $return_data['D0'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_0_per,'count'=>$value->TAT_0)  ;
                      //$return['D0'][]['state'][]  = $value->TAT_0  ;
-                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_1_per,'count'=>$value->TAT_1)  ;
-                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>$value->TAT_2_per,'count'=>$value->TAT_2)  ;
-                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>$value->TAT_3_per,'count'=>$value->TAT_3)  ;
+                     $return_data['D1'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_1_per,'count'=>$value->TAT_1)  ;
+                     $return_data['D2'][] = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_2_per,'count'=>$value->TAT_2)  ;
+                     $return_data['D4'][]  = array('state'=>ucwords($state),'percent'=>(int)$value->TAT_3_per,'count'=>$value->TAT_3)  ;
                     }
                     }
                     }else{
@@ -1444,6 +1454,174 @@ function  getPartnerCompareTAT(){
     }
     
     
+    
+      /*
+     * @Desc - This function is used get  SFs TAT And other details
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    
+    
+        function getSFDetailedData(){
+      
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if (!empty($requestData['mobile']) && !empty($requestData['vendor_id'])) { 
+            
+                   if(isset($requestData['status']) && !empty($requestData['status']) && $requestData['status']!='All'){
+                       $status= $requestData['status'];
+                    }else if($requestData['status']=='All'){
+                       $status="not_set";  
+                    }else{
+                        $status="not_set";
+                    }
+                    
+                    if(isset($requestData['service_id']) && !empty($requestData['service_id']) && $requestData['service_id']!='All'){
+                       $service_id = $requestData['service_id'];
+                    } else if($requestData['service_id']=='All'){
+                        $service_id ="not_set"; 
+                    }else{
+                       $service_id ="not_set";  
+                    }
+                   
+                    if(isset($requestData['request_type']) && !empty($requestData['request_type']) && $requestData['request_type']!='All'){
+                       $request_type = $requestData['request_type'];
+                    }else if($requestData['request_type']=='All'){
+                       $request_type ="not_set";  
+                    }else{
+                      $request_type ="not_set";  
+                    }
+                    
+                    if(isset($requestData['free_paid']) && !empty($requestData['free_paid']) && $requestData['free_paid']!='All'){
+                       $free_paid = $requestData['free_paid'];
+                    }else if($requestData['free_paid']=='All'){
+                       $free_paid ="not_set";  
+                    }else{
+                       $free_paid ="not_set";
+                    }
+                    
+                    if(isset($requestData['upcountry']) && !empty($requestData['upcountry']) && $requestData['upcountry']!='All'){
+                       $upcountry = $requestData['upcountry'];
+                    }else if($requestData['upcountry']=='All'){
+                       $upcountry ="not_set";  
+                    }else{
+                       $upcountry ="not_set";  
+                    }
+                    
+                    
+                    if(isset($requestData['partner_id']) && !empty($requestData['partner_id']) && $requestData['partner_id']!='All'){
+                       $partner_id = $requestData['partner_id'];
+                    }else if($requestData['partner_id']=='All'){
+                        $partner_id = "not_set";
+                    }else{
+                        $partner_id = "not_set"; 
+                    }
+                    
+                    
+                    if(isset($requestData['state']) && !empty($requestData['state']) && $requestData['state']!='All'){
+                        $state = $requestData['state'];
+                    }else if($requestData['state']=='All'){
+                        $state = "not_set";
+                    }else{
+                        $state = "not_set"; 
+                    }
+                    
+                    $city = "not_set"; 
+           
+                   if(isset($requestData['startDate']) && !empty($requestData['startDate'])){
+                        $startDate = $requestData['startDate'];
+                    }else{
+                        $startDate = date('Y-m-d', strtotime('-30 days'));
+                    }
+                    
+                    if(isset($requestData['endDate']) && !empty($requestData['endDate'])){
+                        $endDate = $requestData['endDate'];
+                    }else{
+                        $endDate = date("Y-m-d");
+                    }
+                    
+                   
+                    $is_pending = 0;
+                    $vendor = $requestData['vendor_id'];
+            
+                    $postData = array(
+                      //  "escalation_reason_id" => $requestData['escalation_reason_id'],
+                        "call_from_api" => TRUE,
+                        "sf_call" => TRUE,
+                        "status" => $status,
+                        "vendor_id" => $vendor,
+                        "startDate" => $startDate,
+                        "endDate" => $endDate,
+                        "services" => $service_id,
+                        "request_type" => $request_type,
+                        "partner_id" => $partner_id,
+                        "upcountry" => $upcountry,
+                        "free_paid" => $free_paid,
+                        "state" => $state,
+                        "city" => $city
+                    );
+                   
+                    //Call curl for updating booking 
+                    $url = base_url() . "employee/dashboard/tat_calculation_full_view/00/1/0/".$is_pending;
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                    $curl_response = json_decode(curl_exec($ch),TRUE);
+                    curl_close($ch);
+                    $arr['eraned_details'] = $this->service_centers_model->get_sc_earned($vendor);
+                    $m1 =  $arr['eraned_details'][0][0];
+                    $m2 =  $arr['eraned_details'][1][0];
+                    $m3 =  $arr['eraned_details'][2][0];
+   
+                    $return_data['earned_details']['m1'] = array('count'=>$m1['total_booking'],'month'=>date("M",strtotime(date('Y-m-d'))),'earned'=>$m1['earned']);
+                    $return_data['earned_details']['m2'] = array('count'=>$m2['total_booking'],'month'=>date("M",strtotime($m2['month'])),'earned'=>$m2['earned']);
+                    $return_data['earned_details']['m3'] = array('count'=>$m3['total_booking'],'month'=>date("M",strtotime($m3['month'])),'earned'=>$m3['earned']);
+                    
+                    $cancel['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($vendor);
+                    
+                    $m11 =  $cancel['cancel_booking'][0][0];
+                    $m22 =  $cancel['cancel_booking'][1][0];
+                    $m33 =  $cancel['cancel_booking'][2][0];
+   
+                    $return_data['cancel_booking']['m1'] = array('count'=>$m11['cancel_booking'],'month'=>date("M",strtotime(date('Y-m-d'))),'lose_amount'=>$m11['lose_amount']);
+                    $return_data['cancel_booking']['m2'] = array('count'=>$m22['cancel_booking'],'month'=>date("M",strtotime($m22['month'])),'lose_amount'=>$m22['lose_amount']);
+                    $return_data['cancel_booking']['m3'] = array('count'=>$m33['cancel_booking'],'month'=>date("M",strtotime($m33['month'])),'lose_amount'=>$m33['lose_amount']);
+                    
+                    $return_data['request_type'] = array('Installation'=>'Installations','Repair_with_part'=>'Repair With Spare','Repair_without_part'=>'Repair Without Spare');
+                    if(!empty($curl_response)){ 
+                     $return_data['D0']  = array('percent'=>$curl_response[0]['TAT_0_per'],'count'=>$curl_response[0]['TAT_0'])  ;
+                     $return_data['D1']  = array('percent'=>$curl_response[0]['TAT_1_per'],'count'=>$curl_response[0]['TAT_1'])  ;
+                     $return_data['D2'] = array('percent'=>$curl_response[0]['TAT_2_per'],'count'=>$curl_response[0]['TAT_2'])  ;
+                     $return_data['D4']  = array('percent'=>$curl_response[0]['TAT_3_per'],'count'=>$curl_response[0]['TAT_3'])  ;
+
+                    }else{
+                     $return_data['D0']  = array()  ;
+                     $return_data['D1']  = array()  ;
+                     $return_data['D2']  = array()  ;
+                     $return_data['D4']  = array()  ;
+                        
+                        
+                    }
+                  //  $return_data = array_push($return_data,)
+                    $this->jsonResponseString['response'] = $return_data;
+                    $this->sendJsonResponse(array('0000', "Data found successfully"));
+               
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->jsonResponseString['response'] = array(); 
+            $this->sendJsonResponse(array("1025", "Data not found !")); 
+        }
+        
+        
+    }
+    
+    
+    
+    
     function processUserRegister(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("mobile","first_name","password"), $requestData);
@@ -1478,6 +1656,71 @@ function  getPartnerCompareTAT(){
         }   
         
     }
+    
+    
+    
+      /*
+     * @Desc - This function is used get Sbooking collatrals
+     * @param - 
+     * @response - json
+     * @Author  - Abhishek Awasthi
+     */    
+    
+       function getBookingDocuments() {
+        log_message("info", __METHOD__ . " Entering..");
+        $response = array();
+        $pdf_docs = array();
+        $video_docs = array();
+        $other_docs = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["booking_id"])) {
+            $documets = $this->service_centers_model->get_collateral_for_service_center_bookingsAPI($requestData["booking_id"]); /// Makeing seperate function for API
+            $i = 0;
+            foreach ($documets[0] as $key => $value) { 
+                if ($value['document_type'] == "pdf") {
+                    $pdf['document_type'] = $value['document_type'];
+                    $pdf['document_description'] = $value['document_description'];
+                   
+                    $pdf['brand'] = $value['brand'];
+                    $pdf['request_type'] = $value['request_type'];
+                    $pdf['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($pdf_docs, $pdf);
+                } else if ($value['document_type'] == "video") {
+                    $video['document_type'] = $value['document_type'];
+                    $video['document_description'] = $value['document_description'];
+                    
+                    $video['brand'] = $value['brand'];
+                    $video['request_type'] = $value['request_type'];
+                    $video['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($video_docs, $video);
+                } else {
+                    $others['document_type'] = $value['document_type'];
+                    $others['document_description'] = $value['document_description'];
+                   
+                    $others['brand'] = $value['brand'];
+                    $others['request_type'] = $value['request_type'];
+                    $others['file'] = COLLATERAL_S3_PATH_LIVE . $value['file'];
+                    array_push($other_docs, $others);
+                }
+                $i++;
+            }
+
+            $response['pdf'] = $pdf_docs;
+            $response['video'] = $video_docs;
+            $response['others'] = $other_docs;
+
+            log_message("info", __METHOD__ . "Helping Documents Found Successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            log_message("info", __METHOD__ . "Booking Id not found - " . $requestData["booking_id"]);
+            $this->sendJsonResponse(array('0029', 'Booking Id not found'));
+        }
+    }
+
+    
+    
+    
     
      /*
      * @Desc - This function is used get States TAT Data

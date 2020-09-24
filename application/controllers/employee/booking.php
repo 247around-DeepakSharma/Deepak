@@ -119,7 +119,11 @@ class Booking extends CI_Controller {
             if ($checkValidation) {
                 log_message('info', __FUNCTION__);
                 log_message('info', " Booking Insert Contact No: " . $primary_contact_no);
-                $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
+                // Check if user already created a booking with the combintion of same appliance, appliance category, capacity within the interval of 10 miutes. if it is , then booking is not created.                
+                $status = "";
+                $is_booking_exist = $this->booking_model->is_booking_exist($this->input->post("user_id"),$this->input->post('service'),$this->input->post('appliance_category')[0],$this->input->post('appliance_capacity')[0]);
+                if(empty($is_booking_exist))
+                    $status = $this->getAllBookingInput($user_id, INSERT_NEW_BOOKING);
                 if ($status) {  
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
@@ -127,21 +131,12 @@ class Booking extends CI_Controller {
                     $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     
-                    $city_details = $this->indiapincode_model->getPinCoordinates($this->input->post('city'));
-                    if(!empty($city_details))
-                    {
-                        $zone_color = $city_details[0]['zone_color'];
-                        $sms['tag'] = "sms_to_redzone_customers";
-                        $sms['phone_no'] = $this->input->post('booking_primary_contact_no');
-                        $sms['smsData']['appliance'] = $this->input->post('appliance_category')[0];
-                        $sms['smsData']['partner'] = $this->input->post('partner_source');
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $this->input->post("user_id");    
-                        $this->notify->send_sms_msg91($sms);
-                    }
-                    
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
+                    if(!empty($is_booking_exist))
+                    {
+                        $this->session->set_userdata(['error' => 'Same booking has already been created. Please try after some time.']);
+                    }
                     $this->addbooking($primary_contact_no);
                 }
             } else {
@@ -2630,13 +2625,12 @@ class Booking extends CI_Controller {
         // insert in booking files.
         $booking_file = [];
         if(!empty($purchase_invoice_file_name)){
-        $booking_file['booking_id'] = $booking_id;
-        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
-        $booking_file['file_name'] = $purchase_invoice_file_name;
-        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
-        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
-        $booking_file['create_date'] = date("Y-m-d H:i:s");
-        $this->booking_model->insert_booking_file($booking_file);
+            $booking_file['booking_id'] = $booking_id;
+            $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+            $booking_file['file_name'] = $purchase_invoice_file_name;
+            $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
+            $booking_file['create_date'] = date("Y-m-d H:i:s");
+            $this->booking_model->insert_booking_file($booking_file);
         }
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
@@ -2749,7 +2743,7 @@ class Booking extends CI_Controller {
         $sf_filled_amount = !empty($service_center_details[0]['amount_paid']) ? $service_center_details[0]['amount_paid'] : 0;
         $this->miscelleneous->save_booking_amount_history($booking_primary_id, $sf_filled_amount, $total_amount_paid);  
 
-       $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' =>NULL,'parts_shipped NOT NULL ' =>NULL,'part_warranty_status'=>1), false);
+       $spare_check = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost, spare_parts_details.parts_shipped ,spare_parts_details.defective_part_shipped, spare_parts_details.consumed_part_status_id, spare_parts_details.defective_part_required ", array('booking_id' => $booking_id, 'status NOT IN ("Cancelled")' =>NULL,'parts_shipped IS NOT NULL ' =>NULL,'part_warranty_status'=>1), false);
        if(!empty($spare_check)){
        $this->check_and_update_partner_extra_spare($booking_id);    
        }
@@ -2882,7 +2876,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -3603,7 +3597,7 @@ class Booking extends CI_Controller {
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "misc-images/" . $support_file_name;
+            $directory_xls = "purchase-invoices/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             if($upload_file_status){
                 //Logging success for file uppload
@@ -3790,23 +3784,27 @@ class Booking extends CI_Controller {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post,$booking_status,'booking');
          if($this->input->post('bulk_booking_id')){
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
+             $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
+            $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
+              $JoinTypeTableArray['employee as emp_asm'] = 'left';
+            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare',0,$join,$JoinTypeTableArray);
          }
          else{
-             $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
+             $select = "booking_details.id as booking_primary_id,services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name, employee.full_name as rm_name, emp_asm.full_name as asm_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date,'%Y-%m-%d'),'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date,'%Y-%m-%d'),'%d-%b-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%Y-%m-%d')) as booking_age,service_centres.state";
-            $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
+          $join['employee as emp_asm']  = 'service_centres.asm_id = emp_asm.id';
+              $JoinTypeTableArray['employee as emp_asm'] = 'left';
+               $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,null,0,$join,$JoinTypeTableArray);
          }
         unset($new_post['order_performed_on_count']);
         $data = array();
@@ -3955,7 +3953,7 @@ class Booking extends CI_Controller {
             $repair='Repair';$installation='Installation';$repair_arr=array('Repair','Repeat');
            if($request_type_booking==$repair)
            {
-                $post['where']['request_type Like "%Repair%" Or request_type Like "%Repeat%"'] =  NULL;
+                $post['where']['(request_type Like "%Repair%" Or request_type Like "%Repeat%")'] =  NULL;
            }
            elseif($request_type_booking==$installation)
            {
@@ -4073,9 +4071,10 @@ class Booking extends CI_Controller {
         }
         $c2c= $this->input->post('c2c');
         if($c2c){
-            $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
+            $booking_primary_id = (!empty($order_list->booking_primary_id) ? $order_list->booking_primary_id : "");
+            $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";            
             $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-            $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+            $call_btn .= ",$booking_primary_id)' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         }
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
@@ -4546,9 +4545,6 @@ class Booking extends CI_Controller {
 
 
         
-//        $call_btn = "<button type='button' class='btn btn-sm btn-color' onclick='";
-//        $call_btn .= "outbound_call(".'"'.$order_list->booking_primary_contact_no.'"';
-//        $call_btn .= ")' '><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
         
         if ($order_list->current_status == 'Completed' && empty($order_list->rating_stars )){
             $rating_btn_disabled = "";
@@ -4676,10 +4672,14 @@ class Booking extends CI_Controller {
         $row[] = $no.$sn.$districtZoneType;
 
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>"
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."' > <img  style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span > <img id='spare_delivered_".$order_list->booking_id."' style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
         else{
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a><span id='cancelled_reason_".$order_list->booking_id."'> <img style='width: 83%;' src='".base_url()."images/loader.gif' /></span>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id </a>"
+                    . "<p><span id='cancelled_reason_".$order_list->booking_id."' > <img  style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>"
+                    . "<p><span> <img id='spare_delivered_".$order_list->booking_id."' style='width: 83%;' src='".base_url()."images/loader.gif' /></span></p>";
         }
        
         $row[] = "<a class='col-md-12' href='".base_url()."employee/user/finduser?phone_number=".$order_list->phone_number."'>$order_list->customername</a>"."<b>".$order_list->booking_primary_contact_no."</b>";
@@ -4704,7 +4704,7 @@ class Booking extends CI_Controller {
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."')})</script>";
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a><script> $(document).ready(function(){load_cancelled_status_admin('".$order_list->booking_id."');booking_cancelled_rejected_count('".$order_list->booking_id."'); load_delivered_status('".$order_list->booking_id."')})</script>";
 
 
         if ($order_list->nrn_approved==0) {
@@ -4761,7 +4761,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand,booking_details.id as booking_primary_id";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4813,7 +4813,7 @@ class Booking extends CI_Controller {
             $row[] = $pincode;
         }
         if($c2c){
-             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
+             $row[] = "<button type='button' class = 'btn btn-sm btn-color' onclick = 'outbound_call($order_list->booking_primary_contact_no, $order_list->booking_primary_id)'><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>";
              $row[] = "<button type='button' class = 'btn btn-sm btn-color' json-data='$sms_json' onclick = 'send_whtasapp_number(this)'><i class = 'fa fa-envelope-o fa-lg' aria-hidden = 'true'></i></button>";
         }
         
@@ -5682,7 +5682,7 @@ class Booking extends CI_Controller {
             $post['join']['partners'] = "booking_details.partner_id  = partners.id";
             // $post['join']['employee as employee_am'] = "partners.account_manager_id = employee_am.id";
             $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
-            $post['join']['employee as employee_am'] = "agent_filters.entity_id = employee_am.id";   
+           $post['join']['employee as employee_am'] = "agent_filters.agent_id = employee_am.id";  
             $post['join']['employee as emp_asm'] = "service_centres.asm_id = emp_asm.id";    
             $post['joinTypeArray'] = ['partners' => "left", 'employee as employee_am' => "left", 'spare_parts_details' => "left", 'employee as emp_asm' => "left"];
             // Show distinct Bookings
@@ -5871,7 +5871,7 @@ class Booking extends CI_Controller {
             $where['agent_filters.agent_id ='.$am_id] = NULL;
             $where['partners.is_active =1'] = NULL;
             $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
-            $join['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
+              $post['join']['agent_filters'] =  "partners.id=agent_filters.entity_id AND agent_filters.state = booking_details.state ";
         }
         
         $status=$review_status;
@@ -6060,13 +6060,21 @@ class Booking extends CI_Controller {
             unset($data[$k]['sf_purchase_invoice']);
             unset($data[$k]['booking_create_date']);
             unset($data[$k]['service_center_closed_date']);
-            unset($data[$k]['booking_primary_contact_no']);
             unset($data[$k]['partner_id']);
             unset($data[$k]['is_upcountry']);
             unset($data[$k]['flat_upcountry']);
+            if($review_status == _247AROUND_CANCELLED) {
+                unset($data[$k]['consumption_status']);
+            }
         }
-        //echo"<pre>";print_r($data);exit;
-        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        
+        // For Cancelled BOokings
+        if($review_status == _247AROUND_CANCELLED) {
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        }
+        else { // For Completed Bookings
+            $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Brand Name', 'SF Name', 'Amount Paid',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'Customer Name', 'Regd Mobile No', 'Alternate Mobile No', 'Appliance' ,'ASM Name', 'Part Consumed' ,'booking_date', 'Age','Review Age','Amount Due'], 'data_'.date('Ymd-His'));
+        }         
     }
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
@@ -6447,7 +6455,7 @@ class Booking extends CI_Controller {
     public function cancellation_reasons()
     {
         $this->miscelleneous->load_nav_header();
-        $data = $this->booking_model->get_cancellation_reasons();
+        $data = $this->booking_model->cancelreason();
         $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
     }
     /**
@@ -6833,23 +6841,15 @@ class Booking extends CI_Controller {
         }
         return $data['answers'];
     }
-
-    /*
-     * CRM-6300
-     * Get cancellation reasons of 247around
-     * return HTML
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
      */
-    function get_cancellation_reasons() {
-        $reason_of = $this->input->post('reason_of') != '' ? $this->input->post('reason_of') : _247AROUND_EMPLOYEE_STRING;
-        $where = array('reason_of' => $reason_of);
-        $cancellation_reasons = $this->booking_model->cancelreason($where);
-        $options = '<option selected disabled>Select reason</option>';
-        if (!empty($cancellation_reasons)) {
-            foreach ($cancellation_reasons as $reason) {
-                $options .= '<option>' . $reason->reason . '</option>';
-            }
-        }
-        echo $options;
-    }
-
+    function get_booking_recordings($booking_primary_id) { 
+        $select = "agent_outbound_call_log.create_date, agent_outbound_call_log.recording_url, employee.full_name, employee.groups";
+        $data['data'] = $this->booking_model->get_booking_recordings_by_id($booking_primary_id, $select);
+        $this->load->view('employee/show_booking_recordings', $data);
+    }    
 }

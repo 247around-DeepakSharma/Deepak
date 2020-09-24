@@ -1074,6 +1074,9 @@ class Inventory extends CI_Controller {
             $this->checkUserSession();
         }
 
+        $booking_new_internal_status = '';
+        
+
         if (!empty($id)) {
 
             // fetch record from booking details of $booking_id.
@@ -1086,7 +1089,7 @@ class Inventory extends CI_Controller {
             $b = array();
             $line_items = '';
             
-            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status';
+            $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id, spare_parts_details.status, spare_parts_details.inventory_invoice_on_booking, spare_parts_details.wh_ack_received_part';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
                 . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "' . SPARE_DELIVERED_TO_SF . '", "'.DEFECTIVE_PARTS_PENDING.'", "'.OK_PART_TO_BE_SHIPPED.'", "'.OK_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_SHIPPED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'","'.DEFECTIVE_PARTS_REJECTED.'", "'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE.'") ' => NULL), TRUE, false, false);
@@ -1103,7 +1106,49 @@ class Inventory extends CI_Controller {
                     $where = array('id' => $id);
                     $track_status = $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
+                    $status_string = array();
+                    if ($line_items >= 2) {
+                        foreach ($spare_parts_details as $key => $value) {
+                            if ($value['id'] !== $id) {
+                                $status_string[$key] = $value['status'];
+                            }
+                        }
+                        if (in_array(SPARE_PART_ON_APPROVAL, $status_string)) {
+                            $booking_new_internal_status = SPARE_PART_ON_APPROVAL;
+                        } else if (in_array(SPARE_OOW_EST_REQUESTED, $status_string)) {
+                            $booking_new_internal_status = SPARE_OOW_EST_REQUESTED;
+                        } else if (in_array(SPARE_PARTS_REQUESTED, $status_string)) {
+                            foreach ($spare_parts_details as $key => $value) {
+                                if ($value['id'] !== $id) {
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 0) {
+                                        $booking_new_internal_status = SPARE_PARTS_REQUESTED;
+                                        //If spare is requested and not shipped by partner
+                                        break;
+                                    }
 
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 0) {
+                                        $booking_new_internal_status = SPARE_SHIPPED_TO_WAREHOUSE;
+                                        //If spare part is requested and shipped by partner and not acknowledgeby warehouse
+                                        break;
+                                    }
+                                    if ($value['status'] == SPARE_PARTS_REQUESTED && $value['inventory_invoice_on_booking'] == 1 && $value['wh_ack_received_part'] == 1) {
+                                        $booking_new_internal_status = WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS;
+                                        //If spare part is requested and shipped by partner and  acknowledgeby warehouse
+                                        break;
+                                    }
+                                }
+                            }
+                        } else if (in_array(SPARE_PARTS_SHIPPED, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED;
+                        } else if (in_array(SPARE_PARTS_SHIPPED_BY_WAREHOUSE, $status_string)) {
+                            $booking_new_internal_status = SPARE_PARTS_SHIPPED_BY_WAREHOUSE;
+                        } else {
+                            if ($booking_details['current_status'] != _247AROUND_COMPLETED && !empty(array_values($status_string)[0])) {
+                                $booking_new_internal_status = array_values($status_string)[0];
+                            }
+                            //If defective part / ok part shipped received and booking is not completed then update status as spare status
+                        }
+                    }
                     //////   Handle agents for cancellation /// Abhishek
                     $approval_agent_id = _247AROUND_DEFAULT_AGENT;
                     $approval_entity_type = _247AROUND_SF_STRING; 
@@ -1363,10 +1408,13 @@ class Inventory extends CI_Controller {
                 }
 
             $partner_id = $this->reusable_model->get_search_query('booking_details', 'booking_details.partner_id', array('booking_details.booking_id' => trim($booking_id)), NULL, NULL, NULL, NULL, NULL)->result_array();
+            if(empty($b['internal_status']) && !empty($booking_new_internal_status)){
+                $b['internal_status'] = $booking_new_internal_status;
+            }
             if (!empty($partner_id) && !empty($b['internal_status'])) {
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking_details['current_status'], $b['internal_status'], $partner_id[0]['partner_id'], $booking_id);
                 if (!empty($partner_status)) {
-                    if ($line_items < 2) {
+                    if ($line_items < 2 || !empty($booking_new_internal_status)) {
                         $b['partner_current_status'] = $partner_status[0];
                         $b['partner_internal_status'] = $partner_status[1];
                         $b['actor'] = $partner_status[2];
@@ -2937,6 +2985,10 @@ class Inventory extends CI_Controller {
             $row[] = $stock_list->oow_vendor_margin . " %";
             $row[] = $stock_list->oow_around_margin . " %";
 
+            $basic_price_with_around_margin = (float) $stock_list->price + ($stock_list->price * ($stock_list->oow_around_margin / 100));
+            $sf_total = $basic_price_with_around_margin + ($basic_price_with_around_margin * ($stock_list->gst_rate / 100));
+            $row[] = "<i class ='fa fa-inr'></i> " . number_format((float) ($sf_total), 2, '.', '');        
+            
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
         
@@ -3225,7 +3277,7 @@ class Inventory extends CI_Controller {
                 unset($post['where']['inventory_stocks.stock <> 0']);
             }
             if ($this->input->post('service_id')) {
-                $post['where']['service_id'] = trim($this->input->post('service_id'));
+                $post['where']['inventory_master_list.service_id'] = trim($this->input->post('service_id'));
             }
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
@@ -4022,7 +4074,9 @@ class Inventory extends CI_Controller {
         $spareColumn = $this->input->post('spareColumn');
         if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'courier-pod') {
             $file_dir = "courier-pod";
-        } else if (!empty($this->input->post('directory_name'))) {
+        }else if (!empty($this->input->post('directory_name')) && $this->input->post('directory_name') == 'purchase-invoices') {
+            $file_dir = "purchase-invoices";
+        }else if (!empty($this->input->post('directory_name'))) {
             $file_dir = "vendor-partner-docs";
         } else {
             $file_dir = "misc-images";
@@ -4263,6 +4317,13 @@ class Inventory extends CI_Controller {
 
 
                 if (!empty($parts_details)) {
+                    /**
+                     * Check if inventory_id is zero.
+                     */
+                    $inventory_ids = array_column($parts_details, 'inventory_id');
+                    if(!in_array('0', $inventory_ids)) {
+                                        
+                    
                     if ($invoice_file_required) {
 
                         $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
@@ -4560,6 +4621,10 @@ class Inventory extends CI_Controller {
                     } else {
                         $res['status'] = false;
                         $res['message'] = $invoice_file['message'];
+                    }
+                    } else {
+                        $res['status'] = false;
+                        $res['message'] = "We can't update msl. Please refresh and try again.";
                     }
                 } else {
                     $res['status'] = false;
@@ -5185,7 +5250,7 @@ class Inventory extends CI_Controller {
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
         $sender = trim($this->input->post('sender_entity_id'));
-        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id', 'i.invoice_id');
 
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
@@ -5252,7 +5317,8 @@ class Inventory extends CI_Controller {
         if ($is_wh_ack == 3) {
             $post['where']['i.is_wh_ack'] = $is_wh_ack;
         }
-
+        
+        $post['is_micro_wh'] = false;
         $select = "services.services, inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
@@ -6601,12 +6667,12 @@ class Inventory extends CI_Controller {
     function get_defective_spare_send_by_wh_to_partner() {
         $post = $this->get_post_data();
         $post['column_order'] = array();
-        $post['column_search'] = array('part_name', 'model_number', 'type');
+        $post['column_search'] = array('part_name', 'type');
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.is_defective' => 1,
             '(i.is_partner_ack IS NULL OR i.is_partner_ack = 0)' => null);
-
+        $post['is_micro_wh'] = false;
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
@@ -7594,19 +7660,27 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $spare_part_status = $this->input->post('spare_part_status');
-        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', booking_details.partner_internal_status as 'Partner Status Level 2',"
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', "
+                . "emply.full_name as 'RM Name',empl.full_name as 'ASM Name',service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', "
+                . "(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', "
+                . "GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Status Level 1', "
+                . "booking_details.partner_internal_status as 'Partner Status Level 2',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as 'Service Center Closed Date', DATE_FORMAT(booking_details.closed_date,'%d-%b-%Y') as 'Final Closing Date', DATE_FORMAT(spare_parts_details.spare_cancelled_date,'%d-%b-%Y')   as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',"
+                . "spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', i.price as 'Requested Part Basic Price', "
+                . "DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
-                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
-                . "spare_parts_details.shipped_date as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
-                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
-                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
-                . "spare_parts_details.acknowledge_date as 'Defective Received Date By Warehouse',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
-                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
+                . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',"
+                . "spare_parts_details.shipped_parts_type as 'Shipped Part Type',"
+                . "iml.part_number as 'Shipped Part Number', iml.price as 'Shipped Part Baisc Price', "
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price', acknowledge_date as 'SF Received New Part Date', "
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', "
+                . "sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
+                . "spare_parts_details.defective_part_received_date_by_wh as 'Defective Received Date By Warehouse',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
+                . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Challan Charge (With Margin & TAX)', "
                 . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
-                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
-                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
-
+                . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', DATE_FORMAT(defective_part_shipped_date,'%d-%b-%Y') as 'Defective Parts Shipped Date', DATE_FORMAT(received_defective_part_date,'%d-%b-%Y') as 'Partner Received Defective Parts Date', "
+                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', DATE_FORMAT(spare_parts_details.wh_to_partner_defective_shipped_date,'%d-%b-%Y') as 'Warehouse Dispatch Defective Shipped Date To Partner',"
                 . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
                 . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
                 . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as 'Purchase Invoice', "
@@ -7622,7 +7696,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
-        
+
         if (!empty($service_center_id) && is_numeric($service_center_id)) {
             $where['booking_details.assigned_vendor_id'] = $service_center_id;
         }
@@ -7631,7 +7705,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
             $where['spare_parts_details.status'] = trim($spare_part_status);
         }
 
+
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
+
+        
 
         $this->load->dbutil();
         $this->load->helper('file');
@@ -8694,10 +8771,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $response['reason'] = implode('<br>', array_filter($cancellation_reason));
         echo json_encode($response);
     }
-    
-    function get_spare_delivered_status($booking_id){
-        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
-        if(!empty($spare)){
+
+    function get_spare_delivered_status($booking_id) {
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.is_micro_wh, status, auto_acknowledeged', array('spare_parts_details.booking_id' => $booking_id, 'status' => SPARE_DELIVERED_TO_SF));
+        if (!empty($spare)) {
             echo json_encode($spare);
         } else {
             echo json_encode(array("Not Exist"));
@@ -9870,11 +9947,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
         
         if(isset($date_array[0])){
-          $from_date = date("Y-m-d H:i:s", strtotime($date_array[0]));  
+          $from_date = date("Y-m-d", strtotime($date_array[0]));  
         }
         
         if(isset($date_array[1])){
-          $to_date = date("Y-m-d H:i:s", strtotime($date_array[1]));  
+          $to_date = date("Y-m-d", strtotime($date_array[1].  "+1 days"));  
         }
 
         if (!empty($partner_id)) {
@@ -10734,6 +10811,43 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/upload_courier_serviceable_area',$data);
+    }
+    /**
+     * @desc This function is used to download all undelivered docket
+     */
+    function download_undelivered_docket(){
+        $select ="`awb_number` as 'Docket Number', `courier_invoice_id` as 'Courier Company Invoice ID', `company_name` as 'Courier Name', "
+                . "`courier_charge` as 'Courier Charges', `actual_weight` As 'Actual Weight', `billable_weight` As 'Billable Weight', `courier_invoice_file` As 'Courier Invoice File', "
+                . "`pickup_from` As 'Picku From', `box_count` as 'Large Box Count', `small_box_count` AS 'Small Box Count', `shippment_date` as 'Shippment Date', `courier_pod_file` as 'POD File',"
+                . " `is_rto`, `rto_file`, `create_date` AS 'Docket Entry Date'";
+        $where = array('delivered_date IS NULL' => NULL);
+        $data = $this->inventory_model->get_courier_company_invoice_details($select, $where, array(), true);
+        
+        $this->load->dbutil();
+        $this->load->helper('file');
+        $file_name = 'courier_data_' . date('jMYHis') . ".csv";
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($data, $delimiter, $newline);
+        write_file(TMP_FOLDER . $file_name, $new_report);
+        if (file_exists(TMP_FOLDER . $file_name)) {
+            ob_start();
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$file_name\"");
+            if(ob_get_length()>0) {
+                ob_end_flush();
+            }
+            $res1 = 0;
+            if(file_exists(TMP_FOLDER . $file_name)) {
+                system(" chmod 777 " . TMP_FOLDER . $file_name . '.zip ', $res1);
+                readfile(TMP_FOLDER . $file_name); 
+            }
+        } else {
+            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+        }
+
+        exit();
     }
 
 }

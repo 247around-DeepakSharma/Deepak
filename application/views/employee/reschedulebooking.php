@@ -39,7 +39,9 @@
                         <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (!empty($data[0]['booking_date']) && $data[0]['booking_date'] != '0000-00-00') {echo date("d-m-Y", strtotime($data[0]['booking_date'])); }?>"  disabled>
                     </div>
 
-                    <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
+                    
+              </div>
+              <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
                       <label for="reason" class="col-md-4">Current Booking Timeslot</label>
                       <div class="col-md-6">
                         <input type="text"  class="form-control" name="booking_timeslot" value="<?php if (isset($data[0]['booking_timeslot'])) {echo $data[0]['booking_timeslot']; }?>"  disabled>
@@ -101,9 +103,9 @@
                       </div>
                         <?php echo form_error('remark'); ?>
                       </div>
-              </div>
-
-                  <div class="col-md-6">
+                  
+                </div>
+                <div class="col-md-6">
 
                     <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                       <label for="Mobile" class="col-md-4">Mobile</label>
@@ -113,7 +115,8 @@
                       </div>
                       <?php if($c2c){ ?>
                       <div class="col-md-2">
-                          <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                          <?php $booking_primary_id = (!empty($data[0]['booking_primary_id']) ? $data[0]['booking_primary_id'] : "");?>  
+                          <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>, <?php echo $booking_primary_id; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                       </div>
                       <?php } ?>
                     </div>
@@ -155,8 +158,8 @@
 -->
                       
                   </div>
-
                 </div>
+
                
 
                 <div>
@@ -176,14 +179,14 @@
 
    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
    
-   function outbound_call(phone_number){
+   function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
 
         if (confirm_call == true) {
 
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
 

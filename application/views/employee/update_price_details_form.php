@@ -24,7 +24,7 @@
                 Search Booking: 
                 <form name="myForm" id="myForm" class="form-horizontal" action="<?php echo base_url(); ?>employee/inventory/update_part_price_details"  method="POST" >
                     <input type="text" class="form-control" name="booking_id" value="<?php
-                    if (isset($data) & !empty($data)) {
+                    if (!empty($data[0])) {
                         echo $data[0]['booking_id'];
                     }
                     ?>" id="booking_id" />
@@ -52,11 +52,11 @@
                                     <label for="parts">Part Estimate Given </label>
                                     <input type="number" step="0.01" class="form-control total_charges part_estimate" id="part_charge" name="part_estimate_given" value = "<?php if(!empty($zopper)){ echo $zopper[0]['part_estimate_given']; }?>" placeholder="Enter Parts Charge" required>
                                     <input type="hidden" class="form-control" name="booking_id" value="<?php
-                                    if (isset($data)) {
+                                    if (!empty($data[0])) {
                                         echo $data[0]['booking_id'];
                                     }
                                     ?>" id="booking_id" />
-                                    <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($data)){ echo $data[0]['assigned_vendor_id']; }?>" />
+                                    <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($data[0])){ echo $data[0]['assigned_vendor_id']; }?>" />
                                     
                                 </div>
                             </div>
@@ -95,7 +95,6 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 ">
                                     <label for="parts">Transport Charges </label>
-
                                     <input type="number" step="0.01" class="form-control total_charges transport_charge" id="transport_charge" name="transport_charge" value = "<?php if(!empty($zopper)){ echo $zopper[0]['transport_charge']; }?>" placeholder="Enter Transport Charge" required>
                                 </div>
                             </div>

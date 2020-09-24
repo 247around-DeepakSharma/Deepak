@@ -128,7 +128,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-M-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -171,6 +171,7 @@
                                         <a href="javascript:void(0);" class="btn btn-danger" title="Cancel Challan" onclick="cancel_challan(<?php echo $row['id']; ?>)">Remove Challan</a>
                                     </td>    
                                     <?php }?>
+
                             </tr>
                             <?php $sn_no++; $i++; } ?>
                         </tbody>
@@ -314,7 +315,7 @@
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
                                     <div class="col-md-8">
                                         <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
+                                        <input type="text" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram" name="spare_parts_shipped_gram" value="" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
                                     </div>
                                 </div>
                             </div>
@@ -473,11 +474,19 @@
 </script>
 <script>
     
+    /* 
+     * @desc: Allow only numeric value in text
+     */
+    $('#courier_price_id').bind('keyup paste', function(){
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
     $('#partner_id').select2({
         placeholder:'Select Partner',
         allowClear:true
     });
     $('#courier_name_by_wh_id').select2({
+        tags: true,
         placeholder:'Select Courier Name',
         allowClear:true
     });
@@ -605,15 +614,25 @@
         }
 
 
-        let kg = parseInt($("#shipped_spare_parts_weight_in_kg").val());
-        let gm = parseInt($("#shipped_spare_parts_weight_in_gram").val());
-        let total = parseInt(kg)+parseInt(gm);
-        if(kg <= 0 && gm <= 0){
-        swal("Error !", "Sum of weight in KG and GM must be greater than 0");
+        let kg = $("#shipped_spare_parts_weight_in_kg").val();
+        if(kg == ''){
+            killo = 0; 
+        }else{
+           killo = kg;
+        }
+        
+        let gm = $("#shipped_spare_parts_weight_in_gram").val();
+         if(gm == ''){
+            gram = 0; 
+        }else{
+            gram = gm; 
+        }
+        
+        let total = parseInt(killo)+parseInt(gram);
+        if(total =='' || isNaN(total)){
+        swal("Error !", "Weight in KG and GM must be greater than 0");
         return false;
         }
-        }
-
 
         var courier_price= parseFloat(postData['courier_price_by_wh']);
         if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
@@ -623,7 +642,6 @@
         }
         
         if(!postData['awb_by_wh']){
-
           alert('AWB Should Not Be Blank.'); 
           return false;
         }
@@ -638,20 +656,22 @@
           return false;
         }
         
-        /*if(!postData['shipped_spare_parts_boxes_count']){
+        /*
+        if(!postData['shipped_spare_parts_boxes_count']){
           alert('Boxes Count Should Not Be Blank.'); 
           return false;
-        }*/
+        }
         
         if(!postData['shipped_spare_parts_weight_in_kg']){
           alert('Weight In KG Should Not Be Blank.'); 
           return false;
         }
-        
+       
         if(!postData['shipped_spare_parts_weight_in_gram']){
           alert('Weight In Gram Should Not Be Blank.'); 
           return false;
-        }
+        }        
+        */
         
         if(!is_exist_file){
           alert('Please Choose Courier File.'); 
@@ -797,11 +817,6 @@
         $('#selectall_challan_file').prop('checked', false); 
         $('#send_all').prop('checked', false); 
         var d_m = $('.check_single_row:checked');
-        var total_lineItmes = $('.checkbox_challan:checked').length;
-         if(total_lineItmes > 30){
-                $("#"+checkBox_id).prop('checked', false);
-                alert('You can not select more than 30.');
-            }
         if (d_m.length > 0) {
             $('.check_single_row').prop('checked', false);
         }
@@ -881,19 +896,52 @@
         }
         
     });
+                
+     $('#selectall_challan_file').on('click', function () {
         
-    $('#selectall_challan_file').on('click', function () {
-        if ($(this).is(':checked', true)){
-            var total_lineItems = $(".checkbox_challan").length;
-            for(i = 1; i <= total_lineItems; i++){
-                if(i <= 30){
-                    $("#download_challan_"+i).prop('checked', true); 
-                }
-            }
-            
-        }else{
-            $(".checkbox_challan").prop('checked', false);
+        if($('#selectall_challan_file').is(':checked') == true){
+            var i = 1;
+            $(".checkbox_challan").each(function(){
+               if(i <= 30){
+                   i++;
+                   $(this).attr("disabled", false);
+                   $(this).prop("checked", true);
+               }else{
+                   $(this).prop("checked", false);
+                   $(this).attr("disabled", true);
+               }
+            });
+        } else {
+            var i = 1;
+            $(".checkbox_challan").each(function(){
+               if(i <= 30){
+                   i++;
+                   $(this).prop("checked", false);
+               }else{
+                   $(this).prop("checked", false);
+                   $(this).attr("disabled", false);
+               }
+            });
         }
+    });
+    
+    $(".checkbox_challan").change(function(){
+        
+        if(($('.checkbox_challan:checked').length) == 30 ){
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", true);
+            });
+        }else{
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", false);
+            });
+        }
+        
+        if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
+              $('#selectall_challan').prop('checked', true);
+         }else{
+           $('#selectall_challan').removeAttr('checked');
+         }
     });
     
      $("#shipped_spare_parts_weight_in_kg").on({
@@ -986,7 +1034,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 2) {
                 $(this).val('');
                 return false;
             }
@@ -1001,7 +1049,7 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
+            if (weight_kg.length > 3 ) {
                 $(this).val('');
                 return false;
             }
@@ -1016,11 +1064,10 @@
                     return false;  
                 }
             }
-            if (weight_kg.length > 3 || weight_kg < 0 ) {
+            if (weight_kg.length > 3 ) {
                 $(this).val('');
                 return false;
             }
-
         }
     });
     $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {

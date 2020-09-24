@@ -18,6 +18,7 @@ class Paytm_gateway extends CI_Controller {
         $this->load->library('miscelleneous');
         $this->load->library('notify');
         $this->load->library('asynchronous_lib');
+        $this->load->library("session");
     }
     
     /**
@@ -26,41 +27,47 @@ class Paytm_gateway extends CI_Controller {
      * @return: void
      */
     function process_paytm_transaction() {
-          
-        header("Pragma: no-cache");
-        header("Cache-Control: no-cache");
-        header("Expires: 0");
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') && !empty($this->session->userdata('partner_id'))) {
+            header("Pragma: no-cache");
+            header("Cache-Control: no-cache");
+            header("Expires: 0");
 
-        $param_list = array();
+            $param_list = array();
 
-        $ORDER_ID = $this->input->post('ORDER_ID');
-        $CUST_ID = $this->input->post('CUST_ID');
-        $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
-        $CHANNEL_ID = $this->input->post('CHANNEL_ID');
-        $TXN_AMOUNT = $this->input->post('TXN_AMOUNT');
+            $ORDER_ID = $this->input->post('ORDER_ID');
+            // concate TDS rate & amount in order id.
+            if (!empty($this->input->post('TDS_RATE')) && !empty($this->input->post('TDS_AMOUNT'))) {
+                $ORDER_ID = $ORDER_ID . '_' . $this->input->post('TDS_RATE') . '_' . $this->input->post('TDS_AMOUNT');
+            }
 
-        // Create an array having all required parameters for creating checksum.
-        $param_list["MID"] = PAYTM_GATEWAY_MERCHANT_MID;
-        $param_list["ORDER_ID"] = $ORDER_ID;
-        $param_list["CUST_ID"] = $CUST_ID;
-        $param_list["INDUSTRY_TYPE_ID"] = $INDUSTRY_TYPE_ID;
-        $param_list["CHANNEL_ID"] = $CHANNEL_ID;
-        $param_list["TXN_AMOUNT"] = $TXN_AMOUNT;
-        //$param_list["TXN_AMOUNT"] = 1;
-        $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
-        $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
-        $param_list['ORDER_DETAILS'] = $ORDER_ID." ".$TXN_AMOUNT;
+            $CUST_ID = $this->input->post('CUST_ID');
+            $INDUSTRY_TYPE_ID = $this->input->post('INDUSTRY_TYPE_ID');
+            $CHANNEL_ID = $this->input->post('CHANNEL_ID');
+            $TXN_AMOUNT = $this->input->post('TXN_AMOUNT');
 
-        /*
-          $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
-          $param_list["EMAIL"] = $EMAIL; //Email ID of customer
-          $param_list["VERIFIED_BY"] = "EMAIL"; //
-          $param_list["IS_USER_VERIFIED"] = "YES"; //
+            // Create an array having all required parameters for creating checksum.
+            $param_list["MID"] = PAYTM_GATEWAY_MERCHANT_MID;
+            $param_list["ORDER_ID"] = $ORDER_ID;
+            $param_list["CUST_ID"] = $CUST_ID;
+            $param_list["INDUSTRY_TYPE_ID"] = $INDUSTRY_TYPE_ID;
+            $param_list["CHANNEL_ID"] = $CHANNEL_ID;
+            $param_list["TXN_AMOUNT"] = $TXN_AMOUNT;
+            //$param_list["TXN_AMOUNT"] = 1;
+            $param_list["WEBSITE"] = PAYTM_GATEWAY_MERCHANT_WEBSITE;
+            $param_list["CALLBACK_URL"] = PAYTM_GATEWAY_CALLBACK_URL;
+            $param_list['ORDER_DETAILS'] = $ORDER_ID . " " . $TXN_AMOUNT;
+            $param_list['TDS_RATE'] = $this->input->post('TDS_RATE');
+            $param_list['TDS_AMOUNT'] = $this->input->post('TDS_AMOUNT');
+            /*
+              $param_list["MSISDN"] = $MSISDN; //Mobile number of customer
+              $param_list["EMAIL"] = $EMAIL; //Email ID of customer
+              $param_list["VERIFIED_BY"] = "EMAIL"; //
+              $param_list["IS_USER_VERIFIED"] = "YES"; //
 
-         */
-        //Here checksum string will return by getChecksumFromArray() function.
-        $check_sum = $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY);
-        echo "<html>
+             */
+            //Here checksum string will return by getChecksumFromArray() function.
+            $check_sum = $this->encdec_paytm->getChecksumFromArray($param_list, PAYTM_GATEWAY_MERCHANT_KEY);
+            echo "<html>
 		<head>
 		<title>Merchant Check Out Page</title>
 		</head>
@@ -70,11 +77,11 @@ class Paytm_gateway extends CI_Controller {
 		<table border='1'>
 		 <tbody>";
 
-        foreach ($param_list as $name => $value) {
-            echo '<input type="hidden" name="' . $name . '" value="' . $value . '">';
-        }
+            foreach ($param_list as $name => $value) {
+                echo '<input type="hidden" name="' . $name . '" value="' . $value . '">';
+            }
 
-        echo "<input type='hidden' name='CHECKSUMHASH' value='" . $check_sum . "'>
+            echo "<input type='hidden' name='CHECKSUMHASH' value='" . $check_sum . "'>
 		 </tbody>
 		</table>
 		<script type='text/javascript'>
@@ -83,9 +90,12 @@ class Paytm_gateway extends CI_Controller {
 		</form>
 		</body>
 		</html>";
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "partner/login");
+        }
     }
-    
-    
+
     /**
      * @desc: This function is used to process the payment gateway response send from the paytm
      * after completion of the transaction. 
@@ -159,7 +169,14 @@ class Paytm_gateway extends CI_Controller {
         
         if($insert_id){
             log_message("info",__METHOD__." Payment has been completed successfully"); 
-            $partner_id = $this->session->userdata('partner_id');
+            
+            if($this->session->userdata('partner_id')){
+                $partner_id = $this->session->userdata('partner_id');
+            } else {
+                $a = explode('_', $param_list['ORDERID']);
+                $partner_id = $a[0];
+                $this->session->set_userdata("partner_id",$partner_id);
+            }
             if(!empty($partner_id) && $transaction_status['is_txn_successfull'] == 1){
                 $this->generate_partner_payment_invoice($partner_id,$param_list, $insert_id);
             }
@@ -282,7 +299,8 @@ class Paytm_gateway extends CI_Controller {
         $partner_email = '';
         $payer_name = '';
         if(!empty($partner_id)){
-            //$partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
+           //$partner_details = $this->partner_model->getpartner_details('public_name,owner_email,primary_contact_email,account_manager_id',array('partners.id' => $partner_id));
+            
             $partner_details = $this->partner_model->getpartner_data("public_name,owner_email,invoice_email_to, primary_contact_email,group_concat(distinct agent_filters.agent_id) as account_manager_id", 
                         array('partners.id' => $partner_id),"",0,1,1,"partners.id");
             if (!empty($partner_details[0]['account_manager_id'])) {
@@ -290,8 +308,10 @@ class Paytm_gateway extends CI_Controller {
                 $am_email = $this->employee_model->getemployeeMailFromID($partner_details[0]['account_manager_id'])[0]['official_email'];
             }
             
+            
             $partner_email = $partner_details[0]['owner_email']. ", ". $partner_details[0]['invoice_email_to'];
             $payer_name = $partner_details[0]['public_name'];
+            
         }else{
             $update_payment_link_details = $this->booking_model->update_payment_link_details($this->session->userdata('payment_link_id'),array('status' => 1));
             
@@ -318,14 +338,6 @@ class Paytm_gateway extends CI_Controller {
             }
         }
         
-        if($this->session->userdata('user_email')){
-            $to = $this->session->userdata('user_email');
-        }else if(!empty ($partner_email)){
-            $to = $partner_email;
-        }else{
-            $to = NITS_ANUJ_EMAIL_ID;
-        }
-        
         $email_template = $this->booking_model->get_booking_email_template("payment_transaction_email");
         if ($data['is_txn_successfull']) {
             switch ($data['final_txn_status']) {
@@ -348,6 +360,14 @@ class Paytm_gateway extends CI_Controller {
         $subject = vsprintf($email_template[4], $subject_text);
         $data['payer_name'] = $payer_name;
         $email_body = $this->load->view('paytm_gateway/transaction_email_template',$data,TRUE);
+        
+        if($this->session->userdata('user_email')){
+            $to = $partner_email.",".$this->session->userdata('user_email');
+        }else if(!empty ($partner_email)){
+            $to = $partner_email;
+        }else{
+            $to = $email_template[1];
+        }
 
         $sendmail = $this->notify->sendEmail($email_template[2], $to, "", $bcc, $subject, $email_body, "",'payment_transaction_email');
         
@@ -421,13 +441,18 @@ class Paytm_gateway extends CI_Controller {
     
     function generate_partner_payment_invoice($partner_id, $param_list, $TXNID){
         log_message("info", __METHOD__. " Partner Id ". $partner_id, " Response ". json_encode($param_list, true));
+
+        // Explode order_id to extract tds rate and amount from ORDER ID.
+        $order_id = explode('_', $param_list['ORDERID']);        
+        
         $postData = array(
             "partner_vendor" => "partner",
             "partner_vendor_id" => $partner_id,
             "credit_debit" => "Credit",
             "bankname" => isset($param_list['BANKNAME'])?$param_list['BANKNAME']:NULL,
             "transaction_date" => date('Y-m-d'),
-            "tds_amount" => 0,
+            "tds_rate" => (!empty($order_id[2]) ? $order_id[2] : 0),
+            "tds_amount" => (!empty($order_id[3]) ? $order_id[3] : 0),
             "amount" => $param_list['TXNAMOUNT'],
             "transaction_mode" => isset($param_list['PAYMENTMODE'])?$param_list['PAYMENTMODE']:NULL,
             "description" => isset($param_list['ORDER_DETAILS'])?$param_list['ORDER_DETAILS']:'',

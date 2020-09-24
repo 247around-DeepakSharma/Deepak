@@ -45,7 +45,8 @@
                                 <?php echo $value['customername']; ?>
                                 <br/>
                                 <?php if ($c2c) { ?>
-                                    <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>)"><?php echo $value['booking_primary_contact_no']; ?></a>
+                                    <?php $booking_primary_id = (!empty($value['booking_primary_id']) ? $value['booking_primary_id'] : ""); ?>
+                                    <a href="javascipt:void(0);" onclick="outbound_call(<?php echo $value['booking_primary_contact_no'] ?>, <?php echo $booking_primary_id; ?>)"><?php echo $value['booking_primary_contact_no']; ?></a>
                                 <?php } else { ?>
                                 <?php echo $value['booking_primary_contact_no'] ?>
                                 <?php } ?>
@@ -144,7 +145,7 @@
                     alert("Reschedule Cancelled Successfully");
                 }
                 else {
-                    alert("Something Went Wrong Please Try Again");
+                    alert("Booking can not be rescheduled.");
                 }
                 location.reload();
             }

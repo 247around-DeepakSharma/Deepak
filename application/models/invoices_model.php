@@ -436,7 +436,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " (partner_net_payable + partner_spare_extra_charge) as partner_net_payable,partner_spare_extra_charge, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
+                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
@@ -1263,11 +1263,17 @@ class invoices_model extends CI_Model {
             
             $parts_count = 0;
             $service_count = 0;
+            $count_booking = count($result);
             $meta["invoice_template"] = $this->get_invoice_tempate($result[0]['gst_number'], $is_customer, $c_s_gst);
             if($meta["invoice_template"] == "247around_Tax_Invoice_Intra_State.xlsx" || $meta["invoice_template"] == "247around_Tax_Invoice_Inter_State.xlsx"){
                 $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
-                $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
-                $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
+                if($count_booking > 1){
+                    $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL_WITHOUT_COUNT.(24 + $count_booking);
+                    $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL_WITHOUT_COUNT.(25 + $count_booking);
+                }else{
+                    $meta['main_company_seal_cell'] = _247AROUND_TAX_INVOICE_SEAL_CELL;
+                    $meta['main_company_sign_cell'] = _247AROUND_TAX_INVOICE_SIGN_CELL;
+                }
             }
             else{
                 $meta['main_company_logo_cell'] = _247AROUND_TAX_INVOICE_LOGO_CELL;
@@ -2664,6 +2670,8 @@ class invoices_model extends CI_Model {
         $this->db->join('services', 'booking_details.service_id = services.id');
         if(!empty($current_status)){
             $this->db->where('booking_details.current_status', _247AROUND_COMPLETED);
+        } else {
+            $this->db->where('booking_details.current_status != ', _247AROUND_CANCELLED);
         }
         
         $this->db->where($vendor_partner_invoice, NULL);
@@ -2677,11 +2685,14 @@ class invoices_model extends CI_Model {
         }
         
         $this->db->where($vendor_partner, $vendor_partner_id );
-        $this->db->where(" EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
+        if($sf_partner_charge != "partner_charge"){
+            $this->db->where(" NOT EXISTS (SELECT Distinct 1 FROM spare_parts_details WHERE booking_details.booking_id = spare_parts_details.booking_id "
                 . " AND spare_parts_details.shipped_date IS NOT NULL "
                 . " AND defective_part_required = 1 "
                 . " AND (approved_defective_parts_by_partner = 0 AND defective_part_received_by_wh = 0 ) "
                 . " AND spare_parts_details.status !='Cancelled' )", NULL, FALSE);
+        }
+        
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -3701,7 +3712,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * tax_rate)/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
+                    (Select CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."purchase-invoices/', file_name) SEPARATOR ' , ')) END as support_file FROM booking_files WHERE booking_files.booking_id = booking_unit_details.booking_id AND (file_name != '' AND file_name IS NOT NULL)) as support_file, 
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(sf_model_number IS NULL OR sf_model_number = '') THEN (model_number) ELSE (sf_model_number) END AS model_number
@@ -3854,6 +3865,116 @@ class invoices_model extends CI_Model {
      */
     function insert_challan_breakup($challan_details){
         return $this->db->insert_batch("challan_item_details", $challan_details);
+    }
+    /**
+     * @Desc: This function is to get out of warranty revenue report model
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function get_oow_revenue_report($where = array()) {
+        $this->db->select('id.spare_id, id.qty,id.taxable_value, vpi.invoice_id, vpi.create_date,id.inventory_id, '
+                . 'sc.name, partners.public_name, im.part_number,im.description, im.part_name, im.price, im.oow_vendor_margin, services.services, sc.rm_id, sc.asm_id, bd.booking_id');
+        $this->db->from('invoice_details id');
+        $this->db->join('vendor_partner_invoices vpi', 'id.invoice_id=vpi.invoice_id');
+        $this->db->join('spare_parts_details sp', 'id.spare_id = sp.id');
+        $this->db->join('booking_details bd', 'sp.booking_id = bd.booking_id');
+        $this->db->join('service_centres sc', 'vpi.vendor_partner_id=sc.id');
+        $this->db->join('partners', 'partners.id = bd.partner_id');
+        $this->db->join('inventory_master_list im', 'id.inventory_id = im.inventory_id');
+        $this->db->join('services', 'services.id = im.service_id');
+        $where = array('vpi.sub_category'=>OUT_OF_WARRANTY,'vpi.vendor_partner'=>'vendor');
+        $this->db->where($where);
+        $query = $this->db->get();
+        $this->db->last_query();
+        return $query->result_array();
+    }
+     /**
+     * @Desc: This function is to get last 4 month booking count
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function get_mwh_last_four_month_booking_count(){
+        $sql= "select  sc.name as warehouse_name, partners.public_name as company_name, sc.rm_id, sc.asm_id,sc.state as state_name, 
+            sc.district as city_name,services.services as appliance_name,
+        case when bd.request_type LIKE '%Installation%' then 'INSTALLATION'
+        else 'REPAIR'
+        end as request_type_change,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 3 MONTH) AND bd.request_type LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m3_installation_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 2 MONTH) AND bd.request_type LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m2_installation_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 1 MONTH) AND bd.request_type LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m1_installation_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) = Month(CURRENT_DATE) AND bd.request_type LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m_installation_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 3 MONTH) AND bd.request_type not LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m3_repair_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 2 MONTH) AND bd.request_type not LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m2_repair_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) =Month(CURRENT_DATE- INTERVAL 1 MONTH) AND bd.request_type not LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m1_repair_count,
+        SUM(CASE 
+        WHEN Month(bd.booking_date) = Month(CURRENT_DATE) AND bd.request_type not LIKE '%Installation%' THEN 1
+        ELSE 0
+        END) AS m_repair_count
+        from booking_details bd
+        inner join service_centres sc on bd.assigned_vendor_id = sc.id
+        inner join partners on partners.id  = bd.partner_id
+        inner join services on bd.service_id = services.id
+        where bd.assigned_vendor_id is not null and bd.assigned_vendor_id!=0 and sc.is_micro_wh = 1
+        and date(bd.booking_date) >=(NOW() - INTERVAL 3 MONTH)
+        group by bd.partner_id,bd.assigned_vendor_id,bd.service_id order by bd.id desc;";
+        $query1 = $this->db->query($sql);
+        return $query1->result_array();
+
+    }
+    /**
+     * @Desc: This function is to get last 4 month inventory sell amount
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function get_part_sell_amount_last_four_month($inventory_id, $warehouse_id){
+        $sql = "SELECT id.invoice_id, vp.sub_category, vp.create_date, vp.amount_collected_paid ,
+        SUM(CASE 
+        WHEN Month(vp.create_date) =Month(CURRENT_DATE- INTERVAL 3 MONTH) THEN vp.amount_collected_paid 
+        ELSE 0
+        END) AS m3_part_sale,
+        SUM(CASE 
+        WHEN Month(vp.create_date) =Month(CURRENT_DATE- INTERVAL 2 MONTH) THEN vp.amount_collected_paid 
+        ELSE 0
+        END) AS m2_part_sale,
+        SUM(CASE 
+        WHEN Month(vp.create_date) =Month(CURRENT_DATE- INTERVAL 1 MONTH) THEN vp.amount_collected_paid 
+        ELSE 0
+        END) AS m1_part_sale,
+        SUM(CASE 
+        WHEN Month(vp.create_date) =Month(CURRENT_DATE) THEN vp.amount_collected_paid 
+        ELSE 0
+        END) AS m1_part_sale
+        FROM invoice_details id inner join vendor_partner_invoices vp on id.invoice_id = vp.invoice_id 
+        WHERE id.inventory_id=".$inventory_id." and vp.vendor_partner_id=".$warehouse_id." and vendor_partner_invoices.sub_category='MSL'";
+        $query1 = $this->db->query($sql);
+        return $query1->result_array();
     }
     
 }

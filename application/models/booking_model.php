@@ -10,6 +10,56 @@ class Booking_model extends CI_Model {
         $this->load->model('reusable_model');
     }
 
+    
+    function is_booking_exist($user_id,$appliance_name,$category,$capacity,$service_id="")
+    {
+        if(!empty($capacity))
+        {
+            $where["t2.appliance_capacity"] = "$capacity";
+        }
+        if(!empty($service_id))
+        {
+            $where["t3.id"] = $service_id;
+        }
+        $where["t2.appliance_category"] = "$category";
+        $where["t1.booking_id = t2.booking_id"] = NULL;
+        $where["t1.user_id"] = $user_id;
+        $where["t2.service_id = t3.id"] = NULL;
+        $where["t1.create_date > DATE_SUB(NOW(), INTERVAL 10 minute)"] = NULL;
+        $select = " t1.booking_id FROM booking_details t1, booking_unit_details t2, services t3";
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    
+    function is_assigned_vendor($booking_id)
+    {
+        $select = " id FROM booking_details WHERE booking_id = '$booking_id' and assigned_vendor_id is not NUll";
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+    /**
+     * @desc: get all files name having space from collateral table
+     * @return:  Array
+     */
+    
+    function get_file_list($select) {
+        $this->db->select($select);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: update file name in collateral table
+     */
+    function update_file_name_collateral($id,$file)
+    {
+        $this->db->where('id', $id);
+        $this->db->update('collateral', array("file"=>$file));
+    }
+
     /**
      *  @desc : This function is to add new brand to our database for a service.
      *
@@ -17,7 +67,7 @@ class Booking_model extends CI_Model {
      *      service(like for Television, Refrigerator, etc)
      *
      *  @param : service id and new brand
-     *  @return : void737
+     *  @return : void
      */
     function addNewApplianceBrand($service_id, $newbrand) {
         $data = array(
@@ -209,6 +259,7 @@ class Booking_model extends CI_Model {
         if($data['booking_status'] == _247AROUND_COMPLETED || $data['booking_status'] == _247AROUND_PENDING ){
             // get booking unit data on the basis of id
             $this->db->select('booking_id, around_net_payable,booking_status, '
+
                     . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
                     . ' tax_rate, price_tags, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
 
@@ -632,7 +683,7 @@ class Booking_model extends CI_Model {
         }
 
 
-        $query = $this->db->query("Select services.services,
+        $query = $this->db->query("Select booking_details.id as booking_primary_id,services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1, service_centres.min_upcountry_distance
@@ -726,8 +777,10 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($where, $order_by = "") {
-        $this->db->where($where);
+    function cancelreason($where = "", $order_by = "") {
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         if(!empty($order_by)){
             $this->db->order_by($order_by,false);
         }
@@ -752,7 +805,7 @@ class Booking_model extends CI_Model {
 
         return $result;
     }
-
+    
     /**
      * @desc : This funtion gives the name of the service
      *
@@ -792,8 +845,9 @@ class Booking_model extends CI_Model {
             $condition .= " and booking_details.partner_id =  partners.id";
         }
 
-        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason "
+        $sql = " SELECT booking_details.id as booking_primary_id,`services`.`services`, users.*, booking_details.* ".  $service_center_name. $partner_name. ",booking_cancellation_reasons.reason as cancellation_reason, (CASE WHEN sms_sent_details.sms_tag = 'sms_to_redzone_customers' THEN 1 ELSE 0 END) as is_red_zone_sms_sent "
                . "from booking_details "
+               . " LEFT JOIN sms_sent_details ON sms_sent_details.booking_id = booking_details.booking_id AND sms_sent_details.sms_tag = 'sms_to_redzone_customers' "
                . " LEFT JOIN booking_cancellation_reasons ON (booking_details.cancellation_reason = booking_cancellation_reasons.id),"
                . " users, services " . $service_centre .$partner
                . "where booking_details.booking_id='$booking_id' and "
@@ -1369,7 +1423,8 @@ class Booking_model extends CI_Model {
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `service_centres`.`active` = '1'
-            AND `service_centres`.`on_off` = '1'");
+            AND `service_centres`.`on_off` = '1'
+            AND `service_centres`.`is_wh` = '0'");
 
         $service_centre_ids = $query->result_array();
 
@@ -1487,7 +1542,7 @@ class Booking_model extends CI_Model {
      * @return: void
      */
     function review_reschedule_bookings_request($whereIN=array(), $where=array(), $join=array()){
-        $this->db->select('distinct(service_center_booking_action.booking_id),assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
+        $this->db->select('distinct(service_center_booking_action.booking_id),booking_details.id as booking_primary_id,assigned_vendor_id, amount_due, count_reschedule, initial_booking_date, booking_details.is_upcountry,'
                 . 'users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, '
                 . 'service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, '
                 . 'service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason,service_center_booking_action.reschedule_request_date,'
@@ -2320,6 +2375,7 @@ class Booking_model extends CI_Model {
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
                 // $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
+        //$this->db->join('employee as emp_asm', 'service_centres.asm_id = emp_asm.id','left');
         $this->db->join('employee', 'service_centres.rm_id = employee.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
         $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
@@ -2380,7 +2436,8 @@ class Booking_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0) {
+        function get_bookings_by_status($post, $select = "",$sfIDArray = array(),$is_download=0,$is_spare=NULL,$partner_details=0,$join_array=array(),$join_type_array=array()) 
+        {        
         $this->_get_bookings_by_status($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2406,6 +2463,16 @@ class Booking_model extends CI_Model {
         if($is_spare){
             $this->db->join('spare_parts_details', 'booking_details.booking_id  = spare_parts_details.booking_id', 'left');
             $this->db->group_by('booking_details.booking_id'); 
+        }
+         if(!empty($join_array)){
+            foreach ($join_array as $tableName => $joinCondition){
+                if(array_key_exists($tableName, $join_type_array)){
+                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
+            }
         }
         $query = $this->db->get();
         if($is_download){
@@ -2449,7 +2516,7 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->from('booking_details');
         if (empty($select)) {
-            $select = '*';
+            $select = 'booking_details.id as booking_primary_id,*';
         }
         
         $this->db->select($select,FALSE);
@@ -2992,19 +3059,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    /**
-     * @Desc: This function is used to get Booking cancellation reasons
-     * @return: array
-     */
-    function get_cancellation_reasons($select="*")
-    {
-        $this->db->select($select);
-        $this->db->from("booking_cancellation_reasons");
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
+        
     function update_service_status($where, $data){
         $this->db->where($where,FALSE);
         $this->db->update('services', $data);
@@ -3218,5 +3273,19 @@ class Booking_model extends CI_Model {
     function getBookingLastSpare($booking_id){
     $sql = "SELECT MAX(acknowledge_date) as acknowledge_date from spare_parts_details where status!='"._247AROUND_CANCELLED."' and shipped_date IS NOT NULL and   booking_id='".$booking_id."'";
     return $this->db->query($sql)->result();
+    }
+    
+    /**
+     * @desc: This is used to show Call Recordings of particular Booking
+     * params: String Booking_primary_ID
+     * return: Array of Data for View
+     */
+    function get_booking_recordings_by_id($booking_primary_id, $select = "*"){
+        $this->db->select($select);
+        $this->db->from("agent_outbound_call_log");
+        $this->db->join("employee", "agent_outbound_call_log.agent_id = employee.id");
+        $this->db->where(['booking_primary_id' => $booking_primary_id, 'recording_url <> ""' => NULL]);
+        $query = $this->db->get();
+        return $query->result_array();
     }
 }

@@ -633,6 +633,8 @@ define('_247AROUND_INVOICE_TEMPLATE_DESCRIPTION', 'Book Appliance Service from Q
 define('_247AROUND_TAX_INVOICE_LOGO_CELL', 'B3');
 define('_247AROUND_TAX_INVOICE_SEAL_CELL', 'G26');
 define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
+define('_247AROUND_TAX_INVOICE_SEAL_CELL_WITHOUT_COUNT', 'G');
+define('_247AROUND_TAX_INVOICE_SIGN_CELL_WITHOUT_COUNT', 'K');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
@@ -719,9 +721,11 @@ define('BOOKING_SOURCE_API', 22);
 define('BOOKING_SOURCE_CRM', 23);
 define('BOOKING_SOURCE_Excel_File', 24);
 define('BOOKING_SOURCE_Website', 18);
-// Agents for creating Booking
+// Agent Types for creating Booking
 define('BOOKING_AGENT_EXCEL', "excel");
 define('BOOKING_AGENT_Website', "website");
+define('BOOKING_AGENT_Employee', "employee");
+define('BOOKING_AGENT_Dealer', "dealers");
 //Constant for file upload history in bulk warrenty checker panel
 define("BULK_CHECK_WARRANTY_STATUS" , "bulk_check_warranty_status");
 
@@ -764,6 +768,10 @@ define('FAILURE_MESSAGE_SF_AGREEMENT','Thanks for Accepting! Agreement Sent on y
 define('FAILURE_MESSAGE_PARTS_CONSUMED_OW','It allows only for Micro Warehouse');
 define('FAILURE_MESSAGE_UNSETTLE_INVENTORY_NOT_EXIST','There is no exist unsettle Micro Warehouse invoice.');
 define('SUCESS_MESSAGE_PARTS_CONSUMED_OW','Updated Sucessfully! Thanks.');
+define('COVID_SMS', true);
 
+define('REVIEW_REJECT_COMPLETION_REASON', 1);
+define('REVIEW_REJECT_CANCELLATION_REASON', 2);
+define('DEFAULT_PENALTY_POINT', 1);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

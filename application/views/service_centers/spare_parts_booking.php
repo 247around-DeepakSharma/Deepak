@@ -218,9 +218,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <?php if (!empty($is_generate_challan)) { ?>
                         <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" id="download_shippment_address" value ="Print / Download" > </center>
-                        <?php } ?>
                     </form>
                 </div>
             </div>
@@ -283,7 +281,7 @@ if ($this->uri->segment(3)) {
             }).done(function() {
                 $('#loading_image').hide();
                 alert("Challan has been cancelled successfully.");
-                load_view(url, tab);
+                 load_view(url, tab);
             }).fail(function() {
                 alert("Some error occured.");
             });
@@ -303,10 +301,13 @@ if ($this->uri->segment(3)) {
             }
         });
 
-        table = $("#datatable1").dataTable({
+    });
+    
+    table = $("#datatable1").dataTable({
             "pageLength": 100,
             "paging": false,
             dom: 'lBfrtip',
+            destroy: true,
             "language": {                
                 "searchPlaceholder": "Search by Any Column",
             },
@@ -329,8 +330,6 @@ if ($this->uri->segment(3)) {
 
         });
         
-        table.destroy();
-    });
     
     function downloadSpare(){
         $("#spareDownload").attr("disabled", true).html("Download In Progress");
@@ -408,7 +407,7 @@ if ($this->uri->segment(3)) {
        $(".concern_detail").prop('checked', $(this).prop("checked"));
     });
     
-    
+        
     $("#selectall_challan").change(function () {
        var d_m = $('.checkbox_address:checked');
        var d_m_d = $('.checkbox_challan:checked');
@@ -422,17 +421,49 @@ if ($this->uri->segment(3)) {
            $('#selectall_manifest').prop('checked', false);
            $('.checkbox_challan').prop('checked', false);           
        }
-      $('.checkbox_challan').prop('checked', false);
-      var total_lineItems = $('.checkbox_challan').length;
-      for( i = 1; i <= total_lineItems; i++ ){
-          if(i <= 30){
-            $("#generate_challan_"+i).prop('checked', $(this).prop("checked"));
-          }
-      }
        
+       if($('.checkbox_challan:checked').length > 0){
+           $(".checkbox_challan").prop("checked", false);
+           $(".checkbox_challan").attr("disabled", false);
+       }
+       
+    if($('#selectall_challan').is(':checked') == true){
+        var i = 1;
+        $(".checkbox_challan").each(function(){
+           if(i <= 30){
+               i++;
+               $(this).attr("disabled", false);
+               $(this).prop("checked", true);
+           }else{
+               $(this).prop("checked", false);
+               $(this).attr("disabled", true);
+           }
+        });
+    } else {
+        var i = 1;
+        $(".checkbox_challan").each(function(){
+           if(i <= 30){
+               i++;
+               $(this).prop("checked", false);
+           }else{
+               $(this).attr("disabled", false);
+           }
+        });
+    }   
+    
     });
 
-    $(".checkbox_challan").change(function(){
+    $(".checkbox_challan").change(function(){        
+        if(($('.checkbox_challan:checked').length) == 30 ){
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", true);
+            });
+        }else{
+            $(".checkbox_challan:checkbox:not(:checked)").each(function () {
+                $(this).attr("disabled", false);
+            });
+        }
+        
         if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
               $('#selectall_challan').prop('checked', true);
          }else{
@@ -471,8 +502,7 @@ if ($this->uri->segment(3)) {
             var d_m = $('input[name="download_courier_manifest[]"]:checked');
             var d_m_d = $('.concern_detail:checked');
             var d_m_a = $('input[name="download_address[]"]:checked');
-            var total_lineItmes = $('.checkbox_challan:checked').length;
-            
+                        
             if (d_m.length > 0 || d_m_d.length > 0 || d_m_a.length > 0 ) {
                 $('.checkbox_manifest').prop('checked', false);
                 $('#selectall_manifest').prop('checked', false);
@@ -481,12 +511,7 @@ if ($this->uri->segment(3)) {
                 $('.checkbox_address').prop('checked', false);
                 $('#selectall_address').prop('checked', false);
             }
-            
-            if(total_lineItmes > 30){
-                $("#"+checkBox_id).prop('checked', false);
-                alert('You can not select more than 30.');
-            }
-            
+                        
         }else if(number === 3){
             $('#selectall_concern_detail').prop('checked', false); 
             var d_m = $('.checkbox_manifest:checked');

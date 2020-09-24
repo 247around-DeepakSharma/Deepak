@@ -175,7 +175,7 @@ function get_data_for_partner_callback($booking_id) {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ,$select,$booking_id = '',$state=0,$offset = NULL,$limit = NULL,$stateValue = NULL,$order = array()){
+     function getPending_booking($partner_id ,$select,$booking_id = '',$state=0,$offset = NULL,$limit = NULL,$stateValue = NULL,$order = array(),$distinct = true){
          $join = "";
          $where = "";
          if($state == 1){
@@ -200,6 +200,11 @@ function get_data_for_partner_callback($booking_id) {
          if(!empty($order)){
              $orderSubQuery = " ORDER BY " .$order['column']." ".$order['sorting'];
          }
+         
+         $groupBySubQuery = "";
+         if($distinct){
+             $groupBySubQuery = " GROUP BY booking_unit_details.booking_id ";
+         }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%Y-%m-%d')) >= 0";
 
@@ -210,7 +215,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` =  `booking_details`.`booking_id`
             LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )
             WHERE  $where AND booking_details.upcountry_partner_approved ='1'  "
-                  . "$orderSubQuery $limitSuubQuery"
+                  . "  $groupBySubQuery $orderSubQuery $limitSuubQuery"
         );
           $temp = $query->result();
           return $temp;
@@ -918,6 +923,9 @@ function get_data_for_partner_callback($booking_id) {
      * @return Array
      */
     function get_spare_parts_booking_list($where, $start, $end,$flag_select,$state=0,$is_stock_needed = null,$is_unit_details = false,$orderBy = false){
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 36000);
+
         if($state ==1){
             $where = $where." AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$this->session->userdata('agent_id')." AND agent_filters.is_active=1)";
         }
@@ -1568,7 +1576,9 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, 
+            $post= array(), $wh_details = false, $oow_spare_flag = false,$wh_shipped_courier_flag = false, 
+            $sf_shipped_courier_flag = false, $partner_shipped_courier_flag = false, $ssba_flag = false){
 
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1582,9 +1592,11 @@ function get_data_for_partner_callback($booking_id) {
 
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
+            $this->db->join('services', 'services.id = booking_details.service_id');
         }
         if($sf_details){
             $this->db->join('service_centres','spare_parts_details.service_center_id = service_centres.id');
+            $this->db->order_by('service_centres.name', 'asc');
         }
         
         if(!empty($post['is_inventory'])){
@@ -1598,6 +1610,10 @@ function get_data_for_partner_callback($booking_id) {
         
         if(!empty($post['spare_cancel_reason'])){
             $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
+        }
+        
+        if(!empty($post['non_returnable_consumed_parts'])){
+            $this->db->where('NOT EXISTS (Select spare_id from non_returnable_consumed_parts where non_returnable_consumed_parts.spare_id = spare_parts_details.id)', NULL, false);
         }
         
         if(!empty($wh_details)){
@@ -1818,7 +1834,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_partners_pending_bookings($partner_id,$percentageLogic=0,$allPending=0,$status){
         $agingSubQuery = "";
         if($status == 'Pending'){
-            $where = "booking_details.current_status IN ('Pending','Rescheduled')";
+            $where = "(booking_details.current_status IN ('Pending','Rescheduled')) AND booking_details.service_center_closed_date IS NULL  AND booking_details.upcountry_partner_approved ='1'";
             $agingSubQuery = ', DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%Y-%m-%d")) as Aging';
         }
         else if($status == 'Completed'){
@@ -1860,12 +1876,12 @@ function get_data_for_partner_callback($booking_id) {
             ".$agingSubQuery.",
             IFNULL(dealer_details.dealer_name,'') AS 'Dealer Name',
             IFNULL(dealer_details.dealer_phone_number_1,'') AS 'Dealer Phone Number'
-            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+            FROM booking_details LEFT JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
             LEFT JOIN dealer_details on dealer_details.dealer_id = booking_details.dealer_id
-            WHERE product_or_services != 'Product' AND booking_details.partner_id = $partner_id AND $where GROUP BY ud.booking_id");
+            WHERE (booking_details.partner_id = '$partner_id' OR booking_details.origin_partner_id = '$partner_id') AND $where GROUP BY ud.booking_id");
     }
     
     function getpartner_serialno($where){
@@ -2499,24 +2515,7 @@ function get_data_for_partner_callback($booking_id) {
         }
         $query = $this->db->get('agent_filters');
         return $query->result_array();
-    }
-    
-    /**
-     * @Desc: This function is used to get partner am mapped data from agent filter tabel
-     * @return Array
-     * 
-     */
-    function getpartner_data_from_agent_filter($partner_id)
-    {
-        $select = " GROUP_CONCAT( DISTINCT agent_filters.agent_id ) AS account_manager_id FROM agent_filters JOIN booking_details ON agent_filters.entity_id = booking_details.partner_id AND agent_filters.entity_id = booking_details.partner_id AND booking_details.state = agent_filters.state AND booking_details.partner_id = '$partner_id' AND agent_filters.entity_type ='"._247AROUND_EMPLOYEE_STRING."'";
-        $this->db->distinct();
-        $this->db->select($select);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    
-    
-    
+    }    
     
     /**
      * @Desc: This function is used to get partner am mapped data
@@ -2937,7 +2936,7 @@ function get_data_for_partner_callback($booking_id) {
                     `Sale Invoice Id`	                    
             FROM (SELECT
                     booking_details.booking_id as '247around Booking ID',
-                    '' as 'Agent Name',
+                    (CASE WHEN booking_details.created_by_agent_type IN ('"._247AROUND_PARTNER_STRING."', '".BOOKING_AGENT_Dealer."') then entity_login_table.entity_name ELSE employee.full_name END) as 'Agent Name',
                     partner_channel.channel_name as 'Creation Source',
                     DATE_FORMAT(DATE(booking_details.create_date), '%d-%m-%Y') as 'Create Date',
                     ud.appliance_brand as 'Brand',
@@ -3104,7 +3103,8 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN service_center_booking_action ON (service_center_booking_action.booking_id = booking_details.booking_id)
                     LEFT JOIN booking_cancellation_reasons b_cr ON (booking_details.cancellation_reason = b_cr.id)
                     LEFT JOIN booking_cancellation_reasons ssba_cr ON (service_center_booking_action.cancellation_reason = ssba_cr.id)
-                    
+                    LEFT JOIN entity_login_table ON (booking_details.created_by_agent_id = entity_login_table.agent_id)
+                    LEFT JOIN employee ON (booking_details.created_by_agent_id = employee.id)
             WHERE {$where} AND product_or_services != 'Product'
             GROUP BY
                     ud.id

@@ -69,7 +69,7 @@ class Courier_tracking extends CI_Controller {
      *  @return: view
      */
     function auto_acknowledge_spare_shipped_by_partner(){
-        //log_message('info',__METHOD__.' Entering...');
+        log_message('info',__METHOD__.' Entering...');
         //update trackingmore data by creating new awb number from spare part details
         $select = "spare_parts_details.id as 'spare_id',"
                 . "spare_parts_details.awb_by_partner as 'awb',spare_parts_details.courier_name_by_partner as 'courier_name',"
@@ -358,7 +358,7 @@ class Courier_tracking extends CI_Controller {
                 //log_message('info', __METHOD__ . ' error in inserting api data : ' . print_r($data_to_insert, true));
             }
         }else{
-           //log_message('info', __METHOD__ . ' No new data found to insert...');
+           log_message('info', __METHOD__ . ' No new data found to insert...');
         }
     }
     
@@ -516,7 +516,7 @@ class Courier_tracking extends CI_Controller {
             }
         }
         else{
-           //log_message('info', __FUNCTION__ ."order_id is empty"); 
+           log_message('info', __FUNCTION__ ."order_id is empty"); 
         }
         return $res;
     }
@@ -573,7 +573,7 @@ class Courier_tracking extends CI_Controller {
                     }
                 }
             }
-            //log_message('info',__METHOD__.' Exit...');
+            log_message('info',__METHOD__.' Exit...');
         }else{
             //log_message('info','api did not return success response '. print_r($awb_number_list,true));
             //send mail to developer
@@ -763,7 +763,7 @@ class Courier_tracking extends CI_Controller {
             }
         }
         else{
-           //log_message('info', __FUNCTION__ ."order_id is empty"); 
+           log_message('info', __FUNCTION__ ."order_id is empty"); 
         }
         return $res;
     }

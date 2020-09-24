@@ -9,7 +9,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
 <html>
     <body>
-        <div id="page-wrapper">
+        <div class="right_col" role="main">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -18,7 +18,10 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                             <input type="text" value="" name="booking_id" id="booking_id" placeholder="Enter Booking Id" style="float:right;font-size:20px;padding:5px;"/><br/>
                             <span style="float:right;font-size:12px;color:blue;">* Press Enter to continue with Booking Id.</span>
                         </h1>
-                        <form name="myForm" class="form-horizontal" method='post'> 
+                        <form name="myForm" class="form-horizontal x_panel" method='post'> 
+                            <div class="row">
+                                <img src="<?php echo base_url();?>images/loadring.gif" id="loadring" style="display:none;position: relative;left: 49%;top:10%">
+                            </div>
                             <div class="row">
                                 <div class="col-md-3">
                                     <label for="partner">Partner</label>
@@ -56,6 +59,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                                 </div>                                
                                 <div class="col-md-3 pull-right">
                                     <button type="button" name='show' id='show' class='btn btn-primary'>Show</button>
+                                    <input type="reset" name='Reset' id='reset' class='btn btn-primary'>
                                 </div>
                             </div>
                             <div class="row" style="padding-top: 10px;">
@@ -78,7 +82,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                         </form>
                     </div>
                 </div>
-                <div class="x_panel" style="height: auto;overflow: auto;">
+                <div class="row x_panel" style="height: auto;overflow: auto;">
                     <table id="warranty_details" class="table table-striped table-bordered">
                         <thead>
                             <tr>
@@ -109,6 +113,10 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         {
             get_appliance();
         }
+        
+        $('#reset').click(function(){
+            $("#partner").select2().trigger('change');
+        });
     });
 
     function validateform() {
@@ -122,17 +130,17 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
             alert("Please Select Partner ");
             return false;
         }
-        else if ((service == "") || (service === 'option_holder') || (service == 'undefined'))
+        else if ((service == "") || (service === 'option_holder') || (service == 'undefined') || (typeof service === "undefined"))
         {
             alert("Please Select Product ");
             return false;
         }
-        else if ((brand == "") || (brand === 'option_holder') || (brand == 'undefined'))
+        else if ((brand == "") || (brand === 'option_holder') || (brand == 'undefined') || (typeof brand === "undefined"))
         {
             alert("Please Select Brand ");
             return false;
         }
-        else if ((model == "") || (model === 'option_holder') || (model == 'undefined'))
+        else if ((model == "") || (model === 'option_holder') || (model == 'undefined') || (typeof model === "undefined"))
         {
             alert("Please Select Model ");
             return false;
@@ -141,7 +149,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         {
             alert("Please Select Purchase Date ");
             return false;
-        }
+        }        
         else {
             $(".x_panel").css("display", "block");
             ad_table.ajax.reload(function (json) {
@@ -161,6 +169,9 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                 if (response.services) {
                     $('#service_id').html(response.services);
                     $('#service_id').val('<?php echo $service_id; ?>');                    
+                }
+                if(!$('#service_id').data('select2')){
+                    $('#service_id').select2();
                 }
                 $('#service_id').trigger("change");
             }
@@ -185,6 +196,9 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                 $('#brand').html("");
                 $('#brand').append(data);
                 $('#brand').val('<?php echo $brand; ?>');
+                if(!$('#brand').data('select2')){
+                    $('#brand').select2();
+                }
                 $('#brand').trigger("change");
             }
         });
@@ -197,6 +211,9 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
             success: function (data) {
                 //First Resetting Options values present if any                
                 $('#model').append(data);
+                if(!$('#model').data('select2')){
+                    $('#model').select2();
+                }
                 $('#model').trigger("change");
             }
         });
@@ -211,7 +228,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         "pageLength": 50,
         "deferLoading": 0,
         "lengthMenu": [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "All"]],
-        dom: 'lBfrtip',
+        dom: 'Blfrtip',
         buttons: [
             {
                 extend: 'excel',
@@ -219,7 +236,6 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                 pageSize: 'LEGAL',
                 title: 'warranty_details',
                 exportOptions: {
-//                       columns: [0,1,2,3,4,5,6,7],
                     modifier: {
                         // DataTables core
                         order: 'index', // 'current', 'applied', 'index',  'original'
@@ -297,6 +313,7 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
     
     function fill_warranty_related_data()
     {
+        $("#loadring").show();
         $.ajax({
             method:'POST',
             url:"<?php echo base_url(); ?>employee/warranty/get_warranty_specific_data_from_booking_id",
@@ -305,26 +322,51 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
                 partner_id : $("#partner").val()
             },
             success:function(response){
+                $("#loadring").hide();
                 var warrantyData = JSON.parse(response);
+                console.log(warrantyData);
                 if(warrantyData['error'] == 1){
                     alert(warrantyData['err_msg']);
                     return false;
                 }
+                // Auto fill Booking Partner 
                 $("#partner").val(warrantyData[0]['partner_id']);
-                $('#partner').select2().trigger('change');
-                setTimeout(function(){ 
-                    $("#service_id").val(warrantyData[0]['service_id']);
-                    $('#service_id').select2().trigger('change'); 
-                    setTimeout(function(){ 
-                        $("#brand").val(warrantyData[0]['appliance_brand']); 
-                        $('#brand').select2().trigger('change');
-                        $("#model").val(warrantyData[0]['model_id']);
-                        $('#model').select2().trigger('change'); 
-                    }, 700);
-                }, 700);
-                $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']); 
-                $('#create_date').datepicker('setDate', warrantyData[0]['booking_create_date']); 
-            }                            
+                $("#partner").select2();
+                // Auto fill Booking Product       
+                $('#service_id').find('option').remove();
+                if(warrantyData[0]['service_id']){
+                    if($('#service_id').data('select2')){
+                        $("#service_id").select2('destroy'); 
+                    }
+                    $('#service_id').append(new Option(warrantyData[0]['service'], warrantyData[0]['service_id']));
+                    $('#service_id').val(warrantyData[0]['service_id']);
+                }                
+                // Auto fill Booking Brand 
+                $('#brand').find('option').remove();
+                if(warrantyData[0]['appliance_brand']){
+                    if($('#brand').data('select2')){
+                        $("#brand").select2('destroy'); 
+                    }
+                    $('#brand').append(new Option(warrantyData[0]['appliance_brand'], warrantyData[0]['appliance_brand']));
+                    $('#brand').val(warrantyData[0]['appliance_brand']);
+                }
+                // Auto fill Booking Model 
+                $('#model').find('option').remove();
+                if(warrantyData[0]['model_id']){
+                    if($('#model').data('select2')){
+                        $("#model").select2('destroy'); 
+                    }
+                    $('#model').append(new Option(warrantyData[0]['model_number'], warrantyData[0]['model_id']));
+                    $('#model').val(warrantyData[0]['model_id']);
+                }
+                // Auto fill Booking DOP 
+                $('#purchase_date').datepicker("setDate" , warrantyData[0]['purchase_date']); 
+                // Auto fill Booking Date 
+                $('#create_date').datepicker("setDate" , warrantyData[0]['booking_create_date']);  
+            },
+            error: function (jqXHR, exception) {
+                $("#loadring").hide();
+            }
         });
     }
     
@@ -351,6 +393,10 @@ if(($this->session->userdata('userType') == 'partner' && !empty($this->session->
         padding-bottom : 20px !important;
     }
 
+    .dt-buttons {
+        float:left;  
+        margin-right: 10px;
+    }
 </style>
     <?php if($is_partner){ ?>
 <style>

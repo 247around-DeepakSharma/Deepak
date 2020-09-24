@@ -5,7 +5,7 @@ class Miscelleneous {
 
     public function __construct() {
         $this->My_CI = & get_instance();
-        $this->My_CI->load->helper(array('form', 'url'));
+        $this->My_CI->load->helper(array('form', 'url', 'file'));
         $this->My_CI->load->library('email');
         $this->My_CI->load->library('partner_cb');
         $this->My_CI->load->library('initialized_variable');
@@ -206,6 +206,9 @@ class Miscelleneous {
                      $engineer_action['internal_status'] = _247AROUND_PENDING;
                      $engineer_action["create_date"] = date("Y-m-d H:i:s");
                     
+                     /* Deleteing Data while reassign vendor case and inserting again  */
+                     $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
+                     
                      $enID = $this->My_CI->engineer_model->insert_engineer_action($engineer_action);
                      if(!$enID){
                           $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, DEVELOPER_EMAIL, "", "", 
@@ -2350,7 +2353,7 @@ class Miscelleneous {
              * if exist then get the id of that part and use that id for further process
              */
             
-            if(isset($data['inventory_id'])){
+            if(isset($data['inventory_id']) && $data['inventory_id'] > 0){
                 $is_part_exist = array( 0 => array('inventory_id' => $data['inventory_id']));
             }else{
                 $is_part_exist = $this->My_CI->reusable_model->get_search_query('inventory_master_list', 'inventory_master_list.inventory_id', array('part_number' => $data['part_number']), NULL, NULL, NULL, NULL, NULL)->result_array();
@@ -3943,6 +3946,16 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __FUNCTION__. " POST ". json_encode($postData, true));
         $booking_id =$postData['booking_id'];
         $admin_remarks = $postData['admin_remarks'];
+        // Get Admin Remarks & penalty point from penalty_details Table
+        $review_reject_reason = $this->My_CI->penalty_model->get_penalty_details(['id' => $admin_remarks]);
+        $reason_of = "";
+        $penalty_point = DEFAULT_PENALTY_POINT;
+        if(!empty($review_reject_reason['criteria'])){
+            $rejection_reason = $postData['admin_remarks'];
+            $admin_remarks = $review_reject_reason['criteria'];
+            $reason_of = $review_reject_reason['reason_of']; 
+            $penalty_point = $review_reject_reason['penalty_point'];             
+        }        
         $data['internal_status'] = _247Around_Rejected_SF_Update;
         $data['current_status'] = _247AROUND_PENDING;
         $data['update_date'] = date("Y-m-d H:i:s");
@@ -3987,6 +4000,10 @@ function generate_image($base64, $image_name,$directory){
         else{
             $this->My_CI->notify->insert_state_change($booking_id, "Rejected", "InProcess_Completed", $admin_remarks, $this->My_CI->session->userdata('agent_id'), $this->My_CI->session->userdata('partner_name'), 
                 $actor,$next_action,$postData['rejected_by']);
+        }
+        // Add SF Penalty Point if any 
+        if(!empty($rejection_reason) && !empty($reason_of)){
+            $this->add_sf_penalty_point($rejection_reason, $reason_of, $penalty_point, $booking_id, $b[0]['assigned_vendor_id']);
         }
     }
     function get_review_bookings_for_partner($partnerID,$booking_id = NULL,$structuredData = 1,$limit = REVIEW_LIMIT_BEFORE){
@@ -5311,5 +5328,73 @@ function generate_image($base64, $image_name,$directory){
             'query' => $str_query
         ];
         return $this->My_CI->employee_model->query_log($table_name,$data);
+    }
+    
+    /* This function copy all invoice Images from misc-images folder to purchase-invoices folder on s3 server
+     * 
+     */
+    function copy_invoices_from_s3() {
+        // Tables & columns in  which invoices are stored
+        $arr_tables = ['service_center_booking_action' => 'sf_purchase_invoice', 'booking_files' => 'file_name', 'engineer_booking_action' => 'purchase_invoice', 'spare_parts_details' => 'invoice_pic'];
+        
+        foreach($arr_tables as $table_name => $column_name){
+            // Get Last record updated date
+            $res = $this->My_CI->reusable_model->get_search_result_data('cron_config', '*', ['table' => $table_name, 'column' => $column_name], NULL, NULL, NULL, NULL, NULL);
+            $where = [];
+            if(!empty($res)){
+                $where[$column_name. " IS NOT NULL AND ". $column_name." <> ''"] = NULL;
+                // Get only those files which are not yet uploaded
+                if(!empty($res[0]['date'])){
+                    $where['create_date > "'.$res[0]['date'].'"'] = NULL;
+                }
+                $data = $this->My_CI->reusable_model->get_search_result_data($table_name, '*', $where, NULL, NULL, NULL, NULL, NULL);
+                foreach ($data as $invoice_data) {
+                    // copy file from misc-images to purchase-invoices
+                    $file = $invoice_data[$column_name];
+                    $csv = TMP_FOLDER . $file;
+                    $object = $this->My_CI->s3->getObject(BITBUCKET_DIRECTORY, "misc-images/".$file);
+                    if($object->body){
+                        write_file($csv, $object->body);
+                        $this->My_CI->s3->putObjectFile($csv, BITBUCKET_DIRECTORY, 'purchase-invoices/'.$file, S3::ACL_PUBLIC_READ);
+                        unlink($csv);
+                    }
+                    // Update date in config table 
+                    $this->My_CI->reusable_model->update_table("cron_config",['date' => $invoice_data['create_date']],['table' => $table_name, 'column' => $column_name]);
+                }
+            }
+        }
+        echo '******END*****';exit;
+    }
+    
+    function add_sf_penalty_point($rejection_reason, $reason_of, $penalty_point, $booking_id, $vendor_id){
+        $data = array();
+        $data['booking_id'] = $booking_id;
+        $data['service_center_id'] = $vendor_id;
+        $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $data['criteria_id'] = $rejection_reason;
+        $data['penalty_point'] = $penalty_point;
+        $data['active'] = 1;
+        $data['create_date'] = date('Y-m-d H:i:s');
+        $data['agent_type'] = _247AROUND_EMPLOYEE_STRING;
+        
+        // Add Penalty in case of fake completion
+        if($reason_of == REVIEW_REJECT_COMPLETION_REASON){            
+            $this->My_CI->penalty_model->insert_penalty_on_booking($data);
+        }
+        // Add Penalty in case of fake cancellation
+        elseif($reason_of == REVIEW_REJECT_CANCELLATION_REASON){
+            // Get SF booking cancellation Reason
+            $where = ['booking_id' => $booking_id];
+            $res = $this->My_CI->vendor_model->get_service_center_booking_action_details('cancellation_reason', $where);
+            $vendor_cancellation_reason = !empty($res[0]['cancellation_reason']) ? $res[0]['cancellation_reason'] : "";
+            // Check if penalty is there in the combination of this $vendor_cancellation_reason and $rejection_reason
+            $penalty_applicable = $this->My_CI->penalty_model->check_cancellation_penalty_applicable_or_not($vendor_cancellation_reason, $rejection_reason);
+            if($penalty_applicable){
+                $this->My_CI->penalty_model->insert_penalty_on_booking($data);
+            }
+        }
+        else{            
+            return; // do nothing
+        }
     }
 }

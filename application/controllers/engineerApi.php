@@ -1286,14 +1286,14 @@ class engineerApi extends CI_Controller {
                         if (isset($value["purchase_invoice"])) {
                             if (!$purchase_inv_url) {
                                 $purchase_inv_url = $requestData['booking_id'] . "_" . $unit_id . "_purchase_inv_" . date("YmdHis") . ".png";
-                                $this->miscelleneous->generate_image($value["purchase_invoice"], $purchase_inv_url, "misc-images");
+                                $this->miscelleneous->generate_image($value["purchase_invoice"], $purchase_inv_url, "purchase-invoices");
                             }
                         }
                     } else {
                         if (isset($value["existing_purchase_invoice"])) {
                             if ($value["existing_purchase_invoice"]) {
                                 $purchase_inv_url = $requestData['booking_id'] . "_" . $unit_id . "_purchase_inv_" . date("YmdHis") . ".png";
-                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"], $purchase_inv_url, "misc-images");
+                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"], $purchase_inv_url, "purchase-invoices");
                             }
                         }
                     }
@@ -2154,9 +2154,11 @@ class engineerApi extends CI_Controller {
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
-                    $bookings[$key]['pre_consume_req'] =  $previous_consumption_required;
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message'];
+
+                    $bookings[$key]['pre_consume_req'] = $previous_consumption_required;
+                    $bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    $bookings[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] = $spare_resquest['message'];
                     // Abhishek Send Spare Details of booking //
                     $spares_details = $this->getSpareDetailsOfBooking($value['booking_id']);
                     $bookings[$key]['spares'] = $spares_details;
@@ -2167,6 +2169,32 @@ class engineerApi extends CI_Controller {
         }
         return $bookings;
     }
+    
+ 
+    /*  Check if req type is  in warraty or out  or not return true/false
+
+      Author @ Abhishek Awasthi
+      parameters @ $request_type
+      return boolean
+
+     */
+    
+    function getBookingWarrantyFlag($request_type){
+        
+        $in_warranty_array = array('In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit', 'Replacement', 'Spare Cannibalization');
+      
+        foreach($in_warranty_array as $warranty){
+           if(strripos($request_type,$warranty)){
+             return TRUE  ;
+           }else{
+               return FALSE;
+           }
+            
+        }
+                
+    }
+    
+    
 
     function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
@@ -2187,6 +2215,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     }
                     $missed_bookings[$key]['booking_distance'] = $distance;
+                    $missed_bookings[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     // Abhishek Check if we required the previous consumption or not return true/false
@@ -2232,7 +2261,9 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-                    $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+
+                    $tomorrowBooking[$key]['in_out_status'] = $this->getBookingWarrantyFlag($value['request_type']);
+                    $tomorrowBooking[$key]['spare_eligibility'] = $spare_resquest['spare_flag'];
                     // Abhishek Check if we required the previous consumption or not return true/false
                     $previous_consumption_required = $this->checkConsumptionForPreviousPart($value['booking_id']);
                     $tomorrowBooking[$key]['pre_consume_req'] =  $previous_consumption_required;
@@ -2472,7 +2503,7 @@ class engineerApi extends CI_Controller {
 
             if (isset($requestData["booking_id"])) {
                 $spare_select = 'spare_parts_details.serial_number, '
-                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                        . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                         . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
                 $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
                 if (!empty($spare_details)) {
@@ -2607,13 +2638,13 @@ class engineerApi extends CI_Controller {
                 if (isset($requestData['invoice_number_pic_exist'])) {
                     if ($requestData['invoice_number_pic_exist']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                        $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 } else {
                     if ($requestData['existing_purchase_invoice']) {
                         $invoice_pic = "invoice_" . $requestData['booking_id'] . "_" . date("YmdHis") . ".png";
-                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "misc-images");
+                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "purchase-invoices");
                         $requestData['invoice_pic'] = $invoice_pic;
                     }
                 }
@@ -2624,6 +2655,8 @@ class engineerApi extends CI_Controller {
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
                 $curl_response = curl_exec($ch);
                 curl_close($ch);
@@ -2938,7 +2971,7 @@ class engineerApi extends CI_Controller {
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
-                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                    . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/purchase-invoices/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/' . BITBUCKET_DIRECTORY . '/' . SERIAL_NUMBER_PIC_DIR . '/", spare_parts_details.serial_number_pic) as serial_number_pic';
             /*  This is to get consumtption required or not */        
             $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "' . _247AROUND_CANCELLED . '"' => NULL,'parts_shipped is not null' => NULL,'(spare_parts_details.consumed_part_status_id is null or spare_parts_details.consumed_part_status_id = '.OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID.')' => NULL));
@@ -2949,8 +2982,14 @@ class engineerApi extends CI_Controller {
             } else {
                 $response['is_consumption_required'] = false;
             }
-            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            $response['upcountry_paid_by_customer'] = $bookingDetails[0]['upcountry_paid_by_customer'];
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "upcountry_paid_by_customer,partner_upcountry_rate,upcountry_distance,is_upcountry", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
+            if($bookingDetails['is_upcountry'] && $bookingDetails['upcountry_paid_by_customer']){
+             $response['upcountry_paid_by_customer'] = 1;   
+            }else{
+              $response['upcountry_paid_by_customer'] = 0;  
+            }
+            
+            $response['upcountry_paid_by_customer_amount'] = $bookingDetails[0]['partner_upcountry_rate']*$bookingDetails[0]['upcountry_distance'];
             
             $response['booking_unit_details'] = $bookng_unit_details[0];
             log_message("info", __METHOD__ . "Product details found successfully");
@@ -4504,12 +4543,12 @@ function check_for_upgrade(){
         log_message("info", __METHOD__ . " Entering..in upgrade");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $validation = $this->validateKeys(array("app_version"), $requestData);
-        if ($requestData['app_version']!=APP_VERSION) { 
-                // get configuration data from table for App version upgrade // 
-                $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE); 
-                $this->jsonResponseString['response'] = array('configuration_type'=>$response[0]->configuration_type,'config_value'=>$response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
-                $this->sendJsonResponse(array('0000', 'success')); // send success response //
-               
+        $response = $this->engineer_model->get_engineer_config(FORCE_UPGRADE);
+        if ($requestData['app_version'] != $response[0]->app_version) { //APP_VERSION
+            // get configuration data from table for App version upgrade // 
+            $this->jsonResponseString['response'] = array('configuration_type' => $response[0]->configuration_type, 'config_value' => $response[0]->config_value); // chnage again acc to umesh  // Response one up according to umesh//
+            $this->sendJsonResponse(array('0000', 'success')); // send success response //
+
         } else {
             log_message("info", __METHOD__ . $validation['message']);
             $this->jsonResponseString['response'] = array(); /// Response one up according to umesh//

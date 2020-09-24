@@ -64,7 +64,7 @@
                                     <label for="invoice_pic" class="col-md-4">Invoice Image</label>
                                     <div class="col-md-6">
                                         <?php if(!empty($spare_parts) && !is_null($spare_parts[0]->invoice_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo ((isset($spare_parts[0]->invoice_pic)) ? $spare_parts[0]->invoice_pic : '')?>" target="_blank" id="invoice_pic">View Image</a>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/purchase-invoices/<?php echo ((isset($spare_parts[0]->invoice_pic)) ? $spare_parts[0]->invoice_pic : '')?>" target="_blank" id="invoice_pic">View Image</a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -776,7 +776,8 @@
                 swal("Error !", "Same part type can not be shipped.For multiple part please fill quantity.");
  
             }else{
-
+                
+            if(!$('#courier_not_shipping').is(":checked")){
                 let kg = $("#defective_parts_shipped_weight_in_kg").val();
                 let gm = $("#defective_parts_shipped_weight_in_gram").val();
                 let total = parseInt(kg)+parseInt(gm);
@@ -785,7 +786,10 @@
                 }else{
                 form.submit();   
                 }
-            }    
+            }else{
+               form.submit(); 
+            } 
+                }
 
                 }
             });
@@ -1247,15 +1251,15 @@
         }
         
         $("#courier_not_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', false);
         });
         
         $("#to_be_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0,#approx_value_0").prop('disabled', true);
         });
         
         $("#courier_name").on('change',function(){
@@ -1275,6 +1279,22 @@
         });
         
         $(".incominginvoice_class").on('change',function(){
+            
+            var numb = $(this)[0].files[0].size/1024/1024;
+            numb = numb.toFixed(2);
+            if(numb > 5){
+                $(this).val(''); 
+                alert('Not allow file size greater than 5MB');
+            } 
+           
+            file_name_with_extesion = $(this).val().replace(/.*(\/|\\)/, '');
+            extension_dot_length = file_name_with_extesion.split('.').length;
+            var format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,<>\/?~]/;
+            
+            if(format.test(file_name_with_extesion)){
+               alert("Not allow special character or space in the file name.");
+               $(this).val(''); 
+            }
             var id_text = $(this).attr('id');
             id_array = id_text.split('_');
             $('label[for="incominginvoice_'+id_array[1]+'"]').css('display', 'none');

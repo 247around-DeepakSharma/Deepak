@@ -1578,29 +1578,23 @@ class Do_background_upload_excel extends CI_Controller {
                     $file_upload_id = $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER . $header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
 
                     //get email details 
-                    //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
-                    //$get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email", 
-                    //    array('partners.id' => $partner_id),"",0,1,1,"partners.id");
-                    $get_partner_am_id = $this->partner_model->getpartner_data_from_agent_filter($partner_id);
+                    $get_partner_am_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,employee.official_email", 
+                        array('partners.id' => $partner_id),"",1,1,1,"partners.id");
                     
                     if (empty($this->email_send_to)) {
                         if (empty($this->session->userdata('official_email'))) {
-                            if (!empty($get_partner_am_id[0]['account_manager_id'])) {
-                                $to = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
-                            } else {
                                 $to = _247AROUND_SALES_EMAIL;
-                            }
                         } else {
                             $to = $this->session->userdata('official_email');
                         }
                     } else {
                         $to = $this->email_send_to;
                     }
-                    //$poc_email = "";
-                    //if (!empty($get_partner_am_id[0]['primary_contact_email'])) {
-                    //    $poc_email = $get_partner_am_id[0]['primary_contact_email'];
-                    //}
-                    //$cc = NITS_ANUJ_EMAIL_ID.",".$poc_email;
+                    // Add AM in TO
+                    if(!empty($get_partner_am_details[0]['official_email'])){
+                        $to .= ",".$get_partner_am_details[0]['official_email'];
+                    }
+
                     $cc = NITS_ANUJ_EMAIL_ID;
                     $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
                     $subject = "Failed! $upload_file_type File uploaded by " . $agent_name;

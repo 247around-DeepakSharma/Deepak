@@ -710,18 +710,14 @@ class User_invoice extends CI_Controller {
                     $where_in = array('id' => $spare_id);
                     $result = $this->inventory_model->update_bluk_spare_data($where_in, array('defective_part_required' => 0, 'sell_invoice_id' => $invoice_id, 'spare_lost' => 1, 'sell_price' => $invoice_amount[$spare_id], 'status' => $reason[$spare_id]));
                 }
-
-                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED . '")' => NULL, 'spare_lost != 1' => NULL));
-
-                if (count($check_lost_part) === 0) {
-                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id' => $booking_id));
-                    if ($service_center_action[0]['service_center_closed_date']) {
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
-                        if (!empty($partner_status)) {
+                
+                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
+                
+                if(count($check_lost_part) === 0) {
+                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id'=>$booking_id));
+                    if(!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED) {
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];
@@ -1825,19 +1821,15 @@ class User_invoice extends CI_Controller {
                 $spare_update_data = array(
                     'sell_invoice_id' => $invoice_id,
                 );
-                $result = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
-
-                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("' . DEFECTIVE_PARTS_RECEIVED . '", "' . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED_BY_WAREHOUSE . '", "' . Ok_PARTS_RECEIVED . '")' => NULL, 'spare_lost != 1' => NULL));
-
-                if (count($check_oow_lost_part) === 0) {
-                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id' => $booking_id));
-                    if ($service_center_action[0]['service_center_closed_date']) {
-                        $sc_data['current_status'] = "InProcess";
-                        $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, OUT_OF_WARRANTY, $partner_id, $booking_id);
-                        if (!empty($partner_status)) {
+                $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
+                
+                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.Ok_PARTS_RECEIVED.'")' => NULL, 'spare_lost != 1' => NULL));
+                
+                if(count($check_oow_lost_part) === 0) {
+                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date, booking_details.current_status', array('booking_id'=>$booking_id));
+                    if(!empty($service_center_action[0]['service_center_closed_date']) && $service_center_action[0]['current_status'] == _247AROUND_COMPLETED){
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_COMPLETED, OUT_OF_WARRANTY, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];
@@ -1862,8 +1854,10 @@ class User_invoice extends CI_Controller {
      * @return: boolean
      */
 
-    function process_consumed_msl_ow() {
+    function process_consumed_non_return_mwh_msl() {
         log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+//        $str = '{"inventory_data":"[{\"inventory_id\":\"3459\",\"spare_id\":\"127740\",\"vendor_id\":\"1044\",\"quantity\":\"1\",\"booking_partner_id\":\"247133\",\"is_micro_wh\":\"1\",\"shipping_quantity\":\"1\",\"booking_id\":\"LR-6144801911061\"},{\"inventory_id\":\"3459\",\"spare_id\":\"137452\",\"vendor_id\":\"1044\",\"quantity\":\"1\",\"booking_partner_id\":\"247133\",\"is_micro_wh\":\"1\",\"shipping_quantity\":\"1\",\"booking_id\":\"LR-6312631911292\"},{\"inventory_id\":\"65663\",\"spare_id\":\"137453\",\"vendor_id\":\"1044\",\"quantity\":\"1\",\"booking_partner_id\":\"247133\",\"is_micro_wh\":\"1\",\"shipping_quantity\":\"1\",\"booking_id\":\"LR-6312631911292\"},{\"inventory_id\":\"3459\",\"spare_id\":\"140393\",\"vendor_id\":\"1044\",\"quantity\":\"1\",\"booking_partner_id\":\"247133\",\"is_micro_wh\":\"1\",\"shipping_quantity\":\"1\",\"booking_id\":\"LR-6438691912041\"}]","label":"WEBUPLOAD","warehouse_id":"1044","wh_type":"2","invoice_type":"4"}';
+//        $_POST = json_decode($str, true);
         $return_data = $this->input->post();
         if ($return_data['wh_type'] == 2) {
             $wh_id = $this->input->post('warehouse_id');
@@ -1877,7 +1871,6 @@ class User_invoice extends CI_Controller {
                     . "state,address as company_address,company_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("id" => $wh_id));
 
             $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
-
             if (!empty($invoiceData['processData'])) {
 
                 $template1 = array(
@@ -1887,9 +1880,17 @@ class User_invoice extends CI_Controller {
                 $this->table->set_heading(array('Part Name', 'Part Number', 'Reference Invoice ID', 'Qty'));
 
                 foreach ($invoiceData['processData'] as $key => $invoiceValue) {
+                    $gst_number = (!empty($entity_gst_details[0]['gst_number']) ? $entity_gst_details[0]['gst_number'] : '');
+                    if (empty($gst_number)) {
+
+                        $gst_number = TRUE;
+                    }
                     $invoice = array();
                     foreach ($invoiceValue['data'] as $key1 => $value) {
-                        $invoiceValue['data'][$key1]['booking_id'] = '';
+                        if (!isset($invoiceValue['data'][$key1]['booking_id'])) {
+                            $invoiceValue['data'][$key1]['booking_id'] = '';
+                        }
+
                         $this->table->add_row($value['part_name'], $value['part_number'], $value['incoming_invoice_id'], $value['qty']);
                         if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
@@ -1939,30 +1940,37 @@ class User_invoice extends CI_Controller {
                         $invoices[0]['c_s_gst'] = FALSE;
                     }
 
-                    $res = $this->_process_consumed_msl_ow($wh_id, $invoices, CREDIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
+                    $res = $this->_process_consumed_non_return_mwh_msl($wh_id, $invoices, CREDIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
 
-                    $invoice_id = $res['invoice_id'];
+                    $credit_invoice_id = $res['invoice_id'];
 
-                    $this->_process_consumed_msl_ow($wh_id, $invoices, DEBIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
-
+                    $res1 = $this->_process_consumed_non_return_mwh_msl($wh_id, $invoices, DEBIT_NOTE, $entity_details[0]['owner_phone_1'], $invoiceValue['data'], $around_gst, $receiver_state);
+                    $debit_invoice_id = $res1['invoice_id'];
                     foreach ($invoiceValue['mapping'] as $m) {
-                        $m['outgoing_invoice_id'] = $invoice_id;
+                        $m['outgoing_invoice_id'] = $credit_invoice_id;
                         $this->invoices_model->insert_inventory_invoice($m);
                     }
+
 
                     if (!empty($invoices) && $return_data['invoice_type'] == 3) {
                         foreach ($invoices as $value) {
                             if (!empty($value['inventory_id'])) {
-                                $stock = "stock - '" . $value['quantity'] . "'";
+                                $stock = "stock - '" . $value['qty'] . "'";
                                 $where = array('inventory_stocks.entity_id' => $wh_id, 'inventory_stocks.entity_type' => _247AROUND_SF_STRING, 'inventory_stocks.inventory_id' => $value['inventory_id']);
-                                $update_stocks = $this->inventory_model->update_inventory_stock($where, $stock);
+                                $this->inventory_model->update_inventory_stock($where, $stock);
 
-                                if ($update_stocks) {
-                                    $insert_data = array("warehouse_id" => $value['warehouse_id'], "inventory_id" => $value['inventory_id'],
-                                        "quantity" => $value['quantity'], 'agent_id' => $this->session->userdata('id'));
-                                    $this->inventory_model->insert_into_non_returnable_consumed_parts($insert_data);
-                                }
+                                $insert_data = array("warehouse_id" => $wh_id, "inventory_id" => $value['inventory_id'],
+                                    "quantity" => $value['qty'], 'agent_id' => $this->session->userdata('service_center_agent_id'), 'credit_note' => $credit_invoice_id, 'debite_note' => $debit_invoice_id);
+                                $this->inventory_model->insert_into_non_returnable_consumed_parts($insert_data);
                             }
+                        }
+                    } else if (!empty($invoiceValue['data']) && $return_data['invoice_type'] == 4) {
+                        foreach ($invoiceValue['data'] as $key1 => $value) {
+                            $insert_data = array("warehouse_id" => $wh_id, "inventory_id" => $value['inventory_id'],
+                                "quantity" => $value['qty'], 'agent_id' => $this->session->userdata('service_center_agent_id'),
+                                'credit_note' => $credit_invoice_id, 'debite_note' => $debit_invoice_id,
+                                'spare_id' => $value['spare_id']);
+                            $this->inventory_model->insert_into_non_returnable_consumed_parts($insert_data);
                         }
                     }
                 }
@@ -1974,6 +1982,7 @@ class User_invoice extends CI_Controller {
             echo json_encode(array('status' => false, 'message' => FAILURE_MESSAGE_PARTS_CONSUMED_OW));
         }
     }
+
     /**
      * @desc This function is used to create Credit & Debit Note when sf used msl parts for personal/ OW.
      * @param int $wh_id
@@ -1984,7 +1993,7 @@ class User_invoice extends CI_Controller {
      * @return Array
      */
 
-    function _process_consumed_msl_ow($wh_id, $invoices, $invoice_type, $owner_phone, $invoiceValue, $around_gst, $receiver_state) {
+    function _process_consumed_non_return_mwh_msl($wh_id, $invoices, $invoice_type, $owner_phone, $invoiceValue, $around_gst, $receiver_state) {
 
         if ($invoice_type == CREDIT_NOTE) {
             $invoice_id = $this->invoice_lib->create_invoice_id('ARD-CN');
@@ -2048,6 +2057,99 @@ class User_invoice extends CI_Controller {
             unlink(TMP_FOLDER . "copy_" . $output_file_main);
             
             return array('invoice_id' => $invoice_id, "output_file" => $pdf_attachement);
+        }
+    }
+    /**
+     * @desc This function is used to generate invoice for those msl part whose not return by mwh. 
+     * We are generating reverse invoice for brand
+     */
+    function non_return_msl_reverse_partner_invoice() {
+//        log_message('info', __METHOD__ . json_encode($_POST));
+//        $str = '{"inventory_data":"[{\"inventory_id\":\"11490\",\"spare_id\":\"25976\",\"vendor_id\":\"58\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3557291903102\"},{\"inventory_id\":\"50031\",\"spare_id\":\"26804\",\"vendor_id\":\"583\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3646791903221\"},{\"inventory_id\":\"24141\",\"spare_id\":\"27809\",\"vendor_id\":\"776\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3649581903221\"},{\"inventory_id\":\"16215\",\"spare_id\":\"27810\",\"vendor_id\":\"776\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3649581903221\"},{\"inventory_id\":\"52202\",\"spare_id\":\"30632\",\"vendor_id\":\"803\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3805901904261\"},{\"inventory_id\":\"60352\",\"spare_id\":\"32018\",\"vendor_id\":\"798\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3681421904232\"},{\"inventory_id\":\"65672\",\"spare_id\":\"32155\",\"vendor_id\":\"7\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3862181905041\"},{\"inventory_id\":\"61980\",\"spare_id\":\"32242\",\"vendor_id\":\"342\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3864781905041\"},{\"inventory_id\":\"9010\",\"spare_id\":\"32269\",\"vendor_id\":\"340\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3874161905051\"},{\"inventory_id\":\"11490\",\"spare_id\":\"32304\",\"vendor_id\":\"522\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3874271905051\"},{\"inventory_id\":\"22666\",\"spare_id\":\"32508\",\"vendor_id\":\"126\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3918601905081\"},{\"inventory_id\":\"16215\",\"spare_id\":\"32509\",\"vendor_id\":\"126\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3918601905081\"},{\"inventory_id\":\"11490\",\"spare_id\":\"32605\",\"vendor_id\":\"369\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3919091905081\"},{\"inventory_id\":\"11490\",\"spare_id\":\"32632\",\"vendor_id\":\"126\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3892511905061\"},{\"inventory_id\":\"60585\",\"spare_id\":\"32748\",\"vendor_id\":\"825\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3914061905081\"},{\"inventory_id\":\"11490\",\"spare_id\":\"32881\",\"vendor_id\":\"565\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3873271905051\"},{\"inventory_id\":\"9010\",\"spare_id\":\"32936\",\"vendor_id\":\"340\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3871621905041\"},{\"inventory_id\":\"11490\",\"spare_id\":\"33028\",\"vendor_id\":\"810\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3834091905011\"},{\"inventory_id\":\"11490\",\"spare_id\":\"33124\",\"vendor_id\":\"683\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3917071905081\"},{\"inventory_id\":\"51927\",\"spare_id\":\"33210\",\"vendor_id\":\"385\",\"quantity\":\"1\",\"booking_partner_id\":\"247130\",\"warehouse_id\":null,\"is_micro_wh\":\"2\",\"shipping_quantity\":\"1\",\"booking_id\":\"LP-3868811905041\"}]","label":"WEBUPLOAD","partner_id":"247130","to_gst_id":"8", "from_gst_id":"7"}';
+//        $_POST = json_decode($str, true);
+        $return_data = $this->input->post();
+        $partner_id = $return_data['partner_id'];
+        $to_gst_id = $return_data['to_gst_id'];
+        $from_gst_id = $return_data['from_gst_id'];
+
+        $postData = json_decode($return_data['inventory_data'], TRUE);
+        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
+        if (empty($invoiceData['processData'])) {
+            exit(json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory.'), true));
+        } else {
+            $sd = $ed = $invoice_date = date('Y-m-d');
+            $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, public_name, district, state", array('partners.id' => $partner_id));
+            $entity_gst_details = $this->inventory_model->get_entity_gst_data("gst_number, state_code.state as state, address, city as district, pincode", array("entity_gst_details.id" => $to_gst_id));
+
+            foreach ($invoiceData['processData'] as $key => $invoiceValue) {
+
+                $template1 = array(
+                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                );
+                $this->table->set_template($template1);
+                $this->table->set_heading(array('Part Name', 'Reference Invoice ID', 'Qty'));
+
+                $invoice = array();
+
+                foreach ($invoiceValue['data'] as $key1 => $value) {
+                    //$invoiceValue['data'][$key1]['booking_id'] = '';
+                    $this->table->add_row($value['part_name'], $value['incoming_invoice_id'], $value['qty']);
+
+                    if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
+
+
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number'] . " - " . $value['part_name'] . " Reference Invoice ID " . $value['incoming_invoice_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'] * $value['qty'];
+                        //                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = (!empty($entity_gst_details[0]['gst_number']) ? $entity_gst_details[0]['gst_number'] : ''); //$value['to_gst_number'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['main_gst_number'] = $value['from_gst_number'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $entity_gst_details[0]['address'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $entity_gst_details[0]['district'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $entity_gst_details[0]['pincode'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state_code'] = $value['to_state_code'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $entity_gst_details[0]['state'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty']; //1;
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['hsn_code'] = $value['hsn_code'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['inventory_id'] = $value['inventory_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['partner_id'] = $value['booking_partner_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
+                    } else {
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty']; //1;
+                        if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
+                        } else {
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
+                        }
+
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
+                    }
+                }
+
+                $invoices = array_values($invoice);
+                unset($invoice);
+
+                $p = $this->table->generate();
+                list($response, $output_file, $output_file_main) = $this->generate_new_return_inventory($invoices, "", $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id);
+                //print_r($response);
+                //$pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
+                unlink(TMP_FOLDER . $output_file);
+                unlink(TMP_FOLDER . $output_file_main);
+                unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+                unlink(TMP_FOLDER . "copy_" . $output_file_main);
+                
+                foreach ($invoiceValue['data'] as $value) {
+                    $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array("reverse_purchase_invoice_id" => $response['meta']['invoice_id']));
+                }
+            }
+            
+            echo json_encode(array('success'));
         }
     }
 }

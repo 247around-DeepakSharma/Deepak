@@ -362,6 +362,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
+    var partner_source = $("#partner_source").val();
     var user_email = $("#booking_user_email").val();
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();
@@ -398,6 +399,13 @@ function addBookingDialog(chanel = '') {
     if (!is_sf_panel && pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
+
+        return false;
+    }
+
+if (!is_sf_panel && (partner_source == "" || partner_source== null)) {
+
+        alert("Please Select a partner source");
 
         return false;
     }

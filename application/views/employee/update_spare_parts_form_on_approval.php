@@ -11,6 +11,16 @@
                 </div>
                 <?php } ?>
                 
+                <?php if(!empty($disable_model_number)) { ?>
+                    <div class="row">
+                        <div class = 'col-md-offset-2 col-md-6'>
+                            <div class="alert alert-info">
+                                Model details can not be changed as previously requested part has been already shipped.
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+                
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/update_spare_parts_details" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <div class="panel panel-default col-md-offset-2">
                         <div class="panel-body" >
@@ -20,7 +30,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id">
+                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id" <?php if(!empty($disable_model_number)) { echo 'readonly="readonly" style="pointer-events:none;"'; } ?>>
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option <?php if($value['model_number'] == $spare_parts_details['model_number']){ echo 'selected';} ?> value="<?php echo $value['id']; ?>"><?php echo $value['model_number']; ?></option>
@@ -31,7 +41,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo $spare_parts_details['model_number']; ?>" placeholder="Model Number">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php echo $spare_parts_details['model_number']; ?>" placeholder="Model Number" <?php if(!empty($disable_model_number)) { echo 'readonly="readonly"'; } ?>>
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -41,7 +51,7 @@
                                         <label for="purchase_date" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo date("d-m-Y", strtotime($spare_parts_details['date_of_purchase'])); ?>" autocomplete='off' onkeypress="return false;">
+                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo date("d-m-Y", strtotime($spare_parts_details['date_of_purchase'])); ?>" autocomplete='off' onkeypress="return false;" <?php if(!empty($disable_model_number)) { echo 'style="pointer-events:none;background:#eee !important;"'; } ?>>
                                                 <span class="input-group-addon add-on" onclick="purchase_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -53,7 +63,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8">
+                                            <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php echo $spare_parts_details['serial_number']; ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" <?php if(!empty($disable_model_number)) { echo 'style="pointer-events:none;background:#eee !important;"'; } ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -61,7 +71,7 @@
                                     <div class="form-group">
                                         <label for="serial_number_pic" class="col-md-4">Serial Number Picture *</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" <?php if(!empty($disable_model_number)) { echo 'style="pointer-events:none;background:#eee !important;"'; } ?>>
                                             <input type="hidden" class="form-control spare_parts" id="old_serial_number_pic" name="old_serial_number_pic" value="<?php echo $spare_parts_details['serial_number_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
@@ -78,12 +88,12 @@
                                     <div class="form-group">
                                         <label for="invoice_pic" class="col-md-4">Invoice Picture</label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                            <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image" <?php if(!empty($disable_model_number)) { echo 'style="pointer-events:none;background:#eee !important;"'; } ?>>
                                             <input type="hidden" class="form-control spare_parts" id="old_invoice_image" name="old_invoice_image" value="<?php echo $spare_parts_details['invoice_pic']; ?>">
                                         </div>
-                                        <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-                                        <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
-                                        <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        <?php if(!empty($spare_parts_details['invoice_pic'])){ ?>
+                                        <a href="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" target="_blank">
+                                        <img src="<?php echo S3_WEBSITE_URL; ?>purchase-invoices/<?php echo $spare_parts_details['invoice_pic']; ?>" id="display_invoice_image" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                         </a>
                                       <?php } ?>
                                     </div>
@@ -96,13 +106,20 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part In Warranty*</label>
+                                            <label for="part_warranty" class="col-md-4">Part Warranty*</label>
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
-                                                    <option selected="" disabled="">Select warranty status</option>
-                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
-                                                    <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
-                                                </select>
+                                                <?php if ($spare_parts_details['part_warranty_status'] == 1) { ?>
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                        <option selected="" disabled="">Select warranty status</option>
+                                                        <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 1) { echo 'selected'; } ?>> In-Warranty </option>
+                                                        <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    </select>
+                                                <?php } else { ?>
+                                                    <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part_warranty_status"> <!--  onchange="get_symptom(0)" -->
+                                                        <option selected="" disabled="">Select warranty status</option>
+                                                        <option value="2"  data-request_type = "<?php echo REPAIR_OOW_TAG;?>" <?php if ($spare_parts_details['part_warranty_status'] == 2) { echo 'selected'; } ?>> Out-Warranty </option>
+                                                    </select>
+                                                <?php } ?>
                                             </div>                                            
                                         </div>
                                     </div>
@@ -310,7 +327,11 @@ $(document).ready(function(){
 <?php } ?>
 <?php if(!empty($inventory_details)){ ?>
 <script>
-$('#model_number_id').select2();
+    
+<?php if(empty($disable_model_number)) { ?>
+    $('#model_number_id').select2();
+<?php } ?>
+    
 $('#parts_name').select2();
 $(document).ready(function(){    
     

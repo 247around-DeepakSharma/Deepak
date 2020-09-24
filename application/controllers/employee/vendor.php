@@ -181,7 +181,7 @@ class vendor extends CI_Controller {
 
                    $this->vendor_model->insert_engineer($engineer);
                    //Send SF Update email
-                   $send_email = $this->send_update_or_add_sf_basic_details_email($_POST['id'],$rm_official_email,$vendor_data, $rm);
+                   $send_email = $this->send_update_or_add_sf_basic_details_email($sc_id,$rm_official_email,$vendor_data, $rm);
                     // Sending Login details mail to Vendor using Template
                    $this->session->set_userdata('vendor_added', "Vendor Basic Details has been added Successfully , Please Fill other details");
 	redirect(base_url() . 'employee/vendor/editvendor/'.$sc_id);
@@ -400,6 +400,11 @@ class vendor extends CI_Controller {
         if(!empty($rm_id)) {
             $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
         }
+        $employee_asm_relation = $this->vendor_model->get_asm_contact_details_by_sf_id($sf_id);
+                    $asm_email_id = "";
+                    if (!empty($employee_asm_relation)) {
+                    $asm_email_id = $employee_asm_relation[0]['official_email'];
+                }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
         }else{
@@ -453,7 +458,7 @@ class vendor extends CI_Controller {
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
         // Added Accounts team Mail Id in CC in mail
-        $cc = ACCOUNTANT_EMAILID;
+        $cc = ACCOUNTANT_EMAILID . ',' . $asm_email_id;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
@@ -1248,13 +1253,16 @@ class vendor extends CI_Controller {
                 if(!empty($booking_id) || $booking_id != '0'){
 
                     if ($service_center_id != "") {
-
                         $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
                         if ($assigned) {
                             //Insert log into booking state change
                            $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
                                    ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
                            //Send Push Notification
+                           
+                           // Send SMS to red Zone bookings
+                           $bookings = $this->booking_model->getbooking_history($booking_id,"join");
+                           
                            $receiverArray['vendor'] = array($service_center_id); 
                            $notificationTextArray['url'] = array($booking_id);
                            $notificationTextArray['msg'] = array($booking_id);
@@ -1316,7 +1324,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         if(!empty($booking_id)){
             
-            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1));
+            $service_centers = $this->vendor_model->getVendorDetails("*", array('on_off' => 1, 'is_sf' => 1, 'active' => 1, 'is_wh' => 0));
             // checks to validate whether booking can be re-assigned or not
             $arr_validation_checks = $this->check_reassign_validations($booking_id); 
 
@@ -1574,8 +1582,6 @@ class vendor extends CI_Controller {
                     
                     $this->booking_model->update_booking($booking_id, $assigned_data2);
                 }
-                //End
-
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
             $booking_id = $this->input->post('booking_id');
@@ -3689,7 +3695,6 @@ class vendor extends CI_Controller {
         //Getting Vendor Details
         $sf_details = $this->vendor_model->getVendorContact($id);
         $sf_name = $sf_details[0]['name'];
-        
         //Sending Mail to corresponding RM and admin group 
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
@@ -3706,7 +3711,13 @@ class vendor extends CI_Controller {
                 $email['action_by'] = $agent_name;
                 $subject = " Temporary " . $on_off_value . " Vendor " . $sf_name;
                 $emailBody = vsprintf($template[0], $email);
-                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "",'sf_temporary_on_off');
+                //Send mail to asm also in cc
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($id);
+                if(!empty($asm_details[0]['official_email']))
+                    $cc = $template[3].",".$asm_details[0]['official_email'];
+                else 
+                    $cc = $template[3];
+                $this->notify->sendEmail($template[2], $to, $cc, '', $subject, $emailBody, "",'sf_temporary_on_off');
             }
 
             log_message('info', __FUNCTION__ . ' Temporary  '.$on_off_value.' of Vendor' . $sf_name);
@@ -4340,13 +4351,17 @@ class vendor extends CI_Controller {
                 //Getting RM Official Email details to send Welcome Mails to them as well
                 $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
                 $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                // Send Mail To asm also
+                $asm_details = $this->vendor_model->get_asm_contact_details_by_sf_id($booking_details[0]['assigned_vendor_id']);
+                if(!empty($asm_details))
+                    $asm_mail = "," . $asm_details[0]['official_email'];
                 //Sending Mail
                 $email['booking_id'] = $booking_id[$key];
                 $emailBody = vsprintf($template[0], $email);
 
                 $subject['booking_id'] = $booking_id[$key];
                 $subjectBody = vsprintf($template[4], $subject);
-                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email . $asm_mail, '', $subjectBody, $emailBody, "",'remove_penalty_on_booking', "", $booking_id[$key]);
 
                 //Logging
                 log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
@@ -4649,6 +4664,7 @@ class vendor extends CI_Controller {
         $saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 
         $option = '<option selected="" disabled="">Select Warehouse</option>';
+        if(!empty($partner_data[0])){
         if ($partner_data[0]['is_wh'] == 1) {
             $select = "service_centres.district, service_centres.id,service_centres.state, service_centres.name";
             $where = array('is_wh' => 1, 'active' => 1);
@@ -4676,6 +4692,7 @@ class vendor extends CI_Controller {
                     $option .= $value['name'] . " " . $value['district'] . " ( <strong>" . $value['state'] . "</strong>)" . "</option>";
                 }
             }
+        }
         }
         
 
@@ -6450,44 +6467,55 @@ class vendor extends CI_Controller {
 
         
     /**
-     * This function is used to check basic validation that if a booking can be re-assigned or not
-     * @author : Prity Sharma
-     * @date : 13-03-2020
-     * @param type $booking_id
-     */
+    * This function is used to check basic validation that if a booking can be re-assigned or not
+    * @author : Prity Sharma
+    * @date : 13-03-2020
+    * @param type $booking_id
+    */
     function check_reassign_validations($booking_id)
     {
         $arr_validation_checks = array();
 
-        // check if spare is involved and part_warranty_status = 2 AND part_shipped date not null 
+        // case 1: check if spare is involved and part_warranty_status = 2 AND part_shipped date not null 
         $ow_shipped_part = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "part_warranty_status" => SPARE_PART_IN_OUT_OF_WARRANTY_STATUS, "shipped_date IS NOT NULL" => NULL));
         if(!empty($ow_shipped_part)){
             $arr_validation_checks[] = 'Part already shipped in Out-Warranty, Booking can not be re-assigned.';
             return $arr_validation_checks;
         }
-        // check if spare is involved and is_micro = 1 AND part_shipped date not null 
+        //case 2: check if spare is involved and is_micro = 1 AND part_shipped date not null 
         $is_micro_wh = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL, "is_micro_wh" => 1, "shipped_date IS NOT NULL" => NULL));
         if(!empty($is_micro_wh)){
             $arr_validation_checks[] = 'Micro Warehouse Involved, Booking can not be re-assigned.';
             return $arr_validation_checks;
         }
-        // check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
+
+        //case 3: check if booking already completed by SF
+        $booking_completed_by_sf = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'service_center_closed_date IS NOT NULL' => NULL, 'internal_status = "'.SF_BOOKING_COMPLETE_STATUS.'"' => NULL));            
+        $spare_involved_in_booking = $this->partner_model->get_spare_parts_by_any("*",array("booking_id" => $booking_id, "status != '"._247AROUND_CANCELLED."'" => NULL));
+        if(!empty($booking_completed_by_sf) && !empty($spare_involved_in_booking)){
+            $arr_validation_checks[] = 'Booking already completed by SF, hence can not be re-assigned.';
+            return $arr_validation_checks;
+        }
+        //case 4: check if booking cancelled by Admin
+        $booking_cancelled_by_admin = $this->booking_model->get_booking_details('*', array('booking_id' => $booking_id, 'current_status = "'._247AROUND_CANCELLED.'"' => NULL));            
+        if(!empty($booking_cancelled_by_admin)){
+            $arr_validation_checks[] = 'Booking already cancelled, hence can not be re-assigned.';
+            return $arr_validation_checks;
+        }
+        //case 5: check if service_center_booking_action closed_date is NOT NULL and part_shipped date not null
         $part_shipped_and_booking_closed = $this->partner_model->get_spare_parts_by_any("*",array("spare_parts_details.booking_id" => $booking_id, "spare_parts_details.status != '"._247AROUND_CANCELLED."'" => NULL, "spare_parts_details.shipped_date IS NOT NULL" => NULL, "service_center_booking_action.closed_date IS NOT NULL" => NULL), false, false, false, false, false, false, false, false, false, true);
         if(!empty($part_shipped_and_booking_closed)){
-            $arr_validation_checks[] = 'Part already shipped, Booking can not be re-assigned.';
+            $arr_validation_checks[] = 'Parts already shipped, Booking can not be re-assigned.';
             return $arr_validation_checks;
         }
 
-        $where = array('id'=>$id);
-        $result =  $this->vendor_model->update_vendor_pincode_mapping($data,$where);
-        echo  $result;
-
+        return $arr_validation_checks;
     }
+        
     /*
-         * Display list of unapproved SF
-         * Unaaproved SF can only approve their RM/ASM 
-         */
-
+     * Display list of unapproved SF
+     * Unaaproved SF can only approve their RM/ASM 
+     */
     function unapprovered_service_centers() {
         if ($this->input->post('sf_id')) {
             $where = 'id = ' . $this->input->post('sf_id');

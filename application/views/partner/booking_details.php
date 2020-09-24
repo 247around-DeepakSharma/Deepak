@@ -60,10 +60,11 @@
                                        
                                         <th>Registration Date </th>
                                         <td><?php 
+                                        if(!empty($booking_history[0]['create_date'])){
                                         $createDatArray = explode(' ',$booking_history[0]['create_date']);
                                         $time2 = strtotime($createDatArray[0]);
                                         $reg_date = date('d-M-Y',$time2);
-                                        echo $reg_date; ?></td>
+                                        echo $reg_date; }?></td>
                                         <th>Booking Date </th>
                                         <td><?php 
 
@@ -180,7 +181,7 @@
                                             $image_src = $src;
                                             if (isset($files['file_name']) && !empty($files['file_name'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$files['file_name'];
                                                 $image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
@@ -214,8 +215,8 @@
                                             <th>Brand</th>
                                             <th>Category</th>
                                             <th>Capacity</th>
-                                            <th>Model Number</th>
                                             <th>SF Model Number</th>
+                                            <th>Model Number</th>
                                             <th>SF Serial Number / <?php echo $booking_history[0]['public_name'] ?> Serial Number</th>
                                             <th>Description</th>
                                             <th>Purchase Date</th>
@@ -414,7 +415,7 @@
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
-                                                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php
+                                                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php
                                                                         }
                                                                     }
                                                                     ?>

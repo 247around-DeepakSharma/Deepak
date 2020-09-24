@@ -96,7 +96,7 @@
                                 $image_src = $src;
                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
                                     //Path to be changed
-                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history[0]['support_file'];
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$booking_history[0]['support_file'];
                                     $image_src = base_url().'images/view_image.png';
                                 }
                                 ?>
@@ -200,7 +200,8 @@
                                 <td><?php if(isset($booking_history[0]['vendor_name'])){ ?><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $booking_history[0]['assigned_vendor_id']?>" target="_blank"><?php echo $booking_history[0]['vendor_name']?></a> <?php }?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_name'])){echo $booking_history[0]['primary_contact_name'];}?></td>
                                 <td><?php if(isset($booking_history[0]['primary_contact_phone_1'])){echo $booking_history[0]['primary_contact_phone_1'];?>
-                                    <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
+                                    <?php $booking_primary_id = (!empty($booking_history[0]['booking_primary_id']) ? $booking_history[0]['booking_primary_id'] : ""); ?>
+                                    <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['primary_contact_phone_1'] ?>, <?php echo $booking_primary_id?>)" class="btn btn-sm btn-info pull-right"><i class="fa fa-phone fa-lg" aria-hidden="true"></i></button>
                                     <?php }?>
                                 </td>
                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
@@ -410,7 +411,7 @@
                                         <td><?php echo date("d-M-Y", strtotime($sp['create_date'])); ?></td>
                                         <td><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
-                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
+                                            ?> <a href="https://s3.amazonaws.com/bookings-collateral/purchase-invoices/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
                                             }
                                             ?>
                                         </td>

@@ -294,7 +294,7 @@ function mwh_consumed_ow() {
         if (confirm('Are you sure you want to submit ?')) {
             $.ajax({
                 method: 'POST',
-                url: baseUrl + '/employee/user_invoice/process_consumed_msl_ow',
+                url: baseUrl + '/employee/user_invoice/process_consumed_non_return_mwh_msl',
                 data: formData,
                 contentType: false,
                 processData: false,

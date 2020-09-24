@@ -88,7 +88,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
             <div class="panel-body">
-                <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])) { ?>
+                <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM])) { ?>
                 <div class="alert alert-warning">
                     <span style="font-weight:bold;">You don't have permission to complete booking.</span>
                 </div>
@@ -228,7 +228,8 @@
                                     </div>
                                     <?php if($c2c){ ?>
                                     <div class="col-md-2">
-                                        <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                                        <?php $booking_primary_id = (!empty($booking_history[0]['booking_primary_id']) ? $booking_history[0]['booking_primary_id'] : ""); ?>
+                                        <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>, <?php echo $booking_primary_id; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                                     </div>
                                     <?php }?>
                                 </div>
@@ -327,7 +328,7 @@
                                             $image_src = $src;
                                             if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/purchase-invoices/".$unit_details['quantity'][0]['sf_purchase_invoice'];
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
@@ -1211,6 +1212,8 @@
     if(ratingStar && not_reachable){
         flag = 1;
         alert("Either Choose not reachable or add rating, Don't select both option together");
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     else if(ratingStar || not_reachable){
@@ -1219,6 +1222,8 @@
     else{
         alert("Please Add Rating or Select Choose not reachable");
         flag = 1;
+        $('#submitform').css("pointer-events", "auto");
+        $('#submitform').css("opacity", "1");
         return false;
     }
     
@@ -1232,14 +1237,14 @@
     }
     }
     
-    function outbound_call(phone_number){
+    function outbound_call(phone_number, booking_primary_id = ''){
         var confirm_call = confirm("Call Customer ?");
     
         if (confirm_call == true) {
     
              $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number + '/' + booking_primary_id,
                 success: function(response) {
                     //console.log(response);
     

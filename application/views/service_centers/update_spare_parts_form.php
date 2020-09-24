@@ -66,7 +66,7 @@
                         if (isset($spare_parts[0]->invoice_pic)) {
                             if (!is_null($spare_parts[0]->invoice_pic)) {
                                 ?>
-                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->invoice_pic; ?>" target="_blank" id="invoice_pic">View Image</a>
+                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/purchase-invoices/<?php echo $spare_parts[0]->invoice_pic; ?>" target="_blank" id="invoice_pic">View Image</a>
                             <?php }
                         } ?>
                                     </div>
@@ -618,17 +618,24 @@
                                 courier_price_by_partner: {
                                     digits: true,
                                     range: [0, 2000]
+                                },
+                                courier_image:{
+                                    required: true,
+                                    accept:"jpg,png,jpeg,pdf"
                                 }
                             },
                             messages: {
-
                                 courier_name: "Please Courier Name",
                                 awb: "Please Enter Valid AWB",
                                 shipment_date: "Please Enter Shipped date",
                                 courier_price_by_partner: {
                                     digits: "Courier Price can only be Numeric.",
                                     range: "Courier price should be in between 0 to 2000."
-                                }
+                                },
+                                courier_image:{
+                                    required: "Please Select Courier Image",
+                                    accept: "Only image type pdf/jpg/png/jpeg is allowed"
+                                }  
 
                             },
                             submitHandler: function (form) {

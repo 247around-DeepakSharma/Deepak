@@ -33,7 +33,31 @@
           }
        });
     }
+    
+    function load_delivered_status(booking_id) {
+        $.ajax({
+            type: 'post',
+            url: '<?php echo base_url() ?>employee/inventory/get_spare_delivered_status/' + booking_id,
+            success: function (response) {
+                var obj = JSON.parse(response);
+                //console.log(obj);
+                if (obj[0].is_micro_wh == 1) {   //SPARE_DELIVERED_TO_SF
+                    document.getElementById("spare_delivered_" + booking_id).src = "<?php echo base_url(); ?>images/msl_available.png";
+                } else if ((obj[0].status == '<?php echo SPARE_DELIVERED_TO_SF; ?>') && Number(obj[0].auto_acknowledeged) == 1){ 
+                    document.getElementById("spare_delivered_" + booking_id).src = "<?php echo base_url(); ?>images/spare_parts_delivered_auto.png";
 
+                } else if ((obj[0].status == '<?php echo SPARE_DELIVERED_TO_SF; ?>') && Number(obj[0].auto_acknowledeged) == 2){ 
+                    document.getElementById("spare_delivered_" + booking_id).src = "<?php echo base_url(); ?>images/spare_parts_delivered_api.png";
+
+                } else if ((obj[0].status == '<?php echo SPARE_DELIVERED_TO_SF; ?>')&& Number(obj[0].auto_acknowledeged) == 0) {
+                    document.getElementById("spare_delivered_" + booking_id).src = "<?php echo base_url(); ?>images/spare_parts_delivered.png";
+                } else {
+                    $("#spare_delivered_" + booking_id).css("display", "none");
+                }
+
+            }
+        });
+    }
 </script>
 <style>
     #datatable1_filter{

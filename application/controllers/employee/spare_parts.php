@@ -150,6 +150,10 @@ class Spare_parts extends CI_Controller {
                 /* Courier Approved Defective Parts */
                 $this->get_in_transit_courier_approved_defective($post);
                 break;
+            case 18:
+                /* Auto Acknowledged Spare Parts */
+                $this->get_auto_acknowledged_spare_parts($post);
+                break;
         }
     }
     /**
@@ -1443,8 +1447,10 @@ class Spare_parts extends CI_Controller {
         if (!empty($spare_list->sell_invoice_id)) {
             $row[] = $spare_list->sell_invoice_id;
         } else {
-            
-            $row[] = '<a href="'.base_url().'employee/invoice/generate_oow_parts_invoice/'.$spare_list->id.'" id="btn_sell_invoice_'.$spare_list->id.'" onclick="disable_btn(this.id)"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+
+
+            $row[] = '<a id="btn_sell_invoice_' . $spare_list->id . '" onclick="generate_sale_invoice('.$spare_list->id.');disable_btn(this.id)"  class="btn btn-md btn-success">Generate Sale Invoice</a>';
+
         }
         
          if (!empty($spare_list->invoice_pdf)) {
@@ -3882,6 +3888,12 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             }
         }
         $data = $this->inventory_model->$temp_function($date_365, '', $where);
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
         if (!empty($data)) {
             foreach ($data as $key => $value) {
 
@@ -3925,8 +3937,35 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 } else {
                     $data[$key]['recommended_30_days'] = 0;
                 }
+
+                if ($icwh == 2) {
+                    if (!empty($data[$key]['rm_id']) && !empty($rm_asm_list_array[$data[$key]['rm_id']])) {
+                        $data[$key]['rm_name'] = $rm_asm_list_array[$data[$key]['rm_id']];
+                    } else {
+                        $data[$key]['rm_name'] = '';
+                    }
+                    if (!empty($data[$key]['asm_id']) && !empty($rm_asm_list_array[$data[$key]['asm_id']])) {
+                        $data[$key]['asm_name'] = $rm_asm_list_array[$data[$key]['asm_id']];
+                    } else {
+                        $data[$key]['asm_name'] = '';
+                    }
+                    $sparepart_sell_report = $this->invoices_model->get_part_sell_amount_last_four_month($value['inventory_id'], $value['warehouse_id']);
+
+                    if (!empty($sparepart_sell_report)) {
+                        $data[$key]['m3_sale_to_sf'] = $sparepart_sell_report[0]['m3_part_sale'];
+                        $data[$key]['m2_sale_to_sf'] = $sparepart_sell_report[0]['m2_part_sale'];
+                        $data[$key]['m1_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                        $data[$key]['m_sale_to_sf'] = $sparepart_sell_report[0]['m1_part_sale'];
+                    } else {
+                        $data[$key]['m3_sale_to_sf'] = 0;
+                        $data[$key]['m2_sale_to_sf'] = 0;
+                        $data[$key]['m1_sale_to_sf'] = 0;
+                        $data[$key]['m_sale_to_sf'] = 0;
+                    }
+                }
             }
         }
+
         $user = $this->employee_model->get_employee_by_group(array('groups' => INVENTORY_USER_GROUP, 'active' => 1));
 
         $email = implode(', ', array_unique(array_map(function ($k) {
@@ -3962,6 +4001,21 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $R->render('excel', TMP_FOLDER . $output_file_excel);
 
         system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+        if ($icwh == 2) {
+            $booking_landed_excel = $this->booking_landed();
+            $objPHPExcel1 = PHPExcel_IOFactory::load(TMP_FOLDER . $output_file_excel);
+            $objPHPExcel2 = PHPExcel_IOFactory::load(TMP_FOLDER . $booking_landed_excel);
+            $objPHPExcel1->getActiveSheet()->setTitle("MWH Consumption Report");
+            foreach ($objPHPExcel2->getSheetNames() as $sheetName) {
+                $sheet = $objPHPExcel2->getSheetByName($sheetName);
+                $sheet->setTitle('Bookings Landed');
+                $objPHPExcel1->addExternalSheet($sheet);
+            }
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, 'Excel2007');
+            $combined_excel = TMP_FOLDER . $output_file_excel;
+            $objWriter->save($combined_excel);
+            unlink(TMP_FOLDER . $booking_landed_excel);
+        }
 
        if(!empty($this->session->userdata('session_id'))) {
         $this->load->helper('download');
@@ -3982,6 +4036,118 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
              unlink(TMP_FOLDER . $output_file_excel);
         }
+
+    }
+    /**
+    * @Desc: This function is to get all micro-warehouse booking landed count last 4 month
+    * @params: none
+    * @return: array
+    * @author Ghanshyam
+    * @date : 02-09-2020
+    */
+    function booking_landed($rm_asm_list_arra=array()){
+        if(empty($rm_asm_list_array)){
+            $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+            $rm_asm_list_array = array();
+            foreach($rm_asm_list as $key => $value){
+                $rm_asm_list_array[$value['id']] = $value['full_name'];
+            }
+        }
+        $template = "booking_landed.xlsx";
+        $data = $this->invoices_model->get_mwh_last_four_month_booking_count();
+        foreach($data as $key => $value){
+            if(!empty($rm_asm_list_array[$value['rm_id']])){
+                $data[$key]['rm_name'] = $rm_asm_list_array[$value['rm_id']];
+            }else{
+                $data[$key]['rm_name'] = '';
+            }
+
+            if(!empty($rm_asm_list_array[$value['asm_id']])){
+                $data[$key]['asm_name'] = $rm_asm_list_array[$value['asm_id']];
+            }else{
+                $data[$key]['asm_name'] = '';
+            }
+        }
+        $templateDir = __DIR__ . "/../excel-templates/";
+        $output_file_excel = "booking_landed_" . date('YmdHis') . ".xlsx";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'booking',
+                'repeat' => true,
+                'data' => $data,
+            )
+           )
+        );
+        //ob_end_clean();
+        $res1 = 0;
+        if (file_exists(TMP_FOLDER . $output_file_excel)) {
+
+            system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        $this->load->dbutil();
+        $R->render('excel', TMP_FOLDER . $output_file_excel);
+        return $output_file_excel;
+    }
+    /**
+     * @Desc: This function is to get out of warranty revenue report model
+     * @params: none
+     * @return: array
+     * @author Ghanshyam
+     * @date : 02-09-2020
+     */
+    function download_oow_revenue_report(){
+        $rm_asm_list = $this->employee_model->get_rm_details(array(_247AROUND_RM,_247AROUND_ASM));
+        $rm_asm_list_array = array();
+        foreach($rm_asm_list as $key => $value){
+            $rm_asm_list_array[$value['id']] = $value['full_name'];
+        }
+
+        $data = $this->invoices_model->get_oow_revenue_report();
+        $array_to_download=array();
+        $heading = array('Sl. No.','Brand Name','Appliance','SF name','Part Number','Part Description','Last 247 Purchase Price (Without GST)','Last 247 to SF Sale Price (Without GST)','Qty','Amount','RM Name','ASM Name','Date');
+        $sn = 0;
+
+        foreach($data as $key => $value){
+          $array_to_download[$key][] =   ++$sn;
+          $array_to_download[$key][] =   $value['public_name'];
+          $array_to_download[$key][] =   $value['services'];
+          $array_to_download[$key][] =   $value['name'];
+          if(!empty($value['part_number'])){
+          $array_to_download[$key][] =   $value['part_number'];
+          $array_to_download[$key][] =   $value['description'];
+            $array_to_download[$key][] =   $value['price'];
+            $array_to_download[$key][] =   number_format((float) $value['price']+($value['price']*$value['oow_vendor_margin']/100), 2, '.', '');
+          }else{
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+                $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['qty'];
+          $array_to_download[$key][] =   $value['taxable_value'];
+          if(!empty($rm_asm_list_array[$value['rm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['rm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          if(!empty($rm_asm_list_array[$value['asm_id']])){
+            $array_to_download[$key][] =   $rm_asm_list_array[$value['asm_id']];
+          }else{
+              $array_to_download[$key][] = '';
+          }
+          $array_to_download[$key][] =   $value['create_date'];
+        }
+         $file_name = "oow_revenue_report_" . date('YmdHis') . ".csv";
+        $this->miscelleneous->downloadCSV($array_to_download,$heading,$file_name);
+
+    }
+
 
 
        }
@@ -4111,7 +4277,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id, spare_parts_details.parts_shipped';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false,$post);
         $data['spare_parts_details'] = $spare_parts_details[0];
         $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
@@ -4132,6 +4298,17 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $data['technical_problem'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', array('symptom.service_id' => $data['bookinghistory'][0]['service_id'], 'symptom.active' => 1, 'symptom.partner_id' => $data['bookinghistory'][0]['partner_id']), array('request_type.service_category' => $price_tags_symptom));
         }
 
+        /**
+         * Check other spares status associated with this booking.
+         * If any spare has been shipped then model number can not be change.
+         */
+        $all_spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $spare_parts_details[0]['booking_id']), TRUE, TRUE, false, $post);
+        if(!empty($all_spare_parts_details)) {
+            $check_spare_shipped = array_filter(array_column($all_spare_parts_details, 'parts_shipped'));
+            if(!empty($check_spare_shipped)) {
+                $data['disable_model_number'] = true;
+            }
+        }
 
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
@@ -4148,6 +4325,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $partnerWhere['partners.is_active'] = 1;
         $data['partner_list'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name', $partnerWhere, "", null, 1, '');
+        
+        $data['vendor_list'] = $this->partner_model->get_spare_parts_by_any('distinct service_centres.id, service_centres.name', array('spare_parts_details.is_micro_wh' => 1, 
+            'spare_parts_details.defective_part_required' => 0, 'status' => _247AROUND_COMPLETED, 'spare_parts_details.shipped_inventory_id IS NOT NULL' => NULL), false, true);
+
         $this->load->view("service_centers/tag_spare_invoice_send_by_warehouse", $data);
     }
     /**
@@ -4155,38 +4336,68 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
      *  @param : void()
      *  @return : $post Array()
      */
-    function spare_parts_booking_consumed_process_record() {
+    function get_non_returnable_consumed_msl() {
+        //log_message('info', __METHOD__. " ". json_encode($_POST, true));
         $array = array();
         $post_data = $this->input->post();
         $post['length'] = $this->input->post('length');
         $post['start'] = $this->input->post('start');
-        $partner_id_array = $post_data['partner_id'];
-        $warranty = $post_data['warranty'];
+        $partner_id = $this->input->post('partner_id');
+        $vendor_id = $this->input->post('vendor_id');
+        $warranty = $this->input->post('warranty');
+        
         $search = trim($post_data['search']['value']);
         $where_array['spare_parts_details.status'] = _247AROUND_COMPLETED;
-        $where_array['booking_details.partner_id'] = $partner_id_array;
         $where_array['spare_parts_details.defective_part_required'] = 0;
-        $where_array['spare_parts_details.is_micro_wh'] = 1;
-        if (!empty($warranty)) {
-            $where_array['spare_parts_details.part_warranty_status'] = $warranty;
+        $where_array['(spare_parts_details.shipped_inventory_id IS NOT NULL or spare_parts_details.shipped_inventory_id !=0)'] = NULL;
+        
+        $post_array = array('is_inventory' => 1,'start'=>$post['start'],'length'=>$post['length']);
+        
+        if(!empty($vendor_id)){
+            $where_array['spare_parts_details.partner_id'] = $vendor_id;
+            $where_array['spare_parts_details.is_micro_wh'] = 1;
+            $post_array['non_returnable_consumed_parts'] = true;
+            $where_array['spare_parts_details.part_warranty_status'] = 1;
+            
+        } else {
+            $where_array['booking_details.partner_id'] = $partner_id;
+            if (!empty($warranty)) {
+                $where_array['spare_parts_details.part_warranty_status'] = $warranty;
+            }
+            $where_array['spare_parts_details.is_micro_wh IN (1, 2)'] = NULL;
+            $where_array['spare_parts_details.reverse_purchase_invoice_id IS NULL'] = NULL;
         }
+        
         if (!empty($search)) {
             $where_array['booking_details.booking_id'] = $search;
         }
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.quantity,inventory_master_list.*', $where_array, true, false, false, array('is_inventory' => 1,'start'=>$post['start'],'length'=>$post['length']));
+        
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, part_warranty_status, service_center_id,is_micro_wh, booking_details.partner_id, services, spare_parts_details.id as spare_id, spare_parts_details.shipped_quantity, shipped_inventory_id, im.*', $where_array, true, false, false, $post_array);
         $count = $post['start']+1;
+        $array['data'] = array();
         if (!empty($spare_parts_list)) {
-            foreach ($spare_parts_list as $key => $value) {
-                $array['data'][] = array($count, $value['booking_id'], $value['part_name'], $value['quantity'], "<input type='checkbox'>");
+            foreach ($spare_parts_list as $value) {
+                $row = array();
+                $row[] = $count;
+                $row[] = $value['booking_id'];
+                $row[] = $value['services'];
+                $row[] = $value['part_name'];
+                $row[] = $value['part_number'];
+                $row[] = $value['part_warranty_status'];
+                $row[] = $value['shipped_quantity'];
+                $row[] = "<form ><input type='checkbox' onchange='createPostArray()' class='non_consumable' id='spare_id_.".$value['spare_id'].".' ' data-spare_id ='".$value['spare_id']."' data-vendor_id ='".$value['service_center_id']."' "
+                        . " data-inventory_id='".$value['shipped_inventory_id']."' data-booking_id = '".$value['booking_id']."' data-shipped_quantity = '".$value['shipped_quantity']."' data-booking_partner_id = '".$value['partner_id']."' "
+                        . " data-is_micro_wh = '".$value['is_micro_wh']."' ></form>";
+                
+                $array['data'][] =$row;
+                
                 $count = $count+ 1;
             }
-        } else {
-            $array['data'][] = array('', '', '', '', '');
-        }
+        } 
 
-        $array['draw'] = $_POST['draw'];
+        $array['draw'] = $post_data['draw'];
         $array['recordsTotal'] = count($array['data']);
-        $array['recordsFiltered'] = count($this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id,spare_parts_details.quantity,inventory_master_list.*', $where_array, true, false, false, array('is_inventory' => 1)));
+        $array['recordsFiltered'] = count($spare_parts_list);
         echo json_encode($array);
     }
 
@@ -4232,8 +4443,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
             'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
             'i.sender_entity_type' => trim($this->input->post('sender_entity_type')));
-            // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
 
+        // 'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+        $post['is_micro_wh'] = false;
         $select = "services.services,sc.name as sname,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
                     WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
@@ -5077,6 +5289,84 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         return $row;
     }
     
+    
+    /*
+     * @desc: Used to create tab that spare parts auto acknowleged 
+     * @param: Array $post
+     * @echo:json
+     */
+     function get_auto_acknowledged_spare_parts($post) {
+
+        $post['select'] = "spare_parts_details.id as spare_id, services.services as appliance,  spare_parts_details.booking_id ,service_centres.name as sf_name,(CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as sf_status, partners.public_name as partner_name, booking_details.current_status as booking_status, "
+                . "spare_parts_details.status as spare_status, (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as nrn_status,  booking_details.request_type as booking_request_type, spare_parts_details.model_number as requested_model_umber, spare_parts_details.parts_requested as requested_part,spare_parts_details.parts_requested_type as requested_part_type, i.part_number as requested_part_number, DATE_FORMAT(spare_parts_details.date_of_request,'%d-%b-%Y') as spare_part_requested_date,"
+                . "spare_parts_details.model_number_shipped as shipped_model_number, spare_parts_details.parts_shipped as shipped_part, spare_parts_details.shipped_parts_type, i.part_number as shipped_part_number, DATE_FORMAT(service_center_closed_date,'%d-%b-%Y') as service_center_closed_date,"
+                . "DATE_FORMAT(spare_parts_details.shipped_date,'%d-%b-%Y') as spare_part_shipped_date, datediff(CURRENT_DATE,spare_parts_details.shipped_date) as spare_shipped_age,"
+                . "challan_approx_value As parts_charge, spare_parts_details.awb_by_partner, spare_parts_details.awb_by_sf, spare_parts_details.acknowledge_date,"
+                . "(CASE WHEN spare_parts_details.auto_acknowledeged = 1 THEN 'From API' ELSE 'To Acknowledged' END) AS auto_ack_status";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_parts_details.shipped_date', NULL, NULL, NULL, NULL, NULL);
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'booking_details.request_type', 'spare_parts_details.awb_by_partner',
+            'spare_parts_details.awb_by_sf', 'spare_parts_details.awb_by_wh');
+
+        unset($post['where']['status']);
+     
+        $post['where']['spare_parts_details.status'] = SPARE_DELIVERED_TO_SF;
+        $post['where']['auto_acknowledeged IN  ("' . AUTO_ACKNOWLEDGED_FROM_API . '", "' . AUTO_ACKNOWLEDGED_TO_CRON . '")'] = NULL;
+
+        $list = $this->inventory_model->get_out_tat_spare_parts_list($post);
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->auto_acknowledged_spare_parts_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_oot_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_oot_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
+    
+     /*
+     * @desc: This function is used to create table row data total parts shipped to SF
+     * @param: Array $spare_list
+     * @param: int $no
+     * @return: Array
+     */
+      function auto_acknowledged_spare_parts_table_data($spare_list, $no) {
+
+        $row = array();
+        $row[] = $no;
+        $row[] = $spare_list->booking_id;
+        $row[] = "<span class='line_break'>" . $spare_list->sf_name . "</span>";
+        $row[] = $spare_list->sf_status;
+        $row[] = $spare_list->partner_name;
+        $row[] = "<span class='line_break'>" . $spare_list->spare_status . "</span>";
+        $row[] = $spare_list->spare_warranty_status;
+        $row[] = "<span class='line_break'>" . $spare_list->nrn_status . "</span>";
+        $row[] = $spare_list->service_center_closed_date;
+        $row[] = "<span class='line_break'>" . $spare_list->booking_request_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_model_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = $spare_list->spare_part_shipped_date;
+        $row[] = $spare_list->spare_shipped_age;
+        $row[] = "<span class='line_break'>" . $spare_list->awb_by_partner . "</span>";
+        $row[] = $spare_list->awb_by_sf;
+        $row[] = $spare_list->parts_charge;
+        $row[] = $spare_list->auto_ack_status;
+        $row[] = date("d-M-Y", strtotime($spare_list->acknowledge_date));
+
+        return $row;
+    }
     
       /*
      * @desc: This Function is used to download the OOT report

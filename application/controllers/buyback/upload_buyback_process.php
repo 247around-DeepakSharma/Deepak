@@ -928,8 +928,18 @@ class Upload_buyback_process extends CI_Controller {
             $order_key = strtolower(str_replace(array("_",":"," ","-","|","/"), "", $sheet->getCell('K' . $row)->getValue()));
             $city = strtolower($sheet->getCell('J' . $row)->getValue());
             $search = array_keys($order_key_city_arr, array("order_key" => $order_key, "city" => $city));
+            
             if(!empty($search)){
-                $sheet->setCellValue('Y' . $row, $this->price_quote_data[$search[0]]['new_price_quote']);
+                /**
+                 * if new price quote comes blank then setting 0.
+                 */
+                if(!empty($this->price_quote_data[$search[0]]['new_price_quote'])) {
+                    $cell_value = $this->price_quote_data[$search[0]]['new_price_quote'];
+                } else {
+                    $cell_value = 0;
+                }
+                
+                $sheet->setCellValue('Y' . $row, $cell_value);
             }
         }
         

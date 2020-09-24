@@ -1063,8 +1063,7 @@ class Invoice_lib {
 
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
             $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date, false, true, true);
-
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date,false,true, true);
             $data['wh_challan_number'] = $wh_challan_number;
             $data['wh_challan_file'] = $wh_challan_file;
 
@@ -1191,7 +1190,7 @@ class Invoice_lib {
                 if (!empty($from_gst_id)) {
                     $where['to_gst_number'] = $from_gst_id;
                 }
-                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
+                $order_by = array('column_name' => "invoice_details.id", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
                 if (!empty($unsettle)) {

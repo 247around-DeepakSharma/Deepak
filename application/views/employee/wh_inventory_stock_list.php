@@ -75,7 +75,7 @@
                                 <button class="dropbtn">MSL Return / Consume Non Return MSL <i class="fa fa-caret-down"></i></button>
                                 <div class="dropdown-content">
                                     <a href="javascript:void(0);" onclick="open_selected_parts_to_return('1')" id="sellItem" class="action-ban">Return New Parts (0)</a>
-                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>
+<!--                                    <a href="javascript:void(0);" onclick="open_selected_parts_to_return('2')" id="settle_item" class="action-ban">Consumed Parts On OOW Booking (0)</a>-->
                                     <a href="javascript:void(0);" onclick="open_selected_parts_to_return('3')" id="soldItem" class="action-ban">Consumed Parts Without Booking (0)</a>
                                 </div>
                             </div>                         
