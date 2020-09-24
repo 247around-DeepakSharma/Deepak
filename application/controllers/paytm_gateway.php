@@ -159,7 +159,14 @@ class Paytm_gateway extends CI_Controller {
         
         if($insert_id){
             log_message("info",__METHOD__." Payment has been completed successfully"); 
-            $partner_id = $this->session->userdata('partner_id');
+            //$partner_id = $this->session->userdata('partner_id');
+           if($this->session->userdata('partner_id')){
+                $partner_id = $this->session->userdata('partner_id');
+            } else {
+                $a = explode('_', $param_list['ORDERID']);
+                $partner_id = $a[0];
+                $this->session->set_userdata("partner_id",$partner_id);
+            }
             if(!empty($partner_id) && $transaction_status['is_txn_successfull'] == 1){
                 $this->generate_partner_payment_invoice($partner_id,$param_list, $insert_id);
             }
