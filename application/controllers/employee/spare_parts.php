@@ -4357,6 +4357,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             $where_array['spare_parts_details.partner_id'] = $vendor_id;
             $where_array['spare_parts_details.is_micro_wh'] = 1;
             $post_array['non_returnable_consumed_parts'] = true;
+            $where_array['spare_parts_details.part_warranty_status'] = 1;
             
         } else {
             $where_array['booking_details.partner_id'] = $partner_id;
